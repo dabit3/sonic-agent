@@ -1390,7 +1390,7 @@ Pulls the latest `sonic-agent` code and reinstalls dependencies in your venv, th
 
 Additional behavior:
 
-- **Gateway restart.** After a successful update, Sonic attempts to restart all running gateway profiles automatically so they pick up the new code. There is no `--restart-gateway` flag; use `sonic gateway restart` when you want to restart a gateway without applying an update.
+- **Gateway restart.** After a successful update, Sonic attempts to restart all running gateway profiles automatically so they pick up the new code. Use `sonic gateway restart` when you want to restart a gateway without applying an update.
 - **Pairing data snapshot.** Even when `--backup` is off, `sonic update` takes a lightweight snapshot of `~/.sonic/pairing/` and the Feishu comment rules before `git pull`. You can roll it back with `sonic backup restore --state pre-update` if a pull rewrites a file you were editing.
 - **Legacy `sonic.service` warning.** If Sonic detects a pre-rename `sonic.service` systemd unit (instead of the current `sonic-gateway.service`), it prints a one-time migration hint so you can avoid flap-loop issues.
 - **Exit codes.** `0` on success, `1` on pull/install/post-install errors, `2` on unexpected working-tree changes that block `git pull`.
