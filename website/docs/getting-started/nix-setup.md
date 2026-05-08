@@ -583,7 +583,7 @@ Host                                    Container
   │   ├── state.db, sessions/, memories/   (runtime state)
   │   └── mcp-tokens/                      (OAuth tokens for MCP servers)
   ├── home/                                ──►  /home/sonic    (rw)
-  └── workspace/                           (MESSAGING_CWD)
+  └── workspace/                           (agent working directory)
       ├── SOUL.md                          (from documents option)
       └── (agent-created files)
 
@@ -831,7 +831,7 @@ nix build .#checks.x86_64-linux.config-roundtrip    # merge script preserves use
 | `group` | `str` | `"sonic"` | System group |
 | `createUser` | `bool` | `true` | Auto-create user/group |
 | `stateDir` | `str` | `"/var/lib/sonic"` | State directory (`SONIC_HOME` parent) |
-| `workingDirectory` | `str` | `"${stateDir}/workspace"` | Agent working directory (`MESSAGING_CWD`) |
+| `workingDirectory` | `str` | `"${stateDir}/workspace"` | Agent working directory |
 | `addToSystemPackages` | `bool` | `false` | Add `sonic` CLI to system PATH and set `SONIC_HOME` system-wide |
 
 ### Configuration
@@ -918,7 +918,7 @@ nix build .#checks.x86_64-linux.config-roundtrip    # merge script preserves use
 │   ├── cron/
 │   └── logs/
 ├── home/                            # Agent HOME
-└── workspace/                       # MESSAGING_CWD
+└── workspace/                       # Agent working directory
     ├── SOUL.md                      # From documents option
     └── (agent-created files)
 ```

@@ -56,7 +56,7 @@ It uses `scripts/openclaw_to_sonic.py` to:
 - import `SOUL.md` into the Sonic home directory as `SOUL.md`
 - transform OpenClaw `MEMORY.md` and `USER.md` into Sonic memory entries
 - merge OpenClaw command approval patterns into Sonic `command_allowlist`
-- migrate Sonic-compatible messaging settings such as `TELEGRAM_ALLOWED_USERS` and `MESSAGING_CWD`
+- migrate Sonic-compatible messaging settings such as `TELEGRAM_ALLOWED_USERS`, and map OpenClaw workspace settings to Sonic working-directory configuration
 - copy OpenClaw skills into `~/.sonic/skills/openclaw-imports/`
 - optionally copy the OpenClaw workspace instructions file into a chosen Sonic workspace
 - mirror compatible workspace assets such as `workspace/tts/` into `~/.sonic/tts/`
