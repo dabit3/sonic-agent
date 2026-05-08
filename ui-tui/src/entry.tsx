@@ -37,7 +37,7 @@ const gw = new GatewayClient()
 gw.start()
 
 const dumpNotice = (snap: MemorySnapshot, dump: HeapDumpResult | null) =>
-  `sonic-tui: ${snap.level} memory (${formatBytes(snap.heapUsed)}) — auto heap dump → ${dump?.heapPath ?? '(failed)'}\n`
+  `sonic-tui: ${snap.level} memory (${formatBytes(snap.heapUsed)}) — auto heap dump → ${dump?.heapPath ?? dump?.diagPath ?? '(failed)'}\n`
 
 setupGracefulExit({
   cleanups: [
