@@ -1771,6 +1771,7 @@ DEFAULT_CONFIG = {
         "servers": {},
     },
 
+
     # X (Twitter) Search via xAI's built-in x_search Responses tool.
     # The tool registers when xAI credentials are available (SuperGrok
     # OAuth or XAI_API_KEY) AND the x_search toolset is enabled in
@@ -1847,8 +1848,18 @@ DEFAULT_CONFIG = {
         "prewarm_connection": True,  # background TLS handshake at agent init
     },
 
+    # Paste collapse thresholds (TUI + CLI).
+    # collapse_threshold: paste collapses to a file reference when line count
+    #   exceeds this value (bracketed paste, safe: appends to existing text).
+    # collapse_threshold_fallback: same but for the fallback heuristic used
+    #   by terminals without bracketed paste support (destructive: replaces
+    #   entire buffer).  0 = disabled.
+    "paste_collapse_threshold": 5,
+    "paste_collapse_threshold_fallback": 0,
+
+
     # Config schema version - bump this when adding new required fields
-    "_config_version": 23,
+    "_config_version": 24,
 }
 
 # =============================================================================
