@@ -63,6 +63,7 @@ Each entry requires both `provider` and `model`. Entries missing either field ar
 | StepFun | `stepfun` | `STEPFUN_API_KEY` (optional: `STEPFUN_BASE_URL`) |
 | Ollama Cloud | `ollama-cloud` | `OLLAMA_API_KEY` |
 | Google Gemini (OAuth) | `google-gemini-cli` | `sonic model` (Google OAuth; optional: `SONIC_GEMINI_PROJECT_ID`) |
+| Google Antigravity (OAuth) | `google-antigravity` | `sonic model` (Antigravity OAuth; optional: `SONIC_ANTIGRAVITY_PROJECT_ID`) |
 | Google AI Studio | `gemini` | `GOOGLE_API_KEY` (alias: `GEMINI_API_KEY`) |
 | xAI (Grok) | `xai` (alias `grok`) | `XAI_API_KEY` (optional: `XAI_BASE_URL`) |
 | xAI Grok OAuth (SuperGrok) | `xai-oauth` (alias `grok-oauth`) | `sonic model` → xAI Grok OAuth (browser login; SuperGrok subscription) |

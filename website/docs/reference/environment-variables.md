@@ -70,6 +70,10 @@ Sonic reads environment variables from the process environment and, for user-man
 | `SONIC_GEMINI_CLIENT_ID` | OAuth client ID for `google-gemini-cli` PKCE login (optional; defaults to Google's public gemini-cli client) |
 | `SONIC_GEMINI_CLIENT_SECRET` | OAuth client secret for `google-gemini-cli` (optional) |
 | `SONIC_GEMINI_PROJECT_ID` | GCP project ID for paid Gemini tiers (free tier auto-provisions) |
+| `SONIC_ANTIGRAVITY_CLIENT_ID` | OAuth client ID for `google-antigravity` PKCE login (optional; discovered from installed `agy` when omitted) |
+| `SONIC_ANTIGRAVITY_CLIENT_SECRET` | OAuth client secret for `google-antigravity` (optional; discovered from installed `agy` when omitted) |
+| `SONIC_ANTIGRAVITY_CLI_PATH` | Path to the `agy` executable or install file used for Antigravity OAuth client credential discovery |
+| `SONIC_ANTIGRAVITY_PROJECT_ID` | GCP project ID for Antigravity Code Assist when you want to pin one explicitly |
 | `ANTHROPIC_API_KEY` | Anthropic Console API key ([console.anthropic.com](https://console.anthropic.com/)) |
 | `ANTHROPIC_BASE_URL` | Override the Anthropic API base URL |
 | `ANTHROPIC_TOKEN` | Manual or legacy Anthropic OAuth/setup-token override |

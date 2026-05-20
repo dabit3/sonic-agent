@@ -81,6 +81,11 @@ SONIC_OVERLAYS: Dict[str, SonicOverlay] = {
         auth_type="oauth_external",
         base_url_override="cloudcode-pa://google",
     ),
+    "google-antigravity": SonicOverlay(
+        transport="openai_chat",
+        auth_type="oauth_external",
+        base_url_override="antigravity-pa://google",
+    ),
     "lmstudio": SonicOverlay(
         transport="openai_chat",
         auth_type="api_key",
@@ -314,6 +319,13 @@ ALIASES: Dict[str, str] = {
     "gemini-cli": "google-gemini-cli",
     "gemini-oauth": "google-gemini-cli",
 
+    # google-antigravity (OAuth + Antigravity Code Assist)
+    "antigravity": "google-antigravity",
+    "antigravity-oauth": "google-antigravity",
+    "antigravity-cli": "google-antigravity",
+    "google-antigravity-oauth": "google-antigravity",
+    "agy": "google-antigravity",
+    "agy-cli": "google-antigravity",
 
     # huggingface
     "hf": "huggingface",
