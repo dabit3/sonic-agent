@@ -264,7 +264,7 @@ When using the Z.AI / GLM provider, Sonic automatically probes multiple endpoint
 
 ### xAI (Grok) — Responses API + Prompt Caching
 
-xAI is wired through the Responses API (`codex_responses` transport) for automatic reasoning support on Grok 4 models — no `reasoning_effort` parameter needed, the server reasons by default. Set `XAI_API_KEY` in `~/.sonic/.env` and pick xAI in `sonic model`, or drop `grok` as a shortcut into `/model grok-4-1-fast-reasoning`.
+xAI is wired through the Responses API (`codex_responses` transport) for automatic reasoning support on Grok 4 models — no `reasoning_effort` parameter needed, the server reasons by default. Set `XAI_API_KEY` in `~/.sonic/.env` and pick xAI in `sonic model`, or drop `grok` as a shortcut into `/model grok-4-fast-reasoning`.
 
 SuperGrok and X Premium+ subscribers can sign in with browser OAuth instead of using an API key — pick **xAI Grok OAuth (SuperGrok / Premium+)** in `sonic model`, or run `sonic auth add xai-oauth`. The same OAuth bearer token is automatically reused by direct-to-xAI tools (TTS, image gen, video gen, transcription). See the [xAI Grok OAuth guide](../guides/xai-grok-oauth.md) for the full flow — and if Sonic runs on a remote host, also see [OAuth over SSH / Remote Hosts](../guides/oauth-over-ssh.md) for the required `ssh -L` tunnel.
 
