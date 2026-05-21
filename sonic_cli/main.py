@@ -8989,13 +8989,17 @@ def cmd_update(args):
 def _cmd_update_pip(args):
     """Update Sonic via pip (for PyPI installs)."""
     from sonic_cli import __version__
+    from sonic_cli.config import is_uv_tool_install
 
     print(f"→ Current version: {__version__}")
     print("→ Checking PyPI for updates...")
 
     uv = shutil.which("uv")
     if uv:
-        cmd = [uv, "pip", "install", "--upgrade", "sonic-agent"]
+        if is_uv_tool_install(uv):
+            cmd = [uv, "tool", "upgrade", "sonic-agent"]
+        else:
+            cmd = [uv, "pip", "install", "--upgrade", "sonic-agent"]
     else:
         cmd = [sys.executable, "-m", "pip", "install", "--upgrade", "sonic-agent"]
 
