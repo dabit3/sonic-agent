@@ -206,7 +206,7 @@ sonic model            # Interactive provider + model picker (the canonical way 
 
 `sonic model` walks you through picking a provider, authenticating (OAuth flows open a browser; API-key providers prompt for the key), and then choosing a specific model from that provider's curated catalog. The choice is written to `model.provider` and `model.model` in `~/.sonic/config.yaml`.
 
-To list providers/models without launching the picker, use the dashboard or the REST endpoints below. To inspect what the CLI will actually use right now: `sonic config get model` and `sonic status`.
+To list providers/models without launching the picker, use the dashboard or the REST endpoints below. To inspect what the CLI will actually use right now: `sonic config show | grep '^model\.'` and `sonic status`.
 
 ### Direct config edit
 

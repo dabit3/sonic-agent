@@ -162,7 +162,7 @@ Manage skill config from the CLI:
 sonic skills config gif-search
 
 # View all skill config
-sonic config get skills.config
+sonic config show | grep '^skills\.config'
 ```
 
 ---
