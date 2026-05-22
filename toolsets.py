@@ -270,6 +270,11 @@ TOOLSETS = {
         "includes": [],
     },
 
+    "ntfy": {
+        "description": "ntfy push notification toolset",
+        "tools": [],
+        "includes": ["sonic-ntfy"],
+    },
     "yuanbao": {
         "description": "Yuanbao platform tools - group info, member queries, DM, stickers",
         "tools": [
@@ -515,6 +520,11 @@ TOOLSETS = {
         "includes": []
     },
 
+    "sonic-ntfy": {
+        "description": "ntfy push notification bot toolset",
+        "tools": _SONIC_CORE_TOOLS,
+        "includes": []
+    },
     "sonic-sms": {
         "description": "SMS bot toolset - interact with Sonic via SMS (Twilio)",
         "tools": _SONIC_CORE_TOOLS,
@@ -530,7 +540,7 @@ TOOLSETS = {
     "sonic-gateway": {
         "description": "Gateway toolset - union of all messaging platform tools",
         "tools": [],
-        "includes": ["sonic-telegram", "sonic-discord", "sonic-whatsapp", "sonic-slack", "sonic-signal", "sonic-bluebubbles", "sonic-homeassistant", "sonic-email", "sonic-sms", "sonic-mattermost", "sonic-matrix", "sonic-dingtalk", "sonic-feishu", "sonic-wecom", "sonic-wecom-callback", "sonic-weixin", "sonic-qqbot", "sonic-webhook", "sonic-yuanbao"]
+        "includes": ["sonic-telegram", "sonic-discord", "sonic-whatsapp", "sonic-slack", "sonic-signal", "sonic-bluebubbles", "sonic-homeassistant", "sonic-email", "sonic-sms", "sonic-mattermost", "sonic-matrix", "sonic-dingtalk", "sonic-feishu", "sonic-wecom", "sonic-wecom-callback", "sonic-weixin", "sonic-qqbot", "sonic-webhook", "sonic-yuanbao", "sonic-ntfy"]
     }
 }
 
