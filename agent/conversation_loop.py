@@ -2891,7 +2891,7 @@ def run_conversation(
                                 agent._vprint(f"{agent.log_prefix}      2. Then run `sonic auth` to re-authenticate.", force=True)
                             else:
                                 agent._vprint(f"{agent.log_prefix}   💡 xAI OAuth token was rejected (HTTP 401). To fix:", force=True)
-                                agent._vprint(f"{agent.log_prefix}      re-authenticate with xAI Grok OAuth (SuperGrok Subscription) from `sonic model`.", force=True)
+                                agent._vprint(f"{agent.log_prefix}      re-authenticate with xAI Grok OAuth (SuperGrok / Premium+) from `sonic model`.", force=True)
                         else:
                             agent._vprint(f"{agent.log_prefix}   💡 Your API key was rejected by the provider. Check:", force=True)
                             agent._vprint(f"{agent.log_prefix}      • Is the key valid? Run: sonic setup", force=True)
