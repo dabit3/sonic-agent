@@ -1682,6 +1682,7 @@ AUTHOR_MAP = {
     "yspdev@gmail.com": "AJ",  # PR #44510 co-author (desktop named-profile boot loop)
     "daniel.laforce@argobox.com": "KeyArgo",  # co-author
     "keyargo@argobox.com": "KeyArgo",  # PR #45638 author
+    "steveonjava@gmail.com": "steveonjava",  # PR #29669 (redact secrets in kanban tool payloads)
 }
 
 
