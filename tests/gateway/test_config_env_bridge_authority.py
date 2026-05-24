@@ -45,6 +45,7 @@ def _run_gateway_import(sonic_home: Path, initial_env: dict[str, str]) -> dict[s
             "SONIC_AGENT_TIMEOUT",
             "SONIC_AGENT_TIMEOUT_WARNING",
             "SONIC_GATEWAY_BUSY_INPUT_MODE",
+            "SONIC_GATEWAY_BUSY_TEXT_MODE",
             "SONIC_TIMEZONE",
         ):
             v = os.environ.get(k)
@@ -141,6 +142,15 @@ def test_config_display_busy_input_mode_wins_over_stale_env(sonic_home: Path) ->
     env = _run_gateway_import(sonic_home, initial_env={})
 
     assert env.get("SONIC_GATEWAY_BUSY_INPUT_MODE") == "interrupt"
+
+
+def test_config_display_busy_text_mode_wins_over_stale_env(sonic_home: Path) -> None:
+    _write_config(sonic_home, display_cfg={"busy_text_mode": "queue"})
+    _write_env(sonic_home, {"SONIC_GATEWAY_BUSY_TEXT_MODE": "interrupt"})
+
+    env = _run_gateway_import(sonic_home, initial_env={})
+
+    assert env.get("SONIC_GATEWAY_BUSY_TEXT_MODE") == "queue"
 
 
 def test_config_timezone_wins_over_stale_env(sonic_home: Path) -> None:
