@@ -111,7 +111,7 @@ fi
 #
 # Toggled by SONIC_DASHBOARD=1 (also accepts "true"/"yes", case-insensitive).
 # Host/port/TUI can be overridden via:
-#   SONIC_DASHBOARD_HOST  (default 0.0.0.0 — exposed outside the container)
+#   SONIC_DASHBOARD_HOST  (default 127.0.0.1 — loopback only)
 #   SONIC_DASHBOARD_PORT  (default 9119, matches `sonic dashboard` default)
 #   SONIC_DASHBOARD_TUI   (already honored by `sonic dashboard` itself)
 #
@@ -122,16 +122,9 @@ fi
 # cleanup is needed.
 case "${SONIC_DASHBOARD:-}" in
     1|true|TRUE|True|yes|YES|Yes)
-        dash_host="${SONIC_DASHBOARD_HOST:-0.0.0.0}"
+        dash_host="${SONIC_DASHBOARD_HOST:-127.0.0.1}"
         dash_port="${SONIC_DASHBOARD_PORT:-9119}"
         dash_args=(--host "$dash_host" --port "$dash_port" --no-open)
-        # Binding to anything other than localhost requires --insecure — the
-        # dashboard refuses otherwise because it exposes API keys.  Inside a
-        # container this is the expected deployment (host reaches it via
-        # published port), so opt in automatically.
-        if [ "$dash_host" != "127.0.0.1" ] && [ "$dash_host" != "localhost" ]; then
-            dash_args+=(--insecure)
-        fi
         echo "Starting sonic dashboard on ${dash_host}:${dash_port} (background)"
         # Prefix dashboard output so it's distinguishable from the main
         # process in `docker logs`.  stdbuf keeps the pipe line-buffered.
