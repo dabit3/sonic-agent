@@ -1775,6 +1775,14 @@ DEFAULT_CONFIG = {
             # ~/.sonic/bin/ on first use.  When False you must install
             # bws yourself and have it on PATH.
             "auto_install": True,
+            # Bitwarden region / self-hosted endpoint.  Empty string
+            # means use the bws CLI default (US Cloud,
+            # https://vault.bitwarden.com).  Set to
+            # https://vault.bitwarden.eu for EU Cloud, or your own URL
+            # for self-hosted Bitwarden.  Plumbed into the bws subprocess
+            # as BWS_SERVER_URL.  Prompted for during
+            # `sonic secrets bitwarden setup`.
+            "server_url": "",
         },
     },
 
