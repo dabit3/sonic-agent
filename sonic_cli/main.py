@@ -2803,7 +2803,7 @@ def _aux_flow_provider_model(
 
 def _aux_flow_custom_endpoint(task: str, task_cfg: dict) -> None:
     """Prompt for a direct OpenAI-compatible base_url + optional api_key/model."""
-    import getpass
+    from hermes_cli.secret_prompt import masked_secret_prompt
 
     display_name = next((name for key, name, _ in _all_aux_tasks() if key == task), task)
     current_base_url = str(task_cfg.get("base_url") or "").strip()
@@ -2837,7 +2837,7 @@ def _aux_flow_custom_endpoint(task: str, task_cfg: dict) -> None:
         return
     model = model or current_model
     try:
-        api_key = getpass.getpass(
+        api_key = masked_secret_prompt(
             "API key (optional, blank = use OPENAI_API_KEY): "
         ).strip()
     except (KeyboardInterrupt, EOFError):
@@ -3571,6 +3571,7 @@ def _model_flow_custom(config):
     """
     from sonic_cli.auth import _save_model_choice, deactivate_provider
     from sonic_cli.config import get_env_value, load_config, save_config
+    from sonic_cli.secret_prompt import masked_secret_prompt
 
     current_url = get_env_value("OPENAI_BASE_URL") or ""
     current_key = get_env_value("OPENAI_API_KEY") or ""
@@ -3586,9 +3587,7 @@ def _model_flow_custom(config):
         base_url = input(
             f"API base URL [{current_url or 'e.g. https://api.example.com/v1'}]: "
         ).strip()
-        import getpass
-
-        api_key = getpass.getpass(
+        api_key = masked_secret_prompt(
             f"API key [{current_key[:8] + '...' if current_key else 'optional'}]: "
         ).strip()
     except (KeyboardInterrupt, EOFError):
@@ -4000,7 +3999,6 @@ def _model_flow_azure_foundry(config, current_model=""):
         save_config,
     )
     from sonic_cli import azure_detect
-    import getpass
 
     # ── Load current Azure Foundry configuration ─────────────────────
     model_cfg = config.get("model", {})
@@ -4163,8 +4161,10 @@ def _model_flow_azure_foundry(config, current_model=""):
             token_provider = None
     else:
         print()
+        from hermes_cli.secret_prompt import masked_secret_prompt
+
         try:
-            api_key = getpass.getpass(
+            api_key = masked_secret_prompt(
                 f"API key [{current_api_key[:8] + '...' if current_api_key else 'required'}]: "
             ).strip()
         except (KeyboardInterrupt, EOFError):
@@ -4732,10 +4732,10 @@ def _model_flow_copilot(config, current_model=""):
                 print(f"  Login failed: {exc}")
                 return
         elif choice == "2":
-            try:
-                import getpass
+            from hermes_cli.secret_prompt import masked_secret_prompt
 
-                new_key = getpass.getpass("  Token (COPILOT_GITHUB_TOKEN): ").strip()
+            try:
+                new_key = masked_secret_prompt("  Token (COPILOT_GITHUB_TOKEN): ").strip()
             except (KeyboardInterrupt, EOFError):
                 print()
                 return
@@ -4987,10 +4987,9 @@ def _prompt_api_key(pconfig, existing_key: str, provider_id: str = "") -> tuple:
     ``return`` immediately — the user cancelled entry, declined to replace, or
     cleared the key and is now unconfigured.
     """
-    import getpass
-
     from sonic_cli.auth import LMSTUDIO_NOAUTH_PLACEHOLDER
     from sonic_cli.config import save_env_value
+    from sonic_cli.secret_prompt import masked_secret_prompt
 
     key_env = pconfig.api_key_env_vars[0] if pconfig.api_key_env_vars else ""
 
@@ -5000,7 +4999,7 @@ def _prompt_api_key(pconfig, existing_key: str, provider_id: str = "") -> tuple:
         else:
             prompt = f"{key_env} (or Enter to cancel): "
         try:
-            entered = getpass.getpass(prompt).strip()
+            entered = masked_secret_prompt(prompt).strip()
         except (KeyboardInterrupt, EOFError):
             print()
             return ""
@@ -5315,10 +5314,10 @@ def _model_flow_bedrock_api_key(config, region, current_model=""):
     else:
         print(f"  Endpoint: {mantle_base_url}")
         print()
-        try:
-            import getpass
+        from hermes_cli.secret_prompt import masked_secret_prompt
 
-            api_key = getpass.getpass("  Bedrock API Key: ").strip()
+        try:
+            api_key = masked_secret_prompt("  Bedrock API Key: ").strip()
         except (KeyboardInterrupt, EOFError):
             print()
             return
@@ -5890,10 +5889,10 @@ def _run_anthropic_oauth_flow(save_env_value):
         print()
         print("  If the setup-token was displayed above, paste it here:")
         print()
-        try:
-            import getpass
+        from hermes_cli.secret_prompt import masked_secret_prompt
 
-            manual_token = getpass.getpass(
+        try:
+            manual_token = masked_secret_prompt(
                 "  Paste setup-token (or Enter to cancel): "
             ).strip()
         except (KeyboardInterrupt, EOFError):
@@ -5921,10 +5920,10 @@ def _run_anthropic_oauth_flow(save_env_value):
         print()
         print("  Or paste an existing setup-token now (sk-ant-oat-...):")
         print()
-        try:
-            import getpass
+        from hermes_cli.secret_prompt import masked_secret_prompt
 
-            token = getpass.getpass("  Setup-token (or Enter to cancel): ").strip()
+        try:
+            token = masked_secret_prompt("  Setup-token (or Enter to cancel): ").strip()
         except (KeyboardInterrupt, EOFError):
             print()
             return False
@@ -6039,10 +6038,10 @@ def _model_flow_anthropic(config, current_model=""):
             print()
             print("  Get an API key at: https://platform.claude.com/settings/keys")
             print()
-            try:
-                import getpass
+            from hermes_cli.secret_prompt import masked_secret_prompt
 
-                api_key = getpass.getpass("  API key (sk-ant-...): ").strip()
+            try:
+                api_key = masked_secret_prompt("  API key (sk-ant-...): ").strip()
             except (KeyboardInterrupt, EOFError):
                 print()
                 return

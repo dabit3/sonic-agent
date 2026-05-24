@@ -8,10 +8,10 @@ with the TUI.
 
 import queue
 import time as _time
-import getpass
 
 from sonic_cli.banner import cprint, _DIM, _RST
 from sonic_cli.config import save_env_value_secure
+from sonic_cli.secret_prompt import masked_secret_prompt
 from sonic_constants import display_sonic_home
 
 
@@ -75,7 +75,7 @@ def prompt_for_secret(cli, var_name: str, prompt: str, metadata=None) -> dict:
         if not hasattr(cli, "_secret_deadline"):
             cli._secret_deadline = 0
         try:
-            value = getpass.getpass(f"{prompt} (hidden, ESC or empty Enter to skip): ")
+            value = masked_secret_prompt(f"{prompt} (hidden, ESC or empty Enter to skip): ")
         except (EOFError, KeyboardInterrupt):
             value = ""
 
