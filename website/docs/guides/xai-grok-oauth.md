@@ -190,7 +190,8 @@ The chat catalog is derived live from the on-disk `models.dev` cache; new xAI re
 | Variable | Effect |
 |----------|--------|
 | `XAI_BASE_URL` | Override the default `https://api.x.ai/v1` endpoint (rarely needed). |
-| `SONIC_INFERENCE_PROVIDER` | Force the active provider at runtime, e.g. `SONIC_INFERENCE_PROVIDER=xai-oauth sonic`. |
+
+To select xAI as the active provider, set `model.provider: xai-oauth` in `config.yaml` (use `sonic setup` for the guided flow) or pass `--provider xai-oauth` for a single invocation.
 
 ## Troubleshooting
 

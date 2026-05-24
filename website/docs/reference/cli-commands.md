@@ -138,7 +138,7 @@ Per-run overrides (no mutation to `~/.sonic/config.yaml`):
 | Flag | Equivalent env var | Purpose |
 |---|---|---|
 | `-m` / `--model <model>` | `SONIC_INFERENCE_MODEL` | Override the model for this run |
-| `--provider <provider>` | `SONIC_INFERENCE_PROVIDER` | Override the provider for this run |
+| `--provider <provider>` | _(none)_ | Override the provider for this run |
 
 ```bash
 sonic -z "…" --provider openrouter --model openai/gpt-5.5
