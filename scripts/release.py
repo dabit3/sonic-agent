@@ -1311,6 +1311,7 @@ AUTHOR_MAP = {
     "jorge.fuenmayort@gmail.com": "jfuenmayor",
     "rodrigoeq@hotmail.com": "rodrigoeqnit",
     "roadhero@users.noreply.github.com": "roadhero",
+    "66773372+Tranquil-Flow@users.noreply.github.com": "Tranquil-Flow",  # PR #27518 (bracketed-paste timeout)
 }
 
 
