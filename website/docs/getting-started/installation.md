@@ -110,7 +110,7 @@ sonic setup          # Or run the full setup wizard to configure everything at o
 ```
 
 :::tip Fastest path: Nous Portal
-One subscription covers 300+ models plus the [Tool Gateway](/docs/user-guide/features/tool-gateway) (web search, image generation, TTS, cloud browser). Skip the per-tool key juggling:
+One subscription covers 300+ models plus the [Tool Gateway](/user-guide/features/tool-gateway) (web search, image generation, TTS, cloud browser). Skip the per-tool key juggling:
 
 ```bash
 sonic setup --portal

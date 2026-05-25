@@ -595,9 +595,9 @@ sonic chat
 ```
 
 See also:
-- [MCP (Model Context Protocol)](/docs/user-guide/features/mcp)
-- [Use MCP with Sonic](/docs/guides/use-mcp-with-sonic)
-- [MCP Config Reference](/docs/reference/mcp-config-reference)
+- [MCP (Model Context Protocol)](/user-guide/features/mcp)
+- [Use MCP with Sonic](/guides/use-mcp-with-sonic)
+- [MCP Config Reference](/reference/mcp-config-reference)
 
 #### MCP timeout errors
 

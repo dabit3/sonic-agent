@@ -231,7 +231,7 @@ Long-running process with 20 platform adapters, unified session routing, user au
 
 Three discovery sources: `~/.sonic/plugins/` (user), `.sonic/plugins/` (project), and pip entry points. Plugins register tools, hooks, and CLI commands through a context API. Two specialized plugin types exist: memory providers (`plugins/memory/`) and context engines (`plugins/context_engine/`). Both are single-select — only one of each can be active at a time, configured via `sonic plugins` or `config.yaml`.
 
-→ [Plugin Guide](/docs/guides/build-a-sonic-plugin), [Memory Provider Plugin](./memory-provider-plugin.md)
+→ [Plugin Guide](/guides/build-a-sonic-plugin), [Memory Provider Plugin](./memory-provider-plugin.md)
 
 ### Cron
 

@@ -585,7 +585,7 @@ The gateway does NOT need to be running for read operations (listing conversatio
 
 ## Related docs
 
-- [Use MCP with Sonic](/docs/guides/use-mcp-with-sonic)
-- [CLI Commands](/docs/reference/cli-commands)
-- [Slash Commands](/docs/reference/slash-commands)
-- [FAQ](/docs/reference/faq)
+- [Use MCP with Sonic](/guides/use-mcp-with-sonic)
+- [CLI Commands](/reference/cli-commands)
+- [Slash Commands](/reference/slash-commands)
+- [FAQ](/reference/faq)

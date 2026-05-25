@@ -8,13 +8,13 @@ description: "Real-time voice conversations with Sonic Agent — CLI, Telegram, 
 
 Sonic Agent supports full voice interaction across CLI and messaging platforms. Talk to the agent using your microphone, hear spoken replies, and have live voice conversations in Discord voice channels.
 
-If you want a practical setup walkthrough with recommended configurations and real usage patterns, see [Use Voice Mode with Sonic](/docs/guides/use-voice-mode-with-sonic).
+If you want a practical setup walkthrough with recommended configurations and real usage patterns, see [Use Voice Mode with Sonic](/guides/use-voice-mode-with-sonic).
 
 ## Prerequisites
 
 Before using voice features, make sure you have:
 
-1. **Sonic Agent installed** — `pip install sonic-agent` (see [Installation](/docs/getting-started/installation))
+1. **Sonic Agent installed** — `pip install sonic-agent` (see [Installation](/getting-started/installation))
 2. **An LLM provider configured** — run `sonic model` or set your preferred provider credentials in `~/.sonic/.env`
 3. **A working base setup** — run `sonic` to verify the agent responds to text before enabling voice
 
@@ -23,7 +23,7 @@ The `~/.sonic/` directory and default `config.yaml` are created automatically th
 :::
 
 :::tip Nous Portal covers both
-A paid [Nous Portal](/docs/user-guide/features/tool-gateway) subscription supplies the LLM (step 2) **and** OpenAI TTS via the Tool Gateway — no separate OpenAI key needed. On a fresh install, `sonic setup --portal` wires both up at once.
+A paid [Nous Portal](/user-guide/features/tool-gateway) subscription supplies the LLM (step 2) **and** OpenAI TTS via the Tool Gateway — no separate OpenAI key needed. On a fresh install, `sonic setup --portal` wires both up at once.
 :::
 
 ## Overview

@@ -169,7 +169,7 @@ These are saved to `~/.sonic/migration/openclaw/<timestamp>/archive/` for manual
 | `HEARTBEAT.md` | `archive/workspace/HEARTBEAT.md` | Use cron jobs for periodic tasks |
 | `BOOTSTRAP.md` | `archive/workspace/BOOTSTRAP.md` | Use context files or skills |
 | Cron jobs | `archive/cron-config.json` | Recreate with `sonic cron create` |
-| Plugins | `archive/plugins-config.json` | See [plugins guide](/docs/user-guide/features/hooks) |
+| Plugins | `archive/plugins-config.json` | See [plugins guide](/user-guide/features/hooks) |
 | Hooks/webhooks | `archive/hooks-config.json` | Use `sonic webhook` or gateway hooks |
 | Memory backend | `archive/memory-backend-config.json` | Configure via `sonic honcho` |
 | Skills registry | `archive/skills-registry-config.json` | Use `sonic skills config` |

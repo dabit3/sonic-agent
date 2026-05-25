@@ -9,7 +9,7 @@ description: "Plugins shipped with Sonic Agent that run automatically via lifecy
 
 Sonic ships a small set of plugins bundled with the repository. They live under `<repo>/plugins/<name>/` and load automatically alongside user-installed plugins in `~/.sonic/plugins/`. They use the same plugin surface as third-party plugins — hooks, tools, slash commands — just maintained in-tree.
 
-See the [Plugins](/docs/user-guide/features/plugins) page for the general plugin system, and [Build a Sonic Plugin](/docs/guides/build-a-sonic-plugin) to write your own.
+See the [Plugins](/user-guide/features/plugins) page for the general plugin system, and [Build a Sonic Plugin](/guides/build-a-sonic-plugin) to write your own.
 
 ## How discovery works
 
@@ -253,7 +253,7 @@ Adds a **Steam-style achievements tab to the dashboard** — 60+ collectible, ti
 
 ## Adding a bundled plugin
 
-Bundled plugins are written exactly like any other Sonic plugin — see [Build a Sonic Plugin](/docs/guides/build-a-sonic-plugin). The only differences are:
+Bundled plugins are written exactly like any other Sonic plugin — see [Build a Sonic Plugin](/guides/build-a-sonic-plugin). The only differences are:
 
 - Directory lives at `<repo>/plugins/<name>/` instead of `~/.sonic/plugins/<name>/`
 - Manifest source is reported as `bundled` in `sonic plugins list`
