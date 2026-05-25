@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
+from sonic_cli.nous_account import NousPortalAccountInfo
 from sonic_cli.tools_config import (
     _DEFAULT_OFF_TOOLSETS,
     _apply_toolset_change,
@@ -557,8 +558,13 @@ def test_visible_providers_include_nous_subscription_when_logged_in(monkeypatch)
     config = {"model": {"provider": "nous"}}
 
     monkeypatch.setattr(
-        "sonic_cli.nous_subscription.get_nous_auth_status",
-        lambda: {"logged_in": True},
+        "sonic_cli.nous_subscription.get_nous_portal_account_info",
+        lambda: NousPortalAccountInfo(
+            logged_in=True,
+            source="jwt",
+            fresh=False,
+            paid_service_access=True,
+        ),
     )
 
     providers = _visible_providers(TOOL_CATEGORIES["browser"], config)
@@ -571,8 +577,13 @@ def test_visible_providers_hide_nous_subscription_when_feature_flag_is_off(monke
     config = {"model": {"provider": "nous"}}
 
     monkeypatch.setattr(
-        "sonic_cli.nous_subscription.get_nous_auth_status",
-        lambda: {"logged_in": True},
+        "sonic_cli.nous_subscription.get_nous_portal_account_info",
+        lambda: NousPortalAccountInfo(
+            logged_in=True,
+            source="jwt",
+            fresh=False,
+            paid_service_access=True,
+        ),
     )
 
     providers = _visible_providers(TOOL_CATEGORIES["browser"], config)
@@ -657,8 +668,13 @@ def test_first_install_nous_auto_configures_managed_defaults(monkeypatch):
         lambda: ["cli"],
     )
     monkeypatch.setattr(
-        "sonic_cli.nous_subscription.get_nous_auth_status",
-        lambda: {"logged_in": True},
+        "sonic_cli.nous_subscription.get_nous_portal_account_info",
+        lambda: NousPortalAccountInfo(
+            logged_in=True,
+            source="jwt",
+            fresh=False,
+            paid_service_access=True,
+        ),
     )
 
     configured = []
