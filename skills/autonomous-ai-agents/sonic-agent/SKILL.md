@@ -100,8 +100,10 @@ sonic config path          Print config.yaml path
 sonic config env-path      Print .env path
 sonic config check         Check for missing/outdated config
 sonic config migrate       Update config with new options
-sonic login [--provider P] OAuth login (nous, openai-codex)
-sonic logout               Clear stored auth
+sonic auth                 Interactive credential manager
+sonic auth add PROVIDER    Add OAuth or API-key credential (e.g. nous, openai-codex, qwen-oauth)
+sonic auth list            List stored credentials
+sonic auth remove PROVIDER Remove a stored credential
 sonic doctor [--fix]       Check dependencies and config
 sonic status [--all]       Show component status
 ```
@@ -390,7 +392,7 @@ Full config reference: https://lightning-agent.nousresearch.com/docs/user-guide/
 | AI Gateway (Vercel) | API key | `AI_GATEWAY_API_KEY` |
 | OpenCode Zen | API key | `OPENCODE_ZEN_API_KEY` |
 | OpenCode Go | API key | `OPENCODE_GO_API_KEY` |
-| Qwen OAuth | OAuth | `sonic login --provider qwen-oauth` |
+| Qwen OAuth | OAuth | `sonic auth add qwen-oauth` |
 | Custom endpoint | Config | `model.base_url` + `model.api_key` in config.yaml |
 | GitHub Copilot ACP | External | `COPILOT_CLI_PATH` or Copilot CLI |
 
@@ -812,7 +814,7 @@ and logs — avoids shell-escaping backslashes in bash.
 
 ### Model/provider issues
 1. `sonic doctor` — check config and dependencies
-2. `sonic login` — re-authenticate OAuth providers
+2. `sonic auth` — re-authenticate OAuth providers (or `sonic auth add <provider>`)
 3. Check `.env` has the right API key
 4. **Copilot 403**: `gh auth login` tokens do NOT work for Copilot API. You must use the Copilot-specific OAuth device code flow via `sonic model` → GitHub Copilot.
 

@@ -104,7 +104,7 @@ class NousPortalAdapter(UpstreamAdapter):
             state = self._read_state()
             if state is None:
                 raise RuntimeError(
-                    "Not logged into Nous Portal. Run `sonic login nous` first."
+                    "Not logged into Nous Portal. Run `sonic auth add nous` first."
                 )
 
             try:
@@ -135,7 +135,7 @@ class NousPortalAdapter(UpstreamAdapter):
             if not agent_key:
                 raise RuntimeError(
                     "Nous Portal refresh did not return a usable agent_key. "
-                    "Try `sonic login nous` to re-authenticate."
+                    "Try `sonic auth add nous` to re-authenticate."
                 )
 
             base_url = (
