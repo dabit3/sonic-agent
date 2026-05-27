@@ -62,6 +62,7 @@ AUTHOR_MAP = {
     "kenyon1977@gmail.com": "kenyonxu",
     "baxter@bitreserve.ai": "BaxBit",  # PR #30200 (Svix webhook signature validation)
     "cipherframe@users.noreply.github.com": "CipherFrame",
+    "donovan-yohan@users.noreply.github.com": "donovan-yohan",
     "121752779+jacevys@users.noreply.github.com": "jacevys",
     "me@promplate.dev": "CNSeniorious000",
     "yichengqiao21@gmail.com": "YarrowQiao",
