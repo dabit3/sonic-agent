@@ -8995,11 +8995,13 @@ def _cmd_update_pip(args):
     print("→ Checking PyPI for updates...")
 
     uv = shutil.which("uv")
-    if uv:
-        if is_uv_tool_install(uv):
-            cmd = [uv, "tool", "upgrade", "sonic-agent"]
-        else:
-            cmd = [uv, "pip", "install", "--upgrade", "sonic-agent"]
+    if is_uv_tool_install():
+        if not uv:
+            print("✗ Detected a uv-tool install but `uv` is not on PATH; install uv and retry.")
+            sys.exit(1)
+        cmd = [uv, "tool", "upgrade", "sonic-agent"]
+    elif uv:
+        cmd = [uv, "pip", "install", "--upgrade", "sonic-agent"]
     else:
         cmd = [sys.executable, "-m", "pip", "install", "--upgrade", "sonic-agent"]
 
