@@ -143,10 +143,6 @@ SONIC_OVERLAYS: Dict[str, SonicOverlay] = {
         transport="openai_chat",
         base_url_env_var="ALIBABA_CODING_PLAN_BASE_URL",
     ),
-    "vercel": SonicOverlay(
-        transport="openai_chat",
-        is_aggregator=True,
-    ),
     "opencode": SonicOverlay(
         transport="openai_chat",
         is_aggregator=True,
@@ -289,11 +285,6 @@ ALIASES: Dict[str, str] = {
     "copilot": "github-copilot",
     "github": "github-copilot",
     "github-copilot-acp": "copilot-acp",
-
-    # vercel (models.dev ID for AI Gateway)
-    "ai-gateway": "vercel",
-    "aigateway": "vercel",
-    "vercel-ai-gateway": "vercel",
 
     # opencode (models.dev ID for OpenCode Zen)
     "opencode-zen": "opencode",
