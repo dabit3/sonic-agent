@@ -68,12 +68,26 @@ if [ "$needs_chown" = true ]; then
                 echo "[stage2] Warning: chown $SONIC_HOME/$sub failed (rootless container?) — continuing"
         fi
     done
-    # The .venv must also be re-chowned when UID is remapped, otherwise
-    # lazy_deps.py cannot install platform packages (discord.py, etc.).
-    # This is under $INSTALL_DIR, not $SONIC_HOME, so the bind-mount
+    # Sonic-owned trees under $INSTALL_DIR must be re-chowned when the UID
+    # is remapped — otherwise:
+    #   - .venv: lazy_deps.py cannot install platform packages (discord.py,
+    #     telegram, slack, etc.) with EACCES (#15012, #21100)
+    #   - ui-tui: esbuild rebuilds dist/entry.js on every TUI launch (when
+    #     the source mtime is newer than dist/ or when SONIC_TUI_FORCE_BUILD
+    #     is set) and writes to ui-tui/dist/. Without this chown the new
+    #     sonic UID can't write the build output (#28851).
+    #   - node_modules: root-level dependencies (puppeteer, web tooling)
+    #     that runtime code may walk/update.
+    # The set mirrors the build-time `chown -R sonic:sonic` line in the
+    # Dockerfile — keep them in sync if the Dockerfile chown set changes.
+    # These are under $INSTALL_DIR (not $SONIC_HOME), so the bind-mount
     # concern doesn't apply — recursive is fine.
-    chown -R sonic:sonic "$INSTALL_DIR/.venv" 2>/dev/null || \
-        echo "[stage2] Warning: chown .venv failed (rootless container?) — continuing"
+    chown -R sonic:sonic \
+        "$INSTALL_DIR/.venv" \
+        "$INSTALL_DIR/ui-tui" \
+        "$INSTALL_DIR/node_modules" \
+        2>/dev/null || \
+        echo "[stage2] Warning: chown of build trees failed (rootless container?) — continuing"
 fi
 
 # Always reset ownership of $SONIC_HOME/profiles to sonic on every
