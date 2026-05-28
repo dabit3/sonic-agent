@@ -64,9 +64,9 @@
 
 .sonic-kanban-columns {
   display: flex;
-  flex-wrap: wrap;
   gap: 0.75rem;
   align-items: start;
+  overflow-x: auto;
 }
 
 .sonic-kanban-column {
