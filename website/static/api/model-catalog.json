@@ -13,6 +13,14 @@
       },
       "models": [
         {
+          "id": "anthropic/claude-opus-4.8",
+          "description": ""
+        },
+        {
+          "id": "anthropic/claude-opus-4.8-fast",
+          "description": "2x price, higher output speed"
+        },
+        {
           "id": "anthropic/claude-opus-4.7",
           "description": ""
         },
@@ -164,6 +172,9 @@
         "note": "Free-tier gating is determined live via Portal pricing (partition_nous_models_by_tier), not this manifest."
       },
       "models": [
+        {
+          "id": "anthropic/claude-opus-4.8"
+        },
         {
           "id": "anthropic/claude-opus-4.7"
         },
