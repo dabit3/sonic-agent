@@ -9,7 +9,6 @@ Note: Tests that import ``sonic_cli.auth`` or ``sonic_cli.runtime_provider``
 require Python 3.10+ due to ``str | None`` type syntax in the import chain.
 """
 
-import os
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -93,7 +92,6 @@ class TestResolveProvider:
 
     def test_explicit_bedrock_resolves(self, monkeypatch):
         """When user explicitly requests 'bedrock', it should resolve."""
-        from sonic_cli.auth import PROVIDER_REGISTRY
         # bedrock is in the registry, so resolve_provider should return it
         from sonic_cli.auth import resolve_provider
         result = resolve_provider("bedrock")

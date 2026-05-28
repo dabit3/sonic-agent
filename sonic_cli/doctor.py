@@ -8,7 +8,6 @@ import os
 import sys
 import subprocess
 import shutil
-import importlib.util
 from pathlib import Path
 
 from sonic_cli.config import get_project_root, get_sonic_home, get_env_path

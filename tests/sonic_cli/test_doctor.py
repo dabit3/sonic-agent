@@ -792,7 +792,7 @@ class TestGitHubTokenCheck:
         monkeypatch.setenv("SONIC_HOME", str(home))
         monkeypatch.setenv("PATH", "/nonexistent")  # gh not found
 
-        from sonic_cli.doctor import run_doctor, _DHH
+        from sonic_cli.doctor import run_doctor
         import io, contextlib
 
         buf = io.StringIO()

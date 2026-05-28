@@ -751,7 +751,7 @@ _sonic_home = get_sonic_home()
 
 # Load environment variables from ~/.sonic/.env first.
 # User-managed env files should override stale shell exports on restart.
-from dotenv import load_dotenv  # backward-compat for tests that monkeypatch this symbol
+from dotenv import load_dotenv  # noqa: F401  # backward-compat for tests that monkeypatch this symbol
 from sonic_cli.env_loader import load_sonic_dotenv
 _env_path = _sonic_home / '.env'
 load_sonic_dotenv(sonic_home=_sonic_home, project_env=Path(__file__).resolve().parents[1] / '.env')

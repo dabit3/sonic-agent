@@ -11,7 +11,6 @@ import io
 import contextlib
 import socket
 
-import pytest
 
 from sonic_cli import auth as auth_mod
 

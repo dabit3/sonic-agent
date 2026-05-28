@@ -14,7 +14,7 @@ from typing import Any, Dict
 import pytest
 import yaml
 
-from sonic_cli.plugins import PluginManager, PluginManifest
+from sonic_cli.plugins import PluginManager
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────

@@ -1,4 +1,3 @@
-import json
 
 from sonic_cli import kanban_db as kb
 from sonic_cli.kanban_swarm import (
