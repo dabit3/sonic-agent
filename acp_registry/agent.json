@@ -1,7 +1,7 @@
 {
   "id": "sonic-agent",
   "name": "Sonic Agent",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "description": "Self-improving open-source AI agent by Nous Research with ACP editor integration, persistent memory, skills, and rich tool support.",
   "repository": "https://github.com/dabit3/sonic-agent",
   "website": "https://lightning-agent.nousresearch.com/docs/user-guide/features/acp",
@@ -9,7 +9,7 @@
   "license": "MIT",
   "distribution": {
     "uvx": {
-      "package": "sonic-agent[acp]==0.14.0",
+      "package": "sonic-agent[acp]==0.15.0",
       "args": ["sonic-acp"]
     }
   }

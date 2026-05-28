@@ -42,6 +42,7 @@ IGNORED_PATTERNS = [
     re.compile(r"^Copilot$", re.IGNORECASE),
     re.compile(r"^Cursor(\s+Agent)?$", re.IGNORECASE),
     re.compile(r"^GitHub\s*Actions?$", re.IGNORECASE),
+    re.compile(r"^github-actions(\[bot\])?$", re.IGNORECASE),
     re.compile(r"^dependabot", re.IGNORECASE),
     re.compile(r"^renovate", re.IGNORECASE),
     re.compile(r"^Sonic\s+(Agent|Audit)$", re.IGNORECASE),
@@ -51,10 +52,12 @@ IGNORED_PATTERNS = [
 IGNORED_EMAILS = {
     "noreply@anthropic.com",
     "noreply@github.com",
+    "noreply@nousresearch.com",
     "cursoragent@cursor.com",
     "sonic@nousresearch.com",
     "sonic-audit@example.com",
     "sonic@habibilabs.dev",
+    "omx@oh-my-codex.dev",
 }
 
 
