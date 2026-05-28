@@ -1,7 +1,4 @@
-import pytest
 import sys
-from unittest.mock import patch
-from pathlib import Path
 
 import sonic_cli.model_switch as ms
 from sonic_cli.model_switch import DirectAlias

@@ -1,12 +1,8 @@
 """Tests for setup.py configuration flows."""
-import json
-import os
 import sys
 import types
 
-import pytest
 
-from sonic_cli.auth import get_active_provider
 from sonic_cli.config import load_config, save_config
 from sonic_cli import setup as setup_mod
 from sonic_cli.setup import setup_model_provider

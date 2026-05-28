@@ -8,10 +8,7 @@ Covers:
 - Profile-scoped reset (uses SONIC_HOME)
 """
 
-import os
 import pytest
-from argparse import Namespace
-from pathlib import Path
 
 
 @pytest.fixture
@@ -39,7 +36,7 @@ def _run_memory_reset(target="all", yes=False, monkeypatch=None, confirm_input="
 
     Simulates what happens when `sonic memory reset` is run.
     """
-    from sonic_constants import get_sonic_home, display_sonic_home
+    from sonic_constants import get_sonic_home
 
     mem_dir = get_sonic_home() / "memories"
     files_to_reset = []

@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from sonic_constants import OPENROUTER_BASE_URL
-from sonic_cli.config import get_env_value, load_env
+from sonic_cli.config import load_env
 from agent.credential_persistence import (
     is_borrowed_credential_source,
     sanitize_borrowed_credential_payload,

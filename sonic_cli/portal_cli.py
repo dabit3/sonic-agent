@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import sys
 import webbrowser
-from typing import Optional
 
 from sonic_cli.colors import Colors, color
 from sonic_cli.config import load_config

@@ -12,7 +12,6 @@ Config files are stored in ~/.sonic/ for easy access.
 """
 
 import importlib.util
-import json
 import logging
 import os
 import re

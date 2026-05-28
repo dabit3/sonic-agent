@@ -10,9 +10,7 @@ See: https://github.com/dabit3/sonic-agent/issues/4426
 import os
 import threading
 from pathlib import Path
-from unittest.mock import patch
 
-import pytest
 
 
 # ---------------------------------------------------------------------------

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from unittest.mock import patch
 
 from sonic_cli.config import load_config, save_config, save_env_value, get_env_value
 

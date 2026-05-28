@@ -3128,7 +3128,6 @@ def _(rid, params: dict) -> dict:
 
 
 def _spawn_trees_root():
-    from pathlib import Path as _P
     from sonic_constants import get_sonic_home
 
     root = get_sonic_home() / "spawn-trees"
