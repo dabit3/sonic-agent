@@ -16,7 +16,7 @@ The transport reuses the `anthropic_messages` adapter (MiniMax exposes an Anthro
 |------|-------|
 | Provider ID | `minimax-oauth` |
 | Display name | MiniMax (OAuth) |
-| Auth type | Browser OAuth (PKCE device-code flow) |
+| Auth type | Browser OAuth (PKCE redirect flow) |
 | Transport | Anthropic Messages-compatible (`anthropic_messages`) |
 | Models | `MiniMax-M2.7`, `MiniMax-M2.7-highspeed` |
 | Global endpoint | `https://api.minimax.io/anthropic` |
@@ -56,11 +56,9 @@ sonic auth add minimax-oauth
 
 ### China region
 
-If your account is on the China platform (`minimaxi.com`), use the China-region OAuth provider id `minimax-cn` instead, or skip OAuth and configure `MINIMAX_CN_API_KEY` / `MINIMAX_CN_BASE_URL` directly. The `--region cn` flag described in older docs is **not** wired through the CLI's argument parser; use the `minimax-cn` provider instead:
+If your account is on the China platform (`minimaxi.com`), use the API-key-based `minimax-cn` provider instead — `minimax-cn` is registered with `auth_type="api_key"` only (no OAuth flow). Configure `MINIMAX_CN_API_KEY` (and optionally `MINIMAX_CN_BASE_URL`) directly:
 
 ```bash
-sonic auth add minimax-cn --type oauth   # if OAuth is supported on your CN account
-# or simpler:
 echo 'MINIMAX_CN_API_KEY=your-key' >> ~/.sonic/.env
 ```
 
@@ -76,7 +74,7 @@ Sonic will print the verification URL and user code — open the URL on any devi
 
 ## The OAuth Flow
 
-Sonic implements a PKCE device-code flow against the MiniMax OAuth endpoints:
+Sonic implements a PKCE browser OAuth flow against the MiniMax OAuth endpoints:
 
 1. Sonic generates a PKCE verifier / challenge pair and a random state value.
 2. It POSTs to `{base_url}/oauth/code` with the challenge and receives a `user_code` and `verification_uri`.
@@ -115,8 +113,8 @@ sonic model
 Or set the model directly:
 
 ```bash
-sonic config set model MiniMax-M2.7
-sonic config set provider minimax-oauth
+sonic config set model.default MiniMax-M2.7
+sonic config set model.provider minimax-oauth
 ```
 
 ## Configuration Reference

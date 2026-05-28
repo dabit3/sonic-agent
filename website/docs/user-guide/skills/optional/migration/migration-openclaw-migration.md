@@ -21,7 +21,7 @@ Migrate a user's OpenClaw customization footprint into Sonic Agent. Imports Soni
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `Migration`, `OpenClaw`, `Sonic`, `Memory`, `Persona`, `Import` |
-| Related skills | [`sonic-agent`](/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-sonic-agent) |
+| Related skills | [`sonic-agent`](/docs/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-sonic-agent) |
 
 ## Reference: full SKILL.md
 
