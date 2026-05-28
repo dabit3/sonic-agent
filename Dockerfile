@@ -213,13 +213,32 @@ COPY --chmod=0755 docker/cont-init.d/02-reconcile-profiles /etc/cont-init.d/02-r
 # ---------- Runtime ----------
 ENV SONIC_WEB_DIST=/opt/sonic/sonic_cli/web_dist
 ENV SONIC_HOME=/opt/data
+
+# `docker exec` privilege-drop shim. When operators run
+# `docker exec <c> sonic ...` they default to root, and any file the
+# command writes under $SONIC_HOME (auth.json, .env, config.yaml) ends
+# up root-owned and unreadable to the supervised gateway (UID 10000).
+# The shim lives at /opt/sonic/bin/sonic, sits earliest on PATH, and
+# transparently re-exec's the real venv binary via `s6-setuidgid sonic`
+# when invoked as root. Non-root callers (supervised processes,
+# `--user sonic`, etc.) hit the short-circuit path with no overhead.
+# Recursion is impossible because the shim exec's the venv binary by
+# absolute path (/opt/sonic/.venv/bin/sonic). See the shim source for
+# the opt-out env var (SONIC_DOCKER_EXEC_AS_ROOT=1).
+COPY --chmod=0755 docker/sonic-exec-shim.sh /opt/sonic/bin/sonic
+
 # Pre-s6 entrypoint.sh did `source .venv/bin/activate` which exported
 # the venv bin onto PATH; Architecture B's main-wrapper.sh does the
 # same for the container's main process, but `docker exec` and our
 # cont-init.d scripts don't pass through the wrapper. Expose the venv
 # bin globally so `docker exec <container> sonic ...` and any
 # subprocess that doesn't activate the venv first still find sonic.
-ENV PATH="/opt/sonic/.venv/bin:/opt/data/.local/bin:${PATH}"
+#
+# /opt/sonic/bin is prepended ahead of the venv so the privilege-drop
+# shim wins PATH resolution. The shim's last act is to exec the venv
+# binary by absolute path, so this PATH ordering is transparent to
+# every other consumer.
+ENV PATH="/opt/sonic/bin:/opt/sonic/.venv/bin:/opt/data/.local/bin:${PATH}"
 RUN mkdir -p /opt/data
 VOLUME [ "/opt/data" ]
 
