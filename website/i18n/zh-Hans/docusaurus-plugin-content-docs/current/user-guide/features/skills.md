@@ -467,6 +467,7 @@ Sonic 可以直接从 GitHub 仓库和基于 GitHub 的 tap 安装。当你已�
 - [openai/skills](https://github.com/openai/skills)
 - [anthropics/skills](https://github.com/anthropics/skills)
 - [huggingface/skills](https://github.com/huggingface/skills)
+- [NVIDIA/skills](https://github.com/NVIDIA/skills) — NVIDIA 官方验证的技能（带签名 `skill.oms.sig` 与治理用 `skill-card.md`）
 - [VoltAgent/awesome-agent-skills](https://github.com/VoltAgent/awesome-agent-skills)
 - [garrytan/gstack](https://github.com/garrytan/gstack)
 
@@ -578,7 +579,7 @@ sonic skills install skills-sh/anthropics/skills/pdf --force
 |-------|--------|--------|
 | `builtin` | 随 Sonic 附带 | 始终受信任 |
 | `official` | 仓库中的 `optional-skills/` | 内置信任，无第三方警告 |
-| `trusted` | 受信任的注册表/仓库，如 `openai/skills`、`anthropics/skills`、`huggingface/skills` | 比社区来源更宽松的策略 |
+| `trusted` | 受信任的注册表/仓库，如 `openai/skills`、`anthropics/skills`、`huggingface/skills`、`NVIDIA/skills` | 比社区来源更宽松的策略 |
 | `community` | 其他所有来源（`skills.sh`、well-known 端点、自定义 GitHub 仓库、大多数市场） | 非危险性发现可用 `--force` 覆盖；`dangerous` 结论保持阻止 |
 
 ### 更新生命周期
