@@ -97,7 +97,7 @@
           "description": ""
         },
         {
-          "id": "google/gemini-3-flash-preview",
+          "id": "google/gemini-3.5-flash",
           "description": ""
         },
         {
@@ -218,7 +218,7 @@
           "id": "google/gemini-3-pro-preview"
         },
         {
-          "id": "google/gemini-3-flash-preview"
+          "id": "google/gemini-3.5-flash"
         },
         {
           "id": "google/gemini-3.1-pro-preview"
