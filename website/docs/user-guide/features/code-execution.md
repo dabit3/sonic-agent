@@ -219,6 +219,62 @@ terminal:
 
 See the [Security guide](/user-guide/security#environment-variable-passthrough) for full details.
 
+### `SONIC_*` variables in the child
+
+The child process receives only a small, fixed set of operational `SONIC_*`
+variables by exact name:
+
+- `SONIC_HOME`
+- `SONIC_PROFILE`
+- `SONIC_CONFIG`
+- `SONIC_ENV`
+
+(plus `SONIC_RPC_DIR` / `SONIC_RPC_SOCKET` / `TZ` / `HOME`, which Sonic
+injects explicitly so the RPC channel works).
+
+:::note Behavior change
+Earlier versions passed **any** variable whose name began with `SONIC_`
+through to the child. That broad prefix was removed for security hardening: it
+could leak `SONIC_*`-named configuration that doesn't match a secret substring
+(for example `SONIC_BASE_URL`, `SONIC_KANBAN_DB`, or a `SONIC_*_WEBHOOK`
+endpoint) into arbitrary sandboxed code.
+
+If an `execute_code` script — or a repo/plugin module it imports at import time
+— relied on a `SONIC_*` variable outside the four operational names above, it
+will now find that variable **unset** in the child. The drop is intentional,
+not a bug.
+:::
+
+**Workaround — opt the variable back in explicitly.** Both routes pass the
+variable through `execute_code` *and* `terminal` children, and neither weakens
+the secret-stripping guarantee (Sonic-managed provider credentials can never
+be re-allowed this way):
+
+1. **Per-machine, in `config.yaml`** — add the exact variable name to the
+   passthrough allowlist:
+
+   ```yaml
+   terminal:
+     env_passthrough:
+       - SONIC_KANBAN_DB
+       - SONIC_BASE_URL
+   ```
+
+2. **Per-skill, in the skill's frontmatter** — declare it so it is registered
+   automatically whenever that skill is loaded:
+
+   ```yaml
+   required_environment_variables:
+     - SONIC_KANBAN_DB
+   ```
+
+**Diagnosing it.** When the child drops one or more non-allowlisted `SONIC_*`
+variables, Sonic emits a one-line `debug` log naming them and pointing at the
+`env_passthrough` escape hatch. Run with debug logging (`sonic logs --level
+DEBUG`, or check `~/.sonic/logs/agent.log`) and look for
+`execute_code: dropped N non-allowlisted SONIC_* var(s)` if a script behaves
+as though a `SONIC_*` variable is missing.
+
 Sonic always writes the script and the auto-generated `sonic_tools.py` RPC stub into a temp staging directory that is cleaned up after execution. In `strict` mode the script also *runs* there; in `project` mode it runs in the session's working directory (the staging directory stays on `PYTHONPATH` so imports still resolve). The child process runs in its own process group so it can be cleanly killed on timeout or interruption.
 
 ## execute_code vs terminal
