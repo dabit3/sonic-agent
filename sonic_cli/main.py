@@ -6176,6 +6176,8 @@ def cmd_webhook(args):
     from sonic_cli.webhook import webhook_command
 
     webhook_command(args)
+
+
 def cmd_slack(args):
     """Slack integration helpers.
 
