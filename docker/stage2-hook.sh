@@ -33,6 +33,15 @@ INSTALL_DIR="/opt/sonic"
 mkdir -p "$SONIC_HOME"
 
 # --- UID/GID remap ---
+# Accept PUID/PGID as aliases for SONIC_UID/SONIC_GID.  NAS users (UGOS,
+# Synology, unRAID) expect the LinuxServer.io PUID/PGID convention and
+# bind-mount /opt/data from a host directory owned by their own UID; without
+# this alias those vars are silently ignored and the s6-setuidgid drop to
+# UID 10000 leaves the runtime unable to read the volume.  SONIC_UID/
+# SONIC_GID still win when both are set.  See #15290, salvages #25872.
+SONIC_UID="${SONIC_UID:-${PUID:-}}"
+SONIC_GID="${SONIC_GID:-${PGID:-}}"
+
 if [ -n "${SONIC_UID:-}" ] && [ "$SONIC_UID" != "$(id -u sonic)" ]; then
     echo "[stage2] Changing sonic UID to $SONIC_UID"
     usermod -u "$SONIC_UID" sonic

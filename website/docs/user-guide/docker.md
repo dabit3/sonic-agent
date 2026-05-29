@@ -710,10 +710,20 @@ Check logs: `docker logs sonic`. Common causes:
 
 ### "Permission denied" errors
 
-The container's stage2 hook drops privileges to the non-root `sonic` user (UID 10000) via `s6-setuidgid` inside each supervised service. If your host `~/.sonic/` is owned by a different UID, set `SONIC_UID`/`SONIC_GID` to match your host user, or ensure the data directory is writable:
+The container's stage2 hook drops privileges to the non-root `sonic` user (UID 10000) via `s6-setuidgid` inside each supervised service. If your host `~/.sonic/` is owned by a different UID, set `SONIC_UID`/`SONIC_GID` — or their `PUID`/`PGID` aliases, for parity with LinuxServer.io and NAS images — to match your host user, or ensure the data directory is writable:
 
 ```sh
 chmod -R 755 ~/.sonic
+```
+
+On a NAS (UGOS, Synology, unRAID) the data directory is typically a **bind mount** owned by a host UID the container cannot `chown`. Set `PUID`/`PGID` (or `SONIC_UID`/`SONIC_GID`) to that host user so the runtime runs as the owner of the mount rather than UID 10000:
+
+```sh
+docker run -d \
+  --name sonic \
+  -e PUID=1000 -e PGID=10 \
+  -v /volume1/docker/sonic:/opt/data \
+  nousresearch/hermes-agent gateway run
 ```
 
 `docker exec sonic <cmd>` automatically drops to UID 10000 too — see [`docker exec` automatically drops to the `sonic` user](#docker-exec-automatically-drops-to-the-sonic-user) for details and the per-invocation opt-out.
