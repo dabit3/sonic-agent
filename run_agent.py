@@ -2194,7 +2194,7 @@ class AIAgent:
         if reason.startswith("text_response"):
             return ""
 
-        prefix = "⚠️ Turn ended without a usable reply: "
+        prefix = "⚠️ No reply: "
         if reason == "empty_response_exhausted":
             return (
                 prefix
