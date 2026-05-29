@@ -1704,7 +1704,12 @@ class TestSystemUnitPathRemapping:
         assert str(root_home) not in unit
         # Target user paths should be present
         assert "/home/alice" in unit
-        assert "WorkingDirectory=/home/alice/.sonic/sonic-agent" in unit
+        # WorkingDirectory is anchored at the target user's SONIC_HOME (stable,
+        # always exists) — NOT the source checkout under it. Pinning cwd to the
+        # checkout is the rot bug fixed alongside this: a relocated/removed
+        # checkout would crash-loop the unit on CHDIR (status=200).
+        assert "WorkingDirectory=/home/alice/.sonic" in unit
+        assert "WorkingDirectory=/home/alice/.sonic/sonic-agent" not in unit
 
 
 class TestDockerAwareGateway:
