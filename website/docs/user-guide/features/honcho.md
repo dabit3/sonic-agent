@@ -106,6 +106,10 @@ The auto-injected dialectic scales `dialecticReasoningLevel` by query length: +1
 
 Honcho is configured in `~/.honcho/config.json` (global) or `$SONIC_HOME/honcho.json` (profile-local). The setup wizard handles this for you.
 
+### Self-Hosted Honcho with Authentication
+
+When pointing Hermes at a self-hosted Honcho server, `hermes honcho setup` (and `hermes memory setup`) ask for a **local JWT / bearer token** after the base URL. Paste a JWT signed with the server's `AUTH_JWT_SECRET` (the Honcho compose env var) to enable authenticated access; leave it blank for servers running with `AUTH_USE_AUTH=false`. The local token is stored under the host block (`hosts.<host>.apiKey` in `honcho.json`), separate from any cloud `apiKey`, so you can flip the `Cloud or local?` prompt back to `cloud` later without losing either credential.
+
 ### Full Config Reference
 
 | Key | Default | Description |
@@ -199,11 +203,12 @@ When Honcho is active as the memory provider, five tools become available:
 
 ## CLI Commands
 
-The `sonic honcho` subcommand is **only registered when Honcho is the active memory provider** (`memory.provider: honcho` in `config.yaml`). Run `sonic memory setup` and pick Honcho first; the subcommand appears on the next invocation.
+The `sonic honcho` subcommand is **only registered when Honcho is the active memory provider** (`memory.provider: honcho` in `config.yaml`). On a fresh install, configure Honcho directly with `sonic memory setup honcho` (or run `sonic memory setup` and pick it from the list); the `sonic honcho` subcommand then appears on the next invocation.
 
 ```bash
+sonic memory setup honcho    # Configure Honcho directly (works before activation)
 sonic honcho status          # Connection status, config, and key settings
-sonic honcho setup           # Redirects to `sonic memory setup`
+sonic honcho setup           # Redirects to `sonic memory setup` (post-activation alias)
 sonic honcho strategy        # Show or set session strategy (per-session/per-directory/per-repo/global)
 sonic honcho peer            # Show or update peer names + dialectic reasoning level
 sonic honcho mode            # Show or set recall mode (hybrid/context/tools)

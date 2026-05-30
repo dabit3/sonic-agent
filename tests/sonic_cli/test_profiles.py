@@ -754,8 +754,8 @@ class TestRenameProfile:
 
         cfg = json.loads(honcho_path.read_text())
         assert "sonic.ssi_health" not in cfg["hosts"]
-        assert cfg["hosts"]["sonic.heimdall"]["aiPeer"] == "ssi_health"
-        assert cfg["hosts"]["sonic.heimdall"]["peerName"] == "user-peer"
+        assert cfg["hosts"]["sonic_heimdall"]["aiPeer"] == "ssi_health"
+        assert cfg["hosts"]["sonic_heimdall"]["peerName"] == "user-peer"
 
     def test_pins_ai_peer_when_absent_on_honcho_host_rename(self, profile_env):
         tmp_path = profile_env
@@ -772,8 +772,8 @@ class TestRenameProfile:
 
         cfg = json.loads(honcho_path.read_text())
         assert "sonic.ssi_health" not in cfg["hosts"]
-        assert cfg["hosts"]["sonic.heimdall"]["aiPeer"] == "ssi_health"
-        assert cfg["hosts"]["sonic.heimdall"]["workspace"] == "sonic"
+        assert cfg["hosts"]["sonic_heimdall"]["aiPeer"] == "ssi_health"
+        assert cfg["hosts"]["sonic_heimdall"]["workspace"] == "sonic"
 
     def test_does_not_overwrite_existing_honcho_host_on_rename(self, profile_env):
         tmp_path = profile_env
@@ -782,7 +782,7 @@ class TestRenameProfile:
         honcho_path.write_text(json.dumps({
             "hosts": {
                 "sonic.ssi_health": {"aiPeer": "ssi_health"},
-                "sonic.heimdall": {"aiPeer": "heimdall"},
+                "sonic_heimdall": {"aiPeer": "heimdall"},
             }
         }))
 
@@ -791,7 +791,7 @@ class TestRenameProfile:
 
         cfg = json.loads(honcho_path.read_text())
         assert cfg["hosts"]["sonic.ssi_health"]["aiPeer"] == "ssi_health"
-        assert cfg["hosts"]["sonic.heimdall"]["aiPeer"] == "heimdall"
+        assert cfg["hosts"]["sonic_heimdall"]["aiPeer"] == "heimdall"
 
     def test_default_raises_value_error(self, profile_env):
         with pytest.raises(ValueError, match="default"):

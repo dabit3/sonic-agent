@@ -12,8 +12,8 @@ AI-native cross-session user modeling with multi-pass dialectic reasoning, sessi
 ## Setup
 
 ```bash
-sonic honcho setup    # full interactive wizard (cloud or local)
-sonic memory setup    # generic picker, also works
+sonic memory setup honcho   # configure Honcho directly (works on a fresh install)
+sonic memory setup          # generic picker, choose Honcho from the list
 ```
 
 Or manually:
@@ -21,6 +21,10 @@ Or manually:
 sonic config set memory.provider honcho
 echo "HONCHO_API_KEY=***" >> ~/.sonic/.env
 ```
+
+> `hermes honcho setup` also works, but only **after** Honcho is the active
+> memory provider — the `honcho` subcommand is registered for the active
+> provider only. On a fresh install, use `hermes memory setup honcho`.
 
 ## Architecture Overview
 
@@ -109,7 +113,7 @@ Config is read from the first file that exists:
 | 2 | `~/.sonic/honcho.json` | Default profile (shared host blocks) |
 | 3 | `~/.honcho/config.json` | Global (cross-app interop) |
 
-Host key is derived from the active Sonic profile: `sonic` (default) or `sonic.<profile>`.
+Host key is derived from the active Sonic profile: `sonic` (default) or `sonic_<profile>`.
 
 For every key, resolution order is: **host block > root > env var > default**.
 
@@ -154,7 +158,7 @@ In gateway deployments (Telegram, Discord, Slack, etc.) each user arrives with a
 
 **Host vs root semantics.** All three keys are accepted at both root and `hosts.<host>` levels. Host-level wins. For maps and prefixes, host-level *replaces* the root value as a whole (not merge), so a host can intentionally own its identity universe or wipe it with `userPeerAliases: {}` / `runtimePeerPrefix: ""`.
 
-**Deployment shapes** (`sonic honcho setup` asks one prompt to set these):
+**Deployment shapes** (`sonic memory setup honcho` asks one prompt to set these):
 
 - **Single-operator** — `pinUserPeer: true`. All gateway users → `peerName`. Recommended for personal use where you connect Sonic to your own Telegram/Discord/etc.
 - **Multi-user gateway** — `pinUserPeer: false`, optional `runtimePeerPrefix`. Each runtime user → own peer. Recommended for bots serving many humans.
@@ -225,7 +229,7 @@ Multiple Sonic profiles can share one workspace while maintaining separate AI id
       "recallMode": "hybrid",
       "sessionStrategy": "per-directory"
     },
-    "sonic.coder": {
+    "sonic_coder": {
       "aiPeer": "coder",
       "recallMode": "tools",
       "sessionStrategy": "per-repo"
@@ -236,7 +240,7 @@ Multiple Sonic profiles can share one workspace while maintaining separate AI id
 
 Both profiles see the same user (`yourname`) in the same shared environment (`sonic`), but each AI peer builds its own observations, conclusions, and behavior patterns. The coder's memory stays code-oriented; the main agent's stays broad.
 
-Host key is derived from the active Sonic profile: `sonic` (default) or `sonic.<profile>` (e.g. `sonic -p coder` → host key `sonic.coder`).
+Host key is derived from the active Sonic profile: `sonic` (default) or `sonic_<profile>` (e.g. `sonic -p coder` -> host key `sonic_coder`). Older `sonic.<profile>` host blocks are still read for compatibility and are migrated when the CLI writes profile-scoped Honcho config.
 
 ### Dialectic & Reasoning
 
@@ -307,7 +311,8 @@ Presets:
 
 | Command | Description |
 |---------|-------------|
-| `sonic honcho setup` | Full interactive setup wizard |
+| `sonic memory setup honcho` | Configure Honcho directly — works on a fresh install |
+| `sonic honcho setup` | Interactive setup wizard (only registered once Honcho is the active provider; redirects to `sonic memory setup`) |
 | `sonic honcho status` | Show resolved config for active profile |
 | `sonic honcho enable` / `disable` | Toggle Honcho for active profile |
 | `sonic honcho mode <mode>` | Change recall or observation mode |
@@ -344,7 +349,7 @@ Presets:
       "dialecticMaxChars": 600,
       "saveMessages": true
     },
-    "sonic.coder": {
+    "sonic_coder": {
       "enabled": true,
       "aiPeer": "coder",
       "sessionStrategy": "per-repo",
