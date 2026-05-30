@@ -215,7 +215,7 @@ TIPS = [
     # --- Context & Compression ---
     "Context auto-compresses when it reaches the threshold — memories are flushed and history summarized.",
     "The status bar turns yellow, then orange, then red as context fills up.",
-    "SOUL.md at ~/.sonic/SOUL.md is the agent's primary identity — customize it to shape behavior.",
+    "SOUL.md is the agent's primary identity file — customize it to shape behavior.",
     "Sonic loads project context from .sonic.md, AGENTS.md, CLAUDE.md, or .cursorrules (first match).",
     "Subdirectory AGENTS.md files are discovered progressively as the agent navigates into folders.",
     "Context files are capped at 20,000 characters with smart head/tail truncation.",
@@ -273,7 +273,7 @@ TIPS = [
     "Cron scripts live in ~/.sonic/scripts/ and run before the agent — perfect for data collection pipelines.",
     "prefill_messages_file in config.yaml injects few-shot examples into every API call, never saved to history.",
     "SOUL.md completely replaces the agent's default identity — rewrite it to make Sonic your own.",
-    "SOUL.md is auto-seeded with a default personality on first run. Edit ~/.sonic/SOUL.md to customize.",
+    "SOUL.md is auto-seeded with a default personality on first run. Edit it to customize.",
     "/compress <focus topic> allocates 60-70% of the summary budget to your topic and aggressively trims the rest.",
     "On second+ compression, the compressor updates the previous summary instead of starting from scratch.",
     "Before a gateway session reset, Sonic auto-flushes important facts to memory in the background.",
@@ -430,7 +430,7 @@ TIPS = [
     'sonic -z "<prompt>" is the purest one-shot: final answer on stdout, nothing else — ideal for piping in scripts.',
     'sonic chat --pass-session-id injects the session ID into the system prompt so the agent can self-reference it.',
     'sonic chat --image path/to/pic.png attaches a local image to a single -q query without a separate upload step.',
-    'sonic chat --ignore-user-config skips ~/.sonic/config.yaml — reproducible bug reports and CI runs.',
+    'sonic chat --ignore-user-config skips the active user config — reproducible bug reports and CI runs.',
     "sonic chat --source tool tags programmatic chats so they don't clutter sonic sessions list.",
     'sonic dump --show-keys includes redacted API key fingerprints for deeper support debugging.',
     'sonic sessions rename <ID> "new title" renames any past session; sonic sessions delete <ID> removes one.',
@@ -484,5 +484,4 @@ def get_random_tip(exclude_recent: int = 0) -> str:
             deduplication across sessions.
     """
     return random.choice(TIPS)
-
 
