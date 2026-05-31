@@ -39,19 +39,23 @@ Bring your own keys anytime — per-tool, whenever you want to. The gateway isn'
 
 ## Get started
 
-The fastest path for a fresh install:
+There are three ways in — pick whichever fits where you are:
 
 ```bash
-sonic setup --portal     # Nous OAuth, set Nous as provider, and turn on the Tool Gateway in one go
+sonic setup --portal     # Fresh install: Nous OAuth + set Nous as provider + turn on the Tool Gateway in one go
 ```
-
-Already have Sonic configured? Just switch your provider:
 
 ```bash
-sonic model              # Pick Nous Portal — Sonic will offer to turn on the Tool Gateway
+sonic model              # Switch your inference provider to Nous Portal — Sonic then offers to turn on the gateway for all tools
 ```
 
-When you select Nous Portal, Sonic offers to turn on the Tool Gateway. Accept, and you're done — every supported tool is live on the next run.
+```bash
+sonic tools              # Enable the gateway per-tool — pick "Nous Subscription" for any tool you want
+```
+
+`sonic setup --portal` and `sonic model` are the all-at-once paths: log in once, optionally flip every tool to the gateway. `sonic tools` is the à la carte path — turn on just the tools you want, one at a time.
+
+**You don't have to log in first.** With `sonic tools`, the Nous-managed backends (Web search, Image, Video, TTS, Browser) are always listed, even if you've never signed into Nous Portal. Select one and Sonic runs the Portal login right there if you aren't already authenticated — no need to run `sonic model` beforehand. If your Nous OAuth is already active, selecting the backend enables it immediately with no extra prompt. This path only logs you in and turns on the one tool you picked — it does **not** switch your inference provider, and it does **not** prompt you to enable the gateway for every other tool.
 
 Check what's active at any time:
 
@@ -92,7 +96,7 @@ Switch any tool at any time via:
 sonic tools          # Interactive picker for each tool category
 ```
 
-Select the tool, pick **Nous Subscription** as the provider (or any direct provider you prefer). No config editing required.
+Select the tool, pick **Nous Subscription** as the provider (or any direct provider you prefer). No config editing required. If you aren't logged into Nous Portal yet, picking **Nous Subscription** kicks off the Portal login inline — you don't need to authenticate through `hermes model` first.
 
 ## Using individual image models
 
