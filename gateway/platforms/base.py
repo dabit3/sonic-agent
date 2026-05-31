@@ -484,7 +484,7 @@ sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
 
 from gateway.config import Platform, PlatformConfig
 from gateway.session import SessionSource, build_session_key
-from sonic_constants import get_sonic_dir, get_sonic_home
+from sonic_constants import get_default_sonic_root, get_sonic_dir, get_sonic_home
 
 
 GATEWAY_SECRET_CAPTURE_UNSUPPORTED_MESSAGE = (
@@ -827,6 +827,7 @@ def cache_video_from_bytes(data: bytes, ext: str = ".mp4") -> str:
 DOCUMENT_CACHE_DIR = get_sonic_dir("cache/documents", "document_cache")
 SCREENSHOT_CACHE_DIR = get_sonic_dir("cache/screenshots", "browser_screenshots")
 _SONIC_HOME = get_sonic_home()
+_SONIC_ROOT = get_default_sonic_root()
 MEDIA_DELIVERY_ALLOW_DIRS_ENV = "SONIC_MEDIA_ALLOW_DIRS"
 MEDIA_DELIVERY_TRUST_RECENT_ENV = "SONIC_MEDIA_TRUST_RECENT_FILES"
 MEDIA_DELIVERY_TRUST_RECENT_SECONDS_ENV = "SONIC_MEDIA_TRUST_RECENT_SECONDS"
@@ -954,13 +955,14 @@ def _media_delivery_denied_paths() -> List[Path]:
     home = Path(os.path.expanduser("~"))
     for sub in _MEDIA_DELIVERY_DENIED_HOME_SUBPATHS:
         denied.append(home / sub)
-    # The Sonic home itself contains credentials (auth.json, .env) and
-    # configuration (config.yaml) — only the cache subdirectories under it
-    # are explicitly allowlisted above.
-    denied.append(_SONIC_HOME / ".env")
-    denied.append(_SONIC_HOME / "auth.json")
-    denied.append(_SONIC_HOME / "credentials")
-    denied.append(_SONIC_HOME / "config.yaml")
+    # The active Sonic profile and shared Sonic root both contain control
+    # files and credentials. Only cache subdirectories under them are
+    # explicitly allowlisted above.
+    for sonic_root in (_SONIC_HOME, _SONIC_ROOT):
+        denied.append(sonic_root / ".env")
+        denied.append(sonic_root / "auth.json")
+        denied.append(sonic_root / "credentials")
+        denied.append(sonic_root / "config.yaml")
     return denied
 
 
