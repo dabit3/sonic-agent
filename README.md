@@ -57,9 +57,9 @@ You can use any model. The options include [OpenRouter](https://openrouter.ai) (
 curl -fsSL https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.sh | bash
 ```
 
-### Windows (native, PowerShell) — Early Beta
+### Windows (native, PowerShell)
 
-> **Note:** Native Windows support is early beta. It installs and runs, but it has less test coverage than the Linux, macOS, and WSL2 paths. If you find a problem, [file an issue](https://github.com/dabit3/sonic-agent/issues). For the most tested Windows setup today, run the Linux and macOS command above inside WSL2.
+> **Heads up:** Native Windows runs Sonic without WSL — the CLI, gateway, TUI, and tools all work natively. If you'd rather use WSL2, the Linux and macOS one-liner above works there too. Found a bug? Please [file an issue](https://github.com/dabit3/sonic-agent/issues).
 
 Run this command in PowerShell:
 
@@ -73,7 +73,7 @@ If Git is already installed, the installer finds it and uses it. If Git is not i
 
 > **Android and Termux:** The tested manual path is in the [Termux guide](https://lightning-agent.nousresearch.com/docs/getting-started/termux). On Termux, Sonic installs the `.[termux]` extra, because the full `.[all]` extra pulls voice dependencies that Android does not support.
 >
-> **Windows:** Native Windows is an early beta. The PowerShell command above installs everything, but expect problems and file an issue for each one. WSL2 is the most tested Windows path, and the Linux command also works there. A native Windows installation goes in `%LOCALAPPDATA%\sonic`. A WSL2 installation goes in `~/.sonic`, as on Linux. One Sonic feature needs WSL2: the browser-based dashboard chat pane, because it uses a POSIX PTY. The classic CLI and the gateway both run natively.
+> **Windows:** Native Windows is fully supported — the PowerShell command above installs everything. If you'd rather use WSL2, the Linux command works there too. A native Windows installation goes in `%LOCALAPPDATA%\sonic`. A WSL2 installation goes in `~/.sonic`, as on Linux. One Sonic feature needs WSL2: the browser-based dashboard chat pane, because it uses a POSIX PTY. The classic CLI and the gateway both run natively.
 
 After the installation:
 
