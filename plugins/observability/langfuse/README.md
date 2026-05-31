@@ -5,16 +5,20 @@ you explicitly enable it.
 
 ## Enable
 
+Pick one:
+
 ```bash
+# Interactive: walks you through credentials + SDK install + enable
+hermes tools  # → Langfuse Observability
+
+# Manual
 pip install langfuse
 sonic plugins enable observability/langfuse
 ```
 
-Or check the box in the interactive `sonic plugins` UI.
-
 ## Required credentials
 
-Set these in `~/.sonic/.env`:
+Set these in `~/.sonic/.env` (or via `sonic tools`):
 
 ```bash
 SONIC_LANGFUSE_PUBLIC_KEY=pk-lf-...

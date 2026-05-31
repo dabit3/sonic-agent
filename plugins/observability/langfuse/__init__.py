@@ -4,11 +4,11 @@ Traces Sonic conversations, LLM calls, and tool usage to Langfuse.
 
 Activation is handled by the Sonic plugin system — standalone plugins only
 load when listed in ``plugins.enabled`` (via ``sonic plugins enable
-observability/langfuse``, or by checking the box in the interactive
-``sonic plugins`` UI). At runtime the plugin also requires the
-``langfuse`` SDK and credentials; if either is missing the hooks are inert.
+observability/langfuse`` or ``sonic tools → Langfuse Observability``). At
+runtime the plugin also requires the ``langfuse`` SDK and credentials; if
+either is missing the hooks are inert.
 
-Required env vars (set in ~/.sonic/.env):
+Required env vars (set via ``sonic tools`` or ~/.sonic/.env):
   SONIC_LANGFUSE_PUBLIC_KEY  - Langfuse project public key (pk-lf-...)
   SONIC_LANGFUSE_SECRET_KEY  - Langfuse project secret key (sk-lf-...)
   SONIC_LANGFUSE_BASE_URL    - Langfuse server URL (default: https://cloud.langfuse.com)

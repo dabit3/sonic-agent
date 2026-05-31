@@ -142,8 +142,6 @@ Within each source, Sonic also recognizes sub-category directories that route pl
 
 User plugins at `~/.sonic/plugins/model-providers/<name>/` and `~/.sonic/plugins/memory/<name>/` override bundled plugins of the same name — last-writer-wins in `register_provider()` / `register_memory_provider()`. Drop a directory in, and it replaces the built-in without any repo edits.
 
-Sub-category plugins surface in `sonic plugins list` and the interactive `sonic plugins` UI under their **path-derived key** — e.g. `observability/langfuse`, `image_gen/openai`, `platforms/teams`. That key (not the bare manifest `name:`) is the value you pass to `sonic plugins enable …` / `disable …` and the string to add under `plugins.enabled` in `config.yaml`.
-
 ## Plugins are opt-in (with a few exceptions)
 
 **General plugins and user-installed backends are disabled by default** — discovery finds them (so they show up in `sonic plugins` and `/plugins`), but nothing with hooks or tools loads until you add the plugin's name to `plugins.enabled` in `~/.sonic/config.yaml`. This stops third-party code from running without your explicit consent.
@@ -265,19 +263,16 @@ Declarative plugins are symlinked with a `nix-managed-` prefix — they coexist 
 ## Managing plugins
 
 ```bash
-sonic plugins                                       # unified interactive UI
-sonic plugins list                                  # table: enabled / disabled / not enabled
-sonic plugins install user/repo                     # install from Git, then prompt Enable? [y/N]
-sonic plugins install user/repo --enable            # install AND enable (no prompt)
-sonic plugins install user/repo --no-enable         # install but leave disabled (no prompt)
-sonic plugins update my-plugin                      # pull latest
-sonic plugins remove my-plugin                      # uninstall
-sonic plugins enable my-plugin                      # add to allow-list (flat plugin)
-sonic plugins enable observability/langfuse         # add to allow-list (sub-category plugin)
-sonic plugins disable my-plugin                     # remove from allow-list + add to disabled
+sonic plugins                               # unified interactive UI
+sonic plugins list                          # table: enabled / disabled / not enabled
+sonic plugins install user/repo             # install from Git, then prompt Enable? [y/N]
+sonic plugins install user/repo --enable    # install AND enable (no prompt)
+sonic plugins install user/repo --no-enable # install but leave disabled (no prompt)
+sonic plugins update my-plugin              # pull latest
+sonic plugins remove my-plugin              # uninstall
+sonic plugins enable my-plugin              # add to allow-list
+sonic plugins disable my-plugin             # remove from allow-list + add to disabled
 ```
-
-For plugins under a sub-category directory (e.g. `plugins/observability/langfuse/`, `plugins/image_gen/openai/`), use the full `<category>/<plugin>` key — that's exactly what `sonic plugins list` shows in the **Name** column.
 
 ### Interactive UI
 
@@ -291,7 +286,6 @@ Plugins
  → [✓] my-tool-plugin — Custom search tool
    [ ] webhook-notifier — Event hooks
    [ ] disk-cleanup — Auto-cleanup of ephemeral files [bundled]
-   [ ] observability/langfuse — Trace turns / LLM calls / tools to Langfuse [bundled]
 
   Provider Plugins
      Memory Provider          ▸ honcho
