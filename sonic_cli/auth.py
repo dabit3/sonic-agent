@@ -6151,7 +6151,10 @@ def _prompt_model_selection(
         if idx < n:
             return ordered[idx]
         if idx == custom_idx:
-            custom = input("Enter model name: ").strip()
+            try:
+                custom = input("Enter model name: ").strip()
+            except (EOFError, KeyboardInterrupt):
+                return None
             return custom if custom else None
         return None  # skip
 

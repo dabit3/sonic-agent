@@ -4465,23 +4465,17 @@ def _remove_custom_provider(config):
     choices.append("Cancel")
 
     try:
-        from simple_term_menu import TerminalMenu
+        from sonic_cli.curses_ui import curses_radiolist
 
-        menu = TerminalMenu(
-            [f"  {c}" for c in choices],
-            cursor_index=0,
-            menu_cursor="-> ",
-            menu_cursor_style=("fg_red", "bold"),
-            menu_highlight_style=("fg_red",),
-            cycle_cursor=True,
-            clear_screen=False,
-            title="Select provider to remove:",
+        idx = curses_radiolist(
+            "Select provider to remove:",
+            list(choices),
+            selected=0,
+            cancel_returns=-1,
         )
-        idx = menu.show()
-        from sonic_cli.curses_ui import flush_stdin
-
-        flush_stdin()
         print()
+        if idx < 0:
+            idx = None
     except (ImportError, NotImplementedError, OSError, subprocess.SubprocessError):
         for i, c in enumerate(choices, 1):
             print(f"  {i}. {c}")
@@ -4742,26 +4736,18 @@ def _prompt_reasoning_effort_selection(efforts, current_effort=""):
         default_idx = 0
 
     try:
-        from simple_term_menu import TerminalMenu
+        from sonic_cli.curses_ui import curses_radiolist
 
-        choices = [f"  {_label(effort)}" for effort in ordered]
-        choices.append(f"  {disable_label}")
-        choices.append(f"  {skip_label}")
-        menu = TerminalMenu(
+        choices = [_label(effort) for effort in ordered]
+        choices.append(disable_label)
+        choices.append(skip_label)
+        idx = curses_radiolist(
+            "Select reasoning effort:",
             choices,
-            cursor_index=default_idx,
-            menu_cursor="-> ",
-            menu_cursor_style=("fg_green", "bold"),
-            menu_highlight_style=("fg_green",),
-            cycle_cursor=True,
-            clear_screen=False,
-            title="Select reasoning effort:",
+            selected=default_idx,
+            cancel_returns=-1,
         )
-        idx = menu.show()
-        from sonic_cli.curses_ui import flush_stdin
-
-        flush_stdin()
-        if idx is None:
+        if idx < 0:
             return None
         print()
         if idx < len(ordered):
