@@ -32,6 +32,14 @@ INSTALL_DIR="/opt/sonic"
 # is a no-op if the dir already exists. (#18482, salvages #18488)
 mkdir -p "$SONIC_HOME"
 
+# Numeric UID/GID validation: must be digits only, 1000-65534
+validate_uid_gid() {
+    case "$1" in
+        ''|*[!0-9]*) return 1 ;;
+        *) [ "$1" -ge 1000 ] && [ "$1" -le 65534 ] ;;
+    esac
+}
+
 # --- UID/GID remap ---
 # Accept PUID/PGID as aliases for SONIC_UID/SONIC_GID.  NAS users (UGOS,
 # Synology, unRAID) expect the LinuxServer.io PUID/PGID convention and
@@ -42,11 +50,11 @@ mkdir -p "$SONIC_HOME"
 SONIC_UID="${SONIC_UID:-${PUID:-}}"
 SONIC_GID="${SONIC_GID:-${PGID:-}}"
 
-if [ -n "${SONIC_UID:-}" ] && [ "$SONIC_UID" != "$(id -u sonic)" ]; then
+if [ -n "${SONIC_UID:-}" ] && validate_uid_gid "$SONIC_UID" && [ "$SONIC_UID" != "$(id -u sonic)" ]; then
     echo "[stage2] Changing sonic UID to $SONIC_UID"
     usermod -u "$SONIC_UID" sonic
 fi
-if [ -n "${SONIC_GID:-}" ] && [ "$SONIC_GID" != "$(id -g sonic)" ]; then
+if [ -n "${SONIC_GID:-}" ] && validate_uid_gid "$SONIC_GID" && [ "$SONIC_GID" != "$(id -g sonic)" ]; then
     echo "[stage2] Changing sonic GID to $SONIC_GID"
     # -o allows non-unique GID (e.g. macOS GID 20 "staff" may already
     # exist as "dialout" in the Debian-based container image).
