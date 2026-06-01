@@ -20,6 +20,9 @@ set -eu
 SONIC_HOME="${SONIC_HOME:-/opt/data}"
 INSTALL_DIR="/opt/sonic"
 
+# Drop to sonic via s6-setuidgid, but skip it when already non-root.
+as_sonic() { [ "$(id -u)" = 0 ] || { "$@"; return; }; s6-setuidgid sonic "$@"; }
+
 # --- Bootstrap SONIC_HOME as root ---
 # Create the directory (and any missing parents) while we still have root
 # privileges so the chown checks below see real metadata and the later
@@ -199,7 +202,7 @@ fi
 # Use direct `mkdir -p` invocation (no `sh -c "..."` wrapper) so the
 # shell isn't a second interpreter — defends against $SONIC_HOME values
 # containing shell metacharacters. PR #30136 review item O2.
-s6-setuidgid sonic mkdir -p \
+as_sonic mkdir -p \
     "$SONIC_HOME/cron" \
     "$SONIC_HOME/sessions" \
     "$SONIC_HOME/logs" \
@@ -216,7 +219,7 @@ s6-setuidgid sonic mkdir -p \
 # the sonic user so ownership matches the file's documented owner.
 # tee is invoked directly via s6-setuidgid (no `sh -c` wrapper) for the
 # same shell-metacharacter safety described above.
-printf 'docker\n' | s6-setuidgid sonic tee "$SONIC_HOME/.install_method" >/dev/null \
+printf 'docker\n' | as_sonic tee "$SONIC_HOME/.install_method" >/dev/null \
     || true
 
 # --- Seed config files (only on first boot) ---
@@ -224,7 +227,7 @@ seed_one() {
     dest=$1
     src=$2
     if [ ! -f "$SONIC_HOME/$dest" ] && [ -f "$INSTALL_DIR/$src" ]; then
-        s6-setuidgid sonic cp "$INSTALL_DIR/$src" "$SONIC_HOME/$dest"
+        as_sonic cp "$INSTALL_DIR/$src" "$SONIC_HOME/$dest"
     fi
 }
 seed_one ".env" ".env.example"
@@ -255,7 +258,7 @@ fi
 # the python binary's own bin-stub already sets up (sys.path is rooted
 # at the venv's site-packages by virtue of running .venv/bin/python).
 if [ -d "$INSTALL_DIR/skills" ]; then
-    s6-setuidgid sonic "$INSTALL_DIR/.venv/bin/python" "$INSTALL_DIR/tools/skills_sync.py" \
+    as_sonic "$INSTALL_DIR/.venv/bin/python" "$INSTALL_DIR/tools/skills_sync.py" \
         || echo "[stage2] Warning: skills_sync.py failed; continuing"
 fi
 
