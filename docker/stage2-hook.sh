@@ -128,9 +128,7 @@ done
 # mkdir -p block below seeds. Keep them in sync if the seed list changes.
 actual_sonic_uid=$(id -u sonic)
 needs_chown=false
-if [ -n "${SONIC_UID:-}" ] && [ "$SONIC_UID" != "10000" ]; then
-    needs_chown=true
-elif [ "$(stat -c %u "$SONIC_HOME" 2>/dev/null)" != "$actual_sonic_uid" ]; then
+if [ "$(stat -c %u "$SONIC_HOME" 2>/dev/null)" != "$actual_sonic_uid" ]; then
     needs_chown=true
 fi
 if [ "$needs_chown" = true ]; then
