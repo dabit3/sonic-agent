@@ -47,7 +47,6 @@ SONIC_OVERLAYS: Dict[str, SonicOverlay] = {
     "openrouter": SonicOverlay(
         transport="openai_chat",
         is_aggregator=True,
-        extra_env_vars=("OPENAI_API_KEY",),
         base_url_env_var="OPENROUTER_BASE_URL",
     ),
     "nous": SonicOverlay(
