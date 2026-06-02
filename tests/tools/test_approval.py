@@ -1395,11 +1395,16 @@ class TestApprovalTimeoutIsNotConsent:
 
         self._saved_env = {
             k: os.environ.get(k)
-            for k in ("SONIC_GATEWAY_SESSION", "SONIC_YOLO_MODE",
+            for k in ("SONIC_GATEWAY_SESSION", "SONIC_CRON_SESSION",
+                      "SONIC_YOLO_MODE",
                       "SONIC_SESSION_KEY", "SONIC_INTERACTIVE")
         }
         os.environ.pop("SONIC_YOLO_MODE", None)
         os.environ.pop("SONIC_INTERACTIVE", None)
+        # SONIC_CRON_SESSION takes priority over SONIC_GATEWAY_SESSION in
+        # _is_gateway_approval_context(); a leaked value from a parent cron
+        # process would force the cron path and break these gateway tests.
+        os.environ.pop("SONIC_CRON_SESSION", None)
         os.environ["SONIC_GATEWAY_SESSION"] = "1"
         os.environ["SONIC_SESSION_KEY"] = self.SESSION_KEY
 
