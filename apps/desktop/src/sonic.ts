@@ -114,10 +114,11 @@ export class SonicGateway extends JsonRpcGatewayClient {
 export async function listSessions(
   limit = 40,
   minMessages = 0,
-  archived: 'exclude' | 'include' | 'only' = 'exclude'
+  archived: 'exclude' | 'include' | 'only' = 'exclude',
+  order: 'created' | 'recent' = 'recent'
 ): Promise<PaginatedSessions> {
   const result = await window.sonicDesktop.api<PaginatedSessions>({
-    path: `/api/sessions?limit=${limit}&offset=0&min_messages=${Math.max(0, minMessages)}&archived=${archived}`
+    path: `/api/sessions?limit=${limit}&offset=0&min_messages=${Math.max(0, minMessages)}&archived=${archived}&order=${order}`
   })
 
   return {

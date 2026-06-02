@@ -91,6 +91,7 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   getBootstrapState: () => ipcRenderer.invoke('sonic:bootstrap:get'),
   resetBootstrap: () => ipcRenderer.invoke('sonic:bootstrap:reset'),
   repairBootstrap: () => ipcRenderer.invoke('sonic:bootstrap:repair'),
+  cancelBootstrap: () => ipcRenderer.invoke('sonic:bootstrap:cancel'),
   onBootstrapEvent: callback => {
     const listener = (_event, payload) => callback(payload)
     ipcRenderer.on('sonic:bootstrap:event', listener)
