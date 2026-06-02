@@ -12,6 +12,7 @@ export interface SettingsPageProps {
   gateway?: SonicGateway | null
   onClose: () => void
   onConfigSaved?: () => void
+  onMainModelChanged?: (provider: string, model: string) => void
 }
 
 export interface SearchProps {
