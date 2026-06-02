@@ -452,12 +452,9 @@ class SessionDB:
         self._fts_unavailable_warned = True
         logger.warning(
             "SQLite FTS5 unavailable for %s; full-text session search "
-            "disabled. This usually means Sonic is running on an "
-            "unsupported install (e.g. a pip-installed or pip-managed "
-            "Python whose bundled SQLite lacks FTS5) rather than a "
-            "mainline install. Some features may be missing or behave "
-            "differently. Install the supported way: "
-            "https://lightning-agent.nousresearch.com (underlying error: %s)",
+            "disabled. Run `sonic update` to rebuild the venv with a "
+            "current Python (managed uv guarantees FTS5). "
+            "(underlying error: %s)",
             self.db_path,
             exc,
         )
