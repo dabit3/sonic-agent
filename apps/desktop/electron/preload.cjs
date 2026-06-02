@@ -31,6 +31,11 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   setPreviewShortcutActive: active => ipcRenderer.send('sonic:previewShortcutActive', Boolean(active)),
   openExternal: url => ipcRenderer.invoke('sonic:openExternal', url),
   fetchLinkTitle: url => ipcRenderer.invoke('sonic:fetchLinkTitle', url),
+  settings: {
+    getDefaultProjectDir: () => ipcRenderer.invoke('sonic:setting:defaultProjectDir:get'),
+    setDefaultProjectDir: dir => ipcRenderer.invoke('sonic:setting:defaultProjectDir:set', dir),
+    pickDefaultProjectDir: () => ipcRenderer.invoke('sonic:setting:defaultProjectDir:pick')
+  },
   revealLogs: () => ipcRenderer.invoke('sonic:logs:reveal'),
   getRecentLogs: () => ipcRenderer.invoke('sonic:logs:recent'),
   readDir: dirPath => ipcRenderer.invoke('sonic:fs:readDir', dirPath),
