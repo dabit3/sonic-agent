@@ -95,7 +95,7 @@ You should see Sonic call `web_search` (Firecrawl-backed, through the gateway) a
 
 ## 5. Pick the model you actually want
 
-The default after `sonic setup --portal` is a sensible general-purpose model, but the whole point of the subscription is access to the full catalog. Switch with `/model` mid-session:
+`sonic setup --portal` lets you pick a model during setup, but the whole point of the subscription is access to the full catalog — switch any time with `/model` mid-session:
 
 ```bash
 /model anthropic/claude-sonnet-4.6     # best general-purpose agentic
