@@ -2,11 +2,15 @@ const { contextBridge, ipcRenderer, webUtils } = require('electron')
 
 contextBridge.exposeInMainWorld('sonicDesktop', {
   getConnection: () => ipcRenderer.invoke('sonic:connection'),
+  getGatewayWsUrl: () => ipcRenderer.invoke('sonic:gateway:ws-url'),
   getBootProgress: () => ipcRenderer.invoke('sonic:boot-progress:get'),
   getConnectionConfig: () => ipcRenderer.invoke('sonic:connection-config:get'),
   saveConnectionConfig: payload => ipcRenderer.invoke('sonic:connection-config:save', payload),
   applyConnectionConfig: payload => ipcRenderer.invoke('sonic:connection-config:apply', payload),
   testConnectionConfig: payload => ipcRenderer.invoke('sonic:connection-config:test', payload),
+  probeConnectionConfig: remoteUrl => ipcRenderer.invoke('sonic:connection-config:probe', remoteUrl),
+  oauthLoginConnectionConfig: remoteUrl => ipcRenderer.invoke('sonic:connection-config:oauth-login', remoteUrl),
+  oauthLogoutConnectionConfig: remoteUrl => ipcRenderer.invoke('sonic:connection-config:oauth-logout', remoteUrl),
   api: request => ipcRenderer.invoke('sonic:api', request),
   notify: payload => ipcRenderer.invoke('sonic:notify', payload),
   requestMicrophoneAccess: () => ipcRenderer.invoke('sonic:requestMicrophoneAccess'),
