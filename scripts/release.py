@@ -50,6 +50,7 @@ AUTHOR_MAP = {
     "redpiggy-cyber@users.noreply.github.com": "redpiggy-cyber",
     "liliangjya@gmail.com": "truenorth-lj",
     "alaamohanad169@gmail.com": "alaamohanad169-ship-it",
+    "16943149+nepenth@users.noreply.github.com": "nepenth",
     "ben.bartholomew@vectorize.io": "benfrank241",
     "74339271+SaguaroDev@users.noreply.github.com": "SaguaroDev",
     "subw3@mail2.sysu.edu.cn": "Subway2023",
