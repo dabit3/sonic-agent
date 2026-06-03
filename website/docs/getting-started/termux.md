@@ -80,14 +80,8 @@ Why these packages?
 ### 2. Clone Sonic
 
 ```bash
-git clone --recurse-submodules https://github.com/dabit3/sonic-agent.git
+git clone https://github.com/dabit3/sonic-agent.git
 cd sonic-agent
-```
-
-If you already cloned without submodules:
-
-```bash
-git submodule update --init --recursive
 ```
 
 ### 3. Create a virtual environment

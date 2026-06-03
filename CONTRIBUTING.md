@@ -81,7 +81,7 @@ This isn't a quality bar — it's a coupling-and-maintenance decision. Memory pr
 ### Clone and install
 
 ```bash
-git clone --recurse-submodules https://github.com/dabit3/sonic-agent.git
+git clone https://github.com/dabit3/sonic-agent.git
 cd sonic-agent
 
 # Create venv with Python 3.11
