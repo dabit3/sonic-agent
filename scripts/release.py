@@ -52,6 +52,7 @@ AUTHOR_MAP = {
     "kyssta-exe@users.noreply.github.com": "kyssta-exe",
     "copii.list@gmail.com": "stremtec",
     "solaiagent@gmail.com": "solaitken",
+    "cryptoworlldz@gmail.com": "worlldz",
     "prostoandrei9@gmail.com": "vladkvlchk",
     "copii.list@gmail.com": "stremtec",
     "vinoth12940@users.noreply.github.com": "vinoth12940",
