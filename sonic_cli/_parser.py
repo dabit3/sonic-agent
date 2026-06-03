@@ -41,6 +41,8 @@ _EPILOGUE = """
 Examples:
     sonic                        Start interactive chat
     sonic chat -q "Hello"        Single query mode
+    sonic --tui                  Launch the modern TUI (or set display.interface: tui)
+    sonic --cli                  Force the classic REPL (overrides display.interface: tui)
     sonic -c                     Resume the most recent session
     sonic -c "my project"        Resume a session by name (latest in lineage)
     sonic --resume <session_id>  Resume a specific session by ID
@@ -220,6 +222,13 @@ def build_top_level_parser():
     )
     _inherited_flag(
         parser,
+        "--cli",
+        action="store_true",
+        default=False,
+        help="Force the classic prompt_toolkit REPL (overrides display.interface=tui)",
+    )
+    _inherited_flag(
+        parser,
         "--dev",
         dest="tui_dev",
         action="store_true",
@@ -368,6 +377,13 @@ def build_top_level_parser():
         action="store_true",
         default=False,
         help="Launch the modern TUI instead of the classic REPL",
+    )
+    _inherited_flag(
+        chat_parser,
+        "--cli",
+        action="store_true",
+        default=False,
+        help="Force the classic prompt_toolkit REPL (overrides display.interface=tui)",
     )
     _inherited_flag(
         chat_parser,
