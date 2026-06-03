@@ -57,7 +57,7 @@ See [OAuth over SSH / Remote Hosts](/guides/oauth-over-ssh) for the full walkthr
 ## 3. Verify it worked
 
 ```bash
-sonic portal status
+sonic portal info
 ```
 
 You should see:
@@ -178,12 +178,12 @@ For team setups where multiple humans share a machine, each human has their own 
 
 ## Troubleshooting
 
-### `sonic portal status` shows "not logged in" after `sonic setup --portal`
+### `sonic portal info` shows "not logged in" after `sonic setup --portal`
 
 The OAuth flow didn't complete. Re-run it:
 
 ```bash
-sonic auth add nous --type oauth
+sonic portal
 ```
 
 If your browser doesn't open or the callback fails, you're likely on a remote/headless host — see [OAuth over SSH](/guides/oauth-over-ssh) for the port-forwarding and manual-paste workarounds.
@@ -203,7 +203,7 @@ sonic model
 # pick Nous Portal
 ```
 
-Re-verify with `sonic portal status`.
+Re-verify with `sonic portal info`.
 
 ### Tool Gateway tools showing partner names instead of "via Nous Portal"
 
@@ -239,7 +239,7 @@ If a model is genuinely unavailable, [open an issue](https://github.com/NousRese
 
 ### Billing not appearing on my Portal account
 
-`sonic portal status` will tell you whether you're actually routing through the Portal or some other provider. Common causes:
+`sonic portal info` will tell you whether you're actually routing through the Portal or some other provider. Common causes:
 
 - `model.provider` set to `openrouter`/`anthropic`/etc. instead of `nous`
 - An OAuth refresh failure that fell back to a different configured provider

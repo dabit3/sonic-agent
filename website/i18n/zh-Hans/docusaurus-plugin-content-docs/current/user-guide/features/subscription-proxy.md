@@ -24,7 +24,7 @@ description: "将你的 Nous Portal 订阅（或其他 OAuth 提供商）用作�
 ### 1. 登录你的提供商（仅需一次）
 
 ```bash
-sonic auth add nous
+sonic portal
 ```
 
 这会打开浏览器进行 Nous Portal OAuth 流程。Sonic 将刷新令牌存储在 `~/.sonic/auth.json` 中——与所有 Sonic 提供商登录信息存放在同一位置。
@@ -76,7 +76,7 @@ Sonic proxy upstream adapters
   [nous    ] Nous Portal — ready (bearer expires 2026-05-15T06:43:21Z)
 ```
 
-如果显示 `not logged in`，请运行 `sonic auth add nous`。如果显示 `credentials need attention`，说明你的刷新令牌已被撤销（较少见——通常发生在你从 Portal Web UI 退出登录时）——重新运行 `sonic auth add nous` 即可。
+如果显示 `not logged in`，请运行 `sonic portal`。如果显示 `credentials need attention`，说明你的刷新令牌已被撤销（较少见——通常发生在你从 Portal Web UI 退出登录时）——重新运行 `sonic portal` 即可。
 
 ## 允许的路径
 

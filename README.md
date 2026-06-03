@@ -115,7 +115,7 @@ From a new installation, one command is enough:
 sonic setup --portal
 ```
 
-This command logs you in with OAuth, sets Nous as your provider, and turns on the Tool Gateway. To see the current status, run `sonic portal status`. The details are on the [Tool Gateway docs page](https://lightning-agent.nousresearch.com/docs/user-guide/features/tool-gateway).
+This command logs you in with OAuth, sets Nous as your provider, and turns on the Tool Gateway. To see the current status, run `sonic portal info`. The details are on the [Tool Gateway docs page](https://lightning-agent.nousresearch.com/docs/user-guide/features/tool-gateway).
 
 You can still use your own key for each tool. The gateway works per backend, not for all backends together.
 

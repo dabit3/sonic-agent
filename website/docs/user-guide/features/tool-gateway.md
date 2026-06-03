@@ -60,12 +60,12 @@ sonic tools              # Enable the gateway per-tool — pick "Nous Subscripti
 Check what's active at any time:
 
 ```bash
-sonic portal status      # Portal auth + Tool Gateway routing summary
+sonic portal info        # Portal auth + Tool Gateway routing summary
 sonic portal tools       # Gateway catalog with current routing per tool
 sonic status             # Full system status (Tool Gateway is one section)
 ```
 
-`sonic portal status` shows a section like:
+`sonic portal info` shows a section like:
 
 ```
 ◆ Nous Tool Gateway

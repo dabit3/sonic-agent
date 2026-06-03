@@ -130,12 +130,15 @@ If you use [Sonic profiles](/user-guide/profiles), the Portal refresh token is a
 ### Inspecting what's wired up
 
 ```bash
-sonic portal status     # login status, subscription info, model + gateway routing
+sonic portal            # log in to Nous Portal + set it up (one-shot onboarding)
+sonic portal info       # login status, subscription info, model + gateway routing
 sonic portal tools      # detailed Tool Gateway catalog with per-tool routing
 sonic portal open       # open the subscription management page in your browser
 ```
 
-`sonic portal status` (or just `sonic portal`) gives you the high-level overview:
+`sonic portal` (with no subcommand) is the human-readable alias for `sonic auth add nous --type oauth` — it logs you in, sets Nous as your inference provider, and offers the Tool Gateway opt-in (identical to `sonic setup --portal`).
+
+`sonic portal info` gives you the high-level overview:
 
 ```
   Nous Portal
@@ -234,12 +237,12 @@ If the Portal invalidates the refresh token (password change, manual revoke, ses
 
 ## Troubleshooting
 
-### `sonic portal status` shows "not logged in"
+### `sonic portal info` shows "not logged in"
 
 You haven't completed the OAuth flow, or your refresh token was wiped. Run:
 
 ```bash
-sonic auth add nous --type oauth
+sonic portal
 ```
 
 or use `sonic model` and re-select Nous Portal.
@@ -260,7 +263,7 @@ If a model is genuinely missing, [open an issue](https://github.com/NousResearch
 
 ### Bills not appearing on my Portal account
 
-Check `sonic portal status` first — if it shows you're using a different provider (`Model: currently openrouter` instead of `using Nous as inference provider`), your local config has drifted. Run `sonic model`, pick Nous Portal, and the next request will route through your subscription.
+Check `sonic portal info` first — if it shows you're using a different provider (`Model: currently openrouter` instead of `using Nous as inference provider`), your local config has drifted. Run `sonic model`, pick Nous Portal, and the next request will route through your subscription.
 
 ## See also
 

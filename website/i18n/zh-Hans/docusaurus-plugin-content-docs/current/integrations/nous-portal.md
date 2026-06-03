@@ -126,12 +126,15 @@ OAuth 需要浏览器，但回调的 loopback 运行在 Sonic 所在的机器上
 ### 查看当前配置状态
 
 ```bash
-sonic portal status     # 登录状态、订阅信息、模型与 gateway 路由
+sonic portal            # 登录 Nous Portal 并完成配置（一键引导）
+sonic portal info       # 登录状态、订阅信息、模型与 gateway 路由
 sonic portal tools      # 详细的 Tool Gateway 目录及每个工具的路由信息
 sonic portal open       # 在浏览器中打开订阅管理页面
 ```
 
-`sonic portal status`（或直接 `sonic portal`）给出高层概览：
+`sonic portal`（不带子命令）是 `sonic auth add nous --type oauth` 的易记别名——它会登录、把 Nous 设为推理服务商，并提供 Tool Gateway 启用选项（与 `sonic setup --portal` 等价）。
+
+`sonic portal info` 给出高层概览：
 
 ```
   Nous Portal
@@ -230,12 +233,12 @@ Sonic 在每次推理调用时从存储的 Portal refresh token 生成短期 JWT
 
 ## 故障排查
 
-### `sonic portal status` 显示"not logged in"
+### `sonic portal info` 显示"not logged in"
 
 你尚未完成 OAuth 流程，或 refresh token 已被清除。运行：
 
 ```bash
-sonic auth add nous --type oauth
+sonic portal
 ```
 
 或使用 `sonic model` 重新选择 Nous Portal。
@@ -256,7 +259,7 @@ Portal 通过 OpenRouter 代理，因此 OpenRouter 支持的所有模型通常�
 
 ### 账单未出现在我的 Portal 账号中
 
-先检查 `sonic portal status`——如果显示你正在使用其他提供商（`Model: currently openrouter` 而非 `using Nous as inference provider`），说明本地配置已偏离。运行 `sonic model`，选择 Nous Portal，下一次请求将通过你的订阅路由。
+先检查 `sonic portal info`——如果显示你正在使用其他提供商（`Model: currently openrouter` 而非 `using Nous as inference provider`），说明本地配置已偏离。运行 `sonic model`，选择 Nous Portal，下一次请求将通过你的订阅路由。
 
 ## 另请参阅
 
