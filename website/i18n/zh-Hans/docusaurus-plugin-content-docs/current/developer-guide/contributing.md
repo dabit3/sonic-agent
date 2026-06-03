@@ -33,7 +33,7 @@ description: "如何为 Sonic Agent 做贡献 — 开发环境配置、代码风
 
 | 要求 | 说明 |
 |-------------|-------|
-| **Git** | 需支持 `--recurse-submodules`，并安装 `git-lfs` 扩展 |
+| **Git** | 需安装 `git-lfs` 扩展 |
 | **Python 3.11+** | 若未安装，uv 会自动安装 |
 | **uv** | 高速 Python 包管理器（[安装](https://docs.astral.sh/uv/)） |
 | **Node.js 20+** | 可选 — 浏览器工具和 WhatsApp bridge 需要（与根目录 `package.json` engines 字段一致） |
@@ -41,7 +41,7 @@ description: "如何为 Sonic Agent 做贡献 — 开发环境配置、代码风
 ### 克隆与安装
 
 ```bash
-git clone --recurse-submodules https://github.com/NousResearch/hermes-agent.git
+git clone https://github.com/NousResearch/hermes-agent.git
 cd sonic-agent
 
 # 使用 Python 3.11 创建虚拟环境
