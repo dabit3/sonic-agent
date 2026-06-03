@@ -49,6 +49,7 @@ declare global {
       onWindowStateChanged?: (callback: (payload: SonicWindowState) => void) => () => void
       onPreviewFileChanged: (callback: (payload: SonicPreviewFileChanged) => void) => () => void
       onBackendExit: (callback: (payload: BackendExit) => void) => () => void
+      onPowerResume?: (callback: () => void) => () => void
       onBootProgress: (callback: (payload: DesktopBootProgress) => void) => () => void
       getBootstrapState: () => Promise<DesktopBootstrapState>
       resetBootstrap: () => Promise<{ ok: boolean }>

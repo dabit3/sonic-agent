@@ -83,6 +83,11 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
     ipcRenderer.on('sonic:backend-exit', listener)
     return () => ipcRenderer.removeListener('sonic:backend-exit', listener)
   },
+  onPowerResume: callback => {
+    const listener = () => callback()
+    ipcRenderer.on('hermes:power-resume', listener)
+    return () => ipcRenderer.removeListener('hermes:power-resume', listener)
+  },
   onBootProgress: callback => {
     const listener = (_event, payload) => callback(payload)
     ipcRenderer.on('sonic:boot-progress', listener)
