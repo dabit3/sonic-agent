@@ -15226,7 +15226,7 @@ Examples:
     logs_parser = subparsers.add_parser(
         "logs",
         help="View and filter Sonic log files",
-        description="View, tail, and filter agent.log / errors.log / gateway.log / gui.log",
+        description="View, tail, and filter agent.log / errors.log / gateway.log / gui.log / desktop.log",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""\
 Examples:
@@ -15235,6 +15235,7 @@ Examples:
     sonic logs errors             Show last 50 lines of errors.log
     sonic logs gateway -n 100     Show last 100 lines of gateway.log
     sonic logs gui -f             Follow gui.log in real time
+    sonic logs desktop -f         Follow desktop.log (Electron app boot/backend)
     sonic logs --level WARNING    Only show WARNING and above
     sonic logs --session abc123   Filter by session ID
     sonic logs --component tools  Only show tool-related lines
