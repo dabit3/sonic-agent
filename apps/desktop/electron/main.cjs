@@ -1319,16 +1319,34 @@ async function applyUpdates(opts = {}) {
 
     emitUpdateProgress({ stage: 'restart', message: 'Handing off to the Sonic updater…', percent: 100 })
 
+    const updateRoot = resolveUpdateRoot()
+    const { branch: configuredBranch } = readDesktopUpdateConfig()
+    const branch = await resolveHealedBranch(updateRoot, configuredBranch || DEFAULT_UPDATE_BRANCH)
+    const updaterArgs = ['--update', '--branch', branch]
+    const targetApp = IS_MAC ? runningAppBundle() : null
+    if (targetApp) {
+      updaterArgs.push('--target-app', targetApp)
+    }
+    const venvBin = path.join(updateRoot, 'venv', IS_WINDOWS ? 'Scripts' : 'bin')
+
     // Detached so the updater outlives this process — it needs us GONE before
     // `sonic update` will run (the venv shim is locked while we live).
-    const child = spawn(updater, ['--update'], {
+    const child = spawn(updater, updaterArgs, {
+      cwd: SONIC_HOME,
+      env: {
+        ...process.env,
+        SONIC_HOME,
+        PATH: [path.join(SONIC_HOME, 'node', 'bin'), venvBin, process.env.PATH]
+          .filter(Boolean)
+          .join(path.delimiter)
+      },
       detached: true,
       stdio: 'ignore',
       windowsHide: false
     })
     child.unref()
 
-    rememberLog(`[updates] launched updater: ${updater} --update; exiting desktop to release venv shim`)
+    rememberLog(`[updates] launched updater: ${updater} ${updaterArgs.join(' ')}; exiting desktop to release venv shim`)
 
     // Give the OS a beat to register the new process, then quit. The updater
     // rebuilds and relaunches us when it's done.
