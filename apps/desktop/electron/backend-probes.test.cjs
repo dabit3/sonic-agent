@@ -67,7 +67,9 @@ test('verifySonicCli returns true when --version exits 0', () => {
   } finally {
     try {
       fs.unlinkSync(scriptPath)
-    } catch {}
+    } catch {
+      void 0
+    }
   }
 })
 

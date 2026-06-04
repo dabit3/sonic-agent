@@ -52,7 +52,9 @@ function detectRemoteDisplay(options = {}) {
   const env = options.env ?? process.env
   const platform = options.platform ?? process.platform
 
-  const override = String(env.SONIC_DESKTOP_DISABLE_GPU || '').trim().toLowerCase()
+  const override = String(env.SONIC_DESKTOP_DISABLE_GPU || '')
+    .trim()
+    .toLowerCase()
   if (GPU_OVERRIDE_ON.has(override)) return 'override (SONIC_DESKTOP_DISABLE_GPU)'
   if (GPU_OVERRIDE_OFF.has(override)) return null
 
