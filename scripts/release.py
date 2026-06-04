@@ -49,6 +49,7 @@ AUTHOR_MAP = {
     "nikpolale@gmail.com": "polnikale",
     "redpiggy-cyber@users.noreply.github.com": "redpiggy-cyber",
     "zhaolei.vc@bytedance.com": "zhaoleibd",
+    "jeffrobodie@gmail.com": "jeffrobodie-glitch",
     "kyssta-exe@users.noreply.github.com": "kyssta-exe",
     "copii.list@gmail.com": "stremtec",
     "solaiagent@gmail.com": "solaitken",
