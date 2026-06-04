@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 
 import type { SonicConnection } from '@/global'
 import { SonicGateway } from '@/sonic'
+import { translateNow } from '@/i18n'
 import { isGatewayReauthRequired, resolveGatewayWsUrl } from '@/lib/gateway-ws-url'
 import {
   $desktopBoot,
@@ -151,7 +152,7 @@ export function useGatewayBoot({
         // backoff in the finally block below.
         if (!cancelled && isGatewayReauthRequired(err) && !reauthNotified) {
           reauthNotified = true
-          notifyError(err, 'Gateway sign-in required')
+          notifyError(err, translateNow('boot.errors.gatewaySignInRequired'))
         }
       } finally {
         reconnecting = false
