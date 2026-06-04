@@ -425,7 +425,6 @@ Auth for the [web dashboard](/user-guide/features/web-dashboard) and for connect
 | `SONIC_DASHBOARD_SESSION_TOKEN` | Pins the dashboard session token instead of generating a random one per boot. Set this (e.g. `openssl rand -base64 32`) on the backend, then paste the same value into Sonic Desktop → Settings → Gateway → Remote gateway → Session token. Required for a stable remote desktop connection. |
 | `SONIC_DESKTOP_REMOTE_URL` | (Desktop side) Base URL of the remote backend, e.g. `http://host:9119`. When set, overrides the in-app Gateway settings. Must be paired with `SONIC_DESKTOP_REMOTE_TOKEN`. |
 | `SONIC_DESKTOP_REMOTE_TOKEN` | (Desktop side) The session token to authenticate with the remote backend — the same value as the backend's `SONIC_DASHBOARD_SESSION_TOKEN`. |
-| `SONIC_DASHBOARD_TUI` | `1` exposes the in-browser Chat tab (embedded `sonic --tui`), same as the `--tui` flag. |
 | `SONIC_DASHBOARD_OAUTH_CLIENT_ID` | OAuth client id (`agent:{instance_id}`) for the gated/public dashboard. Overrides `dashboard.oauth.client_id`. Provisioned by the Nous Portal for hosted deploys. |
 | `SONIC_DASHBOARD_PORTAL_URL` | OAuth portal URL (default: `https://portal.nousresearch.com`). Override only for staging/custom deploys. |
 | `SONIC_DASHBOARD_PUBLIC_URL` | Complete public URL the dashboard is reached at, for OAuth callback construction behind reverse proxies. Overrides `dashboard.public_url`. |

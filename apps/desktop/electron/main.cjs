@@ -3747,7 +3747,7 @@ async function startSonic() {
     await advanceBootProgress('backend.port', 'Finding an open local port', 16)
     const port = await pickPort()
     const token = crypto.randomBytes(32).toString('base64url')
-    const dashboardArgs = ['dashboard', '--no-open', '--tui', '--host', '127.0.0.1', '--port', String(port)]
+    const dashboardArgs = ['dashboard', '--no-open', '--host', '127.0.0.1', '--port', String(port)]
     await advanceBootProgress('backend.runtime', 'Resolving Sonic runtime', 28)
     const backend = await ensureRuntime(resolveSonicBackend(dashboardArgs))
     const sonicCwd = resolveSonicCwd()
@@ -3771,7 +3771,6 @@ async function startSonic() {
         SONIC_HOME,
         ...backend.env,
         SONIC_DASHBOARD_SESSION_TOKEN: token,
-        SONIC_DASHBOARD_TUI: '1',
         SONIC_WEB_DIST: webDist
       },
       shell: backend.shell,

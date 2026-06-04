@@ -94,7 +94,7 @@ Installers are built and uploaded to GitHub Releases manually. macOS/Windows sig
 
 ### How it works
 
-The packaged app ships only the Electron shell. On first launch it installs the Sonic Agent runtime into `SONIC_HOME` (`~/.sonic`, or `%LOCALAPPDATA%\sonic` on Windows) — the **same layout a CLI install uses**, so the two are interchangeable. The renderer (React, in `src/`) talks to a `sonic dashboard --tui` backend over the standard gateway APIs and reuses the embedded TUI rather than reimplementing chat. The install, backend-resolution, and self-update logic all live in `electron/main.cjs`.
+The packaged app ships only the Electron shell. On first launch it installs the Sonic Agent runtime into `SONIC_HOME` (`~/.sonic`, or `%LOCALAPPDATA%\sonic` on Windows) — the **same layout a CLI install uses**, so the two are interchangeable. The renderer (React, in `src/`) talks to a `sonic dashboard` backend over the standard gateway APIs and reuses the embedded TUI rather than reimplementing chat. The install, backend-resolution, and self-update logic all live in `electron/main.cjs`.
 
 ### Verification
 

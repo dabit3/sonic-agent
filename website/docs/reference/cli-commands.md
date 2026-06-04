@@ -1342,14 +1342,13 @@ sonic claw migrate --source /home/user/old-openclaw
 sonic dashboard [options]
 ```
 
-Launch the web dashboard — a browser-based UI for managing configuration, API keys, and monitoring sessions. Requires `pip install sonic-agent[web]` (FastAPI + Uvicorn). The embedded browser Chat tab requires `--tui` plus the `pty` extra. See [Web Dashboard](/user-guide/features/web-dashboard) for full documentation.
+Launch the web dashboard — a browser-based UI for managing configuration, API keys, and monitoring sessions. Requires `pip install sonic-agent[web]` (FastAPI + Uvicorn). The embedded browser Chat tab is always available and additionally needs the `pty` extra (`pip install 'sonic-agent[web,pty]'`) plus a POSIX PTY environment such as Linux, macOS, or WSL2. See [Web Dashboard](/user-guide/features/web-dashboard) for full documentation.
 
 | Option | Default | Description |
 |--------|---------|-------------|
 | `--port` | `9119` | Port to run the web server on |
 | `--host` | `127.0.0.1` | Bind address |
 | `--no-open` | — | Don't auto-open the browser |
-| `--tui` | off | Enable the in-browser Chat tab by running `sonic --tui` behind a PTY/WebSocket bridge. Requires `pip install 'sonic-agent[web,pty]'` and a POSIX PTY environment such as Linux, macOS, or WSL2. |
 | `--insecure` | off | Allow binding to non-localhost hosts. Exposes dashboard credentials on the network; use only behind trusted network controls. |
 | `--stop` | — | Stop running `sonic dashboard` processes and exit. |
 | `--status` | — | List running `sonic dashboard` processes and exit. |
@@ -1360,9 +1359,6 @@ sonic dashboard
 
 # Custom port, no browser
 sonic dashboard --port 8080 --no-open
-
-# Enable the browser Chat tab
-sonic dashboard --tui
 ```
 
 ## `sonic profile`
