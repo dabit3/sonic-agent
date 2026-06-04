@@ -418,21 +418,21 @@ For cloud sandbox backends, persistence is filesystem-oriented. `TERMINAL_LIFETI
 
 ### Web Dashboard & Sonic Desktop
 
-Auth for the [web dashboard](/user-guide/features/web-dashboard) and for connecting [Sonic Desktop to a remote backend](/user-guide/features/web-dashboard#connecting-sonic-desktop-to-a-remote-backend). Per the secrets-only convention, the token belongs in `~/.sonic/.env`; the OAuth `client_id`/`portal_url` are better set under `dashboard.oauth` in `config.yaml` (env wins when set).
+Auth for the [web dashboard](/user-guide/features/web-dashboard) and for connecting [Sonic Desktop to a remote backend](/user-guide/features/web-dashboard#connecting-sonic-desktop-to-a-remote-backend). Per the secrets-only convention, credentials belong in `~/.sonic/.env`; the OAuth `client_id`/`portal_url` are better set under `dashboard.oauth` in `config.yaml` (env wins when set).
+
+The recommended way to expose a dashboard for a remote Sonic Desktop connection is the bundled **username/password** provider: set the `SONIC_DASHBOARD_BASIC_AUTH_*` vars below and run `sonic dashboard --host 0.0.0.0`. The non-loopback bind engages the auth gate, and Desktop signs in with the username and password.
 
 | Variable | Description |
 |----------|-------------|
-| `SONIC_DASHBOARD_SESSION_TOKEN` | Pins the dashboard session token instead of generating a random one per boot. Set this (e.g. `openssl rand -base64 32`) on the backend, then paste the same value into Sonic Desktop → Settings → Gateway → Remote gateway → Session token. Required for a stable remote desktop connection. |
-| `SONIC_DESKTOP_REMOTE_URL` | (Desktop side) Base URL of the remote backend, e.g. `http://host:9119`. When set, overrides the in-app Gateway settings. Must be paired with `SONIC_DESKTOP_REMOTE_TOKEN`. |
-| `SONIC_DESKTOP_REMOTE_TOKEN` | (Desktop side) The session token to authenticate with the remote backend — the same value as the backend's `SONIC_DASHBOARD_SESSION_TOKEN`. |
+| `SONIC_DASHBOARD_BASIC_AUTH_USERNAME` | Username for the bundled username/password dashboard-auth provider (`plugins/dashboard_auth/basic`). Activates the provider when set together with a password. Overrides `dashboard.basic_auth.username`. |
+| `SONIC_DASHBOARD_BASIC_AUTH_PASSWORD` | Plaintext password for the basic provider (hashed in-memory at load). Wins over a config `password_hash` so you can rotate via env. Overrides `dashboard.basic_auth.password`. |
+| `SONIC_DASHBOARD_BASIC_AUTH_PASSWORD_HASH` | scrypt password hash for the basic provider (preferred — no plaintext at rest). Compute with `python -c "from plugins.dashboard_auth.basic import hash_password; print(hash_password('PW'))"`. Overrides `dashboard.basic_auth.password_hash`. |
+| `SONIC_DASHBOARD_BASIC_AUTH_SECRET` | HMAC key (32+ bytes, base64/hex/raw) signing the basic provider's stateless session tokens. Set explicitly so sessions survive restarts / span multiple workers; blank → random per-process (you'll be logged out on every restart). Overrides `dashboard.basic_auth.secret`. |
+| `SONIC_DASHBOARD_BASIC_AUTH_TTL_SECONDS` | Access-token lifetime for the basic provider (default 12h). Overrides `dashboard.basic_auth.session_ttl_seconds`. |
+| `SONIC_DESKTOP_REMOTE_URL` | (Desktop side) Base URL of the remote backend, e.g. `http://host:9119`. When set, overrides the in-app Gateway URL; you still sign in with your username and password from the Gateway settings panel. |
 | `SONIC_DASHBOARD_OAUTH_CLIENT_ID` | OAuth client id (`agent:{instance_id}`) for the gated/public dashboard. Overrides `dashboard.oauth.client_id`. Provisioned by the Nous Portal for hosted deploys. |
 | `SONIC_DASHBOARD_PORTAL_URL` | OAuth portal URL (default: `https://portal.nousresearch.com`). Override only for staging/custom deploys. |
 | `SONIC_DASHBOARD_PUBLIC_URL` | Complete public URL the dashboard is reached at, for OAuth callback construction behind reverse proxies. Overrides `dashboard.public_url`. |
-| `SONIC_DASHBOARD_BASIC_AUTH_USERNAME` | Username for the bundled username/password dashboard-auth provider (`plugins/dashboard_auth/basic`). Activates the provider when set together with a password. Overrides `dashboard.basic_auth.username`. |
-| `SONIC_DASHBOARD_BASIC_AUTH_PASSWORD_HASH` | scrypt password hash for the basic provider (preferred — no plaintext at rest). Compute with `python -c "from plugins.dashboard_auth.basic import hash_password; print(hash_password('PW'))"`. Overrides `dashboard.basic_auth.password_hash`. |
-| `SONIC_DASHBOARD_BASIC_AUTH_PASSWORD` | Plaintext password for the basic provider (hashed in-memory at load). Wins over a config `password_hash` so you can rotate via env. Overrides `dashboard.basic_auth.password`. |
-| `SONIC_DASHBOARD_BASIC_AUTH_SECRET` | HMAC key (32+ bytes, base64/hex/raw) signing the basic provider's stateless session tokens. Set explicitly for restart-surviving / multi-worker sessions; blank → random per-process. Overrides `dashboard.basic_auth.secret`. |
-| `SONIC_DASHBOARD_BASIC_AUTH_TTL_SECONDS` | Access-token lifetime for the basic provider (default 12h). Overrides `dashboard.basic_auth.session_ttl_seconds`. |
 
 ### Microsoft Graph (Teams Meetings)
 

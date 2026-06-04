@@ -93,44 +93,49 @@ To point [Sonic Desktop](#connecting-sonic-desktop-to-a-remote-backend) at a das
 
 ### Connecting Sonic Desktop to a remote backend
 
-Sonic Desktop normally launches its own local backend, but it can also attach to a dashboard running on a remote machine (a VM, a homelab box, etc.) via **Settings → Gateway → Remote gateway**. This is the most common source of "Desktop says the backend is ready but chat never works" reports, because three independent things have to line up and only one of them is what Desktop's readiness check actually verifies.
+Sonic Desktop normally launches its own local backend, but it can also attach to a dashboard running on a remote machine (a VM, a homelab box, etc.) via **Settings → Gateway → Remote gateway**. This is the most common source of "Desktop says the backend is ready but chat never works" reports, because Desktop's readiness check verifies less than the live chat connection actually needs.
 
 Desktop's "remote backend is ready" probe only hits `GET /api/status`, which is a public endpoint — it answers as soon as *any* dashboard is running on the host. The live chat connection is a **separate** WebSocket to `/api/ws` (and `/api/pty`), and that socket is gated by two more checks the status probe never touches:
 
-1. **The session token must match.** The socket closes with WS code **4401** if the token Desktop sends doesn't match the dashboard's session token. By default the dashboard generates a **fresh random token on every restart**, so a token you saved in Desktop yesterday is invalid after the service restarts. Pin it by setting `SONIC_DASHBOARD_SESSION_TOKEN` to a stable value.
-2. **The bind host must allow the client and match the Host header.** A loopback bind (`127.0.0.1`) only accepts loopback clients, so a remote machine is rejected at the socket layer regardless of token. Bind to a non-loopback address (`--host 0.0.0.0 --insecure` for a trusted LAN) so the peer-IP guard lets the remote client through. The remote URL you enter in Desktop must reach the dashboard by the same host it bound to — the DNS-rebinding guard requires the Host header to match.
+1. **You must be authenticated.** When the dashboard is bound to a non-loopback address it engages its auth gate. Protect it with a username and password (the bundled [username/password provider](#usernamepassword-provider-no-oauth-idp)); Desktop signs in once and reuses the resulting session for the WebSocket via a single-use ticket. Without a configured provider, a non-loopback dashboard **fails closed at startup**.
+2. **The bind host must allow the client and match the Host header.** A loopback bind (`127.0.0.1`) only accepts loopback clients, so a remote machine is rejected at the socket layer regardless of credentials. Bind to a non-loopback address (`--host 0.0.0.0`) so the peer-IP guard lets the remote client through. The remote URL you enter in Desktop must reach the dashboard by the same host it bound to — the DNS-rebinding guard requires the Host header to match.
 
 #### Remote dashboard setup
 
-Run the remote dashboard with embedded chat **and** a pinned token. For a `systemd` service:
+Set a username and password, then run the dashboard bound to a reachable address. For a `systemd` service:
 
 ```ini
 [Service]
-Environment="SONIC_DASHBOARD_SESSION_TOKEN=<long-random-token>"
+EnvironmentFile=%h/.sonic/.env
 ExecStart=/path/to/venv/bin/python -m sonic_cli.main dashboard \
-    --host 0.0.0.0 --port 9119 --insecure --tui --no-open
+    --host 0.0.0.0 --port 9119 --no-open
 ```
 
-Generate a token once with `python -c "import secrets; print(secrets.token_urlsafe(32))"`, reload, and restart the service. Then paste that **same** token into Desktop's **Session token** field alongside the **Remote URL** (e.g. `http://VM_IP:9119`).
-
-:::tip Verify before retrying Desktop
-From the client machine, hit a protected endpoint with the token before opening Desktop:
+with `~/.hermes/.env` containing:
 
 ```bash
-curl -i -H "X-Sonic-Session-Token: <long-random-token>" http://VM_IP:9119/api/config
+SONIC_DASHBOARD_BASIC_AUTH_USERNAME=admin
+SONIC_DASHBOARD_BASIC_AUTH_PASSWORD=choose-a-strong-password
+SONIC_DASHBOARD_BASIC_AUTH_SECRET=<32+ random bytes; openssl rand -base64 32>
 ```
 
-- **200** → the token path Desktop needs is good.
-- **401** → Desktop will fail even though `/api/status` reports the backend is ready. Fix the token first.
+Then in Desktop enter the **Remote URL** (e.g. `http://VM_IP:9119`) and **Sign in** with that username and password. See the [username/password provider](#usernamepassword-provider-no-oauth-idp) section for the full configuration surface.
 
-The REST API reads the token from the `X-Sonic-Session-Token` header; the WebSocket reads the same token from the `?token=` query parameter. Both compare against `SONIC_DASHBOARD_SESSION_TOKEN`, so a 200 here means the WS handshake will authenticate too.
+:::tip Verify the gate is on before retrying Desktop
+From any machine, check that the dashboard advertises the username/password provider:
+
+```bash
+curl -s http://VM_IP:9119/api/status | jq '.auth_required, .auth_providers'
+# true
+# ["basic"]
+```
+
+- `auth_required: true` and `"basic"` in the providers list → Desktop's **Sign in** flow will work.
+- `auth_required: false` → the bind is loopback, or the gate didn't engage. Bind to a non-loopback address.
+- `auth_required: true` but no `"basic"` provider → the username/password env vars aren't loaded. Fix those first.
 :::
 
-If `/api/config` returns 200 with the token Desktop is using and Desktop *still* fails to connect, the issue is past basic setup — grab a fresh `desktop.log` (Settings → Gateway → Open logs) plus the dashboard's logs from the same retry window and look for the `/api/ws` close code (4403 = chat not enabled, 4401 = token mismatch, 4403 from the request guard = Host/peer rejected).
-
-:::note Public binds use OAuth, not the session token
-Everything above describes `--insecure` (loopback or trusted-LAN) mode. If the dashboard is bound to a public address *without* `--insecure`, it engages the [OAuth gate](#oauth-authentication-gated-mode) instead and the legacy session-token path is rejected — Desktop's session-token remote mode is for `--insecure` deployments.
-:::
+If `/api/status` shows the gate is on with the `"basic"` provider and Desktop *still* fails to connect after signing in, the issue is past basic setup — grab a fresh `desktop.log` (Settings → Gateway → Open logs) plus the dashboard's logs from the same retry window and look for the `/api/ws` close code (4403 = chat WS rejected by the request guard, e.g. Host/peer mismatch; 4401 = the WS ticket didn't authenticate).
 
 ### Config
 
@@ -482,26 +487,30 @@ same auth gate as the rest of `/api/`.
 | `POST /api/sessions/prune` | Delete ended sessions older than N days |
 | `PUT /api/cron/jobs/{id}` | Edit a cron job's prompt / schedule / name / deliver |
 
-## OAuth Authentication (gated mode)
+## Authentication (gated mode)
 
-When the dashboard is bound to a public address — anything other than `127.0.0.1` / `localhost` — Sonic Agent engages an OAuth-based auth gate. Every request must carry a verified session cookie or it's bounced through a full OAuth round-trip via the Nous Portal.
+When the dashboard is bound to a public or non-loopback address — anything other than `127.0.0.1` / `localhost` — Sonic Agent engages an auth gate. Every request must carry a verified session cookie or it's bounced to the login page. Two providers ship in the box:
 
-This is intended for hosted deployments (typically Fly.io) where the dashboard is reachable over the public internet. Operator-owned dashboards bound to loopback are unaffected.
+- **[Username/password](#usernamepassword-provider-no-oauth-idp)** — the simplest way to put auth on a self-hosted / on-prem / homelab dashboard (and the recommended path for a [remote Hermes Desktop connection](#connecting-hermes-desktop-to-a-remote-backend)). No external identity provider.
+- **OAuth (Nous Portal)** — for hosted deployments (typically Fly.io) where the dashboard is reachable over the public internet.
+
+Operator-owned dashboards bound to loopback are unaffected — no auth, no login page.
 
 ### When the gate engages
 
 | Flags | Auth gate | Use case |
 |-------|-----------|----------|
 | `sonic dashboard` (default — binds to `127.0.0.1`) | OFF | Local development |
-| `sonic dashboard --host 0.0.0.0` | **ON** | Production / Fly.io deployment |
-| `sonic dashboard --host 192.168.1.10 --insecure` | OFF | Trusted LAN; user opts into legacy session-token auth |
+| `sonic dashboard --host 0.0.0.0` | **ON** | Remote / production — protect with the username/password provider or OAuth |
 
 The gate is on if and only if:
 
 1. The bind host is not `127.0.0.1`, `::1`, `localhost`, or `0.0.0.0` AND
 2. The `--insecure` flag is **not** set.
 
-Setting `--insecure` keeps the existing single-process session-token behaviour — no OAuth dance, no provider plugins required. Use only on networks where you trust every client.
+:::danger `--insecure` disables auth entirely
+`--insecure` skips the gate and serves an unauthenticated dashboard that reads/writes your `.env` (API keys, secrets) and can run agent commands. **Do not use it for a remote connection.** To expose the dashboard to another machine, configure the [username/password provider](#usernamepassword-provider-no-oauth-idp) (or OAuth) and leave `--insecure` off. The flag exists only as a last-resort escape hatch on a fully trusted, firewalled single-host network.
+:::
 
 ### Fail-closed semantics
 
@@ -831,34 +840,33 @@ The dashboard's React StatusPage shows the same fields under "Web server". A sid
 
 ## Connecting Sonic Desktop to a remote backend
 
-Sonic Desktop can drive a Sonic backend running on another machine (a VPS, a home server, a Mini behind Tailscale). In the app this lives under **Settings → Gateway → Remote gateway**, which asks for a **Remote URL** and a **Session token**. (For the desktop app itself — install, settings, chat — see the [Sonic Desktop](/user-guide/desktop) page.)
+Sonic Desktop can drive a Sonic backend running on another machine (a VPS, a home server, a Mini behind Tailscale). In the app this lives under **Settings → Gateway → Remote gateway**, which asks for a **Remote URL** and a way to **Sign in**. (For the desktop app itself — install, settings, chat — see the [Sonic Desktop](/user-guide/desktop) page.)
 
-The "session token" is the dashboard's session token — the same secret the local web UI uses for `/api` and WebSocket calls. **Sonic does not print it for you to copy.** By default the dashboard mints a fresh random token on every boot and injects it straight into the served HTML, so there is nothing sitting in `config.yaml`, in `/gateway`, or in the logs to grab. For a remote connection you set the token yourself on the backend, then paste that same value into the desktop app.
-
-The desktop app sends the token as an `X-Sonic-Session-Token` header. The backend accepts it only in legacy session-token mode — i.e. when bound non-loopback **with `--insecure`**. A non-loopback bind *without* `--insecure` engages the [OAuth gate](#oauth-authentication-gated-mode) instead, which ignores the session token. So a remote desktop connection means: `--insecure` + a token you control.
+You protect the remote dashboard with a **username and password** (the bundled [username/password provider](#usernamepassword-provider-no-oauth-idp)). Binding the dashboard to a non-loopback address engages its auth gate; the username/password provider is what the desktop app signs in against. Once signed in, Desktop reuses the session for the chat WebSocket automatically — there is no token to copy or paste.
 
 ### On the backend (the remote machine)
 
 ```bash
-# 1. Mint a stable token and store it in ~/.sonic/.env (secrets file, 0600).
-#    Setting SONIC_DASHBOARD_SESSION_TOKEN pins the token so it survives
-#    restarts and is the value the desktop app will use — without this,
-#    the token is random per boot and uncopyable.
-TOKEN=$(openssl rand -base64 32)
-echo "SONIC_DASHBOARD_SESSION_TOKEN=$TOKEN" >> ~/.sonic/.env
+# 1. Set the dashboard login credentials in ~/.sonic/.env (secrets file, 0600).
+cat >> ~/.sonic/.env <<'EOF'
+SONIC_DASHBOARD_BASIC_AUTH_USERNAME=admin
+SONIC_DASHBOARD_BASIC_AUTH_PASSWORD=choose-a-strong-password
+# Recommended: a stable signing secret so sessions survive restarts.
+SONIC_DASHBOARD_BASIC_AUTH_SECRET=$(openssl rand -base64 32)
+EOF
 chmod 600 ~/.sonic/.env
-echo "$TOKEN"   # copy this value into the desktop app
 
-# 2. Run the dashboard bound to a reachable address.
-#    --insecure is required for any non-loopback bind and keeps the
-#    legacy session-token auth path (instead of the OAuth gate).
-sonic dashboard --no-open --insecure --host 0.0.0.0 --port 9119
+# 2. Run the dashboard bound to a reachable address. The non-loopback bind
+#    engages the auth gate; the username/password provider handles login.
+sonic dashboard --no-open --host 0.0.0.0 --port 9119
 ```
 
-If you run the dashboard as a systemd service, `~/.sonic/.env` is picked up automatically when the unit has `EnvironmentFile=%h/.sonic/.env`, so the token is in the environment at boot.
+Prefer no plaintext at rest? Use `SONIC_DASHBOARD_BASIC_AUTH_PASSWORD_HASH` with a scrypt hash instead — see [Username/password provider](#usernamepassword-provider-no-oauth-idp) for the full surface.
+
+If you run the dashboard as a systemd service, `~/.sonic/.env` is picked up automatically when the unit has `EnvironmentFile=%h/.sonic/.env`, so the credentials are in the environment at boot.
 
 :::warning
-`--insecure` exposes a port that reads and writes your `.env` (API keys, secrets) and can run agent commands. Never expose it to the open internet. Put it behind a VPN. [Tailscale](https://tailscale.com/) is the clean option: bind to the machine's tailscale IP (`--host <tailscale-ip>`) and use `http://<tailscale-ip>:9119` as the Remote URL. Only devices on your tailnet can reach it.
+The dashboard reads and writes your `.env` (API keys, secrets) and can run agent commands. Even behind a username and password, never expose it directly to the open internet. Put it behind a VPN. [Tailscale](https://tailscale.com/) is the clean option: bind to the machine's tailscale IP (`--host <tailscale-ip>`) and use `http://<tailscale-ip>:9119` as the Remote URL. Only devices on your tailnet can reach it.
 :::
 
 ### In Sonic Desktop
@@ -866,29 +874,26 @@ If you run the dashboard as a systemd service, `~/.sonic/.env` is picked up auto
 **Settings → Gateway → Remote gateway:**
 
 - **Remote URL** — `http://<backend-host>:9119` (path prefixes like `/sonic` are supported if you front it with a reverse proxy)
-- **Session token** — paste the `$TOKEN` value from step 1
-- **Test remote** — confirms the backend is reachable and the token is accepted
+- **Sign in** — the app detects the username/password gateway and shows a **Sign in** button; click it and enter the credentials from step 1
 - **Save and reconnect** — switches the desktop shell onto the remote backend
 
-The token is stored encrypted in the desktop app's local config. Leave the token field blank on a later edit to keep the saved one.
+The session refreshes automatically and survives restarts when `HERMES_DASHBOARD_BASIC_AUTH_SECRET` is set on the backend.
 
 ### Environment-variable override
 
-Instead of the in-app settings, you can point the desktop at a backend with two env vars before launching it. When `SONIC_DESKTOP_REMOTE_URL` is set, it overrides the saved in-app settings (the Gateway settings panel shows an "env override" badge and disables editing):
+Instead of the in-app setting, you can point the desktop at a backend with an env var before launching it. When `SONIC_DESKTOP_REMOTE_URL` is set, it overrides the saved in-app URL (the Gateway settings panel shows an "env override" badge and disables editing); you still **Sign in** with your username and password from the panel.
 
 | Env var | Value |
 |---------|-------|
 | `SONIC_DESKTOP_REMOTE_URL` | `http://<backend-host>:9119` |
-| `SONIC_DESKTOP_REMOTE_TOKEN` | the same token as `SONIC_DASHBOARD_SESSION_TOKEN` on the backend |
-
-Both must be set together — setting only the URL is an error.
 
 ### Troubleshooting
 
-- **"Remote gateway incomplete"** — you haven't entered both a URL and a token. The token only needs re-entering if `remoteTokenSet` is false (no saved token yet).
-- **Test remote fails with 401** — the token doesn't match the backend's `SONIC_DASHBOARD_SESSION_TOKEN`, or the backend is running *without* `--insecure` on a non-loopback bind (the OAuth gate is on and ignores the session token). Confirm `--insecure` and that the env var is actually loaded (`curl -s -H "X-Sonic-Session-Token: $TOKEN" http://<host>:9119/api/status` should return JSON, not 401).
+- **"Remote gateway incomplete"** — you haven't entered a remote URL.
+- **Sign-in fails with 401 / "Invalid credentials"** — the username or password doesn't match the backend's `SONIC_DASHBOARD_BASIC_AUTH_USERNAME` / `SONIC_DASHBOARD_BASIC_AUTH_PASSWORD`. The backend returns the same generic error for unknown user and wrong password, so check both. Confirm the gate with `curl -s http://<host>:9119/api/status | jq '.auth_required, .auth_providers'` — it should report `true` and include `"basic"`.
+- **No "Sign in" button — it asks for a session token instead** — the username/password provider isn't active (`/api/status` won't list `"basic"`). Make sure the username and a password (or password hash) are set and the dashboard process loaded them.
+- **Signed out on every restart** — set `SONIC_DASHBOARD_BASIC_AUTH_SECRET` to a stable value; otherwise the signing key is regenerated per boot.
 - **Connection refused / times out** — the backend bound to `127.0.0.1` (the default) instead of a reachable address, or a firewall/VPN is blocking the port. Bind to `0.0.0.0` or the tailscale IP and open the port to your trusted network.
-- **No token anywhere to copy** — expected. You mint it (`SONIC_DASHBOARD_SESSION_TOKEN`); Sonic never auto-surfaces the default ephemeral one.
 
 ## CORS
 
