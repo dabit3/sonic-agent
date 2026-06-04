@@ -185,13 +185,16 @@ RUN cd web && npm run build && \
 # sonic_cli/main.py succeeds (see #18800). /opt/sonic/web is build-time
 # only (SONIC_WEB_DIST points at sonic_cli/web_dist) and is intentionally
 # not chowned here.
+# /opt/sonic/gateway is runtime-writable: Python may create __pycache__ and
+# gateway state artifacts beneath the package after services drop privileges,
+# especially when the sonic UID is remapped at boot (#27221).
 # The .venv MUST remain sonic-writable so lazy_deps.py can install
 # remaining optional platform packages and future pin bumps at first use.
 # Without this, `uv pip install` fails with EACCES and adapters silently
 # fail to load.  See tools/lazy_deps.py.
 USER root
 RUN chmod -R a+rX /opt/sonic && \
-    chown -R sonic:sonic /opt/sonic/.venv /opt/sonic/ui-tui /opt/sonic/node_modules
+    chown -R sonic:sonic /opt/sonic/.venv /opt/sonic/ui-tui /opt/sonic/gateway /opt/sonic/node_modules
 # Start as root so the s6-overlay stage2 hook can usermod/groupmod and chown
 # the data volume. Each supervised service then drops to the sonic user via
 # `s6-setuidgid sonic` in its run script. If SONIC_UID is unset, services
