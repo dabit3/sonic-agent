@@ -836,16 +836,20 @@ install_node() {
         return 0
     fi
 
-    # Place into ~/.sonic/node/ and symlink binaries to ~/.local/bin/
+    # Place into ~/.sonic/node/ and symlink binaries into the same bin dir
+    # the sonic command uses (get_command_link_dir): /usr/local/bin for root
+    # FHS installs, $PREFIX/bin on Termux, ~/.local/bin otherwise.
     rm -rf "$SONIC_HOME/node"
     mkdir -p "$SONIC_HOME"
     mv "$extracted_dir" "$SONIC_HOME/node"
     rm -rf "$tmp_dir"
 
-    mkdir -p "$HOME/.local/bin"
-    ln -sf "$SONIC_HOME/node/bin/node" "$HOME/.local/bin/node"
-    ln -sf "$SONIC_HOME/node/bin/npm"  "$HOME/.local/bin/npm"
-    ln -sf "$SONIC_HOME/node/bin/npx"  "$HOME/.local/bin/npx"
+    local node_link_dir
+    node_link_dir="$(get_command_link_dir)"
+    mkdir -p "$node_link_dir"
+    ln -sf "$SONIC_HOME/node/bin/node" "$node_link_dir/node"
+    ln -sf "$SONIC_HOME/node/bin/npm"  "$node_link_dir/npm"
+    ln -sf "$SONIC_HOME/node/bin/npx"  "$node_link_dir/npx"
 
     export PATH="$SONIC_HOME/node/bin:$PATH"
 
