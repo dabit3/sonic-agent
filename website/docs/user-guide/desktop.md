@@ -22,19 +22,7 @@ Pick whichever fits the moment. They share state, so you can start a session in 
 
 ## Install
 
-### With the Sonic Desktop installer on MacOS or Windows (recommended)
-
-[Download the Sonic Desktop installer](https://lightning-agent.nousresearch.com/desktop) from our website and run it.
-
-### With the CLI installer on Linux, MacOS, or Windows
-
-Add `--include-desktop` to the regular install script.
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.sh | bash -s -- --include-desktop
-```
-
-### With an existing Sonic installation
+Follow the [installation instructions for Sonic Desktop](../getting-started/installation.md).
 
 If you already have Sonic installed, simply run
 
@@ -110,8 +98,8 @@ The packaged app ships only the Electron shell. On first launch it installs the 
 
 By default the app starts and manages its own **local** backend. You can instead point it at a Sonic backend running on another machine — a VPS, a home server, or a Mini behind Tailscale.
 
-:::info The remote backend is a running `hermes dashboard` process
-"Remote backend" means a **`hermes dashboard`** server running on the remote machine — that is the process the desktop app connects to. Nothing in this section works unless that dashboard is actually up and reachable. The desktop app does not start it for you; you (or a `systemd` service) keep `hermes dashboard` running on the remote host, and the app attaches to it. If you also use messaging channels (Telegram, Discord, etc.), the **gateway** is a *separate* long-running process you start independently — see the note after the setup steps.
+:::info The remote backend is a running `sonic dashboard` process
+"Remote backend" means a **`sonic dashboard`** server running on the remote machine — that is the process the desktop app connects to. Nothing in this section works unless that dashboard is actually up and reachable. The desktop app does not start it for you; you (or a `systemd` service) keep `sonic dashboard` running on the remote host, and the app attaches to it. If you also use messaging channels (Telegram, Discord, etc.), the **gateway** is a *separate* long-running process you start independently — see the note after the setup steps.
 :::
 
 The connection has two halves: on the backend you protect the dashboard with a **username and password**, and in the app you enter the backend's URL and sign in with those credentials. Binding the dashboard to a non-loopback address automatically engages its auth gate, so the username/password provider is what lets the desktop app through.
@@ -137,7 +125,7 @@ chmod 600 ~/.sonic/.env
 sonic dashboard --no-open --host 0.0.0.0 --port 9119
 ```
 
-Keep that `hermes dashboard` process running for as long as you want the desktop app to be able to connect — if it stops, the app can no longer reach the backend. Run it under `systemd`, `tmux`, or your process manager of choice so it survives logout and reboots.
+Keep that `sonic dashboard` process running for as long as you want the desktop app to be able to connect — if it stops, the app can no longer reach the backend. Run it under `systemd`, `tmux`, or your process manager of choice so it survives logout and reboots.
 
 Separately, make sure the **gateway is running** on the remote host if you rely on messaging channels — the dashboard backend is what the desktop app talks to, but your Telegram/Discord/Slack gateway sessions are a different process that you start and keep running on their own. See [Messaging](./messaging/index.md) for gateway setup.
 

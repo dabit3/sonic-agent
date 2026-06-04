@@ -114,7 +114,7 @@ const config: Config = {
           position: 'left',
         },
         {
-          href: 'https://github.com/NousResearch/hermes-agent/releases/latest',
+          href: 'https://github.com/dabit3/sonic-agent/releases/latest',
           label: 'Download',
           position: 'left',
         },
@@ -155,7 +155,7 @@ const config: Config = {
           title: 'Community',
           items: [
             { label: 'Discord', href: 'https://discord.gg/NousResearch' },
-            { label: 'GitHub Discussions', href: 'https://github.com/dabit3/sonic-agent/discussions' },
+            { label: 'GitHub Issues', href: 'https://github.com/dabit3/sonic-agent/issues' },
             { label: 'Skills Hub', href: 'https://agentskills.io' },
           ],
         },

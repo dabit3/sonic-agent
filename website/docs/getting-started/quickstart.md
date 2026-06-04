@@ -47,33 +47,30 @@ Pick the row that matches your goal:
 ---
 
 ## 1. Install Sonic Agent
+### With the Sonic Desktop installer on macOS or Windows (recommended)
+To easily install the command-line and desktop applications, [download the Sonic Desktop installer](https://github.com/dabit3/sonic-agent/releases/latest) from our website and run it.
 
-**Option A — pip (simplest):**
-
+### With the Sonic Desktop installer on Linux:
 ```bash
-pip install sonic-agent
-sonic postinstall     # optional: installs Node.js, browser, ripgrep, ffmpeg + runs setup
+curl -fsSL https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.sh --include-desktop | bash
 ```
+### Without Sonic Desktop:
+For a command-line only install without Sonic Desktop, run:
 
-PyPI releases track tagged versions (major/minor releases), not every commit on `main`. For bleeding-edge, use Option B.
-
-**Option B — git installer (tracks main branch):**
-
+#### Linux / macOS / WSL2 / Android (Termux)
 ```bash
-# Linux / macOS / WSL2 / Android (Termux)
 curl -fsSL https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.sh | bash
 ```
 
-Prefer native installers for desktop use?
+#### Windows (native)
 
-- **Desktop downloads:** [GitHub Releases](https://github.com/NousResearch/hermes-agent/releases/latest)
+Run in powershell:
+```powershell
+iex (irm https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.ps1) 
+```
 
 :::tip Android / Termux
 If you're installing on a phone, see the dedicated [Termux guide](./termux.md) for the tested manual path, supported extras, and current Android-specific limitations.
-:::
-
-:::tip Windows Users
-Install [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) first, then run the command above inside your WSL2 terminal.
 :::
 
 After it finishes, reload your shell:

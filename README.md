@@ -73,7 +73,7 @@ If Git is already installed, the installer finds it and uses it. If Git is not i
 
 > **Android and Termux:** The tested manual path is in the [Termux guide](https://lightning-agent.nousresearch.com/docs/getting-started/termux). On Termux, Sonic installs the `.[termux]` extra, because the full `.[all]` extra pulls voice dependencies that Android does not support.
 >
-> **Windows:** Native Windows is fully supported — the PowerShell command above installs everything. If you'd rather use WSL2, the Linux command works there too. A native Windows installation goes in `%LOCALAPPDATA%\sonic`. A WSL2 installation goes in `~/.sonic`, as on Linux. One Sonic feature needs WSL2: the browser-based dashboard chat pane, because it uses a POSIX PTY. The classic CLI and the gateway both run natively.
+> **Windows:** Native Windows is fully supported — the PowerShell one-liner above installs everything. If you'd rather use WSL2, the Linux command works there too. Native Windows install lives under `%LOCALAPPDATA%\sonic`; WSL2 installs under `~/.sonic` as on Linux. The only Sonic feature that currently needs WSL2 specifically is the browser-based dashboard chat pane (it uses a POSIX PTY — classic CLI and gateway both run natively).
 
 After the installation:
 
