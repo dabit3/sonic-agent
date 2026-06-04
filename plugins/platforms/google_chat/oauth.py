@@ -50,10 +50,8 @@ Token storage layout
     ``${SONIC_HOME}/google_chat_user_oauth_pending/<sanitized_email>.json``
 - Legacy pending state:
     ``${SONIC_HOME}/google_chat_user_oauth_pending.json``
-- Shared OAuth client (one per host, anchored at the default Sonic root so
-  every profile sees it; a profile-local copy under ``${SONIC_HOME}`` wins
-  when present):
-    ``<default-root>/google_chat_user_client_secret.json`` (default ``~/.sonic``)
+- OAuth client secret (profile-scoped — each profile registers its own):
+    ``${SONIC_HOME}/google_chat_user_client_secret.json``
 """
 
 from __future__ import annotations
@@ -77,11 +75,7 @@ logger = logging.getLogger("gateway.platforms.google_chat_user_oauth")
 # Use the project's SONIC_HOME helper so the token follows the user's
 # profile (e.g. tests can override via SONIC_HOME=/tmp/...).
 try:
-    from sonic_constants import (
-        display_sonic_home,
-        get_default_sonic_root,
-        get_sonic_home,
-    )
+    from sonic_constants import display_sonic_home, get_sonic_home
 except (ModuleNotFoundError, ImportError):
     # Fallback for environments where sonic_constants isn't importable
     # (mirrors the same fallback used by the google-workspace skill's
@@ -89,24 +83,6 @@ except (ModuleNotFoundError, ImportError):
     def get_sonic_home() -> Path:
         val = os.environ.get("SONIC_HOME", "").strip()
         return Path(val) if val else Path.home() / ".sonic"
-
-    def get_default_sonic_root() -> Path:
-        # Mirror sonic_constants.get_default_sonic_root(): resolve the
-        # profile root so host-wide files (the shared client secret) are
-        # found regardless of which profile is active.
-        native_home = Path.home() / ".sonic"
-        env_home = os.environ.get("SONIC_HOME", "").strip()
-        if not env_home:
-            return native_home
-        env_path = Path(env_home)
-        try:
-            env_path.resolve().relative_to(native_home.resolve())
-            return native_home
-        except ValueError:
-            pass
-        if env_path.parent.name == "profiles":
-            return env_path.parent.parent
-        return env_path
 
     def display_sonic_home() -> str:
         home = get_sonic_home()
@@ -164,24 +140,7 @@ def _token_path(email: Optional[str] = None) -> Path:
 
 
 def _client_secret_path() -> Path:
-    """Path to the shared OAuth client secret (one per host).
-
-    The client secret identifies the OAuth *app*, not a user or a profile,
-    so it is anchored at the default Sonic root (``~/.sonic`` — or the
-    Docker root) rather than the active profile's ``SONIC_HOME``. That way
-    the one-time ``--client-secret`` host setup is visible to gateways
-    running under any named profile, exactly as the docs describe ("one
-    file per host is enough no matter how many users authorize later").
-
-    A profile-local secret (``$SONIC_HOME/google_chat_user_client_secret.json``)
-    still takes precedence when present, for installs that seeded one under
-    the previous profile-scoped behavior or that deliberately run a separate
-    OAuth app per profile.
-    """
-    profile_local = _sonic_home() / "google_chat_user_client_secret.json"
-    if profile_local.exists():
-        return profile_local
-    return get_default_sonic_root() / "google_chat_user_client_secret.json"
+    return _sonic_home() / "google_chat_user_client_secret.json"
 
 
 def _pending_auth_path(email: Optional[str] = None) -> Path:
