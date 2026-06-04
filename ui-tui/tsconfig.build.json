@@ -1,7 +1,6 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "@sonic/ink": ["src/types/sonic-ink.d.ts"]
     }
