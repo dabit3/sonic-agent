@@ -154,20 +154,39 @@ if [ "$needs_chown" = true ]; then
                 echo "[stage2] Warning: chown $SONIC_HOME/$sub failed (rootless container?) — continuing"
         fi
     done
-    # Sonic-owned trees under $INSTALL_DIR must be re-chowned when the UID
-    # is remapped — otherwise:
-    #   - .venv: lazy_deps.py cannot install platform packages (discord.py,
-    #     telegram, slack, etc.) with EACCES (#15012, #21100)
-    #   - ui-tui: esbuild rebuilds dist/entry.js on every TUI launch (when
-    #     the source mtime is newer than dist/ or when SONIC_TUI_FORCE_BUILD
-    #     is set) and writes to ui-tui/dist/. Without this chown the new
-    #     sonic UID can't write the build output (#28851).
-    #   - node_modules: root-level dependencies (puppeteer, web tooling)
-    #     that runtime code may walk/update.
-    # The set mirrors the build-time `chown -R sonic:sonic` line in the
-    # Dockerfile — keep them in sync if the Dockerfile chown set changes.
-    # These are under $INSTALL_DIR (not $SONIC_HOME), so the bind-mount
-    # concern doesn't apply — recursive is fine.
+fi
+
+# --- Fix ownership of build trees under $INSTALL_DIR ---
+# Sonic-owned trees under $INSTALL_DIR must be re-chowned whenever the
+# runtime sonic UID no longer owns them — otherwise:
+#   - .venv: lazy_deps.py cannot install platform packages (discord.py,
+#     telegram, slack, etc.) with EACCES (#15012, #21100)
+#   - ui-tui: esbuild rebuilds dist/entry.js on every TUI launch (when
+#     the source mtime is newer than dist/ or when SONIC_TUI_FORCE_BUILD
+#     is set) and writes to ui-tui/dist/. Without this chown the new
+#     sonic UID can't write the build output (#28851).
+#   - node_modules: root-level dependencies (puppeteer, web tooling)
+#     that runtime code may walk/update.
+# The set mirrors the build-time `chown -R sonic:sonic` line in the
+# Dockerfile — keep them in sync if the Dockerfile chown set changes.
+# These are under $INSTALL_DIR (not $SONIC_HOME), so the bind-mount
+# concern doesn't apply — recursive is fine.
+#
+# This MUST be gated independently of the $SONIC_HOME ownership check
+# above. `usermod -u <new> sonic` re-chowns the sonic home dir
+# ($SONIC_HOME == /opt/data) to the new UID as a side effect, so after a
+# SONIC_UID/PUID remap `stat $SONIC_HOME` always already matches the new
+# UID and `needs_chown` is false — but the build trees under /opt/sonic
+# are NOT touched by usermod and remain owned by the build-time UID
+# (10000). Gating them on $SONIC_HOME ownership (as #35027 did) silently
+# skipped this chown on the common PUID/NAS path, regressing lazy installs
+# and TUI rebuilds. Probe the build trees directly instead: chown only
+# when the venv is not already owned by the runtime sonic UID. Idempotent
+# and skips the expensive recursive chown on every restart once ownership
+# is settled.
+venv_owner=$(stat -c %u "$INSTALL_DIR/.venv" 2>/dev/null || echo "")
+if [ -n "$venv_owner" ] && [ "$venv_owner" != "$actual_sonic_uid" ]; then
+    echo "[stage2] Fixing ownership of build trees under $INSTALL_DIR to sonic ($actual_sonic_uid)"
     chown -R sonic:sonic \
         "$INSTALL_DIR/.venv" \
         "$INSTALL_DIR/ui-tui" \
