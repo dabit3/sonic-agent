@@ -51,6 +51,7 @@ AUTHOR_MAP = {
     "prostoandrei9@gmail.com": "vladkvlchk",
     "copii.list@gmail.com": "stremtec",
     "vinoth12940@users.noreply.github.com": "vinoth12940",
+    "116314616+ThyFriendlyFox@users.noreply.github.com": "ThyFriendlyFox",
     "liliangjya@gmail.com": "truenorth-lj",
     "alaamohanad169@gmail.com": "alaamohanad169-ship-it",
     "16943149+nepenth@users.noreply.github.com": "nepenth",
