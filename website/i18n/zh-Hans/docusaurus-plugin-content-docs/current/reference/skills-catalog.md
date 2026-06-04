@@ -38,18 +38,14 @@ Sonic 在执行 `sonic update` 时也会同步内置技能，但同步清单会�
 | [`architecture-diagram`](/user-guide/skills/bundled/creative/creative-architecture-diagram) | 以 HTML 形式生成深色主题的 SVG 架构/云/基础设施图。 | `creative/architecture-diagram` |
 | [`ascii-art`](/user-guide/skills/bundled/creative/creative-ascii-art) | ASCII 艺术：pyfiglet、cowsay、boxes、图像转 ASCII。 | `creative/ascii-art` |
 | [`ascii-video`](/user-guide/skills/bundled/creative/creative-ascii-video) | ASCII 视频：将视频/音频转换为彩色 ASCII MP4/GIF。 | `creative/ascii-video` |
-| [`baoyu-article-illustrator`](/user-guide/skills/bundled/creative/creative-baoyu-article-illustrator) | 文章插图：类型 × 风格 × 调色板一致性。 | `creative/baoyu-article-illustrator` |
-| [`baoyu-comic`](/user-guide/skills/bundled/creative/creative-baoyu-comic) | 知识漫画：教育、传记、教程。 | `creative/baoyu-comic` |
 | [`baoyu-infographic`](/user-guide/skills/bundled/creative/creative-baoyu-infographic) | 信息图（可视化）：21 种布局 × 21 种风格。 | `creative/baoyu-infographic` |
 | [`claude-design`](/user-guide/skills/bundled/creative/creative-claude-design) | 设计一次性 HTML 制品（落地页、幻灯片、原型）。 | `creative/claude-design` |
 | [`comfyui`](/user-guide/skills/bundled/creative/creative-comfyui) | 使用 ComfyUI 生成图像、视频和音频——安装、启动、管理节点/模型、运行带参数注入的工作流。使用官方 comfy-cli 管理生命周期，通过 REST/WebSocket API 直接执行。 | `creative/comfyui` |
-| [`ideation`](/user-guide/skills/bundled/creative/creative-creative-ideation) | 通过创意约束生成项目创意。 | `creative/creative-ideation` |
 | [`design-md`](/user-guide/skills/bundled/creative/creative-design-md) | 编写/验证/导出 Google 的 DESIGN.md token 规范文件。 | `creative/design-md` |
 | [`excalidraw`](/user-guide/skills/bundled/creative/creative-excalidraw) | 手绘风格的 Excalidraw JSON 图表（架构、流程、时序）。 | `creative/excalidraw` |
 | [`humanizer`](/user-guide/skills/bundled/creative/creative-humanizer) | 人性化文本：去除 AI 腔，加入真实语气。 | `creative/humanizer` |
 | [`manim-video`](/user-guide/skills/bundled/creative/creative-manim-video) | Manim CE 动画：3Blue1Brown 风格数学/算法视频。 | `creative/manim-video` |
 | [`p5js`](/user-guide/skills/bundled/creative/creative-p5js) | p5.js 草图：生成艺术、着色器、交互、3D。 | `creative/p5js` |
-| [`pixel-art`](/user-guide/skills/bundled/creative/creative-pixel-art) | 像素艺术，支持复古调色板（NES、Game Boy、PICO-8）。 | `creative/pixel-art` |
 | [`popular-web-designs`](/user-guide/skills/bundled/creative/creative-popular-web-designs) | 54 种真实设计系统（Stripe、Linear、Vercel）的 HTML/CSS 实现。 | `creative/popular-web-designs` |
 | [`pretext`](/user-guide/skills/bundled/creative/creative-pretext) | 使用 @chenglou/pretext 构建创意浏览器 demo——无 DOM 的文本布局，支持 ASCII 艺术、绕障碍物的排版流、文字即几何游戏、动态排版和文字驱动的生成艺术。生成单文件 HTML。 | `creative/pretext` |
 | [`sketch`](/user-guide/skills/bundled/creative/creative-sketch) | 一次性 HTML 原型：生成 2-3 个设计变体供对比。 | `creative/sketch` |
@@ -68,7 +64,6 @@ Sonic 在执行 `sonic update` 时也会同步内置技能，但同步清单会�
 |-------|-------------|------|
 | [`kanban-orchestrator`](/user-guide/skills/bundled/devops/devops-kanban-orchestrator) | 面向编排器（orchestrator）配置文件的分解策略与反诱惑规则，用于通过 Kanban 路由工作。"不要自己做工作"规则和基本生命周期会自动注入每个 Kanban worker 的系统 prompt；如需更深入的细节，请加载此技能。 | `devops/kanban-orchestrator` |
 | [`kanban-worker`](/user-guide/skills/bundled/devops/devops-kanban-worker) | Sonic Kanban worker 的陷阱、示例和边界情况。生命周期本身会作为 `KANBAN_GUIDANCE` 自动注入每个 worker 的系统 prompt（来自 `agent/prompt_builder.py`）；当需要更深入细节时加载此技能。 | `devops/kanban-worker` |
-| [`webhook-subscriptions`](/user-guide/skills/bundled/devops/devops-webhook-subscriptions) | Webhook 订阅：事件驱动的 agent 运行。 | `devops/webhook-subscriptions` |
 
 ## dogfood
 
@@ -86,8 +81,6 @@ Sonic 在执行 `sonic update` 时也会同步内置技能，但同步清单会�
 
 | 技能 | 描述 | 路径 |
 |-------|-------------|------|
-| [`minecraft-modpack-server`](/user-guide/skills/bundled/gaming/gaming-minecraft-modpack-server) | 托管模组版 Minecraft 服务器（CurseForge、Modrinth）。 | `gaming/minecraft-modpack-server` |
-| [`pokemon-player`](/user-guide/skills/bundled/gaming/gaming-pokemon-player) | 通过无头模拟器 + RAM 读取来游玩 Pokemon。 | `gaming/pokemon-player` |
 
 ## github
 
@@ -104,7 +97,6 @@ Sonic 在执行 `sonic update` 时也会同步内置技能，但同步清单会�
 
 | 技能 | 描述 | 路径 |
 |-------|-------------|------|
-| [`native-mcp`](/user-guide/skills/bundled/mcp/mcp-native-mcp) | MCP 客户端：连接服务器、注册工具（stdio/HTTP）。 | `mcp/native-mcp` |
 
 ## media
 
@@ -113,7 +105,6 @@ Sonic 在执行 `sonic update` 时也会同步内置技能，但同步清单会�
 | [`gif-search`](/user-guide/skills/bundled/media/media-gif-search) | 通过 curl + jq 从 Tenor 搜索/下载 GIF。 | `media/gif-search` |
 | [`heartmula`](/user-guide/skills/bundled/media/media-heartmula) | HeartMuLa：根据歌词 + 标签生成类 Suno 风格的歌曲。 | `media/heartmula` |
 | [`songsee`](/user-guide/skills/bundled/media/media-songsee) | 通过 CLI 生成音频频谱图/特征（mel、chroma、MFCC）。 | `media/songsee` |
-| [`spotify`](/user-guide/skills/bundled/media/media-spotify) | Spotify：播放、搜索、排队、管理播放列表和设备。 | `media/spotify` |
 | [`youtube-content`](/user-guide/skills/bundled/media/media-youtube-content) | 将 YouTube 字幕转换为摘要、推文串、博客文章。 | `media/youtube-content` |
 
 ## mlops
@@ -121,7 +112,6 @@ Sonic 在执行 `sonic update` 时也会同步内置技能，但同步清单会�
 | 技能 | 描述 | 路径 |
 |-------|-------------|------|
 | [`audiocraft-audio-generation`](/user-guide/skills/bundled/mlops/mlops-models-audiocraft) | AudioCraft：MusicGen 文本转音乐、AudioGen 文本转音效。 | `mlops/models/audiocraft` |
-| [`dspy`](/user-guide/skills/bundled/mlops/mlops-research-dspy) | DSPy：声明式 LM 程序，自动优化 prompt，支持 RAG。 | `mlops/research/dspy` |
 | [`huggingface-hub`](/user-guide/skills/bundled/mlops/mlops-huggingface-hub) | HuggingFace hf CLI：搜索/下载/上传模型、数据集。 | `mlops/huggingface-hub` |
 | [`llama-cpp`](/user-guide/skills/bundled/mlops/mlops-inference-llama-cpp) | llama.cpp 本地 GGUF 推理 + HF Hub 模型发现。 | `mlops/inference/llama-cpp` |
 | [`evaluating-llms-harness`](/user-guide/skills/bundled/mlops/mlops-evaluation-lm-evaluation-harness) | lm-eval-harness：对 LLM 进行基准测试（MMLU、GSM8K 等）。 | `mlops/evaluation/lm-evaluation-harness` |
@@ -142,7 +132,6 @@ Sonic 在执行 `sonic update` 时也会同步内置技能，但同步清单会�
 |-------|-------------|------|
 | [`airtable`](/user-guide/skills/bundled/productivity/productivity-airtable) | 通过 curl 调用 Airtable REST API：记录增删改查、过滤、upsert。 | `productivity/airtable` |
 | [`google-workspace`](/user-guide/skills/bundled/productivity/productivity-google-workspace) | 通过 gws CLI 或 Python 操作 Gmail、Calendar、Drive、Docs、Sheets。 | `productivity/google-workspace` |
-| [`linear`](/user-guide/skills/bundled/productivity/productivity-linear) | Linear：通过 GraphQL + curl 管理 issue、项目、团队。 | `productivity/linear` |
 | [`maps`](/user-guide/skills/bundled/productivity/productivity-maps) | 通过 OpenStreetMap/OSRM 进行地理编码、POI 查询、路线规划、时区查询。 | `productivity/maps` |
 | [`nano-pdf`](/user-guide/skills/bundled/productivity/productivity-nano-pdf) | 通过 nano-pdf CLI 编辑 PDF 文本/错别字/标题（自然语言 prompt）。 | `productivity/nano-pdf` |
 | [`notion`](/user-guide/skills/bundled/productivity/productivity-notion) | Notion API + ntn CLI：页面、数据库、Markdown、Workers。 | `productivity/notion` |
@@ -182,17 +171,14 @@ Sonic 在执行 `sonic update` 时也会同步内置技能，但同步清单会�
 
 | 技能 | 描述 | 路径 |
 |-------|-------------|------|
-| [`debugging-sonic-tui-commands`](/user-guide/skills/bundled/software-development/software-development-debugging-sonic-tui-commands) | 调试 Sonic TUI 斜杠命令：Python、gateway、Ink UI。 | `software-development/debugging-sonic-tui-commands` |
 | [`sonic-agent-skill-authoring`](/user-guide/skills/bundled/software-development/software-development-sonic-agent-skill-authoring) | 编写仓库内 SKILL.md：frontmatter、验证器、结构规范。 | `software-development/sonic-agent-skill-authoring` |
 | [`node-inspect-debugger`](/user-guide/skills/bundled/software-development/software-development-node-inspect-debugger) | 通过 --inspect + Chrome DevTools Protocol CLI 调试 Node.js。 | `software-development/node-inspect-debugger` |
 | [`plan`](/user-guide/skills/bundled/software-development/software-development-plan) | 计划模式：将 Markdown 计划写入 `.sonic/plans/`，不执行。 | `software-development/plan` |
 | [`python-debugpy`](/user-guide/skills/bundled/software-development/software-development-python-debugpy) | 调试 Python：pdb REPL + debugpy 远程调试（DAP）。 | `software-development/python-debugpy` |
 | [`requesting-code-review`](/user-guide/skills/bundled/software-development/software-development-requesting-code-review) | 提交前审查：安全扫描、质量门控、自动修复。 | `software-development/requesting-code-review` |
 | [`spike`](/user-guide/skills/bundled/software-development/software-development-spike) | 一次性实验，在正式构建前验证想法。 | `software-development/spike` |
-| [`subagent-driven-development`](/user-guide/skills/bundled/software-development/software-development-subagent-driven-development) | 通过 `delegate_task` 子 agent 执行计划（两阶段审查）。 | `software-development/subagent-driven-development` |
 | [`systematic-debugging`](/user-guide/skills/bundled/software-development/software-development-systematic-debugging) | 四阶段根因调试：先理解 bug，再修复。 | `software-development/systematic-debugging` |
 | [`test-driven-development`](/user-guide/skills/bundled/software-development/software-development-test-driven-development) | TDD：强制执行红-绿-重构流程，先写测试再写代码。 | `software-development/test-driven-development` |
-| [`writing-plans`](/user-guide/skills/bundled/software-development/software-development-writing-plans) | 编写实现计划：细粒度任务、路径、代码。 | `software-development/writing-plans` |
 
 ## yuanbao
 

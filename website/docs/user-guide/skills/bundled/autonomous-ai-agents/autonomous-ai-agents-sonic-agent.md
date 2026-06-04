@@ -157,6 +157,10 @@ sonic mcp test NAME        Test connection
 sonic mcp configure NAME   Toggle tool selection
 ```
 
+How the built-in MCP client connects servers (stdio/HTTP), auto-discovers
+their tools, and exposes them as first-class tools, plus catalog install
+(`hermes mcp install <name>`): `skill_view(name="hermes-agent", file_path="references/native-mcp.md")`.
+
 ### Gateway (Messaging Platforms)
 
 ```
@@ -204,6 +208,9 @@ sonic webhook list         List subscriptions
 sonic webhook remove NAME  Remove a subscription
 sonic webhook test NAME    Send a test POST
 ```
+
+Full setup, route config, payload templating, and event-driven agent-run
+patterns: `skill_view(name="hermes-agent", file_path="references/webhooks.md")`.
 
 ### Profiles
 
