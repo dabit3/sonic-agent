@@ -23,6 +23,56 @@ INSTALL_DIR="/opt/sonic"
 # Drop to sonic via s6-setuidgid, but skip it when already non-root.
 as_sonic() { [ "$(id -u)" = 0 ] || { "$@"; return; }; s6-setuidgid sonic "$@"; }
 
+# --- Reject the unsupported `docker run --user <uid>:<gid>` start ---
+# Detect the case where the container was launched with `--user` pinned to an
+# arbitrary host UID (the classic `--user $(id -u):$(id -g)` invocation people
+# used in the tini era to make container-written files match their host user).
+#
+# Under s6-overlay this no longer works: the bootstrap (UID remap, volume +
+# build-tree chown, config seeding) all require root, and they're skipped when
+# the container starts non-root. The baked image trees (/opt/data, /opt/sonic/
+# .venv, ui-tui, node_modules) stay owned by the sonic build UID (10000), so an
+# arbitrary `--user` UID can't write them — the runtime then fails with EACCES
+# on a bind mount, or hard-crashes on a named volume (Docker initialises the
+# volume from the image as UID 10000, and the non-root start can't even `cd`
+# into $SONIC_HOME). See #34837 for the supervision-tree side of this.
+#
+# The supported way to match host-side ownership is to start as root (the image
+# default) and pass SONIC_UID/SONIC_GID — or the PUID/PGID aliases — which the
+# remap block below consumes via usermod/groupmod + targeted chown. That gives
+# the exact same outcome (files owned by your host UID) without breaking s6.
+#
+# preinit runs setuid-root (euid=0) but cont-init.d hooks run with the real UID
+# the container was started as, so `id -u` here is the host UID (e.g. 1000), and
+# `id -u sonic` is the unremapped build UID (10000) because no root-only remap
+# could run. root starts (id -u = 0) and the normal supervised drop to the
+# sonic UID are both unaffected.
+cur_uid="$(id -u)"
+if [ "$cur_uid" != 0 ] && [ "$cur_uid" != "$(id -u sonic)" ]; then
+    cat >&2 <<EOF
+[stage2] ERROR: container started with --user $cur_uid (an arbitrary, non-sonic UID).
+
+This is not supported under the s6-overlay image. The container bootstrap
+(UID remap, volume ownership, dependency installs) needs to start as root,
+and the baked image directories are owned by the sonic user (UID $(id -u sonic)),
+so a pinned --user UID cannot write them — startup will fail.
+
+To make container-written files match your HOST user, DON'T use --user.
+Start the container as root (the default) and pass your host UID/GID instead:
+
+    docker run -e SONIC_UID=\$(id -u) -e SONIC_GID=\$(id -g) ...
+
+NAS users (Synology / unRAID / UGOS) can use the PUID/PGID aliases:
+
+    docker run -e PUID=\$(id -u) -e PGID=\$(id -g) ...
+
+The image remaps the sonic user to that UID/GID at boot and chowns the data
+volume accordingly, so files land owned by your host user — the same outcome
+--user was being used for, without breaking the supervision tree.
+EOF
+    exit 1
+fi
+
 # --- Bootstrap SONIC_HOME as root ---
 # Create the directory (and any missing parents) while we still have root
 # privileges so the chown checks below see real metadata and the later
