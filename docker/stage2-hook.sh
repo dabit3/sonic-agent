@@ -85,11 +85,12 @@ fi
 # is a no-op if the dir already exists. (#18482, salvages #18488)
 mkdir -p "$SONIC_HOME"
 
-# Numeric UID/GID validation: must be digits only, 1000-65534
+# Numeric UID/GID validation: must be digits only, non-root, 1-65534.
+# NAS hosts such as Unraid commonly use low non-root IDs (99:100).
 validate_uid_gid() {
     case "$1" in
         ''|*[!0-9]*) return 1 ;;
-        *) [ "$1" -ge 1000 ] && [ "$1" -le 65534 ] ;;
+        *) [ "$1" -ge 1 ] && [ "$1" -le 65534 ] ;;
     esac
 }
 
@@ -198,7 +199,7 @@ if [ "$needs_chown" = true ]; then
     # Sonic-owned subdirs: recursive chown is safe here because these are
     # created and managed exclusively by sonic (see the s6-setuidgid mkdir
     # -p block below for the canonical list).
-    for sub in cron sessions logs hooks memories skills skins plans workspace home profiles; do
+    for sub in cron sessions logs hooks memories skills skins plans workspace home profiles pairing platforms/pairing; do
         if [ -e "$SONIC_HOME/$sub" ]; then
             chown -R sonic:sonic "$SONIC_HOME/$sub" 2>/dev/null || \
                 echo "[stage2] Warning: chown $SONIC_HOME/$sub failed (rootless container?) — continuing"
@@ -308,7 +309,9 @@ as_sonic mkdir -p \
     "$SONIC_HOME/skins" \
     "$SONIC_HOME/plans" \
     "$SONIC_HOME/workspace" \
-    "$SONIC_HOME/home"
+    "$SONIC_HOME/home" \
+    "$SONIC_HOME/pairing" \
+    "$SONIC_HOME/platforms/pairing"
 
 # --- Install-method stamp (read by detect_install_method() in sonic status) ---
 # Preserved from the tini-era entrypoint (PR #27843). Must be written as
