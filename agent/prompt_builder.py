@@ -128,10 +128,27 @@ DEFAULT_AGENT_IDENTITY = (
     "Be targeted and efficient in your exploration and investigations."
 )
 
+<<<<<<< HEAD
 SONIC_AGENT_HELP_GUIDANCE = (
     "If the user asks about configuring, setting up, or using Sonic Agent "
     "itself, load the `sonic-agent` skill with skill_view(name='sonic-agent') "
     "before answering. Docs: https://lightning-agent.nousresearch.com/docs"
+||||||| parent of f99665f99 (feat(prompt): broaden Hermes self-knowledge pointer to docs + skill (#38538))
+HERMES_AGENT_HELP_GUIDANCE = (
+    "If the user asks about configuring, setting up, or using Hermes Agent "
+    "itself, load the `hermes-agent` skill with skill_view(name='hermes-agent') "
+    "before answering. Docs: https://hermes-agent.nousresearch.com/docs"
+=======
+HERMES_AGENT_HELP_GUIDANCE = (
+    "You run on Hermes Agent (by Nous Research). When the user needs help with "
+    "Hermes itself — configuring, setting up, using, extending, or troubleshooting "
+    "it — or when you need to understand your own features, tools, or capabilities, "
+    "the documentation at https://hermes-agent.nousresearch.com/docs is your "
+    "authoritative reference and always holds the latest, most up-to-date "
+    "information. Load the `hermes-agent` skill with skill_view(name='hermes-agent') "
+    "for additional guidance and proven workflows, but treat the docs as the source "
+    "of truth when the two differ."
+>>>>>>> f99665f99 (feat(prompt): broaden Hermes self-knowledge pointer to docs + skill (#38538))
 )
 
 MEMORY_GUIDANCE = (
