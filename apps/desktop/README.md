@@ -24,12 +24,6 @@
 
 ### Install with Sonic (recommended)
 
-Add `--include-desktop` to the [one-line installer](../../README.md#quick-install) and it sets up the agent and builds the desktop app in one go:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.sh | bash -s -- --include-desktop
-```
-
 Already have the Sonic CLI? Just run:
 
 ```bash

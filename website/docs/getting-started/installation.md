@@ -12,11 +12,6 @@ Get Sonic Agent up and running in under two minutes!
 ### With the Sonic Desktop installer on macOS or Windows (recommended)
 To easily install the command-line and desktop applications, [download the Sonic Desktop installer](https://github.com/dabit3/sonic-agent/releases/latest) from our website and run it.
 
-### With the Sonic Desktop installer on Linux:
-```bash
-curl -fsSL https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.sh --include-desktop | bash
-```
-
 ### Without Sonic Desktop:
 For a command-line only install without Sonic Desktop, run:
 
