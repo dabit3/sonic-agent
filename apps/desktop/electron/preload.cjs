@@ -1,8 +1,9 @@
 const { contextBridge, ipcRenderer, webUtils } = require('electron')
 
 contextBridge.exposeInMainWorld('sonicDesktop', {
-  getConnection: () => ipcRenderer.invoke('sonic:connection'),
-  getGatewayWsUrl: () => ipcRenderer.invoke('sonic:gateway:ws-url'),
+  getConnection: profile => ipcRenderer.invoke('sonic:connection', profile),
+  touchBackend: profile => ipcRenderer.invoke('sonic:backend:touch', profile),
+  getGatewayWsUrl: profile => ipcRenderer.invoke('sonic:gateway:ws-url', profile),
   getBootProgress: () => ipcRenderer.invoke('sonic:boot-progress:get'),
   getConnectionConfig: () => ipcRenderer.invoke('sonic:connection-config:get'),
   saveConnectionConfig: payload => ipcRenderer.invoke('sonic:connection-config:save', payload),
@@ -11,6 +12,10 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   probeConnectionConfig: remoteUrl => ipcRenderer.invoke('sonic:connection-config:probe', remoteUrl),
   oauthLoginConnectionConfig: remoteUrl => ipcRenderer.invoke('sonic:connection-config:oauth-login', remoteUrl),
   oauthLogoutConnectionConfig: remoteUrl => ipcRenderer.invoke('sonic:connection-config:oauth-logout', remoteUrl),
+  profile: {
+    get: () => ipcRenderer.invoke('sonic:profile:get'),
+    set: name => ipcRenderer.invoke('sonic:profile:set', name)
+  },
   api: request => ipcRenderer.invoke('sonic:api', request),
   notify: payload => ipcRenderer.invoke('sonic:notify', payload),
   requestMicrophoneAccess: () => ipcRenderer.invoke('sonic:requestMicrophoneAccess'),
