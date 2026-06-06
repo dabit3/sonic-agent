@@ -51,6 +51,7 @@ AUTHOR_MAP = {
     "redpiggy-cyber@users.noreply.github.com": "redpiggy-cyber",
     "chilltulpa@gmail.com": "TheGardenGallery",
     "al@randomsnowflake.me": "randomsnowflake",
+    "zakame@zakame.net": "zakame",
     "834740219@qq.com": "ViewWay",
     "harjoth.khara@gmail.com": "harjothkhara",
     "129007007+HeLLGURD@users.noreply.github.com": "HeLLGURD",
