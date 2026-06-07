@@ -75,6 +75,22 @@ The app checks for updates in the background and offers a one-click update when 
 
 The [manual update process](https://lightning-agent.nousresearch.com/docs/getting-started/updating) also works with the GUI.
 
+## Uninstalling
+
+Open **Settings → About → Danger zone** and pick how much to remove:
+
+- **Uninstall Chat GUI only** — removes the desktop app and its data; the Sonic agent, your config, and your chats stay. (Same as `sonic uninstall --gui`.)
+- **Uninstall GUI + agent, keep my data** — removes the app and the agent but keeps config, chats, and secrets for a future reinstall. (Same as `sonic uninstall`.)
+- **Uninstall everything** — removes the app, the agent, and all user data. (Same as `sonic uninstall --full`.)
+
+The app closes to finish the job (the cleanup runs after it exits so it can remove the running app bundle and its own venv). The agent-removing options are hidden automatically when no local agent is installed (for example, a GUI-only "lite" client connected to a remote backend).
+
+You can do the same from the terminal — `sonic uninstall --gui` for the GUI alone, or `sonic uninstall` / `sonic uninstall --full` for the agent too.
+
+:::note
+Running `sonic uninstall --gui` from a **source checkout** (a `sonic desktop` dev build) also removes the workspace `node_modules` and `apps/desktop/{dist,release}` build output, since those are GUI build artifacts. They're recoverable with `sonic desktop` (or `npm install` + a rebuild) — but if you're actively hacking on the desktop app, expect to reinstall dependencies afterward.
+:::
+
 ## CLI reference: `sonic desktop`
 
 To launch via the CLI, simply run `sonic desktop`. By default it installs workspace Node dependencies, builds the current OS's unpacked Electron app, then launches that packaged artifact.

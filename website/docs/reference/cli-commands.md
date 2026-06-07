@@ -1467,7 +1467,7 @@ Additional behavior:
 | `sonic version` | Print version information. |
 | `sonic update` | Pull latest changes and reinstall dependencies. |
 | `sonic postinstall` | Internal bootstrap. Runs once after `pip install sonic-agent` (or `sonic update` on pip installs) to install non-Python dependencies that pip cannot provide — Node.js runtime, headless browser, ripgrep, ffmpeg — and then trigger `sonic setup` if the profile has not been configured yet. Safe to re-run idempotently. |
-| `sonic uninstall [--full] [--yes]` | Remove Sonic, optionally deleting all config/data. |
+| `sonic uninstall [--full] [--gui] [--yes]` | Remove Sonic, optionally deleting all config/data. `--gui` removes only the desktop Chat GUI, leaving the agent intact; `--full` also deletes config/data; `--yes` skips prompts. |
 
 ## See also
 
