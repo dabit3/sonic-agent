@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer, webUtils } = require('electron')
 
 contextBridge.exposeInMainWorld('sonicDesktop', {
   getConnection: profile => ipcRenderer.invoke('sonic:connection', profile),
+  revalidateConnection: () => ipcRenderer.invoke('sonic:connection:revalidate'),
   touchBackend: profile => ipcRenderer.invoke('sonic:backend:touch', profile),
   getGatewayWsUrl: profile => ipcRenderer.invoke('sonic:gateway:ws-url', profile),
   getBootProgress: () => ipcRenderer.invoke('sonic:boot-progress:get'),
