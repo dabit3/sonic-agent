@@ -151,10 +151,31 @@ def _is_gateway_approval_context() -> bool:
     return bool(_get_session_platform())
 
 # Sensitive write targets that should trigger approval even when referenced
-# via shell expansions like $HOME or $SONIC_HOME.
+# via shell expansions like $HOME or $SONIC_HOME, or by the resolved absolute
+# active profile home path such as /home/sonic/.sonic/config.yaml.
 _SSH_SENSITIVE_PATH = r'(?:~|\$home|\$\{home\})/\.ssh(?:/|$)'
+
+
+def _resolved_sonic_home_path_pattern() -> str:
+    try:
+        from sonic_constants import get_sonic_home
+        home = get_sonic_home().expanduser()
+        candidates = [
+            str(home).rstrip("/"),
+            str(home.resolve(strict=False)).rstrip("/"),
+        ]
+    except Exception:
+        candidates = []
+    escaped = [re.escape(path) for path in dict.fromkeys(candidates) if path]
+    if not escaped:
+        return r"(?!)"
+    return r"(?:" + "|".join(escaped) + r")/"
+
+
+_RESOLVED_SONIC_HOME_PATH = _resolved_sonic_home_path_pattern()
 _SONIC_ENV_PATH = (
     r'(?:~\/\.sonic/|'
+    rf'{_RESOLVED_SONIC_HOME_PATH}|'
     r'(?:\$home|\$\{home\})/\.sonic/|'
     r'(?:\$sonic_home|\$\{sonic_home\})/)'
     r'\.env\b'
@@ -169,6 +190,7 @@ _SONIC_ENV_PATH = (
 # well as ~/.sonic/.
 _SONIC_CONFIG_PATH = (
     r'(?:~\/\.sonic/|'
+    rf'{_RESOLVED_SONIC_HOME_PATH}|'
     r'(?:\$home|\$\{home\})/\.sonic/|'
     r'(?:\$sonic_home|\$\{sonic_home\})/)'
     r'config\.yaml\b'
