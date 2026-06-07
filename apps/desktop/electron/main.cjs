@@ -4369,6 +4369,9 @@ async function spawnPoolBackend(profile, entry) {
       SONIC_HOME,
       ...backend.env,
       SONIC_DASHBOARD_SESSION_TOKEN: token,
+      // Marks this dashboard backend as desktop-spawned so it runs the cron
+      // scheduler tick loop (the gateway isn't running under the app).
+      SONIC_DESKTOP: '1',
       SONIC_WEB_DIST: webDist
     },
     shell: backend.shell,
@@ -4510,6 +4513,9 @@ async function startSonic() {
         SONIC_HOME,
         ...backend.env,
         SONIC_DASHBOARD_SESSION_TOKEN: token,
+        // Marks this dashboard backend as desktop-spawned so it runs the cron
+        // scheduler tick loop (the gateway isn't running under the app).
+        SONIC_DESKTOP: '1',
         SONIC_WEB_DIST: webDist
       },
       shell: backend.shell,
