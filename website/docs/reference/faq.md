@@ -30,7 +30,15 @@ Set your provider with `sonic model` or by editing `~/.sonic/.env`. See the [Env
 
 ### Does it work on Windows?
 
-**Not natively.** Sonic Agent requires a Unix-like environment. On Windows, install [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) and run Sonic from inside it. The standard install command works perfectly in WSL2:
+**Yes, natively.** Sonic supports native Windows via the PowerShell installer — no WSL required. Run in PowerShell:
+
+```powershell
+iex (irm https://sonic-agent.nousresearch.com/install.ps1)
+```
+
+The installer provisions a PortableGit that backs the terminal tool's shell. See the [Windows (Native) Guide](../user-guide/windows-native.md) for details.
+
+WSL2 remains a fully supported alternative. To run Sonic inside WSL2, install [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) and use the standard install command:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.sh | bash

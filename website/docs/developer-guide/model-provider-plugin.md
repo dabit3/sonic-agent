@@ -250,7 +250,7 @@ The general `PluginManager` (the thing `sonic plugins` operates on) **sees** mod
 Like any Sonic plugin, model providers can ship as a pip package. Add an entry point to your `pyproject.toml`:
 
 ```toml
-[project.entry-points."sonic.plugins"]
+[project.entry-points."sonic_agent.plugins"]
 acme-inference = "acme_sonic_plugin:register"
 ```
 

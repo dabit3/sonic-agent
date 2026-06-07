@@ -170,8 +170,8 @@ tail -f ~/.sonic/logs/gateway.log ~/.sonic/profiles/*/logs/gateway.log
 The CLI also has a structured log viewer:
 
 ```bash
-sonic logs --tail              # follow default profile
-sonic -p coder logs --tail     # follow one profile
+sonic logs -f                  # follow default profile
+sonic -p coder logs -f         # follow one profile
 sonic logs --help              # filters, levels, JSON output
 ```
 
