@@ -69,7 +69,7 @@ https://sonic-agent.nousresearch.com/docs/api/model-catalog.json
 model_catalog:
   enabled: true
   url: https://sonic-agent.nousresearch.com/docs/api/model-catalog.json
-  ttl_hours: 24
+  ttl_hours: 1
   providers: {}
 ```
 

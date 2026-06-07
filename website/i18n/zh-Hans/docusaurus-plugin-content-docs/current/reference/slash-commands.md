@@ -100,6 +100,7 @@ Sonic 有两个斜杠命令入口，均由 `sonic_cli/commands.py` 中的中央 
 | 命令 | 描述 |
 |---------|-------------|
 | `/help` | 显示帮助信息 |
+| `/version` | 显示 Hermes Agent 版本、构建及环境信息。 |
 | `/usage` | 显示 token 用量、费用明细、会话时长，以及——当活动提供商支持时——从提供商 API 实时拉取的**账户限额**部分，包含剩余配额/积分/套餐用量。 |
 | `/insights` | 显示用量洞察和分析（最近 30 天） |
 | `/platforms`（别名：`/gateway`） | 显示 gateway/消息平台状态（仅限 CLI 摘要视图）。 |
@@ -236,7 +237,7 @@ sonic config set model.aliases.grok x-ai/grok-4
 - `/skin`、`/snapshot`、`/gquota`、`/reload`、`/tools`、`/toolsets`、`/browser`、`/config`、`/cron`、`/skills`、`/platforms`、`/paste`、`/image`、`/statusbar`、`/plugins`、`/busy`、`/indicator`、`/redraw`、`/clear`、`/history`、`/save`、`/copy`、`/handoff` 和 `/quit` 是**仅限 CLI** 的命令。
 - `/verbose` **默认仅限 CLI**，但可通过在 `config.yaml` 中设置 `display.tool_progress_command: true` 为消息平台启用。启用后，它会循环切换 `display.tool_progress` 模式并保存到配置。
 - `/sethome`、`/update`、`/restart`、`/approve`、`/deny`、`/topic` 和 `/commands` 是**仅限消息平台**的命令。
-- `/status`、`/background`、`/queue`、`/steer`、`/voice`、`/reload-mcp`、`/reload-skills`、`/rollback`、`/debug`、`/fast`、`/footer`、`/curator`、`/kanban`、`/sessions` 和 `/yolo` 在 **CLI 和消息 gateway 中均可使用**。
+- `/status`、`/version`、`/background`、`/queue`、`/steer`、`/voice`、`/reload-mcp`、`/reload-skills`、`/rollback`、`/debug`、`/fast`、`/footer`、`/curator`、`/kanban`、`/sessions` 和 `/yolo` 在 **CLI 和消息 gateway 中均可使用**。
 - `/voice join`、`/voice channel` 和 `/voice leave` 仅在 Discord 上有意义。
 
 ## 破坏性命令的确认提示

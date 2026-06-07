@@ -34,11 +34,11 @@ Plugin 系统允许你在不修改任何 Sonic 核心代码的情况下添加平
 
 ```
 ~/.sonic/plugins/my-platform/
-  PLUGIN.yaml      # Plugin 元数据
+  plugin.yaml      # Plugin 元数据
   adapter.py       # 适配器类 + register() 入口点
 ```
 
-### PLUGIN.yaml
+### plugin.yaml
 
 Plugin 元数据。`requires_env` 和 `optional_env` 块会自动填充 `sonic config` UI 条目（参见下方[在 sonic config 中暴露环境变量](#surfacing-env-vars-in-sonic-config)）。
 
