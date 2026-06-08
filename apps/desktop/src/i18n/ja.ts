@@ -1395,6 +1395,7 @@ export const ja = defineLocale({
     copied: 'コピーしました',
     done: '完了',
     applyingBody: 'Sonic アップデーターが独自のウィンドウで引き継ぎ、完了後に Sonic を再度開きます。',
+    applyingBodyBackend: 'リモートバックエンドが更新を適用して再起動します。復帰すると Sonic が自動的に再接続します。',
     applyingClose: 'Sonic は更新を適用するために閉じます。',
     errorTitle: '更新が完了しませんでした',
     errorBody: 'ご安心ください。何も失われていません。今すぐ再試行できます。',

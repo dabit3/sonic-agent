@@ -1440,6 +1440,7 @@ export const zh: Translations = {
     copied: '已复制',
     done: '完成',
     applyingBody: 'Sonic 更新器会在自己的窗口中接管，并在完成后重新打开 Sonic。',
+    applyingBodyBackend: '远程后端正在应用更新并将重启。恢复后 Sonic 会自动重新连接。',
     applyingClose: 'Sonic 将关闭以应用更新。',
     errorTitle: '更新未完成',
     errorBody: '没有数据丢失。你可以现在重试。',
