@@ -1100,6 +1100,7 @@ AUTHOR_MAP = {
     "holynn@placeholder.local": "holynn-q",
     "agent@sonic.local": "jacdevos",
     "sunsky.lau@gmail.com": "liuhao1024",
+    "rob@rbrtbn.com": "rbrtbn",
     "haaasined@gmail.com": "VinciZhu",
     "fabianoeq@gmail.com": "rodrigoeqnit",
     "178342791+sgtworkman@users.noreply.github.com": "sgtworkman",
