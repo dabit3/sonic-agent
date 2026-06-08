@@ -32,6 +32,7 @@ from agent.display import KawaiiSpinner
 from agent.error_classifier import FailoverReason, classify_api_error
 from agent.iteration_budget import IterationBudget
 from agent.turn_context import build_turn_context
+from agent.turn_retry_state import TurnRetryState
 from agent.memory_manager import build_memory_context_block
 from agent.message_sanitization import (
     _repair_tool_call_arguments,
@@ -798,23 +799,9 @@ def run_conversation(
         api_start_time = time.time()
         retry_count = 0
         max_retries = agent._api_max_retries
-        primary_recovery_attempted = False
+        _retry = TurnRetryState()
         max_compression_attempts = 3
-        codex_auth_retry_attempted=False
-        anthropic_auth_retry_attempted=False
-        nous_auth_retry_attempted=False
-        nous_paid_entitlement_refresh_attempted=False
-        copilot_auth_retry_attempted=False
-        thinking_sig_retry_attempted = False
-        invalid_encrypted_content_retry_attempted = False
-        image_shrink_retry_attempted = False
-        multimodal_tool_content_retry_attempted = False
         tool_use_unsupported_retry_attempted = False
-        oauth_1m_beta_retry_attempted = False
-        llama_cpp_grammar_retry_attempted = False
-        has_retried_429 = False
-        restart_with_compressed_messages = False
-        restart_with_length_continuation = False
 
         finish_reason = "stop"
         response = None  # Guard against UnboundLocalError if all retries fail
@@ -847,7 +834,7 @@ def run_conversation(
                         if agent._try_activate_fallback():
                             retry_count = 0
                             compression_attempts = 0
-                            primary_recovery_attempted = False
+                            _retry.primary_recovery_attempted = False
                             continue
                         # No fallback available — surface buffered context
                         # so user sees the rate-limit message that led here.
@@ -1172,7 +1159,7 @@ def run_conversation(
                     if agent._try_activate_fallback():
                         retry_count = 0
                         compression_attempts = 0
-                        primary_recovery_attempted = False
+                        _retry.primary_recovery_attempted = False
                         continue
 
                     # Check for error field in response (some providers include this)
@@ -1243,7 +1230,7 @@ def run_conversation(
                         if agent._try_activate_fallback():
                             retry_count = 0
                             compression_attempts = 0
-                            primary_recovery_attempted = False
+                            _retry.primary_recovery_attempted = False
                             continue
                         # Terminal — flush buffered retry trace so user sees what happened.
                         agent._flush_status_buffer()
@@ -1467,7 +1454,7 @@ def run_conversation(
                                 }
                                 messages.append(continue_msg)
                                 agent._session_messages = messages
-                                restart_with_length_continuation = True
+                                _retry.restart_with_length_continuation = True
                                 break
 
                             partial_response = agent._strip_think_blocks("".join(truncated_response_parts)).strip()
@@ -1716,7 +1703,7 @@ def run_conversation(
                             f"({hit_pct:.0f}% hit, {written:,} written)"
                         )
                 
-                has_retried_429 = False  # Reset on success
+                _retry.has_retried_429 = False  # Reset on success
                 # Note: don't clear the retry buffer here — an "API call
                 # success" only means we got bytes back, not that we got
                 # usable content. Empty responses still loop through the
@@ -2046,9 +2033,9 @@ def run_conversation(
                         getattr(agent, "provider", "") or "",
                         getattr(agent, "base_url", "") or "",
                     )
-                    and not nous_paid_entitlement_refresh_attempted
+                    and not _retry.nous_paid_entitlement_refresh_attempted
                 ):
-                    nous_paid_entitlement_refresh_attempted = True
+                    _retry.nous_paid_entitlement_refresh_attempted = True
                     if _try_refresh_nous_paid_entitlement_credentials(agent):
                         agent._vprint(
                             f"{agent.log_prefix}🔐 Nous paid access verified — "
@@ -2057,9 +2044,9 @@ def run_conversation(
                         )
                         continue
 
-                recovered_with_pool, has_retried_429 = agent._recover_with_credential_pool(
+                recovered_with_pool, _retry.has_retried_429 = agent._recover_with_credential_pool(
                     status_code=status_code,
-                    has_retried_429=has_retried_429,
+                    has_retried_429=_retry.has_retried_429,
                     classified_reason=classified.reason,
                     error_context=error_context,
                 )
@@ -2074,9 +2061,9 @@ def run_conversation(
                 # fails, fall through to normal error handling.
                 if (
                     classified.reason == FailoverReason.image_too_large
-                    and not image_shrink_retry_attempted
+                    and not _retry.image_shrink_retry_attempted
                 ):
-                    image_shrink_retry_attempted = True
+                    _retry.image_shrink_retry_attempted = True
                     if agent._try_shrink_image_parts_in_messages(api_messages):
                         agent._vprint(
                             f"{agent.log_prefix}📐 Image(s) exceeded provider size limit — "
@@ -2099,9 +2086,9 @@ def run_conversation(
                 # downgrade, and retry once.  See issue #27344.
                 if (
                     classified.reason == FailoverReason.multimodal_tool_content_unsupported
-                    and not multimodal_tool_content_retry_attempted
+                    and not _retry.multimodal_tool_content_retry_attempted
                 ):
-                    multimodal_tool_content_retry_attempted = True
+                    _retry.multimodal_tool_content_retry_attempted = True
                     if agent._try_strip_image_parts_from_tool_messages(api_messages):
                         agent._vprint(
                             f"{agent.log_prefix}📐 Provider rejected list-type tool content — "
@@ -2151,9 +2138,9 @@ def run_conversation(
                     classified.reason == FailoverReason.oauth_long_context_beta_forbidden
                     and agent.api_mode == "anthropic_messages"
                     and agent._is_anthropic_oauth
-                    and not oauth_1m_beta_retry_attempted
+                    and not _retry.oauth_1m_beta_retry_attempted
                 ):
-                    oauth_1m_beta_retry_attempted = True
+                    _retry.oauth_1m_beta_retry_attempted = True
                     if not getattr(agent, "_oauth_1m_beta_disabled", False):
                         agent._oauth_1m_beta_disabled = True
                         try:
@@ -2172,9 +2159,9 @@ def run_conversation(
                     agent.api_mode == "codex_responses"
                     and agent.provider in {"openai-codex", "xai-oauth"}
                     and status_code == 401
-                    and not codex_auth_retry_attempted
+                    and not _retry.codex_auth_retry_attempted
                 ):
-                    codex_auth_retry_attempted = True
+                    _retry.codex_auth_retry_attempted = True
                     if agent._try_refresh_codex_client_credentials(force=True):
                         _label = "xAI OAuth" if agent.provider == "xai-oauth" else "Codex"
                         agent._buffer_vprint(f"🔐 {_label} auth refreshed after 401. Retrying request...")
@@ -2183,9 +2170,9 @@ def run_conversation(
                     agent.api_mode == "chat_completions"
                     and agent.provider == "nous"
                     and status_code == 401
-                    and not nous_auth_retry_attempted
+                    and not _retry.nous_auth_retry_attempted
                 ):
-                    nous_auth_retry_attempted = True
+                    _retry.nous_auth_retry_attempted = True
                     if agent._try_refresh_nous_client_credentials(force=True):
                         print(f"{agent.log_prefix}🔐 Nous agent key refreshed after 401. Retrying request...")
                         continue
@@ -2214,9 +2201,9 @@ def run_conversation(
                 if (
                     agent.provider == "copilot"
                     and status_code == 401
-                    and not copilot_auth_retry_attempted
+                    and not _retry.copilot_auth_retry_attempted
                 ):
-                    copilot_auth_retry_attempted = True
+                    _retry.copilot_auth_retry_attempted = True
                     if agent._try_refresh_copilot_client_credentials():
                         agent._buffer_vprint(f"🔐 Copilot credentials refreshed after 401. Retrying request...")
                         continue
@@ -2224,9 +2211,9 @@ def run_conversation(
                     agent.api_mode == "anthropic_messages"
                     and status_code == 401
                     and hasattr(agent, '_anthropic_api_key')
-                    and not anthropic_auth_retry_attempted
+                    and not _retry.anthropic_auth_retry_attempted
                 ):
-                    anthropic_auth_retry_attempted = True
+                    _retry.anthropic_auth_retry_attempted = True
                     from agent.anthropic_adapter import _is_oauth_token
                     from agent.azure_identity_adapter import is_token_provider
                     if agent._try_refresh_anthropic_client_credentials():
@@ -2267,9 +2254,9 @@ def run_conversation(
                 # blocks at all.  One-shot — don't retry infinitely.
                 if (
                     classified.reason == FailoverReason.thinking_signature
-                    and not thinking_sig_retry_attempted
+                    and not _retry.thinking_sig_retry_attempted
                 ):
-                    thinking_sig_retry_attempted = True
+                    _retry.thinking_sig_retry_attempted = True
                     for _m in messages:
                         if isinstance(_m, dict):
                             _m.pop("reasoning_details", None)
@@ -2301,7 +2288,7 @@ def run_conversation(
                 # handles it (the provider is rejecting something else).
                 if (
                     classified.reason == FailoverReason.invalid_encrypted_content
-                    and not invalid_encrypted_content_retry_attempted
+                    and not _retry.invalid_encrypted_content_retry_attempted
                     and agent.api_mode == "codex_responses"
                     and bool(getattr(agent, "_codex_reasoning_replay_enabled", True))
                     and any(
@@ -2312,7 +2299,7 @@ def run_conversation(
                         for _m in messages
                     )
                 ):
-                    invalid_encrypted_content_retry_attempted = True
+                    _retry.invalid_encrypted_content_retry_attempted = True
                     replay_stats = agent._disable_codex_reasoning_replay(messages)
                     agent._vprint(
                         f"{agent.log_prefix}⚠️  Encrypted reasoning replay was rejected by the provider — "
@@ -2339,9 +2326,9 @@ def run_conversation(
                 # fires only for users on llama.cpp's OAI server.
                 if (
                     classified.reason == FailoverReason.llama_cpp_grammar_pattern
-                    and not llama_cpp_grammar_retry_attempted
+                    and not _retry.llama_cpp_grammar_retry_attempted
                 ):
-                    llama_cpp_grammar_retry_attempted = True
+                    _retry.llama_cpp_grammar_retry_attempted = True
                     try:
                         from tools.schema_sanitizer import strip_pattern_and_format
                         _, _stripped = strip_pattern_and_format(agent.tools)
@@ -2552,7 +2539,7 @@ def run_conversation(
                                 f"(was {old_ctx:,}), retrying..."
                             )
                             time.sleep(2)
-                            restart_with_compressed_messages = True
+                            _retry.restart_with_compressed_messages = True
                             break
                     # Fall through to normal error handling if compression
                     # is exhausted or didn't help.
@@ -2585,7 +2572,7 @@ def run_conversation(
                         if agent._try_activate_fallback(reason=classified.reason):
                             retry_count = 0
                             compression_attempts = 0
-                            primary_recovery_attempted = False
+                            _retry.primary_recovery_attempted = False
                             continue
 
                 # ── Nous Portal: record rate limit & skip retries ─────
@@ -2723,7 +2710,7 @@ def run_conversation(
                     if len(messages) < original_len:
                         agent._buffer_status(f"🗜️ Compressed {original_len} → {len(messages)} messages, retrying...")
                         time.sleep(2)  # Brief pause between compression retries
-                        restart_with_compressed_messages = True
+                        _retry.restart_with_compressed_messages = True
                         break
                     else:
                         # Terminal — surface buffered context so the user
@@ -2795,7 +2782,7 @@ def run_conversation(
                                 "failed": True,
                                 "compression_exhausted": True,
                             }
-                        restart_with_compressed_messages = True
+                        _retry.restart_with_compressed_messages = True
                         break
 
                     # Error is about the INPUT being too large.  Only reduce
@@ -2880,7 +2867,7 @@ def run_conversation(
                         if len(messages) < original_len:
                             agent._buffer_status(f"🗜️ Compressed {original_len} → {len(messages)} messages, retrying...")
                         time.sleep(2)  # Brief pause between compression retries
-                        restart_with_compressed_messages = True
+                        _retry.restart_with_compressed_messages = True
                         break
                     else:
                         # Can't compress further and already at minimum tier
@@ -2985,7 +2972,7 @@ def run_conversation(
                     if agent._try_activate_fallback():
                         retry_count = 0
                         compression_attempts = 0
-                        primary_recovery_attempted = False
+                        _retry.primary_recovery_attempted = False
                         continue
                     if api_kwargs is not None:
                         agent._dump_api_request_debug(
@@ -3117,10 +3104,10 @@ def run_conversation(
                     # client once for transient transport errors (stale
                     # connection pool, TCP reset).  Only attempted once
                     # per API call block.
-                    if not primary_recovery_attempted and agent._try_recover_primary_transport(
+                    if not _retry.primary_recovery_attempted and agent._try_recover_primary_transport(
                         api_error, retry_count=retry_count, max_retries=max_retries,
                     ):
-                        primary_recovery_attempted = True
+                        _retry.primary_recovery_attempted = True
                         retry_count = 0
                         continue
                     # Try fallback before giving up entirely
@@ -3129,7 +3116,7 @@ def run_conversation(
                     if agent._try_activate_fallback():
                         retry_count = 0
                         compression_attempts = 0
-                        primary_recovery_attempted = False
+                        _retry.primary_recovery_attempted = False
                         continue
                     # Terminal — flush buffered retry/fallback trace.
                     agent._flush_status_buffer()
@@ -3280,17 +3267,17 @@ def run_conversation(
             _turn_exit_reason = "interrupted_during_api_call"
             break
 
-        if restart_with_compressed_messages:
+        if _retry.restart_with_compressed_messages:
             api_call_count -= 1
             agent.iteration_budget.refund()
             # Count compression restarts toward the retry limit to prevent
             # infinite loops when compression reduces messages but not enough
             # to fit the context window.
             retry_count += 1
-            restart_with_compressed_messages = False
+            _retry.restart_with_compressed_messages = False
             continue
 
-        if restart_with_length_continuation:
+        if _retry.restart_with_length_continuation:
             # Progressively boost the output token budget on each retry.
             # Retry 1 → 2× base, retry 2 → 3× base, capped at 32 768.
             # Applies to all providers via _ephemeral_max_output_tokens.
