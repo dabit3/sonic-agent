@@ -4,6 +4,7 @@
   <a href="https://github.com/dabit3/sonic-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
   <a href="https://github.com/NousResearch/hermes-agent"><img src="https://img.shields.io/badge/Fork%20of-Sonic%20Agent-blueviolet?style=for-the-badge" alt="Fork of Hermes Agent"></a>
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/Lang-中文-red?style=for-the-badge" alt="中文"></a>
+  <a href="README.ur-pk.md"><img src="https://img.shields.io/badge/Lang-اردو-green?style=for-the-badge" alt="اردو"></a>
 </p>
 
 > Sonic Agent is a fork of [Sonic Agent](https://github.com/NousResearch/hermes-agent) from [Nous Research](https://nousresearch.com). This fork is tuned for one property: speed. It optimizes startup time, time to first token, and streaming speed. In some cases it removes features to get this speed. The upstream documentation is at [lightning-agent.nousresearch.com/docs](https://lightning-agent.nousresearch.com/docs/).
