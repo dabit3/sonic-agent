@@ -132,6 +132,14 @@
     "appId": "com.nousresearch.sonic",
     "productName": "Sonic",
     "executableName": "Sonic",
+    "protocols": [
+      {
+        "name": "Sonic Protocol",
+        "schemes": [
+          "sonic"
+        ]
+      }
+    ],
     "artifactName": "Sonic-${version}-${os}-${arch}.${ext}",
     "icon": "assets/icon",
     "directories": {
