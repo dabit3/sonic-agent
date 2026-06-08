@@ -45,6 +45,12 @@ No admin rights required. The installer goes to `%LOCALAPPDATA%\sonic\` and adds
 
 The installer auto-retries flaky git fetches and strips BOM from any downloaded `install.ps1` payload, so a UTF-8 BOM picked up during HTTP transit no longer breaks the `[scriptblock]::Create((irm ...))` form.
 
+### Desktop installer (alternative)
+
+A thin GUI installer is also available — useful if you'd rather double-click an `.exe` than open PowerShell. Download Hermes Desktop, run the installer, and on first launch the GUI calls `install.ps1` under the hood to provision Python (via `uv`), Node, PortableGit, and the rest of the dependency bootstrap described below. After the first run, the desktop app and the PowerShell-installed `hermes` CLI share the same `%LOCALAPPDATA%\hermes\hermes-agent` install and `%USERPROFILE%\.hermes` data directory — switch between the GUI and the CLI freely.
+
+Use the desktop installer when you want a familiar Windows install experience or you're handing Hermes to a non-developer; use the PowerShell one-liner when you're already in a terminal.
+
 ### Dependency bootstrap (`dep_ensure`)
 
 On first launch (and on demand when a missing tool is detected), Sonic runs a small Python bootstrapper — `sonic_cli/dep_ensure.py` — that checks for and lazily installs the non-Python dependencies it needs. On Windows, the relevant ones are:
@@ -136,12 +142,12 @@ Sonic's Windows stdio shim now sets `EDITOR=notepad` as a default. Notepad ships
 
 **User overrides still win** (they're checked before the setdefault):
 
-| Editor    | PowerShell command                                                                 |
-| --------- | ---------------------------------------------------------------------------------- |
-| VS Code   | `$env:EDITOR = "code --wait"`                                                      |
+| Editor | PowerShell command |
+|---|---|
+| VS Code | `$env:EDITOR = "code --wait"` |
 | Notepad++ | `$env:EDITOR = "'C:\Program Files\Notepad++\notepad++.exe' -multiInst -nosession"` |
-| Neovim    | `$env:EDITOR = "nvim"`                                                             |
-| Helix     | `$env:EDITOR = "hx"`                                                               |
+| Neovim | `$env:EDITOR = "nvim"` |
+| Helix | `$env:EDITOR = "hx"` |
 
 The `--wait` flag on VS Code is critical — without it the editor returns immediately and Sonic gets a blank buffer back.
 
@@ -220,12 +226,12 @@ The browser tool uses `agent-browser` (a Node helper) to drive Chromium. On Wind
 
 ### PATH after install
 
-The installer adds `%LOCALAPPDATA%\sonic\bin` to your **User PATH** via `[Environment]::SetEnvironmentVariable`. Existing terminals don't pick this up — open a new PowerShell window (or Windows Terminal tab) after installation. Close-and-reopen, don't `$env:PATH += …` by hand unless you know what you're doing.
+The installer adds `%LOCALAPPDATA%\sonic\sonic-agent\venv\Scripts` to your **User PATH** via `[Environment]::SetEnvironmentVariable`. Existing terminals don't pick this up — open a new PowerShell window (or Windows Terminal tab) after installation. Close-and-reopen, don't `$env:PATH += …` by hand unless you know what you're doing.
 
 Verify:
 
 ```powershell
-Get-Command sonic        # should print C:\Users\<you>\AppData\Local\sonic\bin\sonic.cmd
+Get-Command sonic        # should print C:\Users\<you>\AppData\Local\sonic\sonic-agent\venv\Scripts\sonic.exe
 sonic --version
 ```
 
@@ -283,7 +289,7 @@ Consequence: any codepath that said "check if this PID is alive" via `os.kill(pi
 ## Common pitfalls
 
 **`sonic: command not found` right after install.**
-Open a new PowerShell window. The installer added `%LOCALAPPDATA%\sonic\bin` to User PATH, but existing shells need to be restarted to pick it up.
+Open a new PowerShell window. The installer added `%LOCALAPPDATA%\sonic\bin` to User PATH, but existing shells need to be restarted to pick it up. In the meantime you can run `& "$env:LOCALAPPDATA\sonic\bin\sonic.cmd"`.
 
 **`WinError 193: %1 is not a valid Win32 application` when running a tool.**
 You hit a shebang-script invocation that bypassed the `.cmd` shim. Sonic resolves commands through `shutil.which(cmd, path=local_bin)` so PATHEXT picks up `.CMD` — if you're invoking the tool via a hardcoded path instead, switch to the `.cmd` variant (e.g., `npx.cmd`, not `npx`).
