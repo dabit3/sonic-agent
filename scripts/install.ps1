@@ -1725,7 +1725,7 @@ function Write-BootstrapMarker {
 function Copy-ConfigTemplates {
     Write-Info "Setting up configuration files..."
     
-    # Create ~/.sonic directory structure
+    # Create the SONIC_HOME directory structure ($SonicHome, default %LOCALAPPDATA%\sonic)
     New-Item -ItemType Directory -Force -Path "$SonicHome\cron" | Out-Null
     New-Item -ItemType Directory -Force -Path "$SonicHome\sessions" | Out-Null
     New-Item -ItemType Directory -Force -Path "$SonicHome\logs" | Out-Null
@@ -1743,13 +1743,13 @@ function Copy-ConfigTemplates {
         $examplePath = "$InstallDir\.env.example"
         if (Test-Path $examplePath) {
             Copy-Item $examplePath $envPath
-            Write-Success "Created ~/.sonic/.env from template"
+            Write-Success "Created $envPath from template"
         } else {
             New-Item -ItemType File -Force -Path $envPath | Out-Null
-            Write-Success "Created ~/.sonic/.env"
+            Write-Success "Created $envPath"
         }
     } else {
-        Write-Info "~/.sonic/.env already exists, keeping it"
+        Write-Info "$envPath already exists, keeping it"
     }
     
     # Create config.yaml
@@ -1758,10 +1758,10 @@ function Copy-ConfigTemplates {
         $examplePath = "$InstallDir\cli-config.yaml.example"
         if (Test-Path $examplePath) {
             Copy-Item $examplePath $configPath
-            Write-Success "Created ~/.sonic/config.yaml from template"
+            Write-Success "Created $configPath from template"
         }
     } else {
-        Write-Info "~/.sonic/config.yaml already exists, keeping it"
+        Write-Info "$configPath already exists, keeping it"
     }
     
     # Create SOUL.md if it doesn't exist (global persona file).
@@ -1794,25 +1794,25 @@ Delete the contents (or this file) to use the default personality.
 "@
         $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
         [System.IO.File]::WriteAllText($soulPath, $soulContent, $utf8NoBom)
-        Write-Success "Created ~/.sonic/SOUL.md (edit to customize personality)"
+        Write-Success "Created $soulPath (edit to customize personality)"
     }
     
-    Write-Success "Configuration directory ready: ~/.sonic/"
+    Write-Success "Configuration directory ready: $SonicHome"
     
-    # Seed bundled skills into ~/.sonic/skills/ (manifest-based, one-time per skill)
-    Write-Info "Syncing bundled skills to ~/.sonic/skills/ ..."
+    # Seed bundled skills into $SonicHome\skills (manifest-based, one-time per skill)
+    Write-Info "Syncing bundled skills to $SonicHome\skills ..."
     $pythonExe = "$InstallDir\venv\Scripts\python.exe"
     if (Test-Path $pythonExe) {
         try {
             & $pythonExe "$InstallDir\tools\skills_sync.py" 2>$null
-            Write-Success "Skills synced to ~/.sonic/skills/"
+            Write-Success "Skills synced to $SonicHome\skills"
         } catch {
             # Fallback: simple directory copy
             $bundledSkills = "$InstallDir\skills"
             $userSkills = "$SonicHome\skills"
             if ((Test-Path $bundledSkills) -and -not (Get-ChildItem $userSkills -Exclude '.bundled_manifest' -ErrorAction SilentlyContinue)) {
                 Copy-Item -Path "$bundledSkills\*" -Destination $userSkills -Recurse -Force -ErrorAction SilentlyContinue
-                Write-Success "Skills copied to ~/.sonic/skills/"
+                Write-Success "Skills copied to $SonicHome\skills"
             }
         }
     }

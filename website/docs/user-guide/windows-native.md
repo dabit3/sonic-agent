@@ -47,7 +47,7 @@ The installer auto-retries flaky git fetches and strips BOM from any downloaded 
 
 ### Desktop installer (alternative)
 
-A thin GUI installer is also available — useful if you'd rather double-click an `.exe` than open PowerShell. Download Sonic Desktop, run the installer, and on first launch the GUI calls `install.ps1` under the hood to provision Python (via `uv`), Node, PortableGit, and the rest of the dependency bootstrap described below. After the first run, the desktop app and the PowerShell-installed `sonic` CLI share the same `%LOCALAPPDATA%\sonic\sonic-agent` install and `%USERPROFILE%\.sonic` data directory — switch between the GUI and the CLI freely.
+A thin GUI installer is also available — useful if you'd rather double-click an `.exe` than open PowerShell. Download Sonic Desktop, run the installer, and on first launch the GUI calls `install.ps1` under the hood to provision Python (via `uv`), Node, PortableGit, and the rest of the dependency bootstrap described below. After the first run, the desktop app and the PowerShell-installed `sonic` CLI share the same `%LOCALAPPDATA%\sonic\sonic-agent` install and `%LOCALAPPDATA%\sonic` data directory — switch between the GUI and the CLI freely.
 
 Use the desktop installer when you want a familiar Windows install experience or you're handing Sonic to a non-developer; use the PowerShell one-liner when you're already in a terminal.
 
@@ -77,7 +77,7 @@ Top-to-bottom, in order:
 6. **Tiered `uv pip install`** — tries `.[all]` first, falls back to progressively smaller sets (`[messaging,dashboard,ext]` → `[messaging]` → `.`) if a `git+https` dep flakes on rate-limited GitHub. Prevents "single flake drops you to a bare install" failure mode.
 7. **Auto-installs messaging SDKs** keyed off `.env` — if `TELEGRAM_BOT_TOKEN` / `DISCORD_BOT_TOKEN` / `SLACK_BOT_TOKEN` / `SLACK_APP_TOKEN` / `WHATSAPP_ENABLED` are present, runs `python -m ensurepip --upgrade` and targeted `pip install` calls so each platform's SDK is actually importable.
 8. **Sets `SONIC_GIT_BASH_PATH`** to the resolved `bash.exe` so Sonic finds it deterministically in fresh shells.
-9. **Adds `%LOCALAPPDATA%\sonic\bin` to User PATH** — exposes the `sonic` command after you open a new terminal.
+9. **Adds `%LOCALAPPDATA%\sonic\sonic-agent\venv\Scripts` to User PATH and sets `SONIC_HOME=%LOCALAPPDATA%\sonic`** — exposes the `sonic` command (and points it at your data dir) after you open a new terminal.
 10. **Runs `sonic setup`** — the normal first-run wizard (model, provider, toolsets). Skip with `-SkipSetup`.
 
 :::tip Skip provider hunting on Windows
@@ -202,17 +202,17 @@ Services require admin rights to install and tie the gateway's lifecycle to mach
 
 ## Data layout
 
-| Path                                  | Contents                                                            |
-| ------------------------------------- | ------------------------------------------------------------------- |
-| `%LOCALAPPDATA%\sonic\sonic-agent\` | Git checkout + venv. Safe to `Remove-Item -Recurse` and reinstall.  |
-| `%LOCALAPPDATA%\sonic\git\`          | PortableGit (only if the installer provisioned it).                 |
-| `%LOCALAPPDATA%\sonic\node\`         | Portable Node.js (only if the installer provisioned it).            |
-| `%LOCALAPPDATA%\sonic\bin\`          | `sonic.cmd` shim, added to User PATH.                              |
-| `%USERPROFILE%\.sonic\`              | Your config, auth, skills, sessions, logs. **Survives reinstalls.** |
+| Path | Contents |
+|---|---|
+| `%LOCALAPPDATA%\sonic\sonic-agent\` | Git checkout + venv. `venv\Scripts\sonic.exe` is the command added to User PATH. Safe to `Remove-Item -Recurse` and reinstall. |
+| `%LOCALAPPDATA%\sonic\git\` | PortableGit (only if the installer provisioned it). |
+| `%LOCALAPPDATA%\sonic\node\` | Portable Node.js (only if the installer provisioned it). |
+| `%LOCALAPPDATA%\sonic\bin\` | Sonic's managed `uv.exe` (the Python manager it uses for updates). |
+| `%LOCALAPPDATA%\sonic\` (root) | Your config, auth, skills, sessions, logs (`config.yaml`, `.env`, `skills\`, `sessions\`, `logs\`, …). **Survives reinstalls.** |
 
-The split is deliberate: `%LOCALAPPDATA%\sonic` is disposable infrastructure (you can blow it away and the one-liner restores it). `%USERPROFILE%\.sonic` is your data — config, memory, skills, session history — and is identical in shape to a Linux install. Mirror it between machines and your Sonic moves with you.
+On native Windows the installer sets `SONIC_HOME=%LOCALAPPDATA%\sonic`, so your data and the disposable install live under the **same** `%LOCALAPPDATA%\sonic` root: the install/runtime is the `sonic-agent\`, `git\`, `node\`, and `bin\` subdirectories, while your data files sit directly in `%LOCALAPPDATA%\sonic`. Reinstalling only replaces the `sonic-agent\` checkout, so your data survives — but because the two share a root, **don't** `Remove-Item -Recurse %LOCALAPPDATA%\sonic` if you want to keep your data; delete the `sonic-agent\` subdirectory instead. Your data directory is identical in shape to a Linux `~/.sonic`, so you can mirror it between machines.
 
-**Override `SONIC_HOME`:** set the environment variable to point at a different data dir. Works the same as on Linux.
+**Override `SONIC_HOME`:** set the environment variable to point at a different data dir (e.g. `%USERPROFILE%\.sonic` to match a Linux/WSL layout). Works the same as on Linux.
 
 ## Browser tool
 
@@ -237,7 +237,7 @@ sonic --version
 
 ### Environment variables
 
-Sonic honors both `$env:X` (process-scope) and User environment variables (permanent, set in System Properties → Environment Variables). Setting API keys in `%USERPROFILE%\.sonic\.env` is the normal path — same as Linux:
+Sonic honors both `$env:X` (process-scope) and User environment variables (permanent, set in System Properties → Environment Variables). Setting API keys in `%LOCALAPPDATA%\sonic\.env` (your `SONIC_HOME`) is the normal path — same as Linux:
 
 ```
 OPENROUTER_API_KEY=sk-or-...
@@ -264,14 +264,15 @@ From PowerShell:
 sonic uninstall
 ```
 
-That's the clean path — removes the schtasks entry, Startup folder shortcut, `sonic.cmd` shim, deletes `%LOCALAPPDATA%\sonic\sonic-agent\`, and trims the User PATH. It leaves `%USERPROFILE%\.sonic\` alone (your config, auth, skills, sessions, logs) in case you're reinstalling.
+That's the clean path — removes the schtasks entry, Startup folder shortcut, `sonic.cmd` shim, deletes `%LOCALAPPDATA%\sonic\sonic-agent\`, and trims the User PATH. It leaves the rest of `%LOCALAPPDATA%\sonic\` alone (your config, auth, skills, sessions, logs) in case you're reinstalling.
 
 To nuke everything:
 
 ```powershell
 sonic uninstall
-Remove-Item -Recurse -Force "$env:USERPROFILE\.sonic"
 Remove-Item -Recurse -Force "$env:LOCALAPPDATA\sonic"
+# Also remove a legacy CLI/WSL data dir if you ever used one:
+Remove-Item -Recurse -Force "$env:USERPROFILE\.sonic"
 ```
 
 The `sonic uninstall` CLI subcommand also handles the case where the schtasks entry was registered under a different task name (older installs) — it searches by install path rather than by hardcoded task name.
