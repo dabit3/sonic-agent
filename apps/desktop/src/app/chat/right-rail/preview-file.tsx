@@ -13,6 +13,7 @@ import { Streamdown } from 'streamdown'
 import { SONIC_PATHS_MIME } from '@/app/chat/hooks/use-composer-actions'
 import { PageLoader } from '@/components/page-loader'
 import { translateNow, useI18n } from '@/i18n'
+import { readDesktopFileDataUrl, readDesktopFileText } from '@/lib/desktop-fs'
 import { cn } from '@/lib/utils'
 import type { PreviewTarget } from '@/store/preview'
 
@@ -180,15 +181,13 @@ function looksBinaryBytes(bytes: Uint8Array) {
 }
 
 async function readTextPreview(filePath: string) {
-  if (window.sonicDesktop.readFileText) {
-    try {
-      return await window.sonicDesktop.readFileText(filePath)
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
+  try {
+    return await readDesktopFileText(filePath)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
 
-      if (!message.includes("No handler registered for 'sonic:readFileText'")) {
-        throw error
-      }
+    if (!message.includes("No handler registered for 'sonic:readFileText'")) {
+      throw error
     }
   }
 
@@ -448,7 +447,7 @@ export function LocalFilePreview({ reloadKey, target }: { reloadKey: number; tar
         if (isImage) {
           // Prefer bytes the caller already handed us (a pasted/dropped
           // screenshot) over re-reading a path that may be transient/unreadable.
-          const dataUrl = target.dataUrl || (await window.sonicDesktop.readFileDataUrl(filePath))
+          const dataUrl = target.dataUrl || (await readDesktopFileDataUrl(filePath))
 
           if (active) {
             setState({ dataUrl, loading: false })
