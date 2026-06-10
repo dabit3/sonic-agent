@@ -49,6 +49,7 @@ AUTHOR_MAP = {
     "info@aminvakil.com": "aminvakil",
     "nikpolale@gmail.com": "polnikale",
     "redpiggy-cyber@users.noreply.github.com": "redpiggy-cyber",
+    "barronlroth@gmail.com": "barronlroth",
     "ondrej.drapalik@gmail.com": "OndrejDrapalik",
     "tomasz.panek@gmail.com": "tomekpanek",
     "philipadsouza@gmail.com": "PhilipAD",
