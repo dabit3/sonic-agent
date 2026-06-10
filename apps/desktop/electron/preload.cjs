@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   revalidateConnection: () => ipcRenderer.invoke('sonic:connection:revalidate'),
   touchBackend: profile => ipcRenderer.invoke('sonic:backend:touch', profile),
   getGatewayWsUrl: profile => ipcRenderer.invoke('sonic:gateway:ws-url', profile),
+  openSessionWindow: sessionId => ipcRenderer.invoke('sonic:window:openSession', sessionId),
   getBootProgress: () => ipcRenderer.invoke('sonic:boot-progress:get'),
   getConnectionConfig: profile => ipcRenderer.invoke('sonic:connection-config:get', profile),
   saveConnectionConfig: payload => ipcRenderer.invoke('sonic:connection-config:save', payload),
