@@ -134,5 +134,9 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
       ipcRenderer.on('sonic:updates:progress', listener)
       return () => ipcRenderer.removeListener('sonic:updates:progress', listener)
     }
+  },
+  themes: {
+    fetchMarketplace: id => ipcRenderer.invoke('hermes:vscode-theme:fetch', id),
+    searchMarketplace: query => ipcRenderer.invoke('hermes:vscode-theme:search', query)
   }
 })
