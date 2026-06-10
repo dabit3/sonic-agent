@@ -30,7 +30,7 @@ platforms:
 ```
 
 ### Option 3: Environment variables
-Add to `~/.sonic/.env`:
+Add to `${SONIC_HOME:-~/.sonic}/.env`:
 ```bash
 WEBHOOK_ENABLED=true
 WEBHOOK_PORT=8644

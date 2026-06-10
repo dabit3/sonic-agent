@@ -23,8 +23,9 @@ check_key() {
     local var="$1"
     local kc_account="${2:-sonic}"
     local kc_service="${3:-$1}"
-    if grep -q "^${var}=" "$HOME/.sonic/.env" 2>/dev/null && \
-       [ -n "$(grep "^${var}=" "$HOME/.sonic/.env" | cut -d= -f2-)" ]; then
+    local _sonic_env="${SONIC_HOME:-$HOME/.sonic}/.env"
+    if grep -q "^${var}=" "$_sonic_env" 2>/dev/null && \
+       [ -n "$(grep "^${var}=" "$_sonic_env" | cut -d= -f2-)" ]; then
         echo "  ✓ ${var} (env)"
         return 0
     fi
@@ -33,7 +34,7 @@ check_key() {
         echo "  ✓ ${var} (Keychain ${kc_account}/${kc_service})"
         return 0
     fi
-    echo "  ✗ ${var} not set in ~/.sonic/.env or Keychain (${kc_account}/${kc_service})"
+    echo "  ✗ ${var} not set in ${_sonic_env} or Keychain (${kc_account}/${kc_service})"
     return 1
 }
 
