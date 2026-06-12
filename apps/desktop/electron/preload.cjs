@@ -40,6 +40,7 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   stopPreviewFileWatch: id => ipcRenderer.invoke('sonic:stopPreviewFileWatch', id),
   setTitleBarTheme: payload => ipcRenderer.send('sonic:titlebar-theme', payload),
   setNativeTheme: mode => ipcRenderer.send('sonic:native-theme', mode),
+  setTranslucency: payload => ipcRenderer.send('sonic:translucency', payload),
   setPreviewShortcutActive: active => ipcRenderer.send('sonic:previewShortcutActive', Boolean(active)),
   openExternal: url => ipcRenderer.invoke('sonic:openExternal', url),
   fetchLinkTitle: url => ipcRenderer.invoke('sonic:fetchLinkTitle', url),
