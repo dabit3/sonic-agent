@@ -428,6 +428,7 @@ Each platform has its own toolset:
 | Telegram | `sonic-telegram` | Full tools including terminal |
 | Discord | `sonic-discord` | Full tools including terminal |
 | WhatsApp | `sonic-whatsapp` | Full tools including terminal |
+| WhatsApp Cloud API | `sonic-whatsapp` | Full tools including terminal (shares toolset with the Baileys bridge) |
 | Slack | `sonic-slack` | Full tools including terminal |
 | Google Chat | `sonic-google_chat` | Full tools including terminal |
 | Signal | `sonic-signal` | Full tools including terminal |
@@ -557,6 +558,7 @@ Defaults to `false`. Only platforms whose adapter implements `delete_message` ho
 - [Slack Setup](slack.md)
 - [Google Chat Setup](google_chat.md)
 - [WhatsApp Setup](whatsapp.md)
+- [WhatsApp Business Cloud API Setup](whatsapp-cloud.md)
 - [Signal Setup](signal.md)
 - [SMS Setup (Twilio)](sms.md)
 - [Email Setup](email.md)
