@@ -145,7 +145,7 @@ BlueBubbles iMessage channel uses.
 ## Start the gateway
 
 ```bash
-sonic gateway start --platform photon
+sonic gateway start
 ```
 
 You'll see something like:

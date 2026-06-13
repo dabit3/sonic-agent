@@ -46,7 +46,7 @@ talks to it over loopback.
 sonic photon setup --phone +15551234567
 
 # Start the gateway
-sonic gateway start --platform photon
+sonic gateway start
 ```
 
 `sonic photon setup` does, in order:
