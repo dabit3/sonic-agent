@@ -41,6 +41,7 @@ const { fetchMarketplaceThemes, searchMarketplaceThemes } = require('./vscode-ma
 const { buildDesktopBackendEnv } = require('./backend-env.cjs')
 const { readDirForIpc } = require('./fs-read-dir.cjs')
 const { gitRootForIpc } = require('./git-root.cjs')
+const { worktreesForIpc } = require('./git-worktrees.cjs')
 const { OFFICIAL_REPO_HTTPS_URL, isOfficialSshRemote } = require('./update-remote.cjs')
 const {
   buildPosixCleanupScript,
@@ -5953,6 +5954,8 @@ function disposeTerminalSession(id) {
 ipcMain.handle('sonic:fs:readDir', async (_event, dirPath) => readDirForIpc(dirPath))
 
 ipcMain.handle('sonic:fs:gitRoot', async (_event, startPath) => gitRootForIpc(startPath))
+
+ipcMain.handle('sonic:fs:worktrees', async (_event, cwds) => worktreesForIpc(cwds))
 
 ipcMain.handle('sonic:terminal:start', async (event, payload = {}) => {
   if (!nodePty) {

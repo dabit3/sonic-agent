@@ -54,6 +54,7 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   getRecentLogs: () => ipcRenderer.invoke('sonic:logs:recent'),
   readDir: dirPath => ipcRenderer.invoke('sonic:fs:readDir', dirPath),
   gitRoot: startPath => ipcRenderer.invoke('sonic:fs:gitRoot', startPath),
+  worktrees: cwds => ipcRenderer.invoke('sonic:fs:worktrees', cwds),
   terminal: {
     dispose: id => ipcRenderer.invoke('sonic:terminal:dispose', id),
     resize: (id, size) => ipcRenderer.invoke('sonic:terminal:resize', id, size),
