@@ -76,6 +76,7 @@ def test_resolve_codex_runtime_credentials_missing_access_token(tmp_path, monkey
     sonic_home = tmp_path / "sonic"
     _setup_sonic_auth(sonic_home, access_token="")
     monkeypatch.setenv("SONIC_HOME", str(sonic_home))
+    monkeypatch.setenv("CODEX_HOME", str(tmp_path / "missing-codex"))
 
     with pytest.raises(AuthError) as exc:
         resolve_codex_runtime_credentials()
