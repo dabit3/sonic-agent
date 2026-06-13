@@ -112,6 +112,7 @@ Common options:
 | `--pass-session-id` | Pass the session ID into the system prompt. |
 | `--ignore-user-config` | Ignore `~/.sonic/config.yaml` and use built-in defaults. Credentials in `.env` are still loaded. Useful for isolated CI runs, reproducible bug reports, and third-party integrations. |
 | `--ignore-rules` | Skip auto-injection of `AGENTS.md`, `SOUL.md`, `.cursorrules`, persistent memory, and preloaded skills. Combine with `--ignore-user-config` for a fully isolated run. |
+| `--safe-mode` | Troubleshooting mode: disable ALL customizations — user config, rules/memory injection, plugins, and MCP servers (implies `--ignore-user-config` and `--ignore-rules`). Use to isolate whether a problem comes from your setup or from Hermes itself. |
 | `--source <tag>` | Session source tag for filtering (default: `cli`). Use `tool` for third-party integrations that should not appear in user session lists. |
 | `--max-turns <N>` | Maximum tool-calling iterations per conversation turn (default: 90, or `agent.max_turns` in config). |
 
@@ -125,6 +126,7 @@ sonic chat --toolsets web,terminal,skills
 sonic chat --quiet -q "Return only JSON"
 sonic chat --worktree -q "Review this repo and open a PR"
 sonic chat --ignore-user-config --ignore-rules -q "Repro without my personal setup"
+sonic chat --safe-mode -q "Is this bug mine or Sonic'?"
 ```
 
 ### `sonic -z <prompt>` — scripted one-shot
