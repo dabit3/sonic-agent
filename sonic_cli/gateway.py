@@ -1430,7 +1430,7 @@ def _profile_suffix() -> str:
     return hashlib.sha256(str(home).encode()).hexdigest()[:8]
 
 
-def _profile_arg(sonic_home: str | None = None) -> str:
+def _profile_arg(sonic_home: str | None = None, default_root: str | Path | None = None) -> str:
     """Return ``--profile <name>`` only when SONIC_HOME is a named profile.
 
     For ``~/.sonic/profiles/<name>``, returns ``"--profile <name>"``.
@@ -1440,12 +1440,16 @@ def _profile_arg(sonic_home: str | None = None) -> str:
         sonic_home: Optional explicit SONIC_HOME path. Defaults to the current
             ``get_sonic_home()`` value. Should be passed when generating a
             service definition for a different user (e.g. system service).
+        default_root: Optional Hermes root to compare against. Used when
+            generating a system service for another user from a sudo/root
+            process, where ``Path.home()`` and ``get_default_hermes_root()``
+            refer to root but the target profile lives under the service user.
     """
     import re
     from sonic_constants import get_default_sonic_root
 
     home = Path(sonic_home or str(get_sonic_home())).resolve()
-    default = get_default_sonic_root().resolve()
+    default = Path(default_root).resolve() if default_root else get_default_sonic_root().resolve()
     if home == default:
         return ""
     profiles_root = (default / "profiles").resolve()
@@ -1457,6 +1461,16 @@ def _profile_arg(sonic_home: str | None = None) -> str:
     except ValueError:
         pass
     return ""
+
+
+def _profile_arg_for_target_user(hermes_home: str, target_home_dir: str) -> str:
+    """Return the profile arg for a system service running as another user."""
+    target_root = Path(target_home_dir) / ".hermes"
+    try:
+        Path(hermes_home).resolve().relative_to(target_root.resolve())
+        return _profile_arg(hermes_home, default_root=target_root)
+    except ValueError:
+        return _profile_arg(hermes_home)
 
 
 def get_service_name() -> str:
@@ -2384,7 +2398,7 @@ def generate_systemd_unit(system: bool = False, run_as_user: str | None = None) 
     if system:
         username, group_name, home_dir = _system_service_identity(run_as_user)
         sonic_home = _sonic_home_for_target_user(home_dir)
-        profile_arg = _profile_arg(sonic_home)
+        profile_arg = _profile_arg_for_target_user(sonic_home, home_dir)
         # Remap all paths that may resolve under the calling user's home
         # (e.g. /root/) to the target user's home so the service can
         # actually access them.
