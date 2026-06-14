@@ -94,6 +94,16 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
     ipcRenderer.on('sonic:window-state-changed', listener)
     return () => ipcRenderer.removeListener('sonic:window-state-changed', listener)
   },
+  onFocusSession: callback => {
+    const listener = (_event, sessionId) => callback(sessionId)
+    ipcRenderer.on('hermes:focus-session', listener)
+    return () => ipcRenderer.removeListener('hermes:focus-session', listener)
+  },
+  onNotificationAction: callback => {
+    const listener = (_event, payload) => callback(payload)
+    ipcRenderer.on('hermes:notification-action', listener)
+    return () => ipcRenderer.removeListener('hermes:notification-action', listener)
+  },
   onPreviewFileChanged: callback => {
     const listener = (_event, payload) => callback(payload)
     ipcRenderer.on('sonic:preview-file-changed', listener)
