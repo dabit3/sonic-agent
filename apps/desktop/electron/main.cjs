@@ -38,7 +38,7 @@ const { adoptServedDashboardToken } = require('./dashboard-token.cjs')
 const { waitForDashboardPort } = require('./backend-ready.cjs')
 const { serializeJsonBody, setJsonRequestHeaders } = require('./oauth-net-request.cjs')
 const { fetchMarketplaceThemes, searchMarketplaceThemes } = require('./vscode-marketplace.cjs')
-const { buildDesktopBackendEnv } = require('./backend-env.cjs')
+const { buildDesktopBackendEnv, normalizeHermesHomeRoot } = require('./backend-env.cjs')
 const { readDirForIpc } = require('./fs-read-dir.cjs')
 const { gitRootForIpc } = require('./git-root.cjs')
 const { worktreesForIpc } = require('./git-worktrees.cjs')
@@ -240,7 +240,7 @@ if (INSTALL_STAMP) {
 // SONIC_HOME beneath the throwaway userData dir so a fresh-install run never
 // touches the user's real ~/.sonic / %LOCALAPPDATA%\sonic.
 function resolveSonicHome() {
-  if (process.env.SONIC_HOME) return path.resolve(process.env.SONIC_HOME)
+  if (process.env.SONIC_HOME) return normalizeSonicHomeRoot(process.env.SONIC_HOME)
   if (USER_DATA_OVERRIDE) return path.join(path.resolve(USER_DATA_OVERRIDE), 'sonic-home')
   if (IS_WINDOWS && process.env.LOCALAPPDATA) {
     const localappdata = path.join(process.env.LOCALAPPDATA, 'sonic')
