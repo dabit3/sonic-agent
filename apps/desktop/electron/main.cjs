@@ -39,6 +39,7 @@ const { waitForDashboardPort } = require('./backend-ready.cjs')
 const { serializeJsonBody, setJsonRequestHeaders } = require('./oauth-net-request.cjs')
 const { fetchMarketplaceThemes, searchMarketplaceThemes } = require('./vscode-marketplace.cjs')
 const { buildDesktopBackendEnv, normalizeSonicHomeRoot } = require('./backend-env.cjs')
+const { readWindowsUserEnvVar } = require('./windows-user-env.cjs')
 const { readDirForIpc } = require('./fs-read-dir.cjs')
 const { gitRootForIpc } = require('./git-root.cjs')
 const { worktreesForIpc } = require('./git-worktrees.cjs')
@@ -242,6 +243,16 @@ if (INSTALL_STAMP) {
 function resolveSonicHome() {
   if (process.env.SONIC_HOME) return normalizeSonicHomeRoot(process.env.SONIC_HOME)
   if (USER_DATA_OVERRIDE) return path.join(path.resolve(USER_DATA_OVERRIDE), 'sonic-home')
+  if (IS_WINDOWS) {
+    // A GUI app launched from Explorer inherits the environment block captured
+    // at login, so a SONIC_HOME set via `setx` AFTER login is invisible in
+    // process.env even though the CLI (a fresh shell) sees it. Without this the
+    // backend silently falls back to %LOCALAPPDATA%\sonic and reports "No
+    // inference provider configured" despite a valid configured home (#45471).
+    // Consult the live User-scoped registry value before the default below.
+    const fromRegistry = readWindowsUserEnvVar('SONIC_HOME')
+    if (fromRegistry) return normalizeSonicHomeRoot(fromRegistry)
+  }
   if (IS_WINDOWS && process.env.LOCALAPPDATA) {
     const localappdata = path.join(process.env.LOCALAPPDATA, 'sonic')
     const legacy = path.join(app.getPath('home'), '.sonic')
