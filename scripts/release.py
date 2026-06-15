@@ -49,6 +49,7 @@ AUTHOR_MAP = {
     "info@aminvakil.com": "aminvakil",
     "nikpolale@gmail.com": "polnikale",
     "redpiggy-cyber@users.noreply.github.com": "redpiggy-cyber",
+    "rio.jeong@thebytesize.ai": "rio-jeong",
     "yehaotian@xuanshudeMac-mini.local": "ArcanePivot",
     "dbeyer7@gmail.com": "benegessarit",
     "kenmege@yahoo.com": "Kenmege",
