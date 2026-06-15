@@ -316,6 +316,7 @@ as_sonic mkdir -p \
     "$SONIC_HOME/cron" \
     "$SONIC_HOME/sessions" \
     "$SONIC_HOME/logs" \
+    "$SONIC_HOME/logs/gateways" \
     "$SONIC_HOME/hooks" \
     "$SONIC_HOME/memories" \
     "$SONIC_HOME/skills" \

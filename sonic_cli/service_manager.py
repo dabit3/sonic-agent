@@ -689,6 +689,15 @@ class S6ServiceManager:
             f': "${{SONIC_HOME:=/opt/data}}"\n'
             f'log_dir="$SONIC_HOME/logs/gateways/{prof}"\n'
             f'mkdir -p "$log_dir"\n'
+            # The gateways/ parent must be chowned too (non-recursively):
+            # `mkdir -p` creates it root-owned on a root-context boot, and a
+            # leaf-only chown leaves it that way — every profile registered
+            # later then runs its log service as sonic and crash-loops on
+            # `mkdir: Permission denied`. The parent chown runs on every
+            # root-context boot, so it also heals volumes already poisoned
+            # by older images. Non-recursive on purpose: sibling profile
+            # dirs are each managed by their own log/run. See #45258.
+            f'chown sonic:sonic "$SONIC_HOME/logs/gateways" 2>/dev/null || true\n'
             f'chown -R sonic:sonic "$log_dir" 2>/dev/null || true\n'
             # Skip the drop when already non-root (CAP_SETGID).
             f'[ "$(id -u)" = 0 ] || exec s6-log 1 n10 s1000000 T "$log_dir"\n'
