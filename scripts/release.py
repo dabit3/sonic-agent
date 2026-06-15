@@ -50,6 +50,7 @@ AUTHOR_MAP = {
     "nikpolale@gmail.com": "polnikale",
     "redpiggy-cyber@users.noreply.github.com": "redpiggy-cyber",
     "kenmege@yahoo.com": "Kenmege",
+    "tianying.x@eukarya.io": "xtymac",
     "dkobi16@gmail.com": "Diyoncrz18",
     "arnaud@nolimitdevelopment.com": "ali-nld",
     "sswdarius@gmail.com": "necoweb3",
