@@ -10761,8 +10761,24 @@ def cmd_dashboard(args):
         if getattr(args, "skip_build", False):
             reexec_argv.append("--skip-build")
         env = os.environ.copy()
-        # Drop the profile SONIC_HOME so the child binds the machine root.
-        env.pop("SONIC_HOME", None)
+        # Pin the child to the machine ROOT, not the launching profile's
+        # SONIC_HOME.  We must resolve the root explicitly instead of just
+        # dropping SONIC_HOME: in the Docker layout the machine root is
+        # /opt/data (set via `ENV SONIC_HOME=/opt/data`), so an unset
+        # SONIC_HOME falls back to $HOME/.sonic = /opt/data/.sonic — an
+        # empty, auto-seeded home where the dashboard sees only the default
+        # profile and the install-method stamp is missing (so the Docker
+        # update-button guard also misfires).  get_default_sonic_root()
+        # returns the root for both layouts: ~/.sonic for a standard install
+        # and /opt/data for Docker (it strips a trailing profiles/<name>).
+        # See the support report for the double-mount workaround this avoids.
+        try:
+            from sonic_constants import get_default_sonic_root
+            env["SONIC_HOME"] = str(get_default_sonic_root())
+        except Exception:
+            # Best-effort: if root resolution fails, fall back to the prior
+            # behaviour (drop SONIC_HOME) rather than block the reroute.
+            env.pop("SONIC_HOME", None)
         # On Windows, os.execvpe() does not truly replace the process — it
         # spawns via CreateProcess then the parent exits.  Under Python 3.14+
         # this can crash with STATUS_ACCESS_VIOLATION (0xC0000005) when
