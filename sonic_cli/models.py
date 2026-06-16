@@ -61,6 +61,7 @@ OPENROUTER_MODELS: list[tuple[str, str]] = [
     # MiniMax
     ("minimax/minimax-m3",                     ""),
     # Z-AI
+    ("z-ai/glm-5.2",                           ""),
     ("z-ai/glm-5.1",                           ""),
     # Xiaomi
     ("xiaomi/mimo-v2.5-pro",                   ""),
@@ -227,6 +228,7 @@ _PROVIDER_MODELS: dict[str, list[str]] = _LazyProviderModels({
         # MiniMax
         "minimax/minimax-m3",
         # Z-AI
+        "z-ai/glm-5.2",
         "z-ai/glm-5.1",
         # Xiaomi
         "xiaomi/mimo-v2.5-pro",
