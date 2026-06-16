@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   touchBackend: profile => ipcRenderer.invoke('sonic:backend:touch', profile),
   getGatewayWsUrl: profile => ipcRenderer.invoke('sonic:gateway:ws-url', profile),
   openSessionWindow: (sessionId, opts) => ipcRenderer.invoke('sonic:window:openSession', sessionId, opts),
+  openNewSessionWindow: () => ipcRenderer.invoke('sonic:window:openNewSession'),
   getBootProgress: () => ipcRenderer.invoke('sonic:boot-progress:get'),
   getConnectionConfig: profile => ipcRenderer.invoke('sonic:connection-config:get', profile),
   saveConnectionConfig: payload => ipcRenderer.invoke('sonic:connection-config:save', payload),
