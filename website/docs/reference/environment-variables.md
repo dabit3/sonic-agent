@@ -623,6 +623,7 @@ Advanced per-platform knobs for throttling the outbound message batcher. Most us
 | `SONIC_ALLOW_PRIVATE_URLS` | `true`/`false` — allow tools to fetch localhost/private-network URLs. Off by default in gateway mode. |
 | `SONIC_REDACT_SECRETS` | `true`/`false` — control secret redaction in tool output, logs, and chat responses (default: `true`). |
 | `SONIC_WRITE_SAFE_ROOT` | Optional directory prefix that restricts `write_file`/`patch` writes; paths outside require approval. |
+| `SONIC_DISABLE_LAZY_INSTALLS` | Internal bridge var set automatically in the official Docker image to prevent runtime dependency installs into the immutable `/opt/sonic` tree. The user-facing equivalent is `security.allow_lazy_installs: false` in `config.yaml`; do not set this in `.env`. |
 | `SONIC_DISABLE_FILE_STATE_GUARD` | Set to `1` to turn off the "file changed since you read it" guard on `patch`/`write_file`. |
 | `SONIC_CORE_TOOLS` | Comma-separated override for the canonical core tool list (advanced; rarely needed). |
 | `SONIC_BUNDLED_SKILLS` | Comma-separated override for the list of bundled skills loaded at startup. |

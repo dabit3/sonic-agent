@@ -9,8 +9,11 @@ FROM ghcr.io/astral-sh/uv:0.11.6-python3.13-trixie@sha256:b3c543b6c4f23a5f2df228
 FROM node:22-bookworm-slim@sha256:7af03b14a13c8cdd38e45058fd957bf00a72bbe17feac43b1c15a689c029c732 AS node_source
 FROM debian:13.4
 
-# Disable Python stdout buffering to ensure logs are printed immediately
+# Disable Python stdout buffering to ensure logs are printed immediately.
+# Do not write .pyc files at runtime: /opt/hermes is immutable in the
+# published container and writable state belongs under /opt/data.
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
 
 # Store Playwright browsers outside the volume mount so the build-time
 # install survives the /opt/data volume overlay at runtime.
@@ -186,35 +189,30 @@ RUN cd web && npm run build && \
 
 # ---------- Source code ----------
 # .dockerignore excludes node_modules, so the installs above survive.
-COPY --chown=sonic:sonic . .
+COPY . .
 
 # ---------- Permissions ----------
-# Make install dir world-readable so any SONIC_UID can read it at runtime.
-# The venv needs to be traversable too.
-# node_modules trees additionally need to be writable by the sonic user
-# so the runtime `npm install` triggered by _tui_need_npm_install() in
-# sonic_cli/main.py succeeds (see #18800). /opt/sonic/web is build-time
-# only (SONIC_WEB_DIST points at sonic_cli/web_dist) and is intentionally
-# not chowned here.
-# /opt/sonic/gateway is runtime-writable: Python may create __pycache__ and
-# gateway state artifacts beneath the package after services drop privileges,
-# especially when the sonic UID is remapped at boot (#27221).
-# The .venv MUST remain sonic-writable so lazy_deps.py can install
-# remaining optional platform packages and future pin bumps at first use.
-# Without this, `uv pip install` fails with EACCES and adapters silently
-# fail to load.  See tools/lazy_deps.py.
+# Link sonic-agent itself (editable). Deps are already installed in the
+# cached layer above; `--no-deps` makes this a fast egg-link creation with no
+# resolution or downloads.
+RUN uv pip install --no-cache-dir --no-deps -e "."
+
+# Keep /opt/sonic immutable for the runtime sonic user. Hosted/container
+# instances must not be able to self-edit the installed source or venv; user
+# data, skills, plugins, config, logs, and dashboard uploads live under
+# /opt/data instead. Root can still repair the image during build/boot, but
+# supervised Sonic processes drop to the non-root sonic user.
 USER root
-RUN chmod -R a+rX /opt/sonic && \
-    chown -R sonic:sonic /opt/sonic/.venv /opt/sonic/ui-tui /opt/sonic/gateway /opt/sonic/node_modules
+RUN mkdir -p /opt/sonic/bin && \
+    cp /opt/sonic/docker/sonic-exec-shim.sh /opt/sonic/bin/sonic && \
+    chmod 0755 /opt/sonic/bin/sonic && \
+    chown -R root:root /opt/sonic && \
+    chmod -R a+rX /opt/sonic && \
+    chmod -R a-w /opt/sonic
 # Start as root so the s6-overlay stage2 hook can usermod/groupmod and chown
 # the data volume. Each supervised service then drops to the sonic user via
 # `s6-setuidgid sonic` in its run script. If SONIC_UID is unset, services
 # run as the default sonic user (UID 10000).
-
-# ---------- Link sonic-agent itself (editable) ----------
-# Deps are already installed in the cached layer above; `--no-deps` makes
-# this a fast (~1s) egg-link creation with no resolution or downloads.
-RUN uv pip install --no-cache-dir --no-deps -e "."
 
 # ---------- Bake build-time git revision ----------
 # .dockerignore excludes .git, so `git rev-parse HEAD` from inside the
@@ -235,8 +233,9 @@ RUN uv pip install --no-cache-dir --no-deps -e "."
 # every published image has it.
 ARG SONIC_GIT_SHA=
 RUN if [ -n "${SONIC_GIT_SHA}" ]; then \
+        chmod u+w /opt/sonic && \
         printf '%s\n' "${SONIC_GIT_SHA}" > /opt/sonic/.sonic_build_sha && \
-        chown sonic:sonic /opt/sonic/.sonic_build_sha; \
+        chmod a-w /opt/sonic /opt/sonic/.sonic_build_sha; \
     fi
 
 # ---------- s6-overlay service wiring ----------
@@ -282,6 +281,8 @@ ENV SONIC_WEB_DIST=/opt/sonic/sonic_cli/web_dist
 # check. (A separate launcher hardening is tracked independently.)
 ENV SONIC_TUI_DIR=/opt/sonic/ui-tui
 ENV SONIC_HOME=/opt/data
+ENV SONIC_WRITE_SAFE_ROOT=/opt/data
+ENV SONIC_DISABLE_LAZY_INSTALLS=1
 
 # `docker exec` privilege-drop shim. When operators run
 # `docker exec <c> sonic ...` they default to root, and any file the
@@ -294,7 +295,6 @@ ENV SONIC_HOME=/opt/data
 # Recursion is impossible because the shim exec's the venv binary by
 # absolute path (/opt/sonic/.venv/bin/sonic). See the shim source for
 # the opt-out env var (SONIC_DOCKER_EXEC_AS_ROOT=1).
-COPY --chmod=0755 docker/sonic-exec-shim.sh /opt/sonic/bin/sonic
 
 # Pre-s6 entrypoint.sh did `source .venv/bin/activate` which exported
 # the venv bin onto PATH; Architecture B's main-wrapper.sh does the
