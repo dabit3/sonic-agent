@@ -366,6 +366,20 @@ function IntroHarness() {
   )
 }
 
+function DismissibleErrorHarness({ onDismissError }: { onDismissError: (messageId: string) => void }) {
+  const runtime = useExternalStoreRuntime<ThreadMessage>({
+    messages: [assistantErrorMessage('OpenRouter rejected the request (403).')],
+    isRunning: false,
+    onNew: async () => {}
+  })
+
+  return (
+    <AssistantRuntimeProvider runtime={runtime}>
+      <Thread onDismissError={onDismissError} />
+    </AssistantRuntimeProvider>
+  )
+}
+
 describe('assistant-ui streaming renderer', () => {
   afterEach(cleanup)
 
@@ -409,6 +423,23 @@ describe('assistant-ui streaming renderer', () => {
     render(<MessageHarness message={assistantErrorMessage('OpenRouter rejected the request (403).')} />)
 
     expect(screen.getByRole('alert').textContent).toContain('OpenRouter rejected the request (403).')
+  })
+
+  it('omits the dismiss control when no onDismissError handler is supplied', () => {
+    render(<MessageHarness message={assistantErrorMessage('OpenRouter rejected the request (403).')} />)
+
+    expect(screen.queryByRole('button', { name: 'Dismiss error' })).toBeNull()
+  })
+
+  it('invokes onDismissError with the errored message id when the dismiss control is clicked', () => {
+    const onDismissError = vi.fn()
+    render(<DismissibleErrorHarness onDismissError={onDismissError} />)
+
+    const dismiss = screen.getByRole('button', { name: 'Dismiss error' })
+    fireEvent.click(dismiss)
+
+    expect(onDismissError).toHaveBeenCalledTimes(1)
+    expect(onDismissError).toHaveBeenCalledWith('assistant-error-1')
   })
 
   it('does not pull the viewport back down after the user scrolls up during streaming', async () => {
