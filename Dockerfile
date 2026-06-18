@@ -206,9 +206,16 @@ USER root
 RUN mkdir -p /opt/sonic/bin && \
     cp /opt/sonic/docker/sonic-exec-shim.sh /opt/sonic/bin/sonic && \
     chmod 0755 /opt/sonic/bin/sonic && \
+    printf 'docker\n' > /opt/sonic/.install_method && \
     chown -R root:root /opt/sonic && \
     chmod -R a+rX /opt/sonic && \
     chmod -R a-w /opt/sonic
+# The ``.install_method`` stamp is baked next to the running code (the install
+# tree), NOT into $SONIC_HOME. $SONIC_HOME (/opt/data) is a shared data
+# volume that is commonly bind-mounted from the host and even shared with a
+# host-side Desktop/CLI install; stamping it at boot used to clobber that
+# host install's marker and wrongly block its ``sonic update``. A code-scoped
+# stamp is read first by detect_install_method() and is immune to the share.
 # Start as root so the s6-overlay stage2 hook can usermod/groupmod and chown
 # the data volume. Each supervised service then drops to the sonic user via
 # `s6-setuidgid sonic` in its run script. If SONIC_UID is unset, services

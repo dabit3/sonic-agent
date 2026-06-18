@@ -291,13 +291,25 @@ as_sonic mkdir -p \
     "$SONIC_HOME/pairing" \
     "$SONIC_HOME/platforms/pairing"
 
-# --- Install-method stamp (read by detect_install_method() in sonic status) ---
-# Preserved from the tini-era entrypoint (PR #27843). Must be written as
-# the sonic user so ownership matches the file's documented owner.
-# tee is invoked directly via s6-setuidgid (no `sh -c` wrapper) for the
-# same shell-metacharacter safety described above.
-printf 'docker\n' | as_sonic tee "$SONIC_HOME/.install_method" >/dev/null \
-    || true
+# --- Install-method stamp ---
+# The 'docker' stamp is baked into the immutable install tree at
+# /opt/sonic/.install_method (see Dockerfile), NOT written here into
+# $SONIC_HOME. detect_install_method() reads the code-scoped stamp first.
+#
+# Why we no longer stamp $SONIC_HOME: it is a shared DATA volume, commonly
+# bind-mounted from the host (~/.sonic:/opt/data) and sometimes shared with a
+# host-side Desktop/CLI install. Stamping 'docker' here clobbered that host
+# install's marker, so its in-app updater read 'docker' and refused to run
+# 'sonic update'. To heal homes already poisoned by older images, remove a
+# stale 'docker' stamp from $SONIC_HOME if one is present (the host install's
+# own installer re-creates its code-scoped stamp; a genuine container relies on
+# the baked /opt/sonic stamp, so deleting the data-dir copy is safe).
+if [ -f "$SONIC_HOME/.install_method" ]; then
+    stamped="$(tr -d '[:space:]' < "$SONIC_HOME/.install_method" 2>/dev/null || true)"
+    if [ "$stamped" = "docker" ]; then
+        rm -f "$SONIC_HOME/.install_method" 2>/dev/null || true
+    fi
+fi
 
 # --- Seed config files (only on first boot) ---
 seed_one() {
