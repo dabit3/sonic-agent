@@ -11015,6 +11015,13 @@ def cmd_dashboard_register(args):
     _impl(args)
 
 
+def cmd_gateway_enroll(args):
+    """Enroll a self-hosted gateway with a relay connector."""
+    from hermes_cli.gateway_enroll import cmd_gateway_enroll as _impl
+
+    _impl(args)
+
+
 def cmd_completion(args, parser=None):
     """Print shell completion script."""
     from sonic_cli.completion import generate_bash, generate_zsh, generate_fish
@@ -11707,7 +11714,9 @@ def main():
     # =========================================================================
     # gateway + proxy commands  (parsers built in sonic_cli/subcommands/gateway.py)
     # =========================================================================
-    build_gateway_parser(subparsers, cmd_gateway=cmd_gateway, cmd_proxy=cmd_proxy)
+    build_gateway_parser(
+        subparsers, cmd_gateway=cmd_gateway, cmd_proxy=cmd_proxy, cmd_gateway_enroll=cmd_gateway_enroll
+    )
 
     # =========================================================================
     # lsp command
