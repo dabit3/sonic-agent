@@ -12,7 +12,6 @@
     let
       packages = builtins.attrValues self'.packages;
       sonicNpmLib = self'.packages.default.passthru.sonicNpmLib;
-      fixLockfilesExe = pkgs.lib.getExe self'.packages.fix-lockfiles;
 
       # Collect all packageJsonPath values from npm workspace packages.
       npmPackageJsonPaths = builtins.filter (p: p != null) (
@@ -33,7 +32,7 @@
         shellHook = ''
           echo "Sonic Agent dev shell"
           ${combinedNonNpm}
-          ${sonicNpmLib.mkNpmDevShellHook npmPackageJsonPaths fixLockfilesExe}
+          ${sonicNpmLib.mkNpmDevShellHook npmPackageJsonPaths}
           echo "Ready. Run 'sonic' to start."
         '';
       };
