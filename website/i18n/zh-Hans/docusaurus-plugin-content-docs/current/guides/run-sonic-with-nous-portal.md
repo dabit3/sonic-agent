@@ -240,12 +240,12 @@ Portal 目录镜像了 OpenRouter 的模型列表（300+ 个）。如果某个�
 
 - `model.provider` 设置为 `openrouter`/`anthropic`/等，而非 `nous`
 - OAuth refresh 失败后回退到了其他已配置的 provider
-- 存在多个 Sonic profiles，你使用的是错误的那个（检查 `sonic profile current`）
+- 存在多个 Sonic profiles，你使用的是错误的那个（检查 `sonic profile list`）
 
 ### 想要撤销并重新开始
 
 ```bash
-sonic auth remove nous       # 清除本地 refresh token
+sonic auth logout nous       # 清除本地 refresh token
 # 然后重新运行 setup，或在 Portal 网页界面取消订阅
 ```
 

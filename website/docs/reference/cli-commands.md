@@ -46,7 +46,7 @@ sonic [global-options] <command> [subcommand/options]
 | `sonic setup` | Interactive setup wizard for all or part of the configuration. |
 | `sonic whatsapp` | Configure and pair the WhatsApp bridge. |
 | `sonic slack` | Slack helpers (currently: generate the app manifest with every command as a native slash). |
-| `sonic auth` | Manage credentials — add, list, remove, reset, set strategy. Handles OAuth flows for Codex/Nous/Anthropic. |
+| `sonic auth` | Manage credentials — add, list, remove, reset, status, logout. Handles OAuth flows for Codex/Nous/Anthropic. |
 | `sonic login` / `logout` | **Deprecated** — use `sonic auth` instead. |
 | `sonic send` | Send a one-shot message to a configured messaging platform (Telegram, Discord, Slack, Signal, SMS, …). Useful from shell scripts, cron jobs, CI hooks, and monitoring daemons — no agent loop, no LLM. |
 | `sonic secrets` | Manage external secret sources (currently Bitwarden Secrets Manager) for pulling API keys at process startup instead of from `~/.sonic/.env`. |
@@ -225,6 +225,7 @@ Subcommands:
 | `install` | Install as a systemd (Linux) or launchd (macOS) background service. |
 | `uninstall` | Remove the installed service. |
 | `setup` | Interactive messaging-platform setup. |
+| `enroll` | Experimental: enroll this gateway with a relay connector and save relay credentials for connector-backed platforms. |
 
 Options:
 
@@ -232,6 +233,8 @@ Options:
 |--------|-------------|
 | `--all` | On `start` / `restart` / `stop`: act on **every profile's** gateway, not just the active `SONIC_HOME`. Useful if you run multiple profiles side-by-side and want to restart them all after `sonic update`. |
 | `--no-supervise` | On `run`: inside the s6-overlay Docker image, opt out of auto-supervision and use pre-s6 foreground semantics — gateway runs as the container's main process with no auto-restart. No-op outside the s6 image. Equivalent to setting `SONIC_GATEWAY_NO_SUPERVISE=1`. |
+
+`hermes gateway enroll` accepts `--token`, `--connector-url`, and `--gateway-id`. It exchanges the enrollment token with the connector and writes the resulting `GATEWAY_RELAY_ID`, `GATEWAY_RELAY_SECRET`, `GATEWAY_RELAY_DELIVERY_KEY`, and optional `GATEWAY_RELAY_URL` values to the active profile's `.env`.
 
 :::tip WSL users
 Use `sonic gateway run` instead of `sonic gateway start` — WSL's systemd support is unreliable. Wrap it in tmux for persistence: `tmux new -s sonic 'sonic gateway run'`. See [WSL FAQ](/reference/faq#wsl-gateway-keeps-disconnecting-or-sonic-gateway-start-fails) for details.
