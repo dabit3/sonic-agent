@@ -140,6 +140,7 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
     return () => ipcRenderer.removeListener('sonic:bootstrap:event', listener)
   },
   getVersion: () => ipcRenderer.invoke('sonic:version'),
+  getRemoteDisplayReason: () => ipcRenderer.invoke('sonic:get-remote-display-reason'),
   uninstall: {
     summary: () => ipcRenderer.invoke('sonic:uninstall:summary'),
     run: mode => ipcRenderer.invoke('sonic:uninstall:run', { mode })
