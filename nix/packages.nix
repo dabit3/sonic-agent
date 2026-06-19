@@ -50,8 +50,6 @@
         tui = sonicAgent.sonicTui;
         web = sonicAgent.sonicWeb;
         desktop = sonicAgent.sonicDesktop;
-
-        fix-lockfiles = sonicAgent.sonicNpmLib.mkFixLockfiles { attr = "tui"; };
       };
     };
 }
