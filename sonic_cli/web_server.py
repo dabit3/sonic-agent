@@ -10830,6 +10830,7 @@ def _resolve_chat_argv(
     # the dashboard PTY path.
     env.setdefault("SONIC_TUI_DISABLE_MOUSE", "1")
     env.setdefault("SONIC_TUI_INLINE", "1")
+    env["SONIC_TUI_DASHBOARD"] = "1"
 
     if profile_dir is not None:
         env["SONIC_HOME"] = str(profile_dir)
