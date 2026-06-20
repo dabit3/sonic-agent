@@ -51,6 +51,7 @@ AUTHOR_MAP = {
     "redpiggy-cyber@users.noreply.github.com": "redpiggy-cyber",
     "w31rdm4ch1n3z@protonmail.com": "w31rdm4ch1nZ",
     "xtpeeps@gmail.com": "x7peeps",
+    "ahmad@madsgency.com": "ahmadashfq",
     "rratmansky@gmail.com": "rratmansky",
     "lkz-de@users.noreply.github.com": "lkz-de",
     "charles@salesondemand.io": "salesondemandio",
