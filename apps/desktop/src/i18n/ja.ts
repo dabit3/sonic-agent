@@ -1483,8 +1483,12 @@ export const ja = defineLocale({
       fetch: 'ダウンロード中…',
       pull: 'もうすぐ完了…',
       pydeps: '仕上げ中…',
+      update: 'Sonic を更新中…',
+      rebuild: 'デスクトップアプリを再ビルド中…',
       restart: 'Sonic を再起動中…',
+      done: '更新が完了しました',
       manual: 'ターミナルから更新',
+      guiSkew: 'デスクトップアプリを更新してください',
       error: '更新が一時停止中'
     },
     checking: '更新を確認中…',
@@ -1509,6 +1513,9 @@ export const ja = defineLocale({
     manualBody:
       'Sonic をコマンドラインからインストールしたため、更新もそこで実行されます。これをターミナルに貼り付けてください:',
     manualPickedUp: 'Sonic は次回起動時に新しいバージョンを読み込みます。',
+    guiSkewTitle: 'デスクトップアプリを更新してください',
+    guiSkewBody:
+      'バックエンドは更新されましたが、このデスクトップアプリのパッケージは変更されていません。一致させるために Sonic デスクトップアプリ（AppImage / .deb / .rpm）を更新または再インストールしてください。',
     copy: 'コピー',
     copied: 'コピーしました',
     done: '完了',
