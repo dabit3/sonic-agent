@@ -49,6 +49,7 @@ AUTHOR_MAP = {
     "info@aminvakil.com": "aminvakil",
     "nikpolale@gmail.com": "polnikale",
     "redpiggy-cyber@users.noreply.github.com": "redpiggy-cyber",
+    "liaoshiwu@gmail.com": "de1tydev",  # PR #10158 salvage (poll read-only for notify_on_complete watcher; #10156)
     "szzhoujiarui@gmail.com": "szzhoujiarui-sketch",  # cron model.default salvage co-author (#45550)
     "rayjun0412@gmail.com": "rayjun",  # cron model.default salvage co-author (#43952)
     "96944678+sweetcornna@users.noreply.github.com": "sweetcornna",  # cron ticker-liveness salvage co-author (#33849)
