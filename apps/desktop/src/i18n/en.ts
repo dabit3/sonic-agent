@@ -1382,10 +1382,11 @@ export const en: Translations = {
     copy: 'Copy',
     copied: 'Copied',
     done: 'Done',
-    applyingBody: 'The Sonic updater will take over in its own window and reopen Sonic when it’s done.',
+    applyingBody:
+      'The Sonic updater takes over in its own window and reopens Sonic automatically when it’s done. Please don’t reopen Sonic yourself while it’s updating.',
     applyingBodyBackend:
       'The remote backend is applying the update and will restart. Sonic reconnects automatically when it’s back.',
-    applyingClose: 'Sonic will close to apply the update.',
+    applyingClose: 'This window will close while the update runs, then Sonic reopens on its own.',
     errorTitle: 'Update didn’t finish',
     errorBody: 'No worries — nothing was lost. You can try again now.',
     notNow: 'Not now',
