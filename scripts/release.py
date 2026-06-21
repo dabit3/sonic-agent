@@ -49,6 +49,8 @@ AUTHOR_MAP = {
     "info@aminvakil.com": "aminvakil",
     "nikpolale@gmail.com": "polnikale",
     "redpiggy-cyber@users.noreply.github.com": "redpiggy-cyber",
+    "szzhoujiarui@gmail.com": "szzhoujiarui-sketch",  # cron model.default salvage co-author (#45550)
+    "rayjun0412@gmail.com": "rayjun",  # cron model.default salvage co-author (#43952)
     "izumi0uu@gmail.com": "izumi0uu",  # PR #49544 salvage (native rich reply echo; #49534)
     "w31rdm4ch1n3z@protonmail.com": "w31rdm4ch1nZ",
     "xtpeeps@gmail.com": "x7peeps",
