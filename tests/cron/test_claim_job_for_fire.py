@@ -14,7 +14,10 @@ import pytest
 def temp_home(tmp_path, monkeypatch):
     """Isolated SONIC_HOME so jobs.json doesn't touch the real store."""
     monkeypatch.setenv("SONIC_HOME", str(tmp_path))
-    # cron.jobs caches no home at import; get_sonic_home() reads the env live.
+    # NOTE: cron.jobs resolves its store paths (JOBS_FILE, CRON_DIR) from
+    # get_default_sonic_root() at IMPORT time, so setting SONIC_HOME here does
+    # not re-point an already-imported module's store. These tests exercise the
+    # claim logic on in-memory job dicts and don't depend on the on-disk path.
     yield tmp_path
 
 
