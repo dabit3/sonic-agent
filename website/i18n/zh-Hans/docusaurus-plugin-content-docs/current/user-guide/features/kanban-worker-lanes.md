@@ -7,7 +7,7 @@
 - **运维人员**：选择将哪些通道接入看板（创建哪些 profile，使用哪些 assignee）。
 - **插件/集成作者**：希望添加新的通道形态（封装 Codex / Claude Code / OpenCode 的 CLI worker、容器化审查 worker、通过 API 拉取任务的非 Sonic 服务）。
 
-如果你编写的是 worker 代码本身——即运行在通道*内部*的 agent——请参阅 [`kanban-worker`](https://github.com/NousResearch/hermes-agent/blob/main/skills/devops/kanban-worker/SKILL.md) skill，其中包含更深入的操作细节。
+如果你编写的是 worker 代码本身——即运行在通道*内部*的 agent——kanban 生命周期与参考细节会自动注入到 worker 的系统提示中（[`agent/prompt_builder.py`](https://github.com/NousResearch/hermes-agent/blob/main/agent/prompt_builder.py) 中的 `KANBAN_GUIDANCE` 块）。
 
 ## 层级结构
 
@@ -64,7 +64,7 @@ kanban 内核强制要求每次运行恰好由其中一项终止。既未调用�
 - **先将结构化元数据写入 `kanban_comment`**，因为 `kanban_block` 只携带人类可读的 `reason`。Comment 是持久的注解通道——所有与审计相关的字段（changed_files、tests_run、diff_path 或 PR url、决策记录）都应放在这里。
 - **Reviewer 批准并解除阻塞**，这将重新生成 worker 并附带 comment 线程用于后续跟进；或通过另一条 comment 要求修改，下一次 worker 运行时将通过 `kanban_show` 的上下文看到这些内容。
 
-[`kanban-worker`](https://github.com/NousResearch/hermes-agent/blob/main/skills/devops/kanban-worker/SKILL.md) skill 中有 `kanban_complete`（真正终态的任务——拼写修复、文档变更、研究报告）和 `review-required` block 模式的完整示例。
+自动注入的 `KANBAN_GUIDANCE` 同时涵盖 `kanban_complete`（真正终态的任务——拼写修复、文档变更、研究报告）和 `review-required` block 模式。
 
 ## 日志与审计追踪
 
@@ -80,9 +80,9 @@ kanban 内核强制要求每次运行恰好由其中一项终止。既未调用�
 
 ### Sonic profile 通道（默认）
 
-当前所有 kanban worker 采用的形态：assignee 是 profile 名称，调度器生成 `sonic -p <profile>`，worker 自动加载 [`kanban-worker`](https://github.com/NousResearch/hermes-agent/blob/main/skills/devops/kanban-worker/SKILL.md) skill 以及 `KANBAN_GUIDANCE` 系统提示块，并使用 `kanban_*` 工具终止运行。除定义 profile 外无需任何额外配置。
+当前所有 kanban worker 采用的形态：assignee 是 profile 名称，调度器生成 `sonic -p <profile>`，worker 会自动获得注入的 `KANBAN_GUIDANCE` 系统提示块，并使用 `kanban_*` 工具终止运行。除定义 profile 外无需任何额外配置。
 
-为你的 fleet 创建 profile 时，选择与你希望 orchestrator 路由到的*角色*相匹配的名称。orchestrator（如果存在）通过 `sonic profile list` 发现你的 profile 名称——系统不假设固定的名单（orchestrator 侧的契约请参阅 [`kanban-orchestrator`](https://github.com/NousResearch/hermes-agent/blob/main/skills/devops/kanban-orchestrator/SKILL.md) skill）。
+为你的 fleet 创建 profile 时，选择与你希望 orchestrator 路由到的*角色*相匹配的名称。orchestrator（如果存在）通过 `sonic profile list` 发现你的 profile 名称——系统不假设固定的名单（orchestrator 侧的契约也是注入的 `KANBAN_GUIDANCE` 的一部分）。
 
 ### Orchestrator profile 通道
 
@@ -110,5 +110,4 @@ profile 通道的特化形态：orchestrator 是一个 Sonic profile，其工具
 
 - [Kanban 概览](./kanban) — 面向用户的介绍。
 - [Kanban 教程](./kanban-tutorial) — 开启仪表板的完整演练。
-- [`kanban-worker`](https://github.com/NousResearch/hermes-agent/blob/main/skills/devops/kanban-worker/SKILL.md) — worker 进程加载的 skill。
-- [`kanban-orchestrator`](https://github.com/NousResearch/hermes-agent/blob/main/skills/devops/kanban-orchestrator/SKILL.md) — orchestrator 侧。
+- [`KANBAN_GUIDANCE`](https://github.com/NousResearch/hermes-agent/blob/main/agent/prompt_builder.py) — 注入到每个 kanban worker 系统提示中的 worker + orchestrator 生命周期。
