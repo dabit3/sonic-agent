@@ -1056,7 +1056,6 @@ class TestEnvWriteDenylist:
     @pytest.mark.parametrize(
         "allowed_key",
         [
-            "SONIC_GEMINI_CLIENT_ID",
             "SONIC_LANGFUSE_PUBLIC_KEY",
             "SONIC_SPOTIFY_CLIENT_ID",
             "SONIC_QWEN_BASE_URL",

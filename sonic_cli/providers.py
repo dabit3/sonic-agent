@@ -76,16 +76,6 @@ SONIC_OVERLAYS: Dict[str, SonicOverlay] = {
         base_url_override="https://portal.qwen.ai/v1",
         base_url_env_var="SONIC_QWEN_BASE_URL",
     ),
-    "google-gemini-cli": SonicOverlay(
-        transport="openai_chat",
-        auth_type="oauth_external",
-        base_url_override="cloudcode-pa://google",
-    ),
-    "google-antigravity": SonicOverlay(
-        transport="openai_chat",
-        auth_type="oauth_external",
-        base_url_override="antigravity-pa://google",
-    ),
     "lmstudio": SonicOverlay(
         transport="openai_chat",
         auth_type="api_key",
@@ -314,18 +304,6 @@ ALIASES: Dict[str, str] = {
     "alibaba_coding": "alibaba-coding-plan",
     "alibaba-coding": "alibaba-coding-plan",
     "alibaba_coding_plan": "alibaba-coding-plan",
-
-    # google-gemini-cli (OAuth + Code Assist)
-    "gemini-cli": "google-gemini-cli",
-    "gemini-oauth": "google-gemini-cli",
-
-    # google-antigravity (OAuth + Antigravity Code Assist)
-    "antigravity": "google-antigravity",
-    "antigravity-oauth": "google-antigravity",
-    "antigravity-cli": "google-antigravity",
-    "google-antigravity-oauth": "google-antigravity",
-    "agy": "google-antigravity",
-    "agy-cli": "google-antigravity",
 
     # huggingface
     "hf": "huggingface",

@@ -29,7 +29,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 
-from agent.skill_utils import yaml_load
 from sonic_cli.secret_prompt import masked_secret_prompt
 
 logger = logging.getLogger(__name__)
@@ -170,8 +169,8 @@ _ENV_VAR_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 #   the dashboard. ``config.yaml`` is the supported surface for these.
 #
 # IMPORTANT: ``SONIC_*`` overall is NOT blocked. Many legitimate
-# integration credentials follow that prefix (SONIC_GEMINI_CLIENT_ID,
-# SONIC_LANGFUSE_PUBLIC_KEY, SONIC_SPOTIFY_CLIENT_ID, ...). The
+# integration credentials follow that prefix (SONIC_LANGFUSE_PUBLIC_KEY,
+# SONIC_SPOTIFY_CLIENT_ID, ...). The
 # denylist is name-by-name on purpose so the gate stays narrow and
 # doesn't accidentally break provider setup wizards.
 #
@@ -405,7 +404,7 @@ def detect_install_method(project_root: Optional[Path] = None) -> str:
     The supported installs self-identify via the code-scoped stamp:
       - the curl installer (scripts/install.sh, the README/website install
         command) git-clones the repo and stamps ``git`` next to the code;
-      - the published ``nousresearch/sonic-agent`` image bakes a ``docker``
+      - the published ``nousresearch/hermes-agent`` image bakes a ``docker``
         stamp into ``/opt/sonic`` at build time.
     An unsupported manual install dropped into a container (no stamp) falls
     through to the ``.git``/pip checks and behaves like any off-path install.
@@ -511,7 +510,7 @@ def recommended_update_command_for_method(method: str) -> str:
     if method == "homebrew":
         return "brew upgrade sonic-agent"
     if method == "docker":
-        return "docker pull nousresearch/sonic-agent:latest"
+        return "docker pull nousresearch/hermes-agent:latest"
     if method == "pip":
         if is_uv_tool_install():
             return "uv tool upgrade sonic-agent"
@@ -549,23 +548,23 @@ def recommended_update_command() -> str:
 _DOCKER_UPDATE_MESSAGE = """\
 ✗ ``sonic update`` doesn't apply inside the Docker container.
 
-Sonic Agent runs as a published image (nousresearch/sonic-agent), not a
+Sonic Agent runs as a published image (nousresearch/hermes-agent), not a
 git checkout — the container has no working tree to pull into.  Update by
 pulling a fresh image and restarting your container instead:
 
-  docker pull nousresearch/sonic-agent:latest
+  docker pull nousresearch/hermes-agent:latest
   # then restart whatever started the container, e.g.:
   docker compose up -d --force-recreate sonic-agent
   # or, for ad-hoc runs, exit the current container and `docker run` again
 
 Verify the new version after restart:
-  docker run --rm nousresearch/sonic-agent:latest --version
+  docker run --rm nousresearch/hermes-agent:latest --version
 
 Notes:
   • If you pinned a specific tag (e.g. ``:v0.14.0``) the ``:latest`` tag
     won't move your container — pull the newer tag you actually want, or
     switch to ``:latest`` / ``:main`` for rolling updates.  See available
-    tags at https://hub.docker.com/r/nousresearch/sonic-agent/tags
+    tags at https://hub.docker.com/r/nousresearch/hermes-agent/tags
   • Your config and session history live under ``$SONIC_HOME`` (``/opt/data``
     in the container, typically bind-mounted from the host) and persist
     across image upgrades — re-pulling doesn't lose any state.
@@ -2445,7 +2444,7 @@ DEFAULT_CONFIG = {
     # The default URL is served by the docs site GitHub Pages deploy.
     "model_catalog": {
         "enabled": True,
-        "url": "https://lightning-agent.nousresearch.com/docs/api/model-catalog.json",
+        "url": "https://sonic-agent.nousresearch.com/docs/api/model-catalog.json",
         # Disk cache TTL in hours.  Beyond this, the CLI refetches on the
         # next /model or `sonic model` invocation; network failures
         # silently fall back to the stale cache.
@@ -2791,6 +2790,7 @@ DEFAULT_CONFIG = {
         "prewarm_connection": True,  # background TLS handshake at agent init
     },
 
+
     # Paste collapse thresholds (TUI + CLI).
     #
     # paste_collapse_threshold (default 5)
@@ -3098,62 +3098,6 @@ OPTIONAL_ENV_VARS = {
     "SONIC_QWEN_BASE_URL": {
         "description": "Qwen Portal base URL override (default: https://portal.qwen.ai/v1)",
         "prompt": "Qwen Portal base URL (leave empty for default)",
-        "url": None,
-        "password": False,
-        "category": "provider",
-        "advanced": True,
-    },
-    "SONIC_GEMINI_CLIENT_ID": {
-        "description": "Google OAuth client ID for google-gemini-cli (optional; defaults to Google's public gemini-cli client)",
-        "prompt": "Google OAuth client ID (optional — leave empty to use the public default)",
-        "url": "https://console.cloud.google.com/apis/credentials",
-        "password": False,
-        "category": "provider",
-        "advanced": True,
-    },
-    "SONIC_GEMINI_CLIENT_SECRET": {
-        "description": "Google OAuth client secret for google-gemini-cli (optional)",
-        "prompt": "Google OAuth client secret (optional)",
-        "url": "https://console.cloud.google.com/apis/credentials",
-        "password": True,
-        "category": "provider",
-        "advanced": True,
-    },
-    "SONIC_GEMINI_PROJECT_ID": {
-        "description": "GCP project ID for paid Gemini tiers (free tier auto-provisions)",
-        "prompt": "GCP project ID for Gemini OAuth (leave empty for free tier)",
-        "url": None,
-        "password": False,
-        "category": "provider",
-        "advanced": True,
-    },
-    "HERMES_ANTIGRAVITY_CLIENT_ID": {
-        "description": "Google OAuth client ID for google-antigravity (optional; discovered from agy when omitted)",
-        "prompt": "Antigravity OAuth client ID (optional — leave empty to discover from agy)",
-        "url": "https://console.cloud.google.com/apis/credentials",
-        "password": False,
-        "category": "provider",
-        "advanced": True,
-    },
-    "HERMES_ANTIGRAVITY_CLIENT_SECRET": {
-        "description": "Google OAuth client secret for google-antigravity (optional)",
-        "prompt": "Antigravity OAuth client secret (optional)",
-        "url": "https://console.cloud.google.com/apis/credentials",
-        "password": True,
-        "category": "provider",
-        "advanced": True,
-    },
-    "HERMES_ANTIGRAVITY_CLI_PATH": {
-        "description": "Path to agy/Antigravity CLI for OAuth client credential discovery",
-        "prompt": "Antigravity CLI path (leave empty to search PATH/default locations)",
-        "url": None,
-        "password": False,
-        "category": "provider",
-        "advanced": True,
-    },
-    "HERMES_ANTIGRAVITY_PROJECT_ID": {
-        "description": "GCP project ID for Antigravity OAuth (auto-discovered when omitted)",
-        "prompt": "GCP project ID for Antigravity OAuth (leave empty to auto-discover)",
         "url": None,
         "password": False,
         "category": "provider",
@@ -4438,7 +4382,7 @@ def check_config_version() -> Tuple[int, int]:
 
     try:
         with open(config_path, encoding="utf-8") as f:
-            config = yaml_load(f.read()) or {}
+            config = yaml.safe_load(f) or {}
     except Exception as e:
         # Invalid YAML needs a parse warning, not an automatic schema rewrite
         # that could replace the user's broken file with defaults.
@@ -5013,7 +4957,7 @@ def migrate_config(interactive: bool = True, quiet: bool = False) -> Dict[str, A
                             continue
                         try:
                             with open(manifest_file, encoding="utf-8") as _mf:
-                                manifest = yaml_load(_mf.read()) or {}
+                                manifest = yaml.safe_load(_mf) or {}
                         except Exception:
                             manifest = {}
                         name = manifest.get("name") or child.name
@@ -5659,7 +5603,7 @@ def read_raw_config() -> Dict[str, Any]:
 
         try:
             with open(config_path, encoding="utf-8") as f:
-                data = yaml_load(f.read()) or {}
+                data = yaml.safe_load(f) or {}
         except Exception as e:
             _warn_config_parse_failure(config_path, e)
             return {}
@@ -5711,6 +5655,7 @@ def _apply_speed_profile(config: Dict[str, Any]) -> Dict[str, Any]:
             skills_cfg["creation_nudge_interval"] = 0
 
     return config
+
 
 
 def load_config() -> Dict[str, Any]:
@@ -5889,7 +5834,7 @@ def _load_config_impl(*, want_deepcopy: bool) -> Dict[str, Any]:
         if user_sig is not None:
             try:
                 with open(config_path, encoding="utf-8") as f:
-                    user_config = yaml_load(f.read()) or {}
+                    user_config = yaml.safe_load(f) or {}
 
                 if "max_turns" in user_config:
                     agent_user_config = dict(user_config.get("agent") or {})
@@ -6883,7 +6828,7 @@ def set_config_value(key: str, value: str):
     if config_path.exists():
         try:
             with open(config_path, encoding="utf-8") as f:
-                user_config = yaml_load(f.read()) or {}
+                user_config = yaml.safe_load(f) or {}
         except Exception:
             user_config = {}
     
@@ -7171,7 +7116,7 @@ def _inject_platform_plugin_env_vars() -> None:
                 continue
             try:
                 with open(manifest_path, "r", encoding="utf-8") as f:
-                    manifest = yaml_load(f.read()) or {}
+                    manifest = yaml.safe_load(f) or {}
             except Exception:
                 continue
             label = manifest.get("label") or manifest.get("name") or child.name

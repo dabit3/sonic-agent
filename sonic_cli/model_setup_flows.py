@@ -457,7 +457,7 @@ def _model_flow_xai_oauth(_config, current_model="", *, args=None):
         DEFAULT_XAI_OAUTH_BASE_URL,
         PROVIDER_REGISTRY,
     )
-    from sonic_cli.models import _PROVIDER_MODELS, fetch_api_models
+    from sonic_cli.models import _PROVIDER_MODELS
 
     status = get_xai_oauth_auth_status()
     if status.get("logged_in"):
@@ -517,23 +517,13 @@ def _model_flow_xai_oauth(_config, current_model="", *, args=None):
     # completes successfully instead of bailing out with
     # ``Could not resolve xAI OAuth credentials``.
     base_url = DEFAULT_XAI_OAUTH_BASE_URL
-    api_key = ""
     try:
         creds = resolve_xai_oauth_runtime_credentials()
         base_url = (creds.get("base_url") or "").strip().rstrip("/") or base_url
-        api_key = str(creds.get("api_key") or "").strip()
     except Exception:
         pass
 
-    # Prefer the live /models endpoint so newly released Grok models appear
-    # without a Sonic release; fall back to the curated static list.
-    models: list = []
-    if api_key:
-        models = fetch_api_models(api_key, base_url) or []
-        if models:
-            print(f"  Found {len(models)} model(s) from the xAI API")
-    if not models:
-        models = list(_PROVIDER_MODELS.get("xai-oauth") or _PROVIDER_MODELS.get("xai") or [])
+    models = list(_PROVIDER_MODELS.get("xai-oauth") or _PROVIDER_MODELS.get("xai") or [])
     selected = _prompt_model_selection(models, current_model=current_model or (models[0] if models else "grok-build-0.1"))
     if selected:
         _save_model_choice(selected)
@@ -642,142 +632,6 @@ def _model_flow_minimax_oauth(config, current_model="", args=None):
     _save_model_choice(selected)
     _update_config_for_provider("minimax-oauth", creds["base_url"])
     print(f"\u2713 Using MiniMax model: {selected}")
-
-def _model_flow_google_gemini_cli(_config, current_model=""):
-    """Google Gemini OAuth (PKCE) via Cloud Code Assist — supports free AND paid tiers.
-
-    Flow:
-      1. Show upfront warning about Google's ToS stance (per opencode-gemini-auth).
-      2. If creds missing, run PKCE browser OAuth via agent.google_oauth.
-      3. Resolve project context (env -> config -> auto-discover -> free tier).
-      4. Prompt user to pick a model.
-      5. Save to ~/.sonic/config.yaml.
-    """
-    from sonic_cli.auth import (
-        DEFAULT_GEMINI_CLOUDCODE_BASE_URL,
-        get_gemini_oauth_auth_status,
-        resolve_gemini_oauth_runtime_credentials,
-        _prompt_model_selection,
-        _save_model_choice,
-        _update_config_for_provider,
-    )
-    from sonic_cli.models import _PROVIDER_MODELS
-
-    print()
-    print("⚠  Google considers using the Gemini CLI OAuth client with third-party")
-    print("   software a policy violation. Some users have reported account")
-    print("   restrictions. You can use your own API key via 'gemini' provider")
-    print("   for the lowest-risk experience.")
-    print()
-    try:
-        proceed = input("Continue with OAuth login? [y/N]: ").strip().lower()
-    except (EOFError, KeyboardInterrupt):
-        print("Cancelled.")
-        return
-    if proceed not in {"y", "yes"}:
-        print("Cancelled.")
-        return
-
-    status = get_gemini_oauth_auth_status()
-    if not status.get("logged_in"):
-        try:
-            from agent.google_oauth import resolve_project_id_from_env, start_oauth_flow
-
-            env_project = resolve_project_id_from_env()
-            start_oauth_flow(force_relogin=True, project_id=env_project)
-        except Exception as exc:
-            print(f"OAuth login failed: {exc}")
-            return
-
-    # Verify creds resolve + trigger project discovery
-    try:
-        creds = resolve_gemini_oauth_runtime_credentials(force_refresh=False)
-        project_id = creds.get("project_id", "")
-        if project_id:
-            print(f"  Using GCP project: {project_id}")
-        else:
-            print(
-                "  No GCP project configured — free tier will be auto-provisioned on first request."
-            )
-    except Exception as exc:
-        print(f"Failed to resolve Gemini credentials: {exc}")
-        return
-
-    models = list(_PROVIDER_MODELS.get("google-gemini-cli") or [])
-    default = current_model or (models[0] if models else "gemini-3-flash-preview")
-    selected = _prompt_model_selection(
-        models,
-        current_model=default,
-        confirm_provider="google-gemini-cli",
-        confirm_base_url=DEFAULT_GEMINI_CLOUDCODE_BASE_URL,
-    )
-    if selected:
-        _save_model_choice(selected)
-        _update_config_for_provider(
-            "google-gemini-cli", DEFAULT_GEMINI_CLOUDCODE_BASE_URL
-        )
-        print(
-            f"Default model set to: {selected} (via Google Gemini OAuth / Code Assist)"
-        )
-    else:
-        print("No change.")
-
-
-def _model_flow_google_antigravity(_config, current_model=""):
-    """Google Antigravity OAuth via Antigravity Code Assist.
-
-    Antigravity is Google's consumer successor to the Gemini CLI. It reuses the
-    Code Assist backend with a distinct OAuth client + scopes. Leaves the
-    `google-gemini-cli` provider (Enterprise Code Assist) untouched.
-    """
-    from hermes_cli.auth import (
-        DEFAULT_ANTIGRAVITY_CLOUDCODE_BASE_URL,
-        get_antigravity_oauth_auth_status,
-        resolve_antigravity_oauth_runtime_credentials,
-        _prompt_model_selection,
-        _save_model_choice,
-        _update_config_for_provider,
-    )
-    from hermes_cli.models import provider_model_ids
-
-    status = get_antigravity_oauth_auth_status()
-    if not status.get("logged_in"):
-        try:
-            from agent.antigravity_oauth import resolve_project_id_from_env, start_oauth_flow
-
-            env_project = resolve_project_id_from_env()
-            start_oauth_flow(force_relogin=True, project_id=env_project)
-        except Exception as exc:
-            print(f"OAuth login failed: {exc}")
-            return
-
-    try:
-        creds = resolve_antigravity_oauth_runtime_credentials(force_refresh=False)
-        project_id = creds.get("project_id", "")
-        if project_id:
-            print(f"  Using Antigravity project: {project_id}")
-    except Exception as exc:
-        print(f"Failed to resolve Antigravity credentials: {exc}")
-        return
-
-    models = provider_model_ids("google-antigravity")
-    default = current_model or (models[0] if models else "gemini-3-flash-agent")
-    selected = _prompt_model_selection(
-        models,
-        current_model=default,
-        confirm_provider="google-antigravity",
-        confirm_base_url=DEFAULT_ANTIGRAVITY_CLOUDCODE_BASE_URL,
-    )
-    if selected:
-        _save_model_choice(selected)
-        _update_config_for_provider(
-            "google-antigravity", DEFAULT_ANTIGRAVITY_CLOUDCODE_BASE_URL
-        )
-        print(
-            f"Default model set to: {selected} (via Google Antigravity OAuth / Code Assist)"
-        )
-    else:
-        print("No change.")
 
 
 def _model_flow_custom(config):
@@ -1438,30 +1292,25 @@ def _model_flow_named_custom(config, provider_info):
             default_idx = models.index(saved_model)
 
         print(f"Found {len(models)} model(s):\n")
-        menu_items = [
-            f"{m} (current)" if m == saved_model else m for m in models
-        ]
-        # Prefer curses arrow-key nav (stdlib); fall back to numbered list.
         try:
-            import sys as _sys
-            if _sys.stdin.isatty():
-                from sonic_cli.curses_ui import curses_radiolist
+            from sonic_cli.curses_ui import curses_radiolist
 
-                idx = curses_radiolist(
-                    f"Select model from {name}:",
-                    menu_items + ["Cancel"],
-                    selected=default_idx,
-                    cancel_returns=-1,
-                    searchable=True,
-                )
-                print()
-                if idx < 0 or idx >= len(models):
-                    print("Cancelled.")
-                    return
-                model_name = models[idx]
-            else:
-                raise OSError("non-tty")
-        except Exception:
+            menu_items = [
+                f"{m} (current)" if m == saved_model else m for m in models
+            ] + ["Cancel"]
+            idx = curses_radiolist(
+                f"Select model from {name}:",
+                menu_items,
+                selected=default_idx,
+                cancel_returns=-1,
+                searchable=True,
+            )
+            print()
+            if idx < 0 or idx >= len(models):
+                print("Cancelled.")
+                return
+            model_name = models[idx]
+        except (ImportError, NotImplementedError, OSError, subprocess.SubprocessError):
             for i, m in enumerate(models, 1):
                 suffix = " (current)" if m == saved_model else ""
                 print(f"  {i}. {m}{suffix}")
@@ -2676,7 +2525,7 @@ def _model_flow_anthropic(config, current_model=""):
         save_config,
         save_anthropic_api_key,
     )
-    from sonic_cli.models import _PROVIDER_MODELS, _fetch_anthropic_models
+    from sonic_cli.models import _PROVIDER_MODELS
 
     # Check ALL credential sources
     from sonic_cli.auth import get_anthropic_key
@@ -2777,19 +2626,8 @@ def _model_flow_anthropic(config, current_model=""):
             return
     print()
 
-    # Model selection — prefer the live /v1/models catalog so newly released
-    # models appear without a Sonic release; fall back to the curated static
-    # list when the API is unreachable.
-    model_list = _fetch_anthropic_models() or []
-    if model_list:
-        print(f"  Found {len(model_list)} model(s) from the Anthropic API")
-    else:
-        model_list = _PROVIDER_MODELS.get("anthropic", [])
-        if model_list:
-            print(
-                "  ⚠ Could not fetch live models from Anthropic — showing defaults."
-            )
-            print('    Use "Enter custom model name" if you do not see your model.')
+    # Model selection
+    model_list = _PROVIDER_MODELS.get("anthropic", [])
     if model_list:
         selected = _prompt_model_selection(
             model_list,
