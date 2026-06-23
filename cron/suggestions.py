@@ -36,13 +36,13 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from sonic_constants import get_default_sonic_root
+from sonic_constants import get_sonic_home
 from sonic_time import now as _sonic_now
 from utils import atomic_replace
 
 logger = logging.getLogger(__name__)
 
-CRON_DIR = get_default_sonic_root().resolve() / "cron"
+CRON_DIR = get_sonic_home().resolve() / "cron"
 SUGGESTIONS_FILE = CRON_DIR / "suggestions.json"
 
 # In-process lock protecting load->modify->save cycles (the background review
