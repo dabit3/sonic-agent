@@ -44,6 +44,7 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   setTranslucency: payload => ipcRenderer.send('sonic:translucency', payload),
   setPreviewShortcutActive: active => ipcRenderer.send('sonic:previewShortcutActive', Boolean(active)),
   openExternal: url => ipcRenderer.invoke('sonic:openExternal', url),
+  openPreviewInBrowser: url => ipcRenderer.invoke('sonic:openPreviewInBrowser', url),
   fetchLinkTitle: url => ipcRenderer.invoke('sonic:fetchLinkTitle', url),
   sanitizeWorkspaceCwd: cwd => ipcRenderer.invoke('sonic:workspace:sanitize', cwd),
   settings: {
