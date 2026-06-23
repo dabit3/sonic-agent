@@ -238,7 +238,7 @@ RUN mkdir -p /opt/sonic/bin && \
 #
 # The arg is optional — local `docker build` without --build-arg simply
 # omits the file, and the runtime falls back to live-git lookup.  CI
-# (.github/workflows/docker-publish.yml) passes ${{ github.sha }} so
+# (.github/workflows/docker.yml) passes ${{ github.sha }} so
 # every published image has it.
 ARG SONIC_GIT_SHA=
 RUN if [ -n "${SONIC_GIT_SHA}" ]; then \
