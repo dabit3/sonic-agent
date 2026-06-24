@@ -1646,6 +1646,7 @@ AUTHOR_MAP = {
     "rodrigoeq@hotmail.com": "rodrigoeqnit",
     "roadhero@users.noreply.github.com": "roadhero",
     "66773372+Tranquil-Flow@users.noreply.github.com": "Tranquil-Flow",  # PR #27518 (bracketed-paste timeout)
+    "uriyas22@gmail.com": "riyas22",  # PR #43687 salvage (strip cronjob toolset from delegated children, #43466)
     "8bit64k@pm.me": "8bit64k",  # PR #14681 (TUI /q alias from quit to queue)
     "chenglunhu@gmail.com": "hclsys",  # PR #31985 (TUI /q alias regression test)
     "dearmayo@localhost": "ffr31mr",  # PR #32103 (SubdirectoryHintTracker workspace boundary)
