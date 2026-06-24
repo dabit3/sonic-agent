@@ -9034,7 +9034,8 @@ def _(rid, params: dict) -> dict:
         from sonic_cli.auth import has_usable_secret
         from sonic_cli.main import _has_any_provider_configured
 
-        runtime = resolve_runtime_provider(requested=None)
+        requested = str(params.get("provider") or "").strip() or None
+        runtime = resolve_runtime_provider(requested=requested)
         provider_configured = bool(_has_any_provider_configured())
         provider = runtime.get("provider") or "provider"
         source = str(runtime.get("source") or "")
