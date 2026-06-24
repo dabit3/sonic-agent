@@ -14,7 +14,7 @@ Sonic Agent 支持在 CLI 和消息平台上进行完整的语音交互。通过
 
 使用语音功能前，请确保已完成以下准备：
 
-1. **已安装 Sonic Agent** — `pip install sonic-agent`（参见 [安装](/getting-started/installation)）
+1. **已安装 Sonic Agent** — 通过安装脚本（参见 [安装](/getting-started/installation)）
 2. **已配置 LLM 提供商** — 运行 `sonic model` 或在 `~/.sonic/.env` 中设置首选提供商的凭据
 3. **基础设置正常** — 运行 `sonic` 验证 Agent 能够响应文字消息，再启用语音功能
 
@@ -40,19 +40,19 @@ Sonic Agent 支持在 CLI 和消息平台上进行完整的语音交互。通过
 
 ```bash
 # CLI 语音模式（麦克风 + 音频播放）
-pip install "sonic-agent[voice]"
+cd ~/.sonic/sonic-agent && uv pip install -e ".[voice]"
 
 # Discord + Telegram 消息（包含 discord.py[voice] 以支持语音频道）
-pip install "sonic-agent[messaging]"
+cd ~/.sonic/sonic-agent && uv pip install -e ".[messaging]"
 
 # 高级 TTS（ElevenLabs）
-pip install "sonic-agent[tts-premium]"
+cd ~/.sonic/sonic-agent && uv pip install -e ".[tts-premium]"
 
 # 本地 TTS（NeuTTS，可选）
 python -m pip install -U neutts[all]
 
 # 一次性安装所有内容
-pip install "sonic-agent[all]"
+cd ~/.sonic/sonic-agent && uv pip install -e ".[all]"
 ```
 
 | 扩展包 | 包含的包 | 用途 |

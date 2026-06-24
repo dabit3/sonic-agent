@@ -41,10 +41,10 @@ sonic dashboard --no-open
 默认的 `sonic-agent` 安装不包含 HTTP 栈或 PTY 辅助工具——这些是可选扩展。**Web Dashboard** 需要 FastAPI 和 Uvicorn（`web` 扩展）。**Chat** 标签页还需要 `ptyprocess` 来在伪终端（pseudo-terminal）后面启动嵌入式 TUI（POSIX 上的 `pty` 扩展）。使用以下命令同时安装：
 
 ```bash
-pip install 'sonic-agent[web,pty]'
+cd ~/.sonic/sonic-agent && uv pip install -e ".[web,pty]"
 ```
 
-`web` 扩展会引入 FastAPI/Uvicorn；`pty` 扩展会引入 `ptyprocess`（POSIX）或 `pywinpty`（原生 Windows——注意嵌入式 TUI 本身仍需要 WSL）。`pip install sonic-agent[all]` 包含两个扩展，如果你还需要消息/语音等功能，这是最简便的方式。
+`web` 扩展会引入 FastAPI/Uvicorn；`pty` 扩展会引入 `ptyprocess`（POSIX）或 `pywinpty`（原生 Windows——注意嵌入式 TUI 本身仍需要 WSL）。`cd ~/.sonic/sonic-agent && uv pip install -e ".[all]"` 包含两个扩展，如果你还需要消息/语音等功能，这是最简便的方式。
 
 在没有依赖项的情况下运行 `sonic dashboard` 时，它会告诉你需要安装什么。如果前端尚未构建且 `npm` 可用，则会在首次启动时自动构建。
 
@@ -80,7 +80,7 @@ Chat 标签页是每次 `sonic dashboard` 启动的一部分——内嵌的浏�
 **前置条件：**
 
 - Node.js（与 `sonic --tui` 相同的要求；TUI 包在首次启动时构建）
-- `ptyprocess`——由 `pty` 扩展安装（`pip install 'sonic-agent[web,pty]'`，或 `[all]` 同时包含两者）
+- `ptyprocess`——由 `pty` 扩展安装（`cd ~/.sonic/sonic-agent && uv pip install -e ".[web,pty]"`，或 `[all]` 同时包含两者）
 - POSIX 内核（Linux、macOS 或 WSL2）。`/chat` 终端面板特别需要 POSIX PTY——原生 Windows Python 没有等效实现，因此在原生 Windows 安装上，Dashboard 的其余部分（sessions、jobs、metrics、config editor）可以正常工作，但 `/chat` 标签页会显示提示，告知你需要使用 WSL2 才能使用该功能。
 
 关闭浏览器标签页后，PTY 会在服务器端被干净地回收。重新打开会启动一个新会话。

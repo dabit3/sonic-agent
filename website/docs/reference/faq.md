@@ -445,7 +445,7 @@ Configure in `~/.sonic/config.yaml` under your gateway's settings. See the [Mess
 **Solution:**
 ```bash
 # Install core messaging gateway dependencies
-pip install "sonic-agent[messaging]"  # Telegram, Discord, Slack, and shared gateway deps
+cd ~/.sonic/sonic-agent && uv pip install -e ".[messaging]"  # Telegram, Discord, Slack, and shared gateway deps
 
 # Check for port conflicts
 lsof -i :8080

@@ -15,7 +15,7 @@ Sonic Agent supports Amazon Bedrock as a native provider using the **Converse AP
   - `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` environment variables
   - `AWS_PROFILE` for SSO or named profiles
   - `aws configure` for local development
-- **boto3** — install with `pip install sonic-agent[bedrock]`
+- **boto3** — install with `cd ~/.sonic/sonic-agent && uv pip install -e ".[bedrock]"`
 - **IAM permissions** — at minimum:
   - `bedrock:InvokeModel` and `bedrock:InvokeModelWithResponseStream` (for inference)
   - `bedrock:ListFoundationModels` and `bedrock:ListInferenceProfiles` (for model discovery)
@@ -28,7 +28,7 @@ On AWS compute, attach an IAM role with `AmazonBedrockFullAccess` and you're don
 
 ```bash
 # Install with Bedrock support
-pip install sonic-agent[bedrock]
+cd ~/.sonic/sonic-agent && uv pip install -e ".[bedrock]"
 
 # Select Bedrock as your provider
 sonic model

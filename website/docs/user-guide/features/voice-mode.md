@@ -14,7 +14,7 @@ If you want a practical setup walkthrough with recommended configurations and re
 
 Before using voice features, make sure you have:
 
-1. **Sonic Agent installed** — `pip install sonic-agent` (see [Installation](/getting-started/installation))
+1. **Sonic Agent installed** — via the install script (see [Installation](/getting-started/installation))
 2. **An LLM provider configured** — run `sonic model` or set your preferred provider credentials in `~/.sonic/.env`
 3. **A working base setup** — run `sonic` to verify the agent responds to text before enabling voice
 
@@ -40,19 +40,19 @@ A paid [Nous Portal](/user-guide/features/tool-gateway) subscription supplies th
 
 ```bash
 # CLI voice mode (microphone + audio playback)
-pip install "sonic-agent[voice]"
+cd ~/.sonic/sonic-agent && uv pip install -e ".[voice]"
 
 # Discord + Telegram messaging (includes discord.py[voice] for VC support)
-pip install "sonic-agent[messaging]"
+cd ~/.sonic/sonic-agent && uv pip install -e ".[messaging]"
 
 # Premium TTS (ElevenLabs)
-pip install "sonic-agent[tts-premium]"
+cd ~/.sonic/sonic-agent && uv pip install -e ".[tts-premium]"
 
 # Local TTS (NeuTTS, optional)
 python -m pip install -U neutts[all]
 
 # Everything at once
-pip install "sonic-agent[all]"
+cd ~/.sonic/sonic-agent && uv pip install -e ".[all]"
 ```
 
 | Extra | Packages | Required For |

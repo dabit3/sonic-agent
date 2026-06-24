@@ -34,7 +34,7 @@ description: "通过 iLink Bot API 将 Sonic Agent 连接到个人微信账号"
 ```bash
 pip install aiohttp cryptography
 # 可选：用于终端二维码显示
-pip install sonic-agent[messaging]
+cd ~/.sonic/sonic-agent && uv pip install -e ".[messaging]"
 ```
 
 ## 配置步骤
@@ -309,4 +309,4 @@ iLink Bot API 要求在每条出站消息中回传 `context_token`（针对特�
 | 语音消息显示为文本 | 若微信提供了转录文本，适配器会使用文本内容，这是预期行为 |
 | 消息出现重复 | 适配器通过消息 ID 去重。若仍出现重复，检查是否有多个网关实例在运行 |
 | `iLink POST ... HTTP 4xx/5xx` | iLink 服务返回 API 错误。检查 token 有效性和网络连通性 |
-| 终端二维码无法渲染 | 使用 messaging 扩展重新安装：`pip install sonic-agent[messaging]`。或者，打开二维码上方打印的 URL |
+| 终端二维码无法渲染 | 使用 messaging 扩展重新安装：`cd ~/.sonic/sonic-agent && uv pip install -e ".[messaging]"`。或者，打开二维码上方打印的 URL |

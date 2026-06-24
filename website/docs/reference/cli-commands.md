@@ -84,7 +84,7 @@ sonic [global-options] <command> [subcommand/options]
 | `sonic profile` | Manage profiles — multiple isolated Sonic instances. |
 | `sonic completion` | Print shell completion scripts (bash/zsh/fish). |
 | `sonic version` | Show version information. |
-| `sonic update` | Pull latest code and reinstall dependencies (git installs), or check PyPI and `pip install --upgrade` (pip installs). `--check` previews without installing; `--backup` takes a pre-pull `SONIC_HOME` snapshot. |
+| `sonic update` | Pull latest code and reinstall dependencies. `--check` previews without installing; `--backup` takes a pre-pull `SONIC_HOME` snapshot. |
 | `sonic uninstall` | Remove Sonic from the system. |
 
 ## `sonic chat`
@@ -1191,7 +1191,7 @@ python -m acp_adapter
 Install support first:
 
 ```bash
-pip install -e '.[acp]'
+cd ~/.hermes/hermes-agent && uv pip install -e '.[acp]'
 ```
 
 See [ACP Editor Integration](../user-guide/features/acp.md) and [ACP Internals](../developer-guide/acp-internals.md).
@@ -1372,7 +1372,7 @@ sonic claw migrate --source /home/user/old-openclaw
 sonic dashboard [options]
 ```
 
-Launch the web dashboard — a browser-based UI for managing configuration, API keys, and monitoring sessions. Requires `pip install sonic-agent[web]` (FastAPI + Uvicorn). The embedded browser Chat tab is always available and additionally needs the `pty` extra (`pip install 'sonic-agent[web,pty]'`) plus a POSIX PTY environment such as Linux, macOS, or WSL2. See [Web Dashboard](/user-guide/features/web-dashboard) for full documentation.
+Launch the web dashboard — a browser-based UI for managing configuration, API keys, and monitoring sessions. Requires `cd ~/.sonic/sonic-agent && uv pip install -e ".[web]"` (FastAPI + Uvicorn). The embedded browser Chat tab is always available and additionally needs the `pty` extra (`cd ~/.sonic/sonic-agent && uv pip install -e ".[web,pty]"`) plus a POSIX PTY environment such as Linux, macOS, or WSL2. See [Web Dashboard](/user-guide/features/web-dashboard) for full documentation.
 
 | Option | Default | Description |
 |--------|---------|-------------|
@@ -1460,11 +1460,9 @@ sonic completion fish > ~/.config/fish/completions/sonic.fish
 sonic update [--gateway] [--check] [--no-backup] [--backup] [--yes]
 ```
 
-Pulls the latest `sonic-agent` code and reinstalls dependencies in your venv, then re-runs the post-install hooks (MCP servers, skills sync, completion install). Safe to run on a live install.
+Pulls the latest `sonic-agent` code and reinstalls dependencies in the managed venv, then re-runs the post-install hooks (MCP servers, skills sync, completion install). Safe to run on a live install. Use `--check` to see whether your checkout is behind `origin/main` without installing.
 
-**pip installs:** `sonic update` detects pip-based installations automatically — it queries PyPI for the latest release and runs `pip install --upgrade sonic-agent` instead of `git pull`. PyPI releases track tagged versions (major/minor releases), not every commit on `main`. Use `--check` to see if a newer PyPI release is available without installing.
-
-**git installs:** `sonic update` pulls the configured update branch (default: `main`). If your checkout is on another branch, Sonic may check out the update branch before pulling. Commit branch work before updating when you want to keep it outside the update autostash flow.
+`sonic update` pulls the configured update branch (default: `main`). If your checkout is on another branch, Sonic may check out the update branch before pulling. Commit branch work before updating when you want to keep it outside the update autostash flow.
 
 | Option | Description |
 |--------|-------------|
@@ -1489,7 +1487,7 @@ Additional behavior:
 |---------|-------------|
 | `sonic version` | Print version information. |
 | `sonic update` | Pull latest changes and reinstall dependencies. |
-| `sonic postinstall` | Internal bootstrap. Runs once after `pip install sonic-agent` (or `sonic update` on pip installs) to install non-Python dependencies that pip cannot provide — Node.js runtime, headless browser, ripgrep, ffmpeg — and then trigger `sonic setup` if the profile has not been configured yet. Safe to re-run idempotently. |
+| `sonic postinstall` | Internal bootstrap. Runs once after the install script provisions Sonic (or after `sonic update`) to install non-Python dependencies that pip cannot provide — Node.js runtime, headless browser, ripgrep, ffmpeg — and then trigger `sonic setup` if the profile has not been configured yet. Safe to re-run idempotently. |
 | `sonic uninstall [--full] [--gui] [--yes]` | Remove Sonic, optionally deleting all config/data. `--gui` removes only the desktop Chat GUI, leaving the agent intact; `--full` also deletes config/data; `--yes` skips prompts. |
 
 ## See also
