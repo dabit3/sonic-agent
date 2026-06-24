@@ -7,6 +7,32 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   getGatewayWsUrl: profile => ipcRenderer.invoke('sonic:gateway:ws-url', profile),
   openSessionWindow: (sessionId, opts) => ipcRenderer.invoke('sonic:window:openSession', sessionId, opts),
   openNewSessionWindow: () => ipcRenderer.invoke('sonic:window:openNewSession'),
+  petOverlay: {
+    // Main renderer → main process: window lifecycle + drag. `request` is
+    // `{ bounds, screen }`; resolves with the screen bounds it actually used.
+    open: request => ipcRenderer.invoke('sonic:pet-overlay:open', request),
+    close: () => ipcRenderer.invoke('sonic:pet-overlay:close'),
+    setBounds: bounds => ipcRenderer.send('sonic:pet-overlay:set-bounds', bounds),
+    setIgnoreMouse: ignore => ipcRenderer.send('sonic:pet-overlay:ignore-mouse', ignore),
+    // Flip the overlay focusable (and focus it) while the composer needs keys.
+    setFocusable: focusable => ipcRenderer.send('sonic:pet-overlay:set-focusable', focusable),
+    // Main renderer → overlay (forwarded by main): push the latest pet state.
+    pushState: payload => ipcRenderer.send('sonic:pet-overlay:state', payload),
+    // Overlay → main renderer (forwarded by main): pop back in / composer submit.
+    control: payload => ipcRenderer.send('sonic:pet-overlay:control', payload),
+    // Overlay subscribes to state pushes.
+    onState: callback => {
+      const listener = (_event, payload) => callback(payload)
+      ipcRenderer.on('sonic:pet-overlay:state', listener)
+      return () => ipcRenderer.removeListener('sonic:pet-overlay:state', listener)
+    },
+    // Main renderer subscribes to overlay control messages.
+    onControl: callback => {
+      const listener = (_event, payload) => callback(payload)
+      ipcRenderer.on('sonic:pet-overlay:control', listener)
+      return () => ipcRenderer.removeListener('sonic:pet-overlay:control', listener)
+    }
+  },
   getBootProgress: () => ipcRenderer.invoke('sonic:boot-progress:get'),
   getConnectionConfig: profile => ipcRenderer.invoke('sonic:connection-config:get', profile),
   saveConnectionConfig: payload => ipcRenderer.invoke('sonic:connection-config:save', payload),
