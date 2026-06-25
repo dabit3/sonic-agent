@@ -1863,21 +1863,18 @@ class TestRunPreUpdateBackup:
         backups = list((sonic_home / "backups").glob("pre-update-*.zip"))
         assert len(backups) == 1
 
-    def test_default_enabled_creates_backup(self, sonic_home, capsys):
-        """With the new safe default (``pre_update_backup: true``), every
-        ``sonic update`` creates a backup before any destructive step
-        runs — the cost is a few minutes of zip time vs. the alternative
-        of silent total data loss of ``~/.sonic/`` observed in #48200
-        when an update step computes a wrong path and the user had no
-        safety net.
+    def test_default_disabled_is_silent(self, sonic_home, capsys):
+        """With the default (``pre_update_backup: false``), ``sonic update``
+        does NOT create a backup and stays silent — zipping a large
+        SONIC_HOME can add minutes to every update. Users who want the
+        #48200 safety net opt in via the config knob or ``--backup``.
         """
         from sonic_cli.main import _run_pre_update_backup
         _run_pre_update_backup(Namespace(no_backup=False, backup=False))
         out = capsys.readouterr().out
-        assert "Creating pre-update backup" in out
-        assert "Saved:" in out
-        backups = list((sonic_home / "backups").glob("pre-update-*.zip"))
-        assert len(backups) == 1
+        assert out == ""
+        assert not list((sonic_home / "backups").glob("pre-update-*.zip")) \
+            if (sonic_home / "backups").exists() else True
 
     def test_no_backup_flag_skips(self, sonic_home, capsys):
         from sonic_cli.main import _run_pre_update_backup
