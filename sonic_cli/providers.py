@@ -44,6 +44,11 @@ class SonicOverlay:
 
 
 SONIC_OVERLAYS: Dict[str, SonicOverlay] = {
+    "moa": SonicOverlay(
+        transport="openai_chat",
+        auth_type="virtual",
+        base_url_override="moa://local",
+    ),
     "openrouter": SonicOverlay(
         transport="openai_chat",
         is_aggregator=True,
@@ -355,6 +360,7 @@ ALIASES: Dict[str, str] = {
 # not in the catalog.
 
 _LABEL_OVERRIDES: Dict[str, str] = {
+    "moa": "Mixture of Agents",
     "nous": "Nous Portal",
     "openai-codex": "OpenAI Codex",
     "copilot-acp": "GitHub Copilot ACP",

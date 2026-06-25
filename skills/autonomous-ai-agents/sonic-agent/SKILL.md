@@ -448,7 +448,6 @@ Enable/disable via `sonic tools` (interactive) or `sonic tools enable/disable NA
 | `feishu_drive` | Feishu (Lark) drive tools |
 | `yuanbao` | Yuanbao integration tools |
 | `rl` | Reinforcement learning tools (off by default) |
-| `moa` | Mixture of Agents (off by default) |
 
 Full enumeration lives in `toolsets.py` as the `TOOLSETS` dict; `_SONIC_CORE_TOOLS` is the default bundle most platforms inherit from.
 
