@@ -274,6 +274,7 @@ export function getGlobalModelInfo(): Promise<ModelInfoResponse> {
 
 export function getStatus(): Promise<StatusResponse> {
   return window.sonicDesktop.api<StatusResponse>({
+    ...profileScoped(),
     path: '/api/status'
   })
 }
@@ -756,6 +757,7 @@ export function setModelAssignment(body: ModelAssignmentRequest): Promise<ModelA
 
 export function restartGateway(): Promise<ActionResponse> {
   return window.sonicDesktop.api<ActionResponse>({
+    ...profileScoped(),
     path: '/api/gateway/restart',
     method: 'POST'
   })
@@ -763,6 +765,7 @@ export function restartGateway(): Promise<ActionResponse> {
 
 export function updateSonic(): Promise<ActionResponse> {
   return window.sonicDesktop.api<ActionResponse>({
+    ...profileScoped(),
     path: '/api/sonic/update',
     method: 'POST'
   })
@@ -773,12 +776,14 @@ export function updateSonic(): Promise<ActionResponse> {
  *  distinct from the Electron client clone's git state. */
 export function checkSonicUpdate(force = false): Promise<BackendUpdateCheckResponse> {
   return window.sonicDesktop.api<BackendUpdateCheckResponse>({
+    ...profileScoped(),
     path: `/api/sonic/update/check${force ? '?force=true' : ''}`
   })
 }
 
 export function getActionStatus(name: string, lines = 200): Promise<ActionStatusResponse> {
   return window.sonicDesktop.api<ActionStatusResponse>({
+    ...profileScoped(),
     path: `/api/actions/${encodeURIComponent(name)}/status?lines=${Math.max(1, lines)}`
   })
 }
