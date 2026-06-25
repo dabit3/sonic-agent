@@ -8192,6 +8192,9 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
             self._handle_personality_command(cmd_original)
         elif canonical == "pet":
             self._handle_pet_command(cmd_original)
+
+        elif canonical == "hatch":
+            self._handle_hatch_command(cmd_original)
         elif canonical == "retry":
             retry_msg = self.retry_last()
             if retry_msg and hasattr(self, '_pending_input'):
