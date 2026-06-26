@@ -8,6 +8,11 @@ description: "Install Sonic Agent on Linux, macOS, WSL2, native Windows, or Andr
 
 Get Sonic Agent up and running in under two minutes!
 
+:::tip Platform Support
+For the full platform support matrix (which OSes, distribution methods, and
+platform-gated features are supported), see **[Platform Support](./platform-support.md)**.
+:::
+
 ## Quick Install
 ### With the Sonic Desktop installer on macOS or Windows (recommended)
 To easily install the command-line and desktop applications, [download the Sonic Desktop installer](https://github.com/dabit3/sonic-agent/releases/latest) from our website and run it.
@@ -40,11 +45,10 @@ The installer handles everything automatically — all dependencies (Python, Nod
 
 Where the installer puts things depends on whether you're installing as a normal user or as root:
 
-| Installer | Code lives at | `sonic` binary | Data directory |
-|---|---|---|---|
-| pip install | Python site-packages | `~/.local/bin/sonic` (console_scripts) | `~/.sonic/` |
-| Per-user (git installer) | `~/.sonic/sonic-agent/` | `~/.local/bin/sonic` (symlink) | `~/.sonic/` |
-| Root-mode (`sudo curl … \| sudo bash`) | `/usr/local/lib/sonic-agent/` | `/usr/local/bin/sonic` | `/root/.sonic/` (or `$SONIC_HOME`) |
+| Installer                              | Code lives at                  | `sonic` binary                         | Data directory                       |
+| -------------------------------------- | ------------------------------ | --------------------------------------- | ------------------------------------ |
+| Per-user (git installer)               | `~/.sonic/sonic-agent/`      | `~/.local/bin/sonic` (symlink)         | `~/.sonic/`                         |
+| Root-mode (`sudo curl … \| sudo bash`) | `/usr/local/lib/sonic-agent/` | `/usr/local/bin/sonic`                 | `/root/.sonic/` (or `$SONIC_HOME`) |
 
 The root-mode **FHS layout** (`/usr/local/lib/…`, `/usr/local/bin/sonic`) matches where other system-wide developer tools land on Linux. It's useful for shared-machine deployments where one system install should serve every user. Per-user config (auth, skills, sessions) still lives under each user's `~/.sonic/` or explicit `SONIC_HOME`.
 
