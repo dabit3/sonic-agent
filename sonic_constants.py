@@ -277,8 +277,44 @@ def _candidate_node_command_names(command: str) -> list[str]:
     return [f"{base}.cmd", f"{base}.exe", base]
 
 
+def node_tool_runnable(path: str | None) -> bool:
+    """Return True only when *path* is a Node/npm/npx binary that actually runs.
+
+    Sonic-managed Node trees live under ``$SONIC_HOME/node`` (or a profile's
+    ``SONIC_HOME``). A partial upgrade or interrupted install can leave
+    ``bin/npm`` behind while ``lib/cli.js`` is missing — the wrapper exists but
+    immediately throws ``MODULE_NOT_FOUND``. ``find_sonic_node_executable``
+    used to trust file presence alone, so ``sonic update`` would pick that
+    broken npm and skip the healthy system one on PATH.
+
+    Probe with ``--version`` (same pattern as :func:`agent_browser_runnable`) so
+    callers can fall through to the next resolution candidate.
+    """
+    if not path:
+        return False
+    candidate = Path(path)
+    if sys.platform == "win32":
+        if not candidate.is_file():
+            return False
+    elif not os.path.exists(path) or not os.access(path, os.X_OK):
+        return False
+
+    import subprocess
+
+    try:
+        result = subprocess.run(
+            [path, "--version"],
+            capture_output=True,
+            timeout=10,
+            env=with_sonic_node_path(),
+        )
+    except (OSError, subprocess.TimeoutExpired, ValueError):
+        return False
+    return result.returncode == 0
+
+
 def find_sonic_node_executable(command: str) -> str | None:
-    """Return a Sonic-managed Node/npm executable path, if installed."""
+    """Return a Sonic-managed Node/npm executable path, if installed and runnable."""
     names = _candidate_node_command_names(command)
     for directory in iter_sonic_node_dirs():
         for name in names:
@@ -286,7 +322,9 @@ def find_sonic_node_executable(command: str) -> str | None:
             if candidate.is_file() and (
                 sys.platform == "win32" or os.access(candidate, os.X_OK)
             ):
-                return str(candidate)
+                resolved = str(candidate)
+                if node_tool_runnable(resolved):
+                    return resolved
     return None
 
 
@@ -319,10 +357,12 @@ def find_node_executable_on_path(command: str) -> str | None:
 
 
 def find_node_executable(command: str) -> str | None:
-    """Resolve a Node.js command, preferring Sonic-managed installs.
+    """Resolve a Node.js command, preferring healthy Sonic-managed installs.
 
     This is for Sonic-owned subprocesses that should not be broken by a bad,
-    missing, or elevation-triggering system Node/npm on PATH.
+    missing, or elevation-triggering system Node/npm on PATH. A managed tree
+    that exists on disk but fails a ``--version`` probe is skipped so PATH can
+    supply a working system install instead.
     """
     return find_sonic_node_executable(command) or find_node_executable_on_path(command)
 
