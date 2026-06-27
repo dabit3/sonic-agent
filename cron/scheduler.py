@@ -355,7 +355,14 @@ _sonic_home: Path | None = None
 
 
 def _get_sonic_home() -> Path:
-    """Resolve Sonic home dynamically while preserving test monkeypatch hooks."""
+    """Resolve Sonic home dynamically while preserving test monkeypatch hooks.
+
+    Cron is per-profile by design (#4707): the in-process ticker runs inside a
+    profile-scoped gateway, so resolving the active SONIC_HOME at call time
+    means a profile's jobs are stored AND executed under that profile's home
+    (its .env, config.yaml, scripts, skills). Do not freeze this at import or
+    anchor it at the shared default root — either re-breaks profile isolation.
+    """
     return _sonic_home or get_sonic_home()
 
 

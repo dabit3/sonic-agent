@@ -49,6 +49,18 @@ except ImportError:
 # Configuration
 # =============================================================================
 
+# Cron is per-profile by design (issue #4707). Each profile owns its own cron
+# store under its own SONIC_HOME, and a profile-scoped gateway runs that
+# profile's jobs under that same SONIC_HOME — so a job authored in profile
+# `coder` lives in `~/.sonic/profiles/coder/cron/jobs.json` and executes with
+# `coder`'s `.env`, `config.yaml`, and skills. We deliberately anchor on
+# `get_sonic_home()` (the active profile home), NOT `get_default_sonic_root()`
+# (the shared root). Anchoring at the root would funnel every profile's jobs
+# into one shared `jobs.json` and run them under whatever SONIC_HOME the
+# ticker process happens to have — leaking config/credentials/skills across
+# profiles (the security boundary #4707 was filed for). Do NOT change this to
+# the default root: that re-breaks per-profile isolation. See also the dynamic
+# `_get_sonic_home()` / `_get_lock_paths()` resolution in cron/scheduler.py.
 SONIC_DIR = get_sonic_home().resolve()
 CRON_DIR = SONIC_DIR / "cron"
 JOBS_FILE = CRON_DIR / "jobs.json"
