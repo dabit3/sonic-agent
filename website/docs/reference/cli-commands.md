@@ -39,7 +39,7 @@ sonic [global-options] <command> [subcommand/options]
 |---------|---------|
 | `sonic chat` | Interactive or one-shot chat with the agent. |
 | `sonic model` | Interactively choose the default provider and model. |
-| `sonic moa` | Configure named Mixture of Agents presets used by `/moa`. |
+| `sonic moa` | Configure named Mixture of Agents presets selectable from the model picker. |
 | `sonic fallback` | Manage fallback providers tried when the primary model errors. |
 | `sonic gateway` | Run or manage the messaging gateway service. |
 | `sonic proxy` | Local OpenAI-compatible proxy that attaches OAuth provider credentials. See [Subscription Proxy](../user-guide/features/subscription-proxy.md). |
@@ -1122,7 +1122,7 @@ See [Curator](../user-guide/features/curator.md) for behavior and config.
 
 ## `sonic moa`
 
-Configure named Mixture of Agents presets used by the `/moa` slash command.
+Configure named Mixture of Agents presets. Presets appear as selectable models under a `Mixture of Agents` provider in every model picker; `/moa <prompt>` runs one prompt through the default preset.
 
 ```bash
 sonic moa list
