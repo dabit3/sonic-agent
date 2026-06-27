@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Optional
 
 from sonic_constants import get_sonic_home
+from sonic_cli import _subprocess_compat
 
 logger = logging.getLogger(__name__)
 
@@ -243,7 +244,7 @@ def _install_uv_windows(env: dict[str, str]) -> None:
     cmd = (
         'irm https://astral.sh/uv/install.ps1 | iex'
     )
-    subprocess.run(
+    _subprocess_compat.run(
         ["powershell", "-ExecutionPolicy", "Bypass", "-c", cmd],
         env=env,
         check=True,
