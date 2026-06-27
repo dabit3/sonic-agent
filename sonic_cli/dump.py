@@ -17,7 +17,6 @@ from sonic_cli.config import get_sonic_home, get_env_path, get_project_root, loa
 from sonic_cli.env_loader import load_sonic_dotenv
 from sonic_constants import display_sonic_home
 from agent.skill_utils import is_excluded_skill_path
-from hermes_cli import _subprocess_compat
 
 
 def _get_git_commit(project_root: Path) -> str:
@@ -31,7 +30,7 @@ def _get_git_commit(project_root: Path) -> str:
     The output format is identical regardless of source.
     """
     try:
-        result = _subprocess_compat.run(
+        result = subprocess.run(
             ["git", "rev-parse", "--short=8", "HEAD"],
             capture_output=True, text=True, timeout=5,
             cwd=str(project_root),
@@ -66,7 +65,7 @@ def _get_git_commit_date(project_root: Path) -> str:
     build).
     """
     try:
-        result = _subprocess_compat.run(
+        result = subprocess.run(
             ["git", "log", "-1", "--format=%cd", "--date=short", "HEAD"],
             capture_output=True, text=True, timeout=5,
             cwd=str(project_root),
