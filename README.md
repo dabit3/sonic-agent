@@ -37,7 +37,7 @@ speed:
 
 **Pick a fast model.** The model controls most of the speed. A small model on a fast provider is faster than a frontier reasoning model. Examples are `openai/gpt-4o-mini`, a Flash, Haiku, or nano class model, or any model on high-throughput infrastructure. To change the model at any time, run `sonic model`.
 
-You can use any model. The options include [OpenRouter](https://openrouter.ai) (200+ models), [Nous Portal](https://portal.nousresearch.com), [NovitaAI](https://novita.ai), [NVIDIA NIM](https://build.nvidia.com), [z.ai/GLM](https://z.ai), [Kimi/Moonshot](https://platform.moonshot.ai), [MiniMax](https://www.minimax.io), [Hugging Face](https://huggingface.co), OpenAI, and your own endpoint. To change the model, run `sonic model`. No code changes are necessary.
+You can use any model. The options include [OpenRouter](https://openrouter.ai), [Nous Portal](https://portal.nousresearch.com), OpenAI, your own endpoint, and [many others](https://hermes-agent.nousresearch.com/docs/integrations/providers). To change the model, run `sonic model`. No code changes are necessary.
 
 <table>
 <tr><td><b>A real terminal interface</b></td><td>A full TUI with multiline editing, slash-command autocomplete, conversation history, interrupt-and-redirect, and streaming tool output.</td></tr>
