@@ -53,6 +53,7 @@ AUTHOR_MAP = {
     "info@aminvakil.com": "aminvakil",
     "nikpolale@gmail.com": "polnikale",
     "redpiggy-cyber@users.noreply.github.com": "redpiggy-cyber",
+    "prathamesh290504@gmail.com": "PRATHAMESH75",  # PR #37550 salvage (ExecStopPost cgroup-orphan reaper to unblock systemd restart; #37454)
     "der@konsi.org": "konsisumer",  # PR #19608 salvage (read-modify-write merge in write_credential_pool to preserve concurrently-added credentials; #19566)
     "linyubin@users.noreply.github.com": "linyubin",  # PR #50228 salvage (eager fallback on persistent transport timeout/overloaded; #22277)
     "65363919+coygeek@users.noreply.github.com": "coygeek",  # PR #37951 salvage (fail closed when provider env blocklist import fails; #37950)
