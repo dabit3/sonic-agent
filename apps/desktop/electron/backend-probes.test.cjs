@@ -11,7 +11,7 @@ const fs = require('node:fs')
 const os = require('node:os')
 const path = require('node:path')
 
-const { canImportSonicCli, verifySonicCli } = require('./backend-probes.cjs')
+const { canImportSonicCli, sonicRuntimeImportProbe, verifySonicCli } = require('./backend-probes.cjs')
 
 // Resolve the host's own Node binary -- guaranteed to be on disk and
 // runnable. We use it as both a stand-in for "a python that doesn't
@@ -38,6 +38,12 @@ test('canImportSonicCli returns false when interpreter cannot run -c', () => {
 test('canImportSonicCli returns false when binary does not exist', () => {
   const ghost = path.join(os.tmpdir(), 'sonic-probes-ghost-' + Date.now() + '.exe')
   assert.equal(canImportSonicCli(ghost), false)
+})
+
+test('sonic runtime import probe checks config dependencies', () => {
+  const probe = sonicRuntimeImportProbe()
+  assert.match(probe, /\bimport yaml\b/)
+  assert.match(probe, /\bimport sonic_cli\.config\b/)
 })
 
 test('verifySonicCli returns false when command is falsy', () => {
