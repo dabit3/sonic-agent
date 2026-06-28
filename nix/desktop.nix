@@ -55,13 +55,15 @@ let
           npm exec tsc -b
           npm exec vite build
 
-          # Bundle the electron main into a single self-contained file so
-          # the nix output doesn't need node_modules/.  simple-git (the only
-          # external runtime dep of the electron main) gets inlined; electron
-          # and node-pty are external (provided by the runtime / native-deps).
-          # preload.cjs stays separate — Electron loads it via __dirname, not
-          # require(), so it must remain a standalone file.
-          node scripts/bundle-electron-main.mjs
+          # simple-git is the electron main's external runtime dep.  It is not
+          # bundled into main.cjs; instead the stage-native-deps.cjs call above
+          # copies its closure to apps/desktop/build/native-deps/vendor/node_modules/,
+          # which installPhase ships into $out/native-deps/ — the same path the
+          # packaged app uses.  electron/git-review-ops.cjs resolves it from
+          # process.resourcesPath when the hoisted require() isn't reachable
+          # (see issue #52735).  node-pty's prebuilt is staged the same way;
+          # electron is provided by the runtime.  preload.cjs stays separate —
+          # Electron loads it via __dirname, not require().
         popd
 
         runHook postBuild
@@ -130,6 +132,13 @@ stdenv.mkDerivation {
     # to the electron distribution's resources path, breaking extraResources lookups.
     substituteInPlace $out/share/sonic-desktop/electron/main.cjs \
       --replace-fail "process.resourcesPath" "'$out/share/sonic-desktop'"
+
+    # git-review-ops.cjs has the same process.resourcesPath fallback for its
+    # staged simple-git dep (native-deps/vendor/node_modules/), so it needs the same
+    # rewrite — otherwise the require() fallback resolves against the electron
+    # dist's resources path and fails to load simple-git (issue #52735).
+    substituteInPlace $out/share/hermes-desktop/electron/git-review-ops.cjs \
+      --replace-fail "process.resourcesPath" "'$out/share/hermes-desktop'"
 
     # Wrap the nixpkgs electron binary to launch our app.  Set
     # SONIC_DESKTOP_SONIC to the absolute path of the nix-built `sonic`
