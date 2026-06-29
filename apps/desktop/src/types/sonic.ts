@@ -224,6 +224,7 @@ export interface SonicConfig {
   }
   voice?: {
     max_recording_seconds?: number
+    auto_tts?: boolean
   }
 }
 
