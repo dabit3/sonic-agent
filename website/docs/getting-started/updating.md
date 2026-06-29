@@ -171,7 +171,9 @@ If you installed manually (not via the quick installer):
 
 ```bash
 cd /path/to/sonic-agent
-export VIRTUAL_ENV="$(pwd)/venv"
+# Activate the venv you created during install (outside the source tree)
+export VIRTUAL_ENV="$HOME/.sonic/venvs/sonic-dev"
+export PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Pull latest code
 git pull origin main
