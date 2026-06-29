@@ -38,7 +38,7 @@ test('desktop background child processes opt into hidden Windows consoles', () =
   requireHiddenChildOptions(source, /sonicProcess = spawn\(\s*backend\.command,\s*backend\.args/)
   requireHiddenChildOptions(source, /spawn\(\s*py,\s*\['-m', 'sonic_cli\.main', 'uninstall', '--gui-summary'\]/)
 
-  assert.match(source, /function unwrapWindowsVenvSonicCommand\(command, dashboardArgs\)/)
+  assert.match(source, /function unwrapWindowsVenvSonicCommand\(command, backendArgs\)/)
   assert.match(source, /existing Sonic no-console Python at/)
   assert.match(source, /function getNoConsoleVenvPython\(venvRoot\)/)
   assert.match(source, /function toNoConsolePython\(pythonPath\)/)
@@ -50,7 +50,7 @@ test('desktop background child processes opt into hidden Windows consoles', () =
   assert.match(source, /readyFile: true/)
   assert.match(source, /function getVenvSitePackagesEntries\(venvRoot\)/)
   assert.match(source, /path\.join\(venvRoot, 'Lib', 'site-packages'\)/)
-  assert.match(source, /args: \['-m', 'sonic_cli\.main', \.\.\.dashboardArgs\]/)
+  assert.match(source, /args: \['-m', 'sonic_cli\.main', \.\.\.backendArgs\]/)
 })
 
 test('getNoConsoleVenvPython prefers base pythonw over the uv re-exec shim', () => {

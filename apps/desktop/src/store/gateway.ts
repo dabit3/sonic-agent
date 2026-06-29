@@ -1,8 +1,7 @@
-import type { ConnectionState, GatewayEvent } from '@sonic/shared'
+import { type ConnectionState, type GatewayEvent, resolveGatewayWsUrl } from '@sonic/shared'
 import { atom } from 'nanostores'
 
 import { SonicGateway } from '@/sonic'
-import { resolveGatewayWsUrl } from '@/lib/gateway-ws-url'
 import { setGatewayState } from '@/store/session'
 
 // ── Multi-profile gateway routing ──────────────────────────────────────────
