@@ -132,6 +132,10 @@ export const en: Translations = {
     startedInBackground: "Started in background — check logs for progress",
     stopped: "Stopped",
     updateSonic: "Update Sonic",
+    updateSonicConfirmMessage:
+      "This runs sonic update and restarts the gateway when it finishes. Active sessions keep their prompt cache until then.",
+    updateSonicConfirmNow: "Update now",
+    updateSonicConfirmTitle: "Update Sonic?",
     updatingSonic: "Updating Sonic…",
     waitingForOutput: "Waiting for output…",
   },

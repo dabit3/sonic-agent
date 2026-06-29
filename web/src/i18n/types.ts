@@ -149,6 +149,9 @@ export interface Translations {
     startedInBackground: string;
     stopped: string;
     updateSonic: string;
+    updateSonicConfirmMessage?: string;
+    updateSonicConfirmNow?: string;
+    updateSonicConfirmTitle?: string;
     updatingSonic: string;
     waitingForOutput: string;
   };
