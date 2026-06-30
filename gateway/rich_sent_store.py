@@ -25,11 +25,9 @@ _MAX_TEXT_CHARS = 2000
 
 
 def _store_path() -> str:
-    # Resolve through get_sonic_home() so the context-local profile override
-    # (set_sonic_home_override) is honored.  Reading os.environ["SONIC_HOME"]
-    # directly bypassed the override and leaked every profile's rich-sent index
-    # into the launch/default profile in single-process multi-profile runtimes
-    # (desktop tui_gateway).
+    # Resolve via get_sonic_home() so the profile override is honored; reading
+    # os.environ["SONIC_HOME"] directly bypassed it and leaked the index into
+    # the launch profile (multi-profile tui_gateway / gateway).
     from sonic_constants import get_sonic_home
 
     home = get_sonic_home()
