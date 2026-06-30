@@ -8,7 +8,7 @@ import { $composerAttachments, type ComposerAttachment } from '@/store/composer'
 import { $busy, $connection, $messages, $sessions, setSessions } from '@/store/session'
 import type { SessionInfo } from '@/types/sonic'
 
-import { uploadComposerAttachment, usePromptActions } from './use-prompt-actions'
+import { uploadComposerAttachment, usePromptActions } from '.'
 
 vi.mock('@/sonic', () => ({
   getProfiles: vi.fn(async () => ({ profiles: [] })),
