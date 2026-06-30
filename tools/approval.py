@@ -424,8 +424,10 @@ DANGEROUS_PATTERNS = [
     (r'\bfind\b.*-delete\b', "find -delete"),
     # Gateway lifecycle protection: prevent the agent from killing its own
     # gateway process.  These commands trigger a gateway restart/stop that
-    # terminates all running agents mid-work.
-    (r'\bsonic\s+gateway\s+(stop|restart)\b', "stop/restart sonic gateway (kills running agents)"),
+    # terminates all running agents mid-work.  Allow global flags between
+    # `sonic` and `gateway` (e.g. `sonic -p ade gateway restart`) so a
+    # profile flag can't slip the agent past the guard.
+    (r'\bsonic\s+(?:-{1,2}\S+(?:\s+\S+)?\s+)*gateway\s+(stop|restart)\b', "stop/restart sonic gateway (kills running agents)"),
     (r'\bsonic\s+update\b', "sonic update (restarts gateway, kills running agents)"),
     # Docker container lifecycle — any user with docker.sock mounted (a common
     # Docker Compose pattern) gives the agent the ability to restart/stop/kill
