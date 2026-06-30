@@ -25,8 +25,15 @@ _MAX_TEXT_CHARS = 2000
 
 
 def _store_path() -> str:
-    home = os.environ.get("SONIC_HOME") or os.path.expanduser("~/.sonic")
-    return os.path.join(home, "state", "rich_sent_index.json")
+    # Resolve through get_sonic_home() so the context-local profile override
+    # (set_sonic_home_override) is honored.  Reading os.environ["SONIC_HOME"]
+    # directly bypassed the override and leaked every profile's rich-sent index
+    # into the launch/default profile in single-process multi-profile runtimes
+    # (desktop tui_gateway).
+    from sonic_constants import get_sonic_home
+
+    home = get_sonic_home()
+    return os.path.join(str(home), "state", "rich_sent_index.json")
 
 
 def _key(chat_id, message_id) -> str:
