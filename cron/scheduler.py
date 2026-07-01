@@ -2225,12 +2225,23 @@ def run_job(job: dict) -> tuple[bool, str, str, Optional[str]]:
 
     try:
         # Re-read .env and config.yaml fresh every run so provider/key
-        # changes take effect without a gateway restart.
-        from dotenv import load_dotenv
-        try:
-            load_dotenv(str(_get_sonic_home() / ".env"), override=True, encoding="utf-8")
-        except UnicodeDecodeError:
-            load_dotenv(str(_get_sonic_home() / ".env"), override=True, encoding="latin-1")
+        # changes take effect without a gateway restart. Route through
+        # load_sonic_dotenv (not a bare load_dotenv) and reset the secret-
+        # source cache first: startup already applied external secrets and
+        # recorded this SONIC_HOME in _APPLIED_HOMES, so a naive reload would
+        # re-apply only the .env placeholder and never re-resolve a Bitwarden/
+        # BSM-backed secret — leaving cron jobs 401'ing on the placeholder
+        # (#33465). Clearing the cache forces the re-pull; the resolved secret
+        # overrides the placeholder only when secrets.bitwarden.override_existing
+        # is set (mirrors startup), and the Bitwarden value-cache keeps the
+        # forced re-pull off the network. load_sonic_dotenv also handles the
+        # utf-8/latin-1 encoding fallback internally.
+        from sonic_cli.env_loader import (
+            load_sonic_dotenv,
+            reset_secret_source_cache,
+        )
+        reset_secret_source_cache()
+        load_sonic_dotenv(sonic_home=_get_sonic_home())
 
         delivery_target = _resolve_delivery_target(job)
         if delivery_target:
