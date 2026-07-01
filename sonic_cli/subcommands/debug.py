@@ -24,7 +24,8 @@ def build_debug_parser(subparsers, *, cmd_debug: Callable) -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""\
 Examples:
-    sonic debug share              Upload debug report and print URL
+    sonic debug share              Upload debug report (asks for confirmation)
+    sonic debug share --yes        Skip confirmation (for scripts/CI)
     sonic debug share --lines 500  Include more log lines
     sonic debug share --expire 30  Keep paste for 30 days
     sonic debug share --local      Print report locally (no upload)
@@ -54,6 +55,16 @@ Examples:
         "--local",
         action="store_true",
         help="Print the report locally instead of uploading",
+    )
+    share_parser.add_argument(
+        "-y",
+        "--yes",
+        action="store_true",
+        help=(
+            "Skip the confirmation prompt and upload immediately. Required "
+            "in non-interactive contexts (scripts/CI); without it, and with "
+            "no TTY on stdin, the command refuses rather than upload silently."
+        ),
     )
     share_parser.add_argument(
         "--no-redact",
