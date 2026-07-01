@@ -238,6 +238,8 @@ AUTHOR_MAP = {
     "dirtyren@users.noreply.github.com": "dirtyren",
     "121278003+Cossackx@users.noreply.github.com": "Cossackx",  # PR #52528 salvage (Windows sonic-shim resolution + prefer --update on recovery; #52378)
     "13277570+justin-cyhuang@users.noreply.github.com": "justin-cyhuang",
+    "agent@tranquil-flow.dev": "Tranquil-Flow",
+    "jason@hermes-jc": "jcjc81",
     "290862769+friendshipisover@users.noreply.github.com": "friendshipisover",
     "51421+MattKotsenas@users.noreply.github.com": "MattKotsenas",
     "92324143+ypwcharles@users.noreply.github.com": "ypwcharles",
