@@ -54,11 +54,11 @@ def seed_tasks(conn, kb, n, assignee="bench-worker", with_parents=False):
 
 
 def main():
-    home = tempfile.mkdtemp(prefix="lightning_bench_")
-    os.environ["LIGHTNING_HOME"] = home
+    home = tempfile.mkdtemp(prefix="sonic_bench_")
+    os.environ["SONIC_HOME"] = home
     os.environ["HOME"] = home
     sys.path.insert(0, WT)
-    from lightning_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
 
     kb.init_db()
 

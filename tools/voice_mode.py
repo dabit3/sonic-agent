@@ -6,7 +6,7 @@ sounddevice or system audio players.
 
 Dependencies (optional):
     pip install sounddevice numpy
-    or: pip install lightning-agent[voice]
+    or: pip install sonic-agent[voice]
 """
 
 import logging
@@ -49,7 +49,7 @@ def _audio_available() -> bool:
         return False
 
 
-from lightning_constants import is_termux as _is_termux_environment
+from sonic_constants import is_termux as _is_termux_environment
 
 
 def _voice_capture_install_hint() -> str:
@@ -103,7 +103,7 @@ def detect_audio_environment() -> dict:
         warnings.append("Running over SSH -- no audio devices available")
 
     # Docker/Podman container detection
-    from lightning_constants import is_container
+    from sonic_constants import is_container
     if is_container():
         warnings.append("Running inside Docker container -- no audio devices")
 
@@ -194,7 +194,7 @@ SILENCE_RMS_THRESHOLD = 200  # RMS below this = silence (int16 range 0-32767)
 SILENCE_DURATION_SECONDS = 3.0  # Seconds of continuous silence before auto-stop
 
 # Temp directory for voice recordings
-_TEMP_DIR = os.path.join(tempfile.gettempdir(), "lightning_voice")
+_TEMP_DIR = os.path.join(tempfile.gettempdir(), "sonic_voice")
 
 
 # ============================================================================

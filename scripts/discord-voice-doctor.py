@@ -19,8 +19,8 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-LIGHTNING_HOME = Path(os.getenv("LIGHTNING_HOME", Path.home() / ".lightning"))
-ENV_FILE = LIGHTNING_HOME / ".env"
+SONIC_HOME = Path(os.getenv("SONIC_HOME", Path.home() / ".sonic"))
+ENV_FILE = SONIC_HOME / ".env"
 
 OK = "\033[92m\u2713\033[0m"
 FAIL = "\033[91m\u2717\033[0m"
@@ -176,10 +176,10 @@ def check_env_vars():
 
     # Load .env
     try:
-        from lightning_cli.env_loader import load_lightning_dotenv
+        from sonic_cli.env_loader import load_sonic_dotenv
 
-        load_lightning_dotenv(
-            lightning_home=ENV_FILE.parent,
+        load_sonic_dotenv(
+            sonic_home=ENV_FILE.parent,
             project_env=PROJECT_ROOT / ".env",
         )
     except ImportError:
@@ -235,10 +235,10 @@ def check_env_vars():
 
 
 def check_config(groq_key, eleven_key):
-    """Check lightning config.yaml."""
+    """Check sonic config.yaml."""
     section("Configuration")
 
-    config_path = LIGHTNING_HOME / "config.yaml"
+    config_path = SONIC_HOME / "config.yaml"
     if config_path.exists():
         try:
             import yaml
@@ -264,7 +264,7 @@ def check_config(groq_key, eleven_key):
         warn("config.yaml", "not found — using defaults")
 
     # Voice mode state
-    voice_mode_path = LIGHTNING_HOME / "gateway_voice_mode.json"
+    voice_mode_path = SONIC_HOME / "gateway_voice_mode.json"
     if voice_mode_path.exists():
         try:
             import json

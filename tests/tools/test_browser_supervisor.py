@@ -9,7 +9,7 @@ thought to model.
 Run manually:
     scripts/run_tests.sh tests/tools/test_browser_supervisor.py
 
-Automated: skipped in CI unless ``LIGHTNING_E2E_BROWSER=1`` is set.
+Automated: skipped in CI unless ``SONIC_E2E_BROWSER=1`` is set.
 """
 
 from __future__ import annotations
@@ -59,7 +59,7 @@ def chrome_cdp(request):
     else:
         port_offset = int(worker_id.lstrip("gw"))
     port = 9225 + port_offset
-    profile = tempfile.mkdtemp(prefix="lightning-supervisor-test-")
+    profile = tempfile.mkdtemp(prefix="sonic-supervisor-test-")
     proc = subprocess.Popen(
         [
             _find_chrome(),

@@ -36,10 +36,10 @@ def test_model_short_drops_vendor_prefix(model, expected):
 
 def test_home_relative_cwd_collapses_home(tmp_path, monkeypatch):
     monkeypatch.setenv("HOME", str(tmp_path))
-    sub = tmp_path / "projects" / "lightning"
+    sub = tmp_path / "projects" / "sonic"
     sub.mkdir(parents=True)
     result = _home_relative_cwd(str(sub))
-    assert result == "~/projects/lightning"
+    assert result == "~/projects/sonic"
 
 
 def test_home_relative_cwd_leaves_abs_path_alone(tmp_path, monkeypatch):
@@ -58,8 +58,8 @@ def test_home_relative_cwd_empty_returns_empty():
 
 def test_format_footer_all_fields(monkeypatch, tmp_path):
     monkeypatch.setenv("HOME", str(tmp_path))
-    monkeypatch.setenv("TERMINAL_CWD", str(tmp_path / "projects" / "lightning"))
-    (tmp_path / "projects" / "lightning").mkdir(parents=True)
+    monkeypatch.setenv("TERMINAL_CWD", str(tmp_path / "projects" / "sonic"))
+    (tmp_path / "projects" / "sonic").mkdir(parents=True)
     out = format_runtime_footer(
         model="openrouter/openai/gpt-5.4",
         context_tokens=68000,
@@ -67,7 +67,7 @@ def test_format_footer_all_fields(monkeypatch, tmp_path):
         cwd=None,  # falls back to TERMINAL_CWD env var
         fields=("model", "context_pct", "cwd"),
     )
-    assert out == "gpt-5.4 · 68% · ~/projects/lightning"
+    assert out == "gpt-5.4 · 68% · ~/projects/sonic"
 
 
 def test_format_footer_skips_missing_context_length():

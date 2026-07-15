@@ -6,12 +6,12 @@ description: "Browser-based dashboard for managing configuration, API keys, sess
 
 # Web Dashboard
 
-The web dashboard is a browser-based UI for managing your Lightning Agent installation. Instead of editing YAML files or running CLI commands, you can configure settings, manage API keys, and monitor sessions from a clean web interface.
+The web dashboard is a browser-based UI for managing your Sonic Agent installation. Instead of editing YAML files or running CLI commands, you can configure settings, manage API keys, and monitor sessions from a clean web interface.
 
 ## Quick Start
 
 ```bash
-lightning dashboard
+sonic dashboard
 ```
 
 This starts a local web server and opens `http://127.0.0.1:9119` in your browser. The dashboard runs entirely on your machine — no data leaves localhost.
@@ -24,35 +24,35 @@ This starts a local web server and opens `http://127.0.0.1:9119` in your browser
 | `--host` | `127.0.0.1` | Bind address |
 | `--no-open` | — | Don't auto-open the browser |
 | `--insecure` | off | Allow binding to non-localhost hosts (**DANGEROUS** — exposes API keys on the network; pair with a firewall and strong auth) |
-| `--tui` | off | Expose the in-browser Chat tab (embedded `lightning --tui` via PTY/WebSocket). Alternatively set `LIGHTNING_DASHBOARD_TUI=1`. |
+| `--tui` | off | Expose the in-browser Chat tab (embedded `sonic --tui` via PTY/WebSocket). Alternatively set `SONIC_DASHBOARD_TUI=1`. |
 
 ```bash
 # Custom port
-lightning dashboard --port 8080
+sonic dashboard --port 8080
 
 # Bind to all interfaces (use with caution on shared networks)
-lightning dashboard --host 0.0.0.0
+sonic dashboard --host 0.0.0.0
 
 # Start without opening browser
-lightning dashboard --no-open
+sonic dashboard --no-open
 
 # Enable the in-browser Chat tab
-lightning dashboard --tui
+sonic dashboard --tui
 ```
 
 ## Prerequisites
 
-The default `lightning-agent` install does not ship the HTTP stack or PTY helper — those are optional extras. The **web dashboard** needs FastAPI and Uvicorn (`web` extra). The **Chat** tab also needs `ptyprocess` to spawn the embedded TUI behind a pseudo-terminal (`pty` extra on POSIX). Install both with:
+The default `sonic-agent` install does not ship the HTTP stack or PTY helper — those are optional extras. The **web dashboard** needs FastAPI and Uvicorn (`web` extra). The **Chat** tab also needs `ptyprocess` to spawn the embedded TUI behind a pseudo-terminal (`pty` extra on POSIX). Install both with:
 
 ```bash
-pip install 'lightning-agent[web,pty]'
+pip install 'sonic-agent[web,pty]'
 ```
 
-The `web` extra pulls in FastAPI/Uvicorn; `pty` pulls in `ptyprocess` (POSIX) or `pywinpty` (native Windows — note that the embedded TUI itself still requires WSL). `pip install lightning-agent[all]` includes both extras and is the easiest path if you also want messaging/voice/etc.
+The `web` extra pulls in FastAPI/Uvicorn; `pty` pulls in `ptyprocess` (POSIX) or `pywinpty` (native Windows — note that the embedded TUI itself still requires WSL). `pip install sonic-agent[all]` includes both extras and is the easiest path if you also want messaging/voice/etc.
 
-When you run `lightning dashboard` without the dependencies, it will tell you what to install. If the frontend hasn't been built yet and `npm` is available, it builds automatically on first launch.
+When you run `sonic dashboard` without the dependencies, it will tell you what to install. If the frontend hasn't been built yet and `npm` is available, it builds automatically on first launch.
 
-The Chat tab is intentionally off for a plain `lightning dashboard` launch. Start the dashboard with `lightning dashboard --tui` or set `LIGHTNING_DASHBOARD_TUI=1` when you want the embedded browser chat pane.
+The Chat tab is intentionally off for a plain `sonic dashboard` launch. Start the dashboard with `sonic dashboard --tui` or set `SONIC_DASHBOARD_TUI=1` when you want the embedded browser chat pane.
 
 ## Pages
 
@@ -69,12 +69,12 @@ The status page auto-refreshes every 5 seconds.
 
 ### Chat
 
-The **Chat** tab embeds the full Lightning TUI (the same interface you get from `lightning --tui`) directly in the browser. Everything you can do in the terminal TUI — slash commands, model picker, tool-call cards, markdown streaming, clarify/sudo/approval prompts, skin theming — works identically here, because the dashboard is running the real TUI binary and rendering its ANSI output through [xterm.js](https://xtermjs.org/) with its WebGL renderer for pixel-perfect cell layout.
+The **Chat** tab embeds the full Sonic TUI (the same interface you get from `sonic --tui`) directly in the browser. Everything you can do in the terminal TUI — slash commands, model picker, tool-call cards, markdown streaming, clarify/sudo/approval prompts, skin theming — works identically here, because the dashboard is running the real TUI binary and rendering its ANSI output through [xterm.js](https://xtermjs.org/) with its WebGL renderer for pixel-perfect cell layout.
 
 **How it works:**
 
 - `/api/pty` opens a WebSocket authenticated with the dashboard's session token
-- The server spawns `lightning --tui` behind a POSIX pseudo-terminal
+- The server spawns `sonic --tui` behind a POSIX pseudo-terminal
 - Keystrokes travel to the PTY; ANSI output streams back to the browser
 - xterm.js's WebGL renderer paints each cell to an integer-pixel grid; mouse tracking (SGR 1006), wide characters (Unicode 11), and box-drawing glyphs all render natively
 - Resizing the browser window resizes the TUI via the `@xterm/addon-fit` addon
@@ -83,8 +83,8 @@ The **Chat** tab embeds the full Lightning TUI (the same interface you get from 
 
 **Prerequisites:**
 
-- Node.js (same requirement as `lightning --tui`; the TUI bundle is built on first launch)
-- `ptyprocess` — installed by the `pty` extra (`pip install 'lightning-agent[web,pty]'`, or `[all]` covers both)
+- Node.js (same requirement as `sonic --tui`; the TUI bundle is built on first launch)
+- `ptyprocess` — installed by the `pty` extra (`pip install 'sonic-agent[web,pty]'`, or `[all]` covers both)
 - POSIX kernel (Linux, macOS, or WSL2).  The `/chat` terminal pane specifically needs a POSIX PTY — native Windows Python has no equivalent, so on a native Windows install the rest of the dashboard (sessions, jobs, metrics, config editor) works but the `/chat` tab will show a banner telling you to use WSL2 for that feature.
 
 Close the browser tab and the PTY is reaped cleanly on the server. Re-opening spawns a fresh session.
@@ -112,7 +112,7 @@ Fields with known valid values (terminal backend, skin, approval mode, etc.) ren
 - **Import** — uploads a JSON config file to replace the current values
 
 :::tip
-Config changes take effect on the next agent session or gateway restart. The web dashboard edits the same `config.yaml` file that `lightning config set` and the gateway read from.
+Config changes take effect on the next agent session or gateway restart. The web dashboard edits the same `config.yaml` file that `sonic config set` and the gateway read from.
 :::
 
 ### API Keys
@@ -174,7 +174,7 @@ Create and manage scheduled cron jobs that run agent prompts on a recurring sche
 
 ### Skills
 
-Browse, search, and toggle skills and toolsets. Skills are loaded from `~/.lightning/skills/` and grouped by category.
+Browse, search, and toggle skills and toolsets. Skills are loaded from `~/.sonic/skills/` and grouped by category.
 
 - **Search** — filter skills and toolsets by name, description, or category
 - **Category filter** — click category pills to narrow the list (e.g. MLOps, MCP, Red Teaming, AI)
@@ -194,7 +194,7 @@ You → /reload
   Reloaded .env (3 var(s) updated)
 ```
 
-This re-reads `~/.lightning/.env` into the running process's environment. Useful when you've added a new provider key via the dashboard and want to use it immediately.
+This re-reads `~/.sonic/.env` into the running process's environment. Useful when you've added a new provider key via the dashboard and want to use it immediately.
 
 ## REST API
 
@@ -312,7 +312,7 @@ If you're contributing to the web dashboard frontend:
 
 ```bash
 # Terminal 1: start the backend API
-lightning dashboard --no-open
+sonic dashboard --no-open
 
 # Terminal 2: start the Vite dev server with HMR
 cd web/
@@ -322,11 +322,11 @@ npm run dev
 
 The Vite dev server at `http://localhost:5173` proxies `/api` requests to the FastAPI backend at `http://127.0.0.1:9119`.
 
-The frontend is built with React 19, TypeScript, Tailwind CSS v4, and shadcn/ui-style components. Production builds output to `lightning_cli/web_dist/` which the FastAPI server serves as a static SPA.
+The frontend is built with React 19, TypeScript, Tailwind CSS v4, and shadcn/ui-style components. Production builds output to `sonic_cli/web_dist/` which the FastAPI server serves as a static SPA.
 
 ## Automatic Build on Update
 
-When you run `lightning update`, the web frontend is automatically rebuilt if `npm` is available. This keeps the dashboard in sync with code updates. If `npm` isn't installed, the update skips the frontend build and `lightning dashboard` will build it on first launch.
+When you run `sonic update`, the web frontend is automatically rebuilt if `npm` is available. This keeps the dashboard in sync with code updates. If `npm` isn't installed, the update skips the frontend build and `sonic dashboard` will build it on first launch.
 
 ## Themes & plugins
 
@@ -338,8 +338,8 @@ Built-in themes:
 
 | Theme | Character |
 |-------|-----------|
-| **Lightning Teal** (`default`) | Dark teal + cream, system fonts, comfortable spacing |
-| **Lightning Teal (Large)** (`default-large`) | Same as default with 18px text and roomier spacing |
+| **Sonic Teal** (`default`) | Dark teal + cream, system fonts, comfortable spacing |
+| **Sonic Teal (Large)** (`default-large`) | Same as default with 18px text and roomier spacing |
 | **Midnight** (`midnight`) | Deep blue-violet, Inter + JetBrains Mono |
 | **Ember** (`ember`) | Warm crimson + bronze, Spectral serif + IBM Plex Mono |
 | **Mono** (`mono`) | Grayscale, IBM Plex, compact |

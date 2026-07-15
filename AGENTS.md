@@ -1,6 +1,6 @@
-# Lightning Agent - Development Guide
+# Sonic Agent - Development Guide
 
-Instructions for AI coding assistants and developers working on the lightning-agent codebase.
+Instructions for AI coding assistants and developers working on the sonic-agent codebase.
 
 ## Development Environment
 
@@ -10,7 +10,7 @@ source .venv/bin/activate   # or: source venv/bin/activate
 ```
 
 `scripts/run_tests.sh` probes `.venv` first, then `venv`, then
-`$HOME/.lightning/lightning-agent/venv` (for worktrees that share a venv with the
+`$HOME/.sonic/sonic-agent/venv` (for worktrees that share a venv with the
 main checkout).
 
 ## Project Structure
@@ -20,17 +20,17 @@ The canonical source is the filesystem. The notes call out the load-bearing
 entry points you'll actually edit.
 
 ```
-lightning-agent/
+sonic-agent/
 ├── run_agent.py          # AIAgent class — core conversation loop (~12k LOC)
 ├── model_tools.py        # Tool orchestration, discover_builtin_tools(), handle_function_call()
-├── toolsets.py           # Toolset definitions, _LIGHTNING_CORE_TOOLS list
-├── cli.py                # LightningCLI class — interactive CLI orchestrator (~11k LOC)
-├── lightning_state.py       # SessionDB — SQLite session store (FTS5 search)
-├── lightning_constants.py   # get_lightning_home(), display_lightning_home() — profile-aware paths
-├── lightning_logging.py     # setup_logging() — agent.log / errors.log / gateway.log (profile-aware)
+├── toolsets.py           # Toolset definitions, _SONIC_CORE_TOOLS list
+├── cli.py                # SonicCLI class — interactive CLI orchestrator (~11k LOC)
+├── sonic_state.py       # SessionDB — SQLite session store (FTS5 search)
+├── sonic_constants.py   # get_sonic_home(), display_sonic_home() — profile-aware paths
+├── sonic_logging.py     # setup_logging() — agent.log / errors.log / gateway.log (profile-aware)
 ├── batch_runner.py       # Parallel batch processing
 ├── agent/                # Agent internals (provider adapters, memory, caching, compression, etc.)
-├── lightning_cli/           # CLI subcommands, setup wizard, plugins loader, skin engine
+├── sonic_cli/           # CLI subcommands, setup wizard, plugins loader, skin engine
 ├── tools/                # Tool implementations — auto-discovered via tools/registry.py
 │   └── environments/     # Terminal backends (local, docker, ssh, modal, daytona, singularity)
 ├── gateway/              # Messaging gateway — run.py + session.py + platforms/
@@ -44,14 +44,14 @@ lightning-agent/
 │   ├── context_engine/   # Context-engine plugins
 │   ├── model-providers/  # Inference backend plugins (openrouter, anthropic, gmi, ...)
 │   ├── kanban/           # Multi-agent board dispatcher + worker plugin
-│   ├── lightning-achievements/  # Gamified achievement tracking
+│   ├── sonic-achievements/  # Gamified achievement tracking
 │   ├── observability/    # Metrics / traces / logs plugin
 │   ├── image_gen/        # Image-generation providers
 │   └── <others>/         # disk-cleanup, example-dashboard, google_meet, platforms,
 │                         #   spotify, strike-freedom-cockpit, ...
 ├── optional-skills/      # Heavier/niche skills shipped but NOT active by default
 ├── skills/               # Built-in skills bundled with the repo
-├── ui-tui/               # Ink (React) terminal UI — `lightning --tui`
+├── ui-tui/               # Ink (React) terminal UI — `sonic --tui`
 │   └── src/              # entry.tsx, app.tsx, gatewayClient.ts + app/components/hooks/lib
 ├── tui_gateway/          # Python JSON-RPC backend for the TUI
 ├── acp_adapter/          # ACP server (VS Code / Zed / JetBrains integration)
@@ -61,10 +61,10 @@ lightning-agent/
 └── tests/                # Pytest suite (~17k tests across ~900 files as of May 2026)
 ```
 
-**User config:** `~/.lightning/config.yaml` (settings), `~/.lightning/.env` (API keys only).
-**Logs:** `~/.lightning/logs/` — `agent.log` (INFO+), `errors.log` (WARNING+),
-`gateway.log` when running the gateway. Profile-aware via `get_lightning_home()`.
-Browse with `lightning logs [--follow] [--level ...] [--session ...]`.
+**User config:** `~/.sonic/config.yaml` (settings), `~/.sonic/.env` (API keys only).
+**Logs:** `~/.sonic/logs/` — `agent.log` (INFO+), `errors.log` (WARNING+),
+`gateway.log` when running the gateway. Profile-aware via `get_sonic_home()`.
+Browse with `sonic logs [--follow] [--level ...] [--session ...]`.
 
 ## File Dependency Chain
 
@@ -145,11 +145,11 @@ Reasoning content is stored in `assistant_msg["reasoning"]`.
 - **Rich** for banner/panels, **prompt_toolkit** for input with autocomplete
 - **KawaiiSpinner** (`agent/display.py`) — animated faces during API calls, `┊` activity feed for tool results
 - `load_cli_config()` in cli.py merges hardcoded defaults + user config YAML
-- **Skin engine** (`lightning_cli/skin_engine.py`) — data-driven CLI theming; initialized from `display.skin` config key at startup; skins customize banner colors, spinner faces/verbs/wings, tool prefix, response box, branding text
-- `process_command()` is a method on `LightningCLI` — dispatches on canonical command name resolved via `resolve_command()` from the central registry
-- Skill slash commands: `agent/skill_commands.py` scans `~/.lightning/skills/`, injects as **user message** (not system prompt) to preserve prompt caching
+- **Skin engine** (`sonic_cli/skin_engine.py`) — data-driven CLI theming; initialized from `display.skin` config key at startup; skins customize banner colors, spinner faces/verbs/wings, tool prefix, response box, branding text
+- `process_command()` is a method on `SonicCLI` — dispatches on canonical command name resolved via `resolve_command()` from the central registry
+- Skill slash commands: `agent/skill_commands.py` scans `~/.sonic/skills/`, injects as **user message** (not system prompt) to preserve prompt caching
 
-### Slash Command Registry (`lightning_cli/commands.py`)
+### Slash Command Registry (`sonic_cli/commands.py`)
 
 All slash commands are defined in a central `COMMAND_REGISTRY` list of `CommandDef` objects. Every downstream consumer derives from this registry automatically:
 
@@ -157,18 +157,18 @@ All slash commands are defined in a central `COMMAND_REGISTRY` list of `CommandD
 - **Gateway** — `GATEWAY_KNOWN_COMMANDS` frozenset for hook emission, `resolve_command()` for dispatch
 - **Gateway help** — `gateway_help_lines()` generates `/help` output
 - **Telegram** — `telegram_bot_commands()` generates the BotCommand menu
-- **Slack** — `slack_subcommand_map()` generates `/lightning` subcommand routing
+- **Slack** — `slack_subcommand_map()` generates `/sonic` subcommand routing
 - **Autocomplete** — `COMMANDS` flat dict feeds `SlashCommandCompleter`
 - **CLI help** — `COMMANDS_BY_CATEGORY` dict feeds `show_help()`
 
 ### Adding a Slash Command
 
-1. Add a `CommandDef` entry to `COMMAND_REGISTRY` in `lightning_cli/commands.py`:
+1. Add a `CommandDef` entry to `COMMAND_REGISTRY` in `sonic_cli/commands.py`:
 ```python
 CommandDef("mycommand", "Description of what it does", "Session",
            aliases=("mc",), args_hint="[arg]"),
 ```
-2. Add handler in `LightningCLI.process_command()` in `cli.py`:
+2. Add handler in `SonicCLI.process_command()` in `cli.py`:
 ```python
 elif canonical == "mycommand":
     self._handle_mycommand(cmd_original)
@@ -196,12 +196,12 @@ if canonical == "mycommand":
 
 ## TUI Architecture (ui-tui + tui_gateway)
 
-The TUI is a full replacement for the classic (prompt_toolkit) CLI, activated via `lightning --tui` or `LIGHTNING_TUI=1`.
+The TUI is a full replacement for the classic (prompt_toolkit) CLI, activated via `sonic --tui` or `SONIC_TUI=1`.
 
 ### Process Model
 
 ```
-lightning --tui
+sonic --tui
   └─ Node (Ink)  ──stdio JSON-RPC──  Python (tui_gateway)
        │                                  └─ AIAgent + tools + sessions
        └─ renders transcript, composer, prompts, activity
@@ -236,25 +236,25 @@ Newline-delimited JSON-RPC over stdio. Requests from Ink, events from Python. Se
 ```bash
 cd ui-tui
 npm install       # first time
-npm run dev       # watch mode (rebuilds lightning-ink + tsx --watch)
+npm run dev       # watch mode (rebuilds sonic-ink + tsx --watch)
 npm start         # production
-npm run build     # full build (lightning-ink + tsc)
+npm run build     # full build (sonic-ink + tsc)
 npm run type-check # typecheck only (tsc --noEmit)
 npm run lint      # eslint
 npm run fmt       # prettier
 npm test          # vitest
 ```
 
-### TUI in the Dashboard (`lightning dashboard` → `/chat`)
+### TUI in the Dashboard (`sonic dashboard` → `/chat`)
 
-The dashboard embeds the real `lightning --tui` — **not** a rewrite.  See `lightning_cli/pty_bridge.py` + the `@app.websocket("/api/pty")` endpoint in `lightning_cli/web_server.py`.
+The dashboard embeds the real `sonic --tui` — **not** a rewrite.  See `sonic_cli/pty_bridge.py` + the `@app.websocket("/api/pty")` endpoint in `sonic_cli/web_server.py`.
 
 - Browser loads `web/src/pages/ChatPage.tsx`, which mounts xterm.js's `Terminal` with the WebGL renderer, `@xterm/addon-fit` for container-driven resize, and `@xterm/addon-unicode11` for modern wide-character widths.
 - `/api/pty?token=…` upgrades to a WebSocket; auth uses the same ephemeral `_SESSION_TOKEN` as REST, via query param (browsers can't set `Authorization` on WS upgrade).
-- The server spawns whatever `lightning --tui` would spawn, through `ptyprocess` (POSIX PTY — WSL works, native Windows does not).
+- The server spawns whatever `sonic --tui` would spawn, through `ptyprocess` (POSIX PTY — WSL works, native Windows does not).
 - Frames: raw PTY bytes each direction; resize via `\x1b[RESIZE:<cols>;<rows>]` intercepted on the server and applied with `TIOCSWINSZ`.
 
-**Do not re-implement the primary chat experience in React.** The main transcript, composer/input flow (including slash-command behavior), and PTY-backed terminal belong to the embedded `lightning --tui` — anything new you add to Ink shows up in the dashboard automatically. If you find yourself rebuilding the transcript or composer for the dashboard, stop and extend Ink instead.
+**Do not re-implement the primary chat experience in React.** The main transcript, composer/input flow (including slash-command behavior), and PTY-backed terminal belong to the embedded `sonic --tui` — anything new you add to Ink shows up in the dashboard automatically. If you find yourself rebuilding the transcript or composer for the dashboard, stop and extend Ink instead.
 
 **Structured React UI around the TUI is allowed when it is not a second chat surface.** Sidebar widgets, inspectors, summaries, status panels, and similar supporting views (e.g. `ChatSidebar`, `ModelPickerDialog`, `ToolCall`) are fine when they complement the embedded TUI rather than replacing the transcript / composer / terminal. Keep their state independent of the PTY child's session and surface their failures non-destructively so the terminal pane keeps working unimpaired.
 
@@ -262,14 +262,14 @@ The dashboard embeds the real `lightning --tui` — **not** a rewrite.  See `lig
 
 ## Adding New Tools
 
-For most custom or local-only tools, do **not** edit Lightning core. Use the plugin
-route instead: create `~/.lightning/plugins/<name>/plugin.yaml` and
-`~/.lightning/plugins/<name>/__init__.py`, then register tools with
+For most custom or local-only tools, do **not** edit Sonic core. Use the plugin
+route instead: create `~/.sonic/plugins/<name>/plugin.yaml` and
+`~/.sonic/plugins/<name>/__init__.py`, then register tools with
 `ctx.register_tool(...)`. Plugin toolsets are discovered automatically and can be
 enabled or disabled without touching `tools/` or `toolsets.py`.
 
 Use the built-in route below only when the user is explicitly contributing a new
-core Lightning tool that should ship in the base system.
+core Sonic tool that should ship in the base system.
 
 Built-in/core tools require changes in **2 files**:
 
@@ -294,15 +294,15 @@ registry.register(
 )
 ```
 
-**2. Add to `toolsets.py`** — either `_LIGHTNING_CORE_TOOLS` (all platforms) or a new toolset. **This step is required:** auto-discovery imports the tool and registers its schema, but the tool is only *exposed to an agent* if its name appears in a toolset. `_LIGHTNING_CORE_TOOLS` is not dead code — it's the default bundle every platform's base toolset inherits from.
+**2. Add to `toolsets.py`** — either `_SONIC_CORE_TOOLS` (all platforms) or a new toolset. **This step is required:** auto-discovery imports the tool and registers its schema, but the tool is only *exposed to an agent* if its name appears in a toolset. `_SONIC_CORE_TOOLS` is not dead code — it's the default bundle every platform's base toolset inherits from.
 
 Auto-discovery: any `tools/*.py` file with a top-level `registry.register()` call is imported automatically — no manual import list to maintain. Wiring into a toolset is still a deliberate, manual step.
 
 The registry handles schema collection, dispatch, availability checking, and error wrapping. All handlers MUST return a JSON string.
 
-**Path references in tool schemas**: If the schema description mentions file paths (e.g. default output directories), use `display_lightning_home()` to make them profile-aware. The schema is generated at import time, which is after `_apply_profile_override()` sets `LIGHTNING_HOME`.
+**Path references in tool schemas**: If the schema description mentions file paths (e.g. default output directories), use `display_sonic_home()` to make them profile-aware. The schema is generated at import time, which is after `_apply_profile_override()` sets `SONIC_HOME`.
 
-**State files**: If a tool stores persistent state (caches, logs, checkpoints), use `get_lightning_home()` for the base directory — never `Path.home() / ".lightning"`. This ensures each profile gets its own state.
+**State files**: If a tool stores persistent state (caches, logs, checkpoints), use `get_sonic_home()` for the base directory — never `Path.home() / ".sonic"`. This ensures each profile gets its own state.
 
 **Agent-level tools** (todo, memory): intercepted by `run_agent.py` before `handle_function_call()`. See `tools/todo_tool.py` for the pattern.
 
@@ -334,7 +334,7 @@ Reference: #2810 (bounds pass), #9801 (SHA pinning + audit CI).
 ## Adding Configuration
 
 ### config.yaml options:
-1. Add to `DEFAULT_CONFIG` in `lightning_cli/config.py`
+1. Add to `DEFAULT_CONFIG` in `sonic_cli/config.py`
 2. Bump `_config_version` (check the current value at the top of `DEFAULT_CONFIG`)
    ONLY if you need to actively migrate/transform existing user config
    (renaming keys, changing structure). Adding a new key to an existing
@@ -358,7 +358,7 @@ its own provider/model/base_url/max_tokens/reasoning_effort. See
 `archive_after_days`, `backup` (nested).
 
 ### .env variables (SECRETS ONLY — API keys, tokens, passwords):
-1. Add to `OPTIONAL_ENV_VARS` in `lightning_cli/config.py` with metadata:
+1. Add to `OPTIONAL_ENV_VARS` in `sonic_cli/config.py` with metadata:
 ```python
 "NEW_API_KEY": {
     "description": "What it's for",
@@ -379,7 +379,7 @@ the env var in code (see `gateway_timeout`, `terminal.cwd` → `TERMINAL_CWD`).
 | Loader | Used by | Location |
 |--------|---------|----------|
 | `load_cli_config()` | CLI mode | `cli.py` — merges CLI-specific defaults + user YAML |
-| `load_config()` | `lightning tools`, `lightning setup`, most CLI subcommands | `lightning_cli/config.py` — merges `DEFAULT_CONFIG` + user YAML |
+| `load_config()` | `sonic tools`, `sonic setup`, most CLI subcommands | `sonic_cli/config.py` — merges `DEFAULT_CONFIG` + user YAML |
 | Direct YAML load | Gateway runtime | `gateway/run.py` + `gateway/config.py` — reads user YAML raw |
 
 If you add a new key and the CLI sees it but the gateway doesn't (or vice
@@ -397,13 +397,13 @@ versa), you're on the wrong loader. Check `DEFAULT_CONFIG` coverage.
 
 ## Skin/Theme System
 
-The skin engine (`lightning_cli/skin_engine.py`) provides data-driven CLI visual customization. Skins are **pure data** — no code changes needed to add a new skin.
+The skin engine (`sonic_cli/skin_engine.py`) provides data-driven CLI visual customization. Skins are **pure data** — no code changes needed to add a new skin.
 
 ### Architecture
 
 ```
-lightning_cli/skin_engine.py    # SkinConfig dataclass, built-in skins, YAML loader
-~/.lightning/skins/*.yaml       # User-installed custom skins (drop-in)
+sonic_cli/skin_engine.py    # SkinConfig dataclass, built-in skins, YAML loader
+~/.sonic/skins/*.yaml       # User-installed custom skins (drop-in)
 ```
 
 - `init_skin_from_config()` — called at CLI startup, reads `display.skin` from config
@@ -435,14 +435,14 @@ lightning_cli/skin_engine.py    # SkinConfig dataclass, built-in skins, YAML loa
 
 ### Built-in skins
 
-- `default` — Classic Lightning gold/kawaii (the current look)
+- `default` — Classic Sonic gold/kawaii (the current look)
 - `ares` — Crimson/bronze war-god theme with custom spinner wings
 - `mono` — Clean grayscale monochrome
 - `slate` — Cool blue developer-focused theme
 
 ### Adding a built-in skin
 
-Add to `_BUILTIN_SKINS` dict in `lightning_cli/skin_engine.py`:
+Add to `_BUILTIN_SKINS` dict in `sonic_cli/skin_engine.py`:
 
 ```python
 "mytheme": {
@@ -457,7 +457,7 @@ Add to `_BUILTIN_SKINS` dict in `lightning_cli/skin_engine.py`:
 
 ### User skins (YAML)
 
-Users create `~/.lightning/skins/<name>.yaml`:
+Users create `~/.sonic/skins/<name>.yaml`:
 
 ```yaml
 name: cyberpunk
@@ -486,13 +486,13 @@ Activate with `/skin cyberpunk` or `display.skin: cyberpunk` in config.yaml.
 
 ## Plugins
 
-Lightning has two plugin surfaces. Both live under `plugins/` in the repo so
+Sonic has two plugin surfaces. Both live under `plugins/` in the repo so
 repo-shipped plugins can be discovered alongside user-installed ones in
-`~/.lightning/plugins/` and pip-installed entry points.
+`~/.sonic/plugins/` and pip-installed entry points.
 
-### General plugins (`lightning_cli/plugins.py` + `plugins/<name>/`)
+### General plugins (`sonic_cli/plugins.py` + `plugins/<name>/`)
 
-`PluginManager` discovers plugins from `~/.lightning/plugins/`, `./.lightning/plugins/`,
+`PluginManager` discovers plugins from `~/.sonic/plugins/`, `./.sonic/plugins/`,
 and pip entry points. Each plugin exposes a `register(ctx)` function that
 can:
 
@@ -501,8 +501,8 @@ can:
   `on_session_start`, `on_session_end`
 - Register new tools via `ctx.register_tool(...)`
 - Register CLI subcommands via `ctx.register_cli_command(...)` — the
-  plugin's argparse tree is wired into `lightning` at startup so
-  `lightning <pluginname> <subcmd>` works with no change to `main.py`
+  plugin's argparse tree is wired into `sonic` at startup so
+  `sonic <pluginname> <subcmd>` works with no change to `main.py`
 
 Hooks are invoked from `model_tools.py` (pre/post tool) and `run_agent.py`
 (lifecycle). **Discovery timing pitfall:** `discover_plugins()` only runs
@@ -519,17 +519,17 @@ holographic, openviking, retaindb**.
 Each provider implements the `MemoryProvider` ABC (see `agent/memory_provider.py`)
 and is orchestrated by `agent/memory_manager.py`. Lifecycle hooks include
 `sync_turn(turn_messages)`, `prefetch(query)`, `shutdown()`, and optional
-`post_setup(lightning_home, config)` for setup-wizard integration.
+`post_setup(sonic_home, config)` for setup-wizard integration.
 
 **CLI commands via `plugins/memory/<name>/cli.py`:** if a memory plugin
 defines `register_cli(subparser)`, `discover_plugin_cli_commands()` finds
-it at argparse setup time and wires it into `lightning <plugin>`. The
+it at argparse setup time and wires it into `sonic <plugin>`. The
 framework only exposes CLI commands for the **currently active** memory
 provider (read from `memory.provider` in config.yaml), so disabled
-providers don't clutter `lightning --help`.
+providers don't clutter `sonic --help`.
 
 **Rule (Teknium, May 2026):** plugins MUST NOT modify core files
-(`run_agent.py`, `cli.py`, `gateway/run.py`, `lightning_cli/main.py`, etc.).
+(`run_agent.py`, `cli.py`, `gateway/run.py`, `sonic_cli/main.py`, etc.).
 If a plugin needs a capability the framework doesn't expose, expand the
 generic plugin surface (new hook, new ctx method) — never hardcode
 plugin-specific logic into core. PR #5295 removed 95 lines of hardcoded
@@ -538,9 +538,9 @@ honcho argparse from `main.py` for exactly this reason.
 **No new in-tree memory providers (policy, May 2026):** the set of
 built-in memory providers under `plugins/memory/` is closed. New memory
 backends must ship as **standalone plugin repos** that users install
-into `~/.lightning/plugins/` (or via pip entry points) — they implement
+into `~/.sonic/plugins/` (or via pip entry points) — they implement
 the same `MemoryProvider` ABC, register through the same discovery
-path, and integrate via `lightning memory setup` / `post_setup()` without
+path, and integrate via `sonic memory setup` / `post_setup()` without
 landing in this tree. PRs that add a new directory under
 `plugins/memory/` will be closed with a pointer to publish the
 provider as its own repo. Existing in-tree providers stay; bug fixes
@@ -557,7 +557,7 @@ discovery system** — scanned on first `get_provider_profile()` or
 
 Scan order:
 1. Bundled: `<repo>/plugins/model-providers/<name>/`
-2. User: `$LIGHTNING_HOME/plugins/model-providers/<name>/`
+2. User: `$SONIC_HOME/plugins/model-providers/<name>/`
 3. Legacy: `<repo>/providers/<name>.py` (back-compat)
 
 User plugins of the same name override bundled ones — `register_provider()`
@@ -579,7 +579,7 @@ plug into `agent/context_engine.py`; image-gen providers into
 `agent/image_gen_provider.py`. Reference / docs-companion plugins
 (`example-dashboard`, `strike-freedom-cockpit`, `plugin-llm-example`,
 `plugin-llm-async-example`) live in the
-[`lightning-example-plugins`](https://github.com/NousResearch/lightning-example-plugins)
+[`sonic-example-plugins`](https://github.com/NousResearch/sonic-example-plugins)
 companion repo, not in this tree.
 
 ---
@@ -592,7 +592,7 @@ Two parallel surfaces:
   Organized by category directories (e.g. `skills/github/`, `skills/mlops/`).
 - **`optional-skills/`** — heavier or niche skills shipped with the repo but
   NOT active by default. Installed explicitly via
-  `lightning skills install official/<category>/<skill>`. Adapter lives in
+  `sonic skills install official/<category>/<skill>`. Adapter lives in
   `tools/skills_hub.py` (`OptionalSkillSource`). Categories include
   `autonomous-ai-agents`, `blockchain`, `communication`, `creative`,
   `devops`, `email`, `health`, `mcp`, `migration`, `mlops`, `productivity`,
@@ -605,13 +605,13 @@ niche skills belong in `optional-skills/`.
 
 Standard fields: `name`, `description`, `version`, `author`, `license`,
 `platforms` (OS-gating list: `[macos]`, `[linux, macos]`, ...),
-`metadata.lightning.tags`, `metadata.lightning.category`,
-`metadata.lightning.related_skills`, `metadata.lightning.config` (config.yaml
+`metadata.sonic.tags`, `metadata.sonic.category`,
+`metadata.sonic.related_skills`, `metadata.sonic.config` (config.yaml
 settings the skill needs — stored under `skills.config.<key>`, prompted
 during setup, injected at load time).
 
 Top-level `tags:` and `category:` are also accepted and mirrored from
-`metadata.lightning.*` by the loader.
+`metadata.sonic.*` by the loader.
 
 ### Skill authoring standards (HARDLINE)
 
@@ -633,7 +633,7 @@ violate them.
    assert len(m.group(1)) <= 60, len(m.group(1))
    ```
 
-2. **Tools referenced in SKILL.md prose must be native Lightning tools or
+2. **Tools referenced in SKILL.md prose must be native Sonic tools or
    MCP servers the skill explicitly expects.** When the skill needs a
    capability, point at the proper tool by name in backticks
    (`` `terminal` ``, `` `web_extract` ``, `` `read_file` ``,
@@ -659,9 +659,9 @@ violate them.
 
 4. **`author` credits the human contributor first.** For external
    contributions, the contributor's real name + GitHub handle goes
-   first; "Lightning Agent" is the secondary collaborator. If the
-   contributor's commit shows "Lightning Agent" as author (because they
-   used Lightning to draft the skill), replace it with their actual name
+   first; "Sonic Agent" is the secondary collaborator. If the
+   contributor's commit shows "Sonic Agent" as author (because they
+   used Sonic to draft the skill), replace it with their actual name
    — credit the human, not the tool.
 
 5. **SKILL.md body uses the modern section order.** `# <Skill> Skill`
@@ -689,7 +689,7 @@ violate them.
    skill's own block must be dropped during salvage.
 
 The full salvage / modernization checklist for external skill PRs
-lives in the `lightning-agent-dev` skill at
+lives in the `sonic-agent-dev` skill at
 `references/new-skill-pr-salvage.md` — load it before polishing
 contributor skill PRs.
 
@@ -699,7 +699,7 @@ contributor skill PRs.
 
 All toolsets are defined in `toolsets.py` as a single `TOOLSETS` dict.
 Each platform's adapter picks a base toolset (e.g. Telegram uses
-`"messaging"`); `_LIGHTNING_CORE_TOOLS` is the default bundle most
+`"messaging"`); `_SONIC_CORE_TOOLS` is the default bundle most
 platforms inherit from.
 
 Current toolset keys: `browser`, `clarify`, `code_execution`, `cronjob`,
@@ -708,7 +708,7 @@ Current toolset keys: `browser`, `clarify`, `code_execution`, `cronjob`,
 `messaging`, `moa`, `rl`, `safe`, `search`, `session_search`, `skills`,
 `spotify`, `terminal`, `todo`, `tts`, `video`, `vision`, `web`, `yuanbao`.
 
-Enable/disable per platform via `lightning tools` (the curses UI) or the
+Enable/disable per platform via `sonic tools` (the curses UI) or the
 `tools.<platform>.enabled` / `tools.<platform>.disabled` lists in
 `config.yaml`.
 
@@ -751,15 +751,15 @@ work that must outlive the current turn, use `cronjob` or
 
 Background skill-maintenance system that tracks usage on agent-created
 skills and auto-archives stale ones. Users never lose skills; archives
-go to `~/.lightning/skills/.archive/` and are restorable.
+go to `~/.sonic/skills/.archive/` and are restorable.
 
 - **Core:** `agent/curator.py` (review loop, auto-transitions, LLM review
   prompt) + `agent/curator_backup.py` (pre-run tar.gz snapshots).
-- **CLI:** `lightning_cli/curator.py` wires `lightning curator <verb>` where
+- **CLI:** `sonic_cli/curator.py` wires `sonic curator <verb>` where
   verbs are: `status`, `run`, `pause`, `resume`, `pin`, `unpin`,
   `archive`, `restore`, `prune`, `backup`, `rollback`.
 - **Telemetry:** `tools/skill_usage.py` owns the sidecar
-  `~/.lightning/skills/.usage.json` — per-skill `use_count`, `view_count`,
+  `~/.sonic/skills/.usage.json` — per-skill `use_count`, `view_count`,
   `patch_count`, `last_activity_at`, `state` (active / stale /
   archived), `pinned`.
 
@@ -784,7 +784,7 @@ Full user-facing docs: `website/docs/user-guide/features/curator.md`.
 ## Cron (scheduled jobs)
 
 `cron/jobs.py` (job store) + `cron/scheduler.py` (tick loop). Agents
-schedule jobs via the `cronjob` tool; users via `lightning cron <verb>`
+schedule jobs via the `cronjob` tool; users via `sonic cron <verb>`
 (`list`, `add`, `edit`, `pause`, `resume`, `run`, `remove`) or the
 `/cron` slash command.
 
@@ -806,7 +806,7 @@ Hardening invariants:
   cannot monopolize the scheduler.
 - Catchup window: half the job's period, clamped to 120s–2h.
 - Grace window: 120s for one-shot jobs whose fire time was missed.
-- File lock at `~/.lightning/cron/.tick.lock` prevents duplicate ticks
+- File lock at `~/.sonic/cron/.tick.lock` prevents duplicate ticks
   across processes.
 - Cron sessions pass `skip_memory=True` by default; memory providers
   intentionally do not run during cron.
@@ -820,12 +820,12 @@ main conversation's message-role alternation stays intact.
 ## Kanban (multi-agent work queue)
 
 Durable SQLite-backed board that lets multiple profiles / workers
-collaborate on shared tasks. Users drive it via `lightning kanban <verb>`;
+collaborate on shared tasks. Users drive it via `sonic kanban <verb>`;
 workers spawned by the dispatcher drive it via a dedicated `kanban_*`
 toolset so their schema footprint is zero when they're not inside a
 kanban task.
 
-- **CLI:** `lightning_cli/kanban.py` wires `lightning kanban` with verbs
+- **CLI:** `sonic_cli/kanban.py` wires `sonic kanban` with verbs
   `init`, `create`, `list` (alias `ls`), `show`, `assign`, `link`,
   `unlink`, `comment`, `complete`, `block`, `unblock`, `archive`,
   `tail`, plus less-commonly-used `watch`, `stats`, `runs`, `log`,
@@ -840,12 +840,12 @@ kanban task.
   assigned profiles. Runs **inside the gateway** by default via
   `kanban.dispatch_in_gateway: true`.
 - **Plugin assets:** `plugins/kanban/dashboard/` (web UI) +
-  `plugins/kanban/systemd/` (`lightning-kanban-dispatcher.service` for
+  `plugins/kanban/systemd/` (`sonic-kanban-dispatcher.service` for
   standalone dispatcher deployment).
 
 Isolation model:
 - **Board** is the hard boundary — workers are spawned with
-  `LIGHTNING_KANBAN_BOARD` pinned in their env so they can't see other
+  `SONIC_KANBAN_BOARD` pinned in their env so they can't see other
   boards.
 - **Tenant** is a soft namespace *within* a board — one specialist
   fleet can serve multiple businesses with workspace-path + memory-key
@@ -862,7 +862,7 @@ Full user-facing docs: `website/docs/user-guide/features/kanban.md`.
 
 ### Prompt Caching Must Not Break
 
-Lightning-Agent ensures caching remains valid throughout a conversation. **Do NOT implement changes that would:**
+Sonic-Agent ensures caching remains valid throughout a conversation. **Do NOT implement changes that would:**
 - Alter past context mid-conversation
 - Change toolsets mid-conversation
 - Reload memories or rebuild system prompts mid-conversation
@@ -879,7 +879,7 @@ invalidation. See `/skills install --now` for the canonical pattern.
 When `terminal(background=true, notify_on_complete=true)` is used, the gateway runs a watcher that
 detects process completion and triggers a new agent turn. Control verbosity of background process
 messages with `display.background_process_notifications`
-in config.yaml (or `LIGHTNING_BACKGROUND_NOTIFICATIONS` env var):
+in config.yaml (or `SONIC_BACKGROUND_NOTIFICATIONS` env var):
 
 - `all` — running-output updates + final message (default)
 - `result` — only the final completion message
@@ -890,46 +890,46 @@ in config.yaml (or `LIGHTNING_BACKGROUND_NOTIFICATIONS` env var):
 
 ## Profiles: Multi-Instance Support
 
-Lightning supports **profiles** — multiple fully isolated instances, each with its own
-`LIGHTNING_HOME` directory (config, API keys, memory, sessions, skills, gateway, etc.).
+Sonic supports **profiles** — multiple fully isolated instances, each with its own
+`SONIC_HOME` directory (config, API keys, memory, sessions, skills, gateway, etc.).
 
-The core mechanism: `_apply_profile_override()` in `lightning_cli/main.py` sets
-`LIGHTNING_HOME` before any module imports. All `get_lightning_home()` references
+The core mechanism: `_apply_profile_override()` in `sonic_cli/main.py` sets
+`SONIC_HOME` before any module imports. All `get_sonic_home()` references
 automatically scope to the active profile.
 
 ### Rules for profile-safe code
 
-1. **Use `get_lightning_home()` for all LIGHTNING_HOME paths.** Import from `lightning_constants`.
-   NEVER hardcode `~/.lightning` or `Path.home() / ".lightning"` in code that reads/writes state.
+1. **Use `get_sonic_home()` for all SONIC_HOME paths.** Import from `sonic_constants`.
+   NEVER hardcode `~/.sonic` or `Path.home() / ".sonic"` in code that reads/writes state.
    ```python
    # GOOD
-   from lightning_constants import get_lightning_home
-   config_path = get_lightning_home() / "config.yaml"
+   from sonic_constants import get_sonic_home
+   config_path = get_sonic_home() / "config.yaml"
 
    # BAD — breaks profiles
-   config_path = Path.home() / ".lightning" / "config.yaml"
+   config_path = Path.home() / ".sonic" / "config.yaml"
    ```
 
-2. **Use `display_lightning_home()` for user-facing messages.** Import from `lightning_constants`.
-   This returns `~/.lightning` for default or `~/.lightning/profiles/<name>` for profiles.
+2. **Use `display_sonic_home()` for user-facing messages.** Import from `sonic_constants`.
+   This returns `~/.sonic` for default or `~/.sonic/profiles/<name>` for profiles.
    ```python
    # GOOD
-   from lightning_constants import display_lightning_home
-   print(f"Config saved to {display_lightning_home()}/config.yaml")
+   from sonic_constants import display_sonic_home
+   print(f"Config saved to {display_sonic_home()}/config.yaml")
 
    # BAD — shows wrong path for profiles
-   print("Config saved to ~/.lightning/config.yaml")
+   print("Config saved to ~/.sonic/config.yaml")
    ```
 
-3. **Module-level constants are fine** — they cache `get_lightning_home()` at import time,
-   which is AFTER `_apply_profile_override()` sets the env var. Just use `get_lightning_home()`,
-   not `Path.home() / ".lightning"`.
+3. **Module-level constants are fine** — they cache `get_sonic_home()` at import time,
+   which is AFTER `_apply_profile_override()` sets the env var. Just use `get_sonic_home()`,
+   not `Path.home() / ".sonic"`.
 
-4. **Tests that mock `Path.home()` must also set `LIGHTNING_HOME`** — since code now uses
-   `get_lightning_home()` (reads env var), not `Path.home() / ".lightning"`:
+4. **Tests that mock `Path.home()` must also set `SONIC_HOME`** — since code now uses
+   `get_sonic_home()` (reads env var), not `Path.home() / ".sonic"`:
    ```python
    with patch.object(Path, "home", return_value=tmp_path), \
-        patch.dict(os.environ, {"LIGHTNING_HOME": str(tmp_path / ".lightning")}):
+        patch.dict(os.environ, {"SONIC_HOME": str(tmp_path / ".sonic")}):
        ...
    ```
 
@@ -939,24 +939,24 @@ automatically scope to the active profile.
    `disconnect()`/`stop()`. This prevents two profiles from using the same credential.
    See `gateway/platforms/telegram.py` for the canonical pattern.
 
-6. **Profile operations are HOME-anchored, not LIGHTNING_HOME-anchored** — `_get_profiles_root()`
-   returns `Path.home() / ".lightning" / "profiles"`, NOT `get_lightning_home() / "profiles"`.
-   This is intentional — it lets `lightning -p coder profile list` see all profiles regardless
+6. **Profile operations are HOME-anchored, not SONIC_HOME-anchored** — `_get_profiles_root()`
+   returns `Path.home() / ".sonic" / "profiles"`, NOT `get_sonic_home() / "profiles"`.
+   This is intentional — it lets `sonic -p coder profile list` see all profiles regardless
    of which one is active.
 
 ## Known Pitfalls
 
-### DO NOT hardcode `~/.lightning` paths
-Use `get_lightning_home()` from `lightning_constants` for code paths. Use `display_lightning_home()`
-for user-facing print/log messages. Hardcoding `~/.lightning` breaks profiles — each profile
-has its own `LIGHTNING_HOME` directory. This was the source of 5 bugs fixed in PR #3575.
+### DO NOT hardcode `~/.sonic` paths
+Use `get_sonic_home()` from `sonic_constants` for code paths. Use `display_sonic_home()`
+for user-facing print/log messages. Hardcoding `~/.sonic` breaks profiles — each profile
+has its own `SONIC_HOME` directory. This was the source of 5 bugs fixed in PR #3575.
 
 ### DO NOT introduce new `simple_term_menu` usage
-Existing call sites in `lightning_cli/main.py` remain for legacy fallback only;
+Existing call sites in `sonic_cli/main.py` remain for legacy fallback only;
 the preferred UI is curses (stdlib) because `simple_term_menu` has
 ghost-duplication rendering bugs in tmux/iTerm2 with arrow keys. New
-interactive menus must use `lightning_cli/curses_ui.py` — see
-`lightning_cli/tools_config.py` for the canonical pattern.
+interactive menus must use `sonic_cli/curses_ui.py` — see
+`sonic_cli/tools_config.py` for the canonical pattern.
 
 ### DO NOT use `\033[K` (ANSI erase-to-EOL) in spinner/display code
 Leaks as literal `?[K` text under `prompt_toolkit`'s `patch_stdout`. Use space-padding: `f"\r{line}{' ' * pad}"`.
@@ -989,21 +989,21 @@ red flag.
 ### Don't wire in dead code without E2E validation
 Unused code that was never shipped was dead for a reason. Before wiring an
 unused module into a live code path, E2E test the real resolution chain
-with actual imports (not mocks) against a temp `LIGHTNING_HOME`.
+with actual imports (not mocks) against a temp `SONIC_HOME`.
 
-### Tests must not write to `~/.lightning/`
-The `_isolate_lightning_home` autouse fixture in `tests/conftest.py` redirects `LIGHTNING_HOME` to a temp dir. Never hardcode `~/.lightning/` paths in tests.
+### Tests must not write to `~/.sonic/`
+The `_isolate_sonic_home` autouse fixture in `tests/conftest.py` redirects `SONIC_HOME` to a temp dir. Never hardcode `~/.sonic/` paths in tests.
 
 **Profile tests**: When testing profile features, also mock `Path.home()` so that
-`_get_profiles_root()` and `_get_default_lightning_home()` resolve within the temp dir.
-Use the pattern from `tests/lightning_cli/test_profiles.py`:
+`_get_profiles_root()` and `_get_default_sonic_home()` resolve within the temp dir.
+Use the pattern from `tests/sonic_cli/test_profiles.py`:
 ```python
 @pytest.fixture
 def profile_env(tmp_path, monkeypatch):
-    home = tmp_path / ".lightning"
+    home = tmp_path / ".sonic"
     home.mkdir()
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    monkeypatch.setenv("LIGHTNING_HOME", str(home))
+    monkeypatch.setenv("SONIC_HOME", str(home))
     return home
 ```
 
@@ -1044,7 +1044,7 @@ Implementation notes:
 - Pass `--no-isolate` to disable isolation — useful when debugging a single
   test interactively, or when you specifically want to verify state leakage.
 - The plugin disables itself in child processes (sentinel envvar
-  `LIGHTNING_ISOLATE_CHILD=1`), so there's no fork-bomb risk.
+  `SONIC_ISOLATE_CHILD=1`), so there's no fork-bomb risk.
 
 ### Why the wrapper (and why the old "just call pytest" doesn't work)
 
@@ -1053,7 +1053,7 @@ Five real sources of local-vs-CI drift the script closes:
 | | Without wrapper | With wrapper |
 |---|---|---|
 | Provider API keys | Whatever is in your env (auto-detects pool) | All `*_API_KEY`/`*_TOKEN`/etc. unset |
-| HOME / `~/.lightning/` | Your real config+auth.json | Temp dir per test |
+| HOME / `~/.sonic/` | Your real config+auth.json | Temp dir per test |
 | Timezone | Local TZ (PDT etc.) | UTC |
 | Locale | Whatever is set | C.UTF-8 |
 | xdist workers | `-n auto` = all cores | `-n auto` (safe — subprocess isolation prevents cross-worker flakes) |

@@ -56,9 +56,9 @@ class TestParseFrontmatterQuick:
         assert fm == {}
 
     def test_nested_yaml(self):
-        content = "---\nname: test\nmetadata:\n  lightning:\n    tags: [a, b]\n---\n\nBody.\n"
+        content = "---\nname: test\nmetadata:\n  sonic:\n    tags: [a, b]\n---\n\nBody.\n"
         fm = GitHubSource._parse_frontmatter_quick(content)
-        assert fm["metadata"]["lightning"]["tags"] == ["a", "b"]
+        assert fm["metadata"]["sonic"]["tags"] == ["a", "b"]
 
     def test_invalid_yaml_returns_empty(self):
         content = "---\n: : : invalid{{\n---\n\nBody.\n"
@@ -731,7 +731,7 @@ class TestUrlSource:
                 "name: sharethis-chat\n"
                 "description: Share agent conversations.\n"
                 "metadata:\n"
-                "  lightning:\n"
+                "  sonic:\n"
                 "    tags: [sharing, chat]\n"
                 "---\n\n# Body\n"
             ),

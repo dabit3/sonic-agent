@@ -44,7 +44,7 @@ IGNORED_PATTERNS = [
     re.compile(r"^GitHub\s*Actions?$", re.IGNORECASE),
     re.compile(r"^dependabot", re.IGNORECASE),
     re.compile(r"^renovate", re.IGNORECASE),
-    re.compile(r"^Lightning\s+(Agent|Audit)$", re.IGNORECASE),
+    re.compile(r"^Sonic\s+(Agent|Audit)$", re.IGNORECASE),
     re.compile(r"^Ubuntu$", re.IGNORECASE),
 ]
 
@@ -52,9 +52,9 @@ IGNORED_EMAILS = {
     "noreply@anthropic.com",
     "noreply@github.com",
     "cursoragent@cursor.com",
-    "lightning@nousresearch.com",
-    "lightning-audit@example.com",
-    "lightning@habibilabs.dev",
+    "sonic@nousresearch.com",
+    "sonic-audit@example.com",
+    "sonic@habibilabs.dev",
 }
 
 
@@ -96,7 +96,7 @@ def gh_pr_list():
         result = subprocess.run(
             [
                 "gh", "pr", "list",
-                "--repo", "NousResearch/lightning-agent",
+                "--repo", "dabit3/sonic-agent",
                 "--state", "merged",
                 "--json", "number,title,body,author,mergedAt",
                 "--limit", "300",

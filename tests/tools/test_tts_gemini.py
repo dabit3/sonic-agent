@@ -13,7 +13,7 @@ def clean_env(monkeypatch):
         "GEMINI_API_KEY",
         "GOOGLE_API_KEY",
         "GEMINI_BASE_URL",
-        "LIGHTNING_SESSION_PLATFORM",
+        "SONIC_SESSION_PLATFORM",
     ):
         monkeypatch.delenv(key, raising=False)
 

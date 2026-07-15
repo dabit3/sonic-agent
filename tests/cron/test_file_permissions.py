@@ -87,9 +87,9 @@ class TestConfigFilePermissions(unittest.TestCase):
 
     def test_save_config_sets_0600(self):
         config_path = Path(self.tmpdir) / "config.yaml"
-        with patch("lightning_cli.config.get_config_path", return_value=config_path), \
-             patch("lightning_cli.config.ensure_lightning_home"):
-            from lightning_cli.config import save_config
+        with patch("sonic_cli.config.get_config_path", return_value=config_path), \
+             patch("sonic_cli.config.ensure_sonic_home"):
+            from sonic_cli.config import save_config
             save_config({"model": "test/model"})
 
             file_mode = stat.S_IMODE(os.stat(config_path).st_mode)
@@ -97,19 +97,19 @@ class TestConfigFilePermissions(unittest.TestCase):
 
     def test_save_env_value_sets_0600(self):
         env_path = Path(self.tmpdir) / ".env"
-        with patch("lightning_cli.config.get_env_path", return_value=env_path), \
-             patch("lightning_cli.config.ensure_lightning_home"):
-            from lightning_cli.config import save_env_value
+        with patch("sonic_cli.config.get_env_path", return_value=env_path), \
+             patch("sonic_cli.config.ensure_sonic_home"):
+            from sonic_cli.config import save_env_value
             save_env_value("TEST_KEY", "test_value")
 
             file_mode = stat.S_IMODE(os.stat(env_path).st_mode)
             self.assertEqual(file_mode, 0o600)
 
-    def test_ensure_lightning_home_sets_0700(self):
-        home = Path(self.tmpdir) / ".lightning"
-        with patch("lightning_cli.config.get_lightning_home", return_value=home):
-            from lightning_cli.config import ensure_lightning_home
-            ensure_lightning_home()
+    def test_ensure_sonic_home_sets_0700(self):
+        home = Path(self.tmpdir) / ".sonic"
+        with patch("sonic_cli.config.get_sonic_home", return_value=home):
+            from sonic_cli.config import ensure_sonic_home
+            ensure_sonic_home()
 
             home_mode = stat.S_IMODE(os.stat(home).st_mode)
             self.assertEqual(home_mode, 0o700)

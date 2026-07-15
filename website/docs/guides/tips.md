@@ -1,12 +1,12 @@
 ---
 sidebar_position: 1
 title: "Tips & Best Practices"
-description: "Practical advice to get the most out of Lightning Agent — prompt tips, CLI shortcuts, context files, memory, cost optimization, and security"
+description: "Practical advice to get the most out of Sonic Agent — prompt tips, CLI shortcuts, context files, memory, cost optimization, and security"
 ---
 
 # Tips & Best Practices
 
-A quick-wins collection of practical tips that make you immediately more effective with Lightning Agent. Each section targets a different aspect — scan the headers and jump to what's relevant.
+A quick-wins collection of practical tips that make you immediately more effective with Sonic Agent. Each section targets a different aspect — scan the headers and jump to what's relevant.
 
 ---
 
@@ -48,7 +48,7 @@ Press **Ctrl+C** once to interrupt the agent mid-response. You can then type a n
 
 ### Resume Sessions with `-c`
 
-Forgot something from your last session? Run `lightning -c` to resume exactly where you left off, with full conversation history restored. You can also resume by title: `lightning -r "my research project"`.
+Forgot something from your last session? Run `sonic -c` to resume exactly where you left off, with full conversation history restored. You can also resume by title: `sonic -r "my research project"`.
 
 ### Clipboard Image Paste
 
@@ -78,9 +78,9 @@ Create an `AGENTS.md` in your project root with architecture decisions, coding c
 
 ### SOUL.md: Customize Personality
 
-Want Lightning to have a stable default voice? Edit `~/.lightning/SOUL.md` (or `$LIGHTNING_HOME/SOUL.md` if you use a custom Lightning home). Lightning now seeds a starter SOUL automatically and uses that global file as the instance-wide personality source.
+Want Sonic to have a stable default voice? Edit `~/.sonic/SOUL.md` (or `$SONIC_HOME/SOUL.md` if you use a custom Sonic home). Sonic now seeds a starter SOUL automatically and uses that global file as the instance-wide personality source.
 
-For a full walkthrough, see [Use SOUL.md with Lightning](/docs/guides/use-soul-with-lightning).
+For a full walkthrough, see [Use SOUL.md with Sonic](/docs/guides/use-soul-with-sonic).
 
 ```markdown
 # Soul
@@ -93,11 +93,11 @@ Use `SOUL.md` for durable personality. Use `AGENTS.md` for project-specific inst
 
 ### .cursorrules Compatibility
 
-Already have a `.cursorrules` or `.cursor/rules/*.mdc` file? Lightning reads those too. No need to duplicate your coding conventions — they're loaded automatically from the working directory.
+Already have a `.cursorrules` or `.cursor/rules/*.mdc` file? Sonic reads those too. No need to duplicate your coding conventions — they're loaded automatically from the working directory.
 
 ### Discovery
 
-Lightning loads the top-level `AGENTS.md` from the current working directory at session start. Subdirectory `AGENTS.md` files are discovered lazily during tool calls (via `subdirectory_hints.py`) and injected into tool results — they are not loaded upfront into the system prompt.
+Sonic loads the top-level `AGENTS.md` from the current working directory at session start. Subdirectory `AGENTS.md` files are discovered lazily during tool calls (via `subdirectory_hints.py`) and injected into tool results — they are not loaded upfront into the system prompt.
 
 :::tip
 Keep context files focused and concise. Every character counts against your token budget since they're injected into every single message.
@@ -159,18 +159,18 @@ Use `/sethome` in your preferred Telegram or Discord chat to designate it as the
 
 ### Use /title to Organize Sessions
 
-Name your sessions with `/title auth-refactor` or `/title research-llm-quantization`. Named sessions are easy to find with `lightning sessions list` and resume with `lightning -r "auth-refactor"`. Unnamed sessions pile up and become impossible to distinguish.
+Name your sessions with `/title auth-refactor` or `/title research-llm-quantization`. Named sessions are easy to find with `sonic sessions list` and resume with `sonic -r "auth-refactor"`. Unnamed sessions pile up and become impossible to distinguish.
 
 ### DM Pairing for Team Access
 
-Instead of manually collecting user IDs for allowlists, enable DM pairing. When a teammate DMs the bot, they get a one-time pairing code. You approve it with `lightning pairing approve telegram XKGH5N7P` — simple and secure.
+Instead of manually collecting user IDs for allowlists, enable DM pairing. When a teammate DMs the bot, they get a one-time pairing code. You approve it with `sonic pairing approve telegram XKGH5N7P` — simple and secure.
 
 ### Tool Progress Display Modes
 
 Use `/verbose` to control how much tool activity you see. In messaging platforms, less is usually more — keep it on "new" to see just new tool calls. In the CLI, "all" gives you a satisfying live view of everything the agent does.
 
 :::tip
-On messaging platforms, sessions auto-reset after idle time (default: 24 hours) or daily at 4 AM. Adjust per-platform in `~/.lightning/config.yaml` if you need longer sessions.
+On messaging platforms, sessions auto-reset after idle time (default: 24 hours) or daily at 4 AM. Adjust per-platform in `~/.sonic/config.yaml` if you need longer sessions.
 :::
 
 ## Security
@@ -182,7 +182,7 @@ When working with untrusted repositories or running unfamiliar code, use Docker 
 ```bash
 # In your .env:
 TERMINAL_BACKEND=docker
-TERMINAL_DOCKER_IMAGE=lightning-sandbox:latest
+TERMINAL_DOCKER_IMAGE=sonic-sandbox:latest
 ```
 
 ### Avoid Windows Encoding Pitfalls
@@ -210,7 +210,7 @@ When the agent triggers a dangerous command approval (`rm -rf`, `DROP TABLE`, et
 
 ### Command Approval Is Your Safety Net
 
-Lightning checks every command against a curated list of dangerous patterns before execution. This includes recursive deletes, SQL drops, piping curl to shell, and more. Don't disable this in production — it exists for good reasons.
+Sonic checks every command against a curated list of dangerous patterns before execution. This includes recursive deletes, SQL drops, piping curl to shell, and more. Don't disable this in production — it exists for good reasons.
 
 :::warning
 When running in a container backend (Docker, Singularity, Modal, Daytona), dangerous command checks are **skipped** because the container is the security boundary. Make sure your container images are properly locked down.

@@ -3,8 +3,8 @@ import { homedir } from 'node:os'
 import { join } from 'node:path'
 
 const MAX = 1000
-const dir = process.env.LIGHTNING_HOME ?? join(homedir(), '.lightning')
-const file = join(dir, '.lightning_history')
+const dir = process.env.SONIC_HOME ?? join(homedir(), '.sonic')
+const file = join(dir, '.sonic_history')
 
 let cache: string[] | null = null
 

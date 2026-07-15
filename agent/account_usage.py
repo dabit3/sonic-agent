@@ -7,8 +7,8 @@ from typing import Any, Optional
 import httpx
 
 from agent.anthropic_adapter import _is_oauth_token, resolve_anthropic_token
-from lightning_cli.auth import _read_codex_tokens, resolve_codex_runtime_credentials
-from lightning_cli.runtime_provider import resolve_runtime_provider
+from sonic_cli.auth import _read_codex_tokens, resolve_codex_runtime_credentials
+from sonic_cli.runtime_provider import resolve_runtime_provider
 
 
 def _utc_now() -> datetime:

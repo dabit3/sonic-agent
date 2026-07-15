@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "Tools & Toolsets"
-description: "Overview of Lightning Agent's tools — what's available, how toolsets work, and terminal backends"
+description: "Overview of Sonic Agent's tools — what's available, how toolsets work, and terminal backends"
 ---
 
 # Tools & Toolsets
@@ -10,7 +10,7 @@ Tools are functions that extend the agent's capabilities. They're organized into
 
 ## Available Tools
 
-Lightning ships with a broad built-in tool registry covering web search, browser automation, terminal execution, file editing, memory, delegation, RL training, messaging delivery, Home Assistant, and more.
+Sonic ships with a broad built-in tool registry covering web search, browser automation, terminal execution, file editing, memory, delegation, RL training, messaging delivery, Home Assistant, and more.
 
 :::note
 **Honcho cross-session memory** is available as a memory provider plugin (`plugins/memory/honcho/`), not as a built-in toolset. See [Plugins](./plugins.md) for installation.
@@ -21,10 +21,10 @@ High-level categories:
 | Category | Examples | Description |
 |----------|----------|-------------|
 | **Web** | `web_search`, `web_extract` | Search the web and extract page content. |
-| **X Search** | `x_search` | Search X (Twitter) posts and threads via xAI's built-in `x_search` Responses tool — gated on xAI credentials (SuperGrok OAuth or `XAI_API_KEY`); off by default, opt in via `lightning tools` → 🐦 X (Twitter) Search. |
+| **X Search** | `x_search` | Search X (Twitter) posts and threads via xAI's built-in `x_search` Responses tool — gated on xAI credentials (SuperGrok OAuth or `XAI_API_KEY`); off by default, opt in via `sonic tools` → 🐦 X (Twitter) Search. |
 | **Terminal & Files** | `terminal`, `process`, `read_file`, `patch` | Execute commands and manipulate files. |
 | **Browser** | `browser_navigate`, `browser_snapshot`, `browser_vision` | Interactive browser automation with text and vision support. |
-| **Media** | `vision_analyze`, `image_generate`, `video_generate`, `video_analyze`, `text_to_speech` | Multimodal analysis and generation. `video_generate` and `video_analyze` are opt-in (add `video_gen` / `video` toolsets via `lightning tools` or `--toolsets`). |
+| **Media** | `vision_analyze`, `image_generate`, `video_generate`, `video_analyze`, `text_to_speech` | Multimodal analysis and generation. `video_generate` and `video_analyze` are opt-in (add `video_gen` / `video` toolsets via `sonic tools` or `--toolsets`). |
 | **Agent orchestration** | `todo`, `clarify`, `execute_code`, `delegate_task` | Planning, clarification, code execution, and subagent delegation. |
 | **Memory & recall** | `memory`, `session_search` | Persistent memory and session search. |
 | **Automation & delivery** | `cronjob`, `send_message` | Scheduled tasks with create/list/update/pause/resume/run/remove actions, plus outbound messaging delivery. |
@@ -33,25 +33,25 @@ High-level categories:
 For the authoritative code-derived registry, see [Built-in Tools Reference](/docs/reference/tools-reference) and [Toolsets Reference](/docs/reference/toolsets-reference).
 
 :::tip Nous Tool Gateway
-Paid [Nous Portal](https://portal.nousresearch.com) subscribers can use web search, image generation, TTS, and browser automation through the **[Tool Gateway](tool-gateway.md)** — no separate API keys needed. Run `lightning model` to enable it, or configure individual tools with `lightning tools`.
+Paid [Nous Portal](https://portal.nousresearch.com) subscribers can use web search, image generation, TTS, and browser automation through the **[Tool Gateway](tool-gateway.md)** — no separate API keys needed. Run `sonic model` to enable it, or configure individual tools with `sonic tools`.
 :::
 
 ## Using Toolsets
 
 ```bash
 # Use specific toolsets
-lightning chat --toolsets "web,terminal"
+sonic chat --toolsets "web,terminal"
 
 # See all available tools
-lightning tools
+sonic tools
 
 # Configure tools per platform (interactive)
-lightning tools
+sonic tools
 ```
 
 Common toolsets include `web`, `search`, `terminal`, `file`, `browser`, `vision`, `image_gen`, `moa`, `skills`, `tts`, `todo`, `memory`, `session_search`, `cronjob`, `code_execution`, `delegation`, `clarify`, `homeassistant`, `messaging`, `spotify`, `discord`, `discord_admin`, `debugging`, `safe`, and `rl`.
 
-See [Toolsets Reference](/docs/reference/toolsets-reference) for the full set, including platform presets such as `lightning-cli`, `lightning-telegram`, and dynamic MCP toolsets like `mcp-<server>`.
+See [Toolsets Reference](/docs/reference/toolsets-reference) for the full set, including platform presets such as `sonic-cli`, `sonic-telegram`, and dynamic MCP toolsets like `mcp-<server>`.
 
 ## Terminal Backends
 
@@ -70,7 +70,7 @@ The terminal tool can execute commands in different environments:
 ### Configuration
 
 ```yaml
-# In ~/.lightning/config.yaml
+# In ~/.sonic/config.yaml
 terminal:
   backend: local    # or: docker, ssh, singularity, modal, daytona, vercel_sandbox
   cwd: "."          # Working directory
@@ -85,9 +85,9 @@ terminal:
   docker_image: python:3.11-slim
 ```
 
-**One persistent container, shared across the whole process.** Lightning starts a single long-lived container on first use (`docker run -d ... sleep 2h`) and routes every terminal, file, and `execute_code` call through `docker exec` into that same container. Working-directory changes, installed packages, environment tweaks, and files written to `/workspace` all carry over from one tool call to the next, across `/new`, `/reset`, and `delegate_task` subagents, for the lifetime of the Lightning process. The container is stopped and removed on shutdown.
+**One persistent container, shared across the whole process.** Sonic starts a single long-lived container on first use (`docker run -d ... sleep 2h`) and routes every terminal, file, and `execute_code` call through `docker exec` into that same container. Working-directory changes, installed packages, environment tweaks, and files written to `/workspace` all carry over from one tool call to the next, across `/new`, `/reset`, and `delegate_task` subagents, for the lifetime of the Sonic process. The container is stopped and removed on shutdown.
 
-This means the Docker backend behaves like a persistent sandbox VM, not a fresh container per command. If you `pip install foo` once, it's there for the rest of the session. If you `cd /workspace/project`, subsequent `ls` calls see that directory. See [Configuration → Docker Backend](../configuration.md#docker-backend) for the full lifecycle details and the `container_persistent` flag that controls whether `/workspace` and `/root` survive across Lightning restarts.
+This means the Docker backend behaves like a persistent sandbox VM, not a fresh container per command. If you `pip install foo` once, it's there for the rest of the session. If you `cd /workspace/project`, subsequent `ls` calls see that directory. See [Configuration → Docker Backend](../configuration.md#docker-backend) for the full lifecycle details and the `container_persistent` flag that controls whether `/workspace` and `/root` survive across Sonic restarts.
 
 ### SSH Backend
 
@@ -98,7 +98,7 @@ terminal:
   backend: ssh
 ```
 ```bash
-# Set credentials in ~/.lightning/.env
+# Set credentials in ~/.sonic/.env
 TERMINAL_SSH_HOST=my-server.example.com
 TERMINAL_SSH_USER=myuser
 TERMINAL_SSH_KEY=~/.ssh/id_rsa
@@ -111,8 +111,8 @@ TERMINAL_SSH_KEY=~/.ssh/id_rsa
 apptainer build ~/python.sif docker://python:3.11-slim
 
 # Configure
-lightning config set terminal.backend singularity
-lightning config set terminal.singularity_image ~/python.sif
+sonic config set terminal.backend singularity
+sonic config set terminal.singularity_image ~/python.sif
 ```
 
 ### Modal (Serverless Cloud)
@@ -120,34 +120,34 @@ lightning config set terminal.singularity_image ~/python.sif
 ```bash
 uv pip install modal
 modal setup
-lightning config set terminal.backend modal
+sonic config set terminal.backend modal
 ```
 
 ### Vercel Sandbox
 
 ```bash
-pip install 'lightning-agent[vercel]'
-lightning config set terminal.backend vercel_sandbox
-lightning config set terminal.vercel_runtime node24
+pip install 'sonic-agent[vercel]'
+sonic config set terminal.backend vercel_sandbox
+sonic config set terminal.vercel_runtime node24
 ```
 
-Authenticate with all three of `VERCEL_TOKEN`, `VERCEL_PROJECT_ID`, and `VERCEL_TEAM_ID`. This access-token setup is the supported path for deployments and normal long-running Lightning processes on Render, Railway, Docker, and similar hosts. Supported runtimes are `node24`, `node22`, and `python3.13`; Lightning defaults to `/vercel/sandbox` as the remote workspace root.
+Authenticate with all three of `VERCEL_TOKEN`, `VERCEL_PROJECT_ID`, and `VERCEL_TEAM_ID`. This access-token setup is the supported path for deployments and normal long-running Sonic processes on Render, Railway, Docker, and similar hosts. Supported runtimes are `node24`, `node22`, and `python3.13`; Sonic defaults to `/vercel/sandbox` as the remote workspace root.
 
-For one-off local development, Lightning also accepts short-lived Vercel OIDC tokens:
+For one-off local development, Sonic also accepts short-lived Vercel OIDC tokens:
 
 ```bash
-VERCEL_OIDC_TOKEN="$(vc project token <project-name>)" lightning chat
+VERCEL_OIDC_TOKEN="$(vc project token <project-name>)" sonic chat
 ```
 
 From a linked Vercel project directory:
 
 ```bash
-VERCEL_OIDC_TOKEN="$(vc project token)" lightning chat
+VERCEL_OIDC_TOKEN="$(vc project token)" sonic chat
 ```
 
-With `container_persistent: true`, Lightning uses Vercel snapshots to preserve filesystem state across sandbox recreation for the same task. This can include Lightning-synced credentials, skills, and cache files inside the sandbox. Snapshots do not preserve live processes, PID space, or the same live sandbox identity.
+With `container_persistent: true`, Sonic uses Vercel snapshots to preserve filesystem state across sandbox recreation for the same task. This can include Sonic-synced credentials, skills, and cache files inside the sandbox. Snapshots do not preserve live processes, PID space, or the same live sandbox identity.
 
-Background terminal commands use Lightning' generic non-local process flow: spawn, poll, wait, log, and kill work through the normal process tool while the sandbox is alive, but Lightning does not provide native Vercel detached-process recovery after cleanup or restart.
+Background terminal commands use Sonic' generic non-local process flow: spawn, poll, wait, log, and kill work through the normal process tool while the sandbox is alive, but Sonic does not provide native Vercel detached-process recovery after cleanup or restart.
 
 Leave `container_disk` unset or at the shared default `51200`; custom disk sizing is unsupported for Vercel Sandbox and will fail diagnostics/backend creation.
 
@@ -200,8 +200,8 @@ PTY mode (`pty=true`) enables interactive CLI tools like Codex and Claude Code.
 
 ## Sudo Support
 
-If a command needs sudo, you'll be prompted for your password (cached for the session). Or set `SUDO_PASSWORD` in `~/.lightning/.env`.
+If a command needs sudo, you'll be prompted for your password (cached for the session). Or set `SUDO_PASSWORD` in `~/.sonic/.env`.
 
 :::warning
-On messaging platforms, if sudo fails, the output includes a tip to add `SUDO_PASSWORD` to `~/.lightning/.env`.
+On messaging platforms, if sudo fails, the output includes a tip to add `SUDO_PASSWORD` to `~/.sonic/.env`.
 :::

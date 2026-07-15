@@ -17,14 +17,14 @@ palettes (hardware and artistic). Values are reproduced verbatim from
 
 **`scripts/pixel_art_video.py`** — the 12 procedural animation init/draw pairs
 (`stars`, `fireflies`, `leaves`, `dust_motes`, `sparkles`, `rain`,
-`lightning`, `bubbles`, `embers`, `snowflakes`, `neon_pulse`, `heat_shimmer`)
+`sonic`, `bubbles`, `embers`, `snowflakes`, `neon_pulse`, `heat_shimmer`)
 and the `SCENES` → layer mapping. Ported from `scripts/pixelart_video.py`
 with minor refactors:
 - Names prefixed with `_` for private helpers (`_px`, `_pixel_cross`)
 - `SCENE_ANIMATIONS` renamed to `SCENES` and restructured to hold layer
   names (strings) instead of function-name strings resolved via `globals()`
 - `generate_video()` split: the Pollinations text-to-image call was removed
-  (Lightning uses its own `image_generate` + `pixel_art()` pipeline for base
+  (Sonic uses its own `image_generate` + `pixel_art()` pipeline for base
   frames). Only the overlay + ffmpeg encoding remains.
 - Frame directory is now a `tempfile.TemporaryDirectory` instead of
   hand-managed cleanup.
@@ -37,7 +37,7 @@ with minor refactors:
 - Sobel edge-aware downsampling (requires scipy; not worth the dep)
 - Bayer / Atkinson dither (would need numpy reimplementation; kept scope tight)
 - Pollinations text-to-image generation (`pixelart_image.py`,
-  `generate_base()` in `pixelart_video.py`) — Lightning has `image_generate`
+  `generate_base()` in `pixelart_video.py`) — Sonic has `image_generate`
 
 ### License compatibility
 
@@ -49,6 +49,6 @@ and in the SKILL.md credits block. No code was relicensed.
 
 ## pixel-art skill itself
 
-- License: MIT (inherits from lightning-agent repo)
+- License: MIT (inherits from sonic-agent repo)
 - Original author of the skill shell: dodo-reach
-- Expansion with palettes + video: Lightning Agent contributors
+- Expansion with palettes + video: Sonic Agent contributors

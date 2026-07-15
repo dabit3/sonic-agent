@@ -1,64 +1,64 @@
 ---
 sidebar_position: 8
 title: "Open WebUI"
-description: "Connect Open WebUI to Lightning Agent via the OpenAI-compatible API server"
+description: "Connect Open WebUI to Sonic Agent via the OpenAI-compatible API server"
 ---
 
 # Open WebUI Integration
 
-[Open WebUI](https://github.com/open-webui/open-webui) (126k★) is the most popular self-hosted chat interface for AI. With Lightning Agent's built-in API server, you can use Open WebUI as a polished web frontend for your agent — complete with conversation management, user accounts, and a modern chat interface.
+[Open WebUI](https://github.com/open-webui/open-webui) (126k★) is the most popular self-hosted chat interface for AI. With Sonic Agent's built-in API server, you can use Open WebUI as a polished web frontend for your agent — complete with conversation management, user accounts, and a modern chat interface.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
     A["Open WebUI<br/>browser UI<br/>port 3000"]
-    B["lightning-agent<br/>gateway API server<br/>port 8642"]
+    B["sonic-agent<br/>gateway API server<br/>port 8642"]
     A -->|POST /v1/chat/completions| B
     B -->|SSE streaming response| A
 ```
 
-Open WebUI connects to Lightning Agent's API server just like it would connect to OpenAI. Lightning handles the requests with its full toolset — terminal, file operations, web search, memory, skills — and returns the final response.
+Open WebUI connects to Sonic Agent's API server just like it would connect to OpenAI. Sonic handles the requests with its full toolset — terminal, file operations, web search, memory, skills — and returns the final response.
 
 :::important Runtime location
-The API server is a **Lightning agent runtime**, not a pure LLM proxy. For each request, Lightning creates a server-side `AIAgent` on the API-server host. Tool calls run where that API server is running.
+The API server is a **Sonic agent runtime**, not a pure LLM proxy. For each request, Sonic creates a server-side `AIAgent` on the API-server host. Tool calls run where that API server is running.
 
-For example, if a laptop points Open WebUI or another OpenAI-compatible client at a Lightning API server on a remote machine, `pwd`, file tools, browser tools, local MCP tools, and other workspace tools run on the remote API-server host, not on the laptop.
+For example, if a laptop points Open WebUI or another OpenAI-compatible client at a Sonic API server on a remote machine, `pwd`, file tools, browser tools, local MCP tools, and other workspace tools run on the remote API-server host, not on the laptop.
 :::
 
-Open WebUI talks to Lightning server-to-server, so you do not need `API_SERVER_CORS_ORIGINS` for this integration.
+Open WebUI talks to Sonic server-to-server, so you do not need `API_SERVER_CORS_ORIGINS` for this integration.
 
 ## Quick Setup
 
 ### One-command local bootstrap (macOS/Linux, no Docker)
 
-If you want Lightning + Open WebUI wired together locally with a reusable launcher, run:
+If you want Sonic + Open WebUI wired together locally with a reusable launcher, run:
 
 ```bash
-cd ~/.lightning/lightning-agent
+cd ~/.sonic/sonic-agent
 bash scripts/setup_open_webui.sh
 ```
 
 What the script does:
 
-- ensures `~/.lightning/.env` contains `API_SERVER_ENABLED`, `API_SERVER_HOST`, `API_SERVER_KEY`, `API_SERVER_PORT`, and `API_SERVER_MODEL_NAME`
-- restarts the Lightning gateway so the API server comes up
+- ensures `~/.sonic/.env` contains `API_SERVER_ENABLED`, `API_SERVER_HOST`, `API_SERVER_KEY`, `API_SERVER_PORT`, and `API_SERVER_MODEL_NAME`
+- restarts the Sonic gateway so the API server comes up
 - installs Open WebUI into `~/.local/open-webui-venv`
-- writes a launcher at `~/.local/bin/start-open-webui-lightning.sh`
+- writes a launcher at `~/.local/bin/start-open-webui-sonic.sh`
 - on macOS, installs a `launchd` user service; on Linux with `systemd --user`, installs a user service there
 
 Defaults:
 
-- Lightning API: `http://127.0.0.1:8642/v1`
+- Sonic API: `http://127.0.0.1:8642/v1`
 - Open WebUI: `http://127.0.0.1:8080`
-- model name advertised to Open WebUI: `Lightning Agent`
+- model name advertised to Open WebUI: `Sonic Agent`
 
 Useful overrides:
 
 ```bash
-OPEN_WEBUI_NAME='My Lightning UI' \
+OPEN_WEBUI_NAME='My Sonic UI' \
 OPEN_WEBUI_ENABLE_SIGNUP=true \
-LIGHTNING_API_MODEL_NAME='My Lightning Agent' \
+SONIC_API_MODEL_NAME='My Sonic Agent' \
 bash scripts/setup_open_webui.sh
 ```
 
@@ -71,20 +71,20 @@ OPEN_WEBUI_ENABLE_SERVICE=false bash scripts/setup_open_webui.sh
 ### 1. Enable the API server
 
 ```bash
-lightning config set API_SERVER_ENABLED true
-lightning config set API_SERVER_KEY your-secret-key
+sonic config set API_SERVER_ENABLED true
+sonic config set API_SERVER_KEY your-secret-key
 ```
 
-`lightning config set` auto-routes the flag to `config.yaml` and the secret to `~/.lightning/.env`. If the gateway is already running, restart it so the change takes effect:
+`sonic config set` auto-routes the flag to `config.yaml` and the secret to `~/.sonic/.env`. If the gateway is already running, restart it so the change takes effect:
 
 ```bash
-lightning gateway stop && lightning gateway
+sonic gateway stop && sonic gateway
 ```
 
-### 2. Start Lightning Agent gateway
+### 2. Start Sonic Agent gateway
 
 ```bash
-lightning gateway
+sonic gateway
 ```
 
 You should see:
@@ -100,7 +100,7 @@ curl -s http://127.0.0.1:8642/health
 # {"status": "ok", ...}
 
 curl -s -H "Authorization: Bearer your-secret-key" http://127.0.0.1:8642/v1/models
-# {"object":"list","data":[{"id":"lightning-agent", ...}]}
+# {"object":"list","data":[{"id":"sonic-agent", ...}]}
 ```
 
 If `/health` fails, the gateway didn't pick up `API_SERVER_ENABLED=true` — restart it. If `/v1/models` returns `401`, your `Authorization` header doesn't match `API_SERVER_KEY`.
@@ -125,7 +125,7 @@ First launch takes 15–30 seconds: Open WebUI downloads sentence-transformer em
 
 ### 5. Open the UI
 
-Go to **http://localhost:3000**. Create your admin account (the first user becomes admin). You should see your agent in the model dropdown (named after your profile, or **lightning-agent** for the default profile). Start chatting!
+Go to **http://localhost:3000**. Create your admin account (the first user becomes admin). You should see your agent in the model dropdown (named after your profile, or **sonic-agent** for the default profile). Start chatting!
 
 ## Docker Compose Setup
 
@@ -168,11 +168,11 @@ If you prefer to configure the connection through the UI instead of environment 
 5. Click **+ Add New Connection**
 6. Enter:
    - **URL**: `http://host.docker.internal:8642/v1`
-   - **API Key**: the exact same value as `API_SERVER_KEY` in Lightning
+   - **API Key**: the exact same value as `API_SERVER_KEY` in Sonic
 7. Click the **checkmark** to verify the connection
 8. **Save**
 
-Your agent model should now appear in the model dropdown (named after your profile, or **lightning-agent** for the default profile).
+Your agent model should now appear in the model dropdown (named after your profile, or **sonic-agent** for the default profile).
 
 :::warning
 Environment variables only take effect on Open WebUI's **first launch**. After that, connection settings are stored in its internal database. To change them later, use the Admin UI or delete the Docker volume and start fresh.
@@ -189,18 +189,18 @@ Open WebUI supports two API modes when connecting to a backend:
 
 ### Using Chat Completions (recommended)
 
-This is the default and requires no extra configuration. Open WebUI sends standard OpenAI-format requests and Lightning Agent responds accordingly. Each request includes the full conversation history.
+This is the default and requires no extra configuration. Open WebUI sends standard OpenAI-format requests and Sonic Agent responds accordingly. Each request includes the full conversation history.
 
 ### Using Responses API
 
 To use the Responses API mode:
 
 1. Go to **Admin Settings** → **Connections** → **OpenAI** → **Manage**
-2. Edit your lightning-agent connection
+2. Edit your sonic-agent connection
 3. Change **API Type** from "Chat Completions" to **"Responses (Experimental)"**
 4. Save
 
-With the Responses API, Open WebUI sends requests in the Responses format (`input` array + `instructions`), and Lightning Agent can preserve full tool call history across turns via `previous_response_id`. When `stream: true`, Lightning also streams spec-native `function_call` and `function_call_output` items, which enables custom structured tool-call UI in clients that render Responses events.
+With the Responses API, Open WebUI sends requests in the Responses format (`input` array + `instructions`), and Sonic Agent can preserve full tool call history across turns via `previous_response_id`. When `stream: true`, Sonic also streams spec-native `function_call` and `function_call_output` items, which enables custom structured tool-call UI in clients that render Responses events.
 
 :::note
 Open WebUI currently manages conversation history client-side even in Responses mode — it sends the full message history in each request rather than using `previous_response_id`. The main advantage of Responses mode today is the structured event stream: text deltas, `function_call`, and `function_call_output` items arrive as OpenAI Responses SSE events instead of Chat Completions chunks.
@@ -211,15 +211,15 @@ Open WebUI currently manages conversation history client-side even in Responses 
 When you send a message in Open WebUI:
 
 1. Open WebUI sends a `POST /v1/chat/completions` request with your message and conversation history
-2. Lightning Agent creates a server-side `AIAgent` instance using the API server's profile, model/provider config, memory, skills, and configured API-server toolsets
+2. Sonic Agent creates a server-side `AIAgent` instance using the API server's profile, model/provider config, memory, skills, and configured API-server toolsets
 3. The agent processes your request — it may call tools (terminal, file operations, web search, etc.) on the API-server host
 4. As tools execute, **inline progress messages stream to the UI** so you can see what the agent is doing (e.g. `` `💻 ls -la` ``, `` `🔍 Python 3.12 release` ``)
 5. The agent's final text response streams back to Open WebUI
 6. Open WebUI displays the response in its chat interface
 
-Your agent has access to the same tools and capabilities as that API-server Lightning instance. If the API server is remote, those tools are remote too.
+Your agent has access to the same tools and capabilities as that API-server Sonic instance. If the API server is remote, those tools are remote too.
 
-If you need tools to run against your **local** workspace today, run Lightning locally and point it at a pure LLM provider or pure OpenAI-compatible model proxy (for example vLLM, LiteLLM, Ollama, llama.cpp, OpenAI, OpenRouter, etc.). A future split-runtime mode for "remote brain, local hands" is being tracked in [#18715](https://github.com/NousResearch/lightning-agent/issues/18715); it is not the behavior of the current API server.
+If you need tools to run against your **local** workspace today, run Sonic locally and point it at a pure LLM provider or pure OpenAI-compatible model proxy (for example vLLM, LiteLLM, Ollama, llama.cpp, OpenAI, OpenRouter, etc.). A future split-runtime mode for "remote brain, local hands" is being tracked in [#18715](https://github.com/dabit3/sonic-agent/issues/18715); it is not the behavior of the current API server.
 
 :::tip Tool Progress
 With streaming enabled (the default), you'll see brief inline indicators as tools run — the tool emoji and its key argument. These appear in the response stream before the agent's final answer, giving you visibility into what's happening behind the scenes.
@@ -227,7 +227,7 @@ With streaming enabled (the default), you'll see brief inline indicators as tool
 
 ## Configuration Reference
 
-### Lightning Agent (API server)
+### Sonic Agent (API server)
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -240,7 +240,7 @@ With streaming enabled (the default), you'll see brief inline indicators as tool
 
 | Variable | Description |
 |----------|-------------|
-| `OPENAI_API_BASE_URL` | Lightning Agent's API URL (include `/v1`) |
+| `OPENAI_API_BASE_URL` | Sonic Agent's API URL (include `/v1`) |
 | `OPENAI_API_KEY` | Must be non-empty. Match your `API_SERVER_KEY`. |
 
 ## Troubleshooting
@@ -249,9 +249,9 @@ With streaming enabled (the default), you'll see brief inline indicators as tool
 
 - **Check the URL has `/v1` suffix**: `http://host.docker.internal:8642/v1` (not just `:8642`)
 - **Verify the gateway is running**: `curl http://localhost:8642/health` should return `{"status": "ok"}`
-- **Check model listing**: `curl -H "Authorization: Bearer your-secret-key" http://localhost:8642/v1/models` should return a list with `lightning-agent`
+- **Check model listing**: `curl -H "Authorization: Bearer your-secret-key" http://localhost:8642/v1/models` should return a list with `sonic-agent`
 - **Docker networking**: From inside Docker, `localhost` means the container, not your host. Use `host.docker.internal` or `--network=host`.
-- **Empty Ollama backend shadowing the picker**: If you omitted `ENABLE_OLLAMA_API=false`, Open WebUI shows an empty Ollama section above your Lightning models. Restart the container with `-e ENABLE_OLLAMA_API=false` or disable Ollama in **Admin Settings → Connections**.
+- **Empty Ollama backend shadowing the picker**: If you omitted `ENABLE_OLLAMA_API=false`, Open WebUI shows an empty Ollama section above your Sonic models. Restart the container with `-e ENABLE_OLLAMA_API=false` or disable Ollama in **Admin Settings → Connections**.
 
 ### Connection test passes but no models load
 
@@ -259,11 +259,11 @@ This is almost always the missing `/v1` suffix. Open WebUI's connection test is 
 
 ### Response takes a long time
 
-Lightning Agent may be executing multiple tool calls (reading files, running commands, searching the web) before producing its final response. This is normal for complex queries. The response appears all at once when the agent finishes.
+Sonic Agent may be executing multiple tool calls (reading files, running commands, searching the web) before producing its final response. This is normal for complex queries. The response appears all at once when the agent finishes.
 
 ### "Invalid API key" errors
 
-Make sure your `OPENAI_API_KEY` in Open WebUI matches the `API_SERVER_KEY` in Lightning Agent.
+Make sure your `OPENAI_API_KEY` in Open WebUI matches the `API_SERVER_KEY` in Sonic Agent.
 
 :::warning
 Open WebUI persists OpenAI-compatible connection settings in its own database after first launch. If you accidentally saved a wrong key in the Admin UI, fixing the environment variables alone is not enough — update or delete the saved connection in **Admin Settings → Connections**, or reset the Open WebUI data directory / database.
@@ -271,22 +271,22 @@ Open WebUI persists OpenAI-compatible connection settings in its own database af
 
 ## Multi-User Setup with Profiles
 
-To run separate Lightning instances per user — each with their own config, memory, and skills — use [profiles](/docs/user-guide/profiles). Each profile runs its own API server on a different port and automatically advertises the profile name as the model in Open WebUI.
+To run separate Sonic instances per user — each with their own config, memory, and skills — use [profiles](/docs/user-guide/profiles). Each profile runs its own API server on a different port and automatically advertises the profile name as the model in Open WebUI.
 
 ### 1. Create profiles and configure API servers
 
 `API_SERVER_*` are env vars, not YAML config keys, so write them to each profile's `.env`. Pick ports outside the default-platform range (`8644` is the webhook adapter, `8645` is wecom-callback, `8646` is msgraph-webhook), e.g. `8650+`:
 
 ```bash
-lightning profile create alice
-cat >> ~/.lightning/profiles/alice/.env <<EOF
+sonic profile create alice
+cat >> ~/.sonic/profiles/alice/.env <<EOF
 API_SERVER_ENABLED=true
 API_SERVER_PORT=8650
 API_SERVER_KEY=alice-secret
 EOF
 
-lightning profile create bob
-cat >> ~/.lightning/profiles/bob/.env <<EOF
+sonic profile create bob
+cat >> ~/.sonic/profiles/bob/.env <<EOF
 API_SERVER_ENABLED=true
 API_SERVER_PORT=8651
 API_SERVER_KEY=bob-secret
@@ -296,8 +296,8 @@ EOF
 ### 2. Start each gateway
 
 ```bash
-lightning -p alice gateway &
-lightning -p bob gateway &
+sonic -p alice gateway &
+sonic -p bob gateway &
 ```
 
 ### 3. Add connections in Open WebUI
@@ -309,12 +309,12 @@ In **Admin Settings** → **Connections** → **OpenAI API** → **Manage**, add
 | Alice | `http://host.docker.internal:8650/v1` | `alice-secret` |
 | Bob | `http://host.docker.internal:8651/v1` | `bob-secret` |
 
-The model dropdown will show `alice` and `bob` as distinct models. You can assign models to Open WebUI users via the admin panel, giving each user their own isolated Lightning agent.
+The model dropdown will show `alice` and `bob` as distinct models. You can assign models to Open WebUI users via the admin panel, giving each user their own isolated Sonic agent.
 
 :::tip Custom Model Names
 The model name defaults to the profile name. To override it, set `API_SERVER_MODEL_NAME` in the profile's `.env`:
 ```bash
-lightning -p alice config set API_SERVER_MODEL_NAME "Alice's Agent"
+sonic -p alice config set API_SERVER_MODEL_NAME "Alice's Agent"
 ```
 :::
 

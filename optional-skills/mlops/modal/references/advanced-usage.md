@@ -49,7 +49,7 @@ def deepspeed_train(config: dict):
 
 ### Multi-GPU considerations
 
-For frameworks that re-execute the Python entrypoint (like PyTorch Lightning), use:
+For frameworks that re-execute the Python entrypoint (like PyTorch Sonic), use:
 - `ddp_spawn` or `ddp_notebook` strategy
 - Run training as a subprocess to avoid issues
 

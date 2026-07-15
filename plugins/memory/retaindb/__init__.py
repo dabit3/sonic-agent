@@ -12,7 +12,7 @@ Features:
 - Shared file store tools (upload, list, read, ingest, delete)
 - Explicit memory tools (profile, search, context, remember, forget)
 
-Config (env vars or lightning config.yaml under retaindb:):
+Config (env vars or sonic config.yaml under retaindb:):
   RETAINDB_API_KEY     — API key (required)
   RETAINDB_BASE_URL    — API endpoint (default: https://api.retaindb.com)
   RETAINDB_PROJECT     — Project identifier (optional — defaults to "default")
@@ -187,7 +187,7 @@ class _Client:
         h = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
-            "x-sdk-runtime": "lightning-plugin",
+            "x-sdk-runtime": "sonic-plugin",
         }
         if path.startswith(("/v1/memory", "/v1/context")):
             h["X-API-Key"] = token
@@ -286,7 +286,7 @@ class _Client:
         import requests
         url = f"{self.base_url}/v1/files"
         token = self.api_key.replace("Bearer ", "").strip()
-        headers = {"Authorization": f"Bearer {token}", "x-sdk-runtime": "lightning-plugin"}
+        headers = {"Authorization": f"Bearer {token}", "x-sdk-runtime": "sonic-plugin"}
         fields = {"path": remote_path, "scope": scope.upper()}
         if project_id:
             fields["project_id"] = project_id
@@ -307,7 +307,7 @@ class _Client:
         import requests
         token = self.api_key.replace("Bearer ", "").strip()
         url = f"{self.base_url}/v1/files/{quote(file_id, safe='')}/content"
-        resp = requests.get(url, headers={"Authorization": f"Bearer {token}", "x-sdk-runtime": "lightning-plugin"}, timeout=30, allow_redirects=True)
+        resp = requests.get(url, headers={"Authorization": f"Bearer {token}", "x-sdk-runtime": "sonic-plugin"}, timeout=30, allow_redirects=True)
         resp.raise_for_status()
         return resp.content
 
@@ -457,7 +457,7 @@ class RetainDBMemoryProvider(MemoryProvider):
         self._queue: _WriteQueue | None = None
         self._user_id = "default"
         self._session_id = ""
-        self._agent_id = "lightning"
+        self._agent_id = "sonic"
         self._lock = threading.Lock()
 
         # Prefetch caches
@@ -490,28 +490,28 @@ class RetainDBMemoryProvider(MemoryProvider):
         api_key = os.environ.get("RETAINDB_API_KEY", "")
         base_url = re.sub(r"/+$", "", os.environ.get("RETAINDB_BASE_URL", _DEFAULT_BASE_URL))
 
-        # Project resolution: RETAINDB_PROJECT > lightning-<profile> > "default"
+        # Project resolution: RETAINDB_PROJECT > sonic-<profile> > "default"
         # If unset, the API auto-creates and uses the "default" project — no config required.
         explicit = os.environ.get("RETAINDB_PROJECT")
         if explicit:
             project = explicit
         else:
-            lightning_home = str(kwargs.get("lightning_home", ""))
-            profile_name = os.path.basename(lightning_home) if lightning_home else ""
-            project = f"lightning-{profile_name}" if (profile_name and profile_name not in {"", ".lightning"}) else "default"
+            sonic_home = str(kwargs.get("sonic_home", ""))
+            profile_name = os.path.basename(sonic_home) if sonic_home else ""
+            project = f"sonic-{profile_name}" if (profile_name and profile_name not in {"", ".sonic"}) else "default"
 
         self._client = _Client(api_key, base_url, project)
         self._session_id = session_id
         self._user_id = kwargs.get("user_id", "default") or "default"
-        self._agent_id = kwargs.get("agent_id", "lightning") or "lightning"
+        self._agent_id = kwargs.get("agent_id", "sonic") or "sonic"
 
-        from lightning_constants import get_lightning_home
-        lightning_home_path = get_lightning_home()
-        db_path = lightning_home_path / "retaindb_queue.db"
+        from sonic_constants import get_sonic_home
+        sonic_home_path = get_sonic_home()
+        db_path = sonic_home_path / "retaindb_queue.db"
         self._queue = _WriteQueue(self._client, db_path)
 
         # Seed agent identity from SOUL.md in background
-        soul_path = lightning_home_path / "SOUL.md"
+        soul_path = sonic_home_path / "SOUL.md"
         if soul_path.exists():
             soul_content = soul_path.read_text(encoding="utf-8", errors="replace").strip()
             if soul_content:

@@ -18,11 +18,11 @@ export interface MemoryMonitorOptions {
 
 const GB = 1024 ** 3
 
-// Deferred @lightning/ink import: loading `@lightning/ink` at module top-level
+// Deferred @sonic/ink import: loading `@sonic/ink` at module top-level
 // pulls the full ~414KB Ink bundle (React, renderer, components, hooks) onto
 // the critical path before the Python gateway can even be spawned. That
 // serialised roughly 150ms of Node work in front of gw.start() on every
-// cold `lightning --tui` launch.
+// cold `sonic --tui` launch.
 //
 // evictInkCaches only runs inside `tick()`, which fires on a 10s timer and
 // only when heap pressure crosses the high-water mark — by then Ink has
@@ -38,7 +38,7 @@ async function _ensureEvictInkCaches(): Promise<(level: 'all' | 'half') => unkno
     return _evictInkCaches
   }
 
-  _evictInkCachesPromise ??= import('@lightning/ink')
+  _evictInkCachesPromise ??= import('@sonic/ink')
     .then(mod => {
       _evictInkCaches = mod.evictInkCaches as (level: 'all' | 'half') => unknown
 
@@ -79,7 +79,7 @@ export function startMemoryMonitor({
 
     // Prune Ink content caches before dump/exit — half on 'high' (recoverable),
     // full on 'critical' (post-dump RSS reduction, keeps user running).
-    // Deferred import keeps `@lightning/ink` off the cold-start critical path;
+    // Deferred import keeps `@sonic/ink` off the cold-start critical path;
     // by the time a tick fires 10s after launch the app has already loaded
     // the same module, so this resolves instantly from the ESM cache.
     try {

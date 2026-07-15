@@ -61,21 +61,21 @@ jobs:
       - name: Build TUI bundle
         run: cd ui-tui && npm ci && npm run build
 
-      - name: Bundle TUI into lightning_cli
+      - name: Bundle TUI into sonic_cli
         run: |
-          mkdir -p lightning_cli/tui_dist
-          cp ui-tui/dist/entry.js lightning_cli/tui_dist/entry.js
+          mkdir -p sonic_cli/tui_dist
+          cp ui-tui/dist/entry.js sonic_cli/tui_dist/entry.js
 
       - name: Verify frontend assets exist
         run: |
-          test -f lightning_cli/web_dist/index.html || { echo "ERROR: web_dist not built"; exit 1; }
-          test -f lightning_cli/tui_dist/entry.js || { echo "ERROR: tui_dist not built"; exit 1; }
+          test -f sonic_cli/web_dist/index.html || { echo "ERROR: web_dist not built"; exit 1; }
+          test -f sonic_cli/tui_dist/entry.js || { echo "ERROR: tui_dist not built"; exit 1; }
 
       - name: Bundle install scripts into wheel
         run: |
-          mkdir -p lightning_cli/scripts
-          cp scripts/install.sh lightning_cli/scripts/install.sh
-          cp scripts/install.ps1 lightning_cli/scripts/install.ps1
+          mkdir -p sonic_cli/scripts
+          cp scripts/install.sh sonic_cli/scripts/install.sh
+          cp scripts/install.ps1 sonic_cli/scripts/install.ps1
 
       - name: Build wheel and sdist
         run: uv build --sdist --wheel
@@ -92,7 +92,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/lightning-agent
+      url: https://pypi.org/p/sonic-agent
     permissions:
       id-token: write  # OIDC trusted publishing
 

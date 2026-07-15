@@ -1,4 +1,4 @@
-"""disk_cleanup — ephemeral file cleanup for Lightning Agent.
+"""disk_cleanup — ephemeral file cleanup for Sonic Agent.
 
 Library module wrapping the deterministic cleanup rules written by
 @LVT382009 in PR #12212. The plugin ``__init__.py`` wires these
@@ -10,13 +10,13 @@ Rules:
   - test files    → delete immediately at task end (age >= 0)
   - temp files    → delete after 7 days
   - cron-output   → delete after 14 days
-  - empty dirs    → always delete (under LIGHTNING_HOME)
+  - empty dirs    → always delete (under SONIC_HOME)
   - research      → keep 10 newest, prompt for older (deep only)
   - chrome-profile→ prompt after 14 days (deep only)
   - >500 MB files → prompt always (deep only)
 
-Scope: strictly LIGHTNING_HOME and /tmp/lightning-*
-Never touches: ~/.lightning/logs/ or any system directory.
+Scope: strictly SONIC_HOME and /tmp/sonic-*
+Never touches: ~/.sonic/logs/ or any system directory.
 """
 
 from __future__ import annotations
@@ -29,13 +29,13 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 try:
-    from lightning_constants import get_lightning_home
+    from sonic_constants import get_sonic_home
 except Exception:  # pragma: no cover — plugin may load before constants resolves
     import os
 
-    def get_lightning_home() -> Path:  # type: ignore[no-redef]
-        val = (os.environ.get("LIGHTNING_HOME") or "").strip()
-        return Path(val).resolve() if val else (Path.home() / ".lightning").resolve()
+    def get_sonic_home() -> Path:  # type: ignore[no-redef]
+        val = (os.environ.get("SONIC_HOME") or "").strip()
+        return Path(val).resolve() if val else (Path.home() / ".sonic").resolve()
 
 
 logger = logging.getLogger(__name__)
@@ -46,8 +46,8 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 def get_state_dir() -> Path:
-    """State dir — separate from ``$LIGHTNING_HOME/logs/``."""
-    return get_lightning_home() / "disk-cleanup"
+    """State dir — separate from ``$SONIC_HOME/logs/``."""
+    return get_sonic_home() / "disk-cleanup"
 
 
 def get_tracked_file() -> Path:
@@ -55,7 +55,7 @@ def get_tracked_file() -> Path:
 
 
 def get_log_file() -> Path:
-    """Audit log — intentionally NOT under ``$LIGHTNING_HOME/logs/``."""
+    """Audit log — intentionally NOT under ``$SONIC_HOME/logs/``."""
     return get_state_dir() / "cleanup.log"
 
 
@@ -64,19 +64,19 @@ def get_log_file() -> Path:
 # ---------------------------------------------------------------------------
 
 def is_safe_path(path: Path) -> bool:
-    """Accept only paths under LIGHTNING_HOME or ``/tmp/lightning-*``.
+    """Accept only paths under SONIC_HOME or ``/tmp/sonic-*``.
 
     Rejects Windows mounts (``/mnt/c`` etc.) and any system directory.
     """
-    lightning_home = get_lightning_home()
+    sonic_home = get_sonic_home()
     try:
-        path.resolve().relative_to(lightning_home)
+        path.resolve().relative_to(sonic_home)
         return True
     except (ValueError, OSError):
         pass
-    # Allow /tmp/lightning-* explicitly
+    # Allow /tmp/sonic-* explicitly
     parts = path.parts
-    if len(parts) >= 3 and parts[1] == "tmp" and parts[2].startswith("lightning-"):
+    if len(parts) >= 3 and parts[1] == "tmp" and parts[2].startswith("sonic-"):
         return True
     return False
 
@@ -170,7 +170,7 @@ def track(path_str: str, category: str, silent: bool = False) -> bool:
         return False
 
     if not is_safe_path(path):
-        _log(f"REJECT: {path} (outside LIGHTNING_HOME)")
+        _log(f"REJECT: {path} (outside SONIC_HOME)")
         return False
 
     size = path.stat().st_size if path.is_file() else 0
@@ -291,22 +291,22 @@ def quick() -> Dict[str, Any]:
         else:
             new_tracked.append(item)
 
-    # Remove empty dirs under LIGHTNING_HOME (but leave LIGHTNING_HOME itself and
+    # Remove empty dirs under SONIC_HOME (but leave SONIC_HOME itself and
     # a short list of well-known top-level state dirs alone — a fresh install
     # has these empty, and deleting them would surprise the user).
-    lightning_home = get_lightning_home()
+    sonic_home = get_sonic_home()
     _PROTECTED_TOP_LEVEL = {
         "logs", "memories", "sessions", "cron", "cronjobs",
         "cache", "skills", "plugins", "disk-cleanup", "optional-skills",
-        "lightning-agent", "backups", "profiles", ".worktrees",
+        "sonic-agent", "backups", "profiles", ".worktrees",
     }
     empty_removed = 0
     try:
-        for dirpath in sorted(lightning_home.rglob("*"), reverse=True):
-            if not dirpath.is_dir() or dirpath == lightning_home:
+        for dirpath in sorted(sonic_home.rglob("*"), reverse=True):
+            if not dirpath.is_dir() or dirpath == sonic_home:
                 continue
             try:
-                rel_parts = dirpath.relative_to(lightning_home).parts
+                rel_parts = dirpath.relative_to(sonic_home).parts
             except ValueError:
                 continue
             # Skip the well-known top-level state dirs themselves.
@@ -470,14 +470,14 @@ def guess_category(path: Path) -> Optional[str]:
         return None
 
     # Skip the state dir itself, logs, memory files, sessions, config.
-    lightning_home = get_lightning_home()
+    sonic_home = get_sonic_home()
     try:
-        rel = path.resolve().relative_to(lightning_home)
+        rel = path.resolve().relative_to(sonic_home)
         top = rel.parts[0] if rel.parts else ""
         if top in {
             "disk-cleanup", "logs", "memories", "sessions", "config.yaml",
             "skills", "plugins", ".env", "USER.md", "MEMORY.md", "SOUL.md",
-            "auth.json", "lightning-agent",
+            "auth.json", "sonic-agent",
         }:
             return None
         if top == "cron" or top == "cronjobs":
@@ -485,7 +485,7 @@ def guess_category(path: Path) -> Optional[str]:
         if top == "cache":
             return "temp"
     except ValueError:
-        # Path isn't under LIGHTNING_HOME (e.g. /tmp/lightning-*) — fall through.
+        # Path isn't under SONIC_HOME (e.g. /tmp/sonic-*) — fall through.
         pass
 
     name = path.name

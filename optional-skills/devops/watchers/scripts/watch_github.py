@@ -3,12 +3,12 @@
 
 Usage (via cron with --no-agent):
 
-    lightning cron create lightning-issues \\
+    sonic cron create sonic-issues \\
       --schedule "*/5 * * * *" --no-agent \\
-      --script "$LIGHTNING_HOME/skills/devops/watchers/scripts/watch_github.py" \\
-      --script-args "--name lightning-issues --repo NousResearch/lightning-agent --scope issues"
+      --script "$SONIC_HOME/skills/devops/watchers/scripts/watch_github.py" \\
+      --script-args "--name sonic-issues --repo dabit3/sonic-agent --scope issues"
 
-Set GITHUB_TOKEN (or GH_TOKEN) in ~/.lightning/.env to avoid the 60 req/hr
+Set GITHUB_TOKEN (or GH_TOKEN) in ~/.sonic/.env to avoid the 60 req/hr
 anonymous rate limit.
 
 Scopes: issues | pulls | releases | commits.  Or pass --search QUERY to
@@ -112,7 +112,7 @@ def main() -> int:
 
     headers = {
         "Accept": "application/vnd.github+json",
-        "User-Agent": "Lightning-Watcher/1.0",
+        "User-Agent": "Sonic-Watcher/1.0",
     }
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
     if token:

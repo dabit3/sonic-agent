@@ -1,10 +1,10 @@
-# nix/packages.nix — Lightning Agent package built with uv2nix
+# nix/packages.nix — Sonic Agent package built with uv2nix
 { inputs, ... }:
 {
   perSystem =
     { pkgs, inputs', ... }:
     let
-      lightningAgent = pkgs.callPackage ./lightning-agent.nix {
+      sonicAgent = pkgs.callPackage ./sonic-agent.nix {
         inherit (inputs) uv2nix pyproject-nix pyproject-build-systems;
         npm-lockfile-fix = inputs'.npm-lockfile-fix.packages.default;
         # Only embed clean revs — dirtyRev doesn't represent any upstream
@@ -14,12 +14,12 @@
     in
     {
       packages = {
-        default = lightningAgent;
-        tui = lightningAgent.lightningTui;
-        web = lightningAgent.lightningWeb;
+        default = sonicAgent;
+        tui = sonicAgent.sonicTui;
+        web = sonicAgent.sonicWeb;
 
-        fix-lockfiles = lightningAgent.lightningNpmLib.mkFixLockfiles {
-          packages = [ lightningAgent.lightningTui lightningAgent.lightningWeb ];
+        fix-lockfiles = sonicAgent.sonicNpmLib.mkFixLockfiles {
+          packages = [ sonicAgent.sonicTui sonicAgent.sonicWeb ];
         };
       };
     };

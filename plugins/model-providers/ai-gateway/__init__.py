@@ -1,6 +1,6 @@
 """Vercel AI Gateway provider profile.
 
-AI Gateway routes to multiple backends. Lightning sends attribution
+AI Gateway routes to multiple backends. Sonic sends attribution
 headers and full reasoning config passthrough.
 """
 
@@ -35,7 +35,7 @@ vercel = VercelAIGatewayProfile(
     base_url="https://ai-gateway.vercel.sh/v1",
     default_headers={
         "HTTP-Referer": "https://lightning-agent.nousresearch.com",
-        "X-Title": "Lightning Agent",
+        "X-Title": "Sonic Agent",
     },
     default_aux_model="google/gemini-3-flash",
 )

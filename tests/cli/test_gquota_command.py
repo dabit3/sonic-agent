@@ -3,9 +3,9 @@ from unittest.mock import MagicMock, patch
 
 def test_gquota_uses_chat_console_when_tui_is_live():
     from agent.google_oauth import GoogleOAuthError
-    from cli import LightningCLI
+    from cli import SonicCLI
 
-    cli = LightningCLI.__new__(LightningCLI)
+    cli = SonicCLI.__new__(SonicCLI)
     cli.console = MagicMock()
     cli._app = object()
 

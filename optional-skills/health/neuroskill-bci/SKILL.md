@@ -8,10 +8,10 @@ description: >
   running locally.
 platforms: [linux, macos, windows]
 version: 1.0.0
-author: Lightning Agent + Nous Research
+author: Sonic Agent + Nous Research
 license: MIT
 metadata:
-  lightning:
+  sonic:
     tags: [BCI, neurofeedback, health, focus, EEG, cognitive-state, biometrics, neuroskill]
     category: health
     related_skills: []
@@ -19,7 +19,7 @@ metadata:
 
 # NeuroSkill BCI Integration
 
-Connect Lightning to a running [NeuroSkill](https://neuroskill.com/) instance to read
+Connect Sonic to a running [NeuroSkill](https://neuroskill.com/) instance to read
 real-time brain and body metrics from a BCI wearable. Use this to give
 cognitively-aware responses, suggest interventions, and track mental performance
 over time.

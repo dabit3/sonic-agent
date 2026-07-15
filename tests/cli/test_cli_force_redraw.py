@@ -14,13 +14,13 @@ from unittest.mock import MagicMock
 import pytest
 
 import cli as cli_mod
-from cli import LightningCLI
+from cli import SonicCLI
 
 
 @pytest.fixture
 def bare_cli():
-    """A LightningCLI with no __init__ — we only exercise the redraw helper."""
-    cli = object.__new__(LightningCLI)
+    """A SonicCLI with no __init__ — we only exercise the redraw helper."""
+    cli = object.__new__(SonicCLI)
     return cli
 
 
@@ -31,7 +31,7 @@ class TestForceFullRedraw:
         bare_cli._force_full_redraw()  # must not raise
 
     def test_missing_app_attr_is_safe(self, bare_cli):
-        # Simulate LightningCLI before the TUI has ever been constructed.
+        # Simulate SonicCLI before the TUI has ever been constructed.
         bare_cli._force_full_redraw()  # must not raise
 
     def test_sends_full_clear_replays_then_invalidates(self, bare_cli, monkeypatch):

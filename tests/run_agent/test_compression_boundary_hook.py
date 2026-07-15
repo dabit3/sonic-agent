@@ -2,10 +2,10 @@
 
 When _compress_context rotates session_id (compression split), the active
 context engine receives on_session_start(new_sid, boundary_reason="compression",
-old_session_id=<old>). This lets plugin engines (e.g. lightning-lcm) preserve
+old_session_id=<old>). This lets plugin engines (e.g. sonic-lcm) preserve
 DAG lineage across the split instead of treating it as a fresh /new.
 
-See lightning-lcm#68: after Lightning compresses and mints a new physical session,
+See sonic-lcm#68: after Sonic compresses and mints a new physical session,
 LCM was losing continuity (compression_count: 1, store_messages: 0,
 dag_nodes: 0). With boundary_reason="compression" plugins can distinguish
 this from a real user-initiated /new.
@@ -35,7 +35,7 @@ class TestCompressionBoundaryHook:
             )
 
     def test_on_session_start_called_with_compression_boundary(self):
-        from lightning_state import SessionDB
+        from sonic_state import SessionDB
 
         with tempfile.TemporaryDirectory() as tmpdir:
             db = SessionDB(db_path=Path(tmpdir) / "test.db")
@@ -130,7 +130,7 @@ class TestCompressionBoundaryHook:
 
     def test_hook_failure_does_not_break_compression(self):
         """If the context engine raises from on_session_start, compression still completes."""
-        from lightning_state import SessionDB
+        from sonic_state import SessionDB
 
         with tempfile.TemporaryDirectory() as tmpdir:
             db = SessionDB(db_path=Path(tmpdir) / "test.db")

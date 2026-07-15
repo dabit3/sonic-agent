@@ -66,9 +66,9 @@ import requests
 from typing import Dict, Any, Optional, List, Tuple
 from pathlib import Path
 from agent.auxiliary_client import call_llm
-from lightning_constants import get_lightning_home
+from sonic_constants import get_sonic_home
 from utils import is_truthy_value
-from lightning_cli.config import cfg_get
+from sonic_cli.config import cfg_get
 
 try:
     from tools.website_policy import check_website_access
@@ -156,11 +156,11 @@ def _discover_homebrew_node_dirs() -> tuple[str, ...]:
 
 def _browser_candidate_path_dirs() -> list[str]:
     """Return ordered browser CLI PATH candidates shared by discovery and execution."""
-    lightning_home = get_lightning_home()
-    lightning_node_bin = str(lightning_home / "node" / "bin")
-    lightning_node_root = str(lightning_home / "node")
-    lightning_nm_bin = str(lightning_home / "node_modules" / ".bin")
-    return [lightning_node_bin, lightning_node_root, lightning_nm_bin, *list(_discover_homebrew_node_dirs()), *_SANE_PATH_DIRS]
+    sonic_home = get_sonic_home()
+    sonic_node_bin = str(sonic_home / "node" / "bin")
+    sonic_node_root = str(sonic_home / "node")
+    sonic_nm_bin = str(sonic_home / "node_modules" / ".bin")
+    return [sonic_node_bin, sonic_node_root, sonic_nm_bin, *list(_discover_homebrew_node_dirs()), *_SANE_PATH_DIRS]
 
 
 def _merge_browser_path(existing_path: str = "") -> str:
@@ -211,7 +211,7 @@ def _get_command_timeout() -> int:
     _command_timeout_resolved = True
     result = DEFAULT_COMMAND_TIMEOUT
     try:
-        from lightning_cli.config import read_raw_config
+        from sonic_cli.config import read_raw_config
         cfg = read_raw_config()
         val = cfg_get(cfg, "browser", "command_timeout")
         if val is not None:
@@ -297,7 +297,7 @@ def _get_cdp_override() -> str:
         return _resolve_cdp_override(env_override)
 
     try:
-        from lightning_cli.config import read_raw_config
+        from sonic_cli.config import read_raw_config
 
         cfg = read_raw_config()
         browser_cfg = cfg.get("browser", {})
@@ -323,7 +323,7 @@ def _get_dialog_policy_config() -> Tuple[str, float]:
     )
 
     try:
-        from lightning_cli.config import read_raw_config
+        from sonic_cli.config import read_raw_config
 
         cfg = read_raw_config()
         browser_cfg = cfg.get("browser", {}) if isinstance(cfg, dict) else {}
@@ -418,7 +418,7 @@ def _stop_cdp_supervisor(task_id: str) -> None:
 # When the test patches ``_PROVIDER_REGISTRY``, we honour it (so the cache
 # unit tests still drive the function); otherwise the registry-backed path
 # wins. This keeps the test surface stable while letting third-party
-# plugins drop in under ``~/.lightning/plugins/browser/<vendor>/``.
+# plugins drop in under ``~/.sonic/plugins/browser/<vendor>/``.
 
 _PROVIDER_REGISTRY: Dict[str, type] = {
     "browserbase": BrowserbaseProvider,
@@ -479,7 +479,7 @@ def _ensure_browser_plugins_loaded() -> None:
     calls early-return inside `_ensure_plugins_discovered`.
     """
     try:
-        from lightning_cli.plugins import _ensure_plugins_discovered
+        from sonic_cli.plugins import _ensure_plugins_discovered
 
         _ensure_plugins_discovered()
     except Exception as exc:
@@ -497,7 +497,7 @@ def _get_cloud_provider() -> Optional[CloudBrowserProvider]:
     :data:`agent.browser_registry._LEGACY_PREFERENCE` walk.
 
     Selection routes through :mod:`agent.browser_registry` so third-party
-    browser plugins (``~/.lightning/plugins/browser/<vendor>/``) participate
+    browser plugins (``~/.sonic/plugins/browser/<vendor>/``) participate
     in explicit-config resolution. Test fixtures that override
     ``_PROVIDER_REGISTRY`` or ``BrowserUseProvider`` / ``BrowserbaseProvider``
     on this module still drive the function — see
@@ -509,7 +509,7 @@ def _get_cloud_provider() -> Optional[CloudBrowserProvider]:
 
     resolved: Optional[CloudBrowserProvider] = None
     try:
-        from lightning_cli.config import read_raw_config
+        from sonic_cli.config import read_raw_config
         cfg = read_raw_config()
         browser_cfg = cfg.get("browser", {})
         provider_key = None
@@ -591,7 +591,7 @@ def _get_cloud_provider() -> Optional[CloudBrowserProvider]:
     return _cached_cloud_provider
 
 
-from lightning_constants import is_termux as _is_termux_environment
+from sonic_constants import is_termux as _is_termux_environment
 
 
 def _browser_install_hint() -> str:
@@ -657,7 +657,7 @@ def _get_browser_engine() -> str:
 
     # Config file takes priority
     try:
-        from lightning_cli.config import read_raw_config
+        from sonic_cli.config import read_raw_config
         cfg = read_raw_config()
         val = cfg.get("browser", {}).get("engine")
         if val and str(val).strip():
@@ -705,7 +705,7 @@ def _lightpanda_fallback_reason(engine: str, command: str, result: Dict[str, Any
     """Return the user-visible reason a Lightpanda result needs Chrome fallback.
 
     ``None`` means no fallback should run.  The returned string is copied into
-    the fallback result so CLI/TUI/gateway users can see when Lightning silently
+    the fallback result so CLI/TUI/gateway users can see when Sonic silently
     switched from Lightpanda to Chrome for completeness.
     """
     if engine != "lightpanda":
@@ -835,7 +835,7 @@ def _run_chrome_fallback_command(
             hint = (
                 "Chrome fallback requires Chromium, but it is missing. "
                 "You're running in Docker — pull the latest image: "
-                "docker pull ghcr.io/nousresearch/lightning-agent:latest"
+                "docker pull ghcr.io/nousresearch/sonic-agent:latest"
             )
         else:
             hint = (
@@ -888,7 +888,7 @@ def _run_chrome_fallback_command(
             #   and that grandchild's CreateProcess dies silently
             #   ("Daemon process exited during startup with no error output")
             #   when inherited parent handles are in a weird state. Observed
-            #   in the Lightning CLI where sys.stdout and sys.stderr both report
+            #   in the Sonic CLI where sys.stdout and sys.stderr both report
             #   fileno=1 (stderr dup'd onto stdout at the OS level).
             # * close_fds=True → block inheritance of every other handle.
             #   (Default on POSIX; must be explicit on Windows for stdio.)
@@ -985,7 +985,7 @@ def _auto_local_for_private_urls() -> bool:
 
     _auto_local_for_private_urls_resolved = True
     try:
-        from lightning_cli.config import read_raw_config
+        from sonic_cli.config import read_raw_config
         cfg = read_raw_config()
         browser_cfg = cfg.get("browser", {})
         if isinstance(browser_cfg, dict) and "auto_local_for_private_urls" in browser_cfg:
@@ -1121,7 +1121,7 @@ def _allow_private_urls() -> bool:
     _allow_private_urls_resolved = True
     _cached_allow_private_urls = False  # safe default
     try:
-        from lightning_cli.config import read_raw_config
+        from sonic_cli.config import read_raw_config
         cfg = read_raw_config()
         browser_cfg = cfg.get("browser", {})
         if isinstance(browser_cfg, dict):
@@ -1137,7 +1137,7 @@ def _socket_safe_tmpdir() -> str:
     """Return a short temp directory path suitable for Unix domain sockets.
 
     macOS sets ``TMPDIR`` to ``/var/folders/xx/.../T/`` (~51 chars).  When we
-    append ``agent-browser-lightning_…`` the resulting socket path exceeds the
+    append ``agent-browser-sonic_…`` the resulting socket path exceeds the
     104-byte macOS limit for ``AF_UNIX`` addresses, causing agent-browser to
     fail with "Failed to create socket directory" or silent screenshot failures.
 
@@ -1199,7 +1199,7 @@ def _emergency_cleanup_all_sessions():
     Called on process exit or interrupt to prevent orphaned sessions.
 
     Also runs the orphan reaper to clean up daemons left behind by previously
-    crashed lightning processes — this way every clean lightning exit sweeps
+    crashed sonic processes — this way every clean sonic exit sweeps
     accumulated orphans, not just ones that actively used the browser tool.
     """
     global _cleanup_done
@@ -1222,9 +1222,9 @@ def _emergency_cleanup_all_sessions():
                 _session_last_activity.clear()
                 _recording_sessions.clear()
 
-    # Sweep orphans from other crashed lightning processes.  Safe even if we
+    # Sweep orphans from other crashed sonic processes.  Safe even if we
     # never used the browser — uses owner_pid liveness to avoid reaping
-    # daemons owned by other live lightning processes.
+    # daemons owned by other live sonic processes.
     try:
         _reap_orphaned_browser_sessions()
     except Exception as e:
@@ -1273,10 +1273,10 @@ def _cleanup_inactive_browser_sessions():
 
 
 def _write_owner_pid(socket_dir: str, session_name: str) -> None:
-    """Record the current lightning PID as the owner of a browser socket dir.
+    """Record the current sonic PID as the owner of a browser socket dir.
 
     Written atomically to ``<socket_dir>/<session_name>.owner_pid`` so the
-    orphan reaper can distinguish daemons owned by a live lightning process
+    orphan reaper can distinguish daemons owned by a live sonic process
     (don't reap) from daemons whose owner crashed (reap).  Best-effort —
     an OSError here just falls back to the legacy ``tracked_names``
     heuristic in the reaper.
@@ -1299,13 +1299,13 @@ def _reap_orphaned_browser_sessions():
 
     This function scans the tmp directory for ``agent-browser-*`` socket dirs
     left behind by previous runs, reads the daemon PID files, and kills any
-    daemons whose owning lightning process is no longer alive.
+    daemons whose owning sonic process is no longer alive.
 
     Ownership detection priority:
       1. ``<session>.owner_pid`` file (written by current code) — if the
-         referenced lightning PID is alive, leave the daemon alone regardless
+         referenced sonic PID is alive, leave the daemon alone regardless
          of whether it's in *this* process's ``_active_sessions``.  This is
-         cross-process safe: two concurrent lightning instances won't reap each
+         cross-process safe: two concurrent sonic instances won't reap each
          other's daemons.
       2. Fallback for daemons that predate owner_pid: check
          ``_active_sessions`` in the current process.  If not tracked here,
@@ -1321,7 +1321,7 @@ def _reap_orphaned_browser_sessions():
     # Also pick up CDP sessions
     socket_dirs += glob.glob(os.path.join(tmpdir, "agent-browser-cdp_*"))
     # Also pick up cloud-provider sessions (browser-use/browserbase/firecrawl)
-    socket_dirs += glob.glob(os.path.join(tmpdir, "agent-browser-lightning_*"))
+    socket_dirs += glob.glob(os.path.join(tmpdir, "agent-browser-sonic_*"))
 
     if not socket_dirs:
         return
@@ -1356,7 +1356,7 @@ def _reap_orphaned_browser_sessions():
                 owner_alive = None  # corrupt file — fall through
 
         if owner_alive is True:
-            # Owner is alive — this session belongs to a live lightning process.
+            # Owner is alive — this session belongs to a live sonic process.
             continue
 
         if owner_alive is None:
@@ -1751,7 +1751,7 @@ def _find_agent_browser() -> str:
     """
     Find the agent-browser CLI executable.
 
-    Checks in order: current PATH, Homebrew/common bin dirs, Lightning-managed
+    Checks in order: current PATH, Homebrew/common bin dirs, Sonic-managed
     node, local node_modules/.bin/, npx fallback.
 
     Returns:
@@ -1782,7 +1782,7 @@ def _find_agent_browser() -> str:
         _agent_browser_resolved = True
         return which_result
 
-    # Build an extended search PATH including Lightning-managed Node, macOS
+    # Build an extended search PATH including Sonic-managed Node, macOS
     # versioned Homebrew installs, and fallback system dirs like Termux.
     extended_path = _merge_browser_path("")
     if extended_path:
@@ -1820,20 +1820,20 @@ def _find_agent_browser() -> str:
 
     # Nothing found — try lazy installation before giving up.
     try:
-        from lightning_cli.dep_ensure import ensure_dependency
+        from sonic_cli.dep_ensure import ensure_dependency
         if ensure_dependency("browser"):
             recheck = shutil.which("agent-browser")
             if not recheck and extended_path:
                 recheck = shutil.which("agent-browser", path=extended_path)
             if not recheck:
-                lightning_nm = str(get_lightning_home() / "node_modules" / ".bin")
-                recheck = shutil.which("agent-browser", path=lightning_nm)
+                sonic_nm = str(get_sonic_home() / "node_modules" / ".bin")
+                recheck = shutil.which("agent-browser", path=sonic_nm)
             if not recheck:
-                lightning_node_bin = str(get_lightning_home() / "node" / "bin")
-                recheck = shutil.which("agent-browser", path=lightning_node_bin)
+                sonic_node_bin = str(get_sonic_home() / "node" / "bin")
+                recheck = shutil.which("agent-browser", path=sonic_node_bin)
             if not recheck:
-                lightning_node_root = str(get_lightning_home() / "node")
-                recheck = shutil.which("agent-browser", path=lightning_node_root)
+                sonic_node_root = str(get_sonic_home() / "node")
+                recheck = shutil.which("agent-browser", path=sonic_node_root)
             if recheck:
                 _cached_agent_browser = recheck
                 _agent_browser_resolved = True
@@ -1918,7 +1918,7 @@ def _run_browser_command(
             hint = (
                 "Chromium browser is missing. You're running in Docker — pull "
                 "the latest image to get the bundled Chromium: "
-                "docker pull ghcr.io/nousresearch/lightning-agent:latest"
+                "docker pull ghcr.io/nousresearch/sonic-agent:latest"
             )
         else:
             hint = (
@@ -1984,7 +1984,7 @@ def _run_browser_command(
             f"agent-browser-{session_info['session_name']}"
         )
         os.makedirs(task_socket_dir, mode=0o700, exist_ok=True)
-        # Record this lightning PID as the session owner (cross-process safe
+        # Record this sonic PID as the session owner (cross-process safe
         # orphan detection — see _write_owner_pid).
         _write_owner_pid(task_socket_dir, session_info['session_name'])
         logger.debug("browser cmd=%s task=%s socket_dir=%s (%d chars)",
@@ -2939,15 +2939,15 @@ def _maybe_start_recording(task_id: str):
         if task_id in _recording_sessions:
             return
     try:
-        from lightning_cli.config import read_raw_config
-        lightning_home = get_lightning_home()
+        from sonic_cli.config import read_raw_config
+        sonic_home = get_sonic_home()
         cfg = read_raw_config()
         record_enabled = cfg_get(cfg, "browser", "record_sessions", default=False)
 
         if not record_enabled:
             return
 
-        recordings_dir = lightning_home / "browser_recordings"
+        recordings_dir = sonic_home / "browser_recordings"
         recordings_dir.mkdir(parents=True, exist_ok=True)
         _cleanup_old_recordings(max_age_hours=72)
 
@@ -3069,8 +3069,8 @@ def browser_vision(question: str, annotate: bool = False, task_id: Optional[str]
 
     import base64
     import uuid as uuid_mod
-    from lightning_constants import get_lightning_dir
-    screenshots_dir = get_lightning_dir("cache/screenshots", "browser_screenshots")
+    from sonic_constants import get_sonic_dir
+    screenshots_dir = get_sonic_dir("cache/screenshots", "browser_screenshots")
     screenshot_path = screenshots_dir / f"browser_screenshot_{uuid_mod.uuid4().hex}.png"
     effective_task_id = _last_session_key(task_id or "default")
 
@@ -3097,8 +3097,8 @@ def browser_vision(question: str, annotate: bool = False, task_id: Optional[str]
             _lp_fallback_warning = fb_result.get("fallback_warning")
             fb_path = fb_result.get("data", {}).get("path", "")
             if fb_path and os.path.exists(fb_path):
-                from lightning_constants import get_lightning_dir
-                screenshots_dir = get_lightning_dir("cache/screenshots", "browser_screenshots")
+                from sonic_constants import get_sonic_dir
+                screenshots_dir = get_sonic_dir("cache/screenshots", "browser_screenshots")
                 screenshots_dir.mkdir(parents=True, exist_ok=True)
                 import shutil as _shutil_vision
                 persistent_path = screenshots_dir / f"browser_screenshot_{uuid_mod.uuid4().hex}.png"
@@ -3206,7 +3206,7 @@ def browser_vision(question: str, annotate: bool = False, task_id: Optional[str]
         vision_timeout = 120.0
         vision_temperature = 0.1
         try:
-            from lightning_cli.config import load_config
+            from sonic_cli.config import load_config
             _cfg = load_config()
             _vision_cfg = cfg_get(_cfg, "auxiliary", "vision", default={})
             _vt = _vision_cfg.get("timeout")
@@ -3313,8 +3313,8 @@ def _cleanup_old_screenshots(screenshots_dir, max_age_hours=24):
 def _cleanup_old_recordings(max_age_hours=72):
     """Remove browser recordings older than max_age_hours to prevent disk bloat."""
     try:
-        lightning_home = get_lightning_home()
-        recordings_dir = lightning_home / "browser_recordings"
+        sonic_home = get_sonic_home()
+        recordings_dir = sonic_home / "browser_recordings"
         if not recordings_dir.exists():
             return
         cutoff = time.time() - (max_age_hours * 3600)
@@ -3496,7 +3496,7 @@ def _chromium_search_roots() -> List[str]:
     Order mirrors what agent-browser and Playwright actually probe:
 
     1. ``PLAYWRIGHT_BROWSERS_PATH`` when set (Docker image sets this to
-       ``/opt/lightning/.playwright``).
+       ``/opt/sonic/.playwright``).
     2. ``~/.cache/ms-playwright`` — Playwright's default on Linux/macOS.
     3. ``~/Library/Caches/ms-playwright`` — Playwright's default on macOS.
     4. ``%USERPROFILE%\\AppData\\Local\\ms-playwright`` — Playwright's default
@@ -3683,7 +3683,7 @@ if __name__ == "__main__":
                         "     Docker: pull the latest image — the current one "
                         "predates the bundled Chromium install"
                     )
-                    print("       docker pull ghcr.io/nousresearch/lightning-agent:latest")
+                    print("       docker pull ghcr.io/nousresearch/sonic-agent:latest")
                 else:
                     print("     Install it with:")
                     print("       npx agent-browser install --with-deps")

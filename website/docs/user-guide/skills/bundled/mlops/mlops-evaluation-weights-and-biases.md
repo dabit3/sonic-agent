@@ -26,7 +26,7 @@ W&B: log ML experiments, sweeps, model registry, dashboards.
 ## Reference: full SKILL.md
 
 :::info
-The following is the complete skill definition that Lightning loads when this skill is triggered. This is what the agent sees as instructions when the skill is active.
+The following is the complete skill definition that Sonic loads when this skill is triggered. This is what the agent sees as instructions when the skill is active.
 :::
 
 # Weights & Biases: ML Experiment Tracking & MLOps
@@ -424,16 +424,16 @@ trainer = Trainer(
 trainer.train()
 ```
 
-### PyTorch Lightning
+### PyTorch Sonic
 
 ```python
-from pytorch_lightning import Trainer
-from pytorch_lightning.loggers import WandbLogger
+from pytorch_sonic import Trainer
+from pytorch_sonic.loggers import WandbLogger
 import wandb
 
 # Create W&B logger
 wandb_logger = WandbLogger(
-    project="lightning-demo",
+    project="sonic-demo",
     log_model=True  # Log model checkpoints
 )
 

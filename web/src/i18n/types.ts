@@ -137,8 +137,8 @@ export interface Translations {
     starting: string;
     startedInBackground: string;
     stopped: string;
-    updateLightning: string;
-    updatingLightning: string;
+    updateSonic: string;
+    updatingSonic: string;
     waitingForOutput: string;
   };
 
@@ -453,7 +453,7 @@ export interface Translations {
     switchTheme: string;
   };
 
-  // ── Achievements plugin (plugins/lightning-achievements) ──
+  // ── Achievements plugin (plugins/sonic-achievements) ──
   achievements: {
     hero: {
       kicker: string;

@@ -2,12 +2,12 @@
 name: ascii-art
 description: "ASCII art: pyfiglet, cowsay, boxes, image-to-ascii."
 version: 4.0.0
-author: 0xbyt4, Lightning Agent
+author: 0xbyt4, Sonic Agent
 license: MIT
 dependencies: []
 platforms: [linux, macos, windows]
 metadata:
-  lightning:
+  sonic:
     tags: [ASCII, Art, Banners, Creative, Unicode, Text-Art, pyfiglet, figlet, cowsay, boxes]
     related_skills: [excalidraw]
 
@@ -156,9 +156,9 @@ boxes -l                                       # List all 70+ designs
 ### Combine with pyfiglet or asciified
 
 ```bash
-python3 -m pyfiglet "LIGHTNING" -f slant | boxes -d stone
+python3 -m pyfiglet "SONIC" -f slant | boxes -d stone
 # Or without pyfiglet installed:
-curl -s "https://asciified.thelicato.io/api/v2/ascii?text=LIGHTNING&font=Slant" | boxes -d stone
+curl -s "https://asciified.thelicato.io/api/v2/ascii?text=SONIC&font=Slant" | boxes -d stone
 ```
 
 ## Tool 5: TOIlet (Colored Text Art)

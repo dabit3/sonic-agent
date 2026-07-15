@@ -1,4 +1,4 @@
-import { forceRedraw, useInput } from '@lightning/ink'
+import { forceRedraw, useInput } from '@sonic/ink'
 import { useStore } from '@nanostores/react'
 import { useEffect, useRef } from 'react'
 

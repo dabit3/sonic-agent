@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@lightning/ink": ["src/types/lightning-ink.d.ts"]
+      "@sonic/ink": ["src/types/sonic-ink.d.ts"]
     }
   }
 }

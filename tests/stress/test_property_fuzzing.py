@@ -234,16 +234,16 @@ def main():
     for seq_idx in range(NUM_SEQUENCES):
         seed = random.randint(0, 10**9)
         rng = random.Random(seed)
-        home = tempfile.mkdtemp(prefix=f"lightning_fuzz_{seq_idx}_")
-        os.environ["LIGHTNING_HOME"] = home
+        home = tempfile.mkdtemp(prefix=f"sonic_fuzz_{seq_idx}_")
+        os.environ["SONIC_HOME"] = home
         os.environ["HOME"] = home
         sys.path.insert(0, WT)
 
         # Fresh module state per sequence to avoid cached init paths.
         for m in list(sys.modules.keys()):
-            if m.startswith("lightning_cli"):
+            if m.startswith("sonic_cli"):
                 del sys.modules[m]
-        from lightning_cli import kanban_db as kb
+        from sonic_cli import kanban_db as kb
 
         kb.init_db()
         conn = kb.connect()

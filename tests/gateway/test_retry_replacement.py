@@ -12,10 +12,10 @@ from gateway.session import SessionStore
 
 @pytest.mark.asyncio
 async def test_gateway_retry_replaces_last_user_turn_in_transcript(tmp_path, monkeypatch):
-    # Pin DEFAULT_DB_PATH so SessionDB() doesn't write to the real ~/.lightning/state.db.
+    # Pin DEFAULT_DB_PATH so SessionDB() doesn't write to the real ~/.sonic/state.db.
     # (Module-level constant snapshot, see test_load_transcript_db_only.)
-    import lightning_state
-    monkeypatch.setattr(lightning_state, "DEFAULT_DB_PATH", tmp_path / "state.db")
+    import sonic_state
+    monkeypatch.setattr(sonic_state, "DEFAULT_DB_PATH", tmp_path / "state.db")
 
     config = GatewayConfig()
     store = SessionStore(sessions_dir=tmp_path, config=config)

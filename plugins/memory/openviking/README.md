@@ -11,13 +11,13 @@ Context database by Volcengine (ByteDance) with filesystem-style knowledge hiera
 ## Setup
 
 ```bash
-lightning memory setup    # select "openviking"
+sonic memory setup    # select "openviking"
 ```
 
 Or manually:
 ```bash
-lightning config set memory.provider openviking
-echo "OPENVIKING_ENDPOINT=http://localhost:1933" >> ~/.lightning/.env
+sonic config set memory.provider openviking
+echo "OPENVIKING_ENDPOINT=http://localhost:1933" >> ~/.sonic/.env
 ```
 
 ## Config

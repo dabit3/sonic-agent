@@ -5,7 +5,7 @@ animated pixel effects (stars, rain, fireflies, etc.), then encodes to MP4
 (and optionally GIF) via ffmpeg.
 
 Scene animations ported from pixel-art-studio (MIT) — see ATTRIBUTION.md.
-The generative/Pollinations code is intentionally dropped — Lightning uses
+The generative/Pollinations code is intentionally dropped — Sonic uses
 `image_generate` + `pixel_art()` for base frames instead.
 
 Usage (import):
@@ -120,10 +120,10 @@ def draw_rain(draw, rain, t, W, H):
         _px(draw, r["x"], y + 4, (100, 130, 180), 1)
 
 
-def init_lightning(rng, W, H):
+def init_sonic(rng, W, H):
     return {"timer": 0, "flash": False, "rng": rng}
 
-def draw_lightning(draw, state, t, W, H):
+def draw_sonic(draw, state, t, W, H):
     state["timer"] += 1
     if state["timer"] > 45 and state["rng"].random() < 0.04:
         state["flash"] = True
@@ -212,7 +212,7 @@ SCENES = {
     "urban":      ["rain", "neon_pulse"],
     "nature":     ["leaves", "fireflies"],
     "magic":      ["sparkles", "fireflies"],
-    "storm":      ["rain", "lightning"],
+    "storm":      ["rain", "sonic"],
     "underwater": ["bubbles", "sparkles"],
     "fire":       ["embers", "sparkles"],
     "snow":       ["snowflakes", "sparkles"],
@@ -227,7 +227,7 @@ _LAYERS = {
     "dust_motes":   (init_dust_motes, draw_dust_motes),
     "sparkles":     (init_sparkles, draw_sparkles),
     "rain":         (init_rain, draw_rain),
-    "lightning":    (init_lightning, draw_lightning),
+    "sonic":    (init_sonic, draw_sonic),
     "bubbles":      (init_bubbles, draw_bubbles),
     "embers":       (init_embers, draw_embers),
     "snowflakes":   (init_snowflakes, draw_snowflakes),

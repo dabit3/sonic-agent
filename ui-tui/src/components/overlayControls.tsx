@@ -1,4 +1,4 @@
-import { Text, useInput } from '@lightning/ink'
+import { Text, useInput } from '@sonic/ink'
 
 import type { Theme } from '../theme.js'
 

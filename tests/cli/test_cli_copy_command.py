@@ -2,11 +2,11 @@
 
 from unittest.mock import MagicMock, patch
 
-from cli import LightningCLI
+from cli import SonicCLI
 
 
-def _make_cli() -> LightningCLI:
-    cli_obj = LightningCLI.__new__(LightningCLI)
+def _make_cli() -> SonicCLI:
+    cli_obj = SonicCLI.__new__(SonicCLI)
     cli_obj.config = {}
     cli_obj.console = MagicMock()
     cli_obj.agent = None

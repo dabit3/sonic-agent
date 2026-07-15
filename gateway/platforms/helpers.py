@@ -227,8 +227,8 @@ class ThreadParticipationTracker:
         }
 
     def _state_path(self) -> Path:
-        from lightning_constants import get_lightning_home
-        return get_lightning_home() / f"{self._platform}_threads.json"
+        from sonic_constants import get_sonic_home
+        return get_sonic_home() / f"{self._platform}_threads.json"
 
     def _load(self) -> list[str]:
         path = self._state_path()

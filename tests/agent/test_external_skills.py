@@ -21,97 +21,97 @@ def external_skills_dir(tmp_path):
 
 
 @pytest.fixture
-def lightning_home(tmp_path):
-    """Create a minimal LIGHTNING_HOME with config."""
-    home = tmp_path / ".lightning"
+def sonic_home(tmp_path):
+    """Create a minimal SONIC_HOME with config."""
+    home = tmp_path / ".sonic"
     home.mkdir()
     (home / "skills").mkdir()
     return home
 
 
 class TestGetExternalSkillsDirs:
-    def test_empty_config(self, lightning_home):
-        (lightning_home / "config.yaml").write_text("skills:\n  external_dirs: []\n")
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+    def test_empty_config(self, sonic_home):
+        (sonic_home / "config.yaml").write_text("skills:\n  external_dirs: []\n")
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             from agent.skill_utils import get_external_skills_dirs
             result = get_external_skills_dirs()
         assert result == []
 
-    def test_nonexistent_dir_skipped(self, lightning_home):
-        (lightning_home / "config.yaml").write_text(
+    def test_nonexistent_dir_skipped(self, sonic_home):
+        (sonic_home / "config.yaml").write_text(
             "skills:\n  external_dirs:\n    - /nonexistent/path\n"
         )
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             from agent.skill_utils import get_external_skills_dirs
             result = get_external_skills_dirs()
         assert result == []
 
-    def test_valid_dir_returned(self, lightning_home, external_skills_dir):
-        (lightning_home / "config.yaml").write_text(
+    def test_valid_dir_returned(self, sonic_home, external_skills_dir):
+        (sonic_home / "config.yaml").write_text(
             f"skills:\n  external_dirs:\n    - {external_skills_dir}\n"
         )
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             from agent.skill_utils import get_external_skills_dirs
             result = get_external_skills_dirs()
         assert len(result) == 1
         assert result[0] == external_skills_dir.resolve()
 
-    def test_duplicate_dirs_deduplicated(self, lightning_home, external_skills_dir):
-        (lightning_home / "config.yaml").write_text(
+    def test_duplicate_dirs_deduplicated(self, sonic_home, external_skills_dir):
+        (sonic_home / "config.yaml").write_text(
             f"skills:\n  external_dirs:\n    - {external_skills_dir}\n    - {external_skills_dir}\n"
         )
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             from agent.skill_utils import get_external_skills_dirs
             result = get_external_skills_dirs()
         assert len(result) == 1
 
-    def test_local_skills_dir_excluded(self, lightning_home):
-        local_skills = lightning_home / "skills"
-        (lightning_home / "config.yaml").write_text(
+    def test_local_skills_dir_excluded(self, sonic_home):
+        local_skills = sonic_home / "skills"
+        (sonic_home / "config.yaml").write_text(
             f"skills:\n  external_dirs:\n    - {local_skills}\n"
         )
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             from agent.skill_utils import get_external_skills_dirs
             result = get_external_skills_dirs()
         assert result == []
 
-    def test_no_config_file(self, lightning_home):
+    def test_no_config_file(self, sonic_home):
         # No config.yaml at all
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             from agent.skill_utils import get_external_skills_dirs
             result = get_external_skills_dirs()
         assert result == []
 
-    def test_string_value_converted_to_list(self, lightning_home, external_skills_dir):
-        (lightning_home / "config.yaml").write_text(
+    def test_string_value_converted_to_list(self, sonic_home, external_skills_dir):
+        (sonic_home / "config.yaml").write_text(
             f"skills:\n  external_dirs: {external_skills_dir}\n"
         )
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             from agent.skill_utils import get_external_skills_dirs
             result = get_external_skills_dirs()
         assert len(result) == 1
 
 
 class TestGetAllSkillsDirs:
-    def test_local_always_first(self, lightning_home, external_skills_dir):
-        (lightning_home / "config.yaml").write_text(
+    def test_local_always_first(self, sonic_home, external_skills_dir):
+        (sonic_home / "config.yaml").write_text(
             f"skills:\n  external_dirs:\n    - {external_skills_dir}\n"
         )
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             from agent.skill_utils import get_all_skills_dirs
             result = get_all_skills_dirs()
-        assert result[0] == lightning_home / "skills"
+        assert result[0] == sonic_home / "skills"
         assert result[1] == external_skills_dir.resolve()
 
 
 class TestExternalSkillsInFindAll:
-    def test_external_skills_found(self, lightning_home, external_skills_dir):
-        (lightning_home / "config.yaml").write_text(
+    def test_external_skills_found(self, sonic_home, external_skills_dir):
+        (sonic_home / "config.yaml").write_text(
             f"skills:\n  external_dirs:\n    - {external_skills_dir}\n"
         )
-        local_skills = lightning_home / "skills"
+        local_skills = sonic_home / "skills"
         with (
-            patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}),
+            patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}),
             patch("tools.skills_tool.SKILLS_DIR", local_skills),
         ):
             from tools.skills_tool import _find_all_skills
@@ -119,19 +119,19 @@ class TestExternalSkillsInFindAll:
         names = [s["name"] for s in skills]
         assert "my-external-skill" in names
 
-    def test_local_takes_precedence(self, lightning_home, external_skills_dir):
+    def test_local_takes_precedence(self, sonic_home, external_skills_dir):
         """If the same skill name exists locally and externally, local wins."""
-        local_skills = lightning_home / "skills"
+        local_skills = sonic_home / "skills"
         local_skill = local_skills / "my-external-skill"
         local_skill.mkdir(parents=True)
         (local_skill / "SKILL.md").write_text(
             "---\nname: my-external-skill\ndescription: Local version\n---\n\nLocal.\n"
         )
-        (lightning_home / "config.yaml").write_text(
+        (sonic_home / "config.yaml").write_text(
             f"skills:\n  external_dirs:\n    - {external_skills_dir}\n"
         )
         with (
-            patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}),
+            patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}),
             patch("tools.skills_tool.SKILLS_DIR", local_skills),
         ):
             from tools.skills_tool import _find_all_skills
@@ -142,13 +142,13 @@ class TestExternalSkillsInFindAll:
 
 
 class TestExternalSkillView:
-    def test_skill_view_finds_external(self, lightning_home, external_skills_dir):
-        (lightning_home / "config.yaml").write_text(
+    def test_skill_view_finds_external(self, sonic_home, external_skills_dir):
+        (sonic_home / "config.yaml").write_text(
             f"skills:\n  external_dirs:\n    - {external_skills_dir}\n"
         )
-        local_skills = lightning_home / "skills"
+        local_skills = sonic_home / "skills"
         with (
-            patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}),
+            patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}),
             patch("tools.skills_tool.SKILLS_DIR", local_skills),
         ):
             from tools.skills_tool import skill_view

@@ -10,23 +10,23 @@ Server-side LLM fact extraction with semantic search, reranking, and automatic d
 ## Setup
 
 ```bash
-lightning memory setup    # select "mem0"
+sonic memory setup    # select "mem0"
 ```
 
 Or manually:
 ```bash
-lightning config set memory.provider mem0
-echo "MEM0_API_KEY=your-key" >> ~/.lightning/.env
+sonic config set memory.provider mem0
+echo "MEM0_API_KEY=your-key" >> ~/.sonic/.env
 ```
 
 ## Config
 
-Config file: `$LIGHTNING_HOME/mem0.json`
+Config file: `$SONIC_HOME/mem0.json`
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `user_id` | `lightning-user` | User identifier on Mem0 |
-| `agent_id` | `lightning` | Agent identifier |
+| `user_id` | `sonic-user` | User identifier on Mem0 |
+| `agent_id` | `sonic` | Agent identifier |
 | `rerank` | `true` | Enable reranking for recall |
 
 ## Tools

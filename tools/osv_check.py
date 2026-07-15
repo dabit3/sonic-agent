@@ -142,7 +142,7 @@ def _query_osv(
         data=data,
         headers={
             "Content-Type": "application/json",
-            "User-Agent": "lightning-agent-osv-check/1.0",
+            "User-Agent": "sonic-agent-osv-check/1.0",
         },
         method="POST",
     )

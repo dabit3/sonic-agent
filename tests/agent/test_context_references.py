@@ -24,7 +24,7 @@ def sample_repo(tmp_path: Path) -> Path:
     repo = tmp_path / "repo"
     repo.mkdir()
     _git(repo, "init")
-    _git(repo, "config", "user.name", "Lightning Tests")
+    _git(repo, "config", "user.name", "Sonic Tests")
     _git(repo, "config", "user.email", "tests@example.com")
 
     (repo / "src").mkdir()
@@ -309,22 +309,22 @@ def test_defaults_allowed_root_to_cwd(tmp_path: Path):
 
 
 @pytest.mark.asyncio
-async def test_blocks_sensitive_home_and_lightning_paths(tmp_path: Path, monkeypatch):
+async def test_blocks_sensitive_home_and_sonic_paths(tmp_path: Path, monkeypatch):
     from agent.context_references import preprocess_context_references_async
 
     monkeypatch.setenv("HOME", str(tmp_path))
-    monkeypatch.setenv("LIGHTNING_HOME", str(tmp_path / ".lightning"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / ".sonic"))
 
-    lightning_env = tmp_path / ".lightning" / ".env"
-    lightning_env.parent.mkdir(parents=True)
-    lightning_env.write_text("API_KEY=super-secret\n", encoding="utf-8")
+    sonic_env = tmp_path / ".sonic" / ".env"
+    sonic_env.parent.mkdir(parents=True)
+    sonic_env.write_text("API_KEY=super-secret\n", encoding="utf-8")
 
     ssh_key = tmp_path / ".ssh" / "id_rsa"
     ssh_key.parent.mkdir(parents=True)
     ssh_key.write_text("PRIVATE-KEY\n", encoding="utf-8")
 
     result = await preprocess_context_references_async(
-        "read @file:.lightning/.env and @file:.ssh/id_rsa",
+        "read @file:.sonic/.env and @file:.ssh/id_rsa",
         cwd=tmp_path,
         allowed_root=tmp_path,
         context_length=100_000,

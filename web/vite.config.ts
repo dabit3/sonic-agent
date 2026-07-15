@@ -3,27 +3,27 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
-const BACKEND = process.env.LIGHTNING_DASHBOARD_URL ?? "http://127.0.0.1:9119";
+const BACKEND = process.env.SONIC_DASHBOARD_URL ?? "http://127.0.0.1:9119";
 
 /**
- * In production the Python `lightning dashboard` server injects a one-shot
- * session token into `index.html` (see `lightning_cli/web_server.py`). The
+ * In production the Python `sonic dashboard` server injects a one-shot
+ * session token into `index.html` (see `sonic_cli/web_server.py`). The
  * Vite dev server serves its own `index.html`, so unless we forward that
  * token, every protected `/api/*` call 401s.
  *
  * This plugin fetches the running dashboard's `index.html` on each dev page
- * load, scrapes the `window.__LIGHTNING_SESSION_TOKEN__` assignment, and
+ * load, scrapes the `window.__SONIC_SESSION_TOKEN__` assignment, and
  * re-injects it into the dev HTML. No-op in production builds.
  */
-function lightningDevToken(): Plugin {
-  const TOKEN_RE = /window\.__LIGHTNING_SESSION_TOKEN__\s*=\s*"([^"]+)"/;
+function sonicDevToken(): Plugin {
+  const TOKEN_RE = /window\.__SONIC_SESSION_TOKEN__\s*=\s*"([^"]+)"/;
   const EMBEDDED_RE =
-    /window\.__LIGHTNING_DASHBOARD_EMBEDDED_CHAT__\s*=\s*(true|false)/;
+    /window\.__SONIC_DASHBOARD_EMBEDDED_CHAT__\s*=\s*(true|false)/;
   const LEGACY_TUI_RE =
-    /window\.__LIGHTNING_DASHBOARD_TUI__\s*=\s*(true|false)/;
+    /window\.__SONIC_DASHBOARD_TUI__\s*=\s*(true|false)/;
 
   return {
-    name: "lightning:dev-session-token",
+    name: "sonic:dev-session-token",
     apply: "serve",
     async transformIndexHtml() {
       try {
@@ -32,8 +32,8 @@ function lightningDevToken(): Plugin {
         const match = html.match(TOKEN_RE);
         if (!match) {
           console.warn(
-            `[lightning] Could not find session token in ${BACKEND} — ` +
-              `is \`lightning dashboard\` running? /api calls will 401.`,
+            `[sonic] Could not find session token in ${BACKEND} — ` +
+              `is \`sonic dashboard\` running? /api calls will 401.`,
           );
           return;
         }
@@ -49,14 +49,14 @@ function lightningDevToken(): Plugin {
             tag: "script",
             injectTo: "head",
             children:
-              `window.__LIGHTNING_SESSION_TOKEN__="${match[1]}";` +
-              `window.__LIGHTNING_DASHBOARD_EMBEDDED_CHAT__=${embeddedJs};`,
+              `window.__SONIC_SESSION_TOKEN__="${match[1]}";` +
+              `window.__SONIC_DASHBOARD_EMBEDDED_CHAT__=${embeddedJs};`,
           },
         ];
       } catch (err) {
         console.warn(
-          `[lightning] Dashboard at ${BACKEND} unreachable — ` +
-            `start it with \`lightning dashboard\` or set LIGHTNING_DASHBOARD_URL. ` +
+          `[sonic] Dashboard at ${BACKEND} unreachable — ` +
+            `start it with \`sonic dashboard\` or set SONIC_DASHBOARD_URL. ` +
             `(${(err as Error).message})`,
         );
       }
@@ -65,7 +65,7 @@ function lightningDevToken(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), lightningDevToken()],
+  plugins: [react(), tailwindcss(), sonicDevToken()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -90,7 +90,7 @@ export default defineConfig({
     ],
   },
   build: {
-    outDir: "../lightning_cli/web_dist",
+    outDir: "../sonic_cli/web_dist",
     emptyOutDir: true,
   },
   server: {
@@ -99,7 +99,7 @@ export default defineConfig({
         target: BACKEND,
         ws: true,
       },
-      // Same host as `lightning dashboard` must serve these; Vite has no
+      // Same host as `sonic dashboard` must serve these; Vite has no
       // dashboard-plugins/* files, so without this, plugin scripts 404
       // or receive index.html in dev.
       "/dashboard-plugins": BACKEND,

@@ -1,18 +1,18 @@
 """Centralized Nous Portal request tags.
 
-Every Lightning request that hits the Nous Portal — main agent loop, auxiliary
+Every Sonic request that hits the Nous Portal — main agent loop, auxiliary
 client (compression / titles / vision / web_extract / session_search / etc.),
 and any future code path — must carry the same product-attribution tags so
-Nous can attribute usage to Lightning Agent and bucket it by client release.
+Nous can attribute usage to Sonic Agent and bucket it by client release.
 
 Tag shape (sent in OpenAI-compatible ``extra_body['tags']``):
 
     [
-        "product=lightning-agent",
-        "client=lightning-client-v<__version__>",
+        "product=sonic-agent",
+        "client=sonic-client-v<__version__>",
     ]
 
-The version is sourced live from ``lightning_cli.__version__`` so it auto-aligns
+The version is sourced live from ``sonic_cli.__version__`` so it auto-aligns
 to whatever release is installed; the release script
 (``scripts/release.py``) regex-bumps that single string, and every Portal
 request picks up the new tag on the next process start.
@@ -26,7 +26,7 @@ Why one helper instead of inlining the literal at each site:
 
 Do NOT pre-compute these as module-level constants in the consumers. The
 version can change at runtime (editable installs, hot-reload tooling), and
-``lightning_cli.__version__`` is the canonical source of truth.
+``sonic_cli.__version__`` is the canonical source of truth.
 """
 
 from __future__ import annotations
@@ -34,25 +34,25 @@ from __future__ import annotations
 from typing import List
 
 
-def _lightning_version() -> str:
-    """Return the current Lightning release version, e.g. ``"0.13.0"``.
+def _sonic_version() -> str:
+    """Return the current Sonic release version, e.g. ``"0.13.0"``.
 
-    Falls back to ``"unknown"`` if ``lightning_cli`` cannot be imported (should
+    Falls back to ``"unknown"`` if ``sonic_cli`` cannot be imported (should
     never happen in a real install — guarded for defensive testing).
     """
     try:
-        from lightning_cli import __version__
+        from sonic_cli import __version__
         return __version__
     except Exception:
         return "unknown"
 
 
-def lightning_client_tag() -> str:
+def sonic_client_tag() -> str:
     """Return the ``client=...`` tag for Nous Portal requests.
 
-    Format: ``client=lightning-client-v<MAJOR>.<MINOR>.<PATCH>``.
+    Format: ``client=sonic-client-v<MAJOR>.<MINOR>.<PATCH>``.
     """
-    return f"client=lightning-client-v{_lightning_version()}"
+    return f"client=sonic-client-v{_sonic_version()}"
 
 
 def nous_portal_tags() -> List[str]:
@@ -61,4 +61,4 @@ def nous_portal_tags() -> List[str]:
     Always returns a fresh list so callers can mutate it freely
     (e.g. ``merged_extra.setdefault("tags", []).extend(nous_portal_tags())``).
     """
-    return ["product=lightning-agent", lightning_client_tag()]
+    return ["product=sonic-agent", sonic_client_tag()]

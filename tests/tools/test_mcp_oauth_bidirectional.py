@@ -1,4 +1,4 @@
-"""Regression test for the ``LightningMCPOAuthProvider.async_auth_flow`` bidirectional
+"""Regression test for the ``SonicMCPOAuthProvider.async_auth_flow`` bidirectional
 generator bridge.
 
 PR #11383 introduced a subclass method that wrapped the SDK's ``auth_flow`` with::
@@ -35,7 +35,7 @@ pytest.importorskip("mcp.client.auth.oauth2", reason="MCP SDK 1.26.0+ required")
 
 
 @pytest.mark.asyncio
-async def test_lightning_provider_forwards_asend_values(tmp_path, monkeypatch):
+async def test_sonic_provider_forwards_asend_values(tmp_path, monkeypatch):
     """The wrapper MUST forward ``.asend(response)`` into the inner generator.
 
     This is the primary regression test. With the broken wrapper, the inner
@@ -47,18 +47,18 @@ async def test_lightning_provider_forwards_asend_values(tmp_path, monkeypatch):
     from mcp.shared.auth import OAuthClientMetadata, OAuthToken
     from pydantic import AnyUrl
 
-    from tools.mcp_oauth import LightningTokenStorage
-    from tools.mcp_oauth_manager import _LIGHTNING_PROVIDER_CLS, reset_manager_for_tests
+    from tools.mcp_oauth import SonicTokenStorage
+    from tools.mcp_oauth_manager import _SONIC_PROVIDER_CLS, reset_manager_for_tests
 
-    assert _LIGHTNING_PROVIDER_CLS is not None, "SDK OAuth types must be available"
+    assert _SONIC_PROVIDER_CLS is not None, "SDK OAuth types must be available"
 
-    monkeypatch.setenv("LIGHTNING_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     reset_manager_for_tests()
 
     # Seed a valid-looking token so the SDK's _initialize loads something and
     # can_refresh_token() is True (though we don't exercise refresh here — we
     # go straight through the 200 path).
-    storage = LightningTokenStorage("srv")
+    storage = SonicTokenStorage("srv")
     await storage.set_tokens(
         OAuthToken(
             access_token="old_access",
@@ -82,9 +82,9 @@ async def test_lightning_provider_forwards_asend_values(tmp_path, monkeypatch):
 
     metadata = OAuthClientMetadata(
         redirect_uris=[AnyUrl("http://127.0.0.1:12345/callback")],
-        client_name="Lightning Agent",
+        client_name="Sonic Agent",
     )
-    provider = _LIGHTNING_PROVIDER_CLS(
+    provider = _SONIC_PROVIDER_CLS(
         server_name="srv",
         server_url="https://example.com/mcp",
         client_metadata=metadata,
@@ -116,7 +116,7 @@ async def test_lightning_provider_forwards_asend_values(tmp_path, monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_lightning_provider_forwards_401_triggers_refresh(tmp_path, monkeypatch):
+async def test_sonic_provider_forwards_401_triggers_refresh(tmp_path, monkeypatch):
     """A 401 response MUST flow into the inner generator and trigger the
     SDK's 401 recovery branch.
 
@@ -129,15 +129,15 @@ async def test_lightning_provider_forwards_401_triggers_refresh(tmp_path, monkey
     from mcp.shared.auth import OAuthClientInformationFull, OAuthClientMetadata, OAuthToken
     from pydantic import AnyUrl
 
-    from tools.mcp_oauth import LightningTokenStorage
-    from tools.mcp_oauth_manager import _LIGHTNING_PROVIDER_CLS, reset_manager_for_tests
+    from tools.mcp_oauth import SonicTokenStorage
+    from tools.mcp_oauth_manager import _SONIC_PROVIDER_CLS, reset_manager_for_tests
 
-    assert _LIGHTNING_PROVIDER_CLS is not None
+    assert _SONIC_PROVIDER_CLS is not None
 
-    monkeypatch.setenv("LIGHTNING_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     reset_manager_for_tests()
 
-    storage = LightningTokenStorage("srv")
+    storage = SonicTokenStorage("srv")
     await storage.set_tokens(
         OAuthToken(
             access_token="old_access",
@@ -158,9 +158,9 @@ async def test_lightning_provider_forwards_401_triggers_refresh(tmp_path, monkey
 
     metadata = OAuthClientMetadata(
         redirect_uris=[AnyUrl("http://127.0.0.1:12345/callback")],
-        client_name="Lightning Agent",
+        client_name="Sonic Agent",
     )
-    provider = _LIGHTNING_PROVIDER_CLS(
+    provider = _SONIC_PROVIDER_CLS(
         server_name="srv",
         server_url="https://example.com/mcp",
         client_metadata=metadata,

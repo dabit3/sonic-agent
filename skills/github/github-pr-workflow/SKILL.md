@@ -2,11 +2,11 @@
 name: github-pr-workflow
 description: "GitHub PR lifecycle: branch, commit, open, CI, merge."
 version: 1.1.0
-author: Lightning Agent
+author: Sonic Agent
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
-  lightning:
+  sonic:
     tags: [GitHub, Pull-Requests, CI/CD, Git, Automation, Merge]
     related_skills: [github-auth, github-code-review]
 ---
@@ -30,8 +30,8 @@ else
   AUTH="git"
   # Ensure we have a token for API calls
   if [ -z "$GITHUB_TOKEN" ]; then
-    if [ -f ~/.lightning/.env ] && grep -q "^GITHUB_TOKEN=" ~/.lightning/.env; then
-      GITHUB_TOKEN=$(grep "^GITHUB_TOKEN=" ~/.lightning/.env | head -1 | cut -d= -f2 | tr -d '\n\r')
+    if [ -f ~/.sonic/.env ] && grep -q "^GITHUB_TOKEN=" ~/.sonic/.env; then
+      GITHUB_TOKEN=$(grep "^GITHUB_TOKEN=" ~/.sonic/.env | head -1 | cut -d= -f2 | tr -d '\n\r')
     elif grep -q "github.com" ~/.git-credentials 2>/dev/null; then
       GITHUB_TOKEN=$(grep "github.com" ~/.git-credentials 2>/dev/null | head -1 | sed 's|https://[^:]*:\([^@]*\)@.*|\1|')
     fi

@@ -7,7 +7,7 @@ license: MIT
 dependencies: [accelerate, torch, transformers]
 platforms: [linux, macos, windows]
 metadata:
-  lightning:
+  sonic:
     tags: [Distributed Training, HuggingFace, Accelerate, DeepSpeed, FSDP, Mixed Precision, PyTorch, DDP, Unified API, Simple]
 
 ---
@@ -251,7 +251,7 @@ for batch in dataloader:
 - **Single launch**: Works everywhere
 
 **Use alternatives instead**:
-- **PyTorch Lightning**: Need callbacks, high-level abstractions
+- **PyTorch Sonic**: Need callbacks, high-level abstractions
 - **Ray Train**: Multi-node orchestration, hyperparameter tuning
 - **DeepSpeed**: Direct API control, advanced features
 - **Raw DDP**: Maximum control, minimal abstraction

@@ -34,18 +34,18 @@ WORKER_TIMEOUT_S = 60
 WT = str(Path(__file__).resolve().parents[2])
 
 
-def worker_loop(worker_id: int, lightning_home: str, result_file: str) -> None:
+def worker_loop(worker_id: int, sonic_home: str, result_file: str) -> None:
     """One worker's inner loop. Runs in a fresh Python process.
 
     Tries to claim a ready task, marks it done with a per-worker summary,
     repeats until the ready pool is empty. Records every claim + complete
     into its own JSON result file for later aggregation.
     """
-    os.environ["LIGHTNING_HOME"] = lightning_home
-    os.environ["HOME"] = lightning_home
+    os.environ["SONIC_HOME"] = sonic_home
+    os.environ["HOME"] = sonic_home
     sys.path.insert(0, WT)
 
-    from lightning_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
 
     events = []
     empty_polls = 0
@@ -118,14 +118,14 @@ def worker_loop(worker_id: int, lightning_home: str, result_file: str) -> None:
 
 
 def main():
-    home = tempfile.mkdtemp(prefix="lightning_concurrency_")
-    print(f"LIGHTNING_HOME = {home}")
+    home = tempfile.mkdtemp(prefix="sonic_concurrency_")
+    print(f"SONIC_HOME = {home}")
 
     # Seed.
-    os.environ["LIGHTNING_HOME"] = home
+    os.environ["SONIC_HOME"] = home
     os.environ["HOME"] = home
     sys.path.insert(0, WT)
-    from lightning_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
 
     kb.init_db()
     conn = kb.connect()

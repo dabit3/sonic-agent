@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Fake worker process that exercises the real subprocess contract.
 
-Reads LIGHTNING_KANBAN_TASK from env, heartbeats periodically, does short
+Reads SONIC_KANBAN_TASK from env, heartbeats periodically, does short
 work, completes via the CLI. Designed to be spawned by the dispatcher
-exactly the way `lightning chat -q` would be, minus the LLM cost.
+exactly the way `sonic chat -q` would be, minus the LLM cost.
 """
 
 import json
@@ -14,12 +14,12 @@ import time
 
 
 def main():
-    tid = os.environ["LIGHTNING_KANBAN_TASK"]
-    workspace = os.environ.get("LIGHTNING_KANBAN_WORKSPACE", "")
+    tid = os.environ["SONIC_KANBAN_TASK"]
+    workspace = os.environ.get("SONIC_KANBAN_WORKSPACE", "")
 
     # Announce via CLI (goes through real argparse + init_db + etc)
     subprocess.run(
-        ["lightning", "kanban", "heartbeat", tid, "--note", "started"],
+        ["sonic", "kanban", "heartbeat", tid, "--note", "started"],
         check=True, capture_output=True,
     )
 
@@ -27,14 +27,14 @@ def main():
     for i in range(3):
         time.sleep(0.3)
         subprocess.run(
-            ["lightning", "kanban", "heartbeat", tid, "--note", f"progress {i+1}/3"],
+            ["sonic", "kanban", "heartbeat", tid, "--note", f"progress {i+1}/3"],
             check=True, capture_output=True,
         )
 
     # Complete with structured handoff
     subprocess.run(
         [
-            "lightning", "kanban", "complete", tid,
+            "sonic", "kanban", "complete", tid,
             "--summary", f"real-subprocess worker finished {tid}",
             "--metadata", json.dumps({
                 "workspace": workspace,

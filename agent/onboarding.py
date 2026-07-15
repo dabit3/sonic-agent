@@ -96,19 +96,19 @@ def tool_progress_hint_cli() -> str:
 
 
 def openclaw_residue_hint_cli() -> str:
-    """Banner shown the first time Lightning starts and finds ``~/.openclaw/``.
+    """Banner shown the first time Sonic starts and finds ``~/.openclaw/``.
 
-    Points users at ``lightning claw migrate`` (non-destructive port of config,
-    memory, and skills) first. ``lightning claw cleanup`` is mentioned as the
+    Points users at ``sonic claw migrate`` (non-destructive port of config,
+    memory, and skills) first. ``sonic claw cleanup`` is mentioned as the
     follow-up step for users who have already migrated and want to archive
     the old directory — with a warning that archiving breaks OpenClaw.
     """
     return (
         "A legacy OpenClaw directory was detected at ~/.openclaw/.\n"
-        "To port your config, memory, and skills over to Lightning, run "
-        "`lightning claw migrate`.\n"
+        "To port your config, memory, and skills over to Sonic, run "
+        "`sonic claw migrate`.\n"
         "If you've already migrated and want to archive the old directory, "
-        "run `lightning claw cleanup` (renames it to ~/.openclaw.pre-migration — "
+        "run `sonic claw cleanup` (renames it to ~/.openclaw.pre-migration — "
         "OpenClaw will stop working after this).\n"
         "This tip only shows once."
     )

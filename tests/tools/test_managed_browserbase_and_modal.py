@@ -69,10 +69,10 @@ def _enable_managed_nous_tools(monkeypatch):
     The _install_fake_tools_package() helper resets and reimports tool modules,
     so a simple monkeypatch on tool_backend_helpers doesn't survive.  We patch
     the *source* modules that the reimported modules will import from — both
-    lightning_cli.auth and lightning_cli.models — so the function body returns True.
+    sonic_cli.auth and sonic_cli.models — so the function body returns True.
     """
-    monkeypatch.setattr("lightning_cli.auth.get_nous_auth_status", lambda: {"logged_in": True})
-    monkeypatch.setattr("lightning_cli.models.check_nous_free_tier", lambda: False)
+    monkeypatch.setattr("sonic_cli.auth.get_nous_auth_status", lambda: {"logged_in": True})
+    monkeypatch.setattr("sonic_cli.models.check_nous_free_tier", lambda: False)
 
 
 def _install_fake_tools_package():
@@ -190,7 +190,7 @@ def test_browser_use_explicit_local_mode_stays_local_even_when_managed_gateway_i
     env = os.environ.copy()
     env.pop("BROWSER_USE_API_KEY", None)
     env.update({
-        "LIGHTNING_HOME": str(tmp_path),
+        "SONIC_HOME": str(tmp_path),
         "TOOL_GATEWAY_USER_TOKEN": "nous-token",
         "BROWSER_USE_GATEWAY_URL": "http://127.0.0.1:3009",
     })

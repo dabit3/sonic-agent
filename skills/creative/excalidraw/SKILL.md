@@ -2,12 +2,12 @@
 name: excalidraw
 description: "Hand-drawn Excalidraw JSON diagrams (arch, flow, seq)."
 version: 1.0.0
-author: Lightning Agent
+author: Sonic Agent
 license: MIT
 dependencies: []
 platforms: [linux, macos, windows]
 metadata:
-  lightning:
+  sonic:
     tags: [Excalidraw, Diagrams, Flowcharts, Architecture, Visualization, JSON]
     related_skills: []
 
@@ -36,7 +36,7 @@ Wrap your elements array in the standard `.excalidraw` envelope and save with `w
 {
   "type": "excalidraw",
   "version": 2,
-  "source": "lightning-agent",
+  "source": "sonic-agent",
   "elements": [ ...your elements array here... ],
   "appState": {
     "viewBackgroundColor": "#ffffff"

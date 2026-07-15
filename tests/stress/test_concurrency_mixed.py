@@ -30,11 +30,11 @@ RUN_DURATION_S = 30
 WT = str(Path(__file__).resolve().parents[2])
 
 
-def worker_loop(worker_id: int, lightning_home: str, result_file: str) -> None:
-    os.environ["LIGHTNING_HOME"] = lightning_home
-    os.environ["HOME"] = lightning_home
+def worker_loop(worker_id: int, sonic_home: str, result_file: str) -> None:
+    os.environ["SONIC_HOME"] = sonic_home
+    os.environ["HOME"] = sonic_home
     sys.path.insert(0, WT)
-    from lightning_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
 
     events = []
     start = time.monotonic()
@@ -141,12 +141,12 @@ def worker_loop(worker_id: int, lightning_home: str, result_file: str) -> None:
         json.dump(events, f)
 
 
-def reclaimer_loop(lightning_home: str, result_file: str) -> None:
+def reclaimer_loop(sonic_home: str, result_file: str) -> None:
     """Background dispatcher-like loop that reclaims stale tasks."""
-    os.environ["LIGHTNING_HOME"] = lightning_home
-    os.environ["HOME"] = lightning_home
+    os.environ["SONIC_HOME"] = sonic_home
+    os.environ["HOME"] = sonic_home
     sys.path.insert(0, WT)
-    from lightning_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
 
     events = []
     start = time.monotonic()
@@ -170,13 +170,13 @@ def reclaimer_loop(lightning_home: str, result_file: str) -> None:
 
 
 def main():
-    home = tempfile.mkdtemp(prefix="lightning_mixed_stress_")
-    print(f"LIGHTNING_HOME = {home}")
+    home = tempfile.mkdtemp(prefix="sonic_mixed_stress_")
+    print(f"SONIC_HOME = {home}")
 
-    os.environ["LIGHTNING_HOME"] = home
+    os.environ["SONIC_HOME"] = home
     os.environ["HOME"] = home
     sys.path.insert(0, WT)
-    from lightning_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
 
     kb.init_db()
     conn = kb.connect()

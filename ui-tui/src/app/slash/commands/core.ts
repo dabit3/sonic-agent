@@ -1,4 +1,4 @@
-import { forceRedraw, type MouseTrackingMode } from '@lightning/ink'
+import { forceRedraw, type MouseTrackingMode } from '@sonic/ink'
 
 import { NO_CONFIRM_DESTRUCTIVE } from '../../../config/env.js'
 import { dailyFortune, randomFortune } from '../../../content/fortunes.js'
@@ -111,17 +111,17 @@ export const coreCommands: SlashCommand[] = [
 
   {
     aliases: ['exit', 'q'],
-    help: 'exit lightning',
+    help: 'exit sonic',
     name: 'quit',
     run: (_arg, ctx) => ctx.session.die()
   },
 
   {
-    help: 'update Lightning Agent to the latest version (exits TUI)',
+    help: 'update Sonic Agent to the latest version (exits TUI)',
     name: 'update',
     run: (_arg, ctx) => {
       ctx.transcript.sys('exiting TUI to run update...')
-      // Exit code 42 signals the Python wrapper to exec `lightning update`.
+      // Exit code 42 signals the Python wrapper to exec `sonic update`.
       // Use dieWithCode for proper cleanup (gateway kill + Ink unmount).
       setTimeout(() => ctx.session.dieWithCode(42), 100)
     }
@@ -369,7 +369,7 @@ export const coreCommands: SlashCommand[] = [
           return sys(`copied ${text.length} characters`)
         } else {
           return sys(
-            'clipboard copy failed — try LIGHTNING_TUI_FORCE_OSC52=1 to force the escape sequence'
+            'clipboard copy failed — try SONIC_TUI_FORCE_OSC52=1 to force the escape sequence'
           )
         }
       }
@@ -474,7 +474,7 @@ export const coreCommands: SlashCommand[] = [
       const preview = Math.max(80, parseInt(arg, 10) || 400)
 
       const lines = items.map((m, i) => {
-        const tag = m.role === 'user' ? `You #${i + 1}` : `Lightning #${i + 1}`
+        const tag = m.role === 'user' ? `You #${i + 1}` : `Sonic #${i + 1}`
         const body = m.text.trim() || (m.tools?.length ? `(${m.tools.length} tool calls)` : '(empty)')
         const clipped = body.length > preview ? `${body.slice(0, preview).trimEnd()}…` : body
 

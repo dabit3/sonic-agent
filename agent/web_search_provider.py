@@ -9,7 +9,7 @@ the active one (selected via ``web.search_backend`` / ``web.extract_backend`` /
 ``web_extract`` tool call.
 
 Providers live in ``<repo>/plugins/web/<name>/`` (built-in, auto-loaded as
-``kind: backend``) or ``~/.lightning/plugins/web/<name>/`` (user, opt-in via
+``kind: backend``) or ``~/.sonic/plugins/web/<name>/`` (user, opt-in via
 ``plugins.enabled``).
 
 This ABC is the SINGLE plugin-facing surface for web providers — every
@@ -84,7 +84,7 @@ class WebSearchProvider(abc.ABC):
 
     @property
     def display_name(self) -> str:
-        """Human-readable label shown in ``lightning tools``. Defaults to ``name``."""
+        """Human-readable label shown in ``sonic tools``. Defaults to ``name``."""
         return self.name
 
     @abc.abstractmethod
@@ -93,7 +93,7 @@ class WebSearchProvider(abc.ABC):
 
         Typically a cheap check (env var present, optional Python dep
         importable, instance URL set). Must NOT make network calls — this
-        runs at tool-registration time and on every ``lightning tools`` paint.
+        runs at tool-registration time and on every ``sonic tools`` paint.
         """
 
     def supports_search(self) -> bool:
@@ -194,9 +194,9 @@ class WebSearchProvider(abc.ABC):
         )
 
     def get_setup_schema(self) -> Dict[str, Any]:
-        """Return provider metadata for the ``lightning tools`` picker.
+        """Return provider metadata for the ``sonic tools`` picker.
 
-        Used by ``lightning_cli/tools_config.py`` to inject this provider as a
+        Used by ``sonic_cli/tools_config.py`` to inject this provider as a
         row in the Web Search / Web Extract picker. Shape::
 
             {

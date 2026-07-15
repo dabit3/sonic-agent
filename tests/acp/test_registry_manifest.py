@@ -1,4 +1,4 @@
-"""Tests for ACP Registry metadata shipped with Lightning."""
+"""Tests for ACP Registry metadata shipped with Sonic."""
 
 from __future__ import annotations
 
@@ -28,11 +28,11 @@ def test_agent_json_matches_official_registry_required_fields():
     data = _manifest()
 
     assert FORBIDDEN_MANIFEST_KEYS.isdisjoint(data)
-    assert data["id"] == "lightning-agent"
+    assert data["id"] == "sonic-agent"
     assert re.fullmatch(r"[a-z][a-z0-9-]*", data["id"])
-    assert data["name"] == "Lightning Agent"
+    assert data["name"] == "Sonic Agent"
     assert data["description"]
-    assert data["repository"] == "https://github.com/NousResearch/lightning-agent"
+    assert data["repository"] == "https://github.com/dabit3/sonic-agent"
     assert data["website"].startswith("https://lightning-agent.nousresearch.com/")
     assert data["authors"] == ["Nous Research"]
     assert data["license"] == "MIT"
@@ -47,8 +47,8 @@ def test_agent_json_uses_uvx_distribution_without_local_command_fields():
     # Schema allows {package, args, env}; we use {package, args}.
     assert set(uvx) <= {"package", "args", "env"}
     assert "package" in uvx
-    assert uvx["package"] == f"lightning-agent[acp]=={data['version']}"
-    assert uvx["args"] == ["lightning-acp"]
+    assert uvx["package"] == f"sonic-agent[acp]=={data['version']}"
+    assert uvx["args"] == ["sonic-acp"]
     # Old command-shape fields must not leak back in.
     assert "type" not in data["distribution"]
     assert "command" not in data["distribution"]
@@ -62,7 +62,7 @@ def test_agent_json_pins_uvx_package_to_pyproject_version():
     """The registry CI rejects ``@latest`` and floating pins; the manifest must
     always reference the exact PyPI version listed in pyproject.toml."""
     assert _manifest()["distribution"]["uvx"]["package"] == (
-        f"lightning-agent[acp]=={_pyproject_version()}"
+        f"sonic-agent[acp]=={_pyproject_version()}"
     )
 
 

@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from lightning_cli.profiles import _get_default_lightning_home
+from sonic_cli.profiles import _get_default_sonic_home
 
 import pytest
 
@@ -24,8 +24,8 @@ from plugins.memory.honcho.client import (
 class TestHonchoClientConfigDefaults:
     def test_default_values(self):
         config = HonchoClientConfig()
-        assert config.host == "lightning"
-        assert config.workspace_id == "lightning"
+        assert config.host == "sonic"
+        assert config.workspace_id == "sonic"
         assert config.api_key is None
         assert config.environment == "production"
         assert config.timeout is None
@@ -103,7 +103,7 @@ class TestFromGlobalConfig:
             "workspace": "my-workspace",
             "environment": "staging",
             "peerName": "alice",
-            "aiPeer": "lightning-custom",
+            "aiPeer": "sonic-custom",
             "enabled": True,
             "saveMessages": False,
             "contextTokens": 2000,
@@ -111,14 +111,14 @@ class TestFromGlobalConfig:
             "sessionPeerPrefix": True,
             "sessions": {"/home/user/proj": "my-session"},
             "hosts": {
-                "lightning": {
+                "sonic": {
                     "workspace": "override-ws",
                     "aiPeer": "override-ai",
                 }
             }
         }))
-        # Isolate from real ~/.lightning/honcho.json
-        monkeypatch.setenv("LIGHTNING_HOME", str(tmp_path / "isolated"))
+        # Isolate from real ~/.sonic/honcho.json
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path / "isolated"))
 
         config = HonchoClientConfig.from_global_config(config_path=config_file)
         assert config.api_key == "***"
@@ -139,7 +139,7 @@ class TestFromGlobalConfig:
             "workspace": "root-ws",
             "aiPeer": "root-ai",
             "hosts": {
-                "lightning": {
+                "sonic": {
                     "workspace": "host-ws",
                     "aiPeer": "host-ai",
                 }
@@ -196,7 +196,7 @@ class TestFromGlobalConfig:
         config_file.write_text(json.dumps({
             "apiKey": "key",
             "contextTokens": 1000,
-            "hosts": {"lightning": {"contextTokens": 2000}},
+            "hosts": {"sonic": {"contextTokens": 2000}},
         }))
         config = HonchoClientConfig.from_global_config(config_path=config_file)
         assert config.context_tokens == 2000
@@ -207,7 +207,7 @@ class TestFromGlobalConfig:
         config_file.write_text(json.dumps({
             "apiKey": "key",
             "recallMode": "tools",
-            "hosts": {"lightning": {"recallMode": "context"}},
+            "hosts": {"sonic": {"recallMode": "context"}},
         }))
         config = HonchoClientConfig.from_global_config(config_path=config_file)
         assert config.recall_mode == "context"
@@ -258,7 +258,7 @@ class TestFromGlobalConfig:
         config_file = tmp_path / "config.json"
         config_file.write_text(json.dumps({
             "baseUrl": "http://root:9000",
-            "hosts": {"lightning": {"baseUrl": "http://host-block:9001"}},
+            "hosts": {"sonic": {"baseUrl": "http://host-block:9001"}},
         }))
 
         config = HonchoClientConfig.from_global_config(config_path=config_file)
@@ -308,10 +308,10 @@ class TestResolveSessionName:
     def test_per_repo_uses_git_root(self):
         config = HonchoClientConfig(session_strategy="per-repo")
         with patch.object(
-            HonchoClientConfig, "_git_repo_name", return_value="lightning-agent"
+            HonchoClientConfig, "_git_repo_name", return_value="sonic-agent"
         ):
-            result = config.resolve_session_name("/home/user/lightning-agent/subdir")
-        assert result == "lightning-agent"
+            result = config.resolve_session_name("/home/user/sonic-agent/subdir")
+        assert result == "sonic-agent"
 
     def test_per_repo_with_peer_prefix(self):
         config = HonchoClientConfig(
@@ -341,63 +341,63 @@ class TestResolveSessionName:
 
 
 class TestResolveConfigPath:
-    def test_prefers_lightning_home_when_exists(self, tmp_path):
-        lightning_home = tmp_path / "lightning"
-        lightning_home.mkdir()
-        local_cfg = lightning_home / "honcho.json"
+    def test_prefers_sonic_home_when_exists(self, tmp_path):
+        sonic_home = tmp_path / "sonic"
+        sonic_home.mkdir()
+        local_cfg = sonic_home / "honcho.json"
         local_cfg.write_text('{"apiKey": "local"}')
 
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             result = resolve_config_path()
         assert result == local_cfg
 
     def test_falls_back_to_default_profile_when_no_local(self, tmp_path, monkeypatch):
-        # Profile mode: LIGHTNING_HOME points at ~/.lightning/profiles/<name>, so
-        # _get_default_lightning_home() must resolve back to ~/.lightning — that's
+        # Profile mode: SONIC_HOME points at ~/.sonic/profiles/<name>, so
+        # _get_default_sonic_home() must resolve back to ~/.sonic — that's
         # the bug the HOME-anchored helper fixes (vs. blindly using Path.home()).
         fake_home = tmp_path / "fakehome"
         fake_home.mkdir()
-        default_home = fake_home / ".lightning"
+        default_home = fake_home / ".sonic"
         profile_home = default_home / "profiles" / "work"
         profile_home.mkdir(parents=True)
         default_cfg = default_home / "honcho.json"
         default_cfg.write_text('{"apiKey": "default-key"}')
 
         monkeypatch.setattr(Path, "home", lambda: fake_home)
-        monkeypatch.setenv("LIGHTNING_HOME", str(profile_home))
+        monkeypatch.setenv("SONIC_HOME", str(profile_home))
 
         result = resolve_config_path()
 
-        assert _get_default_lightning_home() == default_home
+        assert _get_default_sonic_home() == default_home
         assert result == default_cfg
 
-    def test_falls_back_to_global_without_lightning_home_env(self, tmp_path):
+    def test_falls_back_to_global_without_sonic_home_env(self, tmp_path):
         fake_home = tmp_path / "fakehome"
         fake_home.mkdir()
 
         with patch.dict(os.environ, {}, clear=False), \
              patch.object(Path, "home", return_value=fake_home):
-            os.environ.pop("LIGHTNING_HOME", None)
+            os.environ.pop("SONIC_HOME", None)
             result = resolve_config_path()
         assert result == fake_home / ".honcho" / "config.json"
 
     def test_global_fallback_uses_home_at_call_time(self, tmp_path):
         fake_home = tmp_path / "fakehome"
         fake_home.mkdir()
-        lightning_home = tmp_path / "lightning"
-        lightning_home.mkdir()
+        sonic_home = tmp_path / "sonic"
+        sonic_home.mkdir()
 
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}), \
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}), \
              patch.object(Path, "home", return_value=fake_home):
             assert resolve_global_config_path() == fake_home / ".honcho" / "config.json"
             assert resolve_config_path() == fake_home / ".honcho" / "config.json"
 
     def test_from_global_config_uses_default_profile_fallback(self, tmp_path, monkeypatch):
         # Profile mode: from_global_config() reads the default-profile honcho.json
-        # via the HOME-anchored helper, not Path.home() / ".lightning".
+        # via the HOME-anchored helper, not Path.home() / ".sonic".
         fake_home = tmp_path / "fakehome"
         fake_home.mkdir()
-        default_home = fake_home / ".lightning"
+        default_home = fake_home / ".sonic"
         profile_home = default_home / "profiles" / "work"
         profile_home.mkdir(parents=True)
         default_cfg = default_home / "honcho.json"
@@ -407,7 +407,7 @@ class TestResolveConfigPath:
         }))
 
         monkeypatch.setattr(Path, "home", lambda: fake_home)
-        monkeypatch.setenv("LIGHTNING_HOME", str(profile_home))
+        monkeypatch.setenv("SONIC_HOME", str(profile_home))
 
         config = HonchoClientConfig.from_global_config()
 
@@ -415,15 +415,15 @@ class TestResolveConfigPath:
         assert config.workspace_id == "default-ws"
 
     def test_from_global_config_uses_local_path(self, tmp_path):
-        lightning_home = tmp_path / "lightning"
-        lightning_home.mkdir()
-        local_cfg = lightning_home / "honcho.json"
+        sonic_home = tmp_path / "sonic"
+        sonic_home.mkdir()
+        local_cfg = sonic_home / "honcho.json"
         local_cfg.write_text(json.dumps({
             "apiKey": "***",
             "workspace": "local-ws",
         }))
 
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}), \
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}), \
              patch.object(Path, "home", return_value=tmp_path):
             config = HonchoClientConfig.from_global_config()
         assert config.api_key == "***"
@@ -431,83 +431,83 @@ class TestResolveConfigPath:
 
 
 class TestResolveActiveHost:
-    def test_default_returns_lightning(self):
+    def test_default_returns_sonic(self):
         with patch.dict(os.environ, {}, clear=True):
-            os.environ.pop("LIGHTNING_HONCHO_HOST", None)
-            os.environ.pop("LIGHTNING_HOME", None)
-            assert resolve_active_host() == "lightning"
+            os.environ.pop("SONIC_HONCHO_HOST", None)
+            os.environ.pop("SONIC_HOME", None)
+            assert resolve_active_host() == "sonic"
 
     def test_explicit_env_var_wins(self):
-        with patch.dict(os.environ, {"LIGHTNING_HONCHO_HOST": "lightning.coder"}):
-            assert resolve_active_host() == "lightning.coder"
+        with patch.dict(os.environ, {"SONIC_HONCHO_HOST": "sonic.coder"}):
+            assert resolve_active_host() == "sonic.coder"
 
     def test_profile_name_derives_host(self):
         with patch.dict(os.environ, {}, clear=False):
-            os.environ.pop("LIGHTNING_HONCHO_HOST", None)
-            with patch("lightning_cli.profiles.get_active_profile_name", return_value="coder"):
-                assert resolve_active_host() == "lightning.coder"
+            os.environ.pop("SONIC_HONCHO_HOST", None)
+            with patch("sonic_cli.profiles.get_active_profile_name", return_value="coder"):
+                assert resolve_active_host() == "sonic.coder"
 
-    def test_default_profile_returns_lightning(self):
+    def test_default_profile_returns_sonic(self):
         with patch.dict(os.environ, {}, clear=False):
-            os.environ.pop("LIGHTNING_HONCHO_HOST", None)
-            with patch("lightning_cli.profiles.get_active_profile_name", return_value="default"):
-                assert resolve_active_host() == "lightning"
+            os.environ.pop("SONIC_HONCHO_HOST", None)
+            with patch("sonic_cli.profiles.get_active_profile_name", return_value="default"):
+                assert resolve_active_host() == "sonic"
 
-    def test_custom_profile_returns_lightning(self):
+    def test_custom_profile_returns_sonic(self):
         with patch.dict(os.environ, {}, clear=False):
-            os.environ.pop("LIGHTNING_HONCHO_HOST", None)
-            with patch("lightning_cli.profiles.get_active_profile_name", return_value="custom"):
-                assert resolve_active_host() == "lightning"
+            os.environ.pop("SONIC_HONCHO_HOST", None)
+            with patch("sonic_cli.profiles.get_active_profile_name", return_value="custom"):
+                assert resolve_active_host() == "sonic"
 
     def test_profiles_import_failure_falls_back(self):
         import sys
         with patch.dict(os.environ, {}, clear=False):
-            os.environ.pop("LIGHTNING_HONCHO_HOST", None)
-            # Temporarily remove lightning_cli.profiles to simulate import failure
-            saved = sys.modules.get("lightning_cli.profiles")
-            sys.modules["lightning_cli.profiles"] = None  # type: ignore
+            os.environ.pop("SONIC_HONCHO_HOST", None)
+            # Temporarily remove sonic_cli.profiles to simulate import failure
+            saved = sys.modules.get("sonic_cli.profiles")
+            sys.modules["sonic_cli.profiles"] = None  # type: ignore
             try:
-                assert resolve_active_host() == "lightning"
+                assert resolve_active_host() == "sonic"
             finally:
                 if saved is not None:
-                    sys.modules["lightning_cli.profiles"] = saved
+                    sys.modules["sonic_cli.profiles"] = saved
                 else:
-                    sys.modules.pop("lightning_cli.profiles", None)
+                    sys.modules.pop("sonic_cli.profiles", None)
 
 
 class TestProfileScopedConfig:
     def test_from_env_uses_profile_host(self):
         with patch.dict(os.environ, {"HONCHO_API_KEY": "key"}):
-            config = HonchoClientConfig.from_env(host="lightning.coder")
-        assert config.host == "lightning.coder"
-        assert config.workspace_id == "lightning"  # shared workspace
-        assert config.ai_peer == "lightning.coder"
+            config = HonchoClientConfig.from_env(host="sonic.coder")
+        assert config.host == "sonic.coder"
+        assert config.workspace_id == "sonic"  # shared workspace
+        assert config.ai_peer == "sonic.coder"
 
     def test_from_env_default_workspace_preserved_for_default_host(self):
         with patch.dict(os.environ, {"HONCHO_API_KEY": "key"}):
-            config = HonchoClientConfig.from_env(host="lightning")
-        assert config.host == "lightning"
-        assert config.workspace_id == "lightning"
+            config = HonchoClientConfig.from_env(host="sonic")
+        assert config.host == "sonic"
+        assert config.workspace_id == "sonic"
 
     def test_from_global_config_reads_profile_host_block(self, tmp_path):
         config_file = tmp_path / "config.json"
         config_file.write_text(json.dumps({
             "apiKey": "shared-key",
             "hosts": {
-                "lightning": {"aiPeer": "lightning", "peerName": "alice"},
-                "lightning.coder": {
-                    "aiPeer": "lightning.coder",
+                "sonic": {"aiPeer": "sonic", "peerName": "alice"},
+                "sonic.coder": {
+                    "aiPeer": "sonic.coder",
                     "peerName": "alice-coder",
                     "workspace": "coder-ws",
                 },
             },
         }))
         config = HonchoClientConfig.from_global_config(
-            host="lightning.coder", config_path=config_file,
+            host="sonic.coder", config_path=config_file,
         )
-        assert config.host == "lightning.coder"
+        assert config.host == "sonic.coder"
         assert config.workspace_id == "coder-ws"
-        assert config.ai_peer == "lightning.coder"
+        assert config.ai_peer == "sonic.coder"
         assert config.peer_name == "alice-coder"
 
     def test_from_global_config_auto_resolves_host(self, tmp_path):
@@ -515,12 +515,12 @@ class TestProfileScopedConfig:
         config_file.write_text(json.dumps({
             "apiKey": "key",
             "hosts": {
-                "lightning.dreamer": {"peerName": "dreamer-user"},
+                "sonic.dreamer": {"peerName": "dreamer-user"},
             },
         }))
-        with patch("plugins.memory.honcho.client.resolve_active_host", return_value="lightning.dreamer"):
+        with patch("plugins.memory.honcho.client.resolve_active_host", return_value="sonic.dreamer"):
             config = HonchoClientConfig.from_global_config(config_path=config_file)
-        assert config.host == "lightning.dreamer"
+        assert config.host == "sonic.dreamer"
         assert config.peer_name == "dreamer-user"
 
 
@@ -532,7 +532,7 @@ class TestObservationModeMigration:
         cfg_file = tmp_path / "config.json"
         cfg_file.write_text(json.dumps({
             "apiKey": "k",
-            "hosts": {"lightning": {"enabled": True, "aiPeer": "lightning"}},
+            "hosts": {"sonic": {"enabled": True, "aiPeer": "sonic"}},
         }))
         cfg = HonchoClientConfig.from_global_config(config_path=cfg_file)
         assert cfg.observation_mode == "unified"
@@ -549,7 +549,7 @@ class TestObservationModeMigration:
         cfg_file = tmp_path / "config.json"
         cfg_file.write_text(json.dumps({
             "apiKey": "k",
-            "hosts": {"lightning": {"enabled": True, "observationMode": "directional"}},
+            "hosts": {"sonic": {"enabled": True, "observationMode": "directional"}},
         }))
         cfg = HonchoClientConfig.from_global_config(config_path=cfg_file)
         assert cfg.observation_mode == "directional"
@@ -560,7 +560,7 @@ class TestObservationModeMigration:
         cfg_file.write_text(json.dumps({
             "apiKey": "k",
             "observationMode": "unified",
-            "hosts": {"lightning": {"enabled": True}},
+            "hosts": {"sonic": {"enabled": True}},
         }))
         cfg = HonchoClientConfig.from_global_config(config_path=cfg_file)
         assert cfg.observation_mode == "unified"
@@ -570,7 +570,7 @@ class TestObservationModeMigration:
         cfg_file = tmp_path / "config.json"
         cfg_file.write_text(json.dumps({
             "apiKey": "k",
-            "hosts": {"lightning": {
+            "hosts": {"sonic": {
                 "enabled": True,
                 "observation": {
                     "user": {"observeMe": True, "observeOthers": False},
@@ -600,7 +600,7 @@ class TestGetHonchoClient:
         cfg = HonchoClientConfig(
             api_key="test-key",
             timeout=91.0,
-            workspace_id="lightning",
+            workspace_id="sonic",
             environment="production",
         )
 
@@ -615,16 +615,16 @@ class TestGetHonchoClient:
         not importlib.util.find_spec("honcho"),
         reason="honcho SDK not installed"
     )
-    def test_lightning_config_timeout_override_used_when_config_timeout_missing(self):
+    def test_sonic_config_timeout_override_used_when_config_timeout_missing(self):
         fake_honcho = MagicMock(name="Honcho")
         cfg = HonchoClientConfig(
             api_key="test-key",
-            workspace_id="lightning",
+            workspace_id="sonic",
             environment="production",
         )
 
         with patch("honcho.Honcho", return_value=fake_honcho) as mock_honcho, \
-             patch("lightning_cli.config.load_config", return_value={"honcho": {"timeout": 88}}):
+             patch("sonic_cli.config.load_config", return_value={"honcho": {"timeout": 88}}):
             client = get_honcho_client(cfg)
 
         assert client is fake_honcho
@@ -641,12 +641,12 @@ class TestGetHonchoClient:
         fake_honcho = MagicMock(name="Honcho")
         cfg = HonchoClientConfig(
             api_key="test-key",
-            workspace_id="lightning",
+            workspace_id="sonic",
             environment="production",
         )
 
         with patch("honcho.Honcho", return_value=fake_honcho) as mock_honcho, \
-             patch("lightning_cli.config.load_config", return_value={}):
+             patch("sonic_cli.config.load_config", return_value={}):
             client = get_honcho_client(cfg)
 
         assert client is fake_honcho
@@ -657,16 +657,16 @@ class TestGetHonchoClient:
         not importlib.util.find_spec("honcho"),
         reason="honcho SDK not installed"
     )
-    def test_lightning_request_timeout_alias_used(self):
+    def test_sonic_request_timeout_alias_used(self):
         fake_honcho = MagicMock(name="Honcho")
         cfg = HonchoClientConfig(
             api_key="test-key",
-            workspace_id="lightning",
+            workspace_id="sonic",
             environment="production",
         )
 
         with patch("honcho.Honcho", return_value=fake_honcho) as mock_honcho, \
-             patch("lightning_cli.config.load_config", return_value={"honcho": {"request_timeout": "77.5"}}):
+             patch("sonic_cli.config.load_config", return_value={"honcho": {"request_timeout": "77.5"}}):
             client = get_honcho_client(cfg)
 
         assert client is fake_honcho
@@ -826,7 +826,7 @@ class TestDialecticDepthParsing:
         config_file.write_text(json.dumps({
             "apiKey": "***",
             "dialecticDepth": 1,
-            "hosts": {"lightning": {"dialecticDepth": 3}},
+            "hosts": {"sonic": {"dialecticDepth": 3}},
         }))
         config = HonchoClientConfig.from_global_config(config_path=config_file)
         assert config.dialectic_depth == 3

@@ -101,7 +101,7 @@ class FirecrawlBrowserProvider(BrowserProvider):
             )
 
         data = response.json()
-        session_name = f"lightning_{task_id}_{uuid.uuid4().hex[:8]}"
+        session_name = f"sonic_{task_id}_{uuid.uuid4().hex[:8]}"
 
         logger.info("Created Firecrawl browser session %s", session_name)
 

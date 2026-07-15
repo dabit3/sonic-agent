@@ -1,6 +1,6 @@
 """Session adapter for codex app-server runtime.
 
-Owns one Codex thread per Lightning session. Drives `turn/start`, consumes
+Owns one Codex thread per Sonic session. Drives `turn/start`, consumes
 streaming notifications via CodexEventProjector, handles server-initiated
 approval requests (apply_patch, exec command), translates cancellation,
 and returns a clean turn result that AIAgent.run_conversation() can splice
@@ -49,9 +49,9 @@ _STDERR_TAIL_LINES = 12
 
 
 # Permission profile mapping mirrors the docstring in PR proposal:
-# Lightning' tools.terminal.security_mode → Codex's permissions profile id.
+# Sonic' tools.terminal.security_mode → Codex's permissions profile id.
 # Defaults if config is missing → workspace-write (matches Codex's own default).
-_LIGHTNING_TO_CODEX_PERMISSION_PROFILE = {
+_SONIC_TO_CODEX_PERMISSION_PROFILE = {
     "auto": "workspace-write",
     "approval-required": "read-only-with-approval",
     "unrestricted": "full-access",
@@ -152,7 +152,7 @@ class _ServerRequestRouting:
 
 
 class CodexAppServerSession:
-    """One Codex thread per Lightning session, lifetime owned by AIAgent.
+    """One Codex thread per Sonic session, lifetime owned by AIAgent.
 
     Not thread-safe — one caller drives it at a time, matching how AIAgent's
     run_conversation() loop is structured today. The codex client itself can
@@ -176,8 +176,8 @@ class CodexAppServerSession:
         self._codex_bin = codex_bin
         self._codex_home = codex_home
         self._permission_profile = (
-            permission_profile or _LIGHTNING_TO_CODEX_PERMISSION_PROFILE.get(
-                os.environ.get("LIGHTNING_TERMINAL_SECURITY_MODE", "auto"),
+            permission_profile or _SONIC_TO_CODEX_PERMISSION_PROFILE.get(
+                os.environ.get("SONIC_TERMINAL_SECURITY_MODE", "auto"),
                 "workspace-write",
             )
         )
@@ -210,9 +210,9 @@ class CodexAppServerSession:
                 codex_bin=self._codex_bin, codex_home=self._codex_home
             )
         self._client.initialize(
-            client_name="lightning",
-            client_title="Lightning Agent",
-            client_version=_get_lightning_version(),
+            client_name="sonic",
+            client_title="Sonic Agent",
+            client_version=_get_sonic_version(),
         )
         # Permission selection is intentionally NOT sent on thread/start.
         # Two reasons (live-tested against codex 0.130.0):
@@ -335,7 +335,7 @@ class CodexAppServerSession:
     ) -> TurnResult:
         """Send a user message and block until turn/completed, while
         forwarding server-initiated approval requests and projecting items
-        into Lightning' messages shape.
+        into Sonic' messages shape.
 
         post_tool_quiet_timeout: if codex emits a tool completion and then
         goes quiet for this many seconds without emitting another item or
@@ -366,7 +366,7 @@ class CodexAppServerSession:
         projector = CodexEventProjector()
 
         # Send turn/start with the user input. Text-only for now (codex
-        # supports rich content but Lightning' text path is the common case).
+        # supports rich content but Sonic' text path is the common case).
         try:
             ts = self._client.request(
                 "turn/start",
@@ -595,7 +595,7 @@ class CodexAppServerSession:
             logger.warning("turn/interrupt timed out")
 
     def _handle_server_request(self, req: dict) -> None:
-        """Translate a codex server request (approval) into Lightning' approval
+        """Translate a codex server request (approval) into Sonic' approval
         flow, then send the response.
 
         Method names verified live against codex 0.130.0 (Apr 2026):
@@ -627,14 +627,14 @@ class CodexAppServerSession:
         elif method == "mcpServer/elicitation/request":
             # Codex's MCP layer asks the user for structured input on
             # behalf of an MCP server (e.g. tool-call confirmation,
-            # OAuth, form data). For our own lightning-tools callback we
-            # auto-accept — the user already approved Lightning' tools
+            # OAuth, form data). For our own sonic-tools callback we
+            # auto-accept — the user already approved Sonic' tools
             # by enabling the runtime, and we never expose anything
             # codex's built-in shell can't already do. For other MCP
             # servers we decline so the user explicitly opts in via
             # codex's own auth flow.
             server_name = params.get("serverName") or ""
-            if server_name == "lightning-tools":
+            if server_name == "sonic-tools":
                 self._client.respond(
                     rid,
                     {"action": "accept", "content": None, "_meta": None},
@@ -767,10 +767,10 @@ class CodexAppServerSession:
 
 
 def _approval_choice_to_codex_decision(choice: str) -> str:
-    """Map Lightning approval choices onto codex's CommandExecutionApprovalDecision
+    """Map Sonic approval choices onto codex's CommandExecutionApprovalDecision
     / FileChangeApprovalDecision wire values.
 
-    Lightning returns 'once', 'session', 'always', or 'deny'.
+    Sonic returns 'once', 'session', 'always', or 'deny'.
     Codex expects 'accept', 'acceptForSession', 'decline', or 'cancel'
     (verified against codex-rs/app-server-protocol/src/protocol/v2/item.rs
     on codex 0.130.0).
@@ -800,11 +800,11 @@ def _has_turn_aborted_marker(text: str) -> bool:
     return False
 
 
-def _get_lightning_version() -> str:
-    """Best-effort Lightning version string for codex's userAgent line."""
+def _get_sonic_version() -> str:
+    """Best-effort Sonic version string for codex's userAgent line."""
     try:
         from importlib.metadata import version
 
-        return version("lightning-agent")
+        return version("sonic-agent")
     except Exception:  # pragma: no cover
         return "0.0.0"

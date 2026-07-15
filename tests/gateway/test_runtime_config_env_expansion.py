@@ -15,12 +15,12 @@ def _write_config(home, body: str) -> None:
 
 @pytest.fixture
 def gateway_home(monkeypatch, tmp_path):
-    monkeypatch.setattr(gateway_run, "_lightning_home", tmp_path)
-    monkeypatch.delenv("LIGHTNING_PREFILL_MESSAGES_FILE", raising=False)
-    monkeypatch.delenv("LIGHTNING_EPHEMERAL_SYSTEM_PROMPT", raising=False)
-    monkeypatch.delenv("LIGHTNING_GATEWAY_BUSY_INPUT_MODE", raising=False)
-    monkeypatch.delenv("LIGHTNING_RESTART_DRAIN_TIMEOUT", raising=False)
-    monkeypatch.delenv("LIGHTNING_BACKGROUND_NOTIFICATIONS", raising=False)
+    monkeypatch.setattr(gateway_run, "_sonic_home", tmp_path)
+    monkeypatch.delenv("SONIC_PREFILL_MESSAGES_FILE", raising=False)
+    monkeypatch.delenv("SONIC_EPHEMERAL_SYSTEM_PROMPT", raising=False)
+    monkeypatch.delenv("SONIC_GATEWAY_BUSY_INPUT_MODE", raising=False)
+    monkeypatch.delenv("SONIC_RESTART_DRAIN_TIMEOUT", raising=False)
+    monkeypatch.delenv("SONIC_BACKGROUND_NOTIFICATIONS", raising=False)
     return tmp_path
 
 

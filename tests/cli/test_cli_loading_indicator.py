@@ -2,12 +2,12 @@
 
 from unittest.mock import patch
 
-from cli import LightningCLI
+from cli import SonicCLI
 
 
 class TestCLILoadingIndicator:
     def _make_cli(self):
-        cli_obj = LightningCLI.__new__(LightningCLI)
+        cli_obj = SonicCLI.__new__(SonicCLI)
         cli_obj._app = None
         cli_obj._last_invalidate = 0.0
         cli_obj._command_running = False

@@ -239,7 +239,7 @@ def get_clarify_timeout() -> int:
     Reads ``agent.clarify_timeout`` from config.yaml.
     """
     try:
-        from lightning_cli.config import load_config
+        from sonic_cli.config import load_config
         cfg = load_config() or {}
         agent_cfg = cfg.get("agent", {}) or {}
         return int(agent_cfg.get("clarify_timeout", 600))

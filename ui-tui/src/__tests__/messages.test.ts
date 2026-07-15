@@ -1,4 +1,4 @@
-import { renderSync } from '@lightning/ink'
+import { renderSync } from '@sonic/ink'
 import React from 'react'
 import { PassThrough } from 'stream'
 import { describe, expect, it } from 'vitest'

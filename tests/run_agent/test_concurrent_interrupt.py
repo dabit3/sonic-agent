@@ -9,15 +9,15 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
-def _isolate_lightning(tmp_path, monkeypatch):
-    monkeypatch.setenv("LIGHTNING_HOME", str(tmp_path / ".lightning"))
-    (tmp_path / ".lightning").mkdir(exist_ok=True)
+def _isolate_sonic(tmp_path, monkeypatch):
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / ".sonic"))
+    (tmp_path / ".sonic").mkdir(exist_ok=True)
 
 
 def _make_agent(monkeypatch):
     """Create a minimal AIAgent-like object with just the methods under test."""
     monkeypatch.setenv("OPENROUTER_API_KEY", "")
-    monkeypatch.setenv("LIGHTNING_INFERENCE_PROVIDER", "")
+    monkeypatch.setenv("SONIC_INFERENCE_PROVIDER", "")
     # Avoid full AIAgent init — just import the class and build a stub
     import run_agent as _ra
 

@@ -1,26 +1,26 @@
 ---
 sidebar_position: 8
 title: "Context Files"
-description: "Project context files — .lightning.md, AGENTS.md, CLAUDE.md, global SOUL.md, and .cursorrules — automatically injected into every conversation"
+description: "Project context files — .sonic.md, AGENTS.md, CLAUDE.md, global SOUL.md, and .cursorrules — automatically injected into every conversation"
 ---
 
 # Context Files
 
-Lightning Agent automatically discovers and loads context files that shape how it behaves. Some are project-local and discovered from your working directory. `SOUL.md` is now global to the Lightning instance and is loaded from `LIGHTNING_HOME` only.
+Sonic Agent automatically discovers and loads context files that shape how it behaves. Some are project-local and discovered from your working directory. `SOUL.md` is now global to the Sonic instance and is loaded from `SONIC_HOME` only.
 
 ## Supported Context Files
 
 | File | Purpose | Discovery |
 |------|---------|-----------| 
-| **.lightning.md** / **LIGHTNING.md** | Project instructions (highest priority) | Walks to git root |
+| **.sonic.md** / **SONIC.md** | Project instructions (highest priority) | Walks to git root |
 | **AGENTS.md** | Project instructions, conventions, architecture | CWD at startup + subdirectories progressively |
 | **CLAUDE.md** | Claude Code context files (also detected) | CWD at startup + subdirectories progressively |
-| **SOUL.md** | Global personality and tone customization for this Lightning instance | `LIGHTNING_HOME/SOUL.md` only |
+| **SOUL.md** | Global personality and tone customization for this Sonic instance | `SONIC_HOME/SOUL.md` only |
 | **.cursorrules** | Cursor IDE coding conventions | CWD only |
 | **.cursor/rules/*.mdc** | Cursor IDE rule modules | CWD only |
 
 :::info Priority system
-Only **one** project context type is loaded per session (first match wins): `.lightning.md` → `AGENTS.md` → `CLAUDE.md` → `.cursorrules`. **SOUL.md** is always loaded independently as the agent identity (slot #1).
+Only **one** project context type is loaded per session (first match wins): `.sonic.md` → `AGENTS.md` → `CLAUDE.md` → `.cursorrules`. **SOUL.md** is always loaded independently as the agent identity (slot #1).
 :::
 
 ## AGENTS.md
@@ -29,7 +29,7 @@ Only **one** project context type is loaded per session (first match wins): `.li
 
 ### Progressive Subdirectory Discovery
 
-At session start, Lightning loads the `AGENTS.md` from your working directory into the system prompt. As the agent navigates into subdirectories during the session (via `read_file`, `terminal`, `search_files`, etc.), it **progressively discovers** context files in those directories and injects them into the conversation at the moment they become relevant.
+At session start, Sonic loads the `AGENTS.md` from your working directory into the system prompt. As the agent navigates into subdirectories during the session (via `read_file`, `terminal`, `search_files`, etc.), it **progressively discovers** context files in those directories and injects them into the conversation at the moment they become relevant.
 
 ```
 my-project/
@@ -83,22 +83,22 @@ This is a Next.js 14 web application with a Python FastAPI backend.
 
 **Location:**
 
-- `~/.lightning/SOUL.md`
-- or `$LIGHTNING_HOME/SOUL.md` if you run Lightning with a custom home directory
+- `~/.sonic/SOUL.md`
+- or `$SONIC_HOME/SOUL.md` if you run Sonic with a custom home directory
 
 Important details:
 
-- Lightning seeds a default `SOUL.md` automatically if one does not exist yet
-- Lightning loads `SOUL.md` only from `LIGHTNING_HOME`
-- Lightning does not probe the working directory for `SOUL.md`
+- Sonic seeds a default `SOUL.md` automatically if one does not exist yet
+- Sonic loads `SOUL.md` only from `SONIC_HOME`
+- Sonic does not probe the working directory for `SOUL.md`
 - If the file is empty, nothing from `SOUL.md` is added to the prompt
 - If the file has content, the content is injected verbatim after scanning and truncation
 
 ## .cursorrules
 
-Lightning is compatible with Cursor IDE's `.cursorrules` file and `.cursor/rules/*.mdc` rule modules. If these files exist in your project root and no higher-priority context file (`.lightning.md`, `AGENTS.md`, or `CLAUDE.md`) is found, they're loaded as the project context.
+Sonic is compatible with Cursor IDE's `.cursorrules` file and `.cursor/rules/*.mdc` rule modules. If these files exist in your project root and no higher-priority context file (`.sonic.md`, `AGENTS.md`, or `CLAUDE.md`) is found, they're loaded as the project context.
 
-This means your existing Cursor conventions automatically apply when using Lightning.
+This means your existing Cursor conventions automatically apply when using Sonic.
 
 ## How Context Files Are Loaded
 
@@ -106,7 +106,7 @@ This means your existing Cursor conventions automatically apply when using Light
 
 Context files are loaded by `build_context_files_prompt()` in `agent/prompt_builder.py`:
 
-1. **Scan working directory** — checks for `.lightning.md` → `AGENTS.md` → `CLAUDE.md` → `.cursorrules` (first match wins)
+1. **Scan working directory** — checks for `.sonic.md` → `AGENTS.md` → `CLAUDE.md` → `.cursorrules` (first match wins)
 2. **Content is read** — each file is read as UTF-8 text
 3. **Security scan** — content is checked for prompt injection patterns
 4. **Truncation** — files exceeding 20,000 characters are head/tail truncated (70% head, 20% tail, with a marker in the middle)

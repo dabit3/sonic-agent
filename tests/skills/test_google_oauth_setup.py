@@ -258,67 +258,67 @@ class TestExchangeAuthCode:
         assert not setup_module.PENDING_AUTH_PATH.exists()
 
 
-class TestLightningConstantsFallback:
-    """Tests for _lightning_home.py fallback when lightning_constants is unavailable."""
+class TestSonicConstantsFallback:
+    """Tests for _sonic_home.py fallback when sonic_constants is unavailable."""
 
     HELPER_PATH = (
         Path(__file__).resolve().parents[2]
-        / "skills/productivity/google-workspace/scripts/_lightning_home.py"
+        / "skills/productivity/google-workspace/scripts/_sonic_home.py"
     )
 
     def _load_helper(self, monkeypatch):
-        """Load _lightning_home.py with lightning_constants blocked."""
-        monkeypatch.setitem(sys.modules, "lightning_constants", None)
-        spec = importlib.util.spec_from_file_location("_lightning_home_test", self.HELPER_PATH)
+        """Load _sonic_home.py with sonic_constants blocked."""
+        monkeypatch.setitem(sys.modules, "sonic_constants", None)
+        spec = importlib.util.spec_from_file_location("_sonic_home_test", self.HELPER_PATH)
         module = importlib.util.module_from_spec(spec)
         assert spec.loader is not None
         spec.loader.exec_module(module)
         return module
 
-    def test_fallback_uses_lightning_home_env_var(self, monkeypatch, tmp_path):
-        """When lightning_constants is missing, LIGHTNING_HOME comes from env var."""
-        monkeypatch.setenv("LIGHTNING_HOME", str(tmp_path / "custom-lightning"))
+    def test_fallback_uses_sonic_home_env_var(self, monkeypatch, tmp_path):
+        """When sonic_constants is missing, SONIC_HOME comes from env var."""
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path / "custom-sonic"))
         module = self._load_helper(monkeypatch)
-        assert module.get_lightning_home() == tmp_path / "custom-lightning"
+        assert module.get_sonic_home() == tmp_path / "custom-sonic"
 
-    def test_fallback_defaults_to_dot_lightning(self, monkeypatch):
-        """When lightning_constants is missing and LIGHTNING_HOME unset, default to ~/.lightning."""
-        monkeypatch.delenv("LIGHTNING_HOME", raising=False)
+    def test_fallback_defaults_to_dot_sonic(self, monkeypatch):
+        """When sonic_constants is missing and SONIC_HOME unset, default to ~/.sonic."""
+        monkeypatch.delenv("SONIC_HOME", raising=False)
         module = self._load_helper(monkeypatch)
-        assert module.get_lightning_home() == Path.home() / ".lightning"
+        assert module.get_sonic_home() == Path.home() / ".sonic"
 
-    def test_fallback_ignores_empty_lightning_home(self, monkeypatch):
-        """Empty/whitespace LIGHTNING_HOME is treated as unset."""
-        monkeypatch.setenv("LIGHTNING_HOME", "  ")
+    def test_fallback_ignores_empty_sonic_home(self, monkeypatch):
+        """Empty/whitespace SONIC_HOME is treated as unset."""
+        monkeypatch.setenv("SONIC_HOME", "  ")
         module = self._load_helper(monkeypatch)
-        assert module.get_lightning_home() == Path.home() / ".lightning"
+        assert module.get_sonic_home() == Path.home() / ".sonic"
 
-    def test_fallback_display_lightning_home_shortens_path(self, monkeypatch):
-        """Fallback display_lightning_home() uses ~/ shorthand like the real one."""
-        monkeypatch.delenv("LIGHTNING_HOME", raising=False)
+    def test_fallback_display_sonic_home_shortens_path(self, monkeypatch):
+        """Fallback display_sonic_home() uses ~/ shorthand like the real one."""
+        monkeypatch.delenv("SONIC_HOME", raising=False)
         module = self._load_helper(monkeypatch)
-        assert module.display_lightning_home() == "~/.lightning"
+        assert module.display_sonic_home() == "~/.sonic"
 
-    def test_fallback_display_lightning_home_profile_path(self, monkeypatch):
-        """Fallback display_lightning_home() handles profile paths under ~/."""
-        monkeypatch.setenv("LIGHTNING_HOME", str(Path.home() / ".lightning/profiles/coder"))
+    def test_fallback_display_sonic_home_profile_path(self, monkeypatch):
+        """Fallback display_sonic_home() handles profile paths under ~/."""
+        monkeypatch.setenv("SONIC_HOME", str(Path.home() / ".sonic/profiles/coder"))
         module = self._load_helper(monkeypatch)
-        assert module.display_lightning_home() == "~/.lightning/profiles/coder"
+        assert module.display_sonic_home() == "~/.sonic/profiles/coder"
 
-    def test_fallback_display_lightning_home_custom_path(self, monkeypatch):
-        """Fallback display_lightning_home() returns full path for non-home locations."""
-        monkeypatch.setenv("LIGHTNING_HOME", "/opt/lightning-custom")
+    def test_fallback_display_sonic_home_custom_path(self, monkeypatch):
+        """Fallback display_sonic_home() returns full path for non-home locations."""
+        monkeypatch.setenv("SONIC_HOME", "/opt/sonic-custom")
         module = self._load_helper(monkeypatch)
-        assert module.display_lightning_home() == "/opt/lightning-custom"
+        assert module.display_sonic_home() == "/opt/sonic-custom"
 
-    def test_delegates_to_lightning_constants_when_available(self):
-        """When lightning_constants IS importable, _lightning_home delegates to it."""
+    def test_delegates_to_sonic_constants_when_available(self):
+        """When sonic_constants IS importable, _sonic_home delegates to it."""
         spec = importlib.util.spec_from_file_location(
-            "_lightning_home_happy", self.HELPER_PATH
+            "_sonic_home_happy", self.HELPER_PATH
         )
         module = importlib.util.module_from_spec(spec)
         assert spec.loader is not None
         spec.loader.exec_module(module)
-        import lightning_constants
-        assert module.get_lightning_home is lightning_constants.get_lightning_home
-        assert module.display_lightning_home is lightning_constants.display_lightning_home
+        import sonic_constants
+        assert module.get_sonic_home is sonic_constants.get_sonic_home
+        assert module.display_sonic_home is sonic_constants.display_sonic_home

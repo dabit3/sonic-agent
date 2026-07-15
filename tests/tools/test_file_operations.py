@@ -70,11 +70,11 @@ class TestIsWriteDenied:
             "mcp-tokens/subdir/token2.json",
         ],
     )
-    def test_lightning_control_files_and_mcp_tokens_denied(self, path):
-        """Lightning control files and mcp-tokens entries must be write-denied."""
-        from lightning_constants import get_lightning_home
-        lightning_home = get_lightning_home()
-        full_path = str(lightning_home / path)
+    def test_sonic_control_files_and_mcp_tokens_denied(self, path):
+        """Sonic control files and mcp-tokens entries must be write-denied."""
+        from sonic_constants import get_sonic_home
+        sonic_home = get_sonic_home()
+        full_path = str(sonic_home / path)
         assert _is_write_denied(full_path) is True
 
     @pytest.mark.parametrize(
@@ -85,11 +85,11 @@ class TestIsWriteDenied:
             "mcp-tokens/../config.yaml",
         ],
     )
-    def test_lightning_control_files_traversal_denied(self, path):
+    def test_sonic_control_files_traversal_denied(self, path):
         """Path traversal attempts to control files must be blocked by realpath."""
-        from lightning_constants import get_lightning_home
-        lightning_home = get_lightning_home()
-        full_path = str(lightning_home / path)
+        from sonic_constants import get_sonic_home
+        sonic_home = get_sonic_home()
+        full_path = str(sonic_home / path)
         assert _is_write_denied(full_path) is True
 
     @pytest.mark.parametrize(
@@ -112,16 +112,16 @@ class TestIsWriteDenied:
         """Under a profile, BOTH <profile>/X and <root>/X must be denied (#15981 shape).
 
         Without the root-level pass, a profile-mode session leaves the
-        global ~/.lightning/{auth.json,config.yaml,webhook_subscriptions.json}
+        global ~/.sonic/{auth.json,config.yaml,webhook_subscriptions.json}
         writable — the same gap PR #15981 fixed for .env.
         """
-        # Simulate a profile-mode LIGHTNING_HOME layout:
+        # Simulate a profile-mode SONIC_HOME layout:
         #   <root>/profiles/coder/{auth.json,config.yaml,...}
         #   <root>/{auth.json,config.yaml,...}        ← must also be denied
-        root = tmp_path / "lightning"
+        root = tmp_path / "sonic"
         profile = root / "profiles" / "coder"
         profile.mkdir(parents=True)
-        monkeypatch.setenv("LIGHTNING_HOME", str(profile))
+        monkeypatch.setenv("SONIC_HOME", str(profile))
 
         # Profile copy
         assert _is_write_denied(str(profile / name)) is True
@@ -130,10 +130,10 @@ class TestIsWriteDenied:
 
     def test_mcp_tokens_dir_protected_in_profile_mode(self, tmp_path, monkeypatch):
         """mcp-tokens/ under profile AND under root must both be denied."""
-        root = tmp_path / "lightning"
+        root = tmp_path / "sonic"
         profile = root / "profiles" / "coder"
         profile.mkdir(parents=True)
-        monkeypatch.setenv("LIGHTNING_HOME", str(profile))
+        monkeypatch.setenv("SONIC_HOME", str(profile))
 
         assert _is_write_denied(str(profile / "mcp-tokens" / "tok.json")) is True
         assert _is_write_denied(str(root / "mcp-tokens" / "tok.json")) is True
@@ -354,10 +354,10 @@ class TestShellFileOpsHelpers:
 
     def test_read_file_strips_leaked_terminal_fence_markers(self, mock_env):
         leaked = (
-            "'\x07__LIGHTNING_FENCE_a9f7b3__\x1b]0;cat "
+            "'\x07__SONIC_FENCE_a9f7b3__\x1b]0;cat "
             "'/tmp/test/a.py' 2> /dev/null\x07\n"
             "print('ok')\n"
-            "__LIGHTNING_FENCE_a9f7b3__\x07'\n"
+            "__SONIC_FENCE_a9f7b3__\x07'\n"
         )
 
         def side_effect(command, **kwargs):
@@ -376,16 +376,16 @@ class TestShellFileOpsHelpers:
         result = ops.read_file("/tmp/test/a.py")
 
         assert result.error is None
-        assert "LIGHTNING_FENCE" not in result.content
+        assert "SONIC_FENCE" not in result.content
         assert "\x1b]" not in result.content
         assert "\x07" not in result.content
         assert "     1|print('ok')" in result.content
 
     def test_read_file_raw_strips_leaked_terminal_fence_markers(self, mock_env):
         leaked = (
-            "__LIGHTNING_FENCE_a9f7b3__\x07'\n"
+            "__SONIC_FENCE_a9f7b3__\x07'\n"
             "alpha\n"
-            "\x1b]0;cat '/tmp/test/a.txt'\x07__LIGHTNING_FENCE_a9f7b3__\n"
+            "\x1b]0;cat '/tmp/test/a.txt'\x07__SONIC_FENCE_a9f7b3__\n"
         )
 
         def side_effect(command, **kwargs):
@@ -491,7 +491,7 @@ class TestSearchFilesFallbackHiddenPaths:
 
     def test_hidden_root_with_hidden_ancestor_includes_files(self, tmp_path, monkeypatch):
         """Fallback find should include visible files when path is inside hidden root."""
-        root = tmp_path / ".lightning" / "logs"
+        root = tmp_path / ".sonic" / "logs"
         root.mkdir(parents=True)
         visible_file = root / "agent.log"
         hidden_dir_file = root / ".hidden" / "secret.log"

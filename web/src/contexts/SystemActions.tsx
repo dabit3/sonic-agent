@@ -10,7 +10,7 @@ import {
 
 const ACTION_NAMES: Record<SystemAction, string> = {
   restart: "gateway-restart",
-  update: "lightning-update",
+  update: "sonic-update",
 };
 
 export function SystemActionsProvider({
@@ -72,7 +72,7 @@ export function SystemActionsProvider({
         if (action === "restart") {
           await api.restartGateway();
         } else {
-          await api.updateLightning();
+          await api.updateSonic();
         }
         setActiveAction(action);
       } catch (err) {

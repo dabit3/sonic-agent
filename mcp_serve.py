@@ -1,5 +1,5 @@
 """
-Lightning MCP Server — expose messaging conversations as MCP tools.
+Sonic MCP Server — expose messaging conversations as MCP tools.
 
 Starts a stdio MCP server that lets any MCP client (Claude Code, Cursor, Codex,
 etc.) list conversations, read message history, send messages, poll for live
@@ -10,17 +10,17 @@ Matches OpenClaw's 9-tool MCP channel bridge surface:
   events_poll, events_wait, messages_send, permissions_list_open,
   permissions_respond
 
-Plus: channels_list (Lightning-specific extra)
+Plus: channels_list (Sonic-specific extra)
 
 Usage:
-    lightning mcp serve
-    lightning mcp serve --verbose
+    sonic mcp serve
+    sonic mcp serve --verbose
 
 MCP client config (e.g. claude_desktop_config.json):
     {
         "mcpServers": {
-            "lightning": {
-                "command": "lightning",
+            "sonic": {
+                "command": "sonic",
                 "args": ["mcp", "serve"]
             }
         }
@@ -40,7 +40,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional
 
-logger = logging.getLogger("lightning.mcp_serve")
+logger = logging.getLogger("sonic.mcp_serve")
 
 # ---------------------------------------------------------------------------
 # Lazy MCP SDK import
@@ -60,18 +60,18 @@ except ImportError:
 # ---------------------------------------------------------------------------
 
 def _get_sessions_dir() -> Path:
-    """Return the sessions directory using LIGHTNING_HOME."""
+    """Return the sessions directory using SONIC_HOME."""
     try:
-        from lightning_constants import get_lightning_home
-        return get_lightning_home() / "sessions"
+        from sonic_constants import get_sonic_home
+        return get_sonic_home() / "sessions"
     except ImportError:
-        return Path(os.environ.get("LIGHTNING_HOME", Path.home() / ".lightning")) / "sessions"
+        return Path(os.environ.get("SONIC_HOME", Path.home() / ".sonic")) / "sessions"
 
 
 def _get_session_db():
     """Get a SessionDB instance for reading message transcripts."""
     try:
-        from lightning_state import SessionDB
+        from sonic_state import SessionDB
         return SessionDB()
     except Exception as e:
         logger.debug("SessionDB unavailable: %s", e)
@@ -98,11 +98,11 @@ def _load_sessions_index() -> dict:
 def _load_channel_directory() -> dict:
     """Load the cached channel directory for available targets."""
     try:
-        from lightning_constants import get_lightning_home
-        directory_file = get_lightning_home() / "channel_directory.json"
+        from sonic_constants import get_sonic_home
+        directory_file = get_sonic_home() / "channel_directory.json"
     except ImportError:
         directory_file = Path(
-            os.environ.get("LIGHTNING_HOME", Path.home() / ".lightning")
+            os.environ.get("SONIC_HOME", Path.home() / ".sonic")
         ) / "channel_directory.json"
 
     if not directory_file.exists():
@@ -205,7 +205,7 @@ class EventBridge:
     """Background poller that watches SessionDB for new messages and
     maintains an in-memory event queue with waiter support.
 
-    This is the Lightning equivalent of OpenClaw's WebSocket gateway bridge.
+    This is the Sonic equivalent of OpenClaw's WebSocket gateway bridge.
     Instead of WebSocket events, we poll the SQLite database for changes.
     """
 
@@ -362,10 +362,10 @@ class EventBridge:
 
         # Check if state.db has changed
         try:
-            from lightning_constants import get_lightning_home
-            db_file = get_lightning_home() / "state.db"
+            from sonic_constants import get_sonic_home
+            db_file = get_sonic_home() / "state.db"
         except ImportError:
-            db_file = Path(os.environ.get("LIGHTNING_HOME", Path.home() / ".lightning")) / "state.db"
+            db_file = Path(os.environ.get("SONIC_HOME", Path.home() / ".sonic")) / "state.db"
 
         try:
             db_mtime = db_file.stat().st_mtime if db_file.exists() else 0.0
@@ -448,7 +448,7 @@ class EventBridge:
 # ---------------------------------------------------------------------------
 
 def create_mcp_server(event_bridge: Optional[EventBridge] = None) -> "FastMCP":
-    """Create and return the Lightning MCP server with all tools registered."""
+    """Create and return the Sonic MCP server with all tools registered."""
     if not _MCP_SERVER_AVAILABLE:
         raise ImportError(
             "MCP server requires the 'mcp' package. "
@@ -456,9 +456,9 @@ def create_mcp_server(event_bridge: Optional[EventBridge] = None) -> "FastMCP":
         )
 
     mcp = FastMCP(
-        "lightning",
+        "sonic",
         instructions=(
-            "Lightning Agent messaging bridge. Use these tools to interact with "
+            "Sonic Agent messaging bridge. Use these tools to interact with "
             "conversations across Telegram, Discord, Slack, WhatsApp, Signal, "
             "Matrix, and other connected platforms."
         ),
@@ -864,7 +864,7 @@ def create_mcp_server(event_bridge: Optional[EventBridge] = None) -> "FastMCP":
 # ---------------------------------------------------------------------------
 
 def run_mcp_server(verbose: bool = False) -> None:
-    """Start the Lightning MCP server on stdio."""
+    """Start the Sonic MCP server on stdio."""
     if not _MCP_SERVER_AVAILABLE:
         print(
             "Error: MCP server requires the 'mcp' package.\n"

@@ -7,26 +7,26 @@
 #
 # Strategy (first hit wins — respects the user's existing tooling):
 #   1. modern `node` already on PATH
-#   2. ~/.lightning/node/ from a prior Lightning-managed install
+#   2. ~/.sonic/node/ from a prior Sonic-managed install
 #   3. fnm, proto, nvm (in that order) if the user already uses a version manager
 #   4. Termux `pkg`, macOS Homebrew
-#   5. pinned nodejs.org tarball into ~/.lightning/node/ (always works, zero shell rc edits)
+#   5. pinned nodejs.org tarball into ~/.sonic/node/ (always works, zero shell rc edits)
 #
 # Usage:
 #   source scripts/lib/node-bootstrap.sh
 #   ensure_node   # returns 0 on success, non-zero on failure
-#   if [ "$LIGHTNING_NODE_AVAILABLE" = true ]; then ...; fi
+#   if [ "$SONIC_NODE_AVAILABLE" = true ]; then ...; fi
 #
 # Env inputs (set before sourcing to override defaults):
-#   LIGHTNING_NODE_MIN_VERSION   (default: 20)   — accepted on PATH
-#   LIGHTNING_NODE_TARGET_MAJOR  (default: 22)   — installed when we install
-#   LIGHTNING_HOME               (default: $HOME/.lightning)
+#   SONIC_NODE_MIN_VERSION   (default: 20)   — accepted on PATH
+#   SONIC_NODE_TARGET_MAJOR  (default: 22)   — installed when we install
+#   SONIC_HOME               (default: $HOME/.sonic)
 # ============================================================================
 
-LIGHTNING_NODE_MIN_VERSION="${LIGHTNING_NODE_MIN_VERSION:-20}"
-LIGHTNING_NODE_TARGET_MAJOR="${LIGHTNING_NODE_TARGET_MAJOR:-22}"
-LIGHTNING_HOME="${LIGHTNING_HOME:-$HOME/.lightning}"
-LIGHTNING_NODE_AVAILABLE=false
+SONIC_NODE_MIN_VERSION="${SONIC_NODE_MIN_VERSION:-20}"
+SONIC_NODE_TARGET_MAJOR="${SONIC_NODE_TARGET_MAJOR:-22}"
+SONIC_HOME="${SONIC_HOME:-$HOME/.sonic}"
+SONIC_NODE_AVAILABLE=false
 
 # ---------------------------------------------------------------------------
 # Logging — prefer the host script's log_* helpers when present
@@ -52,7 +52,7 @@ _nb_node_major() {
 
 _nb_have_modern_node() {
     command -v node >/dev/null 2>&1 || return 1
-    [ "$(_nb_node_major)" -ge "$LIGHTNING_NODE_MIN_VERSION" ]
+    [ "$(_nb_node_major)" -ge "$SONIC_NODE_MIN_VERSION" ]
 }
 
 # ---------------------------------------------------------------------------
@@ -61,10 +61,10 @@ _nb_have_modern_node() {
 
 _nb_try_fnm() {
     command -v fnm >/dev/null 2>&1 || return 1
-    _nb_log "fnm detected — installing Node $LIGHTNING_NODE_TARGET_MAJOR..."
+    _nb_log "fnm detected — installing Node $SONIC_NODE_TARGET_MAJOR..."
     eval "$(fnm env 2>/dev/null)" || true
-    fnm install "$LIGHTNING_NODE_TARGET_MAJOR" >/dev/null 2>&1 || return 1
-    fnm use     "$LIGHTNING_NODE_TARGET_MAJOR" >/dev/null 2>&1 || return 1
+    fnm install "$SONIC_NODE_TARGET_MAJOR" >/dev/null 2>&1 || return 1
+    fnm use     "$SONIC_NODE_TARGET_MAJOR" >/dev/null 2>&1 || return 1
     _nb_have_modern_node || return 1
     _nb_ok "Node $(node --version) activated via fnm"
     return 0
@@ -72,8 +72,8 @@ _nb_try_fnm() {
 
 _nb_try_proto() {
     command -v proto >/dev/null 2>&1 || return 1
-    _nb_log "proto detected — installing Node $LIGHTNING_NODE_TARGET_MAJOR..."
-    proto install node "$LIGHTNING_NODE_TARGET_MAJOR" >/dev/null 2>&1 || return 1
+    _nb_log "proto detected — installing Node $SONIC_NODE_TARGET_MAJOR..."
+    proto install node "$SONIC_NODE_TARGET_MAJOR" >/dev/null 2>&1 || return 1
     _nb_have_modern_node || return 1
     _nb_ok "Node $(node --version) activated via proto"
     return 0
@@ -84,9 +84,9 @@ _nb_try_nvm() {
     [ -s "$nvm_sh" ] || return 1
     # shellcheck source=/dev/null
     \. "$nvm_sh" >/dev/null 2>&1 || return 1
-    _nb_log "nvm detected — installing Node $LIGHTNING_NODE_TARGET_MAJOR..."
-    nvm install "$LIGHTNING_NODE_TARGET_MAJOR" >/dev/null 2>&1 || return 1
-    nvm use     "$LIGHTNING_NODE_TARGET_MAJOR" >/dev/null 2>&1 || return 1
+    _nb_log "nvm detected — installing Node $SONIC_NODE_TARGET_MAJOR..."
+    nvm install "$SONIC_NODE_TARGET_MAJOR" >/dev/null 2>&1 || return 1
+    nvm use     "$SONIC_NODE_TARGET_MAJOR" >/dev/null 2>&1 || return 1
     _nb_have_modern_node || return 1
     _nb_ok "Node $(node --version) activated via nvm"
     return 0
@@ -109,10 +109,10 @@ _nb_try_brew() {
     [ "$(uname -s)" = "Darwin" ] || return 1
     command -v brew >/dev/null 2>&1 || return 1
     _nb_log "Installing Node via Homebrew..."
-    brew install "node@${LIGHTNING_NODE_TARGET_MAJOR}" >/dev/null 2>&1 \
+    brew install "node@${SONIC_NODE_TARGET_MAJOR}" >/dev/null 2>&1 \
         || brew install node >/dev/null 2>&1 \
         || return 1
-    brew link --overwrite --force "node@${LIGHTNING_NODE_TARGET_MAJOR}" >/dev/null 2>&1 || true
+    brew link --overwrite --force "node@${SONIC_NODE_TARGET_MAJOR}" >/dev/null 2>&1 || true
     _nb_have_modern_node || return 1
     _nb_ok "Node $(node --version) installed via Homebrew"
     return 0
@@ -145,18 +145,18 @@ _nb_install_bundled_node() {
             ;;
     esac
 
-    local index_url="https://nodejs.org/dist/latest-v${LIGHTNING_NODE_TARGET_MAJOR}.x/"
+    local index_url="https://nodejs.org/dist/latest-v${SONIC_NODE_TARGET_MAJOR}.x/"
     local tarball
     tarball=$(curl -fsSL "$index_url" \
-        | grep -oE "node-v${LIGHTNING_NODE_TARGET_MAJOR}\.[0-9]+\.[0-9]+-${node_os}-${node_arch}\.tar\.xz" \
+        | grep -oE "node-v${SONIC_NODE_TARGET_MAJOR}\.[0-9]+\.[0-9]+-${node_os}-${node_arch}\.tar\.xz" \
         | head -1)
     if [ -z "$tarball" ]; then
         tarball=$(curl -fsSL "$index_url" \
-            | grep -oE "node-v${LIGHTNING_NODE_TARGET_MAJOR}\.[0-9]+\.[0-9]+-${node_os}-${node_arch}\.tar\.gz" \
+            | grep -oE "node-v${SONIC_NODE_TARGET_MAJOR}\.[0-9]+\.[0-9]+-${node_os}-${node_arch}\.tar\.gz" \
             | head -1)
     fi
     if [ -z "$tarball" ]; then
-        _nb_warn "Could not resolve Node $LIGHTNING_NODE_TARGET_MAJOR binary for $node_os-$node_arch"
+        _nb_warn "Could not resolve Node $SONIC_NODE_TARGET_MAJOR binary for $node_os-$node_arch"
         return 1
     fi
 
@@ -167,7 +167,7 @@ _nb_install_bundled_node() {
         _nb_warn "Download failed"; rm -rf "$tmp"; return 1
     }
 
-    _nb_log "Extracting to $LIGHTNING_HOME/node/..."
+    _nb_log "Extracting to $SONIC_HOME/node/..."
     if [[ "$tarball" == *.tar.xz ]]; then
         tar xf  "$tmp/$tarball" -C "$tmp" || { rm -rf "$tmp"; return 1; }
     else
@@ -182,19 +182,19 @@ _nb_install_bundled_node() {
         return 1
     fi
 
-    mkdir -p "$LIGHTNING_HOME"
-    rm -rf "$LIGHTNING_HOME/node"
-    mv "$extracted" "$LIGHTNING_HOME/node"
+    mkdir -p "$SONIC_HOME"
+    rm -rf "$SONIC_HOME/node"
+    mv "$extracted" "$SONIC_HOME/node"
     rm -rf "$tmp"
 
     mkdir -p "$HOME/.local/bin"
-    ln -sf "$LIGHTNING_HOME/node/bin/node" "$HOME/.local/bin/node"
-    ln -sf "$LIGHTNING_HOME/node/bin/npm"  "$HOME/.local/bin/npm"
-    ln -sf "$LIGHTNING_HOME/node/bin/npx"  "$HOME/.local/bin/npx"
-    export PATH="$LIGHTNING_HOME/node/bin:$PATH"
+    ln -sf "$SONIC_HOME/node/bin/node" "$HOME/.local/bin/node"
+    ln -sf "$SONIC_HOME/node/bin/npm"  "$HOME/.local/bin/npm"
+    ln -sf "$SONIC_HOME/node/bin/npx"  "$HOME/.local/bin/npx"
+    export PATH="$SONIC_HOME/node/bin:$PATH"
 
     _nb_have_modern_node || return 1
-    _nb_ok "Node $(node --version) installed to $LIGHTNING_HOME/node/"
+    _nb_ok "Node $(node --version) installed to $SONIC_HOME/node/"
     return 0
 }
 
@@ -203,36 +203,36 @@ _nb_install_bundled_node() {
 # ---------------------------------------------------------------------------
 
 ensure_node() {
-    LIGHTNING_NODE_AVAILABLE=false
+    SONIC_NODE_AVAILABLE=false
 
     if _nb_have_modern_node; then
         _nb_ok "Node $(node --version) found"
-        LIGHTNING_NODE_AVAILABLE=true
+        SONIC_NODE_AVAILABLE=true
         return 0
     fi
 
-    if [ -x "$LIGHTNING_HOME/node/bin/node" ]; then
-        export PATH="$LIGHTNING_HOME/node/bin:$PATH"
+    if [ -x "$SONIC_HOME/node/bin/node" ]; then
+        export PATH="$SONIC_HOME/node/bin:$PATH"
         if _nb_have_modern_node; then
-            _nb_ok "Node $(node --version) found (Lightning-managed)"
-            LIGHTNING_NODE_AVAILABLE=true
+            _nb_ok "Node $(node --version) found (Sonic-managed)"
+            SONIC_NODE_AVAILABLE=true
             return 0
         fi
     fi
 
     # Version managers first — respect the user's existing setup.
-    _nb_try_fnm   && { LIGHTNING_NODE_AVAILABLE=true; return 0; }
-    _nb_try_proto && { LIGHTNING_NODE_AVAILABLE=true; return 0; }
-    _nb_try_nvm   && { LIGHTNING_NODE_AVAILABLE=true; return 0; }
+    _nb_try_fnm   && { SONIC_NODE_AVAILABLE=true; return 0; }
+    _nb_try_proto && { SONIC_NODE_AVAILABLE=true; return 0; }
+    _nb_try_nvm   && { SONIC_NODE_AVAILABLE=true; return 0; }
 
     # Platform package managers.
-    _nb_try_termux_pkg && { LIGHTNING_NODE_AVAILABLE=true; return 0; }
-    _nb_try_brew       && { LIGHTNING_NODE_AVAILABLE=true; return 0; }
+    _nb_try_termux_pkg && { SONIC_NODE_AVAILABLE=true; return 0; }
+    _nb_try_brew       && { SONIC_NODE_AVAILABLE=true; return 0; }
 
     # Last resort: pinned nodejs.org tarball.
-    _nb_install_bundled_node && { LIGHTNING_NODE_AVAILABLE=true; return 0; }
+    _nb_install_bundled_node && { SONIC_NODE_AVAILABLE=true; return 0; }
 
     _nb_warn "Node.js install failed — TUI and browser tools will be unavailable."
-    _nb_warn "Install manually: https://nodejs.org/en/download/  (or: \`brew install node\`, \`fnm install $LIGHTNING_NODE_TARGET_MAJOR\`, etc.)"
+    _nb_warn "Install manually: https://nodejs.org/en/download/  (or: \`brew install node\`, \`fnm install $SONIC_NODE_TARGET_MAJOR\`, etc.)"
     return 1
 }

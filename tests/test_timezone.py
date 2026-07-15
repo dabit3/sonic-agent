@@ -1,5 +1,5 @@
 """
-Tests for timezone support (lightning_time module + integration points).
+Tests for timezone support (sonic_time module + integration points).
 
 Covers:
   - Valid timezone applies correctly
@@ -17,34 +17,34 @@ from datetime import datetime, timedelta, timezone
 from unittest.mock import patch, MagicMock
 from zoneinfo import ZoneInfo
 
-import lightning_time
+import sonic_time
 
 
-def _reset_lightning_time_cache():
-    """Reset the lightning_time module cache (replacement for removed reset_cache)."""
-    lightning_time._cached_tz = None
-    lightning_time._cached_tz_name = None
-    lightning_time._cache_resolved = False
+def _reset_sonic_time_cache():
+    """Reset the sonic_time module cache (replacement for removed reset_cache)."""
+    sonic_time._cached_tz = None
+    sonic_time._cached_tz_name = None
+    sonic_time._cache_resolved = False
 
 
 # =========================================================================
-# lightning_time.now() — core helper
+# sonic_time.now() — core helper
 # =========================================================================
 
-class TestLightningTimeNow:
+class TestSonicTimeNow:
     """Test the timezone-aware now() helper."""
 
     def setup_method(self):
-        _reset_lightning_time_cache()
+        _reset_sonic_time_cache()
 
     def teardown_method(self):
-        _reset_lightning_time_cache()
-        os.environ.pop("LIGHTNING_TIMEZONE", None)
+        _reset_sonic_time_cache()
+        os.environ.pop("SONIC_TIMEZONE", None)
 
     def test_valid_timezone_applies(self):
         """With a valid IANA timezone, now() returns time in that zone."""
-        os.environ["LIGHTNING_TIMEZONE"] = "Asia/Kolkata"
-        result = lightning_time.now()
+        os.environ["SONIC_TIMEZONE"] = "Asia/Kolkata"
+        result = sonic_time.now()
         assert result.tzinfo is not None
         # IST is UTC+5:30
         offset = result.utcoffset()
@@ -52,14 +52,14 @@ class TestLightningTimeNow:
 
     def test_utc_timezone(self):
         """UTC timezone works."""
-        os.environ["LIGHTNING_TIMEZONE"] = "UTC"
-        result = lightning_time.now()
+        os.environ["SONIC_TIMEZONE"] = "UTC"
+        result = sonic_time.now()
         assert result.utcoffset() == timedelta(0)
 
     def test_us_eastern(self):
         """US/Eastern timezone works (DST-aware zone)."""
-        os.environ["LIGHTNING_TIMEZONE"] = "America/New_York"
-        result = lightning_time.now()
+        os.environ["SONIC_TIMEZONE"] = "America/New_York"
+        result = sonic_time.now()
         assert result.tzinfo is not None
         # Offset is -5h or -4h depending on DST
         offset_hours = result.utcoffset().total_seconds() / 3600
@@ -67,23 +67,23 @@ class TestLightningTimeNow:
 
     def test_invalid_timezone_falls_back(self, caplog):
         """Invalid timezone logs warning and falls back to server-local."""
-        os.environ["LIGHTNING_TIMEZONE"] = "Mars/Olympus_Mons"
-        with caplog.at_level(logging.WARNING, logger="lightning_time"):
-            result = lightning_time.now()
+        os.environ["SONIC_TIMEZONE"] = "Mars/Olympus_Mons"
+        with caplog.at_level(logging.WARNING, logger="sonic_time"):
+            result = sonic_time.now()
         assert result.tzinfo is not None  # Still tz-aware (server-local)
         assert "Invalid timezone" in caplog.text
         assert "Mars/Olympus_Mons" in caplog.text
 
     def test_empty_timezone_uses_local(self):
         """No timezone configured → server-local time (still tz-aware)."""
-        os.environ.pop("LIGHTNING_TIMEZONE", None)
-        result = lightning_time.now()
+        os.environ.pop("SONIC_TIMEZONE", None)
+        result = sonic_time.now()
         assert result.tzinfo is not None
 
     def test_format_unchanged(self):
         """Timestamp formatting matches original strftime pattern."""
-        os.environ["LIGHTNING_TIMEZONE"] = "Asia/Kolkata"
-        result = lightning_time.now()
+        os.environ["SONIC_TIMEZONE"] = "Asia/Kolkata"
+        result = sonic_time.now()
         formatted = result.strftime("%A, %B %d, %Y %I:%M %p")
         # Should produce something like "Monday, March 03, 2026 05:30 PM"
         assert len(formatted) > 10
@@ -92,14 +92,14 @@ class TestLightningTimeNow:
 
     def test_cache_invalidation(self):
         """Changing env var + reset_cache picks up new timezone."""
-        os.environ["LIGHTNING_TIMEZONE"] = "UTC"
-        _reset_lightning_time_cache()
-        r1 = lightning_time.now()
+        os.environ["SONIC_TIMEZONE"] = "UTC"
+        _reset_sonic_time_cache()
+        r1 = sonic_time.now()
         assert r1.utcoffset() == timedelta(0)
 
-        os.environ["LIGHTNING_TIMEZONE"] = "Asia/Kolkata"
-        _reset_lightning_time_cache()
-        r2 = lightning_time.now()
+        os.environ["SONIC_TIMEZONE"] = "Asia/Kolkata"
+        _reset_sonic_time_cache()
+        r2 = sonic_time.now()
         assert r2.utcoffset() == timedelta(hours=5, minutes=30)
 
 
@@ -107,26 +107,26 @@ class TestGetTimezone:
     """Test get_timezone()."""
 
     def setup_method(self):
-        _reset_lightning_time_cache()
+        _reset_sonic_time_cache()
 
     def teardown_method(self):
-        _reset_lightning_time_cache()
-        os.environ.pop("LIGHTNING_TIMEZONE", None)
+        _reset_sonic_time_cache()
+        os.environ.pop("SONIC_TIMEZONE", None)
 
     def test_returns_zoneinfo_for_valid(self):
-        os.environ["LIGHTNING_TIMEZONE"] = "Europe/London"
-        tz = lightning_time.get_timezone()
+        os.environ["SONIC_TIMEZONE"] = "Europe/London"
+        tz = sonic_time.get_timezone()
         assert isinstance(tz, ZoneInfo)
         assert str(tz) == "Europe/London"
 
     def test_returns_none_for_empty(self):
-        os.environ.pop("LIGHTNING_TIMEZONE", None)
-        tz = lightning_time.get_timezone()
+        os.environ.pop("SONIC_TIMEZONE", None)
+        tz = sonic_time.get_timezone()
         assert tz is None
 
     def test_returns_none_for_invalid(self):
-        os.environ["LIGHTNING_TIMEZONE"] = "Not/A/Timezone"
-        tz = lightning_time.get_timezone()
+        os.environ["SONIC_TIMEZONE"] = "Not/A/Timezone"
+        tz = sonic_time.get_timezone()
         assert tz is None
 
 
@@ -152,29 +152,29 @@ class TestCodeExecutionTZ:
             pytest.skip("tools.code_execution_tool not importable (missing deps)")
 
     def teardown_method(self):
-        os.environ.pop("LIGHTNING_TIMEZONE", None)
+        os.environ.pop("SONIC_TIMEZONE", None)
 
     def _mock_handle(self, function_name, function_args, task_id=None, user_task=None):
         import json as _json
         return _json.dumps({"error": f"unexpected tool call: {function_name}"})
 
     def test_tz_injected_when_configured(self):
-        """When LIGHTNING_TIMEZONE is set, child process sees TZ env var.
+        """When SONIC_TIMEZONE is set, child process sees TZ env var.
 
         Verified alongside leak-prevention + empty-TZ handling in one
         subprocess call so we don't pay 3x the subprocess startup cost
         (each execute_code spawns a real Python subprocess ~3s).
         """
         import json as _json
-        os.environ["LIGHTNING_TIMEZONE"] = "Asia/Kolkata"
+        os.environ["SONIC_TIMEZONE"] = "Asia/Kolkata"
 
         # One subprocess, three things checked:
         #   1) TZ is injected as "Asia/Kolkata"
-        #   2) LIGHTNING_TIMEZONE itself does NOT leak into the child env
+        #   2) SONIC_TIMEZONE itself does NOT leak into the child env
         probe = (
             'import os; '
             'print("TZ=" + os.environ.get("TZ", "NOT_SET")); '
-            'print("LIGHTNING_TIMEZONE=" + os.environ.get("LIGHTNING_TIMEZONE", "NOT_SET"))'
+            'print("SONIC_TIMEZONE=" + os.environ.get("SONIC_TIMEZONE", "NOT_SET"))'
         )
         with patch("model_tools.handle_function_call", side_effect=self._mock_handle):
             result = _json.loads(self._execute_code(
@@ -184,14 +184,14 @@ class TestCodeExecutionTZ:
             ))
         assert result["status"] == "success"
         assert "TZ=Asia/Kolkata" in result["output"]
-        assert "LIGHTNING_TIMEZONE=NOT_SET" in result["output"], (
-            "LIGHTNING_TIMEZONE should not leak into child env (only TZ)"
+        assert "SONIC_TIMEZONE=NOT_SET" in result["output"], (
+            "SONIC_TIMEZONE should not leak into child env (only TZ)"
         )
 
     def test_tz_not_injected_when_empty(self):
-        """When LIGHTNING_TIMEZONE is not set, child process has no TZ."""
+        """When SONIC_TIMEZONE is not set, child process has no TZ."""
         import json as _json
-        os.environ.pop("LIGHTNING_TIMEZONE", None)
+        os.environ.pop("SONIC_TIMEZONE", None)
 
         with patch("model_tools.handle_function_call", side_effect=self._mock_handle):
             result = _json.loads(self._execute_code(
@@ -211,15 +211,15 @@ class TestCronTimezone:
     """Verify cron paths use timezone-aware now()."""
 
     def setup_method(self):
-        _reset_lightning_time_cache()
+        _reset_sonic_time_cache()
 
     def teardown_method(self):
-        _reset_lightning_time_cache()
-        os.environ.pop("LIGHTNING_TIMEZONE", None)
+        _reset_sonic_time_cache()
+        os.environ.pop("SONIC_TIMEZONE", None)
 
     def test_parse_schedule_duration_uses_tz_aware_now(self):
         """parse_schedule('30m') should produce a tz-aware run_at."""
-        os.environ["LIGHTNING_TIMEZONE"] = "Asia/Kolkata"
+        os.environ["SONIC_TIMEZONE"] = "Asia/Kolkata"
         from cron.jobs import parse_schedule
         result = parse_schedule("30m")
         run_at = datetime.fromisoformat(result["run_at"])
@@ -228,7 +228,7 @@ class TestCronTimezone:
 
     def test_compute_next_run_tz_aware(self):
         """compute_next_run returns tz-aware timestamps."""
-        os.environ["LIGHTNING_TIMEZONE"] = "Asia/Kolkata"
+        os.environ["SONIC_TIMEZONE"] = "Asia/Kolkata"
         from cron.jobs import compute_next_run
         schedule = {"kind": "interval", "minutes": 60}
         result = compute_next_run(schedule)
@@ -242,8 +242,8 @@ class TestCronTimezone:
         monkeypatch.setattr(jobs_module, "JOBS_FILE", tmp_path / "cron" / "jobs.json")
         monkeypatch.setattr(jobs_module, "OUTPUT_DIR", tmp_path / "cron" / "output")
 
-        os.environ["LIGHTNING_TIMEZONE"] = "Asia/Kolkata"
-        _reset_lightning_time_cache()
+        os.environ["SONIC_TIMEZONE"] = "Asia/Kolkata"
+        _reset_sonic_time_cache()
 
         # Create a job with a NAIVE past timestamp (simulating pre-tz data)
         from cron.jobs import create_job, load_jobs, save_jobs, get_due_jobs
@@ -261,14 +261,14 @@ class TestCronTimezone:
     def test_ensure_aware_naive_preserves_absolute_time(self):
         """_ensure_aware must preserve the absolute instant for naive datetimes.
 
-        Regression: the old code used replace(tzinfo=lightning_tz) which shifted
-        absolute time when system-local tz != Lightning tz.  The fix interprets
+        Regression: the old code used replace(tzinfo=sonic_tz) which shifted
+        absolute time when system-local tz != Sonic tz.  The fix interprets
         naive values as system-local wall time, then converts.
         """
         from cron.jobs import _ensure_aware
 
-        os.environ["LIGHTNING_TIMEZONE"] = "Asia/Kolkata"
-        _reset_lightning_time_cache()
+        os.environ["SONIC_TIMEZONE"] = "Asia/Kolkata"
+        _reset_sonic_time_cache()
 
         # Create a naive datetime — will be interpreted as system-local time
         naive_dt = datetime(2026, 3, 11, 12, 0, 0)
@@ -287,28 +287,28 @@ class TestCronTimezone:
             f"Absolute time shifted: expected {expected_utc}, got {actual_utc}"
         )
 
-    def test_ensure_aware_normalizes_aware_to_lightning_tz(self):
-        """Already-aware datetimes should be normalized to Lightning tz."""
+    def test_ensure_aware_normalizes_aware_to_sonic_tz(self):
+        """Already-aware datetimes should be normalized to Sonic tz."""
         from cron.jobs import _ensure_aware
 
-        os.environ["LIGHTNING_TIMEZONE"] = "Asia/Kolkata"
-        _reset_lightning_time_cache()
+        os.environ["SONIC_TIMEZONE"] = "Asia/Kolkata"
+        _reset_sonic_time_cache()
 
         # Create an aware datetime in UTC
         utc_dt = datetime(2026, 3, 11, 15, 0, 0, tzinfo=timezone.utc)
         result = _ensure_aware(utc_dt)
 
-        # Must be in Lightning tz (Kolkata) but same absolute instant
+        # Must be in Sonic tz (Kolkata) but same absolute instant
         kolkata = ZoneInfo("Asia/Kolkata")
         assert result.utctimetuple()[:5] == (2026, 3, 11, 15, 0)
         expected_local = utc_dt.astimezone(kolkata)
         assert result == expected_local
 
     def test_ensure_aware_due_job_not_skipped_when_system_ahead(self, tmp_path, monkeypatch):
-        """Reproduce the actual bug: system tz ahead of Lightning tz caused
+        """Reproduce the actual bug: system tz ahead of Sonic tz caused
         overdue jobs to appear as not-yet-due.
 
-        Scenario: system is Asia/Kolkata (UTC+5:30), Lightning is UTC.
+        Scenario: system is Asia/Kolkata (UTC+5:30), Sonic is UTC.
         A naive timestamp from 5 minutes ago (local time) should still
         be recognized as due after conversion.
         """
@@ -317,8 +317,8 @@ class TestCronTimezone:
         monkeypatch.setattr(jobs_module, "JOBS_FILE", tmp_path / "cron" / "jobs.json")
         monkeypatch.setattr(jobs_module, "OUTPUT_DIR", tmp_path / "cron" / "output")
 
-        os.environ["LIGHTNING_TIMEZONE"] = "UTC"
-        _reset_lightning_time_cache()
+        os.environ["SONIC_TIMEZONE"] = "UTC"
+        _reset_sonic_time_cache()
 
         from cron.jobs import create_job, load_jobs, save_jobs, get_due_jobs
 
@@ -338,18 +338,18 @@ class TestCronTimezone:
         )
 
     def test_get_due_jobs_naive_cross_timezone(self, tmp_path, monkeypatch):
-        """Naive past timestamps must be detected as due even when Lightning tz
+        """Naive past timestamps must be detected as due even when Sonic tz
         is behind system local tz — the scenario that triggered #806."""
         import cron.jobs as jobs_module
         monkeypatch.setattr(jobs_module, "CRON_DIR", tmp_path / "cron")
         monkeypatch.setattr(jobs_module, "JOBS_FILE", tmp_path / "cron" / "jobs.json")
         monkeypatch.setattr(jobs_module, "OUTPUT_DIR", tmp_path / "cron" / "output")
 
-        # Use a Lightning timezone far behind UTC so that the numeric wall time
-        # of the naive timestamp exceeds _lightning_now's wall time — this would
+        # Use a Sonic timezone far behind UTC so that the numeric wall time
+        # of the naive timestamp exceeds _sonic_now's wall time — this would
         # have caused a false "not due" with the old replace(tzinfo=...) approach.
-        os.environ["LIGHTNING_TIMEZONE"] = "Pacific/Midway"  # UTC-11
-        _reset_lightning_time_cache()
+        os.environ["SONIC_TIMEZONE"] = "Pacific/Midway"  # UTC-11
+        _reset_sonic_time_cache()
 
         from cron.jobs import create_job, load_jobs, save_jobs, get_due_jobs
         create_job(prompt="Cross-tz job", schedule="every 1h")
@@ -362,7 +362,7 @@ class TestCronTimezone:
 
         due = get_due_jobs()
         assert len(due) == 1, (
-            "Naive past timestamp should be due regardless of Lightning timezone"
+            "Naive past timestamp should be due regardless of Sonic timezone"
         )
 
     def test_create_job_stores_tz_aware_timestamps(self, tmp_path, monkeypatch):
@@ -372,8 +372,8 @@ class TestCronTimezone:
         monkeypatch.setattr(jobs_module, "JOBS_FILE", tmp_path / "cron" / "jobs.json")
         monkeypatch.setattr(jobs_module, "OUTPUT_DIR", tmp_path / "cron" / "output")
 
-        os.environ["LIGHTNING_TIMEZONE"] = "US/Eastern"
-        _reset_lightning_time_cache()
+        os.environ["SONIC_TIMEZONE"] = "US/Eastern"
+        _reset_sonic_time_cache()
 
         from cron.jobs import create_job
         job = create_job(prompt="TZ test", schedule="every 2h")

@@ -8,7 +8,7 @@ import type { DashboardTheme, ThemeTypography, ThemeLayout } from "./types";
  * corner-radius all shift to match the theme's personality.
  *
  * Theme names must stay in sync with the backend's
- * `_BUILTIN_DASHBOARD_THEMES` list in `lightning_cli/web_server.py`.
+ * `_BUILTIN_DASHBOARD_THEMES` list in `sonic_cli/web_server.py`.
  */
 
 // ---------------------------------------------------------------------------
@@ -40,8 +40,8 @@ const DEFAULT_LAYOUT: ThemeLayout = {
 
 export const defaultTheme: DashboardTheme = {
   name: "default",
-  label: "Lightning Teal",
-  description: "Classic dark teal — the canonical Lightning look",
+  label: "Sonic Teal",
+  description: "Classic dark teal — the canonical Sonic look",
   palette: {
     background: { hex: "#041c1c", alpha: 1 },
     midground: { hex: "#ffe6cb", alpha: 1 },
@@ -190,8 +190,8 @@ export const roseTheme: DashboardTheme = {
  */
 export const defaultLargeTheme: DashboardTheme = {
   name: "default-large",
-  label: "Lightning Teal (Large)",
-  description: "Lightning Teal with bigger fonts and roomier spacing",
+  label: "Sonic Teal (Large)",
+  description: "Sonic Teal with bigger fonts and roomier spacing",
   palette: defaultTheme.palette,
   typography: {
     ...DEFAULT_TYPOGRAPHY,

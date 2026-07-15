@@ -22,7 +22,7 @@ test_durations.json
 .pytest-cache/
 tmp/
 temp_vision_images/
-lightning-*/*
+sonic-*/*
 examples/
 tests/quick_test_dataset.jsonl
 tests/sample_dataset.jsonl
@@ -41,21 +41,21 @@ agent-browser/
 privvy*
 images/
 __pycache__/
-lightning_agent.egg-info/
+sonic_agent.egg-info/
 wandb/
 testlogs
 
 # CLI config (may contain sensitive SSH paths)
 cli-config.yaml
 
-# Skills Hub state (lives in ~/.lightning/skills/.hub/ at runtime, but just in case)
+# Skills Hub state (lives in ~/.sonic/skills/.hub/ at runtime, but just in case)
 skills/.hub/
 ignored/
 .worktrees/
 environments/benchmarks/evals/
 
 # Web UI build output
-lightning_cli/web_dist/
+sonic_cli/web_dist/
 
 # Web UI assets — synced from @nous-research/ui at build time via
 # `npm run sync-assets` (see web/package.json).
@@ -72,6 +72,6 @@ mini-swe-agent/
 result
 website/static/api/skills-index.json
 models-dev-upstream/
-lightning_cli/tui_dist/*
-lightning_cli/scripts/
+sonic_cli/tui_dist/*
+sonic_cli/scripts/
 docs/superpowers/*

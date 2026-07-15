@@ -1,7 +1,7 @@
 import { writeFileSync } from 'node:fs'
 
-import type { ScrollBoxHandle } from '@lightning/ink'
-import { evictInkCaches } from '@lightning/ink'
+import type { ScrollBoxHandle } from '@sonic/ink'
+import { evictInkCaches } from '@sonic/ink'
 import { useCallback, type RefObject } from 'react'
 
 import { buildSetupRequiredSections, SETUP_REQUIRED_TITLE } from '../content/setup.js'
@@ -26,7 +26,7 @@ import { getUiState, patchUiState } from './uiStore.js'
 
 const usageFrom = (info: null | SessionInfo): Usage => (info?.usage ? { ...ZERO, ...info.usage } : ZERO)
 
-export const writeActiveSessionFile = (sessionId: null | string, file = process.env.LIGHTNING_TUI_ACTIVE_SESSION_FILE) => {
+export const writeActiveSessionFile = (sessionId: null | string, file = process.env.SONIC_TUI_ACTIVE_SESSION_FILE) => {
   if (!file || !sessionId) {
     return
   }

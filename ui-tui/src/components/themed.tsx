@@ -1,4 +1,4 @@
-import { Text } from '@lightning/ink'
+import { Text } from '@sonic/ink'
 import { useStore } from '@nanostores/react'
 import type { ReactNode } from 'react'
 

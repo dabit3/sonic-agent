@@ -21,20 +21,20 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 @pytest.fixture
 def cron_env(tmp_path, monkeypatch):
-    """Isolated cron environment with temp LIGHTNING_HOME."""
-    lightning_home = tmp_path / ".lightning"
-    lightning_home.mkdir()
-    (lightning_home / "cron").mkdir()
-    (lightning_home / "cron" / "output").mkdir()
-    monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+    """Isolated cron environment with temp SONIC_HOME."""
+    sonic_home = tmp_path / ".sonic"
+    sonic_home.mkdir()
+    (sonic_home / "cron").mkdir()
+    (sonic_home / "cron" / "output").mkdir()
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
     import cron.jobs as jobs_mod
-    monkeypatch.setattr(jobs_mod, "LIGHTNING_DIR", lightning_home)
-    monkeypatch.setattr(jobs_mod, "CRON_DIR", lightning_home / "cron")
-    monkeypatch.setattr(jobs_mod, "JOBS_FILE", lightning_home / "cron" / "jobs.json")
-    monkeypatch.setattr(jobs_mod, "OUTPUT_DIR", lightning_home / "cron" / "output")
+    monkeypatch.setattr(jobs_mod, "SONIC_DIR", sonic_home)
+    monkeypatch.setattr(jobs_mod, "CRON_DIR", sonic_home / "cron")
+    monkeypatch.setattr(jobs_mod, "JOBS_FILE", sonic_home / "cron" / "jobs.json")
+    monkeypatch.setattr(jobs_mod, "OUTPUT_DIR", sonic_home / "cron" / "output")
 
-    return lightning_home
+    return sonic_home
 
 
 class TestRewriteSkillRefsNoop:

@@ -31,7 +31,7 @@ import tempfile
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from lightning_constants import get_lightning_home
+from sonic_constants import get_sonic_home
 from typing import Dict, Any, List, Optional
 
 from utils import atomic_replace
@@ -50,12 +50,12 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 # Where memory files live — resolved dynamically so profile overrides
-# (LIGHTNING_HOME env var changes) are always respected.  The old module-level
+# (SONIC_HOME env var changes) are always respected.  The old module-level
 # constant was cached at import time and could go stale if a profile switch
 # happened after the first import.
 def get_memory_dir() -> Path:
     """Return the profile-scoped memories directory."""
-    return get_lightning_home() / "memories"
+    return get_sonic_home() / "memories"
 
 ENTRY_DELIMITER = "\n§\n"
 
@@ -80,7 +80,7 @@ _MEMORY_THREAT_PATTERNS = [
     # Persistence via shell rc
     (r'authorized_keys', "ssh_backdoor"),
     (r'\$HOME/\.ssh|\~/\.ssh', "ssh_access"),
-    (r'\$HOME/\.lightning/\.env|\~/\.lightning/\.env', "lightning_env"),
+    (r'\$HOME/\.sonic/\.env|\~/\.sonic/\.env', "sonic_env"),
 ]
 
 # Subset of invisible chars for injection detection

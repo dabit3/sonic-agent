@@ -18,10 +18,10 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def _isolate_home(tmp_path, monkeypatch):
-    lightning_home = tmp_path / ".lightning"
-    lightning_home.mkdir()
-    monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
-    yield lightning_home
+    sonic_home = tmp_path / ".sonic"
+    sonic_home.mkdir()
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
+    yield sonic_home
 
 
 # ---------------------------------------------------------------------------

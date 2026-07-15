@@ -11,15 +11,15 @@ Long-term memory with knowledge graph, entity resolution, and multi-strategy ret
 ## Setup
 
 ```bash
-lightning memory setup    # select "hindsight"
+sonic memory setup    # select "hindsight"
 ```
 
 The setup wizard will install dependencies automatically via `uv` and walk you through configuration.
 
 Or manually (cloud mode with defaults):
 ```bash
-lightning config set memory.provider hindsight
-echo "HINDSIGHT_API_KEY=your-key" >> ~/.lightning/.env
+sonic config set memory.provider hindsight
+echo "HINDSIGHT_API_KEY=your-key" >> ~/.sonic/.env
 ```
 
 ### Cloud
@@ -28,16 +28,16 @@ Connects to the Hindsight Cloud API. Requires an API key from [ui.hindsight.vect
 
 ### Local Embedded
 
-Lightning spins up a local Hindsight daemon with built-in PostgreSQL. Requires an LLM API key for memory extraction and synthesis. The daemon starts automatically in the background on first use and stops after 5 minutes of inactivity.
+Sonic spins up a local Hindsight daemon with built-in PostgreSQL. Requires an LLM API key for memory extraction and synthesis. The daemon starts automatically in the background on first use and stops after 5 minutes of inactivity.
 
 Supports any OpenAI-compatible LLM endpoint (llama.cpp, vLLM, LM Studio, etc.) — pick `openai_compatible` as the provider and enter the base URL.
 
-Daemon startup logs: `~/.lightning/logs/hindsight-embed.log`
+Daemon startup logs: `~/.sonic/logs/hindsight-embed.log`
 Daemon runtime logs: `~/.hindsight/profiles/<profile>.log`
 
 To open the Hindsight web UI (local embedded mode only):
 ```bash
-hindsight-embed -p lightning ui start
+hindsight-embed -p sonic ui start
 ```
 
 ### Local External
@@ -46,7 +46,7 @@ Points the plugin at an existing Hindsight instance you're already running (Dock
 
 ## Config
 
-Config file: `~/.lightning/hindsight/config.json`
+Config file: `~/.sonic/hindsight/config.json`
 
 ### Connection
 
@@ -59,8 +59,8 @@ Config file: `~/.lightning/hindsight/config.json`
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `bank_id` | `lightning` | Memory bank name (static fallback used when `bank_id_template` is unset or resolves empty) |
-| `bank_id_template` | — | Optional template to derive the bank name dynamically. Placeholders: `{profile}`, `{workspace}`, `{platform}`, `{user}`, `{session}`. Example: `lightning-{profile}` isolates memory per active Lightning profile. Empty placeholders collapse cleanly (e.g. `lightning-{user}` with no user becomes `lightning`). |
+| `bank_id` | `sonic` | Memory bank name (static fallback used when `bank_id_template` is unset or resolves empty) |
+| `bank_id_template` | — | Optional template to derive the bank name dynamically. Placeholders: `{profile}`, `{workspace}`, `{platform}`, `{user}`, `{session}`. Example: `sonic-{profile}` isolates memory per active Sonic profile. Empty placeholders collapse cleanly (e.g. `sonic-{user}` with no user becomes `sonic`). |
 | `bank_mission` | — | Reflect mission (identity/framing for reflect reasoning). Applied via Banks API. |
 | `bank_retain_mission` | — | Retain mission (steers what gets extracted). Applied via Banks API. |
 
@@ -84,7 +84,7 @@ Config file: `~/.lightning/hindsight/config.json`
 | `auto_retain` | `true` | Automatically retain conversation turns |
 | `retain_async` | `true` | Process retain asynchronously on the Hindsight server |
 | `retain_every_n_turns` | `1` | Retain every N turns (1 = every turn) |
-| `retain_context` | `conversation between Lightning Agent and the User` | Context label for retained memories |
+| `retain_context` | `conversation between Sonic Agent and the User` | Context label for retained memories |
 | `retain_tags` | — | Default tags applied to retained memories; merged with per-call tool tags |
 | `retain_source` | — | Optional `metadata.source` attached to retained memories |
 | `retain_user_prefix` | `User` | Label used before user turns in auto-retained transcripts |
@@ -109,7 +109,7 @@ Config file: `~/.lightning/hindsight/config.json`
 | `llm_model` | per-provider | Model name (e.g. `gpt-4o-mini`, `qwen/qwen3.5-9b`) |
 | `llm_base_url` | — | Endpoint URL for `openai_compatible` (e.g. `http://192.168.1.10:8080/v1`) |
 
-The LLM API key is stored in `~/.lightning/.env` as `HINDSIGHT_LLM_API_KEY`.
+The LLM API key is stored in `~/.sonic/.env` as `HINDSIGHT_LLM_API_KEY`.
 
 ## Tools
 

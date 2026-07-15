@@ -1,14 +1,14 @@
-Homebrew packaging notes for Lightning Agent.
+Homebrew packaging notes for Sonic Agent.
 
-Use `packaging/homebrew/lightning-agent.rb` as a tap or `homebrew-core` starting point.
+Use `packaging/homebrew/sonic-agent.rb` as a tap or `homebrew-core` starting point.
 
 Key choices:
 - Stable builds should target the semver-named sdist asset attached to each GitHub release, not the CalVer tag tarball.
 - `faster-whisper` now lives in the `voice` extra, which keeps wheel-only transitive dependencies out of the base Homebrew formula.
-- The wrapper exports `LIGHTNING_BUNDLED_SKILLS`, `LIGHTNING_OPTIONAL_SKILLS`, and `LIGHTNING_MANAGED=homebrew` so packaged installs keep runtime assets and defer upgrades to Homebrew.
+- The wrapper exports `SONIC_BUNDLED_SKILLS`, `SONIC_OPTIONAL_SKILLS`, and `SONIC_MANAGED=homebrew` so packaged installs keep runtime assets and defer upgrades to Homebrew.
 
 Typical update flow:
 1. Bump the formula `url`, `version`, and `sha256`.
-2. Refresh Python resources with `brew update-python-resources --print-only lightning-agent`.
+2. Refresh Python resources with `brew update-python-resources --print-only sonic-agent`.
 3. Keep `ignore_packages: %w[certifi cryptography pydantic]`.
-4. Verify `brew audit --new --strict lightning-agent` and `brew test lightning-agent`.
+4. Verify `brew audit --new --strict sonic-agent` and `brew test sonic-agent`.

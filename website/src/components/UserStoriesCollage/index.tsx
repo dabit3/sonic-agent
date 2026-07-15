@@ -174,9 +174,9 @@ export default function UserStoriesCollage(): JSX.Element {
       <div className={styles.hero}>
         <h1>User Stories &amp; Use Cases</h1>
         <p>
-          What the Lightning Agent community is actually building. Every tile
+          What the Sonic Agent community is actually building. Every tile
           below links to a real post, issue, video, or gist where someone
-          describes how they use Lightning &mdash; scraped from X, GitHub, Reddit,
+          describes how they use Sonic &mdash; scraped from X, GitHub, Reddit,
           Hacker News, YouTube, blogs, and podcasts.
         </p>
         <div className={styles.meta}>
@@ -293,9 +293,9 @@ export default function UserStoriesCollage(): JSX.Element {
       )}
 
       <div className={styles.footer}>
-        Built something with Lightning?{' '}
+        Built something with Sonic?{' '}
         <a
-          href="https://github.com/NousResearch/lightning-agent/edit/main/website/src/data/userStories.json"
+          href="https://github.com/dabit3/sonic-agent/edit/main/website/src/data/userStories.json"
           target="_blank"
           rel="noopener noreferrer"
         >

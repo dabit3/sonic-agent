@@ -6,7 +6,7 @@ author: adanaleycio
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
-  lightning:
+  sonic:
     tags: [creative, memes, humor, images]
     related_skills: [ascii-art, generative-widgets]
     category: creative
@@ -57,7 +57,7 @@ python "$SKILL_DIR/scripts/generate_meme.py" --search "disaster"
 3. Write short captions for each field (8-12 words max per field, shorter is better).
 4. Find the skill's script directory:
    ```
-   SKILL_DIR=$(dirname "$(find ~/.lightning/skills -path '*/meme-generation/SKILL.md' 2>/dev/null | head -1)")
+   SKILL_DIR=$(dirname "$(find ~/.sonic/skills -path '*/meme-generation/SKILL.md' 2>/dev/null | head -1)")
    ```
 5. Run the generator:
    ```bash

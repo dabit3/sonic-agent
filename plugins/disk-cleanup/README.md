@@ -1,8 +1,8 @@
 # disk-cleanup
 
-Auto-tracks and cleans up ephemeral files created during Lightning Agent
+Auto-tracks and cleans up ephemeral files created during Sonic Agent
 sessions — test scripts, temp outputs, cron logs, stale chrome profiles.
-Scoped strictly to `$LIGHTNING_HOME` and `/tmp/lightning-*`.
+Scoped strictly to `$SONIC_HOME` and `/tmp/sonic-*`.
 
 Originally contributed by [@LVT382009](https://github.com/LVT382009) as a
 skill in PR #12212.  Ported to the plugin system so the behaviour runs
@@ -13,7 +13,7 @@ never needs to remember to call a tool.
 
 | Hook | Behaviour |
 |---|---|
-| `post_tool_call` | When `write_file` / `terminal` / `patch` creates a file matching `test_*`, `tmp_*`, or `*.test.*` inside `LIGHTNING_HOME`, track it silently as `test` / `temp` / `cron-output`. |
+| `post_tool_call` | When `write_file` / `terminal` / `patch` creates a file matching `test_*`, `tmp_*`, or `*.test.*` inside `SONIC_HOME`, track it silently as `test` / `temp` / `cron-output`. |
 | `on_session_end` | If any test files were auto-tracked during this turn, run `quick` cleanup (no prompts). |
 
 Deletion rules (same as the original PR):
@@ -23,7 +23,7 @@ Deletion rules (same as the original PR):
 | `test` | every session end | Never |
 | `temp` | >7 days since tracked | Never |
 | `cron-output` | >14 days since tracked | Never |
-| empty dirs under LIGHTNING_HOME | always | Never |
+| empty dirs under SONIC_HOME | always | Never |
 | `research` | >30 days, beyond 10 newest | Always (deep only) |
 | `chrome-profile` | >14 days since tracked | Always (deep only) |
 | files >500 MB | never auto | Always (deep only) |
@@ -41,10 +41,10 @@ Deletion rules (same as the original PR):
 
 ## Safety
 
-- `is_safe_path()` rejects anything outside `LIGHTNING_HOME` or `/tmp/lightning-*`
+- `is_safe_path()` rejects anything outside `SONIC_HOME` or `/tmp/sonic-*`
 - Windows mounts (`/mnt/c` etc.) are rejected
-- The state directory `$LIGHTNING_HOME/disk-cleanup/` is itself excluded
-- `$LIGHTNING_HOME/logs/`, `memories/`, `sessions/`, `skills/`, `plugins/`,
+- The state directory `$SONIC_HOME/disk-cleanup/` is itself excluded
+- `$SONIC_HOME/logs/`, `memories/`, `sessions/`, `skills/`, `plugins/`,
   and config files are never tracked
 - Backup/restore is scoped to `tracked.json` — the plugin never touches
   agent logs

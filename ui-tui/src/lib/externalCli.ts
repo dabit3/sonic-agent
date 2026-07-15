@@ -5,11 +5,11 @@ export interface LaunchResult {
   error?: string
 }
 
-const resolveLightningBin = () => process.env.LIGHTNING_BIN?.trim() || 'lightning'
+const resolveSonicBin = () => process.env.SONIC_BIN?.trim() || 'sonic'
 
-export const launchLightningCommand = (args: string[]): Promise<LaunchResult> =>
+export const launchSonicCommand = (args: string[]): Promise<LaunchResult> =>
   new Promise(resolve => {
-    const child = spawn(resolveLightningBin(), args, { stdio: 'inherit' })
+    const child = spawn(resolveSonicBin(), args, { stdio: 'inherit' })
 
     child.on('error', err => resolve({ code: null, error: err.message }))
     child.on('exit', code => resolve({ code }))

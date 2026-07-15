@@ -74,7 +74,7 @@ from gateway.platforms.yuanbao_proto import (
     _parse_fields,
     WS_HEARTBEAT_RUNNING,
     WS_HEARTBEAT_FINISH,
-    LIGHTNING_INSTANCE_ID,
+    SONIC_INSTANCE_ID,
     decode_conn_msg,
     decode_inbound_push,
     decode_query_group_info_rsp,
@@ -98,13 +98,13 @@ logger = logging.getLogger(__name__)
 # Version / platform constants (used in AUTH_BIND and sign-token headers)
 # ---------------------------------------------------------------------------
 try:
-    from lightning_cli import __version__ as _LIGHTNING_VERSION
+    from sonic_cli import __version__ as _SONIC_VERSION
 except ImportError:
-    _LIGHTNING_VERSION = "0.0.0"
+    _SONIC_VERSION = "0.0.0"
 
-_APP_VERSION = _LIGHTNING_VERSION
-_BOT_VERSION = _LIGHTNING_VERSION
-_YUANBAO_INSTANCE_ID = str(LIGHTNING_INSTANCE_ID)  # single source: yuanbao_proto.LIGHTNING_INSTANCE_ID
+_APP_VERSION = _SONIC_VERSION
+_BOT_VERSION = _SONIC_VERSION
+_YUANBAO_INSTANCE_ID = str(SONIC_INSTANCE_ID)  # single source: yuanbao_proto.SONIC_INSTANCE_ID
 _OPERATION_SYSTEM = sys.platform
 
 # ---------------------------------------------------------------------------
@@ -1588,11 +1588,11 @@ class AutoSetHomeMiddleware(InboundMiddleware):
                 adapter._auto_sethome_done = True  # DM seen — no further upgrades needed
             if _should_set:
                 try:
-                    from lightning_constants import get_lightning_home
+                    from sonic_constants import get_sonic_home
                     from utils import atomic_yaml_write
                     import yaml
 
-                    _home = get_lightning_home()
+                    _home = get_sonic_home()
                     config_path = _home / "config.yaml"
                     user_config: dict = {}
                     if config_path.exists():

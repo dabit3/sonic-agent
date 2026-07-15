@@ -41,15 +41,15 @@ class TestApprovalHeartbeat:
         _clear_approval_state()
         self._saved_env = {
             k: os.environ.get(k)
-            for k in ("LIGHTNING_GATEWAY_SESSION", "LIGHTNING_YOLO_MODE",
-                      "LIGHTNING_SESSION_KEY")
+            for k in ("SONIC_GATEWAY_SESSION", "SONIC_YOLO_MODE",
+                      "SONIC_SESSION_KEY")
         }
-        os.environ.pop("LIGHTNING_YOLO_MODE", None)
-        os.environ["LIGHTNING_GATEWAY_SESSION"] = "1"
+        os.environ.pop("SONIC_YOLO_MODE", None)
+        os.environ["SONIC_GATEWAY_SESSION"] = "1"
         # The blocking wait path reads the session key via contextvar OR
         # os.environ fallback.  Contextvars don't propagate across threads
         # by default, so env var is the portable way to drive this in tests.
-        os.environ["LIGHTNING_SESSION_KEY"] = self.SESSION_KEY
+        os.environ["SONIC_SESSION_KEY"] = self.SESSION_KEY
 
     def teardown_method(self):
         for k, v in self._saved_env.items():

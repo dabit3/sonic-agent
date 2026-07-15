@@ -6,18 +6,18 @@
 { inputs, ... }: {
   perSystem = { pkgs, lib, self', ... }:
     let
-      lightning-agent = self'.packages.default;
-      lightningVenv = lightning-agent.lightningVenv;
+      sonic-agent = self'.packages.default;
+      sonicVenv = sonic-agent.sonicVenv;
 
       configMergeScript = pkgs.callPackage ./configMergeScript.nix { };
 
       # Auto-generated config key reference — always in sync with Python
-      configKeys = pkgs.runCommand "lightning-config-keys" {} ''
+      configKeys = pkgs.runCommand "sonic-config-keys" {} ''
         set -euo pipefail
         export HOME=$TMPDIR
-        ${lightningVenv}/bin/python3 -c '
+        ${sonicVenv}/bin/python3 -c '
 import json, sys
-from lightning_cli.config import DEFAULT_CONFIG
+from sonic_cli.config import DEFAULT_CONFIG
 
 def leaf_paths(d, prefix=""):
     paths = []
@@ -49,7 +49,7 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
           results = map (sys: { inherit sys; result = tryEvalPkg sys; }) targetSystems;
           failures = builtins.filter (r: !r.result.success) results;
           failMsg = lib.concatMapStringsSep "\n" (r: "  - ${r.sys}") failures;
-        in pkgs.runCommand "lightning-cross-eval" { } (
+        in pkgs.runCommand "sonic-cross-eval" { } (
           if failures != [] then
             throw "Package fails to evaluate on:\n${failMsg}"
           else ''
@@ -60,15 +60,15 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
         );
       } // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
         # Verify binaries exist and are executable
-        package-contents = pkgs.runCommand "lightning-package-contents" { } ''
+        package-contents = pkgs.runCommand "sonic-package-contents" { } ''
           set -e
           echo "=== Checking binaries ==="
-          test -x ${lightning-agent}/bin/lightning || (echo "FAIL: lightning binary missing"; exit 1)
-          test -x ${lightning-agent}/bin/lightning-agent || (echo "FAIL: lightning-agent binary missing"; exit 1)
+          test -x ${sonic-agent}/bin/sonic || (echo "FAIL: sonic binary missing"; exit 1)
+          test -x ${sonic-agent}/bin/sonic-agent || (echo "FAIL: sonic-agent binary missing"; exit 1)
           echo "PASS: All binaries present"
 
           echo "=== Checking version ==="
-          ${lightning-agent}/bin/lightning version 2>&1 | grep -qi "lightning" || (echo "FAIL: version check"; exit 1)
+          ${sonic-agent}/bin/sonic version 2>&1 | grep -qi "sonic" || (echo "FAIL: version check"; exit 1)
           echo "PASS: Version check"
 
           echo "=== All checks passed ==="
@@ -77,11 +77,11 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
         '';
 
         # Verify every pyproject.toml [project.scripts] entry has a wrapped binary
-        entry-points-sync = pkgs.runCommand "lightning-entry-points-sync" { } ''
+        entry-points-sync = pkgs.runCommand "sonic-entry-points-sync" { } ''
           set -e
           echo "=== Checking entry points match pyproject.toml [project.scripts] ==="
-          for bin in lightning lightning-agent lightning-acp; do
-            test -x ${lightning-agent}/bin/$bin || (echo "FAIL: $bin binary missing from Nix package"; exit 1)
+          for bin in sonic sonic-agent sonic-acp; do
+            test -x ${sonic-agent}/bin/$bin || (echo "FAIL: $bin binary missing from Nix package"; exit 1)
             echo "PASS: $bin present"
           done
 
@@ -90,13 +90,13 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
         '';
 
         # Verify CLI subcommands are accessible
-        cli-commands = pkgs.runCommand "lightning-cli-commands" { } ''
+        cli-commands = pkgs.runCommand "sonic-cli-commands" { } ''
           set -e
           export HOME=$(mktemp -d)
 
-          echo "=== Checking lightning --help ==="
-          ${lightning-agent}/bin/lightning --help 2>&1 | grep -q "gateway" || (echo "FAIL: gateway subcommand missing"; exit 1)
-          ${lightning-agent}/bin/lightning --help 2>&1 | grep -q "config" || (echo "FAIL: config subcommand missing"; exit 1)
+          echo "=== Checking sonic --help ==="
+          ${sonic-agent}/bin/sonic --help 2>&1 | grep -q "gateway" || (echo "FAIL: gateway subcommand missing"; exit 1)
+          ${sonic-agent}/bin/sonic --help 2>&1 | grep -q "config" || (echo "FAIL: config subcommand missing"; exit 1)
           echo "PASS: All subcommands accessible"
 
           echo "=== All CLI checks passed ==="
@@ -105,19 +105,19 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
         '';
 
         # Verify bundled skills are present in the package
-        bundled-skills = pkgs.runCommand "lightning-bundled-skills" { } ''
+        bundled-skills = pkgs.runCommand "sonic-bundled-skills" { } ''
           set -e
           echo "=== Checking bundled skills ==="
-          test -d ${lightning-agent}/share/lightning-agent/skills || (echo "FAIL: skills directory missing"; exit 1)
+          test -d ${sonic-agent}/share/sonic-agent/skills || (echo "FAIL: skills directory missing"; exit 1)
           echo "PASS: skills directory exists"
 
-          SKILL_COUNT=$(find ${lightning-agent}/share/lightning-agent/skills -name "SKILL.md" | wc -l)
+          SKILL_COUNT=$(find ${sonic-agent}/share/sonic-agent/skills -name "SKILL.md" | wc -l)
           test "$SKILL_COUNT" -gt 0 || (echo "FAIL: no SKILL.md files found in skills directory"; exit 1)
           echo "PASS: $SKILL_COUNT bundled skills found"
 
-          grep -q "LIGHTNING_BUNDLED_SKILLS" ${lightning-agent}/bin/lightning || \
-            (echo "FAIL: LIGHTNING_BUNDLED_SKILLS not in wrapper"; exit 1)
-          echo "PASS: LIGHTNING_BUNDLED_SKILLS set in wrapper"
+          grep -q "SONIC_BUNDLED_SKILLS" ${sonic-agent}/bin/sonic || \
+            (echo "FAIL: SONIC_BUNDLED_SKILLS not in wrapper"; exit 1)
+          echo "PASS: SONIC_BUNDLED_SKILLS set in wrapper"
 
           echo "=== All bundled skills checks passed ==="
           mkdir -p $out
@@ -125,19 +125,19 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
         '';
 
         # Verify bundled plugins (platforms, memory, context_engine) are present
-        bundled-plugins = pkgs.runCommand "lightning-bundled-plugins" { } ''
+        bundled-plugins = pkgs.runCommand "sonic-bundled-plugins" { } ''
           set -e
           echo "=== Checking bundled plugins ==="
-          test -d ${lightning-agent}/share/lightning-agent/plugins || (echo "FAIL: plugins directory missing"; exit 1)
+          test -d ${sonic-agent}/share/sonic-agent/plugins || (echo "FAIL: plugins directory missing"; exit 1)
           echo "PASS: plugins directory exists"
 
-          test -f ${lightning-agent}/share/lightning-agent/plugins/platforms/irc/plugin.yaml || \
+          test -f ${sonic-agent}/share/sonic-agent/plugins/platforms/irc/plugin.yaml || \
             (echo "FAIL: irc plugin manifest missing"; exit 1)
           echo "PASS: irc plugin manifest present"
 
-          grep -q "LIGHTNING_BUNDLED_PLUGINS" ${lightning-agent}/bin/lightning || \
-            (echo "FAIL: LIGHTNING_BUNDLED_PLUGINS not in wrapper"; exit 1)
-          echo "PASS: LIGHTNING_BUNDLED_PLUGINS set in wrapper"
+          grep -q "SONIC_BUNDLED_PLUGINS" ${sonic-agent}/bin/sonic || \
+            (echo "FAIL: SONIC_BUNDLED_PLUGINS not in wrapper"; exit 1)
+          echo "PASS: SONIC_BUNDLED_PLUGINS set in wrapper"
 
           echo "=== All bundled plugins checks passed ==="
           mkdir -p $out
@@ -145,65 +145,65 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
         '';
 
         # Verify bundled TUI is present and compiled
-        bundled-tui = pkgs.runCommand "lightning-bundled-tui" { } ''
+        bundled-tui = pkgs.runCommand "sonic-bundled-tui" { } ''
           set -e
           echo "=== Checking bundled TUI ==="
-          test -d ${lightning-agent}/ui-tui || (echo "FAIL: ui-tui directory missing"; exit 1)
+          test -d ${sonic-agent}/ui-tui || (echo "FAIL: ui-tui directory missing"; exit 1)
           echo "PASS: ui-tui directory exists"
 
-          test -f ${lightning-agent}/ui-tui/dist/entry.js || (echo "FAIL: compiled entry.js missing"; exit 1)
+          test -f ${sonic-agent}/ui-tui/dist/entry.js || (echo "FAIL: compiled entry.js missing"; exit 1)
           echo "PASS: compiled entry.js present"
 
           # self-contained bundle; no runtime node_modules expected
 
-          grep -q "LIGHTNING_TUI_DIR" ${lightning-agent}/bin/lightning || \
-            (echo "FAIL: LIGHTNING_TUI_DIR not in wrapper"; exit 1)
-          echo "PASS: LIGHTNING_TUI_DIR set in wrapper"
+          grep -q "SONIC_TUI_DIR" ${sonic-agent}/bin/sonic || \
+            (echo "FAIL: SONIC_TUI_DIR not in wrapper"; exit 1)
+          echo "PASS: SONIC_TUI_DIR set in wrapper"
 
           echo "=== All bundled TUI checks passed ==="
           mkdir -p $out
           echo "ok" > $out/result
         '';
 
-        # Verify LIGHTNING_NODE is set in wrapper and points to Node 20+
+        # Verify SONIC_NODE is set in wrapper and points to Node 20+
         # (string-width uses the /v regex flag which requires Node 20+)
-        lightning-node = pkgs.runCommand "lightning-node-version" { } ''
+        sonic-node = pkgs.runCommand "sonic-node-version" { } ''
           set -e
-          echo "=== Checking LIGHTNING_NODE in wrapper ==="
-          grep -q "LIGHTNING_NODE" ${lightning-agent}/bin/lightning || \
-            (echo "FAIL: LIGHTNING_NODE not set in wrapper"; exit 1)
-          echo "PASS: LIGHTNING_NODE present in wrapper"
+          echo "=== Checking SONIC_NODE in wrapper ==="
+          grep -q "SONIC_NODE" ${sonic-agent}/bin/sonic || \
+            (echo "FAIL: SONIC_NODE not set in wrapper"; exit 1)
+          echo "PASS: SONIC_NODE present in wrapper"
 
-          LIGHTNING_NODE=$(sed -n "s/^export LIGHTNING_NODE='\(.*\)'/\1/p" ${lightning-agent}/bin/lightning)
-          test -x "$LIGHTNING_NODE" || (echo "FAIL: LIGHTNING_NODE=$LIGHTNING_NODE not executable"; exit 1)
-          echo "PASS: LIGHTNING_NODE executable at $LIGHTNING_NODE"
+          SONIC_NODE=$(sed -n "s/^export SONIC_NODE='\(.*\)'/\1/p" ${sonic-agent}/bin/sonic)
+          test -x "$SONIC_NODE" || (echo "FAIL: SONIC_NODE=$SONIC_NODE not executable"; exit 1)
+          echo "PASS: SONIC_NODE executable at $SONIC_NODE"
 
-          NODE_MAJOR=$("$LIGHTNING_NODE" --version | sed 's/^v//' | cut -d. -f1)
+          NODE_MAJOR=$("$SONIC_NODE" --version | sed 's/^v//' | cut -d. -f1)
           test "$NODE_MAJOR" -ge 20 || \
             (echo "FAIL: Node v$NODE_MAJOR < 20, TUI needs /v regex flag support"; exit 1)
           echo "PASS: Node v$NODE_MAJOR >= 20"
 
-          echo "=== All LIGHTNING_NODE checks passed ==="
+          echo "=== All SONIC_NODE checks passed ==="
           mkdir -p $out
           echo "ok" > $out/result
         '';
 
-        # Verify LIGHTNING_MANAGED guard works on all mutation commands
-        managed-guard = pkgs.runCommand "lightning-managed-guard" { } ''
+        # Verify SONIC_MANAGED guard works on all mutation commands
+        managed-guard = pkgs.runCommand "sonic-managed-guard" { } ''
           set -e
           export HOME=$(mktemp -d)
 
           check_blocked() {
             local label="$1"
             shift
-            OUTPUT=$(LIGHTNING_MANAGED=true "$@" 2>&1 || true)
+            OUTPUT=$(SONIC_MANAGED=true "$@" 2>&1 || true)
             echo "$OUTPUT" | grep -q "managed by NixOS" || (echo "FAIL: $label not guarded"; echo "$OUTPUT"; exit 1)
             echo "PASS: $label blocked in managed mode"
           }
 
-          echo "=== Checking LIGHTNING_MANAGED guards ==="
-          check_blocked "config set" ${lightning-agent}/bin/lightning config set model foo
-          check_blocked "config edit" ${lightning-agent}/bin/lightning config edit
+          echo "=== Checking SONIC_MANAGED guards ==="
+          check_blocked "config set" ${sonic-agent}/bin/sonic config set model foo
+          check_blocked "config edit" ${sonic-agent}/bin/sonic config edit
 
           echo "=== All guard checks passed ==="
           mkdir -p $out
@@ -213,23 +213,23 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
         # Verify extraPythonPackages PYTHONPATH injection
         extra-python-packages = let
           testPkg = pkgs.python312Packages.pyfiglet;
-          lightningWithExtra = lightning-agent.override {
+          sonicWithExtra = sonic-agent.override {
             extraPythonPackages = [ testPkg ];
           };
-        in pkgs.runCommand "lightning-extra-python-packages" { } ''
+        in pkgs.runCommand "sonic-extra-python-packages" { } ''
           set -e
           echo "=== Checking extraPythonPackages PYTHONPATH injection ==="
 
-          grep -q "PYTHONPATH" ${lightningWithExtra}/bin/lightning || \
+          grep -q "PYTHONPATH" ${sonicWithExtra}/bin/sonic || \
             (echo "FAIL: PYTHONPATH not in wrapper"; exit 1)
           echo "PASS: PYTHONPATH present in wrapper"
 
-          grep -q "${testPkg}" ${lightningWithExtra}/bin/lightning || \
+          grep -q "${testPkg}" ${sonicWithExtra}/bin/sonic || \
             (echo "FAIL: test package path not in PYTHONPATH"; exit 1)
           echo "PASS: test package path found in wrapper"
 
           echo "=== Checking base package has no PYTHONPATH ==="
-          if grep -q "PYTHONPATH" ${lightning-agent}/bin/lightning; then
+          if grep -q "PYTHONPATH" ${sonic-agent}/bin/sonic; then
             echo "FAIL: base package should not have PYTHONPATH"; exit 1
           fi
           echo "PASS: base package clean"
@@ -241,18 +241,18 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
 
         # Verify extraDependencyGroups passes through to python.nix
         extra-dependency-groups = let
-          lightningWithGroups = lightning-agent.override {
+          sonicWithGroups = sonic-agent.override {
             extraDependencyGroups = [ "honcho" ];
           };
-        in pkgs.runCommand "lightning-extra-dependency-groups" { } ''
+        in pkgs.runCommand "sonic-extra-dependency-groups" { } ''
           set -e
           echo "=== Checking extraDependencyGroups override evaluates ==="
 
           # Eval-only: verify the override produces valid derivation paths
           # without building the full venv (which is expensive and redundant
           # since the mechanism is just list concatenation into python.nix).
-          echo "derivation: ${lightningWithGroups}"
-          echo "venv: ${lightningWithGroups.lightningVenv}"
+          echo "derivation: ${sonicWithGroups}"
+          echo "venv: ${sonicWithGroups.sonicVenv}"
           echo "PASS: extraDependencyGroups override evaluates cleanly"
 
           echo "=== All extraDependencyGroups checks passed ==="
@@ -320,7 +320,7 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
                 - USER_VAR
           '';
 
-        in pkgs.runCommand "lightning-config-roundtrip" {
+        in pkgs.runCommand "sonic-config-roundtrip" {
           nativeBuildInputs = [ pkgs.jq ];
         } ''
           set -e
@@ -331,12 +331,12 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
 
           # Helper: run merge then load with Python, output merged JSON
           merge_and_load() {
-            local lightning_home="$1"
-            export LIGHTNING_HOME="$lightning_home"
-            ${configMergeScript} ${nixSettings} "$lightning_home/config.yaml"
-            ${lightningVenv}/bin/python3 -c '
+            local sonic_home="$1"
+            export SONIC_HOME="$sonic_home"
+            ${configMergeScript} ${nixSettings} "$sonic_home/config.yaml"
+            ${sonicVenv}/bin/python3 -c '
 import json, sys
-from lightning_cli.config import load_config
+from sonic_cli.config import load_config
 json.dump(load_config(), sys.stdout, default=str)
 '
           }

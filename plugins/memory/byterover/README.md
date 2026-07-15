@@ -14,14 +14,14 @@ npm install -g byterover-cli
 ## Setup
 
 ```bash
-lightning memory setup    # select "byterover"
+sonic memory setup    # select "byterover"
 ```
 
 Or manually:
 ```bash
-lightning config set memory.provider byterover
+sonic config set memory.provider byterover
 # Optional cloud sync:
-echo "BRV_API_KEY=your-key" >> ~/.lightning/.env
+echo "BRV_API_KEY=your-key" >> ~/.sonic/.env
 ```
 
 ## Config
@@ -30,7 +30,7 @@ echo "BRV_API_KEY=your-key" >> ~/.lightning/.env
 |---------|----------|-------------|
 | `BRV_API_KEY` | No | Cloud sync key (optional, local-first by default) |
 
-Working directory: `$LIGHTNING_HOME/byterover/` (profile-scoped).
+Working directory: `$SONIC_HOME/byterover/` (profile-scoped).
 
 ## Tools
 

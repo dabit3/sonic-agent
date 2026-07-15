@@ -13,7 +13,7 @@
  *   await gw.request("prompt.submit", { session_id, text: "hi" })
  */
 
-import { LIGHTNING_BASE_PATH } from "@/lib/api";
+import { SONIC_BASE_PATH } from "@/lib/api";
 
 export type GatewayEventName =
   | "gateway.ready"
@@ -109,17 +109,17 @@ export class GatewayClient {
     if (this._state === "open" || this._state === "connecting") return;
     this.setState("connecting");
 
-    const resolved = token ?? window.__LIGHTNING_SESSION_TOKEN__ ?? "";
+    const resolved = token ?? window.__SONIC_SESSION_TOKEN__ ?? "";
     if (!resolved) {
       this.setState("error");
       throw new Error(
-        "Session token not available — page must be served by the Lightning dashboard",
+        "Session token not available — page must be served by the Sonic dashboard",
       );
     }
 
     const scheme = location.protocol === "https:" ? "wss:" : "ws:";
     const ws = new WebSocket(
-      `${scheme}//${location.host}${LIGHTNING_BASE_PATH}/api/ws?token=${encodeURIComponent(resolved)}`,
+      `${scheme}//${location.host}${SONIC_BASE_PATH}/api/ws?token=${encodeURIComponent(resolved)}`,
     );
     this.ws = ws;
 
@@ -232,6 +232,6 @@ export class GatewayClient {
 
 declare global {
   interface Window {
-    __LIGHTNING_SESSION_TOKEN__?: string;
+    __SONIC_SESSION_TOKEN__?: string;
   }
 }

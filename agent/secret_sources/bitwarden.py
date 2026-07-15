@@ -1,24 +1,24 @@
 """Bitwarden Secrets Manager (`bws` CLI) integration.
 
-Lightning pulls API keys from Bitwarden Secrets Manager at process startup
-so they don't have to live in plaintext in ``~/.lightning/.env``.
+Sonic pulls API keys from Bitwarden Secrets Manager at process startup
+so they don't have to live in plaintext in ``~/.sonic/.env``.
 
 Design summary
 --------------
 
-* The ``bws`` binary is auto-installed into ``<lightning_home>/bin/bws`` on
-  first use.  Lightning pins one version (``_BWS_VERSION``) and downloads
+* The ``bws`` binary is auto-installed into ``<sonic_home>/bin/bws`` on
+  first use.  Sonic pins one version (``_BWS_VERSION``) and downloads
   the matching asset from the official GitHub Releases page, verifying
   the SHA-256 against the release's published checksum file.
-* The access token is stored in ``~/.lightning/.env`` as
+* The access token is stored in ``~/.sonic/.env`` as
   ``BWS_ACCESS_TOKEN`` (or whatever name the user picked in
   ``secrets.bitwarden.access_token_env``).  This is the one
   bootstrap secret — every other provider key can live in Bitwarden.
 * Pulling secrets is a single ``bws secret list <project_id>
   --output json`` call.  We cache the result in-process for
-  ``cache_ttl_seconds`` so back-to-back ``lightning`` invocations don't
+  ``cache_ttl_seconds`` so back-to-back ``sonic`` invocations don't
   hammer the API.
-* Failures NEVER block Lightning startup.  Missing binary, no network,
+* Failures NEVER block Sonic startup.  Missing binary, no network,
   expired token, etc. all emit a one-line warning and continue with
   whatever credentials ``.env`` already had.
 
@@ -68,7 +68,7 @@ _BWS_CHECKSUM_NAME = f"bws-sha256-checksums-{_BWS_VERSION}.txt"
 _BWS_DOWNLOAD_TIMEOUT = 60
 _BWS_RUN_TIMEOUT = 30
 
-# In-process cache so repeated load_lightning_dotenv() calls (CLI startup,
+# In-process cache so repeated load_sonic_dotenv() calls (CLI startup,
 # gateway hot-reload, test suites) don't re-fetch from BSM.
 _CacheKey = Tuple[str, str]  # (access_token_fingerprint, project_id)
 _CACHE: Dict[_CacheKey, "_CachedFetch"] = {}
@@ -111,24 +111,24 @@ class FetchResult:
 # ---------------------------------------------------------------------------
 
 
-def _lightning_bin_dir() -> Path:
-    """Where Lightning stores its managed binaries.  Profile-aware."""
-    from lightning_constants import get_lightning_home
+def _sonic_bin_dir() -> Path:
+    """Where Sonic stores its managed binaries.  Profile-aware."""
+    from sonic_constants import get_sonic_home
 
-    return get_lightning_home() / "bin"
+    return get_sonic_home() / "bin"
 
 
 def find_bws(*, install_if_missing: bool = False) -> Optional[Path]:
     """Return a path to a usable ``bws`` binary, or None.
 
     Resolution order:
-      1. ``<lightning_home>/bin/bws``  (our managed copy — preferred)
+      1. ``<sonic_home>/bin/bws``  (our managed copy — preferred)
       2. ``shutil.which("bws")``    (system PATH)
 
     When ``install_if_missing`` is True and neither resolves, this calls
     :func:`install_bws` to download and verify the pinned version.
     """
-    managed = _lightning_bin_dir() / _platform_binary_name()
+    managed = _sonic_bin_dir() / _platform_binary_name()
     if managed.exists() and os.access(managed, os.X_OK):
         return managed
 
@@ -196,10 +196,10 @@ def install_bws(*, force: bool = False) -> Path:
 
     Returns the path to the installed executable.  Raises on any
     failure (network, checksum, extraction) — callers in the auto-install
-    path catch these; the user-facing ``lightning secrets bitwarden setup``
+    path catch these; the user-facing ``sonic secrets bitwarden setup``
     surface lets them propagate so the wizard can show a clear error.
     """
-    bin_dir = _lightning_bin_dir()
+    bin_dir = _sonic_bin_dir()
     bin_dir.mkdir(parents=True, exist_ok=True)
     target = bin_dir / _platform_binary_name()
 
@@ -210,7 +210,7 @@ def install_bws(*, force: bool = False) -> Path:
     asset_url = f"{_BWS_RELEASE_BASE}/{asset_name}"
     checksum_url = f"{_BWS_RELEASE_BASE}/{_BWS_CHECKSUM_NAME}"
 
-    with tempfile.TemporaryDirectory(prefix="lightning-bws-") as tmpdir:
+    with tempfile.TemporaryDirectory(prefix="sonic-bws-") as tmpdir:
         tmp = Path(tmpdir)
         zip_path = tmp / asset_name
         checksum_path = tmp / _BWS_CHECKSUM_NAME
@@ -250,7 +250,7 @@ def install_bws(*, force: bool = False) -> Path:
 
 
 def _http_download(url: str, dest: Path) -> None:
-    req = urllib.request.Request(url, headers={"User-Agent": "lightning-agent"})
+    req = urllib.request.Request(url, headers={"User-Agent": "sonic-agent"})
     try:
         with urllib.request.urlopen(req, timeout=_BWS_DOWNLOAD_TIMEOUT) as resp:  # noqa: S310
             with open(dest, "wb") as f:
@@ -344,7 +344,7 @@ def fetch_bitwarden_secrets(
             "bws binary not available — auto-install failed and `bws` is "
             "not on PATH.  Install manually from "
             "https://github.com/bitwarden/sdk-sm/releases or re-run "
-            "`lightning secrets bitwarden setup`."
+            "`sonic secrets bitwarden setup`."
         )
 
     secrets, warnings = _run_bws_list(bws, access_token, project_id)
@@ -425,7 +425,7 @@ def _is_valid_env_name(name: str) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# Public entry point — called from lightning_cli.env_loader
+# Public entry point — called from sonic_cli.env_loader
 # ---------------------------------------------------------------------------
 
 
@@ -440,7 +440,7 @@ def apply_bitwarden_secrets(
 ) -> FetchResult:
     """Pull secrets from BSM and set them on ``os.environ``.
 
-    This is the function ``load_lightning_dotenv()`` calls after the .env
+    This is the function ``load_sonic_dotenv()`` calls after the .env
     files have loaded.  It is intentionally defensive — any failure
     returns a :class:`FetchResult` with ``error`` set; it never raises.
 
@@ -456,14 +456,14 @@ def apply_bitwarden_secrets(
     if not access_token:
         result.error = (
             f"secrets.bitwarden.enabled is true but {access_token_env} is "
-            "not set.  Run `lightning secrets bitwarden setup`."
+            "not set.  Run `sonic secrets bitwarden setup`."
         )
         return result
 
     if not project_id:
         result.error = (
             "secrets.bitwarden.project_id is empty.  "
-            "Run `lightning secrets bitwarden setup`."
+            "Run `sonic secrets bitwarden setup`."
         )
         return result
 
@@ -472,7 +472,7 @@ def apply_bitwarden_secrets(
     if binary is None:
         result.error = (
             "bws binary not available and auto-install is disabled.  "
-            "Run `lightning secrets bitwarden setup` to install."
+            "Run `sonic secrets bitwarden setup` to install."
         )
         return result
 

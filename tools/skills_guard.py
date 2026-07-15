@@ -9,7 +9,7 @@ and a trust-aware install policy that determines whether a skill is allowed
 based on both the scan verdict and the source's trust level.
 
 Trust levels:
-  - builtin:   Ships with Lightning. Never scanned, always trusted.
+  - builtin:   Ships with Sonic. Never scanned, always trusted.
   - trusted:   openai/skills and anthropics/skills only. Caution verdicts allowed.
   - community: Everything else. Any findings = blocked unless --force.
 
@@ -120,9 +120,9 @@ THREAT_PATTERNS = [
     (r'\$HOME/\.docker|\~/\.docker',
      "docker_dir_access", "high", "exfiltration",
      "references Docker config (may contain registry creds)"),
-    (r'\$HOME/\.lightning/\.env|\~/\.lightning/\.env',
-     "lightning_env_access", "critical", "exfiltration",
-     "directly references Lightning secrets file"),
+    (r'\$HOME/\.sonic/\.env|\~/\.sonic/\.env',
+     "sonic_env_access", "critical", "exfiltration",
+     "directly references Sonic secrets file"),
     (r'cat\s+[^\n]*(\.env|credentials|\.netrc|\.pgpass|\.npmrc|\.pypirc)',
      "read_secrets_file", "critical", "exfiltration",
      "reads known secrets file"),
@@ -428,9 +428,9 @@ THREAT_PATTERNS = [
     (r'AGENTS\.md|CLAUDE\.md|\.cursorrules|\.clinerules',
      "agent_config_mod", "critical", "persistence",
      "references agent config files (could persist malicious instructions across sessions)"),
-    (r'\.lightning/config\.yaml|\.lightning/SOUL\.md',
-     "lightning_config_mod", "critical", "persistence",
-     "references Lightning configuration files directly"),
+    (r'\.sonic/config\.yaml|\.sonic/SOUL\.md',
+     "sonic_config_mod", "critical", "persistence",
+     "references Sonic configuration files directly"),
     (r'\.claude/settings|\.codex/config',
      "other_agent_config", "high", "persistence",
      "references other agent configuration files"),

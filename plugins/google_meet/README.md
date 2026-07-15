@@ -1,6 +1,6 @@
 # google_meet plugin
 
-Let the lightning agent join a Google Meet call, transcribe it, optionally speak
+Let the sonic agent join a Google Meet call, transcribe it, optionally speak
 in it, and do the followup work afterwards.
 
 ## What ships
@@ -14,7 +14,7 @@ in it, and do the followup work afterwards.
 ## Architecture
 
 ```
-┌─ gateway (Linux box, where lightning runs) ────────────────────────────┐
+┌─ gateway (Linux box, where sonic runs) ────────────────────────────┐
 │                                                                      │
 │   agent → meet_join(url, mode='realtime', node='my-mac')             │
 │         │                                                            │
@@ -25,7 +25,7 @@ in it, and do the followup work afterwards.
                                    ▼
 ┌─ node host (user's Mac, signed-in Chrome lives here) ───────────────┐
 │                                                                      │
-│   NodeServer (from `lightning meet node run`)                           │
+│   NodeServer (from `sonic meet node run`)                           │
 │     │                                                                │
 │     ├─ start_bot → process_manager.start() → spawns meet_bot         │
 │     │                                                                │
@@ -49,50 +49,50 @@ Without v2: the "realtime" path is skipped; transcribe runs alone.
 | Path | Purpose |
 |---|---|
 | `plugin.yaml` | manifest |
-| `__init__.py` | `register(ctx)` — registers 5 tools + `on_session_end` hook + `lightning meet` CLI |
+| `__init__.py` | `register(ctx)` — registers 5 tools + `on_session_end` hook + `sonic meet` CLI |
 | `meet_bot.py` | Playwright bot subprocess (standalone, `python -m plugins.google_meet.meet_bot`) |
 | `process_manager.py` | local bot lifecycle + `enqueue_say` |
 | `tools.py` | agent-facing tools + node-routing helper |
-| `cli.py` | `lightning meet setup / auth / join / status / transcript / say / stop / node ...` |
+| `cli.py` | `sonic meet setup / auth / join / status / transcript / say / stop / node ...` |
 | `audio_bridge.py` | v2: PulseAudio null-sink (Linux) + BlackHole probe (macOS) |
 | `realtime/openai_client.py` | v2: `RealtimeSession` + `RealtimeSpeaker` (file-queue → OpenAI Realtime WS → PCM) |
 | `node/protocol.py` | v3: message envelope + validation |
-| `node/registry.py` | v3: `$LIGHTNING_HOME/workspace/meetings/nodes.json` |
+| `node/registry.py` | v3: `$SONIC_HOME/workspace/meetings/nodes.json` |
 | `node/server.py` | v3: `NodeServer` (runs on host machine) |
 | `node/client.py` | v3: `NodeClient` (used by tool handlers + CLI on gateway) |
-| `node/cli.py` | v3: `lightning meet node {run,list,approve,remove,status,ping}` |
+| `node/cli.py` | v3: `sonic meet node {run,list,approve,remove,status,ping}` |
 | `SKILL.md` | agent usage guide |
 
 ## Local quick start
 
 ```bash
-lightning plugins enable google_meet
-lightning meet install                                      # pip + Chromium
-lightning meet setup                                        # preflight
-lightning meet auth                                         # optional
-lightning meet join https://meet.google.com/abc-defg-hij    # transcribe
+sonic plugins enable google_meet
+sonic meet install                                      # pip + Chromium
+sonic meet setup                                        # preflight
+sonic meet auth                                         # optional
+sonic meet join https://meet.google.com/abc-defg-hij    # transcribe
 ```
 
 ## Realtime mode
 
 Linux (preferred, most automated):
 ```bash
-lightning meet install --realtime                     # installs pulseaudio-utils
-echo 'OPENAI_API_KEY=sk-...' >> ~/.lightning/.env
-lightning meet join https://meet.google.com/abc-defg-hij --mode realtime
+sonic meet install --realtime                     # installs pulseaudio-utils
+echo 'OPENAI_API_KEY=sk-...' >> ~/.sonic/.env
+sonic meet join https://meet.google.com/abc-defg-hij --mode realtime
 # then from the agent or CLI:
-lightning meet say "Good morning everyone, I'm the note-taker bot."
+sonic meet say "Good morning everyone, I'm the note-taker bot."
 ```
 
 macOS:
 ```bash
-lightning meet install --realtime     # runs: brew install blackhole-2ch ffmpeg
+sonic meet install --realtime     # runs: brew install blackhole-2ch ffmpeg
 # then — manually! — open System Settings → Sound → Input → BlackHole 2ch
-echo 'OPENAI_API_KEY=sk-...' >> ~/.lightning/.env
-lightning meet join https://meet.google.com/abc-defg-hij --mode realtime
+echo 'OPENAI_API_KEY=sk-...' >> ~/.sonic/.env
+sonic meet join https://meet.google.com/abc-defg-hij --mode realtime
 ```
 
-On macOS, lightning will **not** switch your system audio input automatically — the
+On macOS, sonic will **not** switch your system audio input automatically — the
 user has to do it. This is deliberate: switching default input on a whim would
 be a surprising side effect.
 
@@ -102,15 +102,15 @@ On the node machine (e.g. user's Mac with a signed-in Chrome):
 ```bash
 pip install playwright websockets
 python -m playwright install chromium
-lightning plugins enable google_meet
-lightning meet node run --display-name my-mac --host 0.0.0.0 --port 18789
+sonic plugins enable google_meet
+sonic meet node run --display-name my-mac --host 0.0.0.0 --port 18789
 # prints the bearer token on first run; copy it
 ```
 
 On the gateway:
 ```bash
-lightning meet node approve my-mac ws://<mac-ip>:18789 <token>
-lightning meet node ping my-mac
+sonic meet node approve my-mac ws://<mac-ip>:18789 <token>
+sonic meet node ping my-mac
 # now any meet_* tool call accepts node='my-mac' (or 'auto')
 ```
 

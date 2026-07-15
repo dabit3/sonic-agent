@@ -22,10 +22,10 @@ def _restore_stdout():
 @pytest.fixture()
 def server():
     with patch.dict("sys.modules", {
-        "lightning_constants": MagicMock(get_lightning_home=MagicMock(return_value="/tmp/lightning_test")),
-        "lightning_cli.env_loader": MagicMock(),
-        "lightning_cli.banner": MagicMock(),
-        "lightning_state": MagicMock(),
+        "sonic_constants": MagicMock(get_sonic_home=MagicMock(return_value="/tmp/sonic_test")),
+        "sonic_cli.env_loader": MagicMock(),
+        "sonic_cli.banner": MagicMock(),
+        "sonic_state": MagicMock(),
     }):
         import importlib
         mod = importlib.import_module("tui_gateway.server")
@@ -193,21 +193,21 @@ def test_write_json_skips_flush_when_disable_flush_true(monkeypatch):
 
 
 def test_disable_flush_env_var_actually_wires_to_module_constant(monkeypatch):
-    """End-to-end: setting `LIGHTNING_TUI_GATEWAY_NO_FLUSH=1` and importing
+    """End-to-end: setting `SONIC_TUI_GATEWAY_NO_FLUSH=1` and importing
     `tui_gateway.transport` fresh actually flips `_DISABLE_FLUSH` true.
 
     Reloads only the transport module — server.py is untouched so its
     atexit hooks/worker pool stay intact."""
     import importlib
 
-    monkeypatch.setenv("LIGHTNING_TUI_GATEWAY_NO_FLUSH", "1")
+    monkeypatch.setenv("SONIC_TUI_GATEWAY_NO_FLUSH", "1")
     transport_mod = importlib.reload(importlib.import_module("tui_gateway.transport"))
 
     try:
         assert transport_mod._DISABLE_FLUSH is True
     finally:
         # Restore the env-disabled state so other tests see the default.
-        monkeypatch.delenv("LIGHTNING_TUI_GATEWAY_NO_FLUSH", raising=False)
+        monkeypatch.delenv("SONIC_TUI_GATEWAY_NO_FLUSH", raising=False)
         importlib.reload(transport_mod)
 
 
@@ -334,12 +334,12 @@ def test_session_resume_returns_hydrated_messages(server, monkeypatch):
 
 
 def test_config_load_missing(server, tmp_path):
-    server._lightning_home = tmp_path
+    server._sonic_home = tmp_path
     assert server._load_cfg() == {}
 
 
 def test_config_roundtrip(server, tmp_path):
-    server._lightning_home = tmp_path
+    server._sonic_home = tmp_path
     server._save_cfg({"model": "test/model"})
     assert server._load_cfg()["model"] == "test/model"
 
@@ -376,13 +376,13 @@ def test_slash_exec_rejects_skill_commands(server):
     server._sessions[sid] = {"session_key": sid, "agent": None}
 
     # Mock scan_skill_commands to return a known skill
-    fake_skills = {"/lightning-agent-dev": {"name": "lightning-agent-dev", "description": "Dev workflow"}}
+    fake_skills = {"/sonic-agent-dev": {"name": "sonic-agent-dev", "description": "Dev workflow"}}
 
     with patch("agent.skill_commands.get_skill_commands", return_value=fake_skills):
         resp = server.handle_request({
             "id": "r1",
             "method": "slash.exec",
-            "params": {"command": "lightning-agent-dev", "session_id": sid},
+            "params": {"command": "sonic-agent-dev", "session_id": sid},
         })
 
     # Should return an error so the TUI's .catch() fires command.dispatch
@@ -407,7 +407,7 @@ def test_slash_exec_handles_plugin_commands_in_live_gateway(server):
     server._sessions[sid] = {"session_key": sid, "agent": None, "slash_worker": worker}
 
     with patch(
-        "lightning_cli.plugins.get_plugin_command_handler",
+        "sonic_cli.plugins.get_plugin_command_handler",
         lambda name: (lambda arg: f"plugin:{arg}") if name == "plugin-cmd" else None,
     ):
         resp = server.handle_request({
@@ -437,7 +437,7 @@ def test_slash_exec_plugin_lookup_failure_falls_back_to_worker(server):
     server._sessions[sid] = {"session_key": sid, "agent": None, "slash_worker": worker}
 
     with patch(
-        "lightning_cli.plugins.get_plugin_command_handler",
+        "sonic_cli.plugins.get_plugin_command_handler",
         side_effect=RuntimeError("discovery boom"),
     ):
         resp = server.handle_request({
@@ -470,7 +470,7 @@ def test_slash_exec_plugin_handler_error_returns_output(server):
     server._sessions[sid] = {"session_key": sid, "agent": None, "slash_worker": worker}
 
     with patch(
-        "lightning_cli.plugins.get_plugin_command_handler",
+        "sonic_cli.plugins.get_plugin_command_handler",
         lambda name: handler if name == "plugin-cmd" else None,
     ):
         resp = server.handle_request({
@@ -669,7 +669,7 @@ def test_command_dispatch_returns_skill_payload(server):
     sid = "test-session"
     server._sessions[sid] = {"session_key": sid}
 
-    fake_skills = {"/lightning-agent-dev": {"name": "lightning-agent-dev", "description": "Dev workflow"}}
+    fake_skills = {"/sonic-agent-dev": {"name": "sonic-agent-dev", "description": "Dev workflow"}}
     fake_msg = "Loaded skill content here"
 
     with patch("agent.skill_commands.scan_skill_commands", return_value=fake_skills), \
@@ -677,14 +677,14 @@ def test_command_dispatch_returns_skill_payload(server):
         resp = server.handle_request({
             "id": "r2",
             "method": "command.dispatch",
-            "params": {"name": "lightning-agent-dev", "session_id": sid},
+            "params": {"name": "sonic-agent-dev", "session_id": sid},
         })
 
     assert "error" not in resp
     result = resp["result"]
     assert result["type"] == "skill"
     assert result["message"] == fake_msg
-    assert result["name"] == "lightning-agent-dev"
+    assert result["name"] == "sonic-agent-dev"
 
 
 def test_command_dispatch_awaits_async_plugin_handler(server):
@@ -692,7 +692,7 @@ def test_command_dispatch_awaits_async_plugin_handler(server):
         return f"async:{arg}"
 
     with patch(
-        "lightning_cli.plugins.get_plugin_command_handler",
+        "sonic_cli.plugins.get_plugin_command_handler",
         lambda name: _handler if name == "async-cmd" else None,
     ):
         resp = server.handle_request({

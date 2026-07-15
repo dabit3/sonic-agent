@@ -7,7 +7,7 @@ license: MIT
 dependencies: [lm-eval, transformers, vllm]
 platforms: [linux, macos]
 metadata:
-  lightning:
+  sonic:
     tags: [Evaluation, LM Evaluation Harness, Benchmarking, MMLU, HumanEval, GSM8K, EleutherAI, Model Quality, Academic Benchmarks, Industry Standard]
 
 ---
@@ -206,10 +206,10 @@ if step % eval_interval == 0:
     os.system(f"./eval_checkpoint.sh checkpoints step-{step}")
 ```
 
-Or use PyTorch Lightning callbacks:
+Or use PyTorch Sonic callbacks:
 
 ```python
-from pytorch_lightning import Callback
+from pytorch_sonic import Callback
 
 class EvalHarnessCallback(Callback):
     def on_validation_epoch_end(self, trainer, pl_module):

@@ -1,31 +1,31 @@
 ---
 name: kanban-codex-lane
-description: Use when a Lightning Kanban worker wants to run Codex CLI as an isolated implementation lane while Lightning keeps ownership of task lifecycle, reconciliation, testing, and handoff.
+description: Use when a Sonic Kanban worker wants to run Codex CLI as an isolated implementation lane while Sonic keeps ownership of task lifecycle, reconciliation, testing, and handoff.
 version: 1.0.0
-author: Lightning Agent
+author: Sonic Agent
 license: MIT
 metadata:
-  lightning:
+  sonic:
     tags: [kanban, codex, worktrees, autonomous-agents, prediction-market-bot]
-    related_skills: [kanban-worker, codex, lightning-agent]
+    related_skills: [kanban-worker, codex, sonic-agent]
 ---
 
 # Kanban Codex Lane
 
 ## Overview
 
-This skill defines the lightweight Lightning+Codex dual-lane convention for Kanban workers. Lightning is always the task owner: it calls `kanban_show`, decides whether Codex is appropriate, creates or selects an isolated workspace, starts and monitors Codex, reconciles any diff, runs verification, and writes the final `kanban_complete` or `kanban_block` handoff. Codex is an input lane only. Codex output is not a task completion signal, not a trusted reviewer, and not allowed to write durable Kanban state directly.
+This skill defines the lightweight Sonic+Codex dual-lane convention for Kanban workers. Sonic is always the task owner: it calls `kanban_show`, decides whether Codex is appropriate, creates or selects an isolated workspace, starts and monitors Codex, reconciles any diff, runs verification, and writes the final `kanban_complete` or `kanban_block` handoff. Codex is an input lane only. Codex output is not a task completion signal, not a trusted reviewer, and not allowed to write durable Kanban state directly.
 
-The convention exists so a Lightning worker can use Codex for bounded implementation help without changing the dispatcher. The dispatcher must still spawn Lightning workers. A worker may optionally spawn Codex inside its own run, then accept, partially accept, or reject the lane after independent review and tests.
+The convention exists so a Sonic worker can use Codex for bounded implementation help without changing the dispatcher. The dispatcher must still spawn Sonic workers. A worker may optionally spawn Codex inside its own run, then accept, partially accept, or reject the lane after independent review and tests.
 
 ## When to Use
 
 Use the Codex lane when all of these are true:
 
 - The Kanban task is a coding, refactor, documentation, test, or mechanical migration task with clear acceptance criteria.
-- A bounded diff can be evaluated by Lightning in one run.
+- A bounded diff can be evaluated by Sonic in one run.
 - The repo can be copied or checked out in an isolated git worktree/branch.
-- Lightning can run the relevant tests itself after Codex exits.
+- Sonic can run the relevant tests itself after Codex exits.
 - The prompt can state all safety constraints and files that must not change.
 
 Do not use the Codex lane when any of these are true:
@@ -39,11 +39,11 @@ Do not use the Codex lane when any of these are true:
 
 ## Ownership Rules
 
-1. Lightning owns the Kanban lifecycle. Codex must never call `kanban_complete`, `kanban_block`, `kanban_create`, gateway messaging, or any Lightning board CLI as a substitute for the worker.
-2. Lightning owns final acceptance. Treat Codex commits/diffs as untrusted patches until reviewed and verified.
-3. Lightning owns test execution. Codex may run tests, but those runs are advisory; repeat required verification from Lightning with the repo's canonical wrapper.
-4. Lightning owns safety. If Codex changes safety boundaries, risk gates, live trading behavior, or secrets handling, reject the lane even if tests pass.
-5. Lightning owns cleanup. Kill stuck Codex processes and remove temporary worktrees when they are no longer needed.
+1. Sonic owns the Kanban lifecycle. Codex must never call `kanban_complete`, `kanban_block`, `kanban_create`, gateway messaging, or any Sonic board CLI as a substitute for the worker.
+2. Sonic owns final acceptance. Treat Codex commits/diffs as untrusted patches until reviewed and verified.
+3. Sonic owns test execution. Codex may run tests, but those runs are advisory; repeat required verification from Sonic with the repo's canonical wrapper.
+4. Sonic owns safety. If Codex changes safety boundaries, risk gates, live trading behavior, or secrets handling, reject the lane even if tests pass.
+5. Sonic owns cleanup. Kill stuck Codex processes and remove temporary worktrees when they are no longer needed.
 
 ## Required Worktree and Branch Pattern
 
@@ -52,7 +52,7 @@ Never run Codex directly in a shared dirty checkout. Use a branch/worktree name 
 Recommended variables:
 
 ```bash
-TASK_ID="${LIGHTNING_KANBAN_TASK:-t_manual}"
+TASK_ID="${SONIC_KANBAN_TASK:-t_manual}"
 REPO="/path/to/repo"
 BASE="$(git -C "$REPO" rev-parse --abbrev-ref HEAD)"
 SAFE_TASK="$(printf '%s' "$TASK_ID" | tr -cd '[:alnum:]_-')"
@@ -68,7 +68,7 @@ git -C "$REPO" worktree add -b "$BRANCH" "$WORKTREE" "$BASE"
 git -C "$WORKTREE" status --short --branch
 ```
 
-If the current Kanban workspace is already an isolated git worktree created for this task, you may create a sibling Codex branch inside it only if `git status --short` is clean except for intentional Lightning edits. Otherwise create a separate temporary worktree and cherry-pick or copy accepted commits back after reconciliation.
+If the current Kanban workspace is already an isolated git worktree created for this task, you may create a sibling Codex branch inside it only if `git status --short` is clean except for intentional Sonic edits. Otherwise create a separate temporary worktree and cherry-pick or copy accepted commits back after reconciliation.
 
 Cleanup after reconciliation:
 
@@ -81,7 +81,7 @@ Keep the worktree if it is needed as an artifact for review; record it in `codex
 
 ## Codex Capability Checks
 
-Run these before spawning Codex. Missing Codex is a normal reason to skip the lane, not a task blocker if Lightning can do the task directly.
+Run these before spawning Codex. Missing Codex is a normal reason to skip the lane, not a task blocker if Sonic can do the task directly.
 
 ```bash
 command -v codex
@@ -118,12 +118,12 @@ Example `/goal` objective text to paste into Codex:
 
 ```text
 /goal Work in this repository only: <WORKTREE>. Task: <TASK_ID> <TITLE>.
-Lightning owns the Kanban lifecycle; do not call Lightning kanban tools or messaging.
+Sonic owns the Kanban lifecycle; do not call Sonic kanban tools or messaging.
 Create small commits on branch <BRANCH>. Follow the PMB safety constraints in the prompt.
 Run the requested verification commands and report exact outputs. Stop after producing a diff and summary.
 ```
 
-Do not use `--yolo` for prediction-market-bot or safety-sensitive repos. Prefer `--full-auto` inside the isolated worktree, then rely on Lightning reconciliation.
+Do not use `--yolo` for prediction-market-bot or safety-sensitive repos. Prefer `--full-auto` inside the isolated worktree, then rely on Sonic reconciliation.
 
 ## Prompt Construction
 
@@ -133,10 +133,10 @@ Every Codex prompt must include:
 
 - `task_id`, title, and full Kanban acceptance criteria.
 - Repo path, worktree path, branch name, and allowed file scope.
-- Explicit statement: Lightning owns Kanban lifecycle; Codex is an input lane only.
+- Explicit statement: Sonic owns Kanban lifecycle; Codex is an input lane only.
 - Required output: concise summary, files changed, commits, tests run, and known risks.
 - Prohibited actions: secrets access, external messaging, board mutation, unrelated refactors, dependency upgrades unless required.
-- Verification commands Codex may run and commands Lightning will run afterward.
+- Verification commands Codex may run and commands Sonic will run afterward.
 
 For PMB, include these mandatory safety constraints verbatim:
 
@@ -194,16 +194,16 @@ After kill, inspect `git status --short`, preserve useful patches only if safe, 
 
 ## Reconciliation Checklist
 
-Lightning must perform this checklist before accepting any Codex lane result:
+Sonic must perform this checklist before accepting any Codex lane result:
 
 - [ ] `git -C <WORKTREE> status --short --branch` shows only expected files.
-- [ ] `git -C <WORKTREE> diff --stat` and `git diff` were reviewed by Lightning.
+- [ ] `git -C <WORKTREE> diff --stat` and `git diff` were reviewed by Sonic.
 - [ ] No secrets, credentials, generated caches, unrelated data, or local artifacts are included.
 - [ ] PMB safety constraints were preserved: no live REST order entry, no market orders, no execution crossing, no fake passive fills/PnL, no risk-gate weakening, no secrets.
 - [ ] Codex commits are small enough to cherry-pick or squash cleanly.
-- [ ] Lightning ran the canonical tests itself, using `scripts/run_tests.sh` for Lightning Agent or the repo's documented wrapper for other repos.
-- [ ] Any Codex-run tests are listed separately from Lightning-run tests.
-- [ ] Accepted commits/diffs were applied to the Lightning-owned workspace/branch.
+- [ ] Sonic ran the canonical tests itself, using `scripts/run_tests.sh` for Sonic Agent or the repo's documented wrapper for other repos.
+- [ ] Any Codex-run tests are listed separately from Sonic-run tests.
+- [ ] Accepted commits/diffs were applied to the Sonic-owned workspace/branch.
 - [ ] Rejected or partial work has a concrete reason and artifact path if useful.
 
 Acceptance outcomes:
@@ -229,7 +229,7 @@ Include this object under `metadata.codex_lane` for every task where the lane wa
     "accepted_commits": ["<sha1>", "<sha2>"],
     "rejected_reason": "empty when fully accepted; otherwise concrete reason",
     "tests_run": [
-      {"command": "scripts/run_tests.sh tests/tools/test_x.py", "exit_code": 0, "owner": "lightning"},
+      {"command": "scripts/run_tests.sh tests/tools/test_x.py", "exit_code": 0, "owner": "sonic"},
       {"command": "codex-reported: npm test", "exit_code": 0, "owner": "codex"}
     ],
     "artifacts": ["/absolute/path/to/log-or-patch"]
@@ -249,7 +249,7 @@ For tasks that intentionally skip Codex:
     "command": null,
     "result": "rejected",
     "accepted_commits": [],
-    "rejected_reason": "Direct Lightning edit was smaller and safer than spawning Codex.",
+    "rejected_reason": "Direct Sonic edit was smaller and safer than spawning Codex.",
     "tests_run": [],
     "artifacts": []
   }
@@ -258,9 +258,9 @@ For tasks that intentionally skip Codex:
 
 ## Common Pitfalls
 
-1. Treating Codex self-report as verification. Always inspect the diff and rerun tests from Lightning.
+1. Treating Codex self-report as verification. Always inspect the diff and rerun tests from Sonic.
 2. Running Codex in the user's dirty main checkout. Always isolate in a worktree/branch.
-3. Letting Codex own Kanban. Codex may summarize progress, but Lightning writes board state.
+3. Letting Codex own Kanban. Codex may summarize progress, but Sonic writes board state.
 4. Forgetting PMB safety invariants in the prompt. Missing safety text is a lane setup failure.
 5. Using `/goal` for quick edits. Prefer `codex exec` unless durable multi-step continuation is needed.
 6. Killing a stuck lane without recording why. `rejected_reason` must explain the decision.
@@ -271,7 +271,7 @@ For tasks that intentionally skip Codex:
 - [ ] Codex was skipped or started only after `command -v codex`, `codex --version`, and optional goals feature checks.
 - [ ] Codex ran only in an isolated worktree/branch.
 - [ ] Prompt included task scope, ownership rules, PMB safety constraints when applicable, and verification commands.
-- [ ] Lightning reviewed `git diff` and safety-sensitive files.
-- [ ] Lightning ran canonical tests independently.
+- [ ] Sonic reviewed `git diff` and safety-sensitive files.
+- [ ] Sonic ran canonical tests independently.
 - [ ] `kanban_complete.metadata.codex_lane` follows the schema above.
 - [ ] Temporary processes and unnecessary worktrees were cleaned up.

@@ -52,8 +52,8 @@ class _FakeStream:
 
 
 @pytest.fixture(autouse=True)
-def _tmp_lightning_home(tmp_path, monkeypatch):
-    monkeypatch.setenv("LIGHTNING_HOME", str(tmp_path))
+def _tmp_sonic_home(tmp_path, monkeypatch):
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     yield tmp_path
 
 

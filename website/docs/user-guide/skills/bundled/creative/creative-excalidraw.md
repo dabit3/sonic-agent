@@ -17,7 +17,7 @@ Hand-drawn Excalidraw JSON diagrams (arch, flow, seq).
 | Source | Bundled (installed by default) |
 | Path | `skills/creative/excalidraw` |
 | Version | `1.0.0` |
-| Author | Lightning Agent |
+| Author | Sonic Agent |
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `Excalidraw`, `Diagrams`, `Flowcharts`, `Architecture`, `Visualization`, `JSON` |
@@ -25,7 +25,7 @@ Hand-drawn Excalidraw JSON diagrams (arch, flow, seq).
 ## Reference: full SKILL.md
 
 :::info
-The following is the complete skill definition that Lightning loads when this skill is triggered. This is what the agent sees as instructions when the skill is active.
+The following is the complete skill definition that Sonic loads when this skill is triggered. This is what the agent sees as instructions when the skill is active.
 :::
 
 # Excalidraw Diagram Skill
@@ -51,7 +51,7 @@ Wrap your elements array in the standard `.excalidraw` envelope and save with `w
 {
   "type": "excalidraw",
   "version": 2,
-  "source": "lightning-agent",
+  "source": "sonic-agent",
   "elements": [ ...your elements array here... ],
   "appState": {
     "viewBackgroundColor": "#ffffff"

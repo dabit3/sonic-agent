@@ -14,24 +14,24 @@ Delegate coding tasks to Blackbox AI CLI agent. Multi-model agent with built-in 
 
 | | |
 |---|---|
-| Source | Optional — install with `lightning skills install official/autonomous-ai-agents/blackbox` |
+| Source | Optional — install with `sonic skills install official/autonomous-ai-agents/blackbox` |
 | Path | `optional-skills/autonomous-ai-agents/blackbox` |
 | Version | `1.0.0` |
-| Author | Lightning Agent (Nous Research) |
+| Author | Sonic Agent (Nous Research) |
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `Coding-Agent`, `Blackbox`, `Multi-Agent`, `Judge`, `Multi-Model` |
-| Related skills | [`claude-code`](/docs/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-claude-code), [`codex`](/docs/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-codex), [`lightning-agent`](/docs/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-lightning-agent) |
+| Related skills | [`claude-code`](/docs/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-claude-code), [`codex`](/docs/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-codex), [`sonic-agent`](/docs/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-sonic-agent) |
 
 ## Reference: full SKILL.md
 
 :::info
-The following is the complete skill definition that Lightning loads when this skill is triggered. This is what the agent sees as instructions when the skill is active.
+The following is the complete skill definition that Sonic loads when this skill is triggered. This is what the agent sees as instructions when the skill is active.
 :::
 
 # Blackbox CLI
 
-Delegate coding tasks to [Blackbox AI](https://www.blackbox.ai/) via the Lightning terminal. Blackbox is a multi-model coding agent CLI that dispatches tasks to multiple LLMs (Claude, Codex, Gemini, Blackbox Pro) and uses a judge to select the best implementation.
+Delegate coding tasks to [Blackbox AI](https://www.blackbox.ai/) via the Sonic terminal. Blackbox is a multi-model coding agent CLI that dispatches tasks to multiple LLMs (Claude, Codex, Gemini, Blackbox Pro) and uses a judge to select the best implementation.
 
 The CLI is [open-source](https://github.com/blackboxaicode/cli) (GPL-3.0, TypeScript, forked from Gemini CLI) and supports interactive sessions, non-interactive one-shots, checkpointing, MCP, and vision model switching.
 

@@ -1,6 +1,6 @@
 # Usage
 
-This skill is triggered by natural language in Lightning — no slash command or CLI flags.
+This skill is triggered by natural language in Sonic — no slash command or CLI flags.
 
 ## Trigger Phrases
 

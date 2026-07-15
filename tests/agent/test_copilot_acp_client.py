@@ -50,16 +50,16 @@ class CopilotACPClientSafetyTests(unittest.TestCase):
         outcome = (((response.get("result") or {}).get("outcome") or {}).get("outcome"))
         self.assertEqual(outcome, "cancelled")
 
-    def test_read_text_file_blocks_internal_lightning_hub_files(self) -> None:
+    def test_read_text_file_blocks_internal_sonic_hub_files(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             home = Path(tmpdir) / "home"
-            blocked = home / ".lightning" / "skills" / ".hub" / "index-cache" / "entry.json"
+            blocked = home / ".sonic" / "skills" / ".hub" / "index-cache" / "entry.json"
             blocked.parent.mkdir(parents=True, exist_ok=True)
             blocked.write_text('{"token":"sk-test-secret-1234567890"}')
 
             with patch.dict(
                 os.environ,
-                {"HOME": str(home), "LIGHTNING_HOME": str(home / ".lightning")},
+                {"HOME": str(home), "SONIC_HOME": str(home / ".sonic")},
                 clear=False,
             ):
                 response = self._dispatch(
@@ -80,7 +80,7 @@ class CopilotACPClientSafetyTests(unittest.TestCase):
             secret_file = root / "config.env"
             secret_file.write_text("OPENAI_API_KEY=sk-proj-abc123def456ghi789jkl012")
 
-            # agent.redact snapshots LIGHTNING_REDACT_SECRETS at import time into
+            # agent.redact snapshots SONIC_REDACT_SECRETS at import time into
             # _REDACT_ENABLED, so patching os.environ is a no-op. Flip the
             # module-level constant directly for the duration of the call.
             with patch("agent.redact._REDACT_ENABLED", True):
@@ -128,7 +128,7 @@ class CopilotACPClientSafetyTests(unittest.TestCase):
             safe_root.mkdir()
             outside = root / "outside.txt"
 
-            with patch.dict(os.environ, {"LIGHTNING_WRITE_SAFE_ROOT": str(safe_root)}, clear=False):
+            with patch.dict(os.environ, {"SONIC_WRITE_SAFE_ROOT": str(safe_root)}, clear=False):
                 response = self._dispatch(
                     {
                         "jsonrpc": "2.0",
@@ -175,12 +175,12 @@ def _fake_popen_capture(captured):
 
 
 def test_run_prompt_prefers_profile_home_when_available(monkeypatch, tmp_path):
-    lightning_home = tmp_path / "lightning"
-    profile_home = lightning_home / "home"
+    sonic_home = tmp_path / "sonic"
+    profile_home = sonic_home / "home"
     profile_home.mkdir(parents=True)
 
     monkeypatch.delenv("HOME", raising=False)
-    monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
     captured = {}
     client = _make_home_client(tmp_path)
@@ -194,7 +194,7 @@ def test_run_prompt_prefers_profile_home_when_available(monkeypatch, tmp_path):
 
 def test_run_prompt_passes_home_when_parent_env_is_clean(monkeypatch, tmp_path):
     monkeypatch.delenv("HOME", raising=False)
-    monkeypatch.delenv("LIGHTNING_HOME", raising=False)
+    monkeypatch.delenv("SONIC_HOME", raising=False)
 
     captured = {}
     client = _make_home_client(tmp_path)

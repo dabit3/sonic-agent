@@ -11,7 +11,7 @@ from typing import Callable, Optional
 
 logger = logging.getLogger(__name__)
 
-from lightning_constants import get_lightning_home
+from sonic_constants import get_sonic_home
 from tools.tool_backend_helpers import managed_nous_tools_enabled
 
 _DEFAULT_TOOL_GATEWAY_DOMAIN = "nousresearch.com"
@@ -28,8 +28,8 @@ class ManagedToolGatewayConfig:
 
 
 def auth_json_path():
-    """Return the Lightning auth store path, respecting LIGHTNING_HOME overrides."""
-    return get_lightning_home() / "auth.json"
+    """Return the Sonic auth store path, respecting SONIC_HOME overrides."""
+    return get_sonic_home() / "auth.json"
 
 
 def _read_nous_provider_state() -> Optional[dict]:
@@ -89,7 +89,7 @@ def read_nous_access_token() -> Optional[str]:
         return cached_token
 
     try:
-        from lightning_cli.auth import resolve_nous_access_token
+        from sonic_cli.auth import resolve_nous_access_token
 
         refreshed_token = resolve_nous_access_token(
             refresh_skew_seconds=_NOUS_ACCESS_TOKEN_REFRESH_SKEW_SECONDS,

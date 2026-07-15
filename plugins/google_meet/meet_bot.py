@@ -2,7 +2,7 @@
 
 Runs as a standalone subprocess spawned by ``process_manager.py``. Reads config
 from env vars, writes status + transcript to files under
-``$LIGHTNING_HOME/workspace/meetings/<meeting-id>/``. The main lightning process
+``$SONIC_HOME/workspace/meetings/<meeting-id>/``. The main sonic process
 reads those files via the ``meet_*`` tools — no IPC beyond filesystem.
 
 The scraping strategy mirrors OpenUtter (sumansid/openutter): we don't parse
@@ -17,9 +17,9 @@ English-biased but it is:
 
 Run standalone for debugging::
 
-    LIGHTNING_MEET_URL=https://meet.google.com/abc-defg-hij \\
-    LIGHTNING_MEET_OUT_DIR=/tmp/meet-debug \\
-    LIGHTNING_MEET_HEADED=1 \\
+    SONIC_MEET_URL=https://meet.google.com/abc-defg-hij \\
+    SONIC_MEET_OUT_DIR=/tmp/meet-debug \\
+    SONIC_MEET_HEADED=1 \\
     python -m plugins.google_meet.meet_bot
 
 No meet.google.com URL → exits non-zero. Any URL that doesn't start with
@@ -49,7 +49,7 @@ MEET_URL_RE = re.compile(
 )
 
 
-# Filenames the bot reads/writes in ``LIGHTNING_MEET_OUT_DIR``.
+# Filenames the bot reads/writes in ``SONIC_MEET_OUT_DIR``.
 SAY_QUEUE_FILENAME = "say_queue.jsonl"
 SAY_PCM_FILENAME = "speaker.pcm"
 
@@ -179,13 +179,13 @@ class _BotState:
 
 # JavaScript injected into the Meet tab to observe captions. Captures
 # {speaker, text} tuples via a MutationObserver on the caption container,
-# and exposes ``window.__lightningMeetDrain()`` to pull new entries. This
+# and exposes ``window.__sonicMeetDrain()`` to pull new entries. This
 # mirrors the OpenUtter caption scraping approach.
 _CAPTION_OBSERVER_JS = r"""
 (() => {
-  if (window.__lightningMeetInstalled) return;
-  window.__lightningMeetInstalled = true;
-  window.__lightningMeetQueue = [];
+  if (window.__sonicMeetInstalled) return;
+  window.__sonicMeetInstalled = true;
+  window.__sonicMeetQueue = [];
 
   const captionSelector = '[role="region"][aria-label*="aption" i], ' +
                           'div[jsname="YSxPC"], ' +  // legacy
@@ -193,7 +193,7 @@ _CAPTION_OBSERVER_JS = r"""
 
   function pushEntry(speaker, text) {
     if (!text || !text.trim()) return;
-    window.__lightningMeetQueue.push({
+    window.__sonicMeetQueue.push({
       ts: Date.now(),
       speaker: (speaker || '').trim(),
       text: text.trim(),
@@ -235,9 +235,9 @@ _CAPTION_OBSERVER_JS = r"""
     const iv = setInterval(() => { if (attach()) clearInterval(iv); }, 1500);
   }
 
-  window.__lightningMeetDrain = () => {
-    const out = window.__lightningMeetQueue.slice();
-    window.__lightningMeetQueue = [];
+  window.__sonicMeetDrain = () => {
+    const out = window.__sonicMeetQueue.slice();
+    window.__sonicMeetQueue = [];
     return out;
   };
 })();
@@ -346,7 +346,7 @@ def _start_realtime_speaker(
     if platform_tag == "linux":
         import subprocess as _sp
 
-        sink = (bridge_info or {}).get("write_target") or "lightning_meet_sink"
+        sink = (bridge_info or {}).get("write_target") or "sonic_meet_sink"
         try:
             proc = _sp.Popen(
                 [
@@ -445,27 +445,27 @@ def _mac_audio_device_index(device_name: str) -> str:
 
 
 def run_bot() -> int:  # noqa: C901 — orchestration, explicit branches
-    url = os.environ.get("LIGHTNING_MEET_URL", "").strip()
-    out_dir_env = os.environ.get("LIGHTNING_MEET_OUT_DIR", "").strip()
-    headed = os.environ.get("LIGHTNING_MEET_HEADED", "").lower() in {"1", "true", "yes"}
-    auth_state = os.environ.get("LIGHTNING_MEET_AUTH_STATE", "").strip()
-    guest_name = os.environ.get("LIGHTNING_MEET_GUEST_NAME", "Lightning Agent")
-    duration_s = _parse_duration(os.environ.get("LIGHTNING_MEET_DURATION", ""))
-    # v2: optional realtime mode. Enabled when LIGHTNING_MEET_MODE=realtime.
-    mode = os.environ.get("LIGHTNING_MEET_MODE", "transcribe").strip().lower()
-    realtime_model = os.environ.get("LIGHTNING_MEET_REALTIME_MODEL", "gpt-realtime")
-    realtime_voice = os.environ.get("LIGHTNING_MEET_REALTIME_VOICE", "alloy")
-    realtime_instructions = os.environ.get("LIGHTNING_MEET_REALTIME_INSTRUCTIONS", "")
-    realtime_api_key = os.environ.get("LIGHTNING_MEET_REALTIME_KEY") or os.environ.get("OPENAI_API_KEY", "")
+    url = os.environ.get("SONIC_MEET_URL", "").strip()
+    out_dir_env = os.environ.get("SONIC_MEET_OUT_DIR", "").strip()
+    headed = os.environ.get("SONIC_MEET_HEADED", "").lower() in {"1", "true", "yes"}
+    auth_state = os.environ.get("SONIC_MEET_AUTH_STATE", "").strip()
+    guest_name = os.environ.get("SONIC_MEET_GUEST_NAME", "Sonic Agent")
+    duration_s = _parse_duration(os.environ.get("SONIC_MEET_DURATION", ""))
+    # v2: optional realtime mode. Enabled when SONIC_MEET_MODE=realtime.
+    mode = os.environ.get("SONIC_MEET_MODE", "transcribe").strip().lower()
+    realtime_model = os.environ.get("SONIC_MEET_REALTIME_MODEL", "gpt-realtime")
+    realtime_voice = os.environ.get("SONIC_MEET_REALTIME_VOICE", "alloy")
+    realtime_instructions = os.environ.get("SONIC_MEET_REALTIME_INSTRUCTIONS", "")
+    realtime_api_key = os.environ.get("SONIC_MEET_REALTIME_KEY") or os.environ.get("OPENAI_API_KEY", "")
 
     if not url or not _is_safe_meet_url(url):
         sys.stderr.write(
-            "google_meet bot: refusing to launch — LIGHTNING_MEET_URL must be a "
+            "google_meet bot: refusing to launch — SONIC_MEET_URL must be a "
             "meet.google.com URL. got: %r\n" % url
         )
         return 2
     if not out_dir_env:
-        sys.stderr.write("google_meet bot: LIGHTNING_MEET_OUT_DIR is required\n")
+        sys.stderr.write("google_meet bot: SONIC_MEET_OUT_DIR is required\n")
         return 2
 
     out_dir = Path(out_dir_env)
@@ -497,7 +497,7 @@ def run_bot() -> int:  # noqa: C901 — orchestration, explicit branches
     }
     if rt["enabled"]:
         if not realtime_api_key:
-            state.set(error="realtime mode requested but no API key in LIGHTNING_MEET_REALTIME_KEY/OPENAI_API_KEY — falling back to transcribe")
+            state.set(error="realtime mode requested but no API key in SONIC_MEET_REALTIME_KEY/OPENAI_API_KEY — falling back to transcribe")
             rt["enabled"] = False
         else:
             try:
@@ -616,7 +616,7 @@ def run_bot() -> int:  # noqa: C901 — orchestration, explicit branches
             #   * periodically flushing realtime counters into status.json
             deadline = (time.time() + duration_s) if duration_s else None
             lobby_deadline = time.time() + float(
-                os.environ.get("LIGHTNING_MEET_LOBBY_TIMEOUT", "300")
+                os.environ.get("SONIC_MEET_LOBBY_TIMEOUT", "300")
             )
             last_admission_check = 0.0
             while not stop_flag["stop"]:
@@ -652,7 +652,7 @@ def run_bot() -> int:  # noqa: C901 — orchestration, explicit branches
                         break
 
                 try:
-                    queued = page.evaluate("window.__lightningMeetDrain && window.__lightningMeetDrain()")
+                    queued = page.evaluate("window.__sonicMeetDrain && window.__sonicMeetDrain()")
                     if isinstance(queued, list):
                         for entry in queued:
                             if not isinstance(entry, dict):
@@ -756,7 +756,7 @@ def _detect_admission(page) -> bool:
     (() => {
       const leave = document.querySelector('button[aria-label*="eave call" i]');
       if (leave) return true;
-      if (window.__lightningMeetInstalled) {
+      if (window.__sonicMeetInstalled) {
         const caps = document.querySelector(
           '[role="region"][aria-label*="aption" i], ' +
           'div[jsname="YSxPC"], div[jsname="tgaKEf"]'

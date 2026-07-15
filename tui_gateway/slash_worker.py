@@ -1,4 +1,4 @@
-"""Persistent slash-command worker — one LightningCLI per TUI session.
+"""Persistent slash-command worker — one SonicCLI per TUI session.
 
 Protocol: reads JSON lines from stdin {id, command}, writes {id, ok, output|error} to stdout.
 """
@@ -11,11 +11,11 @@ import os
 import sys
 
 import cli as cli_mod
-from cli import LightningCLI
+from cli import SonicCLI
 from rich.console import Console
 
 
-def _run(cli: LightningCLI, command: str) -> str:
+def _run(cli: SonicCLI, command: str) -> str:
     cmd = (command or "").strip()
     if not cmd:
         return ""
@@ -49,11 +49,11 @@ def main():
     p.add_argument("--model", default="")
     args = p.parse_args()
 
-    os.environ["LIGHTNING_SESSION_KEY"] = args.session_key
-    os.environ["LIGHTNING_INTERACTIVE"] = "1"
+    os.environ["SONIC_SESSION_KEY"] = args.session_key
+    os.environ["SONIC_INTERACTIVE"] = "1"
 
     with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
-        cli = LightningCLI(model=args.model or None, compact=True, resume=args.session_key, verbose=False)
+        cli = SonicCLI(model=args.model or None, compact=True, resume=args.session_key, verbose=False)
 
     for raw in sys.stdin:
         line = raw.strip()

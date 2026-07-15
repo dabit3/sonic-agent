@@ -1,4 +1,4 @@
-import { Box, Text, useInput, useStdout } from '@lightning/ink'
+import { Box, Text, useInput, useStdout } from '@sonic/ink'
 import { useEffect, useState } from 'react'
 
 import type { GatewayClient } from '../gatewayClient.js'

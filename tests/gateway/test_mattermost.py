@@ -262,7 +262,7 @@ class TestMattermostWebSocketParsing:
     def setup_method(self):
         self.adapter = _make_adapter()
         self.adapter._bot_user_id = "bot_user_id"
-        self.adapter._bot_username = "lightning-bot"
+        self.adapter._bot_username = "sonic-bot"
         # Mock handle_message to capture the MessageEvent without processing
         self.adapter.handle_message = AsyncMock()
 
@@ -413,7 +413,7 @@ class TestMattermostMentionBehavior:
     def setup_method(self):
         self.adapter = _make_adapter()
         self.adapter._bot_user_id = "bot_user_id"
-        self.adapter._bot_username = "lightning-bot"
+        self.adapter._bot_username = "sonic-bot"
         self.adapter.handle_message = AsyncMock()
 
     def _make_event(self, message, channel_type="O", channel_id="chan_456"):
@@ -478,11 +478,11 @@ class TestMattermostMentionBehavior:
         with patch.dict(os.environ, {}, clear=False):
             os.environ.pop("MATTERMOST_REQUIRE_MENTION", None)
             await self.adapter._handle_ws_event(
-                self._make_event("@lightning-bot what is 2+2")
+                self._make_event("@sonic-bot what is 2+2")
             )
             assert self.adapter.handle_message.called
             msg = self.adapter.handle_message.call_args[0][0]
-            assert "@lightning-bot" not in msg.text
+            assert "@sonic-bot" not in msg.text
             assert "2+2" in msg.text
 
 

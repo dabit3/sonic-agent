@@ -1,6 +1,6 @@
 import { PassThrough } from 'stream'
 
-import { Box, renderSync, ScrollBox, type ScrollBoxHandle, Text } from '@lightning/ink'
+import { Box, renderSync, ScrollBox, type ScrollBoxHandle, Text } from '@sonic/ink'
 import React, { useLayoutEffect, useRef } from 'react'
 import { describe, expect, it } from 'vitest'
 

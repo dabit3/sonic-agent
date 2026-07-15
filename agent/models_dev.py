@@ -10,7 +10,7 @@ of 4000+ models across 109+ providers.  Provides:
 
 Data resolution order (like TypeScript OpenCode):
   1. Bundled snapshot (ships with the package — offline-first)
-  2. Disk cache (~/.lightning/models_dev_cache.json)
+  2. Disk cache (~/.sonic/models_dev_cache.json)
   3. Network fetch (https://models.dev/api.json)
   4. Background refresh every 60 minutes
 
@@ -135,10 +135,10 @@ class ProviderInfo:
 
 
 # ---------------------------------------------------------------------------
-# Provider ID mapping: Lightning ↔ models.dev
+# Provider ID mapping: Sonic ↔ models.dev
 # ---------------------------------------------------------------------------
 
-# Lightning provider names → models.dev provider IDs
+# Sonic provider names → models.dev provider IDs
 PROVIDER_TO_MODELS_DEV: Dict[str, str] = {
     "openrouter": "openrouter",
     "novita": "novita-ai",
@@ -180,24 +180,39 @@ PROVIDER_TO_MODELS_DEV: Dict[str, str] = {
     "ollama-cloud": "ollama-cloud",
 }
 
-# Reverse mapping: models.dev → Lightning (built lazily)
+# Reverse mapping: models.dev → Sonic (built lazily)
 _MODELS_DEV_TO_PROVIDER: Optional[Dict[str, str]] = None
 
 
 
 def _get_cache_path() -> Path:
     """Return path to disk cache file."""
-    from lightning_constants import get_lightning_home
-    return get_lightning_home() / "models_dev_cache.json"
+    from sonic_constants import get_sonic_home
+    return get_sonic_home() / "models_dev_cache.json"
+
+
+# In-process memo for the parsed disk cache, keyed on (path, mtime_ns,
+# size). The file is a multi-megabyte JSON blob (~100ms to parse); several
+# startup paths read it independently, so re-parsing per caller is pure
+# waste. Invalidates automatically when the file is rewritten.
+_DISK_CACHE_MEMO: Optional[Tuple[str, int, int, Dict[str, Any]]] = None
 
 
 def _load_disk_cache() -> Dict[str, Any]:
     """Load models.dev data from disk cache."""
+    global _DISK_CACHE_MEMO
     try:
         cache_path = _get_cache_path()
         if cache_path.exists():
+            st = cache_path.stat()
+            key = (str(cache_path), st.st_mtime_ns, st.st_size)
+            memo = _DISK_CACHE_MEMO
+            if memo is not None and memo[:3] == key:
+                return memo[3]
             with open(cache_path, encoding="utf-8") as f:
-                return json.load(f)
+                data = json.load(f)
+            _DISK_CACHE_MEMO = (*key, data)
+            return data
     except Exception as e:
         logger.debug("Failed to load models.dev disk cache: %s", e)
     return {}
@@ -253,7 +268,7 @@ def fetch_models_dev(force_refresh: bool = False) -> Dict[str, Any]:
       4. Network fails → fall back to ANY available disk cache (even stale)
          with a short 5 min in-mem grace period before retrying network.
 
-    When ``force_refresh=True`` (used by ``lightning config refresh``, the
+    When ``force_refresh=True`` (used by ``sonic config refresh``, the
     \"refresh model catalog\" code path), stages 1 and 2 are skipped. The
     function always hits the network and only falls back to disk if the
     network call fails.
@@ -412,7 +427,7 @@ class ModelCapabilities:
 
 
 def _get_provider_models(provider: str) -> Optional[Dict[str, Any]]:
-    """Resolve a Lightning provider ID to its models dict from models.dev.
+    """Resolve a Sonic provider ID to its models dict from models.dev.
 
     Returns the models dict or None if the provider is unknown or has no data.
     """
@@ -514,7 +529,7 @@ def list_provider_models(provider: str) -> List[str]:
 
     Returns an empty list if the provider is unknown or has no data.
     """
-    from lightning_cli.models import normalize_provider
+    from sonic_cli.models import normalize_provider
     provider = normalize_provider(provider) or provider
     
     models = _get_provider_models(provider)
@@ -536,7 +551,7 @@ _NOISE_PATTERNS: re.Pattern = re.compile(
 )
 
 # Google's live Gemini catalogs currently include a mix of stale slugs and
-# Gemma models whose TPM quotas are too small for normal Lightning agent traffic.
+# Gemma models whose TPM quotas are too small for normal Sonic agent traffic.
 # Keep capability metadata available for direct/manual use, but hide these from
 # the Gemini model catalogs we surface in setup and model selection.
 _GOOGLE_HIDDEN_MODELS = frozenset({
@@ -675,10 +690,10 @@ def _parse_provider_info(provider_id: str, raw: Dict[str, Any]) -> ProviderInfo:
 def get_provider_info(provider_id: str) -> Optional[ProviderInfo]:
     """Get full provider metadata from models.dev.
 
-    Accepts either a Lightning provider ID (e.g. "kilocode") or a models.dev
+    Accepts either a Sonic provider ID (e.g. "kilocode") or a models.dev
     ID (e.g. "kilo").  Returns None if the provider is not in the catalog.
     """
-    # Resolve Lightning ID → models.dev ID
+    # Resolve Sonic ID → models.dev ID
     mdev_id = PROVIDER_TO_MODELS_DEV.get(provider_id, provider_id)
 
     data = fetch_models_dev()
@@ -698,7 +713,7 @@ def get_model_info(
 ) -> Optional[ModelInfo]:
     """Get full model metadata from models.dev.
 
-    Accepts Lightning or models.dev provider ID.  Tries exact match then
+    Accepts Sonic or models.dev provider ID.  Tries exact match then
     case-insensitive fallback.  Returns None if not found.
     """
     mdev_id = PROVIDER_TO_MODELS_DEV.get(provider_id, provider_id)

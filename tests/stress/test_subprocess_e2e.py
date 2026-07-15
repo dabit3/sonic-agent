@@ -2,11 +2,11 @@
 
 This validates the IPC + lifecycle story that mocks can't:
   - spawn_fn returns a real PID
-  - the child process resolves lightning_cli.kanban_db on its own
+  - the child process resolves sonic_cli.kanban_db on its own
   - the child writes heartbeats via the CLI (real argparse, real init_db)
   - the child completes via the CLI with --summary + --metadata
   - the dispatcher observes all of this through the DB only
-  - worker logs are captured to LIGHTNING_HOME/kanban/logs/<task>.log
+  - worker logs are captured to SONIC_HOME/kanban/logs/<task>.log
   - crash detection works against a real dead PID
 """
 
@@ -31,11 +31,11 @@ def make_spawn_fn(home: str):
         log_path = os.path.join(home, f"worker_{task.id}.log")
         env = {
             **os.environ,
-            "LIGHTNING_HOME": home,
+            "SONIC_HOME": home,
             "HOME": home,
             "PYTHONPATH": WT,
-            "LIGHTNING_KANBAN_TASK": task.id,
-            "LIGHTNING_KANBAN_WORKSPACE": workspace,
+            "SONIC_KANBAN_TASK": task.id,
+            "SONIC_KANBAN_WORKSPACE": workspace,
             "PATH": f"{os.path.dirname(PY)}:{os.environ.get('PATH','')}",
         }
         log_f = open(log_path, "ab")
@@ -53,20 +53,20 @@ def make_spawn_fn(home: str):
 
 
 def main():
-    home = tempfile.mkdtemp(prefix="lightning_e2e_")
-    os.environ["LIGHTNING_HOME"] = home
+    home = tempfile.mkdtemp(prefix="sonic_e2e_")
+    os.environ["SONIC_HOME"] = home
     os.environ["HOME"] = home
     sys.path.insert(0, WT)
-    from lightning_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
 
-    # Point the `lightning` CLI child processes will run at the worktree
-    # lightning_cli.main. We do this by putting a shim on PATH.
+    # Point the `sonic` CLI child processes will run at the worktree
+    # sonic_cli.main. We do this by putting a shim on PATH.
     shim_dir = os.path.join(home, "bin")
     os.makedirs(shim_dir, exist_ok=True)
-    shim_path = os.path.join(shim_dir, "lightning")
+    shim_path = os.path.join(shim_dir, "sonic")
     with open(shim_path, "w") as f:
         f.write(f"""#!/bin/sh
-exec {PY} -m lightning_cli.main "$@"
+exec {PY} -m sonic_cli.main "$@"
 """)
     os.chmod(shim_path, 0o755)
     os.environ["PATH"] = f"{shim_dir}:{os.environ.get('PATH','')}"
@@ -212,7 +212,7 @@ exec {PY} -m lightning_cli.main "$@"
     print("=" * 60)
     print("C. Worker log captured to disk")
     print("=" * 60)
-    # Scenario A workers wrote to /tmp/lightning_e2e_*/worker_*.log
+    # Scenario A workers wrote to /tmp/sonic_e2e_*/worker_*.log
     import glob
     logs = glob.glob(os.path.join(home, "worker_*.log"))
     print(f"  {len(logs)} worker log files")

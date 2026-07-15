@@ -119,8 +119,8 @@ def _setup_worktree(repo_root):
     """Test version of _setup_worktree — creates a worktree."""
     import uuid
     short_id = uuid.uuid4().hex[:8]
-    wt_name = f"lightning-{short_id}"
-    branch_name = f"lightning/{wt_name}"
+    wt_name = f"sonic-{short_id}"
+    branch_name = f"sonic/{wt_name}"
 
     worktrees_dir = Path(repo_root) / ".worktrees"
     worktrees_dir.mkdir(parents=True, exist_ok=True)
@@ -224,7 +224,7 @@ class TestWorktreeCreation:
         info = _setup_worktree(str(git_repo))
         assert info is not None
         assert Path(info["path"]).exists()
-        assert info["branch"].startswith("lightning/lightning-")
+        assert info["branch"].startswith("sonic/sonic-")
         assert info["repo_root"] == str(git_repo)
 
         # Verify it's a valid git worktree
@@ -365,7 +365,7 @@ class TestWorktreeCleanup:
         """Cleanup should handle already-removed worktrees gracefully."""
         info = {
             "path": str(git_repo / ".worktrees" / "nonexistent"),
-            "branch": "lightning/nonexistent",
+            "branch": "sonic/nonexistent",
             "repo_root": str(git_repo),
         }
         # Should not raise
@@ -565,7 +565,7 @@ class TestStaleWorktreePruning:
         cutoff = time.time() - (24 * 3600)
 
         for entry in worktrees_dir.iterdir():
-            if not entry.is_dir() or not entry.name.startswith("lightning-"):
+            if not entry.is_dir() or not entry.name.startswith("sonic-"):
                 continue
             try:
                 mtime = entry.stat().st_mtime
@@ -611,7 +611,7 @@ class TestStaleWorktreePruning:
 
         pruned = False
         for entry in worktrees_dir.iterdir():
-            if not entry.is_dir() or not entry.name.startswith("lightning-"):
+            if not entry.is_dir() or not entry.name.startswith("sonic-"):
                 continue
             mtime = entry.stat().st_mtime
             if mtime > cutoff:
@@ -660,7 +660,7 @@ class TestStaleWorktreePruning:
         cutoff = time.time() - (24 * 3600)
 
         for entry in worktrees_dir.iterdir():
-            if not entry.is_dir() or not entry.name.startswith("lightning-"):
+            if not entry.is_dir() or not entry.name.startswith("sonic-"):
                 continue
             mtime = entry.stat().st_mtime
             if mtime > cutoff:
@@ -702,7 +702,7 @@ class TestStaleWorktreePruning:
         cutoff = time.time() - (24 * 3600)
 
         for entry in worktrees_dir.iterdir():
-            if not entry.is_dir() or not entry.name.startswith("lightning-"):
+            if not entry.is_dir() or not entry.name.startswith("sonic-"):
                 continue
             mtime = entry.stat().st_mtime
             if mtime > cutoff:
@@ -865,22 +865,22 @@ class TestTerminalCWDIntegration:
 
 
 class TestOrphanedBranchPruning:
-    """Test cleanup of orphaned lightning/* and pr-* branches."""
+    """Test cleanup of orphaned sonic/* and pr-* branches."""
 
-    def test_prunes_orphaned_lightning_branch(self, git_repo):
-        """lightning/lightning-* branches with no worktree should be deleted."""
+    def test_prunes_orphaned_sonic_branch(self, git_repo):
+        """sonic/sonic-* branches with no worktree should be deleted."""
         # Create a branch that looks like a worktree branch but has no worktree
         subprocess.run(
-            ["git", "branch", "lightning/lightning-deadbeef", "HEAD"],
+            ["git", "branch", "sonic/sonic-deadbeef", "HEAD"],
             cwd=str(git_repo), capture_output=True,
         )
 
         # Verify it exists
         result = subprocess.run(
-            ["git", "branch", "--list", "lightning/lightning-deadbeef"],
+            ["git", "branch", "--list", "sonic/sonic-deadbeef"],
             capture_output=True, text=True, cwd=str(git_repo),
         )
-        assert "lightning/lightning-deadbeef" in result.stdout
+        assert "sonic/sonic-deadbeef" in result.stdout
 
         # Simulate _prune_orphaned_branches logic
         result = subprocess.run(
@@ -901,9 +901,9 @@ class TestOrphanedBranchPruning:
         orphaned = [
             b for b in all_branches
             if b not in active_branches
-            and (b.startswith("lightning/lightning-") or b.startswith("pr-"))
+            and (b.startswith("sonic/sonic-") or b.startswith("pr-"))
         ]
-        assert "lightning/lightning-deadbeef" in orphaned
+        assert "sonic/sonic-deadbeef" in orphaned
 
         # Delete them
         if orphaned:
@@ -914,10 +914,10 @@ class TestOrphanedBranchPruning:
 
         # Verify gone
         result = subprocess.run(
-            ["git", "branch", "--list", "lightning/lightning-deadbeef"],
+            ["git", "branch", "--list", "sonic/sonic-deadbeef"],
             capture_output=True, text=True, cwd=str(git_repo),
         )
-        assert "lightning/lightning-deadbeef" not in result.stdout
+        assert "sonic/sonic-deadbeef" not in result.stdout
 
     def test_prunes_orphaned_pr_branch(self, git_repo):
         """pr-* branches should be deleted during pruning."""
@@ -986,7 +986,7 @@ class TestOrphanedBranchPruning:
         orphaned = [
             b for b in all_branches
             if b not in active_branches
-            and (b.startswith("lightning/lightning-") or b.startswith("pr-"))
+            and (b.startswith("sonic/sonic-") or b.startswith("pr-"))
         ]
         assert "main" not in orphaned
 

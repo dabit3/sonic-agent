@@ -1,0 +1,47 @@
+name: Sonic smoke test
+description: >
+  Run the image's built-in entrypoint against `--help` and `dashboard --help`
+  to catch basic runtime regressions before publishing.  Requires the image
+  to already be loaded into the local Docker daemon under `image`.
+
+  Works identically on amd64 and arm64 runners.
+
+inputs:
+  image:
+    description: Fully-qualified image tag (e.g. nousresearch/sonic-agent:test)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Ensure /tmp/sonic-test is sonic-writable
+      shell: bash
+      run: |
+        # The image runs as the sonic user (UID 10000).  GitHub Actions
+        # creates /tmp/sonic-test root-owned by default, which sonic
+        # can't write to — chown it to match the in-container UID before
+        # bind-mounting.  Real users doing `docker run -v ~/.sonic:...`
+        # with their own UID hit the same issue and have their own
+        # remediations (SONIC_UID env var, or chown locally).
+        mkdir -p /tmp/sonic-test
+        sudo chown -R 10000:10000 /tmp/sonic-test
+
+    - name: sonic --help
+      shell: bash
+      run: |
+        docker run --rm \
+          -v /tmp/sonic-test:/opt/data \
+          --entrypoint /opt/sonic/docker/entrypoint.sh \
+          "${{ inputs.image }}" --help
+
+    - name: sonic dashboard --help
+      shell: bash
+      run: |
+        # Regression guard for #9153: dashboard was present in source but
+        # missing from the published image.  If this fails, something in
+        # the Dockerfile is excluding the dashboard subcommand from the
+        # installed package.
+        docker run --rm \
+          -v /tmp/sonic-test:/opt/data \
+          --entrypoint /opt/sonic/docker/entrypoint.sh \
+          "${{ inputs.image }}" dashboard --help

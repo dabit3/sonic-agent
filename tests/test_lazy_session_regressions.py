@@ -23,7 +23,7 @@ import pytest
 
 def _make_session_db(tmp_path):
     """Create a real SessionDB for integration-style tests."""
-    from lightning_state import SessionDB
+    from sonic_state import SessionDB
     db_path = tmp_path / "test_state.db"
     return SessionDB(db_path=db_path)
 

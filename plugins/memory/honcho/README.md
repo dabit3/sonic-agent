@@ -2,7 +2,7 @@
 
 AI-native cross-session user modeling with multi-pass dialectic reasoning, session summaries, bidirectional peer tools, and persistent conclusions.
 
-> **Honcho docs:** <https://docs.honcho.dev/v3/guides/integrations/lightning>
+> **Honcho docs:** <https://docs.honcho.dev/v3/guides/integrations/sonic>
 
 ## Requirements
 
@@ -12,14 +12,14 @@ AI-native cross-session user modeling with multi-pass dialectic reasoning, sessi
 ## Setup
 
 ```bash
-lightning honcho setup    # full interactive wizard (cloud or local)
-lightning memory setup    # generic picker, also works
+sonic honcho setup    # full interactive wizard (cloud or local)
+sonic memory setup    # generic picker, also works
 ```
 
 Or manually:
 ```bash
-lightning config set memory.provider honcho
-echo "HONCHO_API_KEY=***" >> ~/.lightning/.env
+sonic config set memory.provider honcho
+echo "HONCHO_API_KEY=***" >> ~/.sonic/.env
 ```
 
 ## Architecture Overview
@@ -105,11 +105,11 @@ Config is read from the first file that exists:
 
 | Priority | Path | Scope |
 |----------|------|-------|
-| 1 | `$LIGHTNING_HOME/honcho.json` | Profile-local (isolated Lightning instances) |
-| 2 | `~/.lightning/honcho.json` | Default profile (shared host blocks) |
+| 1 | `$SONIC_HOME/honcho.json` | Profile-local (isolated Sonic instances) |
+| 2 | `~/.sonic/honcho.json` | Default profile (shared host blocks) |
 | 3 | `~/.honcho/config.json` | Global (cross-app interop) |
 
-Host key is derived from the active Lightning profile: `lightning` (default) or `lightning.<profile>`.
+Host key is derived from the active Sonic profile: `sonic` (default) or `sonic.<profile>`.
 
 For every key, resolution order is: **host block > root > env var > default**.
 
@@ -159,38 +159,38 @@ The Honcho session name determines which conversation bucket memory lands in. Re
 | 1 | Manual map (`sessions` config) | `"myproject-main"` |
 | 2 | `/title` command (mid-session rename) | `"refactor-auth"` |
 | 3 | Gateway session key (Telegram, Discord, etc.) | `"agent-main-telegram-dm-8439114563"` |
-| 4 | `per-session` strategy | Lightning session ID (`20260415_a3f2b1`) |
-| 5 | `per-repo` strategy | Git root directory name (`lightning-agent`) |
+| 4 | `per-session` strategy | Sonic session ID (`20260415_a3f2b1`) |
+| 5 | `per-repo` strategy | Git root directory name (`sonic-agent`) |
 | 6 | `per-directory` strategy | Current directory basename (`src`) |
-| 7 | `global` strategy | Workspace name (`lightning`) |
+| 7 | `global` strategy | Workspace name (`sonic`) |
 
 Gateway platforms always resolve via priority 3 (per-chat isolation) regardless of `sessionStrategy`. The strategy setting only affects CLI sessions.
 
-If `sessionPeerPrefix` is `true`, the peer name is prepended: `eri-lightning-agent`.
+If `sessionPeerPrefix` is `true`, the peer name is prepended: `eri-sonic-agent`.
 
 #### What each strategy produces
 
-- **`per-directory`** — basename of `$PWD`. Opening lightning in `~/code/myapp` and `~/code/other` gives two separate sessions. Same directory = same session across runs.
+- **`per-directory`** — basename of `$PWD`. Opening sonic in `~/code/myapp` and `~/code/other` gives two separate sessions. Same directory = same session across runs.
 - **`per-repo`** — git root directory name. All subdirectories within a repo share one session. Falls back to `per-directory` if not inside a git repo.
-- **`per-session`** — Lightning session ID (timestamp + hex). Every `lightning` invocation starts a fresh Honcho session. Falls back to `per-directory` if no session ID is available.
+- **`per-session`** — Sonic session ID (timestamp + hex). Every `sonic` invocation starts a fresh Honcho session. Falls back to `per-directory` if no session ID is available.
 - **`global`** — workspace name. One session for everything. Memory accumulates across all directories and runs.
 
 ### Multi-Profile Pattern
 
-Multiple Lightning profiles can share one workspace while maintaining separate AI identities. Config resolution is **host block > root > env var > default** — host blocks inherit from root, so shared settings only need to be declared once:
+Multiple Sonic profiles can share one workspace while maintaining separate AI identities. Config resolution is **host block > root > env var > default** — host blocks inherit from root, so shared settings only need to be declared once:
 
 ```json
 {
   "apiKey": "***",
-  "workspace": "lightning",
+  "workspace": "sonic",
   "peerName": "yourname",
   "hosts": {
-    "lightning": {
-      "aiPeer": "lightning",
+    "sonic": {
+      "aiPeer": "sonic",
       "recallMode": "hybrid",
       "sessionStrategy": "per-directory"
     },
-    "lightning.coder": {
+    "sonic.coder": {
       "aiPeer": "coder",
       "recallMode": "tools",
       "sessionStrategy": "per-repo"
@@ -199,9 +199,9 @@ Multiple Lightning profiles can share one workspace while maintaining separate A
 }
 ```
 
-Both profiles see the same user (`yourname`) in the same shared environment (`lightning`), but each AI peer builds its own observations, conclusions, and behavior patterns. The coder's memory stays code-oriented; the main agent's stays broad.
+Both profiles see the same user (`yourname`) in the same shared environment (`sonic`), but each AI peer builds its own observations, conclusions, and behavior patterns. The coder's memory stays code-oriented; the main agent's stays broad.
 
-Host key is derived from the active Lightning profile: `lightning` (default) or `lightning.<profile>` (e.g. `lightning -p coder` → host key `lightning.coder`).
+Host key is derived from the active Sonic profile: `sonic` (default) or `sonic.<profile>` (e.g. `sonic -p coder` → host key `sonic.coder`).
 
 ### Dialectic & Reasoning
 
@@ -266,37 +266,37 @@ Presets:
 | `HONCHO_API_KEY` | `apiKey` |
 | `HONCHO_BASE_URL` | `baseUrl` |
 | `HONCHO_ENVIRONMENT` | `environment` |
-| `LIGHTNING_HONCHO_HOST` | Host key override |
+| `SONIC_HONCHO_HOST` | Host key override |
 
 ## CLI Commands
 
 | Command | Description |
 |---------|-------------|
-| `lightning honcho setup` | Full interactive setup wizard |
-| `lightning honcho status` | Show resolved config for active profile |
-| `lightning honcho enable` / `disable` | Toggle Honcho for active profile |
-| `lightning honcho mode <mode>` | Change recall or observation mode |
-| `lightning honcho peer --user <name>` | Update user peer name |
-| `lightning honcho peer --ai <name>` | Update AI peer name |
-| `lightning honcho tokens --context <N>` | Set context token budget |
-| `lightning honcho tokens --dialectic <N>` | Set dialectic max chars |
-| `lightning honcho map <name>` | Map current directory to a session name |
-| `lightning honcho sync` | Create host blocks for all Lightning profiles |
+| `sonic honcho setup` | Full interactive setup wizard |
+| `sonic honcho status` | Show resolved config for active profile |
+| `sonic honcho enable` / `disable` | Toggle Honcho for active profile |
+| `sonic honcho mode <mode>` | Change recall or observation mode |
+| `sonic honcho peer --user <name>` | Update user peer name |
+| `sonic honcho peer --ai <name>` | Update AI peer name |
+| `sonic honcho tokens --context <N>` | Set context token budget |
+| `sonic honcho tokens --dialectic <N>` | Set dialectic max chars |
+| `sonic honcho map <name>` | Map current directory to a session name |
+| `sonic honcho sync` | Create host blocks for all Sonic profiles |
 
 ## Example Config
 
 ```json
 {
   "apiKey": "***",
-  "workspace": "lightning",
+  "workspace": "sonic",
   "peerName": "username",
   "contextCadence": 2,
   "dialecticCadence": 3,
   "dialecticDepth": 2,
   "hosts": {
-    "lightning": {
+    "sonic": {
       "enabled": true,
-      "aiPeer": "lightning",
+      "aiPeer": "sonic",
       "recallMode": "hybrid",
       "observation": {
         "user": { "observeMe": true, "observeOthers": true },
@@ -309,7 +309,7 @@ Presets:
       "dialecticMaxChars": 600,
       "saveMessages": true
     },
-    "lightning.coder": {
+    "sonic.coder": {
       "enabled": true,
       "aiPeer": "coder",
       "sessionStrategy": "per-repo",

@@ -54,7 +54,7 @@ Martial arts power must be visible through qi effects:
 |-------------|-----------------|
 | Normal | Standard pose |
 | Fast | Motion blur, speed lines |
-| Lightning | Afterimages, multiple positions |
+| Sonic | Afterimages, multiple positions |
 | Teleport | Fade effect, particle trail |
 
 ### Environmental Integration

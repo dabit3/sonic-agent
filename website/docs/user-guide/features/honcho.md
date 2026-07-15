@@ -6,7 +6,7 @@ description: "AI-native persistent memory via Honcho — dialectic reasoning, mu
 
 # Honcho Memory
 
-[Honcho](https://github.com/plastic-labs/honcho) is an AI-native memory backend that adds dialectic reasoning and deep user modeling on top of Lightning's built-in memory system. Instead of simple key-value storage, Honcho maintains a running model of who the user is — their preferences, communication style, goals, and patterns — by reasoning about conversations after they happen.
+[Honcho](https://github.com/plastic-labs/honcho) is an AI-native memory backend that adds dialectic reasoning and deep user modeling on top of Sonic's built-in memory system. Instead of simple key-value storage, Honcho maintains a running model of who the user is — their preferences, communication style, goals, and patterns — by reasoning about conversations after they happen.
 
 :::info Honcho is a Memory Provider Plugin
 Honcho is integrated into the [Memory Providers](./memory-providers.md) system. All features below are available through the unified memory provider interface.
@@ -28,24 +28,24 @@ Honcho is integrated into the [Memory Providers](./memory-providers.md) system. 
 
 **Session-scoped context**: Base context now includes the session summary alongside the user representation and peer card. This gives the agent awareness of what has already been discussed in the current session, reducing repetition and enabling continuity.
 
-**Multi-agent profiles**: When multiple Lightning instances talk to the same user (e.g., a coding assistant and a personal assistant), Honcho maintains separate "peer" profiles. Each peer sees only its own observations and conclusions, preventing cross-contamination of context.
+**Multi-agent profiles**: When multiple Sonic instances talk to the same user (e.g., a coding assistant and a personal assistant), Honcho maintains separate "peer" profiles. Each peer sees only its own observations and conclusions, preventing cross-contamination of context.
 
 ## Setup
 
 ```bash
-lightning memory setup    # select "honcho" from the provider list
+sonic memory setup    # select "honcho" from the provider list
 ```
 
 Or configure manually:
 
 ```yaml
-# ~/.lightning/config.yaml
+# ~/.sonic/config.yaml
 memory:
   provider: honcho
 ```
 
 ```bash
-echo 'HONCHO_API_KEY=***' >> ~/.lightning/.env
+echo 'HONCHO_API_KEY=***' >> ~/.sonic/.env
 ```
 
 Get an API key at [honcho.dev](https://honcho.dev).
@@ -104,7 +104,7 @@ The auto-injected dialectic scales `dialecticReasoningLevel` by query length: +1
 
 ## Configuration Options
 
-Honcho is configured in `~/.honcho/config.json` (global) or `$LIGHTNING_HOME/honcho.json` (profile-local). The setup wizard handles this for you.
+Honcho is configured in `~/.honcho/config.json` (global) or `$SONIC_HOME/honcho.json` (profile-local). The setup wizard handles this for you.
 
 ### Full Config Reference
 
@@ -127,7 +127,7 @@ Honcho is configured in `~/.honcho/config.json` (global) or `$LIGHTNING_HOME/hon
 | `sessionStrategy` | `'per-directory'` | `per-directory`, `per-repo`, `per-session`, or `global` |
 
 **Session strategy** controls how Honcho sessions map to your work:
-- `per-session` — each `lightning` run gets a fresh session. Clean starts, memory via tools. Recommended for new users.
+- `per-session` — each `sonic` run gets a fresh session. Clean starts, memory via tools. Recommended for new users.
 - `per-directory` — one Honcho session per working directory. Context accumulates across runs.
 - `per-repo` — one session per git repository.
 - `global` — single session across all directories.
@@ -183,7 +183,7 @@ Common patterns:
 | AI shouldn't re-model the user from its own replies | `"ai": {"observeMe": true, "observeOthers": false}` |
 | Strong persona the AI peer shouldn't update from self-observation | `"ai": {"observeMe": false, "observeOthers": true}` |
 
-Server-side toggles set via the [Honcho dashboard](https://app.honcho.dev) win over local defaults — Lightning syncs them back at session init.
+Server-side toggles set via the [Honcho dashboard](https://app.honcho.dev) win over local defaults — Sonic syncs them back at session init.
 
 ## Tools
 
@@ -199,34 +199,34 @@ When Honcho is active as the memory provider, five tools become available:
 
 ## CLI Commands
 
-The `lightning honcho` subcommand is **only registered when Honcho is the active memory provider** (`memory.provider: honcho` in `config.yaml`). Run `lightning memory setup` and pick Honcho first; the subcommand appears on the next invocation.
+The `sonic honcho` subcommand is **only registered when Honcho is the active memory provider** (`memory.provider: honcho` in `config.yaml`). Run `sonic memory setup` and pick Honcho first; the subcommand appears on the next invocation.
 
 ```bash
-lightning honcho status          # Connection status, config, and key settings
-lightning honcho setup           # Redirects to `lightning memory setup`
-lightning honcho strategy        # Show or set session strategy (per-session/per-directory/per-repo/global)
-lightning honcho peer            # Show or update peer names + dialectic reasoning level
-lightning honcho mode            # Show or set recall mode (hybrid/context/tools)
-lightning honcho tokens          # Show or set token budget for context and dialectic
-lightning honcho identity        # Seed or show the AI peer's Honcho identity
-lightning honcho sync            # Sync Honcho config to all existing profiles
-lightning honcho peers           # Show peer identities across all profiles
-lightning honcho sessions        # List known Honcho session mappings
-lightning honcho map             # Map current directory to a Honcho session name
-lightning honcho enable          # Enable Honcho for the active profile
-lightning honcho disable         # Disable Honcho for the active profile
-lightning honcho migrate         # Step-by-step migration guide from openclaw-honcho
+sonic honcho status          # Connection status, config, and key settings
+sonic honcho setup           # Redirects to `sonic memory setup`
+sonic honcho strategy        # Show or set session strategy (per-session/per-directory/per-repo/global)
+sonic honcho peer            # Show or update peer names + dialectic reasoning level
+sonic honcho mode            # Show or set recall mode (hybrid/context/tools)
+sonic honcho tokens          # Show or set token budget for context and dialectic
+sonic honcho identity        # Seed or show the AI peer's Honcho identity
+sonic honcho sync            # Sync Honcho config to all existing profiles
+sonic honcho peers           # Show peer identities across all profiles
+sonic honcho sessions        # List known Honcho session mappings
+sonic honcho map             # Map current directory to a Honcho session name
+sonic honcho enable          # Enable Honcho for the active profile
+sonic honcho disable         # Disable Honcho for the active profile
+sonic honcho migrate         # Step-by-step migration guide from openclaw-honcho
 ```
 
-## Migrating from `lightning honcho`
+## Migrating from `sonic honcho`
 
-If you previously used the standalone `lightning honcho setup`:
+If you previously used the standalone `sonic honcho setup`:
 
 1. Your existing configuration (`honcho.json` or `~/.honcho/config.json`) is preserved
 2. Your server-side data (memories, conclusions, user profiles) is intact
 3. Set `memory.provider: honcho` in config.yaml to reactivate
 
-No re-login or re-setup needed. Run `lightning memory setup` and select "honcho" — the wizard detects your existing config.
+No re-login or re-setup needed. Run `sonic memory setup` and select "honcho" — the wizard detects your existing config.
 
 ## Full Documentation
 

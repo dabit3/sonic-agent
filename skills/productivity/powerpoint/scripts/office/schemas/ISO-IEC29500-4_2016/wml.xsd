@@ -333,8 +333,8 @@
       <xsd:enumeration value="hypnotic"/>
       <xsd:enumeration value="iceCreamCones"/>
       <xsd:enumeration value="lightBulb"/>
-      <xsd:enumeration value="lightning1"/>
-      <xsd:enumeration value="lightning2"/>
+      <xsd:enumeration value="sonic1"/>
+      <xsd:enumeration value="sonic2"/>
       <xsd:enumeration value="mapPins"/>
       <xsd:enumeration value="mapleLeaf"/>
       <xsd:enumeration value="mapleMuffins"/>

@@ -43,15 +43,15 @@ familiar with that flow can read this without surprises.
 Token storage layout
 --------------------
 - Per-user tokens (keyed by sender email):
-    ``${LIGHTNING_HOME}/google_chat_user_tokens/<sanitized_email>.json``
+    ``${SONIC_HOME}/google_chat_user_tokens/<sanitized_email>.json``
 - Legacy single-user token (fallback, untouched for backward compat):
-    ``${LIGHTNING_HOME}/google_chat_user_token.json``
+    ``${SONIC_HOME}/google_chat_user_token.json``
 - Per-user pending OAuth state during /setup-files start → exchange:
-    ``${LIGHTNING_HOME}/google_chat_user_oauth_pending/<sanitized_email>.json``
+    ``${SONIC_HOME}/google_chat_user_oauth_pending/<sanitized_email>.json``
 - Legacy pending state:
-    ``${LIGHTNING_HOME}/google_chat_user_oauth_pending.json``
+    ``${SONIC_HOME}/google_chat_user_oauth_pending.json``
 - Shared OAuth client (one per host):
-    ``${LIGHTNING_HOME}/google_chat_user_client_secret.json``
+    ``${SONIC_HOME}/google_chat_user_client_secret.json``
 """
 
 from __future__ import annotations
@@ -70,40 +70,40 @@ from typing import Any, List, Optional, Tuple
 # after the in-tree → plugin migration. See adapter.py for context.
 logger = logging.getLogger("gateway.platforms.google_chat_user_oauth")
 
-# Use the project's LIGHTNING_HOME helper so the token follows the user's
-# profile (e.g. tests can override via LIGHTNING_HOME=/tmp/...).
+# Use the project's SONIC_HOME helper so the token follows the user's
+# profile (e.g. tests can override via SONIC_HOME=/tmp/...).
 try:
-    from lightning_constants import display_lightning_home, get_lightning_home
+    from sonic_constants import display_sonic_home, get_sonic_home
 except (ModuleNotFoundError, ImportError):
-    # Fallback for environments where lightning_constants isn't importable
+    # Fallback for environments where sonic_constants isn't importable
     # (mirrors the same fallback used by the google-workspace skill's
-    # _lightning_home.py shim).
-    def get_lightning_home() -> Path:
-        val = os.environ.get("LIGHTNING_HOME", "").strip()
-        return Path(val) if val else Path.home() / ".lightning"
+    # _sonic_home.py shim).
+    def get_sonic_home() -> Path:
+        val = os.environ.get("SONIC_HOME", "").strip()
+        return Path(val) if val else Path.home() / ".sonic"
 
-    def display_lightning_home() -> str:
-        home = get_lightning_home()
+    def display_sonic_home() -> str:
+        home = get_sonic_home()
         try:
             return "~/" + str(home.relative_to(Path.home()))
         except ValueError:
             return str(home)
 
 
-def _lightning_home() -> Path:
-    """Resolve LIGHTNING_HOME at call time (NOT module import).
+def _sonic_home() -> Path:
+    """Resolve SONIC_HOME at call time (NOT module import).
 
-    Tests and ``LIGHTNING_HOME=...`` env overrides need this to be late-
+    Tests and ``SONIC_HOME=...`` env overrides need this to be late-
     binding. If we cached the path at import time, switching profiles
     or tweaking env vars in tests would silently keep using the old
     path."""
-    return get_lightning_home()
+    return get_sonic_home()
 
 
 # Filesystem-safe key: lowercase, allow ``[a-z0-9._-@]``, replace anything
 # else with ``_``. ``ramon.fernandez@nttdata.com`` stays human-readable
 # (``ramon.fernandez@nttdata.com.json``) which makes admin debugging by
-# ``ls ~/.lightning/google_chat_user_tokens/`` trivial.
+# ``ls ~/.sonic/google_chat_user_tokens/`` trivial.
 _EMAIL_FS_RE = re.compile(r"[^a-z0-9._@-]+")
 
 
@@ -113,19 +113,19 @@ def _sanitize_email(email: str) -> str:
 
 
 def _legacy_token_path() -> Path:
-    return _lightning_home() / "google_chat_user_token.json"
+    return _sonic_home() / "google_chat_user_token.json"
 
 
 def _user_tokens_dir() -> Path:
-    return _lightning_home() / "google_chat_user_tokens"
+    return _sonic_home() / "google_chat_user_tokens"
 
 
 def _legacy_pending_path() -> Path:
-    return _lightning_home() / "google_chat_user_oauth_pending.json"
+    return _sonic_home() / "google_chat_user_oauth_pending.json"
 
 
 def _user_pending_dir() -> Path:
-    return _lightning_home() / "google_chat_user_oauth_pending"
+    return _sonic_home() / "google_chat_user_oauth_pending"
 
 
 def _token_path(email: Optional[str] = None) -> Path:
@@ -136,7 +136,7 @@ def _token_path(email: Optional[str] = None) -> Path:
 
 
 def _client_secret_path() -> Path:
-    return _lightning_home() / "google_chat_user_client_secret.json"
+    return _sonic_home() / "google_chat_user_client_secret.json"
 
 
 def _pending_auth_path(email: Optional[str] = None) -> Path:
@@ -195,7 +195,7 @@ def load_user_credentials(email: Optional[str] = None) -> Optional[Any]:
     except ImportError:
         logger.warning(
             "[google_chat_user_oauth] google-auth not installed; user-OAuth "
-            "attachment delivery is disabled. Install lightning-agent[google_chat]."
+            "attachment delivery is disabled. Install sonic-agent[google_chat]."
         )
         return None
 
@@ -355,7 +355,7 @@ def install_deps() -> bool:
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: Failed to install dependencies: {exc}")
         print("Or install via the optional extra:")
-        print("  pip install 'lightning-agent[google_chat]'")
+        print("  pip install 'sonic-agent[google_chat]'")
         return False
 
 
@@ -379,7 +379,7 @@ def check_auth(email: Optional[str] = None) -> bool:
 
 
 def store_client_secret(path: str) -> None:
-    """Validate and copy the user's OAuth client_secret.json into LIGHTNING_HOME."""
+    """Validate and copy the user's OAuth client_secret.json into SONIC_HOME."""
     src = Path(path).expanduser().resolve()
     if not src.exists():
         print(f"ERROR: File not found: {src}")
@@ -554,9 +554,9 @@ def exchange_auth_code(code: str, email: Optional[str] = None) -> None:
 
     print(f"OK: Authenticated. Token saved to {token_path}")
     rel_label = (
-        f"{display_lightning_home()}/google_chat_user_tokens/{_sanitize_email(email)}.json"
+        f"{display_sonic_home()}/google_chat_user_tokens/{_sanitize_email(email)}.json"
         if email
-        else f"{display_lightning_home()}/google_chat_user_token.json"
+        else f"{display_sonic_home()}/google_chat_user_token.json"
     )
     print(f"Profile path: {rel_label}")
 
@@ -600,7 +600,7 @@ def revoke(email: Optional[str] = None) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Google Chat user-OAuth setup for Lightning (native attachment delivery)"
+        description="Google Chat user-OAuth setup for Sonic (native attachment delivery)"
     )
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--check", action="store_true",

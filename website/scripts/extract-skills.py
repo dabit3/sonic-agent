@@ -157,9 +157,9 @@ def extract_local_skills():
             tags = []
             metadata = fm.get("metadata")
             if isinstance(metadata, dict):
-                lightning_meta = metadata.get("lightning", {})
-                if isinstance(lightning_meta, dict):
-                    tags = lightning_meta.get("tags", [])
+                sonic_meta = metadata.get("sonic", {})
+                if isinstance(sonic_meta, dict):
+                    tags = sonic_meta.get("tags", [])
             if not tags:
                 tags = fm.get("tags", [])
             if isinstance(tags, str):

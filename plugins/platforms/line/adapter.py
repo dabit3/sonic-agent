@@ -1,5 +1,5 @@
 """
-LINE Messaging API platform adapter for Lightning Agent.
+LINE Messaging API platform adapter for Sonic Agent.
 
 A bundled platform plugin that runs an aiohttp webhook server, accepts LINE
 webhook events (signature-verified), and relays messages to/from the agent
@@ -41,7 +41,7 @@ Synthesis credits
 -----------------
 
 This file is a synthesis of seven open community PRs adding LINE support
-to Lightning Agent. It deliberately ports the *strongest* idea from each into
+to Sonic Agent. It deliberately ports the *strongest* idea from each into
 a single plugin-form module that requires zero core edits:
 
 * PR #18153 (leepoweii)   — Template Buttons postback cache state machine,
@@ -1263,7 +1263,7 @@ class LineAdapter(BasePlatformAdapter):
         from trusted internal code, we recheck the resolved path against
         an allowed-roots set before serving. Sources allowed:
         ``tempfile.gettempdir()``, ``/tmp`` (which resolves to
-        ``/private/tmp`` on macOS), and ``LIGHTNING_HOME``. PR #8398.
+        ``/private/tmp`` on macOS), and ``SONIC_HOME``. PR #8398.
         """
         from aiohttp import web
 
@@ -1282,15 +1282,15 @@ class LineAdapter(BasePlatformAdapter):
             return web.Response(status=404, text="not found")
 
         try:
-            from lightning_constants import get_lightning_home
-            lightning_home = Path(get_lightning_home()).resolve()
+            from sonic_constants import get_sonic_home
+            sonic_home = Path(get_sonic_home()).resolve()
         except Exception:
-            lightning_home = Path.home().joinpath(".lightning").resolve()
+            sonic_home = Path.home().joinpath(".sonic").resolve()
 
         allowed_roots = {
             Path(tempfile.gettempdir()).resolve(),
             Path("/tmp").resolve(),  # → /private/tmp on macOS
-            lightning_home,
+            sonic_home,
         }
         resolved = path.resolve()
         if not any(_is_relative_to(resolved, r) for r in allowed_roots):
@@ -1488,14 +1488,14 @@ def validate_config(config) -> bool:
 
 
 def is_connected(config) -> bool:
-    """Surface in ``lightning status`` even before the adapter is instantiated."""
+    """Surface in ``sonic status`` even before the adapter is instantiated."""
     return validate_config(config)
 
 
 def _env_enablement() -> Optional[Dict[str, Any]]:
     """Auto-seed PlatformConfig.extra from env-only setups.
 
-    Lets ``lightning status`` reflect a LINE configuration that lives entirely
+    Lets ``sonic status`` reflect a LINE configuration that lives entirely
     in ``.env`` without a ``platforms.line`` block in ``config.yaml``.
     Mirrors the IRC plugin's pattern.
     """
@@ -1562,10 +1562,10 @@ async def _standalone_send(
 
 
 def interactive_setup() -> None:
-    """Minimal stdin wizard for ``lightning setup line``.
+    """Minimal stdin wizard for ``sonic setup line``.
 
     Mirrors the irc/teams style: prompts for the two required vars, plus
-    one optional public URL. Writes to ``~/.lightning/.env`` via ``lightning_cli.config``.
+    one optional public URL. Writes to ``~/.sonic/.env`` via ``sonic_cli.config``.
     """
     print()
     print("LINE Messaging API setup")
@@ -1575,9 +1575,9 @@ def interactive_setup() -> None:
     print()
 
     try:
-        from lightning_cli.config import get_env_var, set_env_var
+        from sonic_cli.config import get_env_var, set_env_var
     except ImportError:
-        print("lightning_cli.config not available; set LINE_* vars manually in ~/.lightning/.env")
+        print("sonic_cli.config not available; set LINE_* vars manually in ~/.sonic/.env")
         return
 
     def _prompt(var: str, prompt: str, *, secret: bool = False) -> None:
@@ -1604,7 +1604,7 @@ def interactive_setup() -> None:
 
 
 def register(ctx) -> None:
-    """Plugin entry point — called by the Lightning plugin system at startup."""
+    """Plugin entry point — called by the Sonic plugin system at startup."""
     ctx.register_platform(
         name="line",
         label="LINE",

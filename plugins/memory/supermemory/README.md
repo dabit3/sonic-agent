@@ -10,23 +10,23 @@ Semantic long-term memory with profile recall, semantic search, explicit memory 
 ## Setup
 
 ```bash
-lightning memory setup    # select "supermemory"
+sonic memory setup    # select "supermemory"
 ```
 
 Or manually:
 
 ```bash
-lightning config set memory.provider supermemory
-echo 'SUPERMEMORY_API_KEY=***' >> ~/.lightning/.env
+sonic config set memory.provider supermemory
+echo 'SUPERMEMORY_API_KEY=***' >> ~/.sonic/.env
 ```
 
 ## Config
 
-Config file: `$LIGHTNING_HOME/supermemory.json`
+Config file: `$SONIC_HOME/supermemory.json`
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `container_tag` | `lightning` | Container tag used for search and writes. Supports `{identity}` template for profile-scoped tags (e.g. `lightning-{identity}` → `lightning-coder`). |
+| `container_tag` | `sonic` | Container tag used for search and writes. Supports `{identity}` template for profile-scoped tags (e.g. `sonic-{identity}` → `sonic-coder`). |
 | `auto_recall` | `true` | Inject relevant memory context before turns |
 | `auto_capture` | `true` | Store cleaned user-assistant turns after each response |
 | `max_recall_results` | `10` | Max recalled items to format into context |
@@ -54,7 +54,7 @@ Config file: `$LIGHTNING_HOME/supermemory.json`
 
 ## Behavior
 
-When enabled, Lightning can:
+When enabled, Sonic can:
 
 - prefetch relevant memory context before each turn
 - store cleaned conversation turns after each completed response
@@ -63,15 +63,15 @@ When enabled, Lightning can:
 
 ## Profile-Scoped Containers
 
-Use `{identity}` in the `container_tag` to scope memories per Lightning profile:
+Use `{identity}` in the `container_tag` to scope memories per Sonic profile:
 
 ```json
 {
-  "container_tag": "lightning-{identity}"
+  "container_tag": "sonic-{identity}"
 }
 ```
 
-For a profile named `coder`, this resolves to `lightning-coder`. The default profile resolves to `lightning-default`. Without `{identity}`, all profiles share the same container.
+For a profile named `coder`, this resolves to `sonic-coder`. The default profile resolves to `sonic-default`. Without `{identity}`, all profiles share the same container.
 
 ## Multi-Container Mode
 
@@ -79,7 +79,7 @@ For advanced setups (e.g. OpenClaw-style multi-workspace), you can enable custom
 
 ```json
 {
-  "container_tag": "lightning",
+  "container_tag": "sonic",
   "enable_custom_container_tags": true,
   "custom_containers": ["project-alpha", "project-beta", "shared-knowledge"],
   "custom_container_instructions": "Use project-alpha for coding tasks, project-beta for research, and shared-knowledge for team-wide facts."

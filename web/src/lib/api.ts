@@ -1,21 +1,21 @@
 // The dashboard can be served either at the root of its host (e.g.
 // https://kanban.tilos.com/) or under a URL prefix when reverse-proxied
-// (e.g. https://mission-control.tilos.com/lightning/). The Python backend
-// injects ``window.__LIGHTNING_BASE_PATH__`` into index.html based on the
+// (e.g. https://mission-control.tilos.com/sonic/). The Python backend
+// injects ``window.__SONIC_BASE_PATH__`` into index.html based on the
 // incoming ``X-Forwarded-Prefix`` header so the SPA can address its own
 // ``/api/...`` and ``/dashboard-plugins/...`` URLs correctly without a
 // rebuild. Empty string means "served at root".
 function readBasePath(): string {
   if (typeof window === "undefined") return "";
-  const raw = window.__LIGHTNING_BASE_PATH__ ?? "";
+  const raw = window.__SONIC_BASE_PATH__ ?? "";
   if (!raw) return "";
   // Normalise: ensure leading slash, strip trailing slash.
   const withLead = raw.startsWith("/") ? raw : `/${raw}`;
   return withLead.replace(/\/+$/, "");
 }
 
-export const LIGHTNING_BASE_PATH = readBasePath();
-const BASE = LIGHTNING_BASE_PATH;
+export const SONIC_BASE_PATH = readBasePath();
+const BASE = SONIC_BASE_PATH;
 
 import type { DashboardTheme } from "@/themes/types";
 
@@ -23,12 +23,12 @@ import type { DashboardTheme } from "@/themes/types";
 // Injected into index.html by the server — never fetched via API.
 declare global {
   interface Window {
-    __LIGHTNING_SESSION_TOKEN__?: string;
-    __LIGHTNING_BASE_PATH__?: string;
+    __SONIC_SESSION_TOKEN__?: string;
+    __SONIC_BASE_PATH__?: string;
   }
 }
 let _sessionToken: string | null = null;
-const SESSION_HEADER = "X-Lightning-Session-Token";
+const SESSION_HEADER = "X-Sonic-Session-Token";
 
 function setSessionHeader(headers: Headers, token: string): void {
   if (!headers.has(SESSION_HEADER)) {
@@ -39,7 +39,7 @@ function setSessionHeader(headers: Headers, token: string): void {
 export async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> {
   // Inject the session token into all /api/ requests.
   const headers = new Headers(init?.headers);
-  const token = window.__LIGHTNING_SESSION_TOKEN__;
+  const token = window.__SONIC_SESSION_TOKEN__;
   if (token) {
     setSessionHeader(headers, token);
   }
@@ -58,12 +58,12 @@ function pluginPath(name: string): string {
 
 async function getSessionToken(): Promise<string> {
   if (_sessionToken) return _sessionToken;
-  const injected = window.__LIGHTNING_SESSION_TOKEN__;
+  const injected = window.__SONIC_SESSION_TOKEN__;
   if (injected) {
     _sessionToken = injected;
     return _sessionToken;
   }
-  throw new Error("Session token not available — page must be served by the Lightning dashboard server");
+  throw new Error("Session token not available — page must be served by the Sonic dashboard server");
 }
 
 export const api = {
@@ -274,8 +274,8 @@ export const api = {
   // Gateway / update actions
   restartGateway: () =>
     fetchJSON<ActionResponse>("/api/gateway/restart", { method: "POST" }),
-  updateLightning: () =>
-    fetchJSON<ActionResponse>("/api/lightning/update", { method: "POST" }),
+  updateSonic: () =>
+    fetchJSON<ActionResponse>("/api/sonic/update", { method: "POST" }),
   getActionStatus: (name: string, lines = 200) =>
     fetchJSON<ActionStatusResponse>(
       `/api/actions/${encodeURIComponent(name)}/status?lines=${lines}`,
@@ -381,7 +381,7 @@ export interface StatusResponse {
   gateway_running: boolean;
   gateway_state: string | null;
   gateway_updated_at: string | null;
-  lightning_home: string;
+  sonic_home: string;
   latest_config_version: number;
   release_date: string;
   version: string;
@@ -561,7 +561,7 @@ export interface CronJob {
   id: string;
   profile?: string | null;
   profile_name?: string | null;
-  lightning_home?: string | null;
+  sonic_home?: string | null;
   is_default_profile?: boolean;
   name?: string | null;
   prompt?: string | null;

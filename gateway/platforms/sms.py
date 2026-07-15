@@ -55,9 +55,9 @@ def check_sms_requirements() -> bool:
 
 class SmsAdapter(BasePlatformAdapter):
     """
-    Twilio SMS <-> Lightning gateway adapter.
+    Twilio SMS <-> Sonic gateway adapter.
 
-    Each inbound phone number gets its own Lightning session (multi-tenant).
+    Each inbound phone number gets its own Sonic session (multi-tenant).
     Replies are always sent from the configured TWILIO_PHONE_NUMBER.
     """
 

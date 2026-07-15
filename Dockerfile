@@ -7,43 +7,43 @@ ENV PYTHONUNBUFFERED=1
 
 # Store Playwright browsers outside the volume mount so the build-time
 # install survives the /opt/data volume overlay at runtime.
-ENV PLAYWRIGHT_BROWSERS_PATH=/opt/lightning/.playwright
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/sonic/.playwright
 
 # Install system dependencies in one layer, clear APT cache
 # tini reaps orphaned zombie processes (MCP stdio subprocesses, git, bun, etc.)
-# that would otherwise accumulate when lightning runs as PID 1. See #15012.
+# that would otherwise accumulate when sonic runs as PID 1. See #15012.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential curl nodejs npm python3 ripgrep ffmpeg gcc python3-dev libffi-dev procps git openssh-client docker-cli tini && \
     rm -rf /var/lib/apt/lists/*
 
-# Non-root user for runtime; UID can be overridden via LIGHTNING_UID at runtime
-RUN useradd -u 10000 -m -d /opt/data lightning
+# Non-root user for runtime; UID can be overridden via SONIC_UID at runtime
+RUN useradd -u 10000 -m -d /opt/data sonic
 
 COPY --chmod=0755 --from=gosu_source /gosu /usr/local/bin/
 COPY --chmod=0755 --from=uv_source /usr/local/bin/uv /usr/local/bin/uvx /usr/local/bin/
 
-WORKDIR /opt/lightning
+WORKDIR /opt/sonic
 
 # ---------- Layer-cached dependency install ----------
 # Copy only package manifests first so npm install + Playwright are cached
 # unless the lockfiles themselves change.
 #
-# ui-tui/packages/lightning-ink/ is copied IN FULL (not just its manifests)
+# ui-tui/packages/sonic-ink/ is copied IN FULL (not just its manifests)
 # because it is referenced as a `file:` workspace dependency from
 # ui-tui/package.json.  Copying the tree up front lets npm resolve the
 # workspace to real content instead of stopping at a bare package.json.
 COPY package.json package-lock.json ./
 COPY web/package.json web/package-lock.json web/
 COPY ui-tui/package.json ui-tui/package-lock.json ui-tui/
-COPY ui-tui/packages/lightning-ink/ ui-tui/packages/lightning-ink/
+COPY ui-tui/packages/sonic-ink/ ui-tui/packages/sonic-ink/
 
 # `npm_config_install_links=false` forces npm to install `file:` deps as
 # symlinks (the npm 10+ default) even on Debian's older bundled npm 9.x,
 # which defaults to `install-links=true` and installs file deps as *copies*.
 # The host-side package-lock.json is generated with a newer npm that uses
 # symlinks, so an install-as-copy produces a hidden node_modules/.package-lock.json
-# that permanently disagrees with the root lock on the @lightning/ink entry.
+# that permanently disagrees with the root lock on the @sonic/ink entry.
 # That disagreement trips the TUI launcher's `_tui_need_npm_install()`
 # check on every startup and triggers a runtime `npm install` that then
 # fails with EACCES (node_modules/ is root-owned from build time).
@@ -82,39 +82,39 @@ RUN uv sync --frozen --no-install-project --extra all --extra messaging
 
 # ---------- Source code ----------
 # .dockerignore excludes node_modules, so the installs above survive.
-COPY --chown=lightning:lightning . .
+COPY --chown=sonic:sonic . .
 
 # Build browser dashboard and terminal UI assets.
 RUN cd web && npm run build && \
     cd ../ui-tui && npm run build
 
 # ---------- Permissions ----------
-# Make install dir world-readable so any LIGHTNING_UID can read it at runtime.
+# Make install dir world-readable so any SONIC_UID can read it at runtime.
 # The venv needs to be traversable too.
-# node_modules trees additionally need to be writable by the lightning user
+# node_modules trees additionally need to be writable by the sonic user
 # so the runtime `npm install` triggered by _tui_need_npm_install() in
-# lightning_cli/main.py succeeds (see #18800). /opt/lightning/web is build-time
-# only (LIGHTNING_WEB_DIST points at lightning_cli/web_dist) and is intentionally
+# sonic_cli/main.py succeeds (see #18800). /opt/sonic/web is build-time
+# only (SONIC_WEB_DIST points at sonic_cli/web_dist) and is intentionally
 # not chowned here.
-# The .venv MUST remain lightning-writable so lazy_deps.py can install
+# The .venv MUST remain sonic-writable so lazy_deps.py can install
 # remaining optional platform packages and future pin bumps at first use.
 # Without this, `uv pip install` fails with EACCES and adapters silently
 # fail to load.  See tools/lazy_deps.py.
 USER root
-RUN chmod -R a+rX /opt/lightning && \
-    chown -R lightning:lightning /opt/lightning/.venv /opt/lightning/ui-tui /opt/lightning/node_modules
+RUN chmod -R a+rX /opt/sonic && \
+    chown -R sonic:sonic /opt/sonic/.venv /opt/sonic/ui-tui /opt/sonic/node_modules
 # Start as root so the entrypoint can usermod/groupmod + gosu.
-# If LIGHTNING_UID is unset, the entrypoint drops to the default lightning user (10000).
+# If SONIC_UID is unset, the entrypoint drops to the default sonic user (10000).
 
-# ---------- Link lightning-agent itself (editable) ----------
+# ---------- Link sonic-agent itself (editable) ----------
 # Deps are already installed in the cached layer above; `--no-deps` makes
 # this a fast (~1s) egg-link creation with no resolution or downloads.
 RUN uv pip install --no-cache-dir --no-deps -e "."
 
 # ---------- Runtime ----------
-ENV LIGHTNING_WEB_DIST=/opt/lightning/lightning_cli/web_dist
-ENV LIGHTNING_HOME=/opt/data
+ENV SONIC_WEB_DIST=/opt/sonic/sonic_cli/web_dist
+ENV SONIC_HOME=/opt/data
 ENV PATH="/opt/data/.local/bin:${PATH}"
 RUN mkdir -p /opt/data
 VOLUME [ "/opt/data" ]
-ENTRYPOINT [ "/usr/bin/tini", "-g", "--", "/opt/lightning/docker/entrypoint.sh" ]
+ENTRYPOINT [ "/usr/bin/tini", "-g", "--", "/opt/sonic/docker/entrypoint.sh" ]

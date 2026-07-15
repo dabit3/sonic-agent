@@ -6,23 +6,23 @@ sidebar_position: 0
 
 # Integrations
 
-Lightning Agent connects to external systems for AI inference, tool servers, IDE workflows, programmatic access, and more. These integrations extend what Lightning can do and where it can run.
+Sonic Agent connects to external systems for AI inference, tool servers, IDE workflows, programmatic access, and more. These integrations extend what Sonic can do and where it can run.
 
 ## AI Providers & Routing
 
-Lightning supports multiple AI inference providers out of the box. Use `lightning model` to configure interactively, or set them in `config.yaml`.
+Sonic supports multiple AI inference providers out of the box. Use `sonic model` to configure interactively, or set them in `config.yaml`.
 
-- **[AI Providers](/docs/user-guide/features/provider-routing)** — OpenRouter, Anthropic, OpenAI, Google, and any OpenAI-compatible endpoint. Lightning auto-detects capabilities like vision, streaming, and tool use per provider.
+- **[AI Providers](/docs/user-guide/features/provider-routing)** — OpenRouter, Anthropic, OpenAI, Google, and any OpenAI-compatible endpoint. Sonic auto-detects capabilities like vision, streaming, and tool use per provider.
 - **[Provider Routing](/docs/user-guide/features/provider-routing)** — Fine-grained control over which underlying providers handle your OpenRouter requests. Optimize for cost, speed, or quality with sorting, whitelists, blacklists, and explicit priority ordering.
 - **[Fallback Providers](/docs/user-guide/features/fallback-providers)** — Automatic failover to backup LLM providers when your primary model encounters errors. Includes primary model fallback and independent auxiliary task fallback for vision, compression, and web extraction.
 
 ## Tool Servers (MCP)
 
-- **[MCP Servers](/docs/user-guide/features/mcp)** — Connect Lightning to external tool servers via Model Context Protocol. Access tools from GitHub, databases, file systems, browser stacks, internal APIs, and more without writing native Lightning tools. Supports both stdio and SSE transports, per-server tool filtering, and capability-aware resource/prompt registration.
+- **[MCP Servers](/docs/user-guide/features/mcp)** — Connect Sonic to external tool servers via Model Context Protocol. Access tools from GitHub, databases, file systems, browser stacks, internal APIs, and more without writing native Sonic tools. Supports both stdio and SSE transports, per-server tool filtering, and capability-aware resource/prompt registration.
 
 ## Web Search Backends
 
-The `web_search` and `web_extract` tools support four backend providers, configured via `config.yaml` or `lightning tools`:
+The `web_search` and `web_extract` tools support four backend providers, configured via `config.yaml` or `sonic tools`:
 
 | Backend | Env Var | Search | Extract | Crawl |
 |---------|---------|--------|---------|-------|
@@ -42,7 +42,7 @@ If `web.backend` is not set, the backend is auto-detected from whichever API key
 
 ## Browser Automation
 
-Lightning includes full browser automation with multiple backend options for navigating websites, filling forms, and extracting information:
+Sonic includes full browser automation with multiple backend options for navigating websites, filling forms, and extracting information:
 
 - **Browserbase** — Managed cloud browsers with anti-bot tooling, CAPTCHA solving, and residential proxies
 - **Browser Use** — Alternative cloud browser provider
@@ -67,11 +67,11 @@ Speech-to-text supports six providers: local faster-whisper (free, runs on-devic
 
 ## IDE & Editor Integration
 
-- **[IDE Integration (ACP)](/docs/user-guide/features/acp)** — Use Lightning Agent inside ACP-compatible editors such as VS Code, Zed, and JetBrains. Lightning runs as an ACP server, rendering chat messages, tool activity, file diffs, and terminal commands inside your editor.
+- **[IDE Integration (ACP)](/docs/user-guide/features/acp)** — Use Sonic Agent inside ACP-compatible editors such as VS Code, Zed, and JetBrains. Sonic runs as an ACP server, rendering chat messages, tool activity, file diffs, and terminal commands inside your editor.
 
 ## Programmatic Access
 
-- **[API Server](/docs/user-guide/features/api-server)** — Expose Lightning as an OpenAI-compatible HTTP endpoint. Any frontend that speaks the OpenAI format — Open WebUI, LobeChat, LibreChat, NextChat, ChatBox — can connect and use Lightning as a backend with its full toolset.
+- **[API Server](/docs/user-guide/features/api-server)** — Expose Sonic as an OpenAI-compatible HTTP endpoint. Any frontend that speaks the OpenAI format — Open WebUI, LobeChat, LibreChat, NextChat, ChatBox — can connect and use Sonic as a backend with its full toolset.
 
 ## Memory & Personalization
 
@@ -80,7 +80,7 @@ Speech-to-text supports six providers: local faster-whisper (free, runs on-devic
 
 ## Messaging Platforms
 
-Lightning runs as a gateway bot on 19+ messaging platforms, all configured through the same `gateway` subsystem:
+Sonic runs as a gateway bot on 19+ messaging platforms, all configured through the same `gateway` subsystem:
 
 - **[Telegram](/docs/user-guide/messaging/telegram)**, **[Discord](/docs/user-guide/messaging/discord)**, **[Slack](/docs/user-guide/messaging/slack)**, **[WhatsApp](/docs/user-guide/messaging/whatsapp)**, **[Signal](/docs/user-guide/messaging/signal)**, **[Matrix](/docs/user-guide/messaging/matrix)**, **[Mattermost](/docs/user-guide/messaging/mattermost)**, **[Email](/docs/user-guide/messaging/email)**, **[SMS](/docs/user-guide/messaging/sms)**, **[DingTalk](/docs/user-guide/messaging/dingtalk)**, **[Feishu/Lark](/docs/user-guide/messaging/feishu)**, **[WeCom](/docs/user-guide/messaging/wecom)**, **[WeCom Callback](/docs/user-guide/messaging/wecom-callback)**, **[Weixin](/docs/user-guide/messaging/weixin)**, **[BlueBubbles](/docs/user-guide/messaging/bluebubbles)**, **[QQ Bot](/docs/user-guide/messaging/qqbot)**, **[Yuanbao](/docs/user-guide/messaging/yuanbao)**, **[Home Assistant](/docs/user-guide/messaging/homeassistant)**, **[Microsoft Teams](/docs/user-guide/messaging/teams)**, **[Webhooks](/docs/user-guide/messaging/webhooks)**
 
@@ -92,8 +92,8 @@ See the [Messaging Gateway overview](/docs/user-guide/messaging) for the platfor
 
 ## Plugins
 
-- **[Plugin System](/docs/user-guide/features/plugins)** — Extend Lightning with custom tools, lifecycle hooks, and CLI commands without modifying core code. Plugins are discovered from `~/.lightning/plugins/`, project-local `.lightning/plugins/`, and pip-installed entry points.
-- **[Build a Plugin](/docs/guides/build-a-lightning-plugin)** — Step-by-step guide for creating Lightning plugins with tools, hooks, and CLI commands.
+- **[Plugin System](/docs/user-guide/features/plugins)** — Extend Sonic with custom tools, lifecycle hooks, and CLI commands without modifying core code. Plugins are discovered from `~/.sonic/plugins/`, project-local `.sonic/plugins/`, and pip-installed entry points.
+- **[Build a Plugin](/docs/guides/build-a-sonic-plugin)** — Step-by-step guide for creating Sonic plugins with tools, hooks, and CLI commands.
 
 ## Training & Evaluation
 

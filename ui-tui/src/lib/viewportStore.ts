@@ -1,4 +1,4 @@
-import type { ScrollBoxHandle } from '@lightning/ink'
+import type { ScrollBoxHandle } from '@sonic/ink'
 import type { RefObject } from 'react'
 import { useCallback, useMemo, useSyncExternalStore } from 'react'
 

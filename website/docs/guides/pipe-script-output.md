@@ -1,13 +1,13 @@
 ---
 sidebar_position: 12
 title: "Pipe Script Output to Messaging Platforms"
-description: "Send text from any shell script, cron job, CI hook, or monitoring daemon to Telegram, Discord, Slack, Signal, and other platforms using `lightning send`."
+description: "Send text from any shell script, cron job, CI hook, or monitoring daemon to Telegram, Discord, Slack, Signal, and other platforms using `sonic send`."
 ---
 
 # Pipe Script Output to Messaging Platforms
 
-`lightning send` is a small, scriptable CLI that pushes a message to any
-messaging platform Lightning is already configured for. Think of it as a
+`sonic send` is a small, scriptable CLI that pushes a message to any
+messaging platform Sonic is already configured for. Think of it as a
 cross-platform `curl` for notifications — you don't need a running
 gateway, you don't need an LLM, and you don't need to re-paste bot tokens
 into each of your scripts.
@@ -18,9 +18,9 @@ Use it for:
 - CI/CD notifications (deploy done, test failure)
 - Cron scripts that need to ping you with results
 - Quick one-shot messages from a terminal
-- Piping any tool's output anywhere (`make | lightning send --to slack:#builds`)
+- Piping any tool's output anywhere (`make | sonic send --to slack:#builds`)
 
-The command reuses the same credentials and platform adapters that `lightning
+The command reuses the same credentials and platform adapters that `sonic
 gateway` already uses, so there's no second configuration surface to
 maintain.
 
@@ -30,25 +30,25 @@ maintain.
 
 ```bash
 # Plain text to the home channel for a platform
-lightning send --to telegram "deploy finished"
+sonic send --to telegram "deploy finished"
 
 # Pipe in stdout from anything
-echo "RAM 92%" | lightning send --to telegram:-1001234567890
+echo "RAM 92%" | sonic send --to telegram:-1001234567890
 
 # Send a file
-lightning send --to discord:#ops --file /tmp/report.md
+sonic send --to discord:#ops --file /tmp/report.md
 
 # Attach a subject/header line
-lightning send --to slack:#eng --subject "[CI] build.log" --file build.log
+sonic send --to slack:#eng --subject "[CI] build.log" --file build.log
 
 # Thread target (Telegram topic, Discord thread)
-lightning send --to telegram:-1001234567890:17585 "threaded reply"
+sonic send --to telegram:-1001234567890:17585 "threaded reply"
 
 # List every configured target
-lightning send --list
+sonic send --list
 
 # Filter by platform
-lightning send --list telegram
+sonic send --list telegram
 ```
 
 ---
@@ -76,7 +76,7 @@ lightning send --list telegram
 | `platform:#channel` | `discord:#ops` | Human-friendly channel name (resolved against the channel directory) |
 | `platform:+E164` | `signal:+15551234567` | Phone-addressed platforms: Signal, SMS, WhatsApp |
 
-Any platform Lightning ships adapters for works as a target:
+Any platform Sonic ships adapters for works as a target:
 `telegram`, `discord`, `slack`, `signal`, `sms`, `whatsapp`, `matrix`,
 `mattermost`, `feishu`, `dingtalk`, `wecom`, `weixin`, `email`, and
 others.
@@ -96,13 +96,13 @@ branch on them the same way they would on `curl` or `grep`.
 
 ## Message Body Resolution
 
-`lightning send` resolves the message body in this order:
+`sonic send` resolves the message body in this order:
 
-1. **Positional argument** — `lightning send --to telegram "hi"`
-2. **`--file PATH`** — `lightning send --to telegram --file msg.txt`
-3. **Piped stdin** — `echo hi | lightning send --to telegram`
+1. **Positional argument** — `sonic send --to telegram "hi"`
+2. **`--file PATH`** — `sonic send --to telegram --file msg.txt`
+3. **Piped stdin** — `echo hi | sonic send --to telegram`
 
-When stdin is a TTY (no pipe), Lightning does **not** wait for input — you'll
+When stdin is a TTY (no pipe), Sonic does **not** wait for input — you'll
 get a clear usage error instead. This keeps scripts from hanging if they
 accidentally omit the body.
 
@@ -119,19 +119,19 @@ with a single portable line:
 #!/usr/bin/env bash
 ram_pct=$(free | awk '/^Mem:/ {printf "%d", $3 * 100 / $2}')
 if [ "$ram_pct" -ge 85 ]; then
-  lightning send --to telegram --subject "⚠ MEMORY WARNING" \
+  sonic send --to telegram --subject "⚠ MEMORY WARNING" \
     "RAM ${ram_pct}% on $(hostname)"
 fi
 ```
 
-Because `lightning send` reuses your Lightning config, the same script works on
-any host where Lightning is installed — no need to export bot tokens into
+Because `sonic send` reuses your Sonic config, the same script works on
+any host where Sonic is installed — no need to export bot tokens into
 each machine's environment manually.
 
 :::tip Don't alert the gateway about itself
 For watchdogs that might fire when the gateway itself is struggling (OOM
 alerts, disk-full alerts), keep using a minimal `curl` call instead of
-`lightning send`. If the Python interpreter can't load because the box is
+`sonic send`. If the Python interpreter can't load because the box is
 thrashing, you still want that alert to go out.
 :::
 
@@ -140,9 +140,9 @@ thrashing, you still want that alert to go out.
 ```bash
 # In .github/workflows/deploy.yml or any CI script
 if ./scripts/deploy.sh; then
-  lightning send --to slack:#deploys "✅ ${CI_COMMIT_SHA:0:7} deployed"
+  sonic send --to slack:#deploys "✅ ${CI_COMMIT_SHA:0:7} deployed"
 else
-  tail -n 100 deploy.log | lightning send \
+  tail -n 100 deploy.log | sonic send \
     --to slack:#deploys --subject "❌ deploy failed"
   exit 1
 fi
@@ -153,7 +153,7 @@ fi
 ```bash
 # Crontab entry
 0 9 * * * /usr/local/bin/generate-metrics.sh \
-  | /home/me/.lightning/bin/lightning send \
+  | /home/me/.sonic/bin/sonic send \
       --to telegram --subject "Daily metrics $(date +%Y-%m-%d)"
 ```
 
@@ -161,38 +161,38 @@ fi
 
 ```bash
 ./train.py --epochs 200 && \
-  lightning send --to telegram "training done" || \
-  lightning send --to telegram "training failed (exit $?)"
+  sonic send --to telegram "training done" || \
+  sonic send --to telegram "training failed (exit $?)"
 ```
 
 ### Scripting with `--json` and `--quiet`
 
 ```bash
 # Hard-fail a script if delivery fails; don't clutter logs on success
-lightning send --to telegram --quiet "keepalive" || {
+sonic send --to telegram --quiet "keepalive" || {
   echo "Telegram delivery failed" >&2
   exit 1
 }
 
 # Capture the message ID for later editing / threading
-msg_id=$(lightning send --to discord:#ops --json "build started" \
+msg_id=$(sonic send --to discord:#ops --json "build started" \
   | jq -r .message_id)
 ```
 
 ---
 
-## Does `lightning send` Need the Gateway Running?
+## Does `sonic send` Need the Gateway Running?
 
 **Usually no.** For any bot-token platform — Telegram, Discord, Slack,
-Signal, SMS, WhatsApp Cloud API, and most others — `lightning send` calls
+Signal, SMS, WhatsApp Cloud API, and most others — `sonic send` calls
 the platform's REST endpoint directly using credentials from
-`~/.lightning/.env` and `~/.lightning/config.yaml`. It's a standalone subprocess
+`~/.sonic/.env` and `~/.sonic/config.yaml`. It's a standalone subprocess
 that exits as soon as the message is delivered.
 
 A live gateway is only required for **plugin platforms** that rely on a
 persistent adapter connection (for example, a custom plugin that keeps
 a long-lived WebSocket open). In that case you'll get a clear error
-pointing at the gateway; start it with `lightning gateway start` and retry.
+pointing at the gateway; start it with `sonic gateway start` and retry.
 
 ---
 
@@ -202,18 +202,18 @@ Before sending to a specific channel, you can inspect what's available:
 
 ```bash
 # Every target across every configured platform
-lightning send --list
+sonic send --list
 
 # Just Telegram targets
-lightning send --list telegram
+sonic send --list telegram
 
 # Machine-readable
-lightning send --list --json
+sonic send --list --json
 ```
 
-The listing is built from `~/.lightning/channel_directory.json`, which the
+The listing is built from `~/.sonic/channel_directory.json`, which the
 gateway refreshes every few minutes while it's running. If you see
-"no channels discovered yet", start the gateway once (`lightning gateway
+"no channels discovered yet", start the gateway once (`sonic gateway
 start`) so it can populate the cache.
 
 Human-friendly names (`discord:#ops`, `slack:#engineering`) are resolved
@@ -224,18 +224,18 @@ IDs.
 
 ## Comparison with Other Approaches
 
-| Approach | Multi-platform | Reuses Lightning creds | Needs gateway | Best for |
+| Approach | Multi-platform | Reuses Sonic creds | Needs gateway | Best for |
 |----------|----------------|---------------------|---------------|----------|
-| `lightning send` | ✅ | ✅ | No (bot-token) | Everything below |
+| `sonic send` | ✅ | ✅ | No (bot-token) | Everything below |
 | Raw `curl` to each platform | Each scripted separately | Manual | No | Critical watchdogs |
 | `cron` job with `--deliver` | ✅ | ✅ | No | Scheduled agent tasks |
 | `send_message` agent tool | ✅ | ✅ | No | Inside an agent loop |
 
-`lightning send` is intentionally the simplest possible surface. If you need
+`sonic send` is intentionally the simplest possible surface. If you need
 an agent to decide what to say, use the `send_message` tool from within a
 chat or cron job. If you need a scheduled run with LLM-generated content,
 use `cronjob(action='create', prompt=...)` with `deliver='telegram:...'`.
-If you just need to pipe a raw string, reach for `lightning send`.
+If you just need to pipe a raw string, reach for `sonic send`.
 
 ---
 
@@ -244,6 +244,6 @@ If you just need to pipe a raw string, reach for `lightning send`.
 - [Automate Anything with Cron](/docs/guides/automate-with-cron) —
   scheduled jobs whose output auto-delivers to any platform.
 - [Gateway Internals](/docs/developer-guide/gateway-internals) —
-  the delivery router that `lightning send` shares with cron delivery.
+  the delivery router that `sonic send` shares with cron delivery.
 - [Messaging Platform Setup](/docs/user-guide/messaging/) —
   one-time configuration for each platform.

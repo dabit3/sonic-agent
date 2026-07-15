@@ -17,18 +17,18 @@ from trajectory_compressor import (
 )
 
 
-def test_import_loads_env_from_lightning_home(tmp_path, monkeypatch):
-    home = tmp_path / ".lightning"
+def test_import_loads_env_from_sonic_home(tmp_path, monkeypatch):
+    home = tmp_path / ".sonic"
     home.mkdir()
-    (home / ".env").write_text("OPENROUTER_API_KEY=from-lightning-home\n", encoding="utf-8")
+    (home / ".env").write_text("OPENROUTER_API_KEY=from-sonic-home\n", encoding="utf-8")
 
-    monkeypatch.setenv("LIGHTNING_HOME", str(home))
+    monkeypatch.setenv("SONIC_HOME", str(home))
     monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
 
     sys.modules.pop("trajectory_compressor", None)
     importlib.import_module("trajectory_compressor")
 
-    assert os.getenv("OPENROUTER_API_KEY") == "from-lightning-home"
+    assert os.getenv("OPENROUTER_API_KEY") == "from-sonic-home"
 
 
 def test_generate_summary_kimi_omits_temperature():
