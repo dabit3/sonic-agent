@@ -1098,3 +1098,27 @@ display:
 #     - command: "~/.sonic/agent-hooks/log-orchestration.sh"
 #
 # hooks_auto_accept: false
+
+# =============================================================================
+# SPEED PROFILE (Sonic's latency-first defaults)
+# =============================================================================
+# Sonic ships with the speed profile ENABLED. It tunes latency-sensitive
+# knobs toward minimum time-to-first-token:
+#   - max_tokens: fills in model.max_tokens when you haven't set one,
+#     capping response length for fast answers
+#   - api_max_retries: caps agent.api_max_retries so a slow provider
+#     fails over quickly instead of retrying
+#   - disable_memory_nudges / disable_skill_nudges: drops per-turn prompt
+#     extras that inflate prefill on every request
+#   - prewarm_connection: opens the DNS + TCP + TLS connection to your
+#     provider in the background at startup so the first request starts
+#     streaming immediately
+# Set enabled: false to restore stock upstream behaviour.
+#
+# speed:
+#   enabled: true
+#   max_tokens: 4096
+#   api_max_retries: 1
+#   disable_memory_nudges: true
+#   disable_skill_nudges: true
+#   prewarm_connection: true
