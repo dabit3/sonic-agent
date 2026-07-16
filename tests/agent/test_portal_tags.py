@@ -3,20 +3,20 @@
 from __future__ import annotations
 
 
-def test_lightning_client_tag_includes_current_version():
-    """The client tag must reflect lightning_cli.__version__ verbatim."""
-    from lightning_cli import __version__
-    from agent.portal_tags import lightning_client_tag
+def test_sonic_client_tag_includes_current_version():
+    """The client tag must reflect sonic_cli.__version__ verbatim."""
+    from sonic_cli import __version__
+    from agent.portal_tags import sonic_client_tag
 
-    assert lightning_client_tag() == f"client=lightning-client-v{__version__}"
+    assert sonic_client_tag() == f"client=sonic-client-v{__version__}"
 
 
-def test_lightning_client_tag_format():
+def test_sonic_client_tag_format():
     """The client tag has the exact shape Nous Portal expects."""
-    from agent.portal_tags import lightning_client_tag
+    from agent.portal_tags import sonic_client_tag
 
-    tag = lightning_client_tag()
-    assert tag.startswith("client=lightning-client-v")
+    tag = sonic_client_tag()
+    assert tag.startswith("client=sonic-client-v")
     # No spaces, no commas — single tag value
     assert " " not in tag
     assert "," not in tag
@@ -24,11 +24,11 @@ def test_lightning_client_tag_format():
 
 def test_nous_portal_tags_contains_product_and_client():
     """Every Nous Portal request gets BOTH the product tag and the version tag."""
-    from agent.portal_tags import lightning_client_tag, nous_portal_tags
+    from agent.portal_tags import sonic_client_tag, nous_portal_tags
 
     tags = nous_portal_tags()
-    assert "product=lightning-agent" in tags
-    assert lightning_client_tag() in tags
+    assert "product=sonic-agent" in tags
+    assert sonic_client_tag() in tags
     assert len(tags) == 2
 
 

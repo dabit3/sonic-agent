@@ -2,11 +2,11 @@
 OpenAI-compatible API server platform adapter.
 
 Exposes an HTTP server with endpoints:
-- POST /v1/chat/completions        — OpenAI Chat Completions format (stateless; opt-in session continuity via X-Lightning-Session-Id header; opt-in long-term memory scoping via X-Lightning-Session-Key header)
-- POST /v1/responses               — OpenAI Responses API format (stateful via previous_response_id; X-Lightning-Session-Key supported)
+- POST /v1/chat/completions        — OpenAI Chat Completions format (stateless; opt-in session continuity via X-Sonic-Session-Id header; opt-in long-term memory scoping via X-Sonic-Session-Key header)
+- POST /v1/responses               — OpenAI Responses API format (stateful via previous_response_id; X-Sonic-Session-Key supported)
 - GET  /v1/responses/{response_id} — Retrieve a stored response
 - DELETE /v1/responses/{response_id} — Delete a stored response
-- GET  /v1/models                  — lists lightning-agent as an available model
+- GET  /v1/models                  — lists sonic-agent as an available model
 - GET  /v1/capabilities            — machine-readable API capabilities for external UIs
 - POST /v1/runs                    — start a run, returns run_id immediately (202)
 - GET  /v1/runs/{run_id}           — retrieve current run status
@@ -17,7 +17,7 @@ Exposes an HTTP server with endpoints:
 - GET  /health/detailed            — rich status for cross-container dashboard probing
 
 Any OpenAI-compatible frontend (Open WebUI, LobeChat, LibreChat,
-AnythingLLM, NextChat, ChatBox, etc.) can connect to lightning-agent
+AnythingLLM, NextChat, ChatBox, etc.) can connect to sonic-agent
 through this adapter by pointing at http://localhost:8642/v1.
 
 Requires:
@@ -333,8 +333,8 @@ class ResponseStore:
         self._max_size = max_size
         if db_path is None:
             try:
-                from lightning_cli.config import get_lightning_home
-                db_path = str(get_lightning_home() / "response_store.db")
+                from sonic_cli.config import get_sonic_home
+                db_path = str(get_sonic_home() / "response_store.db")
             except Exception:
                 db_path = ":memory:"
         try:
@@ -342,10 +342,10 @@ class ResponseStore:
         except Exception:
             self._conn = sqlite3.connect(":memory:", check_same_thread=False)
         # Use shared WAL-fallback helper so response_store.db degrades
-        # gracefully on NFS/SMB/FUSE-mounted LIGHTNING_HOME (same filesystem
+        # gracefully on NFS/SMB/FUSE-mounted SONIC_HOME (same filesystem
         # issue addressed for state.db/kanban.db — see
-        # lightning_state._WAL_INCOMPAT_MARKERS).
-        from lightning_state import apply_wal_with_fallback
+        # sonic_state._WAL_INCOMPAT_MARKERS).
+        from sonic_state import apply_wal_with_fallback
         apply_wal_with_fallback(self._conn, db_label="response_store.db")
         self._conn.execute(
             """CREATE TABLE IF NOT EXISTS responses (
@@ -596,7 +596,7 @@ def _derive_chat_session_id(
     conversation history with every request.  The system prompt and first user
     message are constant across all turns of the same conversation, so hashing
     them produces a deterministic session ID that lets the API server reuse
-    the same Lightning session (and therefore the same Docker container sandbox
+    the same Sonic session (and therefore the same Docker container sandbox
     directory) across turns.
     """
     seed = f"{system_prompt or ''}\n{first_user_message}"
@@ -633,7 +633,7 @@ class APIServerAdapter(BasePlatformAdapter):
     OpenAI-compatible HTTP API server adapter.
 
     Runs an aiohttp web server that accepts OpenAI-format requests
-    and routes them through lightning-agent's AIAgent.
+    and routes them through sonic-agent's AIAgent.
     """
 
     def __init__(self, config: PlatformConfig):
@@ -692,18 +692,18 @@ class APIServerAdapter(BasePlatformAdapter):
         Priority:
         1. Explicit override (config extra or API_SERVER_MODEL_NAME env var)
         2. Active profile name (so each profile advertises a distinct model)
-        3. Fallback: "lightning-agent"
+        3. Fallback: "sonic-agent"
         """
         if explicit and explicit.strip():
             return explicit.strip()
         try:
-            from lightning_cli.profiles import get_active_profile_name
+            from sonic_cli.profiles import get_active_profile_name
             profile = get_active_profile_name()
             if profile and profile not in {"default", "custom"}:
                 return profile
         except Exception:
             pass
-        return "lightning-agent"
+        return "sonic-agent"
 
     def _cors_headers_for_origin(self, origin: str) -> Optional[Dict[str, str]]:
         """Return CORS headers for an allowed browser origin."""
@@ -777,11 +777,11 @@ class APIServerAdapter(BasePlatformAdapter):
     def _parse_session_key_header(
         self, request: "web.Request"
     ) -> tuple[Optional[str], Optional["web.Response"]]:
-        """Extract and validate the ``X-Lightning-Session-Key`` header.
+        """Extract and validate the ``X-Sonic-Session-Key`` header.
 
         The session key is a stable per-channel identifier that scopes
         long-term memory (e.g. Honcho sessions) across transcripts.  It
-        is independent of ``X-Lightning-Session-Id``: callers may send
+        is independent of ``X-Sonic-Session-Id``: callers may send
         either, both, or neither.
 
         Returns ``(session_key, None)`` on success (with an empty/absent
@@ -793,18 +793,18 @@ class APIServerAdapter(BasePlatformAdapter):
         unauthenticated client on a local-only server can't inject itself
         into another user's long-term memory scope by guessing a key.
         """
-        raw = request.headers.get("X-Lightning-Session-Key", "").strip()
+        raw = request.headers.get("X-Sonic-Session-Key", "").strip()
         if not raw:
             return None, None
 
         if not self._api_key:
             logger.warning(
-                "X-Lightning-Session-Key rejected: no API key configured. "
+                "X-Sonic-Session-Key rejected: no API key configured. "
                 "Set API_SERVER_KEY to enable long-term memory scoping."
             )
             return None, web.json_response(
                 _openai_error(
-                    "X-Lightning-Session-Key requires API key authentication. "
+                    "X-Sonic-Session-Key requires API key authentication. "
                     "Configure API_SERVER_KEY to enable this feature."
                 ),
                 status=403,
@@ -833,12 +833,12 @@ class APIServerAdapter(BasePlatformAdapter):
     def _ensure_session_db(self):
         """Lazily initialise and return the shared SessionDB instance.
 
-        Sessions are persisted to ``state.db`` so that ``lightning sessions list``
+        Sessions are persisted to ``state.db`` so that ``sonic sessions list``
         shows API-server conversations alongside CLI and gateway ones.
         """
         if self._session_db is None:
             try:
-                from lightning_state import SessionDB
+                from sonic_state import SessionDB
                 self._session_db = SessionDB()
             except Exception as e:
                 logger.debug("SessionDB unavailable for API server: %s", e)
@@ -864,10 +864,10 @@ class APIServerAdapter(BasePlatformAdapter):
         Uses _resolve_runtime_agent_kwargs() to pick up model, api_key,
         base_url, etc. from config.yaml / env vars.  Toolsets are resolved
         from config.yaml platform_toolsets.api_server (same as all other
-        gateway platforms), falling back to the lightning-api-server default.
+        gateway platforms), falling back to the sonic-api-server default.
 
         ``gateway_session_key`` is a stable per-channel identifier supplied
-        by the client (via ``X-Lightning-Session-Key``).  Unlike ``session_id``
+        by the client (via ``X-Sonic-Session-Key``).  Unlike ``session_id``
         which scopes the short-term transcript and rotates on /new, this
         key is meant to persist across transcripts so long-term memory
         providers (e.g. Honcho) can scope their per-chat state correctly
@@ -875,7 +875,7 @@ class APIServerAdapter(BasePlatformAdapter):
         """
         from run_agent import AIAgent
         from gateway.run import _resolve_runtime_agent_kwargs, _resolve_gateway_model, _load_gateway_config, GatewayRunner
-        from lightning_cli.tools_config import _get_platform_tools
+        from sonic_cli.tools_config import _get_platform_tools
 
         runtime_kwargs = _resolve_runtime_agent_kwargs()
         reasoning_config = GatewayRunner._load_reasoning_config()
@@ -884,7 +884,7 @@ class APIServerAdapter(BasePlatformAdapter):
         user_config = _load_gateway_config()
         enabled_toolsets = sorted(_get_platform_tools(user_config, "api_server"))
 
-        max_iterations = int(os.getenv("LIGHTNING_MAX_ITERATIONS", "90"))
+        max_iterations = int(os.getenv("SONIC_MAX_ITERATIONS", "90"))
 
         # Load fallback provider chain so the API server platform has the
         # same fallback behaviour as Telegram/Discord/Slack (fixes #4954).
@@ -917,7 +917,7 @@ class APIServerAdapter(BasePlatformAdapter):
 
     async def _handle_health(self, request: "web.Request") -> "web.Response":
         """GET /health — simple health check."""
-        return web.json_response({"status": "ok", "platform": "lightning-agent"})
+        return web.json_response({"status": "ok", "platform": "sonic-agent"})
 
     async def _handle_health_detailed(self, request: "web.Request") -> "web.Response":
         """GET /health/detailed — rich status for cross-container dashboard probing.
@@ -931,7 +931,7 @@ class APIServerAdapter(BasePlatformAdapter):
         runtime = read_runtime_status() or {}
         return web.json_response({
             "status": "ok",
-            "platform": "lightning-agent",
+            "platform": "sonic-agent",
             "gateway_state": runtime.get("gateway_state"),
             "platforms": runtime.get("platforms", {}),
             "active_agents": runtime.get("active_agents", 0),
@@ -941,7 +941,7 @@ class APIServerAdapter(BasePlatformAdapter):
         })
 
     async def _handle_models(self, request: "web.Request") -> "web.Response":
-        """GET /v1/models — return lightning-agent as an available model."""
+        """GET /v1/models — return sonic-agent as an available model."""
         auth_err = self._check_auth(request)
         if auth_err:
             return auth_err
@@ -953,7 +953,7 @@ class APIServerAdapter(BasePlatformAdapter):
                     "id": self._model_name,
                     "object": "model",
                     "created": int(time.time()),
-                    "owned_by": "lightning",
+                    "owned_by": "sonic",
                     "permission": [],
                     "root": self._model_name,
                     "parent": None,
@@ -966,15 +966,15 @@ class APIServerAdapter(BasePlatformAdapter):
 
         External UIs and orchestrators use this endpoint to discover the API
         server's plugin-safe contract without scraping docs or assuming that
-        every Lightning version exposes the same endpoints.
+        every Sonic version exposes the same endpoints.
         """
         auth_err = self._check_auth(request)
         if auth_err:
             return auth_err
 
         return web.json_response({
-            "object": "lightning.api_server.capabilities",
-            "platform": "lightning-agent",
+            "object": "sonic.api_server.capabilities",
+            "platform": "sonic-agent",
             "model": self._model_name,
             "auth": {
                 "type": "bearer",
@@ -985,7 +985,7 @@ class APIServerAdapter(BasePlatformAdapter):
                 "tool_execution": "server",
                 "split_runtime": False,
                 "description": (
-                    "The API server creates a server-side Lightning AIAgent; "
+                    "The API server creates a server-side Sonic AIAgent; "
                     "tools execute on the API-server host unless a future "
                     "explicit split-runtime mode is enabled."
                 ),
@@ -1002,8 +1002,8 @@ class APIServerAdapter(BasePlatformAdapter):
                 "run_approval_response": True,
                 "tool_progress_events": True,
                 "approval_events": True,
-                "session_continuity_header": "X-Lightning-Session-Id",
-                "session_key_header": "X-Lightning-Session-Key",
+                "session_continuity_header": "X-Sonic-Session-Id",
+                "session_key_header": "X-Sonic-Session-Key",
                 "cors": bool(self._cors_origins),
             },
             "endpoints": {
@@ -1077,26 +1077,26 @@ class APIServerAdapter(BasePlatformAdapter):
             )
 
         # Allow caller to scope long-term memory (e.g. Honcho) with a
-        # stable per-channel identifier via X-Lightning-Session-Key.  This
-        # is independent of X-Lightning-Session-Id: the key persists across
+        # stable per-channel identifier via X-Sonic-Session-Key.  This
+        # is independent of X-Sonic-Session-Id: the key persists across
         # transcripts while the id rotates when the caller starts a new
         # transcript (i.e. /new semantics).  See _parse_session_key_header.
         gateway_session_key, key_err = self._parse_session_key_header(request)
         if key_err is not None:
             return key_err
 
-        # Allow caller to continue an existing session by passing X-Lightning-Session-Id.
+        # Allow caller to continue an existing session by passing X-Sonic-Session-Id.
         # When provided, history is loaded from state.db instead of from the request body.
         #
         # Security: session continuation exposes conversation history, so it is
         # only allowed when the API key is configured and the request is
         # authenticated.  Without this gate, any unauthenticated client could
         # read arbitrary session history by guessing/enumerating session IDs.
-        provided_session_id = request.headers.get("X-Lightning-Session-Id", "").strip()
+        provided_session_id = request.headers.get("X-Sonic-Session-Id", "").strip()
         if provided_session_id:
             if not self._api_key:
                 logger.warning(
-                    "Session continuation via X-Lightning-Session-Id rejected: "
+                    "Session continuation via X-Sonic-Session-Id rejected: "
                     "no API key configured.  Set API_SERVER_KEY to enable "
                     "session continuity."
                 )
@@ -1124,7 +1124,7 @@ class APIServerAdapter(BasePlatformAdapter):
         else:
             # Derive a stable session ID from the conversation fingerprint so
             # that consecutive messages from the same Open WebUI (or similar)
-            # conversation map to the same Lightning session.  The first user
+            # conversation map to the same Sonic session.  The first user
             # message + system prompt are constant across all turns.
             first_user = ""
             for cm in conversation_messages:
@@ -1160,7 +1160,7 @@ class APIServerAdapter(BasePlatformAdapter):
             _started_tool_call_ids: set[str] = set()
 
             def _on_tool_start(tool_call_id, function_name, function_args):
-                """Emit ``lightning.tool.progress`` with ``status: running``.
+                """Emit ``sonic.tool.progress`` with ``status: running``.
 
                 Replaces the old ``tool_progress_callback("tool.started",
                 ...)`` emit so SSE consumers receive a single event per
@@ -1279,10 +1279,10 @@ class APIServerAdapter(BasePlatformAdapter):
             finish_reason = "stop"
 
         response_headers = {
-            "X-Lightning-Session-Id": result.get("session_id", session_id),
+            "X-Sonic-Session-Id": result.get("session_id", session_id),
         }
         if gateway_session_key:
-            response_headers["X-Lightning-Session-Key"] = gateway_session_key
+            response_headers["X-Sonic-Session-Key"] = gateway_session_key
 
         # Hard-fail path: no usable assistant text AND a real failure → 5xx
         # with OpenAI-style error envelope so SDK clients raise instead of
@@ -1293,18 +1293,18 @@ class APIServerAdapter(BasePlatformAdapter):
                 err_type="server_error",
                 code="agent_incomplete",
             )
-            err_body["error"]["lightning"] = {
+            err_body["error"]["sonic"] = {
                 "completed": completed,
                 "partial": is_partial,
                 "failed": is_failed,
             }
-            response_headers["X-Lightning-Completed"] = "false"
-            response_headers["X-Lightning-Partial"] = "true" if is_partial else "false"
+            response_headers["X-Sonic-Completed"] = "false"
+            response_headers["X-Sonic-Partial"] = "true" if is_partial else "false"
             return web.json_response(err_body, status=502, headers=response_headers)
 
         # Soft-partial path: we have *some* text but the run did not complete
         # (e.g. truncation with partial buffered output). Still 200 but signal
-        # truncation via finish_reason="length" + Lightning-specific extras.
+        # truncation via finish_reason="length" + Sonic-specific extras.
         response_data = {
             "id": completion_id,
             "object": "chat.completion",
@@ -1327,17 +1327,17 @@ class APIServerAdapter(BasePlatformAdapter):
             },
         }
         if is_partial or is_failed or not completed:
-            response_data["lightning"] = {
+            response_data["sonic"] = {
                 "completed": completed,
                 "partial": is_partial,
                 "failed": is_failed,
                 "error": err_msg,
                 "error_code": "output_truncated" if finish_reason == "length" else "agent_error",
             }
-            response_headers["X-Lightning-Completed"] = "false"
-            response_headers["X-Lightning-Partial"] = "true" if is_partial else "false"
+            response_headers["X-Sonic-Completed"] = "false"
+            response_headers["X-Sonic-Partial"] = "true" if is_partial else "false"
             if err_msg:
-                response_headers["X-Lightning-Error"] = err_msg[:200]
+                response_headers["X-Sonic-Error"] = err_msg[:200]
 
         return web.json_response(response_data, headers=response_headers)
 
@@ -1366,9 +1366,9 @@ class APIServerAdapter(BasePlatformAdapter):
         if cors:
             sse_headers.update(cors)
         if session_id:
-            sse_headers["X-Lightning-Session-Id"] = session_id
+            sse_headers["X-Sonic-Session-Id"] = session_id
         if gateway_session_key:
-            sse_headers["X-Lightning-Session-Key"] = gateway_session_key
+            sse_headers["X-Sonic-Session-Key"] = gateway_session_key
         response = web.StreamResponse(status=200, headers=sse_headers)
         await response.prepare(request)
 
@@ -1390,7 +1390,7 @@ class APIServerAdapter(BasePlatformAdapter):
 
                 Plain strings are sent as normal ``delta.content`` chunks.
                 Tagged tuples ``("__tool_progress__", payload)`` are sent
-                as a custom ``event: lightning.tool.progress`` SSE event so
+                as a custom ``event: sonic.tool.progress`` SSE event so
                 frontends can display them without storing the markers in
                 conversation history.  See #6972 for the original event,
                 #16588 for the ``toolCallId``/``status`` lifecycle fields.
@@ -1398,7 +1398,7 @@ class APIServerAdapter(BasePlatformAdapter):
                 if isinstance(item, tuple) and len(item) == 2 and item[0] == "__tool_progress__":
                     event_data = json.dumps(item[1])
                     await response.write(
-                        f"event: lightning.tool.progress\ndata: {event_data}\n\n".encode()
+                        f"event: sonic.tool.progress\ndata: {event_data}\n\n".encode()
                     )
                 else:
                     content_chunk = {
@@ -1550,9 +1550,9 @@ class APIServerAdapter(BasePlatformAdapter):
         if cors:
             sse_headers.update(cors)
         if session_id:
-            sse_headers["X-Lightning-Session-Id"] = session_id
+            sse_headers["X-Sonic-Session-Id"] = session_id
         if gateway_session_key:
-            sse_headers["X-Lightning-Session-Key"] = gateway_session_key
+            sse_headers["X-Sonic-Session-Key"] = gateway_session_key
         response = web.StreamResponse(status=200, headers=sse_headers)
         await response.prepare(request)
 
@@ -2364,9 +2364,9 @@ class APIServerAdapter(BasePlatformAdapter):
             if conversation:
                 self._response_store.set_conversation(conversation, response_id)
 
-        response_headers = {"X-Lightning-Session-Id": session_id}
+        response_headers = {"X-Sonic-Session-Id": session_id}
         if gateway_session_key:
-            response_headers["X-Lightning-Session-Key"] = gateway_session_key
+            response_headers["X-Sonic-Session-Key"] = gateway_session_key
         return web.json_response(response_data, headers=response_headers)
 
     # ------------------------------------------------------------------
@@ -2781,7 +2781,7 @@ class APIServerAdapter(BasePlatformAdapter):
                 "total_tokens": getattr(agent, "session_total_tokens", 0) or 0,
             }
             # Include the effective session ID in the result so callers
-            # (e.g. X-Lightning-Session-Id header) can track compression-
+            # (e.g. X-Sonic-Session-Id header) can track compression-
             # triggered session rotations. (#16938)
             _eff_sid = getattr(agent, "session_id", session_id)
             if isinstance(_eff_sid, str) and _eff_sid:
@@ -2803,7 +2803,7 @@ class APIServerAdapter(BasePlatformAdapter):
         now = time.time()
         current = self._run_statuses.get(run_id, {})
         current.update({
-            "object": "lightning.run",
+            "object": "sonic.run",
             "run_id": run_id,
             "status": status,
             "updated_at": now,
@@ -3147,7 +3147,7 @@ class APIServerAdapter(BasePlatformAdapter):
             task.add_done_callback(self._background_tasks.discard)
 
         response_headers = (
-            {"X-Lightning-Session-Key": gateway_session_key} if gateway_session_key else {}
+            {"X-Sonic-Session-Key": gateway_session_key} if gateway_session_key else {}
         )
         return web.json_response(
             {"run_id": run_id, "status": "started"},
@@ -3302,7 +3302,7 @@ class APIServerAdapter(BasePlatformAdapter):
                 pass
 
         return web.json_response({
-            "object": "lightning.run.approval_response",
+            "object": "sonic.run.approval_response",
             "run_id": run_id,
             "choice": choice,
             "resolved": resolved,
@@ -3443,7 +3443,7 @@ class APIServerAdapter(BasePlatformAdapter):
             # Ported from openclaw/openclaw#64586.
             if is_network_accessible(self._host) and self._api_key:
                 try:
-                    from lightning_cli.auth import has_usable_secret
+                    from sonic_cli.auth import has_usable_secret
                     if not has_usable_secret(self._api_key, min_length=8):
                         logger.error(
                             "[%s] Refusing to start: API_SERVER_KEY is set to a "

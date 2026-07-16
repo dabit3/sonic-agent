@@ -6,7 +6,7 @@ author: dodo-reach
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
-  lightning:
+  sonic:
     tags: [creative, pixel-art, arcade, snes, nes, gameboy, retro, image, video]
     category: creative
     credits:
@@ -124,7 +124,7 @@ pixel_art("in.png", "out.png", preset="snes", palette="PICO_8", block=6)
 | `urban` | Rain + neon pulse |
 | `nature` | Leaves + fireflies |
 | `magic` | Sparkles + fireflies |
-| `storm` | Rain + lightning |
+| `storm` | Rain + sonic |
 | `underwater` | Bubbles + light sparkles |
 | `fire` | Embers + sparkles |
 | `snow` | Snowflakes + sparkles |
@@ -136,7 +136,7 @@ pixel_art("in.png", "out.png", preset="snes", palette="PICO_8", block=6)
 
 ```python
 import sys
-sys.path.insert(0, "/home/teknium/.lightning/skills/creative/pixel-art/scripts")
+sys.path.insert(0, "/home/teknium/.sonic/skills/creative/pixel-art/scripts")
 from pixel_art import pixel_art
 from pixel_art_video import pixel_art_video
 
@@ -158,7 +158,7 @@ pixel_art_video(
 ### CLI
 
 ```bash
-cd /home/teknium/.lightning/skills/creative/pixel-art/scripts
+cd /home/teknium/.sonic/skills/creative/pixel-art/scripts
 
 python pixel_art.py in.jpg out.png --preset gameboy
 python pixel_art.py in.jpg out.png --preset snes --palette PICO_8 --block 6
@@ -189,7 +189,7 @@ Quantizing before would waste error-diffusion on detail that disappears.
 
 - Python 3.9+
 - Pillow (`pip install Pillow`)
-- ffmpeg on PATH (only needed for video — Lightning installs package this)
+- ffmpeg on PATH (only needed for video — Sonic installs package this)
 
 ## Pitfalls
 

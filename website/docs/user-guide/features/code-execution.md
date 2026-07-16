@@ -6,19 +6,19 @@ description: "Programmatic Python execution with RPC tool access — collapse mu
 
 # Code Execution (Programmatic Tool Calling)
 
-The `execute_code` tool lets the agent write Python scripts that call Lightning tools programmatically, collapsing multi-step workflows into a single LLM turn. The script runs in a child process on the agent host, communicating with Lightning over a Unix domain socket RPC.
+The `execute_code` tool lets the agent write Python scripts that call Sonic tools programmatically, collapsing multi-step workflows into a single LLM turn. The script runs in a child process on the agent host, communicating with Sonic over a Unix domain socket RPC.
 
 ## How It Works
 
-1. The agent writes a Python script using `from lightning_tools import ...`
-2. Lightning generates a `lightning_tools.py` stub module with RPC functions
-3. Lightning opens a Unix domain socket and starts an RPC listener thread
-4. The script runs in a child process — tool calls travel over the socket back to Lightning
+1. The agent writes a Python script using `from sonic_tools import ...`
+2. Sonic generates a `sonic_tools.py` stub module with RPC functions
+3. Sonic opens a Unix domain socket and starts an RPC listener thread
+4. The script runs in a child process — tool calls travel over the socket back to Sonic
 5. Only the script's `print()` output is returned to the LLM; intermediate tool results never enter the context window
 
 ```python
 # The agent can write scripts like:
-from lightning_tools import web_search, web_extract
+from sonic_tools import web_search, web_extract
 
 results = web_search("Python 3.13 features", limit=5)
 for r in results["data"]["web"]:
@@ -44,7 +44,7 @@ The key benefit: intermediate tool results never enter the context window — on
 ### Data Processing Pipeline
 
 ```python
-from lightning_tools import search_files, read_file
+from sonic_tools import search_files, read_file
 import json
 
 # Find all config files and extract database settings
@@ -60,7 +60,7 @@ print(json.dumps(configs, indent=2))
 ### Multi-Step Web Research
 
 ```python
-from lightning_tools import web_search, web_extract
+from sonic_tools import web_search, web_extract
 import json
 
 # Search, extract, and summarize in one turn
@@ -82,7 +82,7 @@ print(json.dumps(summaries, indent=2))
 ### Bulk File Refactoring
 
 ```python
-from lightning_tools import search_files, read_file, patch
+from sonic_tools import search_files, read_file, patch
 
 # Find all Python files using deprecated API and fix them
 matches = search_files("old_api_call", path="src/", file_glob="*.py")
@@ -103,7 +103,7 @@ print(f"Fixed {fixed} files out of {len(matches.get('matches', []))} matches")
 ### Build and Test Pipeline
 
 ```python
-from lightning_tools import terminal, read_file
+from sonic_tools import terminal, read_file
 import json
 
 # Run tests, parse results, and report
@@ -128,19 +128,19 @@ print(json.dumps(report, indent=2))
 
 ## Execution Mode
 
-`execute_code` has two execution modes controlled by `code_execution.mode` in `~/.lightning/config.yaml`:
+`execute_code` has two execution modes controlled by `code_execution.mode` in `~/.sonic/config.yaml`:
 
 | Mode | Working directory | Python interpreter |
 |------|-------------------|--------------------|
-| **`project`** (default) | The session's working directory (same as `terminal()`) | Active `VIRTUAL_ENV` / `CONDA_PREFIX` python, falling back to Lightning's own python |
-| `strict` | A temp staging directory isolated from the user's project | `sys.executable` (Lightning's own python) |
+| **`project`** (default) | The session's working directory (same as `terminal()`) | Active `VIRTUAL_ENV` / `CONDA_PREFIX` python, falling back to Sonic's own python |
+| `strict` | A temp staging directory isolated from the user's project | `sys.executable` (Sonic's own python) |
 
 **When to leave it on `project`:** you want `import pandas`, `from my_project import foo`, or relative paths like `open(".env")` to work the same way they do in `terminal()`. This is almost always what you want.
 
 **When to flip to `strict`:** you need maximum reproducibility — you want the same interpreter every session regardless of which venv the user activated, and you want scripts quarantined from the project tree (no risk of accidentally reading project files through a relative path).
 
 ```yaml
-# ~/.lightning/config.yaml
+# ~/.sonic/config.yaml
 code_execution:
   mode: project   # or "strict"
 ```
@@ -167,7 +167,7 @@ Switching mode changes where scripts run and which interpreter runs them, not wh
 All limits are configurable via `config.yaml`:
 
 ```yaml
-# In ~/.lightning/config.yaml
+# In ~/.sonic/config.yaml
 code_execution:
   mode: project      # project (default) | strict
   timeout: 300       # Max seconds per script (default: 300)
@@ -219,7 +219,7 @@ terminal:
 
 See the [Security guide](/docs/user-guide/security#environment-variable-passthrough) for full details.
 
-Lightning always writes the script and the auto-generated `lightning_tools.py` RPC stub into a temp staging directory that is cleaned up after execution. In `strict` mode the script also *runs* there; in `project` mode it runs in the session's working directory (the staging directory stays on `PYTHONPATH` so imports still resolve). The child process runs in its own process group so it can be cleanly killed on timeout or interruption.
+Sonic always writes the script and the auto-generated `sonic_tools.py` RPC stub into a temp staging directory that is cleaned up after execution. In `strict` mode the script also *runs* there; in `project` mode it runs in the session's working directory (the staging directory stays on `PYTHONPATH` so imports still resolve). The child process runs in its own process group so it can be cleanly killed on timeout or interruption.
 
 ## execute_code vs terminal
 
@@ -233,7 +233,7 @@ Lightning always writes the script and the auto-generated `lightning_tools.py` R
 | Interactive/background processes | ❌ | ✅ |
 | Needs API keys in environment | ⚠️ Only via [passthrough](/docs/user-guide/security#environment-variable-passthrough) | ✅ (most pass through) |
 
-**Rule of thumb:** Use `execute_code` when you need to call Lightning tools programmatically with logic between calls. Use `terminal` for running shell commands, builds, and processes.
+**Rule of thumb:** Use `execute_code` when you need to call Sonic tools programmatically with logic between calls. Use `terminal` for running shell commands, builds, and processes.
 
 ## Platform Support
 

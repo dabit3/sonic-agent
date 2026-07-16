@@ -401,7 +401,7 @@ class HomeAssistantAdapter(BasePlatformAdapter):
             "Content-Type": "application/json",
         }
         payload = {
-            "title": "Lightning Agent",
+            "title": "Sonic Agent",
             "message": content[:self.MAX_MESSAGE_LENGTH],
         }
 

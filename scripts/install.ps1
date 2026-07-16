@@ -1,11 +1,11 @@
 # ============================================================================
-# Lightning Agent Installer for Windows
+# Sonic Agent Installer for Windows
 # ============================================================================
 # Installation script for Windows (PowerShell).
 # Uses uv for fast Python provisioning and package management.
 #
 # Usage:
-#   iex (irm https://raw.githubusercontent.com/NousResearch/lightning-agent/main/scripts/install.ps1)
+#   iex (irm https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.ps1)
 #
 # Or download and run with options:
 #   .\install.ps1 -NoVenv -SkipSetup
@@ -23,8 +23,8 @@ param(
     # exact ref.  Precedence: Commit > Tag > Branch.
     [string]$Commit = "",
     [string]$Tag = "",
-    [string]$LightningHome = "$env:LOCALAPPDATA\lightning",
-    [string]$InstallDir = "$env:LOCALAPPDATA\lightning\lightning-agent",
+    [string]$SonicHome = "$env:LOCALAPPDATA\sonic",
+    [string]$InstallDir = "$env:LOCALAPPDATA\sonic\sonic-agent",
 
     # --- Stage protocol (additive; default invocation behaves as before) ----
     # See the "Stage protocol" section near the bottom of the file for the
@@ -75,8 +75,8 @@ try {
 # Configuration
 # ============================================================================
 
-$RepoUrlSsh = "git@github.com:NousResearch/lightning-agent.git"
-$RepoUrlHttps = "https://github.com/NousResearch/lightning-agent.git"
+$RepoUrlSsh = "git@github.com:dabit3/sonic-agent.git"
+$RepoUrlHttps = "https://github.com/dabit3/sonic-agent.git"
 $PythonVersion = "3.11"
 $NodeVersion = "22"
 
@@ -92,7 +92,7 @@ $InstallStageProtocolVersion = 1
 function Write-Banner {
     Write-Host ""
     Write-Host "+---------------------------------------------------------+" -ForegroundColor Magenta
-    Write-Host "|             * Lightning Agent Installer                    |" -ForegroundColor Magenta
+    Write-Host "|             * Sonic Agent Installer                    |" -ForegroundColor Magenta
     Write-Host "+---------------------------------------------------------+" -ForegroundColor Magenta
     Write-Host "|  An open source AI agent by Nous Research.              |" -ForegroundColor Magenta
     Write-Host "+---------------------------------------------------------+" -ForegroundColor Magenta
@@ -150,10 +150,10 @@ function Find-SystemBrowser {
 
 function Write-BrowserEnv {
     param([string]$BrowserPath)
-    if (-not (Test-Path $LightningHome)) {
-        New-Item -ItemType Directory -Force -Path $LightningHome | Out-Null
+    if (-not (Test-Path $SonicHome)) {
+        New-Item -ItemType Directory -Force -Path $SonicHome | Out-Null
     }
-    $envFile = Join-Path $LightningHome ".env"
+    $envFile = Join-Path $SonicHome ".env"
     if (-not (Test-Path $envFile)) {
         Set-Content -Path $envFile -Value "AGENT_BROWSER_EXECUTABLE_PATH=$BrowserPath" -Encoding UTF8
         return
@@ -172,7 +172,7 @@ function Install-AgentBrowser {
     }
 
     Write-Info "Installing agent-browser via npm -g --prefix..."
-    $prefixDir = Join-Path $LightningHome "node"
+    $prefixDir = Join-Path $SonicHome "node"
     if (-not (Test-Path $prefixDir)) {
         New-Item -ItemType Directory -Path $prefixDir -Force | Out-Null
     }
@@ -481,32 +481,32 @@ function Install-Git {
     <#
     .SYNOPSIS
     Ensure Git (and Git Bash) are installed.  Git for Windows bundles bash.exe
-    which Lightning uses to run shell commands.
+    which Sonic uses to run shell commands.
 
     Priority order (deliberately simple -- no winget, no registry, no system
     package manager):
       1. Existing ``git`` on PATH -- use it as-is (the common fast path).
       2. Download **PortableGit** from the official git-for-windows GitHub
          release (self-extracting 7z.exe) and unpack it to
-         ``%LOCALAPPDATA%\lightning\git`` -- never touches system Git, never
+         ``%LOCALAPPDATA%\sonic\git`` -- never touches system Git, never
          requires admin, works even on locked-down machines and machines
          with a broken system Git install.
 
     **Why PortableGit, not MinGit:**  MinGit is the minimal-automation
     distribution and ships ONLY ``git.exe`` -- no bash, no POSIX utilities.
-    Lightning needs ``bash.exe`` to run shell commands.  PortableGit is the
+    Sonic needs ``bash.exe`` to run shell commands.  PortableGit is the
     full Git for Windows distribution without the installer UI; it ships
     ``git.exe`` + ``bash.exe`` + ``sh``, ``awk``, ``sed``, ``grep``, ``curl``,
     ``ssh``, etc. in ``usr\bin\``.
 
     We deliberately skip winget because it fails badly when the system Git
     install is in a half-installed state (partially registered, or uninstall-
-    blocked).  Owning the Lightning copy of Git ourselves is predictable and
-    recoverable: if it ever breaks, ``Remove-Item %LOCALAPPDATA%\lightning\git``
+    blocked).  Owning the Sonic copy of Git ourselves is predictable and
+    recoverable: if it ever breaks, ``Remove-Item %LOCALAPPDATA%\sonic\git``
     and re-running this installer fully recovers.
 
     After install we locate ``bash.exe`` and persist the path in
-    ``LIGHTNING_GIT_BASH_PATH`` (User scope) so Lightning can find it in a fresh
+    ``SONIC_GIT_BASH_PATH`` (User scope) so Sonic can find it in a fresh
     shell without a second PATH refresh.
     #>
     Write-Info "Checking Git..."
@@ -518,10 +518,10 @@ function Install-Git {
         return $true
     }
 
-    # Download PortableGit into $LightningHome\git.  Always works as long as
+    # Download PortableGit into $SonicHome\git.  Always works as long as
     # we can reach github.com -- no admin, no winget, no reliance on the
     # user's possibly-broken system Git install.
-    Write-Info "Git not found -- downloading PortableGit to $LightningHome\git\ ..."
+    Write-Info "Git not found -- downloading PortableGit to $SonicHome\git\ ..."
     Write-Info "(no admin rights required; isolated from any system Git install)"
 
     try {
@@ -550,7 +550,7 @@ function Install-Git {
         $gitVerTag = "$gitVer.windows.1"
 
         if ($arch -eq "32-bit-mingit") {
-            Write-Warn "32-bit Windows detected -- PortableGit is 64-bit only.  Installing MinGit 32-bit as a last resort; bash-dependent Lightning features (terminal tool, agent-browser) will not work on this machine."
+            Write-Warn "32-bit Windows detected -- PortableGit is 64-bit only.  Installing MinGit 32-bit as a last resort; bash-dependent Sonic features (terminal tool, agent-browser) will not work on this machine."
             $assetName    = "MinGit-$gitVer-32-bit.zip"
             $downloadIsZip = $true
         } elseif ($arch -eq "arm64") {
@@ -564,7 +564,7 @@ function Install-Git {
         $downloadUrl = "https://github.com/git-for-windows/git/releases/download/$gitTag/$assetName"
         $downloadExt = if ($downloadIsZip) { "zip" } else { "7z.exe" }
         $tmpFile = "$env:TEMP\$assetName"
-        $gitDir = "$LightningHome\git"
+        $gitDir = "$SonicHome\git"
 
         Write-Info "Downloading $assetName (Git for Windows $gitVerTag)..."
         Invoke-WebRequest -Uri $downloadUrl -OutFile $tmpFile -UseBasicParsing
@@ -630,7 +630,7 @@ function Install-Git {
         Write-Err "Could not install portable Git: $_"
         Write-Info ""
         Write-Info "Fallback: install Git manually from https://git-scm.com/download/win"
-        Write-Info "then re-run this installer.  Lightning needs Git Bash on Windows to run"
+        Write-Info "then re-run this installer.  Sonic needs Git Bash on Windows to run"
         Write-Info "shell commands (same as Claude Code and other coding agents)."
         return $false
     }
@@ -640,7 +640,7 @@ function Set-GitBashEnvVar {
     <#
     .SYNOPSIS
     Locate ``bash.exe`` from an already-installed Git and persist the path in
-    ``LIGHTNING_GIT_BASH_PATH`` (User env scope) so Lightning can find it even before
+    ``SONIC_GIT_BASH_PATH`` (User env scope) so Sonic can find it even before
     PATH propagation completes in a newly-spawned shell.
     #>
     $candidates = @()
@@ -651,10 +651,10 @@ function Set-GitBashEnvVar {
     # this with a system-Git-only installation anyway.
     #
     # Layouts:
-    #   PortableGit (our default): $LightningHome\git\bin\bash.exe
-    #   MinGit (32-bit fallback):  $LightningHome\git\usr\bin\bash.exe
-    $candidates += "$LightningHome\git\bin\bash.exe"       # PortableGit layout (primary)
-    $candidates += "$LightningHome\git\usr\bin\bash.exe"   # MinGit / PortableGit usr\bin fallback
+    #   PortableGit (our default): $SonicHome\git\bin\bash.exe
+    #   MinGit (32-bit fallback):  $SonicHome\git\usr\bin\bash.exe
+    $candidates += "$SonicHome\git\bin\bash.exe"       # PortableGit layout (primary)
+    $candidates += "$SonicHome\git\usr\bin\bash.exe"   # MinGit / PortableGit usr\bin fallback
 
     # git.exe on PATH can tell us where the install root is
     $gitCmd = Get-Command git -ErrorAction SilentlyContinue
@@ -677,15 +677,15 @@ function Set-GitBashEnvVar {
 
     foreach ($candidate in $candidates) {
         if ($candidate -and (Test-Path $candidate)) {
-            [Environment]::SetEnvironmentVariable("LIGHTNING_GIT_BASH_PATH", $candidate, "User")
-            $env:LIGHTNING_GIT_BASH_PATH = $candidate
-            Write-Info "Set LIGHTNING_GIT_BASH_PATH=$candidate"
+            [Environment]::SetEnvironmentVariable("SONIC_GIT_BASH_PATH", $candidate, "User")
+            $env:SONIC_GIT_BASH_PATH = $candidate
+            Write-Info "Set SONIC_GIT_BASH_PATH=$candidate"
             return
         }
     }
 
-    Write-Warn "Could not locate bash.exe -- Lightning may not find Git Bash."
-    Write-Info "If needed, set LIGHTNING_GIT_BASH_PATH manually to your bash.exe path."
+    Write-Warn "Could not locate bash.exe -- Sonic may not find Git Bash."
+    Write-Info "If needed, set SONIC_GIT_BASH_PATH manually to your bash.exe path."
 }
 
 function Test-Node {
@@ -699,11 +699,11 @@ function Test-Node {
     }
 
     # Check our own managed install from a previous run
-    $managedNode = "$LightningHome\node\node.exe"
+    $managedNode = "$SonicHome\node\node.exe"
     if (Test-Path $managedNode) {
         $version = & $managedNode --version
-        $env:Path = "$LightningHome\node;$env:Path"
-        Write-Success "Node.js $version found (Lightning-managed)"
+        $env:Path = "$SonicHome\node;$env:Path"
+        Write-Success "Node.js $version found (Sonic-managed)"
         $script:HasNode = $true
         return $true
     }
@@ -714,11 +714,11 @@ function Test-Node {
     # winget install OpenJS.NodeJS.LTS triggers a system-wide MSI install
     # which prompts UAC (the dialog often appears minimized in the taskbar
     # and the install silently waits for consent, looking like a hang).
-    # The portable zip path drops node.exe + npm into $LightningHome\node\
+    # The portable zip path drops node.exe + npm into $SonicHome\node\
     # which is user-scoped and identical to how Install-Git handles
     # PortableGit.  Same UX guarantee: works on locked-down enterprise
     # machines with no admin rights.
-    Write-Info "Downloading portable Node.js $NodeVersion to $LightningHome\node\ ..."
+    Write-Info "Downloading portable Node.js $NodeVersion to $SonicHome\node\ ..."
     Write-Info "(no admin rights required; isolated from any system Node install)"
     try {
         $arch = if ([Environment]::Is64BitOperatingSystem) { "x64" } else { "x86" }
@@ -729,7 +729,7 @@ function Test-Node {
         if ($zipName) {
             $downloadUrl = "${indexUrl}${zipName}"
             $tmpZip = "$env:TEMP\$zipName"
-            $tmpDir = "$env:TEMP\lightning-node-extract"
+            $tmpDir = "$env:TEMP\sonic-node-extract"
 
             Invoke-WebRequest -Uri $downloadUrl -OutFile $tmpZip -UseBasicParsing
             if (Test-Path $tmpDir) { Remove-Item -Recurse -Force $tmpDir }
@@ -737,16 +737,16 @@ function Test-Node {
 
             $extractedDir = Get-ChildItem $tmpDir -Directory | Select-Object -First 1
             if ($extractedDir) {
-                if (Test-Path "$LightningHome\node") { Remove-Item -Recurse -Force "$LightningHome\node" }
-                Move-Item $extractedDir.FullName "$LightningHome\node"
+                if (Test-Path "$SonicHome\node") { Remove-Item -Recurse -Force "$SonicHome\node" }
+                Move-Item $extractedDir.FullName "$SonicHome\node"
 
                 # Session PATH so the rest of this run sees node/npm.
-                $env:Path = "$LightningHome\node;$env:Path"
+                $env:Path = "$SonicHome\node;$env:Path"
 
                 # Persist to User PATH so fresh shells (and future stages
                 # in cross-process driver mode) see it.  Matches the
                 # pattern Install-Git uses for PortableGit.
-                $nodeDir = "$LightningHome\node"
+                $nodeDir = "$SonicHome\node"
                 $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
                 $userPathItems = if ($userPath) { $userPath -split ";" } else { @() }
                 if ($userPathItems -notcontains $nodeDir) {
@@ -754,8 +754,8 @@ function Test-Node {
                     [Environment]::SetEnvironmentVariable("Path", ($userPathItems -join ";"), "User")
                 }
 
-                $version = & "$LightningHome\node\node.exe" --version
-                Write-Success "Node.js $version installed to $LightningHome\node\ (portable, user-scoped)"
+                $version = & "$SonicHome\node\node.exe" --version
+                Write-Success "Node.js $version installed to $SonicHome\node\ (portable, user-scoped)"
                 $script:HasNode = $true
 
                 Remove-Item -Force $tmpZip -ErrorAction SilentlyContinue
@@ -1009,7 +1009,7 @@ function Install-Repository {
             } catch {
                 Write-Err "Could not remove $InstallDir : $_"
                 Write-Info "Close any programs that might be using files in $InstallDir (editors,"
-                Write-Info "terminals, running lightning processes) and try again."
+                Write-Info "terminals, running sonic processes) and try again."
                 throw
             }
         }
@@ -1055,17 +1055,17 @@ function Install-Repository {
                 # for.  GitHub supports archive URLs for commits, tags, and
                 # branches; we honour Commit > Tag > Branch.
                 if ($Commit) {
-                    $zipUrl = "https://github.com/NousResearch/lightning-agent/archive/$Commit.zip"
+                    $zipUrl = "https://github.com/dabit3/sonic-agent/archive/$Commit.zip"
                     $zipLabel = $Commit
                 } elseif ($Tag) {
-                    $zipUrl = "https://github.com/NousResearch/lightning-agent/archive/refs/tags/$Tag.zip"
+                    $zipUrl = "https://github.com/dabit3/sonic-agent/archive/refs/tags/$Tag.zip"
                     $zipLabel = $Tag
                 } else {
-                    $zipUrl = "https://github.com/NousResearch/lightning-agent/archive/refs/heads/$Branch.zip"
+                    $zipUrl = "https://github.com/dabit3/sonic-agent/archive/refs/heads/$Branch.zip"
                     $zipLabel = $Branch
                 }
-                $zipPath = "$env:TEMP\lightning-agent-$zipLabel.zip"
-                $extractPath = "$env:TEMP\lightning-agent-extract"
+                $zipPath = "$env:TEMP\sonic-agent-$zipLabel.zip"
+                $extractPath = "$env:TEMP\sonic-agent-extract"
 
                 Invoke-WebRequest -Uri $zipUrl -OutFile $zipPath -UseBasicParsing
                 if (Test-Path $extractPath) { Remove-Item -Recurse -Force $extractPath }
@@ -1206,7 +1206,7 @@ function Install-Dependencies {
         # UV_PROJECT_ENVIRONMENT pins the sync target to our venv\.
         # Without it, modern uv (>=0.5) ignores VIRTUAL_ENV for `sync`
         # and creates a sibling .venv\ inside the repo -- leaving venv\
-        # empty and producing the broken state where `lightning.exe` exists
+        # empty and producing the broken state where `sonic.exe` exists
         # in the wrong directory and imports fail with ModuleNotFoundError.
         # (Mirrors the same flag in scripts/install.sh::install_deps.)
         $env:UV_PROJECT_ENVIRONMENT = "$InstallDir\venv"
@@ -1258,7 +1258,7 @@ try:
     specs = data['project']['optional-dependencies']['all']
     out = []
     for s in specs:
-        m = re.search(r'lightning-agent\[([\w-]+)\]', s)
+        m = re.search(r'sonic-agent\[([\w-]+)\]', s)
         if m: out.append(m.group(1))
     print(','.join(out))
 except Exception:
@@ -1296,16 +1296,16 @@ except Exception:
         }
     }
     if (-not $installed) {
-        throw "Failed to install lightning-agent package even with no extras. Inspect the uv pip install output above."
+        throw "Failed to install sonic-agent package even with no extras. Inspect the uv pip install output above."
     }
 
     # Baseline-import gate. Even if a tier reported success above, the
     # actual deps may have landed somewhere other than $InstallDir\venv\
     # (e.g. uv 0.5+ syncing into a sibling .venv\ when UV_PROJECT_ENVIRONMENT
-    # isn't set, leaving venv\ empty and lightning.exe broken with
+    # isn't set, leaving venv\ empty and sonic.exe broken with
     # `ModuleNotFoundError: No module named 'dotenv'` on first run).
     # We probe via the venv's own python so a misdirected sync is caught
-    # here, not 30 seconds later when the user runs `lightning`.
+    # here, not 30 seconds later when the user runs `sonic`.
     if (-not $NoVenv) {
         $venvPython = "$InstallDir\venv\Scripts\python.exe"
         if (-not (Test-Path $venvPython)) {
@@ -1335,7 +1335,7 @@ except Exception:
     }
 
     # Verify the dashboard deps specifically -- they're the most common thing
-    # users hit and lazy-import errors from `lightning dashboard` are confusing.
+    # users hit and lazy-import errors from `sonic dashboard` are confusing.
     # If tier 1 failed (the common case), [web] was still picked up by tiers
     # 2-3; only tier 4 leaves you without it.
     $pythonExe = if (-not $NoVenv) { "$InstallDir\venv\Scripts\python.exe" } else { (& $UvCmd python find $PythonVersion) }
@@ -1354,11 +1354,11 @@ except Exception:
         } catch { }
         $ErrorActionPreference = $prevEAP
         if (-not $webOk) {
-            Write-Warn "fastapi/uvicorn not importable -- `lightning dashboard` will not work."
+            Write-Warn "fastapi/uvicorn not importable -- `sonic dashboard` will not work."
             Write-Info "Attempting targeted install of [web] extra as last resort..."
             & $UvCmd pip install -e ".[web]"
             if ($LASTEXITCODE -eq 0) {
-                Write-Success "[web] extra installed; `lightning dashboard` should now work."
+                Write-Success "[web] extra installed; `sonic dashboard` should now work."
             } else {
                 Write-Warn "Could not install [web] extra. Run manually: uv pip install --python `"$pythonExe`" `"fastapi>=0.104,<1`" `"uvicorn[standard]>=0.24,<1`""
             }
@@ -1371,105 +1371,105 @@ except Exception:
 }
 
 function Set-PathVariable {
-    Write-Info "Setting up lightning command..."
+    Write-Info "Setting up sonic command..."
     
     if ($NoVenv) {
-        $lightningBin = "$InstallDir"
+        $sonicBin = "$InstallDir"
     } else {
-        $lightningBin = "$InstallDir\venv\Scripts"
+        $sonicBin = "$InstallDir\venv\Scripts"
     }
     
-    # Add the venv Scripts dir to user PATH so lightning is globally available
-    # On Windows, the lightning.exe in venv\Scripts\ has the venv Python baked in
+    # Add the venv Scripts dir to user PATH so sonic is globally available
+    # On Windows, the sonic.exe in venv\Scripts\ has the venv Python baked in
     $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
     
-    if ($currentPath -notlike "*$lightningBin*") {
+    if ($currentPath -notlike "*$sonicBin*") {
         [Environment]::SetEnvironmentVariable(
             "Path",
-            "$lightningBin;$currentPath",
+            "$sonicBin;$currentPath",
             "User"
         )
-        Write-Success "Added to user PATH: $lightningBin"
+        Write-Success "Added to user PATH: $sonicBin"
     } else {
         Write-Info "PATH already configured"
     }
     
-    # Set LIGHTNING_HOME so the Python code finds config/data in the right place.
-    # Only needed on Windows where we install to %LOCALAPPDATA%\lightning instead
-    # of the Unix default ~/.lightning
-    $currentLightningHome = [Environment]::GetEnvironmentVariable("LIGHTNING_HOME", "User")
-    if (-not $currentLightningHome -or $currentLightningHome -ne $LightningHome) {
-        [Environment]::SetEnvironmentVariable("LIGHTNING_HOME", $LightningHome, "User")
-        Write-Success "Set LIGHTNING_HOME=$LightningHome"
+    # Set SONIC_HOME so the Python code finds config/data in the right place.
+    # Only needed on Windows where we install to %LOCALAPPDATA%\sonic instead
+    # of the Unix default ~/.sonic
+    $currentSonicHome = [Environment]::GetEnvironmentVariable("SONIC_HOME", "User")
+    if (-not $currentSonicHome -or $currentSonicHome -ne $SonicHome) {
+        [Environment]::SetEnvironmentVariable("SONIC_HOME", $SonicHome, "User")
+        Write-Success "Set SONIC_HOME=$SonicHome"
     }
-    $env:LIGHTNING_HOME = $LightningHome
+    $env:SONIC_HOME = $SonicHome
     
     # Update current session
-    $env:Path = "$lightningBin;$env:Path"
+    $env:Path = "$sonicBin;$env:Path"
     
-    Write-Success "lightning command ready"
+    Write-Success "sonic command ready"
 }
 
 function Copy-ConfigTemplates {
     Write-Info "Setting up configuration files..."
     
-    # Create ~/.lightning directory structure
-    New-Item -ItemType Directory -Force -Path "$LightningHome\cron" | Out-Null
-    New-Item -ItemType Directory -Force -Path "$LightningHome\sessions" | Out-Null
-    New-Item -ItemType Directory -Force -Path "$LightningHome\logs" | Out-Null
-    New-Item -ItemType Directory -Force -Path "$LightningHome\pairing" | Out-Null
-    New-Item -ItemType Directory -Force -Path "$LightningHome\hooks" | Out-Null
-    New-Item -ItemType Directory -Force -Path "$LightningHome\image_cache" | Out-Null
-    New-Item -ItemType Directory -Force -Path "$LightningHome\audio_cache" | Out-Null
-    New-Item -ItemType Directory -Force -Path "$LightningHome\memories" | Out-Null
-    New-Item -ItemType Directory -Force -Path "$LightningHome\skills" | Out-Null
+    # Create ~/.sonic directory structure
+    New-Item -ItemType Directory -Force -Path "$SonicHome\cron" | Out-Null
+    New-Item -ItemType Directory -Force -Path "$SonicHome\sessions" | Out-Null
+    New-Item -ItemType Directory -Force -Path "$SonicHome\logs" | Out-Null
+    New-Item -ItemType Directory -Force -Path "$SonicHome\pairing" | Out-Null
+    New-Item -ItemType Directory -Force -Path "$SonicHome\hooks" | Out-Null
+    New-Item -ItemType Directory -Force -Path "$SonicHome\image_cache" | Out-Null
+    New-Item -ItemType Directory -Force -Path "$SonicHome\audio_cache" | Out-Null
+    New-Item -ItemType Directory -Force -Path "$SonicHome\memories" | Out-Null
+    New-Item -ItemType Directory -Force -Path "$SonicHome\skills" | Out-Null
 
     
     # Create .env
-    $envPath = "$LightningHome\.env"
+    $envPath = "$SonicHome\.env"
     if (-not (Test-Path $envPath)) {
         $examplePath = "$InstallDir\.env.example"
         if (Test-Path $examplePath) {
             Copy-Item $examplePath $envPath
-            Write-Success "Created ~/.lightning/.env from template"
+            Write-Success "Created ~/.sonic/.env from template"
         } else {
             New-Item -ItemType File -Force -Path $envPath | Out-Null
-            Write-Success "Created ~/.lightning/.env"
+            Write-Success "Created ~/.sonic/.env"
         }
     } else {
-        Write-Info "~/.lightning/.env already exists, keeping it"
+        Write-Info "~/.sonic/.env already exists, keeping it"
     }
     
     # Create config.yaml
-    $configPath = "$LightningHome\config.yaml"
+    $configPath = "$SonicHome\config.yaml"
     if (-not (Test-Path $configPath)) {
         $examplePath = "$InstallDir\cli-config.yaml.example"
         if (Test-Path $examplePath) {
             Copy-Item $examplePath $configPath
-            Write-Success "Created ~/.lightning/config.yaml from template"
+            Write-Success "Created ~/.sonic/config.yaml from template"
         }
     } else {
-        Write-Info "~/.lightning/config.yaml already exists, keeping it"
+        Write-Info "~/.sonic/config.yaml already exists, keeping it"
     }
     
     # Create SOUL.md if it doesn't exist (global persona file).
     # IMPORTANT: write without a BOM.  Windows PowerShell 5.1's
     # ``Set-Content -Encoding UTF8`` writes UTF-8 WITH a byte-order-mark
-    # (the default PS5 behaviour), and Lightning's prompt-injection scanner
+    # (the default PS5 behaviour), and Sonic's prompt-injection scanner
     # flags the BOM as an invisible unicode character and refuses to
     # load the file.  PS7's ``-Encoding utf8NoBOM`` fixes that but we
     # don't control which PowerShell version the user has.  Go direct
     # to .NET with an explicit UTF8Encoding($false) -- BOM-free on every
     # PowerShell version.
-    $soulPath = "$LightningHome\SOUL.md"
+    $soulPath = "$SonicHome\SOUL.md"
     if (-not (Test-Path $soulPath)) {
         $soulContent = @"
-# Lightning Agent Persona
+# Sonic Agent Persona
 
 <!--
 This file defines the agent's personality and tone.
 The agent will embody whatever you write here.
-Edit this to customize how Lightning communicates with you.
+Edit this to customize how Sonic communicates with you.
 
 Examples:
   - "You are a warm, playful assistant who uses kaomoji occasionally."
@@ -1482,25 +1482,25 @@ Delete the contents (or this file) to use the default personality.
 "@
         $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
         [System.IO.File]::WriteAllText($soulPath, $soulContent, $utf8NoBom)
-        Write-Success "Created ~/.lightning/SOUL.md (edit to customize personality)"
+        Write-Success "Created ~/.sonic/SOUL.md (edit to customize personality)"
     }
     
-    Write-Success "Configuration directory ready: ~/.lightning/"
+    Write-Success "Configuration directory ready: ~/.sonic/"
     
-    # Seed bundled skills into ~/.lightning/skills/ (manifest-based, one-time per skill)
-    Write-Info "Syncing bundled skills to ~/.lightning/skills/ ..."
+    # Seed bundled skills into ~/.sonic/skills/ (manifest-based, one-time per skill)
+    Write-Info "Syncing bundled skills to ~/.sonic/skills/ ..."
     $pythonExe = "$InstallDir\venv\Scripts\python.exe"
     if (Test-Path $pythonExe) {
         try {
             & $pythonExe "$InstallDir\tools\skills_sync.py" 2>$null
-            Write-Success "Skills synced to ~/.lightning/skills/"
+            Write-Success "Skills synced to ~/.sonic/skills/"
         } catch {
             # Fallback: simple directory copy
             $bundledSkills = "$InstallDir\skills"
-            $userSkills = "$LightningHome\skills"
+            $userSkills = "$SonicHome\skills"
             if ((Test-Path $bundledSkills) -and -not (Get-ChildItem $userSkills -Exclude '.bundled_manifest' -ErrorAction SilentlyContinue)) {
                 Copy-Item -Path "$bundledSkills\*" -Destination $userSkills -Recurse -Force -ErrorAction SilentlyContinue
-                Write-Success "Skills copied to ~/.lightning/skills/"
+                Write-Success "Skills copied to ~/.sonic/skills/"
             }
         }
     }
@@ -1526,7 +1526,7 @@ function Install-NodeDeps {
     $npmCmd = Get-Command npm -ErrorAction SilentlyContinue
     if (-not $npmCmd) {
         Write-Warn "npm not found on PATH -- skipping Node.js dependencies."
-        Write-Info "Open a new PowerShell window and re-run 'lightning setup tools' later."
+        Write-Info "Open a new PowerShell window and re-run 'sonic setup tools' later."
         return
     }
     $npmExe = $npmCmd.Source
@@ -1614,7 +1614,7 @@ function Install-NodeDeps {
     # Browser tools
     if (Test-Path "$InstallDir\package.json") {
         Write-Info "Installing Node.js dependencies (browser tools)..."
-        $browserLog = "$env:TEMP\lightning-npm-browser-$(Get-Random).log"
+        $browserLog = "$env:TEMP\sonic-npm-browser-$(Get-Random).log"
         $browserNpmOk = _Run-NpmInstall "Browser tools" $InstallDir $browserLog $npmExe
 
         # Install Playwright Chromium (mirrors scripts/install.sh behaviour for
@@ -1641,7 +1641,7 @@ function Install-NodeDeps {
                 Write-Warn "npx not found -- cannot install Playwright Chromium."
                 Write-Info "Run manually later: cd `"$InstallDir`"; npx playwright install chromium"
             } else {
-                $pwLog = "$env:TEMP\lightning-playwright-install-$(Get-Random).log"
+                $pwLog = "$env:TEMP\sonic-playwright-install-$(Get-Random).log"
                 Push-Location $InstallDir
                 # Capture EAP outside the try block so the catch's restore call
                 # always has a meaningful value (see Install-Uv for the full
@@ -1718,14 +1718,14 @@ function Install-NodeDeps {
     $tuiDir = "$InstallDir\ui-tui"
     if (Test-Path "$tuiDir\package.json") {
         Write-Info "Installing TUI dependencies..."
-        $tuiLog = "$env:TEMP\lightning-npm-tui-$(Get-Random).log"
+        $tuiLog = "$env:TEMP\sonic-npm-tui-$(Get-Random).log"
         [void](_Run-NpmInstall "TUI" $tuiDir $tuiLog $npmExe)
     }
 }
 
 function Install-PlatformSdks {
     # Ensure messaging-platform SDKs matching tokens the user added to
-    # ~/.lightning/.env are importable.  Two problems this solves:
+    # ~/.sonic/.env are importable.  Two problems this solves:
     #
     # 1. The tiered `uv pip install` cascade above can fall through to a
     #    lower tier when the first fails (common when RL git deps choke),
@@ -1750,7 +1750,7 @@ function Install-PlatformSdks {
         return
     }
 
-    $envPath = "$LightningHome\.env"
+    $envPath = "$SonicHome\.env"
     if (-not (Test-Path $envPath)) { return }
     $envLines = Get-Content $envPath -ErrorAction SilentlyContinue
 
@@ -1842,7 +1842,7 @@ function Invoke-SetupWizard {
         # The setup wizard prompts for API keys, model choice, persona, etc.
         # Non-interactive callers (GUI installer) own that UX themselves; let
         # them drive it after install.ps1 returns.
-        Write-Info "Skipping setup wizard (non-interactive). Configure via the GUI or 'lightning setup'."
+        Write-Info "Skipping setup wizard (non-interactive). Configure via the GUI or 'sonic setup'."
         return
     }
 
@@ -1852,18 +1852,18 @@ function Invoke-SetupWizard {
 
     Push-Location $InstallDir
 
-    # Run lightning setup using the venv Python directly (no activation needed)
+    # Run sonic setup using the venv Python directly (no activation needed)
     if (-not $NoVenv) {
-        & ".\venv\Scripts\python.exe" -m lightning_cli.main setup
+        & ".\venv\Scripts\python.exe" -m sonic_cli.main setup
     } else {
-        python -m lightning_cli.main setup
+        python -m sonic_cli.main setup
     }
 
     Pop-Location
 }
 
 function Start-GatewayIfConfigured {
-    $envPath = "$LightningHome\.env"
+    $envPath = "$SonicHome\.env"
     if (-not (Test-Path $envPath)) { return }
 
     $hasMessaging = $false
@@ -1875,18 +1875,18 @@ function Start-GatewayIfConfigured {
 
     if (-not $hasMessaging) { return }
 
-    $lightningCmd = "$InstallDir\venv\Scripts\lightning.exe"
-    if (-not (Test-Path $lightningCmd)) {
-        $lightningCmd = "lightning"
+    $sonicCmd = "$InstallDir\venv\Scripts\sonic.exe"
+    if (-not (Test-Path $sonicCmd)) {
+        $sonicCmd = "sonic"
     }
 
     # If WhatsApp is enabled but not yet paired, run foreground for QR scan
     $whatsappEnabled = $content | Where-Object { $_ -match "^WHATSAPP_ENABLED=true" }
-    $whatsappSession = "$LightningHome\whatsapp\session\creds.json"
+    $whatsappSession = "$SonicHome\whatsapp\session\creds.json"
     if ($whatsappEnabled -and -not (Test-Path $whatsappSession)) {
         Write-Host ""
         Write-Info "WhatsApp is enabled but not yet paired."
-        Write-Info "Running 'lightning whatsapp' to pair via QR code..."
+        Write-Info "Running 'sonic whatsapp' to pair via QR code..."
         Write-Host ""
         # Non-interactive callers (GUI installer, CI) skip the QR-pair prompt;
         # WhatsApp pairing requires a human looking at a phone camera, so the
@@ -1895,7 +1895,7 @@ function Start-GatewayIfConfigured {
             $response = Read-Host "Pair WhatsApp now? [Y/n]"
             if ($response -eq "" -or $response -match "^[Yy]") {
                 try {
-                    & $lightningCmd whatsapp
+                    & $sonicCmd whatsapp
                 } catch {
                     # Expected after pairing completes
                 }
@@ -1915,7 +1915,7 @@ function Start-GatewayIfConfigured {
     # services on the build agent, etc.).  Treat it like the user declined.
     if ($NonInteractive) {
         Write-Info "Skipping gateway autostart prompt (non-interactive)."
-        Write-Info "Start the gateway later with: lightning gateway"
+        Write-Info "Start the gateway later with: sonic gateway"
         return
     }
 
@@ -1924,19 +1924,19 @@ function Start-GatewayIfConfigured {
     if ($response -eq "" -or $response -match "^[Yy]") {
         Write-Info "Starting gateway in background..."
         try {
-            $logFile = "$LightningHome\logs\gateway.log"
-            Start-Process -FilePath $lightningCmd -ArgumentList "gateway" `
+            $logFile = "$SonicHome\logs\gateway.log"
+            Start-Process -FilePath $sonicCmd -ArgumentList "gateway" `
                 -RedirectStandardOutput $logFile `
-                -RedirectStandardError "$LightningHome\logs\gateway-error.log" `
+                -RedirectStandardError "$SonicHome\logs\gateway-error.log" `
                 -WindowStyle Hidden
             Write-Success "Gateway started! Your bot is now online."
             Write-Info "Logs: $logFile"
             Write-Info "To stop: close the gateway process from Task Manager"
         } catch {
-            Write-Warn "Failed to start gateway. Run manually: lightning gateway"
+            Write-Warn "Failed to start gateway. Run manually: sonic gateway"
         }
     } else {
-        Write-Info "Skipped. Start the gateway later with: lightning gateway"
+        Write-Info "Skipped. Start the gateway later with: sonic gateway"
     }
 }
 
@@ -1951,30 +1951,30 @@ function Write-Completion {
     Write-Host "* Your files:" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "   Config:    " -NoNewline -ForegroundColor Yellow
-    Write-Host "$LightningHome\config.yaml"
+    Write-Host "$SonicHome\config.yaml"
     Write-Host "   API Keys:  " -NoNewline -ForegroundColor Yellow
-    Write-Host "$LightningHome\.env"
+    Write-Host "$SonicHome\.env"
     Write-Host "   Data:      " -NoNewline -ForegroundColor Yellow
-    Write-Host "$LightningHome\cron\, sessions\, logs\"
+    Write-Host "$SonicHome\cron\, sessions\, logs\"
     Write-Host "   Code:      " -NoNewline -ForegroundColor Yellow
-    Write-Host "$LightningHome\lightning-agent\"
+    Write-Host "$SonicHome\sonic-agent\"
     Write-Host ""
     
     Write-Host "---------------------------------------------------------" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "* Commands:" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "   lightning              " -NoNewline -ForegroundColor Green
+    Write-Host "   sonic              " -NoNewline -ForegroundColor Green
     Write-Host "Start chatting"
-    Write-Host "   lightning setup        " -NoNewline -ForegroundColor Green
+    Write-Host "   sonic setup        " -NoNewline -ForegroundColor Green
     Write-Host "Configure API keys & settings"
-    Write-Host "   lightning config       " -NoNewline -ForegroundColor Green
+    Write-Host "   sonic config       " -NoNewline -ForegroundColor Green
     Write-Host "View/edit configuration"
-    Write-Host "   lightning config edit  " -NoNewline -ForegroundColor Green
+    Write-Host "   sonic config edit  " -NoNewline -ForegroundColor Green
     Write-Host "Open config in editor"
-    Write-Host "   lightning gateway      " -NoNewline -ForegroundColor Green
+    Write-Host "   sonic gateway      " -NoNewline -ForegroundColor Green
     Write-Host "Start messaging gateway (Telegram, Discord, etc.)"
-    Write-Host "   lightning update       " -NoNewline -ForegroundColor Green
+    Write-Host "   sonic update       " -NoNewline -ForegroundColor Green
     Write-Host "Update to latest version"
     Write-Host ""
     
@@ -2076,11 +2076,11 @@ $InstallStages = @(
     @{ Name = "git";              Title = "Installing Git";                       Category = "prereqs";      NeedsUserInput = $false; Worker = "Stage-Git" }
     @{ Name = "node";             Title = "Detecting Node.js";                    Category = "prereqs";      NeedsUserInput = $false; Worker = "Stage-Node" }
     @{ Name = "system-packages";  Title = "Installing ripgrep and ffmpeg";        Category = "prereqs";      NeedsUserInput = $false; Worker = "Stage-SystemPackages" }
-    @{ Name = "repository";       Title = "Cloning Lightning repository";            Category = "install";      NeedsUserInput = $false; Worker = "Stage-Repository" }
+    @{ Name = "repository";       Title = "Cloning Sonic repository";            Category = "install";      NeedsUserInput = $false; Worker = "Stage-Repository" }
     @{ Name = "venv";             Title = "Creating Python virtual environment";  Category = "install";      NeedsUserInput = $false; Worker = "Stage-Venv" }
     @{ Name = "dependencies";     Title = "Installing Python dependencies";       Category = "install";      NeedsUserInput = $false; Worker = "Stage-Dependencies" }
     @{ Name = "node-deps";        Title = "Installing Node.js dependencies";      Category = "install";      NeedsUserInput = $false; Worker = "Stage-NodeDeps" }
-    @{ Name = "path";             Title = "Adding Lightning to PATH";                Category = "finalize";     NeedsUserInput = $false; Worker = "Stage-Path" }
+    @{ Name = "path";             Title = "Adding Sonic to PATH";                Category = "finalize";     NeedsUserInput = $false; Worker = "Stage-Path" }
     @{ Name = "config-templates"; Title = "Writing configuration templates";      Category = "finalize";     NeedsUserInput = $false; Worker = "Stage-ConfigTemplates" }
     @{ Name = "platform-sdks";    Title = "Installing messaging platform SDKs";   Category = "finalize";     NeedsUserInput = $false; Worker = "Stage-PlatformSdks" }
     # Interactive stages.  In non-interactive mode these become no-ops; the
@@ -2364,7 +2364,7 @@ try {
     Write-Err "Installation failed: $_"
     Write-Host ""
     Write-Info "If the error is unclear, try downloading and running the script directly:"
-    Write-Host "  Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/NousResearch/lightning-agent/main/scripts/install.ps1' -OutFile install.ps1" -ForegroundColor Yellow
+    Write-Host "  Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.ps1' -OutFile install.ps1" -ForegroundColor Yellow
     Write-Host "  .\install.ps1" -ForegroundColor Yellow
     Write-Host ""
 }

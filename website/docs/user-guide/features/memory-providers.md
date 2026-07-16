@@ -6,19 +6,19 @@ description: "External memory provider plugins — Honcho, OpenViking, Mem0, Hin
 
 # Memory Providers
 
-Lightning Agent ships with 8 external memory provider plugins that give the agent persistent, cross-session knowledge beyond the built-in MEMORY.md and USER.md. Only **one** external provider can be active at a time — the built-in memory is always active alongside it.
+Sonic Agent ships with 8 external memory provider plugins that give the agent persistent, cross-session knowledge beyond the built-in MEMORY.md and USER.md. Only **one** external provider can be active at a time — the built-in memory is always active alongside it.
 
 ## Quick Start
 
 ```bash
-lightning memory setup      # interactive picker + configuration
-lightning memory status     # check what's active
-lightning memory off        # disable external provider
+sonic memory setup      # interactive picker + configuration
+sonic memory status     # check what's active
+sonic memory off        # disable external provider
 ```
 
-You can also select the active memory provider via `lightning plugins` → Provider Plugins → Memory Provider.
+You can also select the active memory provider via `sonic plugins` → Provider Plugins → Memory Provider.
 
-Or set manually in `~/.lightning/config.yaml`:
+Or set manually in `~/.sonic/config.yaml`:
 
 ```yaml
 memory:
@@ -27,7 +27,7 @@ memory:
 
 ## How It Works
 
-When a memory provider is active, Lightning automatically:
+When a memory provider is active, Sonic automatically:
 
 1. **Injects provider context** into the system prompt (what the provider knows)
 2. **Prefetches relevant memories** before each turn (background, non-blocking)
@@ -63,12 +63,12 @@ AI-native cross-session user modeling with dialectic reasoning, session-scoped c
 
 **Setup Wizard:**
 ```bash
-lightning memory setup        # select "honcho" — runs the Honcho-specific post-setup
+sonic memory setup        # select "honcho" — runs the Honcho-specific post-setup
 ```
 
-The legacy `lightning honcho setup` command still works (it now redirects to `lightning memory setup`), but is only registered after Honcho is selected as the active memory provider.
+The legacy `sonic honcho setup` command still works (it now redirects to `sonic memory setup`), but is only registered after Honcho is selected as the active memory provider.
 
-**Config:** `$LIGHTNING_HOME/honcho.json` (profile-local) or `~/.honcho/config.json` (global). Resolution order: `$LIGHTNING_HOME/honcho.json` > `~/.lightning/honcho.json` > `~/.honcho/config.json`. See the [config reference](https://github.com/lightning-ai/lightning-agent/blob/main/plugins/memory/honcho/README.md) and the [Honcho integration guide](https://docs.honcho.dev/v3/guides/integrations/lightning).
+**Config:** `$SONIC_HOME/honcho.json` (profile-local) or `~/.honcho/config.json` (global). Resolution order: `$SONIC_HOME/honcho.json` > `~/.sonic/honcho.json` > `~/.honcho/config.json`. See the [config reference](https://github.com/sonic-ai/sonic-agent/blob/main/plugins/memory/honcho/README.md) and the [Honcho integration guide](https://docs.honcho.dev/v3/guides/integrations/sonic).
 
 <details>
 <summary>Full config reference</summary>
@@ -105,11 +105,11 @@ The legacy `lightning honcho setup` command still works (it now redirects to `li
 {
   "apiKey": "your-key-from-app.honcho.dev",
   "hosts": {
-    "lightning": {
+    "sonic": {
       "enabled": true,
-      "aiPeer": "lightning",
+      "aiPeer": "sonic",
       "peerName": "your-name",
-      "workspace": "lightning"
+      "workspace": "sonic"
     }
   }
 }
@@ -124,11 +124,11 @@ The legacy `lightning honcho setup` command still works (it now redirects to `li
 {
   "baseUrl": "http://localhost:8000",
   "hosts": {
-    "lightning": {
+    "sonic": {
       "enabled": true,
-      "aiPeer": "lightning",
+      "aiPeer": "sonic",
       "peerName": "your-name",
-      "workspace": "lightning"
+      "workspace": "sonic"
     }
   }
 }
@@ -136,45 +136,45 @@ The legacy `lightning honcho setup` command still works (it now redirects to `li
 
 </details>
 
-:::tip Migrating from `lightning honcho`
-If you previously used `lightning honcho setup`, your config and all server-side data are intact. Just re-enable through the setup wizard again or manually set `memory.provider: honcho` to reactivate via the new system.
+:::tip Migrating from `sonic honcho`
+If you previously used `sonic honcho setup`, your config and all server-side data are intact. Just re-enable through the setup wizard again or manually set `memory.provider: honcho` to reactivate via the new system.
 :::
 
 **Multi-peer setup:**
 
-Honcho models conversations as peers exchanging messages — one user peer plus one AI peer per Lightning profile, all sharing a workspace. The workspace is the shared environment: the user peer is global across profiles, each AI peer is its own identity. Every AI peer builds an independent representation / card from its own observations, so a `coder` profile stays code-oriented while a `writer` profile stays editorial against the same user.
+Honcho models conversations as peers exchanging messages — one user peer plus one AI peer per Sonic profile, all sharing a workspace. The workspace is the shared environment: the user peer is global across profiles, each AI peer is its own identity. Every AI peer builds an independent representation / card from its own observations, so a `coder` profile stays code-oriented while a `writer` profile stays editorial against the same user.
 
 The mapping:
 
 | Concept | What it is |
 |---------|-----------|
-| **Workspace** | Shared environment. All Lightning profiles under one workspace see the same user identity. |
+| **Workspace** | Shared environment. All Sonic profiles under one workspace see the same user identity. |
 | **User peer** (`peerName`) | The human. Shared across profiles in the workspace. |
-| **AI peer** (`aiPeer`) | One per Lightning profile. Host key `lightning` → default; `lightning.<profile>` for others. |
+| **AI peer** (`aiPeer`) | One per Sonic profile. Host key `sonic` → default; `sonic.<profile>` for others. |
 | **Observation** | Per-peer toggles controlling what Honcho models from whose messages. `directional` (default, all four on) or `unified` (single-observer pool). |
 
 ### New profile, fresh Honcho peer
 
 ```bash
-lightning profile create coder --clone
+sonic profile create coder --clone
 ```
 
-`--clone` creates a `lightning.coder` host block in `honcho.json` with `aiPeer: "coder"`, shared `workspace`, inherited `peerName`, `recallMode`, `writeFrequency`, `observation`, etc. The AI peer is eagerly created in Honcho so it exists before the first message.
+`--clone` creates a `sonic.coder` host block in `honcho.json` with `aiPeer: "coder"`, shared `workspace`, inherited `peerName`, `recallMode`, `writeFrequency`, `observation`, etc. The AI peer is eagerly created in Honcho so it exists before the first message.
 
 ### Existing profiles, backfill Honcho peers
 
 ```bash
-lightning honcho sync
+sonic honcho sync
 ```
 
-Scans every Lightning profile, creates host blocks for any profile without one, inherits settings from the default `lightning` block, and creates the new AI peers eagerly. Idempotent — skips profiles that already have a host block.
+Scans every Sonic profile, creates host blocks for any profile without one, inherits settings from the default `sonic` block, and creates the new AI peers eagerly. Idempotent — skips profiles that already have a host block.
 
 ### Per-profile observation
 
 Each host block can override the observation config independently. Example: a code-focused profile where the AI peer observes the user but doesn't self-model:
 
 ```json
-"lightning.coder": {
+"sonic.coder": {
   "aiPeer": "coder",
   "observation": {
     "user": { "observeMe": true, "observeOthers": true },
@@ -205,13 +205,13 @@ See the [Honcho page](./honcho.md#observation-directional-vs-unified) for the fu
 ```json
 {
   "apiKey": "your-key",
-  "workspace": "lightning",
+  "workspace": "sonic",
   "peerName": "eri",
   "hosts": {
-    "lightning": {
+    "sonic": {
       "enabled": true,
-      "aiPeer": "lightning",
-      "workspace": "lightning",
+      "aiPeer": "sonic",
+      "workspace": "sonic",
       "peerName": "eri",
       "recallMode": "hybrid",
       "writeFrequency": "async",
@@ -229,10 +229,10 @@ See the [Honcho page](./honcho.md#observation-directional-vs-unified) for the fu
       "messageMaxChars": 25000,
       "saveMessages": true
     },
-    "lightning.coder": {
+    "sonic.coder": {
       "enabled": true,
       "aiPeer": "coder",
-      "workspace": "lightning",
+      "workspace": "sonic",
       "peerName": "eri",
       "recallMode": "tools",
       "observation": {
@@ -240,10 +240,10 @@ See the [Honcho page](./honcho.md#observation-directional-vs-unified) for the fu
         "ai": { "observeMe": true, "observeOthers": true }
       }
     },
-    "lightning.writer": {
+    "sonic.writer": {
       "enabled": true,
       "aiPeer": "writer",
-      "workspace": "lightning",
+      "workspace": "sonic",
       "peerName": "eri"
     }
   },
@@ -255,7 +255,7 @@ See the [Honcho page](./honcho.md#observation-directional-vs-unified) for the fu
 
 </details>
 
-See the [config reference](https://github.com/lightning-ai/lightning-agent/blob/main/plugins/memory/honcho/README.md) and [Honcho integration guide](https://docs.honcho.dev/v3/guides/integrations/lightning).
+See the [config reference](https://github.com/sonic-ai/sonic-agent/blob/main/plugins/memory/honcho/README.md) and [Honcho integration guide](https://docs.honcho.dev/v3/guides/integrations/sonic).
 
 
 ---
@@ -279,11 +279,11 @@ Context database by Volcengine (ByteDance) with filesystem-style knowledge hiera
 pip install openviking
 openviking-server
 
-# Then configure Lightning
-lightning memory setup    # select "openviking"
+# Then configure Sonic
+sonic memory setup    # select "openviking"
 # Or manually:
-lightning config set memory.provider openviking
-echo "OPENVIKING_ENDPOINT=http://localhost:1933" >> ~/.lightning/.env
+sonic config set memory.provider openviking
+echo "OPENVIKING_ENDPOINT=http://localhost:1933" >> ~/.sonic/.env
 ```
 
 **Key features:**
@@ -308,18 +308,18 @@ Server-side LLM fact extraction with semantic search, reranking, and automatic d
 
 **Setup:**
 ```bash
-lightning memory setup    # select "mem0"
+sonic memory setup    # select "mem0"
 # Or manually:
-lightning config set memory.provider mem0
-echo "MEM0_API_KEY=your-key" >> ~/.lightning/.env
+sonic config set memory.provider mem0
+echo "MEM0_API_KEY=your-key" >> ~/.sonic/.env
 ```
 
-**Config:** `$LIGHTNING_HOME/mem0.json`
+**Config:** `$SONIC_HOME/mem0.json`
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `user_id` | `lightning-user` | User identifier |
-| `agent_id` | `lightning` | Agent identifier |
+| `user_id` | `sonic-user` | User identifier |
+| `agent_id` | `sonic` | Agent identifier |
 
 ---
 
@@ -338,35 +338,35 @@ Long-term memory with knowledge graph, entity resolution, and multi-strategy ret
 
 **Setup:**
 ```bash
-lightning memory setup    # select "hindsight"
+sonic memory setup    # select "hindsight"
 # Or manually:
-lightning config set memory.provider hindsight
-echo "HINDSIGHT_API_KEY=your-key" >> ~/.lightning/.env
+sonic config set memory.provider hindsight
+echo "HINDSIGHT_API_KEY=your-key" >> ~/.sonic/.env
 ```
 
 The setup wizard installs dependencies automatically and only installs what's needed for the selected mode (`hindsight-client` for cloud, `hindsight-all` for local). Requires `hindsight-client >= 0.4.22` (auto-upgraded on session start if outdated).
 
-**Local mode UI:** `hindsight-embed -p lightning ui start`
+**Local mode UI:** `hindsight-embed -p sonic ui start`
 
-**Config:** `$LIGHTNING_HOME/hindsight/config.json`
+**Config:** `$SONIC_HOME/hindsight/config.json`
 
 | Key | Default | Description |
 |-----|---------|-------------|
 | `mode` | `cloud` | `cloud` or `local` |
-| `bank_id` | `lightning` | Memory bank identifier |
+| `bank_id` | `sonic` | Memory bank identifier |
 | `recall_budget` | `mid` | Recall thoroughness: `low` / `mid` / `high` |
 | `memory_mode` | `hybrid` | `hybrid` (context + tools), `context` (auto-inject only), `tools` (tools only) |
 | `auto_retain` | `true` | Automatically retain conversation turns |
 | `auto_recall` | `true` | Automatically recall memories before each turn |
 | `retain_async` | `true` | Process retain asynchronously on the server |
-| `retain_context` | `conversation between Lightning Agent and the User` | Context label for retained memories |
+| `retain_context` | `conversation between Sonic Agent and the User` | Context label for retained memories |
 | `retain_tags` | — | Default tags applied to retained memories; merged with per-call tool tags |
 | `retain_source` | — | Optional `metadata.source` attached to retained memories |
 | `retain_user_prefix` | `User` | Label used before user turns in auto-retained transcripts |
 | `retain_assistant_prefix` | `Assistant` | Label used before assistant turns in auto-retained transcripts |
 | `recall_tags` | — | Tags to filter on recall |
 
-See [plugin README](https://github.com/NousResearch/lightning-agent/blob/main/plugins/memory/hindsight/README.md) for the full configuration reference.
+See [plugin README](https://github.com/dabit3/sonic-agent/blob/main/plugins/memory/hindsight/README.md) for the full configuration reference.
 
 ---
 
@@ -385,16 +385,16 @@ Local SQLite fact store with FTS5 full-text search, trust scoring, and HRR (Holo
 
 **Setup:**
 ```bash
-lightning memory setup    # select "holographic"
+sonic memory setup    # select "holographic"
 # Or manually:
-lightning config set memory.provider holographic
+sonic config set memory.provider holographic
 ```
 
-**Config:** `config.yaml` under `plugins.lightning-memory-store`
+**Config:** `config.yaml` under `plugins.sonic-memory-store`
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `db_path` | `$LIGHTNING_HOME/memory_store.db` | SQLite database path |
+| `db_path` | `$SONIC_HOME/memory_store.db` | SQLite database path |
 | `auto_extract` | `false` | Auto-extract facts at session end |
 | `default_trust` | `0.5` | Default trust score (0.0–1.0) |
 
@@ -421,10 +421,10 @@ Cloud memory API with hybrid search (Vector + BM25 + Reranking), 7 memory types,
 
 **Setup:**
 ```bash
-lightning memory setup    # select "retaindb"
+sonic memory setup    # select "retaindb"
 # Or manually:
-lightning config set memory.provider retaindb
-echo "RETAINDB_API_KEY=your-key" >> ~/.lightning/.env
+sonic config set memory.provider retaindb
+echo "RETAINDB_API_KEY=your-key" >> ~/.sonic/.env
 ```
 
 ---
@@ -447,15 +447,15 @@ Persistent memory via the `brv` CLI — hierarchical knowledge tree with tiered 
 # Install the CLI first
 curl -fsSL https://byterover.dev/install.sh | sh
 
-# Then configure Lightning
-lightning memory setup    # select "byterover"
+# Then configure Sonic
+sonic memory setup    # select "byterover"
 # Or manually:
-lightning config set memory.provider byterover
+sonic config set memory.provider byterover
 ```
 
 **Key features:**
 - Automatic pre-compression extraction (saves insights before context compression discards them)
-- Knowledge tree stored at `$LIGHTNING_HOME/byterover/` (profile-scoped)
+- Knowledge tree stored at `$SONIC_HOME/byterover/` (profile-scoped)
 - SOC2 Type II certified cloud sync (optional)
 
 ---
@@ -475,17 +475,17 @@ Semantic long-term memory with profile recall, semantic search, explicit memory 
 
 **Setup:**
 ```bash
-lightning memory setup    # select "supermemory"
+sonic memory setup    # select "supermemory"
 # Or manually:
-lightning config set memory.provider supermemory
-echo 'SUPERMEMORY_API_KEY=***' >> ~/.lightning/.env
+sonic config set memory.provider supermemory
+echo 'SUPERMEMORY_API_KEY=***' >> ~/.sonic/.env
 ```
 
-**Config:** `$LIGHTNING_HOME/supermemory.json`
+**Config:** `$SONIC_HOME/supermemory.json`
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `container_tag` | `lightning` | Container tag used for search and writes. Supports `{identity}` template for profile-scoped tags. |
+| `container_tag` | `sonic` | Container tag used for search and writes. Supports `{identity}` template for profile-scoped tags. |
 | `auto_recall` | `true` | Inject relevant memory context before turns |
 | `auto_capture` | `true` | Store cleaned user-assistant turns after each response |
 | `max_recall_results` | `10` | Max recalled items to format into context |
@@ -501,7 +501,7 @@ echo 'SUPERMEMORY_API_KEY=***' >> ~/.lightning/.env
 - Session-end conversation ingest for richer graph-level knowledge building
 - Profile facts injected on first turn and at configurable intervals
 - Trivial message filtering (skips "ok", "thanks", etc.)
-- **Profile-scoped containers** — use `{identity}` in `container_tag` (e.g. `lightning-{identity}` → `lightning-coder`) to isolate memories per Lightning profile
+- **Profile-scoped containers** — use `{identity}` in `container_tag` (e.g. `sonic-{identity}` → `sonic-coder`) to isolate memories per Sonic profile
 - **Multi-container mode** — enable `enable_custom_container_tags` with a `custom_containers` list to let the agent read/write across named containers. Automatic operations (sync, prefetch) stay on the primary container.
 
 <details>
@@ -509,7 +509,7 @@ echo 'SUPERMEMORY_API_KEY=***' >> ~/.lightning/.env
 
 ```json
 {
-  "container_tag": "lightning",
+  "container_tag": "sonic",
   "enable_custom_container_tags": true,
   "custom_containers": ["project-alpha", "shared-knowledge"],
   "custom_container_instructions": "Use project-alpha for coding context."
@@ -539,8 +539,8 @@ echo 'SUPERMEMORY_API_KEY=***' >> ~/.lightning/.env
 
 Each provider's data is isolated per [profile](/docs/user-guide/profiles):
 
-- **Local storage providers** (Holographic, ByteRover) use `$LIGHTNING_HOME/` paths which differ per profile
-- **Config file providers** (Honcho, Mem0, Hindsight, Supermemory) store config in `$LIGHTNING_HOME/` so each profile has its own credentials
+- **Local storage providers** (Holographic, ByteRover) use `$SONIC_HOME/` paths which differ per profile
+- **Config file providers** (Honcho, Mem0, Hindsight, Supermemory) store config in `$SONIC_HOME/` so each profile has its own credentials
 - **Cloud providers** (RetainDB) auto-derive profile-scoped project names
 - **Env var providers** (OpenViking) are configured via each profile's `.env` file
 

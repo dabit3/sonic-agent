@@ -90,8 +90,8 @@ async def test_draining_rejects_new_session_messages():
 
 
 def test_load_busy_input_mode_prefers_env_then_config_then_default(tmp_path, monkeypatch):
-    monkeypatch.setattr(gateway_run, "_lightning_home", tmp_path)
-    monkeypatch.delenv("LIGHTNING_GATEWAY_BUSY_INPUT_MODE", raising=False)
+    monkeypatch.setattr(gateway_run, "_sonic_home", tmp_path)
+    monkeypatch.delenv("SONIC_GATEWAY_BUSY_INPUT_MODE", raising=False)
 
     assert gateway_run.GatewayRunner._load_busy_input_mode() == "interrupt"
 
@@ -105,22 +105,22 @@ def test_load_busy_input_mode_prefers_env_then_config_then_default(tmp_path, mon
     )
     assert gateway_run.GatewayRunner._load_busy_input_mode() == "steer"
 
-    monkeypatch.setenv("LIGHTNING_GATEWAY_BUSY_INPUT_MODE", "interrupt")
+    monkeypatch.setenv("SONIC_GATEWAY_BUSY_INPUT_MODE", "interrupt")
     assert gateway_run.GatewayRunner._load_busy_input_mode() == "interrupt"
 
-    monkeypatch.setenv("LIGHTNING_GATEWAY_BUSY_INPUT_MODE", "steer")
+    monkeypatch.setenv("SONIC_GATEWAY_BUSY_INPUT_MODE", "steer")
     assert gateway_run.GatewayRunner._load_busy_input_mode() == "steer"
 
     # Unknown values fall through to the safe default
-    monkeypatch.setenv("LIGHTNING_GATEWAY_BUSY_INPUT_MODE", "bogus")
+    monkeypatch.setenv("SONIC_GATEWAY_BUSY_INPUT_MODE", "bogus")
     assert gateway_run.GatewayRunner._load_busy_input_mode() == "interrupt"
 
 
 def test_load_restart_drain_timeout_prefers_env_then_config_then_default(
     tmp_path, monkeypatch, caplog
 ):
-    monkeypatch.setattr(gateway_run, "_lightning_home", tmp_path)
-    monkeypatch.delenv("LIGHTNING_RESTART_DRAIN_TIMEOUT", raising=False)
+    monkeypatch.setattr(gateway_run, "_sonic_home", tmp_path)
+    monkeypatch.delenv("SONIC_RESTART_DRAIN_TIMEOUT", raising=False)
 
     assert (
         gateway_run.GatewayRunner._load_restart_drain_timeout()
@@ -132,10 +132,10 @@ def test_load_restart_drain_timeout_prefers_env_then_config_then_default(
     )
     assert gateway_run.GatewayRunner._load_restart_drain_timeout() == 12.0
 
-    monkeypatch.setenv("LIGHTNING_RESTART_DRAIN_TIMEOUT", "7")
+    monkeypatch.setenv("SONIC_RESTART_DRAIN_TIMEOUT", "7")
     assert gateway_run.GatewayRunner._load_restart_drain_timeout() == 7.0
 
-    monkeypatch.setenv("LIGHTNING_RESTART_DRAIN_TIMEOUT", "invalid")
+    monkeypatch.setenv("SONIC_RESTART_DRAIN_TIMEOUT", "invalid")
     assert (
         gateway_run.GatewayRunner._load_restart_drain_timeout()
         == DEFAULT_GATEWAY_RESTART_DRAIN_TIMEOUT
@@ -164,7 +164,7 @@ async def test_launch_detached_restart_command_uses_setsid(monkeypatch):
     runner, _adapter = make_restart_runner()
     popen_calls = []
 
-    monkeypatch.setattr(gateway_run, "_resolve_lightning_bin", lambda: ["/usr/bin/lightning"])
+    monkeypatch.setattr(gateway_run, "_resolve_sonic_bin", lambda: ["/usr/bin/sonic"])
     monkeypatch.setattr(gateway_run.os, "getpid", lambda: 321)
     monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/setsid" if cmd == "setsid" else None)
 

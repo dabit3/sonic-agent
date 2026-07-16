@@ -1,50 +1,50 @@
-# nix/nixosModules.nix — NixOS module for lightning-agent
+# nix/nixosModules.nix — NixOS module for sonic-agent
 #
 # Two modes:
 #   container.enable = false (default) → native systemd service
 #   container.enable = true            → OCI container (persistent writable layer)
 #
-# Container mode: lightning runs from /nix/store bind-mounted read-only into a
+# Container mode: sonic runs from /nix/store bind-mounted read-only into a
 # plain Ubuntu container. The writable layer (apt/pip/npm installs) persists
 # across restarts and agent updates. Only image/volume/options changes trigger
-# container recreation. Environment variables are written to $LIGHTNING_HOME/.env
-# and read by lightning at startup — no container recreation needed for env changes.
+# container recreation. Environment variables are written to $SONIC_HOME/.env
+# and read by sonic at startup — no container recreation needed for env changes.
 #
-# Tool resolution: the lightning wrapper uses --suffix PATH for nix store tools,
+# Tool resolution: the sonic wrapper uses --suffix PATH for nix store tools,
 # so apt/uv-installed versions take priority. The container entrypoint provisions
 # extensible tools on first boot: nodejs/npm via apt, uv via curl, and a Python
 # 3.11 venv (bootstrapped entirely by uv) at ~/.venv with pip seeded. Agents get
 # writable tool prefixes for npm i -g, pip install, uv tool install, etc.
 #
 # Usage:
-#   services.lightning-agent = {
+#   services.sonic-agent = {
 #     enable = true;
 #     settings.model = "anthropic/claude-sonnet-4";
-#     environmentFiles = [ config.sops.secrets."lightning/env".path ];
+#     environmentFiles = [ config.sops.secrets."sonic/env".path ];
 #   };
 #
 { inputs, ... }: {
   flake.nixosModules.default = { config, lib, pkgs, ... }:
 
   let
-    cfg = config.services.lightning-agent;
+    cfg = config.services.sonic-agent;
     effectivePackage =
       if cfg.extraPythonPackages == [ ] && cfg.extraDependencyGroups == [ ]
       then cfg.package
       else cfg.package.override { inherit (cfg) extraPythonPackages extraDependencyGroups; };
-    lightning-agent = inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    sonic-agent = inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
-    # Deep-merge config type (from 0xrsydn/nix-lightning-agent)
+    # Deep-merge config type (from 0xrsydn/nix-sonic-agent)
     deepConfigType = lib.types.mkOptionType {
-      name = "lightning-config-attrs";
-      description = "Lightning YAML config (attrset), merged deeply via lib.recursiveUpdate.";
+      name = "sonic-config-attrs";
+      description = "Sonic YAML config (attrset), merged deeply via lib.recursiveUpdate.";
       check = builtins.isAttrs;
       merge = _loc: defs: lib.foldl' lib.recursiveUpdate { } (map (d: d.value) defs);
     };
 
     # Generate config.yaml from Nix attrset (YAML is a superset of JSON)
     configJson = builtins.toJSON cfg.settings;
-    generatedConfigFile = pkgs.writeText "lightning-config.yaml" configJson;
+    generatedConfigFile = pkgs.writeText "sonic-config.yaml" configJson;
     configFile = if cfg.configFile != null then cfg.configFile else generatedConfigFile;
 
     configMergeScript = pkgs.callPackage ./configMergeScript.nix { };
@@ -54,21 +54,21 @@
       lib.mapAttrsToList (k: v: "${k}=${v}") cfg.environment
     );
     # Build documents derivation (from 0xrsydn)
-    documentDerivation = pkgs.runCommand "lightning-documents" { } (
+    documentDerivation = pkgs.runCommand "sonic-documents" { } (
       ''
         mkdir -p $out
       '' + lib.concatStringsSep "\n" (
         lib.mapAttrsToList (name: value:
           if builtins.isPath value || lib.isStorePath value
           then "cp ${value} $out/${name}"
-          else "cat > $out/${name} <<'LIGHTNING_DOC_EOF'\n${value}\nLIGHTNING_DOC_EOF"
+          else "cat > $out/${name} <<'SONIC_DOC_EOF'\n${value}\nSONIC_DOC_EOF"
         ) cfg.documents
       )
     );
 
-    containerName = "lightning-agent";
+    containerName = "sonic-agent";
     containerDataDir = "/data";     # stateDir mount point inside container
-    containerHomeDir = "/home/lightning";
+    containerHomeDir = "/home/sonic";
 
     # ── Container mode helpers ──────────────────────────────────────────
     containerBin = if cfg.container.backend == "docker"
@@ -76,54 +76,54 @@
       else "${pkgs.podman}/bin/podman";
 
     # Runs as root inside the container on every start. Provisions the
-    # lightning user + sudo on first boot (writable layer persists), then
+    # sonic user + sudo on first boot (writable layer persists), then
     # drops privileges. Supports arbitrary base images (Debian, Alpine, etc).
-    containerEntrypoint = pkgs.writeShellScript "lightning-container-entrypoint" ''
+    containerEntrypoint = pkgs.writeShellScript "sonic-container-entrypoint" ''
       set -eu
 
-      LIGHTNING_UID="''${LIGHTNING_UID:?LIGHTNING_UID must be set}"
-      LIGHTNING_GID="''${LIGHTNING_GID:?LIGHTNING_GID must be set}"
+      SONIC_UID="''${SONIC_UID:?SONIC_UID must be set}"
+      SONIC_GID="''${SONIC_GID:?SONIC_GID must be set}"
 
-      # ── Group: ensure a group with GID=$LIGHTNING_GID exists ──
+      # ── Group: ensure a group with GID=$SONIC_GID exists ──
       # Check by GID (not name) to avoid collisions with pre-existing groups
       # (e.g. GID 100 = "users" on Ubuntu)
-      EXISTING_GROUP=$(getent group "$LIGHTNING_GID" 2>/dev/null | cut -d: -f1 || true)
+      EXISTING_GROUP=$(getent group "$SONIC_GID" 2>/dev/null | cut -d: -f1 || true)
       if [ -n "$EXISTING_GROUP" ]; then
         GROUP_NAME="$EXISTING_GROUP"
       else
-        GROUP_NAME="lightning"
+        GROUP_NAME="sonic"
         if command -v groupadd >/dev/null 2>&1; then
-          groupadd -g "$LIGHTNING_GID" "$GROUP_NAME"
+          groupadd -g "$SONIC_GID" "$GROUP_NAME"
         elif command -v addgroup >/dev/null 2>&1; then
-          addgroup -g "$LIGHTNING_GID" "$GROUP_NAME" 2>/dev/null || true
+          addgroup -g "$SONIC_GID" "$GROUP_NAME" 2>/dev/null || true
         fi
       fi
 
-      # ── User: ensure a user with UID=$LIGHTNING_UID exists ──
-      PASSWD_ENTRY=$(getent passwd "$LIGHTNING_UID" 2>/dev/null || true)
+      # ── User: ensure a user with UID=$SONIC_UID exists ──
+      PASSWD_ENTRY=$(getent passwd "$SONIC_UID" 2>/dev/null || true)
       if [ -n "$PASSWD_ENTRY" ]; then
         TARGET_USER=$(echo "$PASSWD_ENTRY" | cut -d: -f1)
         TARGET_HOME=$(echo "$PASSWD_ENTRY" | cut -d: -f6)
       else
-        TARGET_USER="lightning"
-        TARGET_HOME="/home/lightning"
+        TARGET_USER="sonic"
+        TARGET_HOME="/home/sonic"
         if command -v useradd >/dev/null 2>&1; then
-          useradd -u "$LIGHTNING_UID" -g "$LIGHTNING_GID" -m -d "$TARGET_HOME" -s /bin/bash "$TARGET_USER"
+          useradd -u "$SONIC_UID" -g "$SONIC_GID" -m -d "$TARGET_HOME" -s /bin/bash "$TARGET_USER"
         elif command -v adduser >/dev/null 2>&1; then
-          adduser -u "$LIGHTNING_UID" -D -h "$TARGET_HOME" -s /bin/sh -G "$GROUP_NAME" "$TARGET_USER" 2>/dev/null || true
+          adduser -u "$SONIC_UID" -D -h "$TARGET_HOME" -s /bin/sh -G "$GROUP_NAME" "$TARGET_USER" 2>/dev/null || true
         fi
       fi
       mkdir -p "$TARGET_HOME"
-      chown "$LIGHTNING_UID:$LIGHTNING_GID" "$TARGET_HOME"
+      chown "$SONIC_UID:$SONIC_GID" "$TARGET_HOME"
       chmod 0750 "$TARGET_HOME"
 
-      # Ensure LIGHTNING_HOME is owned by the target user.
+      # Ensure SONIC_HOME is owned by the target user.
       # Use find instead of chown -R: chown strips the setgid bit (kernel
       # behavior), destroying the 2770 permissions the NixOS activation
       # script sets for group access by hostUsers.  Only touch files with
       # wrong ownership so correctly-owned dirs keep their permission bits.
-      if [ -n "''${LIGHTNING_HOME:-}" ] && [ -d "$LIGHTNING_HOME" ]; then
-        find "$LIGHTNING_HOME" \! -user "$LIGHTNING_UID" -exec chown "$LIGHTNING_UID:$LIGHTNING_GID" {} +
+      if [ -n "''${SONIC_HOME:-}" ] && [ -d "$SONIC_HOME" ]; then
+        find "$SONIC_HOME" \! -user "$SONIC_UID" -exec chown "$SONIC_UID:$SONIC_GID" {} +
       fi
 
       # ── Provision apt packages (first boot only, cached in writable layer) ──
@@ -131,7 +131,7 @@
       # nodejs/npm: writable node so npm i -g works (nix store copies are read-only)
       #   Node 22 via NodeSource — Ubuntu 24.04 ships Node 18 which is EOL.
       # curl: needed for uv installer + NodeSource setup
-      if [ ! -f /var/lib/lightning-tools-provisioned ] && command -v apt-get >/dev/null 2>&1; then
+      if [ ! -f /var/lib/sonic-tools-provisioned ] && command -v apt-get >/dev/null 2>&1; then
         echo "First boot: provisioning agent tools..."
         apt-get update -qq
         apt-get install -y -qq sudo curl ca-certificates gnupg
@@ -142,13 +142,13 @@
           > /etc/apt/sources.list.d/nodesource.list
         apt-get update -qq
         apt-get install -y -qq nodejs
-        touch /var/lib/lightning-tools-provisioned
+        touch /var/lib/sonic-tools-provisioned
       fi
 
-      if command -v sudo >/dev/null 2>&1 && [ ! -f /etc/sudoers.d/lightning ]; then
+      if command -v sudo >/dev/null 2>&1 && [ ! -f /etc/sudoers.d/sonic ]; then
         mkdir -p /etc/sudoers.d
-        echo "$TARGET_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/lightning
-        chmod 0440 /etc/sudoers.d/lightning
+        echo "$TARGET_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/sonic
+        chmod 0440 /etc/sudoers.d/sonic
       fi
 
       # uv (Python manager) — not in Ubuntu repos, retry-safe outside the sentinel
@@ -173,7 +173,7 @@
       fi
 
       if command -v setpriv >/dev/null 2>&1; then
-        exec setpriv --reuid="$LIGHTNING_UID" --regid="$LIGHTNING_GID" --init-groups "$@"
+        exec setpriv --reuid="$SONIC_UID" --regid="$SONIC_GID" --init-groups "$@"
       elif command -v su >/dev/null 2>&1; then
         exec su -s /bin/sh "$TARGET_USER" -c 'exec "$0" "$@"' -- "$@"
       else
@@ -184,7 +184,7 @@
 
     # Identity hash — only recreate container when structural config changes.
     # Package and entrypoint use stable symlinks (current-package, current-entrypoint)
-    # so they can update without recreation. Env vars go through $LIGHTNING_HOME/.env.
+    # so they can update without recreation. Env vars go through $SONIC_HOME/.env.
     containerIdentity = builtins.hashString "sha256" (builtins.toJSON {
       schema = 4; # bump when identity inputs change (4: Node 18→22 via NodeSource)
       image = cfg.container.image;
@@ -194,7 +194,7 @@
 
     identityFile = "${cfg.stateDir}/.container-identity";
 
-    # Default: /var/lib/lightning/workspace → /data/workspace.
+    # Default: /var/lib/sonic/workspace → /data/workspace.
     # Custom paths outside stateDir pass through unchanged (user must add extraVolumes).
     containerWorkDir =
       if lib.hasPrefix "${cfg.stateDir}/" cfg.workingDirectory
@@ -202,26 +202,26 @@
       else cfg.workingDirectory;
 
   in {
-    options.services.lightning-agent = with lib; {
-      enable = mkEnableOption "Lightning Agent gateway service";
+    options.services.sonic-agent = with lib; {
+      enable = mkEnableOption "Sonic Agent gateway service";
 
       # ── Package ──────────────────────────────────────────────────────────
       package = mkOption {
         type = types.package;
-        default = lightning-agent;
-        description = "The lightning-agent package to use.";
+        default = sonic-agent;
+        description = "The sonic-agent package to use.";
       };
 
       # ── Service identity ─────────────────────────────────────────────────
       user = mkOption {
         type = types.str;
-        default = "lightning";
+        default = "sonic";
         description = "System user running the gateway.";
       };
 
       group = mkOption {
         type = types.str;
-        default = "lightning";
+        default = "sonic";
         description = "System group running the gateway.";
       };
 
@@ -234,8 +234,8 @@
       # ── Directories ──────────────────────────────────────────────────────
       stateDir = mkOption {
         type = types.str;
-        default = "/var/lib/lightning";
-        description = "State directory. Contains .lightning/ subdir (LIGHTNING_HOME).";
+        default = "/var/lib/sonic";
+        description = "State directory. Contains .sonic/ subdir (SONIC_HOME).";
       };
 
       workingDirectory = mkOption {
@@ -259,7 +259,7 @@
         type = deepConfigType;
         default = { };
         description = ''
-          Declarative Lightning config (attrset). Deep-merged across module
+          Declarative Sonic config (attrset). Deep-merged across module
           definitions and rendered as config.yaml.
         '';
         example = literalExpression ''
@@ -278,8 +278,8 @@
         default = [ ];
         description = ''
           Paths to environment files containing secrets (API keys, tokens).
-          Contents are merged into $LIGHTNING_HOME/.env at activation time.
-          Lightning reads this file on every startup via load_lightning_dotenv().
+          Contents are merged into $SONIC_HOME/.env at activation time.
+          Sonic reads this file on every startup via load_sonic_dotenv().
         '';
       };
 
@@ -287,7 +287,7 @@
         type = types.attrsOf types.str;
         default = { };
         description = ''
-          Non-secret environment variables. Merged into $LIGHTNING_HOME/.env
+          Non-secret environment variables. Merged into $SONIC_HOME/.env
           at activation time. Do NOT put secrets here — use environmentFiles.
         '';
       };
@@ -362,7 +362,7 @@
               default = null;
               description = ''
                 Authentication method. Set to "oauth" for OAuth 2.1 PKCE flow
-                (remote MCP servers). Tokens are stored in $LIGHTNING_HOME/mcp-tokens/.
+                (remote MCP servers). Tokens are stored in $SONIC_HOME/mcp-tokens/.
               '';
             };
 
@@ -455,7 +455,7 @@
       extraArgs = mkOption {
         type = types.listOf types.str;
         default = [ ];
-        description = "Extra command-line arguments for `lightning gateway`.";
+        description = "Extra command-line arguments for `sonic gateway`.";
       };
 
       extraPackages = mkOption {
@@ -465,7 +465,7 @@
           Extra packages available to the agent — terminal commands, skills,
           cron jobs, and the service process all see them.
 
-          Implemented via the lightning user's per-user profile
+          Implemented via the sonic user's per-user profile
           (`/etc/profiles/per-user/${cfg.user}/bin`), which NixOS includes
           in PATH for login shells.  The packages are also added to the
           systemd service PATH for direct process access.
@@ -476,16 +476,16 @@
         type = types.listOf types.package;
         default = [ ];
         description = ''
-          Directory-based plugin packages to symlink into the lightning plugins
+          Directory-based plugin packages to symlink into the sonic plugins
           directory. Each package should contain a plugin.yaml and __init__.py
-          at its root. Lightning discovers these automatically on startup.
+          at its root. Sonic discovers these automatically on startup.
         '';
         example = literalExpression ''
           [
             (pkgs.fetchFromGitHub {
               owner = "stephenschoettler";
-              repo = "lightning-lcm";
-              name = "lightning-lcm";
+              repo = "sonic-lcm";
+              name = "sonic-lcm";
               rev = "v0.7.0";
               hash = "sha256-...";
             })
@@ -499,17 +499,17 @@
         description = ''
           Python packages to add to PYTHONPATH for entry-point plugin discovery.
           These are pip-packaged plugins that register via the
-          lightning_agent.plugins entry-point group. Each package must be built
-          with the same Python interpreter as lightning (python312).
+          sonic_agent.plugins entry-point group. Each package must be built
+          with the same Python interpreter as sonic (python312).
         '';
         example = literalExpression ''
           [
             (pkgs.python312Packages.buildPythonPackage {
-              pname = "rtk-lightning";
+              pname = "rtk-sonic";
               version = "1.0.0";
               src = pkgs.fetchFromGitHub {
                 owner = "ogallotti";
-                repo = "rtk-lightning";
+                repo = "rtk-sonic";
                 rev = "main";
                 hash = "sha256-...";
               };
@@ -526,7 +526,7 @@
           the sealed Python venv. These are resolved by uv alongside core
           dependencies — no PYTHONPATH patching or collision risk.
 
-          Use this for optional extras already declared in lightning-agent's
+          Use this for optional extras already declared in sonic-agent's
           pyproject.toml (e.g. "hindsight", "honcho", "voice").
           Use extraPythonPackages for external packages not in pyproject.toml.
         '';
@@ -549,8 +549,8 @@
         type = types.bool;
         default = false;
         description = ''
-          Add the lightning CLI to environment.systemPackages and export
-          LIGHTNING_HOME system-wide (via environment.variables) so interactive
+          Add the sonic CLI to environment.systemPackages and export
+          SONIC_HOME system-wide (via environment.variables) so interactive
           shells share state with the gateway service.
         '';
       };
@@ -588,8 +588,8 @@
           type = types.listOf types.str;
           default = [ ];
           description = ''
-            Interactive users who get a ~/.lightning symlink to the service
-            stateDir. These users are automatically added to the lightning group.
+            Interactive users who get a ~/.sonic symlink to the service
+            stateDir. These users are automatically added to the sonic group.
           '';
           example = [ "sidbin" ];
         };
@@ -600,7 +600,7 @@
 
       # ── Merge MCP servers into settings ────────────────────────────────
       (lib.mkIf (cfg.mcpServers != { }) {
-        services.lightning-agent.settings.mcp_servers = lib.mapAttrs (_name: srv:
+        services.sonic-agent.settings.mcp_servers = lib.mapAttrs (_name: srv:
           # Stdio transport
           lib.optionalAttrs (srv.command != null) { inherit (srv) command args; }
           // lib.optionalAttrs (srv.env != { }) { inherit (srv) env; }
@@ -643,12 +643,12 @@
       })
 
       # ── Host CLI ──────────────────────────────────────────────────────
-      # Add the lightning CLI to system PATH and export LIGHTNING_HOME system-wide
+      # Add the sonic CLI to system PATH and export SONIC_HOME system-wide
       # so interactive shells share state (sessions, skills, cron) with the
-      # gateway service instead of creating a separate ~/.lightning/.
+      # gateway service instead of creating a separate ~/.sonic/.
       (lib.mkIf cfg.addToSystemPackages {
         environment.systemPackages = [ effectivePackage ];
-        environment.variables.LIGHTNING_HOME = "${cfg.stateDir}/.lightning";
+        environment.variables.SONIC_HOME = "${cfg.stateDir}/.sonic";
       })
 
       # ── Host user group membership ─────────────────────────────────────
@@ -664,7 +664,7 @@
           names = map lib.getName cfg.extraPlugins;
         in [{
           assertion = (lib.length names) == (lib.length (lib.unique names));
-          message = "services.lightning-agent.extraPlugins: duplicate plugin names detected: ${toString names}. If using fetchFromGitHub, set name = \"plugin-name\" to disambiguate.";
+          message = "services.sonic-agent.extraPlugins: duplicate plugin names detected: ${toString names}. If using fetchFromGitHub, set name = \"plugin-name\" to disambiguate.";
         }];
       }
 
@@ -674,13 +674,13 @@
           names = map lib.getName cfg.extraPlugins;
         in [{
           assertion = (lib.length names) == (lib.length (lib.unique names));
-          message = "services.lightning-agent.extraPlugins: duplicate plugin names detected: ${toString names}. If using fetchFromGitHub, set name = \"plugin-name\" to disambiguate.";
+          message = "services.sonic-agent.extraPlugins: duplicate plugin names detected: ${toString names}. If using fetchFromGitHub, set name = \"plugin-name\" to disambiguate.";
         }];
       }
 
       # ── Warnings ──────────────────────────────────────────────────────
       # ── Per-user profile for extraPackages ───────────────────────────
-      # Wire extraPackages into the lightning user's per-user profile so the
+      # Wire extraPackages into the sonic user's per-user profile so the
       # login-shell snapshot (which rebuilds PATH from NixOS profiles) sees
       # them.  The systemd service PATH also includes them for direct access.
       (lib.mkIf (cfg.extraPackages != []) {
@@ -693,10 +693,10 @@
       (lib.mkIf (cfg.container.enable && !cfg.addToSystemPackages && cfg.container.hostUsers != []) {
         warnings = [
           ''
-            services.lightning-agent: container.enable is true and container.hostUsers
-            is set, but addToSystemPackages is false. Without a host-installed lightning
+            services.sonic-agent: container.enable is true and container.hostUsers
+            is set, but addToSystemPackages is false. Without a host-installed sonic
             binary, container routing will not work for interactive users.
-            Set addToSystemPackages = true or ensure lightning is on PATH.
+            Set addToSystemPackages = true or ensure sonic is on PATH.
           ''
         ];
       })
@@ -705,12 +705,12 @@
       {
         systemd.tmpfiles.rules = [
           "d ${cfg.stateDir}                2770 ${cfg.user} ${cfg.group} - -"
-          "d ${cfg.stateDir}/.lightning        2770 ${cfg.user} ${cfg.group} - -"
-          "d ${cfg.stateDir}/.lightning/cron   2770 ${cfg.user} ${cfg.group} - -"
-          "d ${cfg.stateDir}/.lightning/sessions 2770 ${cfg.user} ${cfg.group} - -"
-          "d ${cfg.stateDir}/.lightning/logs   2770 ${cfg.user} ${cfg.group} - -"
-          "d ${cfg.stateDir}/.lightning/memories 2770 ${cfg.user} ${cfg.group} - -"
-          "d ${cfg.stateDir}/.lightning/plugins 2770 ${cfg.user} ${cfg.group} - -"
+          "d ${cfg.stateDir}/.sonic        2770 ${cfg.user} ${cfg.group} - -"
+          "d ${cfg.stateDir}/.sonic/cron   2770 ${cfg.user} ${cfg.group} - -"
+          "d ${cfg.stateDir}/.sonic/sessions 2770 ${cfg.user} ${cfg.group} - -"
+          "d ${cfg.stateDir}/.sonic/logs   2770 ${cfg.user} ${cfg.group} - -"
+          "d ${cfg.stateDir}/.sonic/memories 2770 ${cfg.user} ${cfg.group} - -"
+          "d ${cfg.stateDir}/.sonic/plugins 2770 ${cfg.user} ${cfg.group} - -"
           "d ${cfg.stateDir}/home           0750 ${cfg.user} ${cfg.group} - -"
           "d ${cfg.workingDirectory}         2770 ${cfg.user} ${cfg.group} - -"
         ];
@@ -718,25 +718,25 @@
 
       # ── Activation: link config + auth + documents ────────────────────
       {
-        system.activationScripts."lightning-agent-setup" = lib.stringAfter ([ "users" ] ++ lib.optional (config.system.activationScripts ? setupSecrets) "setupSecrets") ''
+        system.activationScripts."sonic-agent-setup" = lib.stringAfter ([ "users" ] ++ lib.optional (config.system.activationScripts ? setupSecrets) "setupSecrets") ''
           # Ensure directories exist (activation runs before tmpfiles)
-          mkdir -p ${cfg.stateDir}/.lightning
+          mkdir -p ${cfg.stateDir}/.sonic
           mkdir -p ${cfg.stateDir}/home
           mkdir -p ${cfg.workingDirectory}
-          chown ${cfg.user}:${cfg.group} ${cfg.stateDir} ${cfg.stateDir}/.lightning ${cfg.stateDir}/home ${cfg.workingDirectory}
-          chmod 2770 ${cfg.stateDir} ${cfg.stateDir}/.lightning ${cfg.workingDirectory}
+          chown ${cfg.user}:${cfg.group} ${cfg.stateDir} ${cfg.stateDir}/.sonic ${cfg.stateDir}/home ${cfg.workingDirectory}
+          chmod 2770 ${cfg.stateDir} ${cfg.stateDir}/.sonic ${cfg.workingDirectory}
           chmod 0750 ${cfg.stateDir}/home
 
           # Create subdirs, set setgid + group-writable, migrate existing files.
           # Nix-managed files (config.yaml, .env, .managed) stay 0640/0644.
-          find ${cfg.stateDir}/.lightning -maxdepth 1 \
+          find ${cfg.stateDir}/.sonic -maxdepth 1 \
             \( -name "*.db" -o -name "*.db-wal" -o -name "*.db-shm" -o -name "SOUL.md" \) \
             -exec chmod g+rw {} + 2>/dev/null || true
           for _subdir in cron sessions logs memories plugins; do
-            mkdir -p "${cfg.stateDir}/.lightning/$_subdir"
-            chown ${cfg.user}:${cfg.group} "${cfg.stateDir}/.lightning/$_subdir"
-            chmod 2770 "${cfg.stateDir}/.lightning/$_subdir"
-            find "${cfg.stateDir}/.lightning/$_subdir" -type f \
+            mkdir -p "${cfg.stateDir}/.sonic/$_subdir"
+            chown ${cfg.user}:${cfg.group} "${cfg.stateDir}/.sonic/$_subdir"
+            chmod 2770 "${cfg.stateDir}/.sonic/$_subdir"
+            find "${cfg.stateDir}/.sonic/$_subdir" -type f \
               -exec chmod g+rw {} + 2>/dev/null || true
           done
 
@@ -744,63 +744,63 @@
           # Preserves user-added keys (skills, streaming, etc.); Nix keys win.
           # If configFile is user-provided (not generated), overwrite instead of merge.
           ${if cfg.configFile != null then ''
-            install -o ${cfg.user} -g ${cfg.group} -m 0640 -D ${configFile} ${cfg.stateDir}/.lightning/config.yaml
+            install -o ${cfg.user} -g ${cfg.group} -m 0640 -D ${configFile} ${cfg.stateDir}/.sonic/config.yaml
           '' else ''
-            ${configMergeScript} ${generatedConfigFile} ${cfg.stateDir}/.lightning/config.yaml
-            chown ${cfg.user}:${cfg.group} ${cfg.stateDir}/.lightning/config.yaml
-            chmod 0640 ${cfg.stateDir}/.lightning/config.yaml
+            ${configMergeScript} ${generatedConfigFile} ${cfg.stateDir}/.sonic/config.yaml
+            chown ${cfg.user}:${cfg.group} ${cfg.stateDir}/.sonic/config.yaml
+            chmod 0640 ${cfg.stateDir}/.sonic/config.yaml
           ''}
 
           # Managed mode marker (so interactive shells also detect NixOS management)
-          touch ${cfg.stateDir}/.lightning/.managed
-          chown ${cfg.user}:${cfg.group} ${cfg.stateDir}/.lightning/.managed
-          chmod 0644 ${cfg.stateDir}/.lightning/.managed
+          touch ${cfg.stateDir}/.sonic/.managed
+          chown ${cfg.user}:${cfg.group} ${cfg.stateDir}/.sonic/.managed
+          chmod 0644 ${cfg.stateDir}/.sonic/.managed
 
           # Container mode metadata — tells the host CLI to exec into the
           # container instead of running locally. Removed when container mode
           # is disabled so the host CLI falls back to native execution.
           ${if cfg.container.enable then ''
-            cat > ${cfg.stateDir}/.lightning/.container-mode <<'LIGHTNING_CONTAINER_MODE_EOF'
+            cat > ${cfg.stateDir}/.sonic/.container-mode <<'SONIC_CONTAINER_MODE_EOF'
     # Written by NixOS activation script. Do not edit manually.
     backend=${cfg.container.backend}
     container_name=${containerName}
     exec_user=${cfg.user}
-    lightning_bin=${containerDataDir}/current-package/bin/lightning
-    LIGHTNING_CONTAINER_MODE_EOF
-            chown ${cfg.user}:${cfg.group} ${cfg.stateDir}/.lightning/.container-mode
-            chmod 0644 ${cfg.stateDir}/.lightning/.container-mode
+    sonic_bin=${containerDataDir}/current-package/bin/sonic
+    SONIC_CONTAINER_MODE_EOF
+            chown ${cfg.user}:${cfg.group} ${cfg.stateDir}/.sonic/.container-mode
+            chmod 0644 ${cfg.stateDir}/.sonic/.container-mode
           '' else ''
-            rm -f ${cfg.stateDir}/.lightning/.container-mode
+            rm -f ${cfg.stateDir}/.sonic/.container-mode
 
             # Remove symlink bridge for hostUsers
             ${lib.concatStringsSep "\n" (map (user:
               let
                 userHome = config.users.users.${user}.home;
-                symlinkPath = "${userHome}/.lightning";
+                symlinkPath = "${userHome}/.sonic";
               in ''
-                if [ -L "${symlinkPath}" ] && [ "$(readlink "${symlinkPath}")" = "${cfg.stateDir}/.lightning" ]; then
+                if [ -L "${symlinkPath}" ] && [ "$(readlink "${symlinkPath}")" = "${cfg.stateDir}/.sonic" ]; then
                   rm -f "${symlinkPath}"
-                  echo "lightning-agent: removed symlink ${symlinkPath}"
+                  echo "sonic-agent: removed symlink ${symlinkPath}"
                 fi
               '') cfg.container.hostUsers)}
           ''}
 
           # ── Symlink bridge for interactive users ───────────────────────
-          # Create ~/.lightning -> stateDir/.lightning for each hostUser so the
+          # Create ~/.sonic -> stateDir/.sonic for each hostUser so the
           # host CLI shares state with the container service.
           # Only runs when container mode is enabled.
           ${lib.optionalString cfg.container.enable
             (lib.concatStringsSep "\n" (map (user:
               let
                 userHome = config.users.users.${user}.home;
-                symlinkPath = "${userHome}/.lightning";
-                target = "${cfg.stateDir}/.lightning";
+                symlinkPath = "${userHome}/.sonic";
+                target = "${cfg.stateDir}/.sonic";
               in ''
                 if [ -d "${symlinkPath}" ] && [ ! -L "${symlinkPath}" ]; then
                   # Real directory — back it up, then create symlink.
                   # (ln -sfn cannot atomically replace a directory.)
                   _backup="${symlinkPath}.bak.$(date +%s)"
-                  echo "lightning-agent: backing up existing ${symlinkPath} to $_backup"
+                  echo "sonic-agent: backing up existing ${symlinkPath} to $_backup"
                   mv "${symlinkPath}" "$_backup"
                 fi
                 # For everything else (existing symlink, doesn't exist, etc.)
@@ -812,23 +812,23 @@
           # Seed auth file if provided
           ${lib.optionalString (cfg.authFile != null) ''
             ${if cfg.authFileForceOverwrite then ''
-              install -o ${cfg.user} -g ${cfg.group} -m 0600 ${cfg.authFile} ${cfg.stateDir}/.lightning/auth.json
+              install -o ${cfg.user} -g ${cfg.group} -m 0600 ${cfg.authFile} ${cfg.stateDir}/.sonic/auth.json
             '' else ''
-              if [ ! -f ${cfg.stateDir}/.lightning/auth.json ]; then
-                install -o ${cfg.user} -g ${cfg.group} -m 0600 ${cfg.authFile} ${cfg.stateDir}/.lightning/auth.json
+              if [ ! -f ${cfg.stateDir}/.sonic/auth.json ]; then
+                install -o ${cfg.user} -g ${cfg.group} -m 0600 ${cfg.authFile} ${cfg.stateDir}/.sonic/auth.json
               fi
             ''}
           ''}
 
           # Seed .env from Nix-declared environment + environmentFiles.
-          # Lightning reads $LIGHTNING_HOME/.env at startup via load_lightning_dotenv(),
+          # Sonic reads $SONIC_HOME/.env at startup via load_sonic_dotenv(),
           # so this is the single source of truth for both native and container mode.
           ${lib.optionalString (cfg.environment != {} || cfg.environmentFiles != []) ''
-            ENV_FILE="${cfg.stateDir}/.lightning/.env"
+            ENV_FILE="${cfg.stateDir}/.sonic/.env"
             install -o ${cfg.user} -g ${cfg.group} -m 0640 /dev/null "$ENV_FILE"
-            cat > "$ENV_FILE" <<'LIGHTNING_NIX_ENV_EOF'
+            cat > "$ENV_FILE" <<'SONIC_NIX_ENV_EOF'
     ${envFileContent}
-    LIGHTNING_NIX_ENV_EOF
+    SONIC_NIX_ENV_EOF
             ${lib.concatStringsSep "\n" (map (f: ''
               if [ -f "${f}" ]; then
                 echo "" >> "$ENV_FILE"
@@ -844,7 +844,7 @@
 
         # ── Declarative plugins ─────────────────────────────────────────
         # Remove stale managed symlinks (plugins removed from config)
-        find ${cfg.stateDir}/.lightning/plugins -maxdepth 1 -type l -name 'nix-managed-*' -delete 2>/dev/null || true
+        find ${cfg.stateDir}/.sonic/plugins -maxdepth 1 -type l -name 'nix-managed-*' -delete 2>/dev/null || true
 
         ${lib.concatStringsSep "\n" (map (plugin:
           let
@@ -854,8 +854,8 @@
               echo "ERROR: extraPlugins entry '${plugin}' has no plugin.yaml" >&2
               exit 1
             fi
-            ln -sfn ${plugin} ${cfg.stateDir}/.lightning/plugins/nix-managed-${name}
-            chown -h ${cfg.user}:${cfg.group} ${cfg.stateDir}/.lightning/plugins/nix-managed-${name}
+            ln -sfn ${plugin} ${cfg.stateDir}/.sonic/plugins/nix-managed-${name}
+            chown -h ${cfg.user}:${cfg.group} ${cfg.stateDir}/.sonic/plugins/nix-managed-${name}
           '') cfg.extraPlugins)}
         '';
       }
@@ -864,16 +864,16 @@
       # MODE A: Native systemd service (default)
       # ══════════════════════════════════════════════════════════════════
       (lib.mkIf (!cfg.container.enable) {
-        systemd.services.lightning-agent = {
-          description = "Lightning Agent Gateway";
+        systemd.services.sonic-agent = {
+          description = "Sonic Agent Gateway";
           wantedBy = [ "multi-user.target" ];
           after = [ "network-online.target" ];
           wants = [ "network-online.target" ];
 
           environment = {
             HOME = cfg.stateDir;
-            LIGHTNING_HOME = "${cfg.stateDir}/.lightning";
-            LIGHTNING_MANAGED = "true";
+            SONIC_HOME = "${cfg.stateDir}/.sonic";
+            SONIC_MANAGED = "true";
             MESSAGING_CWD = cfg.workingDirectory;
           };
 
@@ -883,11 +883,11 @@
             WorkingDirectory = cfg.workingDirectory;
 
             # cfg.environment and cfg.environmentFiles are written to
-            # $LIGHTNING_HOME/.env by the activation script. load_lightning_dotenv()
+            # $SONIC_HOME/.env by the activation script. load_sonic_dotenv()
             # reads them at Python startup — no systemd EnvironmentFile needed.
 
             ExecStart = lib.concatStringsSep " " ([
-              "${effectivePackage}/bin/lightning"
+              "${effectivePackage}/bin/sonic"
               "gateway"
             ] ++ cfg.extraArgs);
 
@@ -895,7 +895,7 @@
             RestartSec = cfg.restartSec;
 
             # Shared-state: files created by the gateway should be group-writable
-            # so interactive users in the lightning group can read/write them.
+            # so interactive users in the sonic group can read/write them.
             UMask = "0007";
 
             # Hardening
@@ -925,8 +925,8 @@
         # Ensure the container runtime is available
         virtualisation.docker.enable = lib.mkDefault (cfg.container.backend == "docker");
 
-        systemd.services.lightning-agent = {
-          description = "Lightning Agent Gateway (container)";
+        systemd.services.sonic-agent = {
+          description = "Sonic Agent Gateway (container)";
           wantedBy = [ "multi-user.target" ];
           after = [ "network-online.target" ]
             ++ lib.optional (cfg.container.backend == "docker") "docker.service";
@@ -954,8 +954,8 @@
 
             if [ "$NEED_CREATE" = "true" ]; then
               # Resolve numeric UID/GID — passed to entrypoint for in-container user setup
-              LIGHTNING_UID=$(${pkgs.coreutils}/bin/id -u ${cfg.user})
-              LIGHTNING_GID=$(${pkgs.coreutils}/bin/id -g ${cfg.user})
+              SONIC_UID=$(${pkgs.coreutils}/bin/id -u ${cfg.user})
+              SONIC_GID=$(${pkgs.coreutils}/bin/id -g ${cfg.user})
 
               echo "Creating container..."
               ${containerBin} create \
@@ -966,15 +966,15 @@
                 --volume ${cfg.stateDir}:${containerDataDir} \
                 --volume ${cfg.stateDir}/home:${containerHomeDir} \
                 ${lib.concatStringsSep " " (map (v: "--volume ${v}") cfg.container.extraVolumes)} \
-                --env LIGHTNING_UID="$LIGHTNING_UID" \
-                --env LIGHTNING_GID="$LIGHTNING_GID" \
-                --env LIGHTNING_HOME=${containerDataDir}/.lightning \
-                --env LIGHTNING_MANAGED=true \
+                --env SONIC_UID="$SONIC_UID" \
+                --env SONIC_GID="$SONIC_GID" \
+                --env SONIC_HOME=${containerDataDir}/.sonic \
+                --env SONIC_MANAGED=true \
                 --env HOME=${containerHomeDir} \
                 --env MESSAGING_CWD=${containerWorkDir} \
                 ${lib.concatStringsSep " " cfg.container.extraOptions} \
                 ${cfg.container.image} \
-                ${containerDataDir}/current-package/bin/lightning gateway run --replace ${lib.concatStringsSep " " cfg.extraArgs}
+                ${containerDataDir}/current-package/bin/sonic gateway run --replace ${lib.concatStringsSep " " cfg.extraArgs}
 
               echo "${containerIdentity}" > ${identityFile}
             fi

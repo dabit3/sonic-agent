@@ -1,17 +1,17 @@
-"""Shared fixtures for the lightning-agent test suite.
+"""Shared fixtures for the sonic-agent test suite.
 
 Hermetic-test invariants enforced here (see AGENTS.md for rationale):
 
 1. **No credential env vars.** All provider/credential-shaped env vars
    (ending in _API_KEY, _TOKEN, _SECRET, _PASSWORD, _CREDENTIALS, etc.)
    are unset before every test. Local developer keys cannot leak in.
-2. **Isolated LIGHTNING_HOME.** LIGHTNING_HOME points to a per-test tempdir so
-   code reading ``~/.lightning/*`` via ``get_lightning_home()`` can't see the
+2. **Isolated SONIC_HOME.** SONIC_HOME points to a per-test tempdir so
+   code reading ``~/.sonic/*`` via ``get_sonic_home()`` can't see the
    real one. (We do NOT also redirect HOME — that broke subprocesses in
-   CI. Code using ``Path.home() / ".lightning"`` instead of the canonical
-   ``get_lightning_home()`` is a bug to fix at the callsite.)
+   CI. Code using ``Path.home() / ".sonic"`` instead of the canonical
+   ``get_sonic_home()`` is a bug to fix at the callsite.)
 3. **Deterministic runtime.** TZ=UTC, LANG=C.UTF-8, PYTHONHASHSEED=0.
-4. **No LIGHTNING_SESSION_* inheritance** — the agent's current gateway
+4. **No SONIC_SESSION_* inheritance** — the agent's current gateway
    session must not leak into tests.
 
 These invariants make the local test run match CI closely. Gaps that
@@ -170,51 +170,51 @@ def _looks_like_credential(name: str) -> bool:
     return any(name.endswith(suf) for suf in _CREDENTIAL_SUFFIXES)
 
 
-# LIGHTNING_* vars that change test behavior by being set. Unset all of these
+# SONIC_* vars that change test behavior by being set. Unset all of these
 # unconditionally — individual tests that need them set do so explicitly.
-_LIGHTNING_BEHAVIORAL_VARS = frozenset({
-    "LIGHTNING_YOLO_MODE",
-    "LIGHTNING_INTERACTIVE",
-    "LIGHTNING_QUIET",
-    "LIGHTNING_TOOL_PROGRESS",
-    "LIGHTNING_TOOL_PROGRESS_MODE",
-    "LIGHTNING_MAX_ITERATIONS",
-    "LIGHTNING_SESSION_PLATFORM",
-    "LIGHTNING_SESSION_CHAT_ID",
-    "LIGHTNING_SESSION_CHAT_NAME",
-    "LIGHTNING_SESSION_THREAD_ID",
-    "LIGHTNING_SESSION_SOURCE",
-    "LIGHTNING_SESSION_KEY",
-    "LIGHTNING_GATEWAY_SESSION",
-    "LIGHTNING_PLATFORM",
-    "LIGHTNING_MODEL",
-    "LIGHTNING_INFERENCE_MODEL",
-    "LIGHTNING_INFERENCE_PROVIDER",
-    "LIGHTNING_TUI_PROVIDER",
-    "LIGHTNING_MANAGED",
-    "LIGHTNING_DEV",
-    "LIGHTNING_CONTAINER",
-    "LIGHTNING_EPHEMERAL_SYSTEM_PROMPT",
-    "LIGHTNING_TIMEZONE",
-    "LIGHTNING_REDACT_SECRETS",
-    "LIGHTNING_BACKGROUND_NOTIFICATIONS",
-    "LIGHTNING_EXEC_ASK",
-    "LIGHTNING_HOME_MODE",
-    "LIGHTNING_AGENT_USE_LEGACY_SESSION_KEYS",
+_SONIC_BEHAVIORAL_VARS = frozenset({
+    "SONIC_YOLO_MODE",
+    "SONIC_INTERACTIVE",
+    "SONIC_QUIET",
+    "SONIC_TOOL_PROGRESS",
+    "SONIC_TOOL_PROGRESS_MODE",
+    "SONIC_MAX_ITERATIONS",
+    "SONIC_SESSION_PLATFORM",
+    "SONIC_SESSION_CHAT_ID",
+    "SONIC_SESSION_CHAT_NAME",
+    "SONIC_SESSION_THREAD_ID",
+    "SONIC_SESSION_SOURCE",
+    "SONIC_SESSION_KEY",
+    "SONIC_GATEWAY_SESSION",
+    "SONIC_PLATFORM",
+    "SONIC_MODEL",
+    "SONIC_INFERENCE_MODEL",
+    "SONIC_INFERENCE_PROVIDER",
+    "SONIC_TUI_PROVIDER",
+    "SONIC_MANAGED",
+    "SONIC_DEV",
+    "SONIC_CONTAINER",
+    "SONIC_EPHEMERAL_SYSTEM_PROMPT",
+    "SONIC_TIMEZONE",
+    "SONIC_REDACT_SECRETS",
+    "SONIC_BACKGROUND_NOTIFICATIONS",
+    "SONIC_EXEC_ASK",
+    "SONIC_HOME_MODE",
+    "SONIC_AGENT_USE_LEGACY_SESSION_KEYS",
     # Kanban path/board pins must never leak from a developer shell or
     # dispatched worker into tests; otherwise tests can write fake tasks to
-    # the real ~/.lightning/kanban.db instead of the per-test LIGHTNING_HOME.
-    "LIGHTNING_KANBAN_DB",
-    "LIGHTNING_KANBAN_BOARD",
-    "LIGHTNING_KANBAN_HOME",
-    "LIGHTNING_KANBAN_WORKSPACES_ROOT",
-    "LIGHTNING_KANBAN_LOGS_ROOT",
-    "LIGHTNING_KANBAN_TASK",
-    "LIGHTNING_KANBAN_WORKSPACE",
-    "LIGHTNING_KANBAN_RUN_ID",
-    "LIGHTNING_KANBAN_CLAIM_LOCK",
-    "LIGHTNING_KANBAN_DISPATCH_IN_GATEWAY",
-    "LIGHTNING_TENANT",
+    # the real ~/.sonic/kanban.db instead of the per-test SONIC_HOME.
+    "SONIC_KANBAN_DB",
+    "SONIC_KANBAN_BOARD",
+    "SONIC_KANBAN_HOME",
+    "SONIC_KANBAN_WORKSPACES_ROOT",
+    "SONIC_KANBAN_LOGS_ROOT",
+    "SONIC_KANBAN_TASK",
+    "SONIC_KANBAN_WORKSPACE",
+    "SONIC_KANBAN_RUN_ID",
+    "SONIC_KANBAN_CLAIM_LOCK",
+    "SONIC_KANBAN_DISPATCH_IN_GATEWAY",
+    "SONIC_TENANT",
     "TERMINAL_CWD",
     "TERMINAL_ENV",
     "TERMINAL_VERCEL_RUNTIME",
@@ -312,8 +312,8 @@ _LIGHTNING_BEHAVIORAL_VARS = frozenset({
 def _hermetic_environment(tmp_path, monkeypatch):
     """Blank out all credential/behavioral env vars so local and CI match.
 
-    Also redirects HOME and LIGHTNING_HOME to per-test tempdirs so code that
-    reads ``~/.lightning/*`` can't touch the real one, and pins TZ/LANG so
+    Also redirects HOME and SONIC_HOME to per-test tempdirs so code that
+    reads ``~/.sonic/*`` can't touch the real one, and pins TZ/LANG so
     datetime/locale-sensitive tests are deterministic.
     """
     # 1. Blank every credential-shaped env var that's currently set.
@@ -321,27 +321,27 @@ def _hermetic_environment(tmp_path, monkeypatch):
         if _looks_like_credential(name):
             monkeypatch.delenv(name, raising=False)
 
-    # 2. Blank behavioral LIGHTNING_* vars that could change test semantics.
-    for name in _LIGHTNING_BEHAVIORAL_VARS:
+    # 2. Blank behavioral SONIC_* vars that could change test semantics.
+    for name in _SONIC_BEHAVIORAL_VARS:
         monkeypatch.delenv(name, raising=False)
 
-    # 3. Redirect LIGHTNING_HOME to a per-test tempdir. Code that reads
-    #    ``~/.lightning/*`` via ``get_lightning_home()`` now gets the tempdir.
+    # 3. Redirect SONIC_HOME to a per-test tempdir. Code that reads
+    #    ``~/.sonic/*`` via ``get_sonic_home()`` now gets the tempdir.
     #
     #    NOTE: We do NOT also redirect HOME. Doing so broke CI because
     #    some tests (and their transitive deps) spawn subprocesses that
     #    inherit HOME and expect it to be stable. If a test genuinely
     #    needs HOME isolated, it should set it explicitly in its own
-    #    fixture. Any code in the codebase reading ``~/.lightning/*`` via
-    #    ``Path.home() / ".lightning"`` instead of ``get_lightning_home()``
+    #    fixture. Any code in the codebase reading ``~/.sonic/*`` via
+    #    ``Path.home() / ".sonic"`` instead of ``get_sonic_home()``
     #    is a bug to fix at the callsite.
-    fake_lightning_home = tmp_path / "lightning_test"
-    fake_lightning_home.mkdir()
-    (fake_lightning_home / "sessions").mkdir()
-    (fake_lightning_home / "cron").mkdir()
-    (fake_lightning_home / "memories").mkdir()
-    (fake_lightning_home / "skills").mkdir()
-    monkeypatch.setenv("LIGHTNING_HOME", str(fake_lightning_home))
+    fake_sonic_home = tmp_path / "sonic_test"
+    fake_sonic_home.mkdir()
+    (fake_sonic_home / "sessions").mkdir()
+    (fake_sonic_home / "cron").mkdir()
+    (fake_sonic_home / "memories").mkdir()
+    (fake_sonic_home / "skills").mkdir()
+    monkeypatch.setenv("SONIC_HOME", str(fake_sonic_home))
 
     # 4. Deterministic locale / timezone / hashseed. CI runs in UTC with
     #    C.UTF-8 locale; local dev often doesn't. Pin everything.
@@ -364,10 +364,10 @@ def _hermetic_environment(tmp_path, monkeypatch):
     monkeypatch.setenv("TIRITH_ENABLED", "false")
 
     # 5. Reset plugin singleton so tests don't leak plugins from
-    #    ~/.lightning/plugins/ (which, per step 3, is now empty — but the
+    #    ~/.sonic/plugins/ (which, per step 3, is now empty — but the
     #    singleton might still be cached from a previous test).
     try:
-        import lightning_cli.plugins as _plugins_mod
+        import sonic_cli.plugins as _plugins_mod
         monkeypatch.setattr(_plugins_mod, "_plugin_manager", None)
     except Exception:
         pass
@@ -380,7 +380,7 @@ def _hermetic_environment(tmp_path, monkeypatch):
 # Backward-compat alias — old tests reference this fixture name. Keep it
 # as a no-op wrapper so imports don't break.
 @pytest.fixture(autouse=True)
-def _isolate_lightning_home(_hermetic_environment):
+def _isolate_sonic_home(_hermetic_environment):
     """Alias preserved for any test that yields this name explicitly."""
     return None
 
@@ -410,7 +410,7 @@ def tmp_dir(tmp_path):
 
 @pytest.fixture()
 def mock_config():
-    """Return a minimal lightning config dict suitable for unit tests."""
+    """Return a minimal sonic config dict suitable for unit tests."""
     return {
         "model": "test/mock-model",
         "toolsets": ["terminal", "file"],
@@ -483,10 +483,10 @@ def _ensure_current_event_loop(request):
 # (``cmd_update``, ``kill_gateway_processes``, ``stop_profile_gateway``).
 # When a single test forgets to mock either ``os.kill`` or the global
 # ``find_gateway_pids`` helper, the real call leaks out of the hermetic
-# environment and finds the developer's live ``lightning-gateway`` process
+# environment and finds the developer's live ``sonic-gateway`` process
 # via ``psutil`` — sending it SIGTERM mid-test. The shutdown forensics in
 # PR #23285 caught this happening 5+ times in 3 days, every time
-# correlated with a ``tests/lightning_cli/`` pytest run starting up.
+# correlated with a ``tests/sonic_cli/`` pytest run starting up.
 #
 # This fixture makes the leak impossible by intercepting the two
 # primitives that actually do damage:
@@ -495,7 +495,7 @@ def _ensure_current_event_loop(request):
 #    a hard ``RuntimeError`` so the offending test gets a stack trace
 #    instead of silently murdering the real gateway.
 #  • ``subprocess.run`` / ``subprocess.Popen`` / ``call`` / ``check_call`` /
-#    ``check_output`` reject any ``systemctl ... <verb> lightning-gateway``
+#    ``check_output`` reject any ``systemctl ... <verb> sonic-gateway``
 #    invocation that would mutate the live unit. Read-only systemctl
 #    calls (``status``, ``show``, ``list-units``) still pass through.
 #
@@ -536,10 +536,10 @@ def _live_system_guard(request, monkeypatch):
       • pty.spawn
       • asyncio.create_subprocess_exec / create_subprocess_shell
     Subprocess inspection looks at the WHOLE command string (not just
-    tokens[0]), so ``bash -c "systemctl restart lightning-gateway"``,
+    tokens[0]), so ``bash -c "systemctl restart sonic-gateway"``,
     ``sudo systemctl ...``, ``env systemctl ...``, ``setsid systemctl ...``
     are all caught. ``pkill``/``killall``/``taskkill`` invocations
-    targeting lightning/python patterns are also blocked.
+    targeting sonic/python patterns are also blocked.
     """
     if request.node.get_closest_marker(_LIVE_SYSTEM_GUARD_BYPASS_MARK):
         yield
@@ -627,13 +627,13 @@ def _live_system_guard(request, monkeypatch):
         monkeypatch.setattr(_os, "killpg", _guarded_killpg)
 
     # ── Subprocess command-string inspection (whole-line) ──────────
-    _LIGHTNING_TOKENS = (
-        "lightning-gateway",
-        "lightning.service",
-        "lightning_cli.main gateway",
-        "lightning_cli/main.py gateway",
+    _SONIC_TOKENS = (
+        "sonic-gateway",
+        "sonic.service",
+        "sonic_cli.main gateway",
+        "sonic_cli/main.py gateway",
         "gateway/run.py",
-        "lightning gateway",
+        "sonic gateway",
     )
     _MUTATING_VERBS = (
         "restart", "start", "stop", "kill", "reload",
@@ -659,15 +659,15 @@ def _live_system_guard(request, monkeypatch):
                 return ""
         return str(cmd)
 
-    def _matches_lightning_gateway(cmd_str: str) -> bool:
+    def _matches_sonic_gateway(cmd_str: str) -> bool:
         low = cmd_str.lower()
-        return any(tok in low for tok in _LIGHTNING_TOKENS)
+        return any(tok in low for tok in _SONIC_TOKENS)
 
     def _is_blocked_systemctl(cmd) -> bool:
         cmd_str = _cmd_to_string(cmd)
         if "systemctl" not in cmd_str:
             return False
-        if not _matches_lightning_gateway(cmd_str):
+        if not _matches_sonic_gateway(cmd_str):
             return False
         try:
             tokens = _shlex.split(cmd_str)
@@ -687,11 +687,11 @@ def _live_system_guard(request, monkeypatch):
             head = tok.rsplit("/", 1)[-1].rsplit("\\", 1)[-1]
             if head in _PROCESS_KILLERS:
                 low = cmd_str.lower()
-                # pkill -f pattern: catch lightning-themed patterns + a
+                # pkill -f pattern: catch sonic-themed patterns + a
                 # plain "python" -f which would catch the live gateway
-                # whose cmdline contains "python -m lightning_cli.main".
+                # whose cmdline contains "python -m sonic_cli.main".
                 if (
-                    "lightning" in low
+                    "sonic" in low
                     or "gateway" in low
                     or ("python" in low and "-f" in tokens)
                 ):
@@ -703,7 +703,7 @@ def _live_system_guard(request, monkeypatch):
             raise RuntimeError(
                 f"tests/conftest.py live-system guard: blocked "
                 f"subprocess.{name}({cmd!r}) — would mutate the "
-                "live lightning-gateway systemd unit. Mock "
+                "live sonic-gateway systemd unit. Mock "
                 "subprocess.run / _run_systemctl in the test, or "
                 "mark with @pytest.mark.live_system_guard_bypass."
             )
@@ -711,7 +711,7 @@ def _live_system_guard(request, monkeypatch):
             raise RuntimeError(
                 f"tests/conftest.py live-system guard: blocked "
                 f"subprocess.{name}({cmd!r}) — process-killer command "
-                "targeting lightning/python could hit the live gateway. "
+                "targeting sonic/python could hit the live gateway. "
                 "Mark with @pytest.mark.live_system_guard_bypass if "
                 "intentional."
             )

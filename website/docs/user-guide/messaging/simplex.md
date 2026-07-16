@@ -28,19 +28,19 @@ simplex-chat -p 5225
 
 The daemon listens on WebSocket at `ws://127.0.0.1:5225` by default.
 
-## Configure Lightning
+## Configure Sonic
 
 ### Via setup wizard
 
 ```bash
-lightning setup gateway
+sonic setup gateway
 ```
 
 Select **SimpleX Chat** and follow the prompts.
 
 ### Via environment variables
 
-Add these to `~/.lightning/.env`:
+Add these to `~/.sonic/.env`:
 
 ```
 SIMPLEX_WS_URL=ws://127.0.0.1:5225
@@ -58,14 +58,14 @@ SIMPLEX_HOME_CHANNEL=<contact-id>
 
 ## Find your contact ID
 
-After starting the daemon, open a conversation with your agent contact. The contact ID will appear in session logs or via `lightning send_message action=list`.
+After starting the daemon, open a conversation with your agent contact. The contact ID will appear in session logs or via `sonic send_message action=list`.
 
 ## Authorization
 
 By default **all contacts are denied**. You must either:
 
 1. Set `SIMPLEX_ALLOWED_USERS` to a comma-separated list of contact IDs, or
-2. Use **DM pairing** — send any message to the bot and it will reply with a pairing code. Enter that code via `lightning gateway pair`.
+2. Use **DM pairing** — send any message to the bot and it will reply with a pairing code. Enter that code via `sonic gateway pair`.
 
 ## Using SimpleX with cron jobs
 
@@ -87,7 +87,7 @@ send_message(target="simplex:<contact-id>", message="Done!")
 ## Privacy notes
 
 - SimpleX never reveals phone numbers or email addresses — contacts use opaque IDs
-- The connection between Lightning and the daemon is local WebSocket (`ws://127.0.0.1:5225`) — no data leaves your machine
+- The connection between Sonic and the daemon is local WebSocket (`ws://127.0.0.1:5225`) — no data leaves your machine
 - Messages are end-to-end encrypted by the SimpleX protocol before reaching the daemon
 
 ## Troubleshooting

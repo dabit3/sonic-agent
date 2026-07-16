@@ -1,16 +1,16 @@
 ---
 sidebar_position: 17
 title: "OAuth over SSH / Remote Hosts"
-description: "How to complete browser-based OAuth (xAI, Spotify) when Lightning runs on a remote machine, container, or behind a jump box"
+description: "How to complete browser-based OAuth (xAI, Spotify) when Sonic runs on a remote machine, container, or behind a jump box"
 ---
 
 # OAuth over SSH / Remote Hosts
 
-Some Lightning providers — currently **xAI Grok OAuth** and **Spotify** — use a *loopback redirect* OAuth flow. The auth server (xAI, Spotify) redirects your browser to `http://127.0.0.1:<port>/callback` so a tiny HTTP listener started by the `lightning auth ...` command can grab the authorization code.
+Some Sonic providers — currently **xAI Grok OAuth** and **Spotify** — use a *loopback redirect* OAuth flow. The auth server (xAI, Spotify) redirects your browser to `http://127.0.0.1:<port>/callback` so a tiny HTTP listener started by the `sonic auth ...` command can grab the authorization code.
 
-This works perfectly when Lightning and your browser are on the same machine. It breaks the moment they aren't: your laptop's browser tries to reach `127.0.0.1` on **your laptop**, but the listener is bound to `127.0.0.1` on **the remote server**.
+This works perfectly when Sonic and your browser are on the same machine. It breaks the moment they aren't: your laptop's browser tries to reach `127.0.0.1` on **your laptop**, but the listener is bound to `127.0.0.1` on **the remote server**.
 
-The fix is a one-line SSH local-forward — **or**, when you don't have a real SSH client (GCP Cloud Shell, GitHub Codespaces, EC2 Instance Connect, Gitpod, browser-based web IDEs), the new `--manual-paste` flag introduced in [#26923](https://github.com/NousResearch/lightning-agent/issues/26923).
+The fix is a one-line SSH local-forward — **or**, when you don't have a real SSH client (GCP Cloud Shell, GitHub Codespaces, EC2 Instance Connect, Gitpod, browser-based web IDEs), the new `--manual-paste` flag introduced in [#26923](https://github.com/dabit3/sonic-agent/issues/26923).
 
 ## TL;DR
 
@@ -19,37 +19,37 @@ The fix is a one-line SSH local-forward — **or**, when you don't have a real S
 ssh -N -L 56121:127.0.0.1:56121 user@remote-host
 
 # In your existing SSH session on the remote machine:
-lightning auth add xai-oauth --no-browser
-# → Lightning prints an authorize URL. Open it in a browser on your laptop.
+sonic auth add xai-oauth --no-browser
+# → Sonic prints an authorize URL. Open it in a browser on your laptop.
 # → Your browser redirects to 127.0.0.1:56121/callback, the tunnel forwards
 #   the request to the remote listener, login completes.
 ```
 
-Port `56121` is what xAI OAuth uses. For Spotify, replace it with `43827`. Lightning prints the exact port it bound to on the `Waiting for callback on ...` line — copy it from there.
+Port `56121` is what xAI OAuth uses. For Spotify, replace it with `43827`. Sonic prints the exact port it bound to on the `Waiting for callback on ...` line — copy it from there.
 
 ## Browser-only remote (Cloud Shell / Codespaces / EC2 Instance Connect)
 
-If you don't have a regular SSH client — for example because you're running Lightning inside GCP Cloud Shell, GitHub Codespaces, AWS EC2 Instance Connect, Gitpod, or another browser-based console — the SSH tunnel above isn't available. Use `--manual-paste` instead:
+If you don't have a regular SSH client — for example because you're running Sonic inside GCP Cloud Shell, GitHub Codespaces, AWS EC2 Instance Connect, Gitpod, or another browser-based console — the SSH tunnel above isn't available. Use `--manual-paste` instead:
 
 ```bash
-lightning auth add xai-oauth --manual-paste
-# → Lightning prints an authorize URL. Open it in a browser on your laptop.
+sonic auth add xai-oauth --manual-paste
+# → Sonic prints an authorize URL. Open it in a browser on your laptop.
 # → Approve in the browser. The redirect to 127.0.0.1:56121/callback fails
 #   to load — that's expected.
 # → Copy the FULL URL from the failed page's address bar.
 # → Paste it back into the terminal at the "Callback URL:" prompt.
 ```
 
-The same flag works on `lightning model --manual-paste` for the integrated model picker. A bare `?code=...&state=...` query fragment is accepted too if you don't want to paste the whole URL.
+The same flag works on `sonic model --manual-paste` for the integrated model picker. A bare `?code=...&state=...` query fragment is accepted too if you don't want to paste the whole URL.
 
-Lightning uses the **same PKCE verifier, state and nonce** for both paths, so the upstream OAuth flow is byte-identical — `--manual-paste` is purely a transport change for the callback hop and is not a security downgrade.
+Sonic uses the **same PKCE verifier, state and nonce** for both paths, so the upstream OAuth flow is byte-identical — `--manual-paste` is purely a transport change for the callback hop and is not a security downgrade.
 
 ## Which Providers Need This
 
 | Provider | Loopback port | Tunnel needed? |
 |----------|---------------|----------------|
-| `xai-oauth` (Grok SuperGrok) | `56121` | Yes, when Lightning is remote |
-| Spotify | `43827` | Yes, when Lightning is remote |
+| `xai-oauth` (Grok SuperGrok) | `56121` | Yes, when Sonic is remote |
+| Spotify | `43827` | Yes, when Sonic is remote |
 | `anthropic` (Claude Pro/Max) | n/a | No — paste-the-code flow |
 | `openai-codex` (ChatGPT Plus/Pro) | n/a | No — device code flow |
 | `minimax`, `nous-portal` | n/a | No — device code flow |
@@ -78,22 +78,22 @@ ssh -N -L 43827:127.0.0.1:43827 user@remote-host
 
 ```bash
 ssh user@remote-host
-lightning auth add xai-oauth --no-browser
+sonic auth add xai-oauth --no-browser
 # or for Spotify:
-# lightning auth add spotify --no-browser
+# sonic auth add spotify --no-browser
 ```
 
-Lightning detects the SSH session, skips the browser auto-open, and prints an authorize URL plus a `Waiting for callback on http://127.0.0.1:<port>/callback` line.
+Sonic detects the SSH session, skips the browser auto-open, and prints an authorize URL plus a `Waiting for callback on http://127.0.0.1:<port>/callback` line.
 
 ### 3. Open the URL in your local browser
 
-Copy the authorize URL from the remote terminal and paste it into the browser on your laptop. Approve the consent screen. The auth server redirects to `http://127.0.0.1:<port>/callback`. Your browser hits the tunnel, the request is forwarded to the remote listener, and Lightning prints `Login successful!`.
+Copy the authorize URL from the remote terminal and paste it into the browser on your laptop. Approve the consent screen. The auth server redirects to `http://127.0.0.1:<port>/callback`. Your browser hits the tunnel, the request is forwarded to the remote listener, and Sonic prints `Login successful!`.
 
 You can tear down the tunnel (Ctrl+C in the first terminal) once you see the success line.
 
 ## Step-by-step: through a jump box
 
-If you reach Lightning through a bastion / jump host, use SSH's built-in `-J` (ProxyJump):
+If you reach Sonic through a bastion / jump host, use SSH's built-in `-J` (ProxyJump):
 
 ```bash
 ssh -N -L 56121:127.0.0.1:56121 -J jump-user@jump-host user@final-host
@@ -112,7 +112,7 @@ ssh -N \
 
 ## Mosh, tmux, ssh ControlMaster
 
-The tunnel is a property of the underlying SSH connection. If you're running Lightning inside `tmux` over a mosh session, the mosh roaming doesn't carry the `-L` forwarding. Open a *separate* plain SSH session **only** for the `-L` tunnel — that's the connection that has to stay alive during the auth flow. Your interactive mosh/tmux session can keep running Lightning normally.
+The tunnel is a property of the underlying SSH connection. If you're running Sonic inside `tmux` over a mosh session, the mosh roaming doesn't carry the `-L` forwarding. Open a *separate* plain SSH session **only** for the `-L` tunnel — that's the connection that has to stay alive during the auth flow. Your interactive mosh/tmux session can keep running Sonic normally.
 
 If you use `ssh -o ControlMaster=auto`, port forwards on a multiplexed connection share the master's lifetime. Restart the master if the tunnel doesn't come up:
 
@@ -125,7 +125,7 @@ ssh -N -L 56121:127.0.0.1:56121 user@remote-host
 
 ### `bind [127.0.0.1]:56121: Address already in use`
 
-Something on your laptop is already using that port. Either the previous tunnel didn't shut down cleanly, or a local Lightning is also listening on it. Find and kill the offender:
+Something on your laptop is already using that port. Either the previous tunnel didn't shut down cleanly, or a local Sonic is also listening on it. Find and kill the offender:
 
 ```bash
 # macOS / Linux
@@ -137,15 +137,15 @@ Then retry the `ssh -L` command.
 
 ### "Could not establish connection. We couldn't reach your app." (xAI)
 
-xAI's authorize page shows this when its redirect to `127.0.0.1:<port>/callback` doesn't reach a listener. Either the tunnel isn't running, the port is wrong, or you're using the port Lightning printed in a previous run (the port can be auto-bumped if the preferred one is busy — always read the latest `Waiting for callback on ...` line).
+xAI's authorize page shows this when its redirect to `127.0.0.1:<port>/callback` doesn't reach a listener. Either the tunnel isn't running, the port is wrong, or you're using the port Sonic printed in a previous run (the port can be auto-bumped if the preferred one is busy — always read the latest `Waiting for callback on ...` line).
 
 ### `xAI authorization timed out waiting for the local callback`
 
-Same root cause as above — the redirect never made it back. Check the tunnel is still alive (`ssh -N` doesn't show output, so look at the terminal you started it from), restart it if needed, and re-run `lightning auth add xai-oauth --no-browser`.
+Same root cause as above — the redirect never made it back. Check the tunnel is still alive (`ssh -N` doesn't show output, so look at the terminal you started it from), restart it if needed, and re-run `sonic auth add xai-oauth --no-browser`.
 
-### Tokens land in the wrong `~/.lightning`
+### Tokens land in the wrong `~/.sonic`
 
-The tokens are written under the Linux user that ran `lightning auth add ...`. If your gateway / systemd service runs as a different user (e.g. `root` or a dedicated `lightning` user), authenticate as **that** user so the tokens land in their `~/.lightning/auth.json`. `sudo -u lightning -i` or equivalent.
+The tokens are written under the Linux user that ran `sonic auth add ...`. If your gateway / systemd service runs as a different user (e.g. `root` or a dedicated `sonic` user), authenticate as **that** user so the tokens land in their `~/.sonic/auth.json`. `sudo -u sonic -i` or equivalent.
 
 ## See Also
 

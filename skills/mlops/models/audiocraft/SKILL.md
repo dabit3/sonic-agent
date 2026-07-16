@@ -7,7 +7,7 @@ license: MIT
 dependencies: [audiocraft, torch>=2.0.0, transformers>=4.30.0]
 platforms: [linux, macos]
 metadata:
-  lightning:
+  sonic:
     tags: [Multimodal, Audio Generation, Text-to-Music, Text-to-Audio, MusicGen]
 
 ---
@@ -326,7 +326,7 @@ model.set_generation_params(duration=10)
 
 # Generate various sounds
 descriptions = [
-    "thunderstorm with heavy rain and lightning",
+    "thunderstorm with heavy rain and sonic",
     "busy city traffic with car horns",
     "ocean waves crashing on rocks",
     "crackling campfire in forest"

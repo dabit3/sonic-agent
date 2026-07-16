@@ -15,7 +15,7 @@ Security features (based on OWASP + NIST SP 800-63-4 guidance):
   - File permissions: chmod 0600 on all data files
   - Codes are never logged to stdout
 
-Storage: ~/.lightning/pairing/
+Storage: ~/.sonic/pairing/
 """
 
 import hashlib
@@ -32,7 +32,7 @@ from gateway.whatsapp_identity import (
     expand_whatsapp_aliases,
     normalize_whatsapp_identifier,
 )
-from lightning_constants import get_lightning_dir
+from sonic_constants import get_sonic_dir
 from utils import atomic_replace
 
 
@@ -49,7 +49,7 @@ LOCKOUT_SECONDS = 3600              # Lockout duration after too many failures
 MAX_PENDING_PER_PLATFORM = 3        # Max pending codes per platform
 MAX_FAILED_ATTEMPTS = 5             # Failed approvals before lockout
 
-PAIRING_DIR = get_lightning_dir("platforms/pairing", "pairing")
+PAIRING_DIR = get_sonic_dir("platforms/pairing", "pairing")
 
 
 def _secure_write(path: Path, data: str) -> None:

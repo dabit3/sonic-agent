@@ -10,12 +10,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from cli import LightningCLI
+from cli import SonicCLI
 
 
 def _make_cli():
-    """Create a minimal LightningCLI instance for testing."""
-    cli_obj = LightningCLI.__new__(LightningCLI)
+    """Create a minimal SonicCLI instance for testing."""
+    cli_obj = SonicCLI.__new__(SonicCLI)
     cli_obj.model = "test-model"
     cli_obj._background_tasks = {}
     cli_obj._background_task_counter = 0

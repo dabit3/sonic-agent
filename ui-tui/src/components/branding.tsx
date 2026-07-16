@@ -1,4 +1,4 @@
-import { Box, Text, useStdout } from '@lightning/ink'
+import { Box, Text, useStdout } from '@sonic/ink'
 import { useEffect, useState } from 'react'
 import unicodeSpinners from 'unicode-animations'
 
@@ -49,7 +49,7 @@ export function Banner({ t }: { t: Theme }) {
         <ArtLines lines={logoLines} />
       ) : (
         <Text bold color={t.color.primary}>
-          {t.brand.icon} LIGHTNING
+          {t.brand.icon} SONIC
         </Text>
       )}
 
@@ -320,7 +320,7 @@ export function SessionPanel({ info, sid, t }: SessionPanelProps) {
               - run{' '}
             </Text>
             <Text bold color={t.color.warn}>
-              {info.update_command || 'lightning update'}
+              {info.update_command || 'sonic update'}
             </Text>
             <Text bold={false} color={t.color.warn} dimColor>
               {' '}

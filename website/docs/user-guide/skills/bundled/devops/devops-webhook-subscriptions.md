@@ -23,30 +23,30 @@ Webhook subscriptions: event-driven agent runs.
 ## Reference: full SKILL.md
 
 :::info
-The following is the complete skill definition that Lightning loads when this skill is triggered. This is what the agent sees as instructions when the skill is active.
+The following is the complete skill definition that Sonic loads when this skill is triggered. This is what the agent sees as instructions when the skill is active.
 :::
 
 # Webhook Subscriptions
 
-Create dynamic webhook subscriptions so external services (GitHub, GitLab, Stripe, CI/CD, IoT sensors, monitoring tools) can trigger Lightning agent runs by POSTing events to a URL.
+Create dynamic webhook subscriptions so external services (GitHub, GitLab, Stripe, CI/CD, IoT sensors, monitoring tools) can trigger Sonic agent runs by POSTing events to a URL.
 
 ## Setup (Required First)
 
 The webhook platform must be enabled before subscriptions can be created. Check with:
 ```bash
-lightning webhook list
+sonic webhook list
 ```
 
 If it says "Webhook platform is not enabled", set it up:
 
 ### Option 1: Setup wizard
 ```bash
-lightning gateway setup
+sonic gateway setup
 ```
 Follow the prompts to enable webhooks, set the port, and set a global HMAC secret.
 
 ### Option 2: Manual config
-Add to `~/.lightning/config.yaml`:
+Add to `~/.sonic/config.yaml`:
 ```yaml
 platforms:
   webhook:
@@ -58,7 +58,7 @@ platforms:
 ```
 
 ### Option 3: Environment variables
-Add to `~/.lightning/.env`:
+Add to `~/.sonic/.env`:
 ```bash
 WEBHOOK_ENABLED=true
 WEBHOOK_PORT=8644
@@ -67,9 +67,9 @@ WEBHOOK_SECRET=generate-a-strong-secret-here
 
 After configuration, start (or restart) the gateway:
 ```bash
-lightning gateway run
+sonic gateway run
 # Or if using systemd:
-systemctl --user restart lightning-gateway
+systemctl --user restart sonic-gateway
 ```
 
 Verify it's running:
@@ -79,11 +79,11 @@ curl http://localhost:8644/health
 
 ## Commands
 
-All management is via the `lightning webhook` CLI command:
+All management is via the `sonic webhook` CLI command:
 
 ### Create a subscription
 ```bash
-lightning webhook subscribe <name> \
+sonic webhook subscribe <name> \
   --prompt "Prompt template with {payload.fields}" \
   --events "event1,event2" \
   --description "What this does" \
@@ -97,18 +97,18 @@ Returns the webhook URL and HMAC secret. The user configures their service to PO
 
 ### List subscriptions
 ```bash
-lightning webhook list
+sonic webhook list
 ```
 
 ### Remove a subscription
 ```bash
-lightning webhook remove <name>
+sonic webhook remove <name>
 ```
 
 ### Test a subscription
 ```bash
-lightning webhook test <name>
-lightning webhook test <name> --payload '{"key": "value"}'
+sonic webhook test <name>
+sonic webhook test <name> --payload '{"key": "value"}'
 ```
 
 ## Prompt Templates
@@ -126,7 +126,7 @@ If no prompt is specified, the full JSON payload is dumped into the agent prompt
 
 ### GitHub: new issues
 ```bash
-lightning webhook subscribe github-issues \
+sonic webhook subscribe github-issues \
   --events "issues" \
   --prompt "New GitHub issue #{issue.number}: {issue.title}\n\nAction: {action}\nAuthor: {issue.user.login}\nBody:\n{issue.body}\n\nPlease triage this issue." \
   --deliver telegram \
@@ -141,7 +141,7 @@ Then in GitHub repo Settings → Webhooks → Add webhook:
 
 ### GitHub: PR reviews
 ```bash
-lightning webhook subscribe github-prs \
+sonic webhook subscribe github-prs \
   --events "pull_request" \
   --prompt "PR #{pull_request.number} {action}: {pull_request.title}\nBy: {pull_request.user.login}\nBranch: {pull_request.head.ref}\n\n{pull_request.body}" \
   --skills "github-code-review" \
@@ -150,7 +150,7 @@ lightning webhook subscribe github-prs \
 
 ### Stripe: payment events
 ```bash
-lightning webhook subscribe stripe-payments \
+sonic webhook subscribe stripe-payments \
   --events "payment_intent.succeeded,payment_intent.payment_failed" \
   --prompt "Payment {data.object.status}: {data.object.amount} cents from {data.object.receipt_email}" \
   --deliver telegram \
@@ -159,7 +159,7 @@ lightning webhook subscribe stripe-payments \
 
 ### CI/CD: build notifications
 ```bash
-lightning webhook subscribe ci-builds \
+sonic webhook subscribe ci-builds \
   --events "pipeline" \
   --prompt "Build {object_attributes.status} on {project.name} branch {object_attributes.ref}\nCommit: {commit.message}" \
   --deliver discord \
@@ -168,7 +168,7 @@ lightning webhook subscribe ci-builds \
 
 ### Generic monitoring alert
 ```bash
-lightning webhook subscribe alerts \
+sonic webhook subscribe alerts \
   --prompt "Alert: {alert.name}\nSeverity: {alert.severity}\nMessage: {alert.message}\n\nPlease investigate and suggest remediation." \
   --deliver origin
 ```
@@ -184,7 +184,7 @@ Use this for:
 - Any webhook where an LLM round trip would be wasted effort
 
 ```bash
-lightning webhook subscribe antenna-matches \
+sonic webhook subscribe antenna-matches \
   --deliver telegram \
   --deliver-chat-id "123456789" \
   --deliver-only \
@@ -201,11 +201,11 @@ Requires `--deliver` to be a real target (telegram, discord, slack, github_comme
 - Each subscription gets an auto-generated HMAC-SHA256 secret (or provide your own with `--secret`)
 - The webhook adapter validates signatures on every incoming POST
 - Static routes from config.yaml cannot be overwritten by dynamic subscriptions
-- Subscriptions persist to `~/.lightning/webhook_subscriptions.json`
+- Subscriptions persist to `~/.sonic/webhook_subscriptions.json`
 
 ## How It Works
 
-1. `lightning webhook subscribe` writes to `~/.lightning/webhook_subscriptions.json`
+1. `sonic webhook subscribe` writes to `~/.sonic/webhook_subscriptions.json`
 2. The webhook adapter hot-reloads this file on each incoming request (mtime-gated, negligible overhead)
 3. When a POST arrives matching a route, the adapter formats the prompt and triggers an agent run
 4. The agent's response is delivered to the configured target (Telegram, Discord, GitHub comment, etc.)
@@ -214,9 +214,9 @@ Requires `--deliver` to be a real target (telegram, discord, slack, github_comme
 
 If webhooks aren't working:
 
-1. **Is the gateway running?** Check with `systemctl --user status lightning-gateway` or `ps aux | grep gateway`
+1. **Is the gateway running?** Check with `systemctl --user status sonic-gateway` or `ps aux | grep gateway`
 2. **Is the webhook server listening?** `curl http://localhost:8644/health` should return `{"status": "ok"}`
-3. **Check gateway logs:** `grep webhook ~/.lightning/logs/gateway.log | tail -20`
-4. **Signature mismatch?** Verify the secret in your service matches the one from `lightning webhook list`. GitHub sends `X-Hub-Signature-256`, GitLab sends `X-Gitlab-Token`.
+3. **Check gateway logs:** `grep webhook ~/.sonic/logs/gateway.log | tail -20`
+4. **Signature mismatch?** Verify the secret in your service matches the one from `sonic webhook list`. GitHub sends `X-Hub-Signature-256`, GitLab sends `X-Gitlab-Token`.
 5. **Firewall/NAT?** The webhook URL must be reachable from the service. For local development, use a tunnel (ngrok, cloudflared).
-6. **Wrong event type?** Check `--events` filter matches what the service sends. Use `lightning webhook test <name>` to verify the route works.
+6. **Wrong event type?** Check `--events` filter matches what the service sends. Use `sonic webhook test <name>` to verify the route works.

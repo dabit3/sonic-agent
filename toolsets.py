@@ -28,7 +28,7 @@ from typing import List, Dict, Any, Set, Optional
 
 # Shared tool list for CLI and all messaging platform toolsets.
 # Edit this once to update all platforms simultaneously.
-_LIGHTNING_CORE_TOOLS = [
+_SONIC_CORE_TOOLS = [
     # Web
     "web_search", "web_extract",
     # Terminal + process management
@@ -61,7 +61,7 @@ _LIGHTNING_CORE_TOOLS = [
     # Home Assistant smart home control (gated on HASS_TOKEN via check_fn)
     "ha_list_entities", "ha_get_state", "ha_list_services", "ha_call_service",
     # Kanban multi-agent coordination — only in schema when the agent is
-    # spawned as a kanban worker (LIGHTNING_KANBAN_TASK env set) or the current
+    # spawned as a kanban worker (SONIC_KANBAN_TASK env set) or the current
     # profile explicitly enables the kanban toolset. Gated via check_fn in
     # tools/kanban_tools.py.
     "kanban_show", "kanban_list",
@@ -94,7 +94,7 @@ TOOLSETS = {
             "Search X (Twitter) posts and threads via xAI's built-in "
             "x_search Responses tool. Available when xAI credentials are "
             "configured (SuperGrok OAuth or XAI_API_KEY). Off by default; "
-            "enable in `lightning tools` → X (Twitter) Search."
+            "enable in `sonic tools` → X (Twitter) Search."
         ),
         "tools": ["x_search"],
         "includes": []
@@ -123,7 +123,7 @@ TOOLSETS = {
             "Video generation tools. Single ``video_generate`` tool covers "
             "text-to-video (prompt only) and image-to-video (prompt + "
             "image_url) — the active backend auto-routes. Configure via "
-            "``lightning tools`` → Video Generation."
+            "``sonic tools`` → Video Generation."
         ),
         "tools": ["video_generate"],
         "includes": []
@@ -242,7 +242,7 @@ TOOLSETS = {
     "kanban": {
         "description": (
             "Kanban multi-agent coordination — only active when the agent "
-            "is spawned by the kanban dispatcher (LIGHTNING_KANBAN_TASK env "
+            "is spawned by the kanban dispatcher (SONIC_KANBAN_TASK env "
             "set). The dispatcher runs inside the gateway by default; see "
             "`kanban.dispatch_in_gateway` in config.yaml. Lets workers mark "
             "tasks done with structured handoffs, block for human input, "
@@ -322,13 +322,13 @@ TOOLSETS = {
     },
     
     # ==========================================================================
-    # Full Lightning toolsets (CLI + messaging platforms)
+    # Full Sonic toolsets (CLI + messaging platforms)
     #
     # All platforms share the same core tools (including send_message,
     # which is gated on gateway running via its check_fn).
     # ==========================================================================
 
-    "lightning-acp": {
+    "sonic-acp": {
         "description": "Editor integration (VS Code, Zed, JetBrains) — coding-focused tools without messaging, audio, or clarify UI",
         "tools": [
             "web_search", "web_extract",
@@ -347,7 +347,7 @@ TOOLSETS = {
         "includes": []
     },
 
-    "lightning-api-server": {
+    "sonic-api-server": {
         "description": "OpenAI-compatible API server — full agent tools accessible via HTTP (no interactive UI tools like clarify or send_message)",
         "tools": [
             # Web
@@ -380,95 +380,95 @@ TOOLSETS = {
         "includes": []
     },
     
-    "lightning-cli": {
+    "sonic-cli": {
         "description": "Full interactive CLI toolset - all default tools plus cronjob management",
-        "tools": _LIGHTNING_CORE_TOOLS,
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
 
-    "lightning-cron": {
-        # Mirrors lightning-cli so cron's "default" toolset is the same set of
-        # core tools users see interactively — then `lightning tools` filters
+    "sonic-cron": {
+        # Mirrors sonic-cli so cron's "default" toolset is the same set of
+        # core tools users see interactively — then `sonic tools` filters
         # them down per the platform config. _DEFAULT_OFF_TOOLSETS (moa,
         # homeassistant) are excluded by _get_platform_tools() unless
         # the user explicitly enables them.
-        "description": "Default cron toolset - same core tools as lightning-cli; gated by `lightning tools`",
-        "tools": _LIGHTNING_CORE_TOOLS,
+        "description": "Default cron toolset - same core tools as sonic-cli; gated by `sonic tools`",
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
 
-    "lightning-telegram": {
+    "sonic-telegram": {
         "description": "Telegram bot toolset - full access for personal use (terminal has safety checks)",
-        "tools": _LIGHTNING_CORE_TOOLS,
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
     
-    "lightning-discord": {
+    "sonic-discord": {
         "description": "Discord bot toolset - full access (terminal has safety checks via dangerous command approval)",
-        "tools": _LIGHTNING_CORE_TOOLS + [
+        "tools": _SONIC_CORE_TOOLS + [
             "discord",
             "discord_admin",
         ],
         "includes": []
     },
     
-    "lightning-whatsapp": {
+    "sonic-whatsapp": {
         "description": "WhatsApp bot toolset - similar to Telegram (personal messaging, more trusted)",
-        "tools": _LIGHTNING_CORE_TOOLS,
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
     
-    "lightning-slack": {
+    "sonic-slack": {
         "description": "Slack bot toolset - full access for workspace use (terminal has safety checks)",
-        "tools": _LIGHTNING_CORE_TOOLS,
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
     
-    "lightning-signal": {
+    "sonic-signal": {
         "description": "Signal bot toolset - encrypted messaging platform (full access)",
-        "tools": _LIGHTNING_CORE_TOOLS,
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
 
-    "lightning-bluebubbles": {
+    "sonic-bluebubbles": {
         "description": "BlueBubbles iMessage bot toolset - Apple iMessage via local BlueBubbles server",
-        "tools": _LIGHTNING_CORE_TOOLS,
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
 
-    "lightning-homeassistant": {
+    "sonic-homeassistant": {
         "description": "Home Assistant bot toolset - smart home event monitoring and control",
-        "tools": _LIGHTNING_CORE_TOOLS,
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
 
-    "lightning-email": {
-        "description": "Email bot toolset - interact with Lightning via email (IMAP/SMTP)",
-        "tools": _LIGHTNING_CORE_TOOLS,
+    "sonic-email": {
+        "description": "Email bot toolset - interact with Sonic via email (IMAP/SMTP)",
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
 
-    "lightning-mattermost": {
+    "sonic-mattermost": {
         "description": "Mattermost bot toolset - self-hosted team messaging (full access)",
-        "tools": _LIGHTNING_CORE_TOOLS,
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
 
-    "lightning-matrix": {
+    "sonic-matrix": {
         "description": "Matrix bot toolset - decentralized encrypted messaging (full access)",
-        "tools": _LIGHTNING_CORE_TOOLS,
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
 
-    "lightning-dingtalk": {
+    "sonic-dingtalk": {
         "description": "DingTalk bot toolset - enterprise messaging platform (full access)",
-        "tools": _LIGHTNING_CORE_TOOLS,
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
 
-    "lightning-feishu": {
+    "sonic-feishu": {
         "description": "Feishu/Lark bot toolset - enterprise messaging via Feishu/Lark (full access)",
-        "tools": _LIGHTNING_CORE_TOOLS + [
+        "tools": _SONIC_CORE_TOOLS + [
             "feishu_doc_read",
             "feishu_drive_list_comments",
             "feishu_drive_list_comment_replies",
@@ -478,33 +478,33 @@ TOOLSETS = {
         "includes": []
     },
 
-    "lightning-weixin": {
+    "sonic-weixin": {
         "description": "Weixin bot toolset - personal WeChat messaging via iLink (full access)",
-        "tools": _LIGHTNING_CORE_TOOLS,
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
 
-    "lightning-qqbot": {
+    "sonic-qqbot": {
         "description": "QQBot toolset - QQ messaging via Official Bot API v2 (full access)",
-        "tools": _LIGHTNING_CORE_TOOLS,
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
 
-    "lightning-wecom": {
+    "sonic-wecom": {
         "description": "WeCom bot toolset - enterprise WeChat messaging (full access)",
-        "tools": _LIGHTNING_CORE_TOOLS,
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
 
-    "lightning-wecom-callback": {
+    "sonic-wecom-callback": {
         "description": "WeCom callback toolset - enterprise self-built app messaging (full access)",
-        "tools": _LIGHTNING_CORE_TOOLS,
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
 
-    "lightning-yuanbao": {
+    "sonic-yuanbao": {
         "description": "Yuanbao Bot 元宝消息平台工具集 - 群信息、成员查询、私聊、贴纸表情",
-        "tools": _LIGHTNING_CORE_TOOLS + [
+        "tools": _SONIC_CORE_TOOLS + [
             "yb_query_group_info",
             "yb_query_group_members",
             "yb_send_dm",
@@ -515,22 +515,22 @@ TOOLSETS = {
         "includes": []
     },
 
-    "lightning-sms": {
-        "description": "SMS bot toolset - interact with Lightning via SMS (Twilio)",
-        "tools": _LIGHTNING_CORE_TOOLS,
+    "sonic-sms": {
+        "description": "SMS bot toolset - interact with Sonic via SMS (Twilio)",
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
 
-    "lightning-webhook": {
+    "sonic-webhook": {
         "description": "Webhook toolset - receive and process external webhook events",
-        "tools": _LIGHTNING_CORE_TOOLS,
+        "tools": _SONIC_CORE_TOOLS,
         "includes": []
     },
 
-    "lightning-gateway": {
+    "sonic-gateway": {
         "description": "Gateway toolset - union of all messaging platform tools",
         "tools": [],
-        "includes": ["lightning-telegram", "lightning-discord", "lightning-whatsapp", "lightning-slack", "lightning-signal", "lightning-bluebubbles", "lightning-homeassistant", "lightning-email", "lightning-sms", "lightning-mattermost", "lightning-matrix", "lightning-dingtalk", "lightning-feishu", "lightning-wecom", "lightning-wecom-callback", "lightning-weixin", "lightning-qqbot", "lightning-webhook", "lightning-yuanbao"]
+        "includes": ["sonic-telegram", "sonic-discord", "sonic-whatsapp", "sonic-slack", "sonic-signal", "sonic-bluebubbles", "sonic-homeassistant", "sonic-email", "sonic-sms", "sonic-mattermost", "sonic-matrix", "sonic-dingtalk", "sonic-feishu", "sonic-wecom", "sonic-wecom-callback", "sonic-weixin", "sonic-qqbot", "sonic-webhook", "sonic-yuanbao"]
     }
 }
 
@@ -625,15 +625,15 @@ def resolve_toolset(name: str, visited: Set[str] = None) -> List[str]:
     # Get toolset definition
     toolset = get_toolset(name)
     if not toolset:
-        # Auto-generate a toolset for plugin platforms (lightning-<name>).
-        # Gives them _LIGHTNING_CORE_TOOLS plus any tools the plugin registered
+        # Auto-generate a toolset for plugin platforms (sonic-<name>).
+        # Gives them _SONIC_CORE_TOOLS plus any tools the plugin registered
         # into a toolset matching the platform name.
-        if name.startswith("lightning-"):
-            platform_name = name[len("lightning-"):]
+        if name.startswith("sonic-"):
+            platform_name = name[len("sonic-"):]
             try:
                 from gateway.platform_registry import platform_registry
                 if platform_registry.is_registered(platform_name):
-                    plugin_tools = set(_LIGHTNING_CORE_TOOLS)
+                    plugin_tools = set(_SONIC_CORE_TOOLS)
                     try:
                         from tools.registry import registry
                         plugin_tools.update(

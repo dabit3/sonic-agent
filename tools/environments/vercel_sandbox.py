@@ -1,8 +1,8 @@
 """Vercel Sandbox execution environment.
 
-Uses the Vercel Python SDK to run commands in cloud sandboxes through Lightning'
+Uses the Vercel Python SDK to run commands in cloud sandboxes through Sonic'
 shared ``BaseEnvironment`` shell contract. When persistence is enabled, the
-backend stores task-scoped snapshot metadata under ``LIGHTNING_HOME`` and restores
+backend stores task-scoped snapshot metadata under ``SONIC_HOME`` and restores
 new sandboxes from those snapshots on later task reuse.
 """
 
@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Any
 
 import httpx
 
-from lightning_constants import get_lightning_home
+from sonic_constants import get_sonic_home
 from tools.environments.base import (
     BaseEnvironment,
     _ThreadedProcessHandle,
@@ -153,7 +153,7 @@ def _extract_result_returncode(result: Any) -> int:
 
 
 def _snapshot_store_path() -> Path:
-    return get_lightning_home() / _SNAPSHOT_STORE_NAME
+    return get_sonic_home() / _SNAPSHOT_STORE_NAME
 
 
 def _load_snapshots() -> dict:
@@ -339,9 +339,9 @@ class VercelSandboxEnvironment(BaseEnvironment):
         self._remote_home = self._detect_remote_home()
 
         if self._remote_home == "/":
-            container_base = "/.lightning"
+            container_base = "/.sonic"
         else:
-            container_base = f"{self._remote_home.rstrip('/')}/.lightning"
+            container_base = f"{self._remote_home.rstrip('/')}/.sonic"
         self._sync_manager = FileSyncManager(
             get_files_fn=lambda: iter_sync_files(container_base),
             upload_fn=self._vercel_upload,
@@ -544,13 +544,13 @@ class VercelSandboxEnvironment(BaseEnvironment):
             )
 
     def _vercel_bulk_download(self, dest_tar_path: Path) -> None:
-        remote_lightning = (
-            "/.lightning"
+        remote_sonic = (
+            "/.sonic"
             if self._remote_home == "/"
-            else f"{self._remote_home.rstrip('/')}/.lightning"
+            else f"{self._remote_home.rstrip('/')}/.sonic"
         )
-        archive_member = remote_lightning.lstrip("/")
-        remote_tar = f"/tmp/.lightning_sync.{os.getpid()}.tar"
+        archive_member = remote_sonic.lstrip("/")
+        remote_tar = f"/tmp/.sonic_sync.{os.getpid()}.tar"
         sandbox = self._sandbox
         if sandbox is None:
             raise RuntimeError("Vercel sandbox is not attached")

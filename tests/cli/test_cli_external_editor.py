@@ -2,7 +2,7 @@
 
 from unittest.mock import patch
 
-from cli import LightningCLI
+from cli import SonicCLI
 
 
 class _FakeBuffer:
@@ -21,7 +21,7 @@ class _FakeApp:
 
 
 def _make_cli(with_app=True):
-    cli_obj = LightningCLI.__new__(LightningCLI)
+    cli_obj = SonicCLI.__new__(SonicCLI)
     cli_obj._app = _FakeApp() if with_app else None
     cli_obj._command_running = False
     cli_obj._command_status = ""

@@ -1,7 +1,7 @@
 ---
 sidebar_position: 11
 title: "Image Generation Provider Plugins"
-description: "How to build an image-generation backend plugin for Lightning Agent"
+description: "How to build an image-generation backend plugin for Sonic Agent"
 ---
 
 # Building an Image Generation Provider Plugin
@@ -9,20 +9,20 @@ description: "How to build an image-generation backend plugin for Lightning Agen
 Image-gen provider plugins register a backend that services every `image_generate` tool call — DALL·E, gpt-image, Grok, Flux, Imagen, Stable Diffusion, fal, Replicate, a local ComfyUI rig, anything. Built-in providers (OpenAI, OpenAI-Codex, xAI) all ship as plugins. You can add a new one, or override a bundled one, by dropping a directory into `plugins/image_gen/<name>/`.
 
 :::tip
-Image-gen is one of several **backend plugins** Lightning supports. The others (with more specialized ABCs) are [Memory Provider Plugins](/docs/developer-guide/memory-provider-plugin), [Context Engine Plugins](/docs/developer-guide/context-engine-plugin), and [Model Provider Plugins](/docs/developer-guide/model-provider-plugin). General tool/hook/CLI plugins live in [Build a Lightning Plugin](/docs/guides/build-a-lightning-plugin).
+Image-gen is one of several **backend plugins** Sonic supports. The others (with more specialized ABCs) are [Memory Provider Plugins](/docs/developer-guide/memory-provider-plugin), [Context Engine Plugins](/docs/developer-guide/context-engine-plugin), and [Model Provider Plugins](/docs/developer-guide/model-provider-plugin). General tool/hook/CLI plugins live in [Build a Sonic Plugin](/docs/guides/build-a-sonic-plugin).
 :::
 
 ## How discovery works
 
-Lightning scans for image-gen backends in three places:
+Sonic scans for image-gen backends in three places:
 
 1. **Bundled** — `<repo>/plugins/image_gen/<name>/` (auto-loaded with `kind: backend`, always available)
-2. **User** — `~/.lightning/plugins/image_gen/<name>/` (opt-in via `plugins.enabled`)
-3. **Pip** — packages declaring a `lightning_agent.plugins` entry point
+2. **User** — `~/.sonic/plugins/image_gen/<name>/` (opt-in via `plugins.enabled`)
+3. **Pip** — packages declaring a `sonic_agent.plugins` entry point
 
-Each plugin's `register(ctx)` function calls `ctx.register_image_gen_provider(...)` — that puts it into the registry in `agent/image_gen_registry.py`. The active provider is picked by `image_gen.provider` in `config.yaml`; `lightning tools` walks users through selection.
+Each plugin's `register(ctx)` function calls `ctx.register_image_gen_provider(...)` — that puts it into the registry in `agent/image_gen_registry.py`. The active provider is picked by `image_gen.provider` in `config.yaml`; `sonic tools` walks users through selection.
 
-The `image_generate` tool wrapper asks the registry for the active provider and dispatches there. If no provider is registered, the tool surfaces a helpful error pointing at `lightning tools`.
+The `image_generate` tool wrapper asks the registry for the active provider and dispatches there. If no provider is registered, the tool surfaces a helpful error pointing at `sonic tools`.
 
 ## Directory structure
 
@@ -32,7 +32,7 @@ plugins/image_gen/my-backend/
 └── plugin.yaml      # Manifest with kind: backend
 ```
 
-A bundled plugin is complete at this point. User plugins at `~/.lightning/plugins/image_gen/<name>/` need to be added to `plugins.enabled` in `config.yaml` (or run `lightning plugins enable <name>`).
+A bundled plugin is complete at this point. User plugins at `~/.sonic/plugins/image_gen/<name>/` need to be added to `plugins.enabled` in `config.yaml` (or run `sonic plugins enable <name>`).
 
 ## The ImageGenProvider ABC
 
@@ -61,7 +61,7 @@ class MyBackendImageGenProvider(ImageGenProvider):
 
     @property
     def display_name(self) -> str:
-        # Human label shown in `lightning tools`. Defaults to name.title() if omitted.
+        # Human label shown in `sonic tools`. Defaults to name.title() if omitted.
         return "My Backend"
 
     def is_available(self) -> bool:
@@ -76,7 +76,7 @@ class MyBackendImageGenProvider(ImageGenProvider):
         return True
 
     def list_models(self) -> List[Dict[str, Any]]:
-        # Catalog shown in `lightning tools` model picker.
+        # Catalog shown in `sonic tools` model picker.
         return [
             {
                 "id": "my-model-fast",
@@ -98,7 +98,7 @@ class MyBackendImageGenProvider(ImageGenProvider):
         return "my-model-fast"
 
     def get_setup_schema(self) -> Dict[str, Any]:
-        # Metadata for the `lightning tools` picker — keys to prompt for at setup.
+        # Metadata for the `sonic tools` picker — keys to prompt for at setup.
         return {
             "name": "My Backend",
             "badge": "paid",        # optional; shown as a short tag in the picker
@@ -145,7 +145,7 @@ class MyBackendImageGenProvider(ImageGenProvider):
 
             # Two shapes supported:
             #   - URL string: return it as `image`
-            #   - base64 data: save under $LIGHTNING_HOME/cache/images/ via save_b64_image()
+            #   - base64 data: save under $SONIC_HOME/cache/images/ via save_b64_image()
             if result.get("image_b64"):
                 path = save_b64_image(
                     result["image_b64"],
@@ -191,7 +191,7 @@ requires_env:
   - MY_BACKEND_API_KEY
 ```
 
-`kind: backend` is what routes the plugin to the image-gen registration path. `requires_env` is prompted during `lightning plugins install`.
+`kind: backend` is what routes the plugin to the image-gen registration path. `requires_env` is prompted during `sonic plugins install`.
 
 ## ABC reference
 
@@ -200,9 +200,9 @@ Full contract in `agent/image_gen_provider.py`. The methods you'll typically ove
 | Member | Required | Default | Purpose |
 |---|---|---|---|
 | `name` | ✅ | — | Stable id used in `image_gen.provider` config |
-| `display_name` | — | `name.title()` | Label shown in `lightning tools` |
+| `display_name` | — | `name.title()` | Label shown in `sonic tools` |
 | `is_available()` | — | `True` | Gate for missing creds/deps |
-| `list_models()` | — | `[]` | Catalog for `lightning tools` model picker |
+| `list_models()` | — | `[]` | Catalog for `sonic tools` model picker |
 | `default_model()` | — | first from `list_models()` | Fallback when no model is configured |
 | `get_setup_schema()` | — | minimal | Picker metadata + env-var prompts |
 | `generate(prompt, aspect_ratio, **kwargs)` | ✅ | — | The call |
@@ -239,31 +239,31 @@ The tool wrapper JSON-serializes the dict and hands it to the LLM. Errors are su
 
 ## Handling base64 vs URL output
 
-Some backends return image URLs (fal, Replicate); others return base64 payloads (OpenAI gpt-image-2). For the base64 case, use `save_b64_image()` — it writes to `$LIGHTNING_HOME/cache/images/<prefix>_<timestamp>_<uuid>.<ext>` and returns the absolute `Path`. Pass that path (as `str`) as `image=` in `success_response()`. Gateway delivery (Telegram photo bubble, Discord attachment) recognizes both URLs and absolute paths.
+Some backends return image URLs (fal, Replicate); others return base64 payloads (OpenAI gpt-image-2). For the base64 case, use `save_b64_image()` — it writes to `$SONIC_HOME/cache/images/<prefix>_<timestamp>_<uuid>.<ext>` and returns the absolute `Path`. Pass that path (as `str`) as `image=` in `success_response()`. Gateway delivery (Telegram photo bubble, Discord attachment) recognizes both URLs and absolute paths.
 
 ## User overrides
 
-Drop a user plugin at `~/.lightning/plugins/image_gen/<name>/` with the same `name` property as a bundled one and enable it via `lightning plugins enable <name>` — the registry is last-writer-wins, so your version replaces the built-in. Useful for pointing an `openai` plugin at a private proxy, or swapping in a custom model catalog.
+Drop a user plugin at `~/.sonic/plugins/image_gen/<name>/` with the same `name` property as a bundled one and enable it via `sonic plugins enable <name>` — the registry is last-writer-wins, so your version replaces the built-in. Useful for pointing an `openai` plugin at a private proxy, or swapping in a custom model catalog.
 
 ## Testing
 
 ```bash
-export LIGHTNING_HOME=/tmp/lightning-imggen-test
-mkdir -p $LIGHTNING_HOME/plugins/image_gen/my-backend
+export SONIC_HOME=/tmp/sonic-imggen-test
+mkdir -p $SONIC_HOME/plugins/image_gen/my-backend
 # …copy __init__.py + plugin.yaml into that dir…
 
 export MY_BACKEND_API_KEY=your-test-key
-lightning plugins enable my-backend
+sonic plugins enable my-backend
 
 # Pick it as the active provider
-echo "image_gen:" >> $LIGHTNING_HOME/config.yaml
-echo "  provider: my-backend" >> $LIGHTNING_HOME/config.yaml
+echo "image_gen:" >> $SONIC_HOME/config.yaml
+echo "  provider: my-backend" >> $SONIC_HOME/config.yaml
 
 # Exercise it
-lightning -z "Generate an image of a corgi in a spacesuit"
+sonic -z "Generate an image of a corgi in a spacesuit"
 ```
 
-Or interactively: `lightning tools` → "Image Generation" → select `my-backend` → enter API key if prompted.
+Or interactively: `sonic tools` → "Image Generation" → select `my-backend` → enter API key if prompted.
 
 ## Reference implementations
 
@@ -275,14 +275,14 @@ Or interactively: `lightning tools` → "Image Generation" → select `my-backen
 
 ```toml
 # pyproject.toml
-[project.entry-points."lightning_agent.plugins"]
+[project.entry-points."sonic_agent.plugins"]
 my-backend-imggen = "my_backend_imggen_package"
 ```
 
-`my_backend_imggen_package` must expose a top-level `register` function. See [Distribute via pip](/docs/guides/build-a-lightning-plugin#distribute-via-pip) in the general plugin guide for the full setup.
+`my_backend_imggen_package` must expose a top-level `register` function. See [Distribute via pip](/docs/guides/build-a-sonic-plugin#distribute-via-pip) in the general plugin guide for the full setup.
 
 ## Related pages
 
 - [Image Generation](/docs/user-guide/features/image-generation) — user-facing feature documentation
 - [Plugins overview](/docs/user-guide/features/plugins) — all plugin types at a glance
-- [Build a Lightning Plugin](/docs/guides/build-a-lightning-plugin) — general tools/hooks/slash commands guide
+- [Build a Sonic Plugin](/docs/guides/build-a-sonic-plugin) — general tools/hooks/slash commands guide

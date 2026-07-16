@@ -96,6 +96,6 @@ let
         pythonPackageOverrides
       ]);
 in
-pythonSet.mkVirtualEnv "lightning-agent-env" {
-  lightning-agent = dependency-groups;
+pythonSet.mkVirtualEnv "sonic-agent-env" {
+  sonic-agent = dependency-groups;
 }

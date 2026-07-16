@@ -2,20 +2,20 @@
 name: spotify
 description: "Spotify: play, search, queue, manage playlists and devices."
 version: 1.0.0
-author: Lightning Agent
+author: Sonic Agent
 license: MIT
 platforms: [linux, macos, windows]
 prerequisites:
   tools: [spotify_playback, spotify_devices, spotify_queue, spotify_search, spotify_playlists, spotify_albums, spotify_library]
 metadata:
-  lightning:
+  sonic:
     tags: [spotify, music, playback, playlists, media]
     related_skills: [gif-search]
 ---
 
 # Spotify
 
-Control the user's Spotify account via the Lightning Spotify toolset (7 tools). Setup guide: https://lightning-agent.nousresearch.com/docs/user-guide/features/spotify
+Control the user's Spotify account via the Sonic Spotify toolset (7 tools). Setup guide: https://lightning-agent.nousresearch.com/docs/user-guide/features/spotify
 
 ## When to use this skill
 
@@ -112,7 +112,7 @@ spotify_devices({"action": "transfer", "device_id": "<id>", "play": true})
 
 **`429 Too Many Requests`** = rate limit. Wait and retry once. If it keeps happening, you're looping — stop.
 
-**`401 Unauthorized` after a retry** — refresh token revoked. Tell the user to run `lightning auth spotify` again.
+**`401 Unauthorized` after a retry** — refresh token revoked. Tell the user to run `sonic auth spotify` again.
 
 ## URI and ID formats
 

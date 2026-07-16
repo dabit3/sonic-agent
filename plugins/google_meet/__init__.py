@@ -95,8 +95,8 @@ def register(ctx) -> None:
         setup_fn=_register_meet_cli,
         handler_fn=_meet_command,
         description=(
-            "Let the lightning agent join a Google Meet call and scrape live "
-            "captions into a transcript. See: lightning meet setup"
+            "Let the sonic agent join a Google Meet call and scrape live "
+            "captions into a transcript. See: sonic meet setup"
         ),
     )
 

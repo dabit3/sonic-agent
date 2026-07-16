@@ -2,13 +2,13 @@
 name: xurl
 description: "X/Twitter via xurl CLI: post, search, DM, media, v2 API."
 version: 1.1.1
-author: xdevplatform + openclaw + Lightning Agent
+author: xdevplatform + openclaw + Sonic Agent
 license: MIT
 platforms: [linux, macos]
 prerequisites:
   commands: [xurl]
 metadata:
-  lightning:
+  sonic:
     tags: [twitter, x, social-media, xurl, official-api]
     homepage: https://github.com/xdevplatform/xurl
     upstream_skill: https://github.com/openclaw/openclaw/blob/main/skills/xurl/SKILL.md
@@ -411,4 +411,4 @@ xurl --app staging /2/users/me             # one-off against staging
 
 - Upstream CLI: https://github.com/xdevplatform/xurl (X developer platform team, Chris Park et al.)
 - Upstream agent skill: https://github.com/openclaw/openclaw/blob/main/skills/xurl/SKILL.md
-- Lightning adaptation: reformatted for Lightning skill conventions; safety guardrails preserved verbatim.
+- Sonic adaptation: reformatted for Sonic skill conventions; safety guardrails preserved verbatim.

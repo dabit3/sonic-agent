@@ -1,6 +1,6 @@
 """Regression tests for the config.yaml → env var bridge in gateway/run.py.
 
-Guards against the 60-vs-500 bug where a stale `.env LIGHTNING_MAX_ITERATIONS=60`
+Guards against the 60-vs-500 bug where a stale `.env SONIC_MAX_ITERATIONS=60`
 entry silently shadowed `agent.max_turns: 500` in config.yaml because the
 bridge used `if X not in os.environ` guards. After PR#18413 the bridge
 treats config.yaml as authoritative and unconditionally overwrites .env
@@ -21,7 +21,7 @@ import pytest
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
-def _run_gateway_import(lightning_home: Path, initial_env: dict[str, str]) -> dict[str, str]:
+def _run_gateway_import(sonic_home: Path, initial_env: dict[str, str]) -> dict[str, str]:
     """Import gateway.run in a clean subprocess and return the post-import env.
 
     The bridge runs at module-import time, so simply importing is enough
@@ -41,11 +41,11 @@ def _run_gateway_import(lightning_home: Path, initial_env: dict[str, str]) -> di
             sys.exit(2)
 
         for k in (
-            "LIGHTNING_MAX_ITERATIONS",
-            "LIGHTNING_AGENT_TIMEOUT",
-            "LIGHTNING_AGENT_TIMEOUT_WARNING",
-            "LIGHTNING_GATEWAY_BUSY_INPUT_MODE",
-            "LIGHTNING_TIMEZONE",
+            "SONIC_MAX_ITERATIONS",
+            "SONIC_AGENT_TIMEOUT",
+            "SONIC_AGENT_TIMEOUT_WARNING",
+            "SONIC_GATEWAY_BUSY_INPUT_MODE",
+            "SONIC_TIMEZONE",
         ):
             v = os.environ.get(k)
             if v is not None:
@@ -53,7 +53,7 @@ def _run_gateway_import(lightning_home: Path, initial_env: dict[str, str]) -> di
         """
     )
     env = dict(initial_env)
-    env["LIGHTNING_HOME"] = str(lightning_home)
+    env["SONIC_HOME"] = str(sonic_home)
     # Keep PATH / PYTHONPATH so venv imports resolve.
     for k in ("PATH", "PYTHONPATH", "VIRTUAL_ENV", "HOME"):
         if k in os.environ and k not in env:
@@ -98,69 +98,69 @@ def _write_env(home: Path, entries: dict[str, str]) -> None:
 
 
 @pytest.fixture
-def lightning_home(tmp_path: Path) -> Path:
-    home = tmp_path / ".lightning"
+def sonic_home(tmp_path: Path) -> Path:
+    home = tmp_path / ".sonic"
     home.mkdir()
     return home
 
 
-def test_config_max_turns_wins_over_stale_env(lightning_home: Path) -> None:
+def test_config_max_turns_wins_over_stale_env(sonic_home: Path) -> None:
     """Regression: config.yaml:agent.max_turns=500 must beat .env=60."""
-    _write_config(lightning_home, agent_cfg={"max_turns": 500})
-    _write_env(lightning_home, {"LIGHTNING_MAX_ITERATIONS": "60"})
+    _write_config(sonic_home, agent_cfg={"max_turns": 500})
+    _write_env(sonic_home, {"SONIC_MAX_ITERATIONS": "60"})
 
-    env = _run_gateway_import(lightning_home, initial_env={})
+    env = _run_gateway_import(sonic_home, initial_env={})
 
-    assert env.get("LIGHTNING_MAX_ITERATIONS") == "500", (
-        f"expected config.yaml max_turns=500 to win; got {env.get('LIGHTNING_MAX_ITERATIONS')!r}. "
+    assert env.get("SONIC_MAX_ITERATIONS") == "500", (
+        f"expected config.yaml max_turns=500 to win; got {env.get('SONIC_MAX_ITERATIONS')!r}. "
         "Stale .env value is shadowing config — the bridge lost its override."
     )
 
 
-def test_config_gateway_timeout_wins_over_stale_env(lightning_home: Path) -> None:
+def test_config_gateway_timeout_wins_over_stale_env(sonic_home: Path) -> None:
     """Every agent.* bridge key must be config-authoritative, not .env-authoritative."""
-    _write_config(lightning_home, agent_cfg={
+    _write_config(sonic_home, agent_cfg={
         "gateway_timeout": 1800,
         "gateway_timeout_warning": 900,
     })
-    _write_env(lightning_home, {
-        "LIGHTNING_AGENT_TIMEOUT": "60",
-        "LIGHTNING_AGENT_TIMEOUT_WARNING": "30",
+    _write_env(sonic_home, {
+        "SONIC_AGENT_TIMEOUT": "60",
+        "SONIC_AGENT_TIMEOUT_WARNING": "30",
     })
 
-    env = _run_gateway_import(lightning_home, initial_env={})
+    env = _run_gateway_import(sonic_home, initial_env={})
 
-    assert env.get("LIGHTNING_AGENT_TIMEOUT") == "1800"
-    assert env.get("LIGHTNING_AGENT_TIMEOUT_WARNING") == "900"
-
-
-def test_config_display_busy_input_mode_wins_over_stale_env(lightning_home: Path) -> None:
-    _write_config(lightning_home, display_cfg={"busy_input_mode": "interrupt"})
-    _write_env(lightning_home, {"LIGHTNING_GATEWAY_BUSY_INPUT_MODE": "queue"})
-
-    env = _run_gateway_import(lightning_home, initial_env={})
-
-    assert env.get("LIGHTNING_GATEWAY_BUSY_INPUT_MODE") == "interrupt"
+    assert env.get("SONIC_AGENT_TIMEOUT") == "1800"
+    assert env.get("SONIC_AGENT_TIMEOUT_WARNING") == "900"
 
 
-def test_config_timezone_wins_over_stale_env(lightning_home: Path) -> None:
-    _write_config(lightning_home, timezone="America/Los_Angeles")
-    _write_env(lightning_home, {"LIGHTNING_TIMEZONE": "UTC"})
+def test_config_display_busy_input_mode_wins_over_stale_env(sonic_home: Path) -> None:
+    _write_config(sonic_home, display_cfg={"busy_input_mode": "interrupt"})
+    _write_env(sonic_home, {"SONIC_GATEWAY_BUSY_INPUT_MODE": "queue"})
 
-    env = _run_gateway_import(lightning_home, initial_env={})
+    env = _run_gateway_import(sonic_home, initial_env={})
 
-    assert env.get("LIGHTNING_TIMEZONE") == "America/Los_Angeles"
+    assert env.get("SONIC_GATEWAY_BUSY_INPUT_MODE") == "interrupt"
 
 
-def test_env_value_survives_when_config_omits_key(lightning_home: Path) -> None:
+def test_config_timezone_wins_over_stale_env(sonic_home: Path) -> None:
+    _write_config(sonic_home, timezone="America/Los_Angeles")
+    _write_env(sonic_home, {"SONIC_TIMEZONE": "UTC"})
+
+    env = _run_gateway_import(sonic_home, initial_env={})
+
+    assert env.get("SONIC_TIMEZONE") == "America/Los_Angeles"
+
+
+def test_env_value_survives_when_config_omits_key(sonic_home: Path) -> None:
     """If config.yaml doesn't set max_turns, .env value must still pass through.
 
     The bridge only overwrites when the config key is present — an absent
     config key should NOT clobber the .env value.
     """
-    _write_config(lightning_home, agent_cfg={})  # no max_turns
-    _write_env(lightning_home, {"LIGHTNING_MAX_ITERATIONS": "123"})
+    _write_config(sonic_home, agent_cfg={})  # no max_turns
+    _write_env(sonic_home, {"SONIC_MAX_ITERATIONS": "123"})
 
-    env = _run_gateway_import(lightning_home, initial_env={})
+    env = _run_gateway_import(sonic_home, initial_env={})
 
-    assert env.get("LIGHTNING_MAX_ITERATIONS") == "123"
+    assert env.get("SONIC_MAX_ITERATIONS") == "123"

@@ -1,4 +1,4 @@
-import { AlternateScreen, Box, NoSelect, ScrollBox, Text } from '@lightning/ink'
+import { AlternateScreen, Box, NoSelect, ScrollBox, Text } from '@sonic/ink'
 import { useStore } from '@nanostores/react'
 import { Fragment, memo, useMemo, useRef } from 'react'
 

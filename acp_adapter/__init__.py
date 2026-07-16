@@ -1,1 +1,1 @@
-"""ACP (Agent Communication Protocol) adapter for lightning-agent."""
+"""ACP (Agent Communication Protocol) adapter for sonic-agent."""

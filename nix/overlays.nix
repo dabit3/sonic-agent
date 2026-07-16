@@ -1,8 +1,8 @@
-# nix/overlays.nix — Expose pkgs.lightning-agent for external NixOS configs
+# nix/overlays.nix — Expose pkgs.sonic-agent for external NixOS configs
 { inputs, ... }:
 {
   flake.overlays.default = final: _: {
-    lightning-agent = final.callPackage ./lightning-agent.nix {
+    sonic-agent = final.callPackage ./sonic-agent.nix {
       inherit (inputs) uv2nix pyproject-nix pyproject-build-systems;
       npm-lockfile-fix = inputs.npm-lockfile-fix.packages.${final.stdenv.hostPlatform.system}.default;
       rev = inputs.self.rev or null;

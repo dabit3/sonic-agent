@@ -1790,7 +1790,7 @@
       <xsd:enumeration value="swooshArrow"/>
       <xsd:enumeration value="cube"/>
       <xsd:enumeration value="can"/>
-      <xsd:enumeration value="lightningBolt"/>
+      <xsd:enumeration value="sonicBolt"/>
       <xsd:enumeration value="heart"/>
       <xsd:enumeration value="sun"/>
       <xsd:enumeration value="moon"/>

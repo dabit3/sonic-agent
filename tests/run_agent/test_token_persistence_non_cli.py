@@ -73,9 +73,9 @@ def test_session_search_lazily_opens_db_when_entrypoint_did_not_pass_one(monkeyp
         def __new__(cls):
             return sentinel_db
 
-    lightning_state = ModuleType("lightning_state")
-    lightning_state.SessionDB = FakeSessionDB
-    monkeypatch.setitem(sys.modules, "lightning_state", lightning_state)
+    sonic_state = ModuleType("sonic_state")
+    sonic_state.SessionDB = FakeSessionDB
+    monkeypatch.setitem(sys.modules, "sonic_state", sonic_state)
 
     session_search_mod = ModuleType("tools.session_search_tool")
 
@@ -87,9 +87,9 @@ def test_session_search_lazily_opens_db_when_entrypoint_did_not_pass_one(monkeyp
     monkeypatch.setitem(sys.modules, "tools.session_search_tool", session_search_mod)
 
     agent = _make_agent(None, platform="acp")
-    result = json.loads(agent._invoke_tool("session_search", {"query": "Lightning"}, "task-id"))
+    result = json.loads(agent._invoke_tool("session_search", {"query": "Sonic"}, "task-id"))
 
     assert result["success"] is True
     assert captured["db"] is sentinel_db
-    assert captured["query"] == "Lightning"
+    assert captured["query"] == "Sonic"
     assert agent._session_db is sentinel_db

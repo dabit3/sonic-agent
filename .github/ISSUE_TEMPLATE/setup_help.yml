@@ -1,5 +1,5 @@
 name: "🔧 Setup / Installation Help"
-description: Having trouble installing or configuring Lightning? Ask here.
+description: Having trouble installing or configuring Sonic? Ask here.
 title: "[Setup]: "
 labels: ["setup"]
 body:
@@ -9,10 +9,10 @@ body:
         Sorry you're having trouble! Please fill out the details below so we can help.
 
         **Quick checks first:**
-        - Run `lightning debug share` and paste the links in the Debug Report section below
+        - Run `sonic debug share` and paste the links in the Debug Report section below
         - If you're in a chat session, you can use `/debug` instead — it does the same thing
-        - Try `lightning update` to get the latest version
-        - Check the [README troubleshooting section](https://github.com/NousResearch/lightning-agent#troubleshooting)
+        - Try `sonic update` to get the latest version
+        - Check the [README troubleshooting section](https://github.com/dabit3/sonic-agent#troubleshooting)
         - For general questions, consider the [Nous Research Discord](https://discord.gg/NousResearch) for faster help
 
   - type: textarea
@@ -21,7 +21,7 @@ body:
       label: What's Going Wrong?
       description: Describe what you're trying to do and where it fails.
       placeholder: |
-        I ran `lightning setup` and selected Nous Portal, but when I try to
+        I ran `sonic setup` and selected Nous Portal, but when I try to
         start the gateway I get...
     validations:
       required: true
@@ -33,9 +33,9 @@ body:
       description: What did you do? Include the exact commands you ran.
       placeholder: |
         1. Ran the install script: `curl -fsSL ... | bash`
-        2. Ran `lightning setup` and chose "Quick setup"
+        2. Ran `sonic setup` and chose "Quick setup"
         3. Selected OpenRouter, entered API key
-        4. Ran `lightning chat` and got error...
+        4. Ran `sonic chat` and got error...
     validations:
       required: true
 
@@ -68,10 +68,10 @@ body:
       placeholder: "3.11.9"
 
   - type: input
-    id: lightning-version
+    id: sonic-version
     attributes:
-      label: Lightning Version
-      description: Output of `lightning version` (if install got that far)
+      label: Sonic Version
+      description: Output of `sonic version` (if install got that far)
       placeholder: "2.1.0"
 
   - type: textarea
@@ -79,13 +79,13 @@ body:
     attributes:
       label: Debug Report
       description: |
-        Run `lightning debug share` from your terminal and paste the links it prints here.
+        Run `sonic debug share` from your terminal and paste the links it prints here.
         This uploads your system info, config, and recent logs to a paste service automatically.
 
         If you're in an interactive chat session, you can also use the `/debug` slash command — it does the same thing.
 
-        If the upload fails or install didn't get that far, run `lightning debug share --local` and paste the output directly.
-        If even that doesn't work, run `lightning doctor` and paste that output instead.
+        If the upload fails or install didn't get that far, run `sonic debug share --local` and paste the output directly.
+        If even that doesn't work, run `sonic doctor` and paste that output instead.
       placeholder: |
         Report   https://paste.rs/abc123
         agent.log   https://paste.rs/def456
@@ -107,6 +107,6 @@ body:
       label: What I've Already Tried
       description: List any fixes or workarounds you've already attempted.
       placeholder: |
-        - Ran `lightning update`
+        - Ran `sonic update`
         - Tried reinstalling with `pip install -e ".[all]"`
-        - Checked that OPENROUTER_API_KEY is set in ~/.lightning/.env
+        - Checked that OPENROUTER_API_KEY is set in ~/.sonic/.env

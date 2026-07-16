@@ -6,7 +6,7 @@ description: "How the ACP adapter works: lifecycle, sessions, event bridge, appr
 
 # ACP Internals
 
-The ACP adapter wraps Lightning' synchronous `AIAgent` in an async JSON-RPC stdio server.
+The ACP adapter wraps Sonic' synchronous `AIAgent` in an async JSON-RPC stdio server.
 
 Key implementation files:
 
@@ -22,22 +22,22 @@ Key implementation files:
 ## Boot flow
 
 ```text
-lightning acp / lightning-acp / python -m acp_adapter
+sonic acp / sonic-acp / python -m acp_adapter
   -> acp_adapter.entry.main()
   -> parse --version / --check / --setup before server startup
-  -> load ~/.lightning/.env
+  -> load ~/.sonic/.env
   -> configure stderr logging
-  -> construct LightningACPAgent
+  -> construct SonicACPAgent
   -> acp.run_agent(agent, use_unstable_protocol=True)
 ```
 
-The Zed ACP Registry path launches the same adapter through `uvx --from 'lightning-agent[acp]==<version>' lightning-acp`, pointed at the `lightning-agent` PyPI release.
+The Zed ACP Registry path launches the same adapter through `uvx --from 'sonic-agent[acp]==<version>' sonic-acp`, pointed at the `sonic-agent` PyPI release.
 
 Stdout is reserved for ACP JSON-RPC transport. Human-readable logs go to stderr.
 
 ## Major components
 
-### `LightningACPAgent`
+### `SonicACPAgent`
 
 `acp_adapter/server.py` implements the ACP agent protocol.
 
@@ -94,15 +94,15 @@ asyncio.run_coroutine_threadsafe(...)
 
 Mapping:
 
-- `allow_once` -> Lightning `once`
-- `allow_always` -> Lightning `always`
-- reject options -> Lightning `deny`
+- `allow_once` -> Sonic `once`
+- `allow_always` -> Sonic `always`
+- reject options -> Sonic `deny`
 
 Timeouts and bridge failures deny by default.
 
 ### Tool rendering helpers
 
-`acp_adapter/tools.py` maps Lightning tools to ACP tool kinds and builds editor-facing content.
+`acp_adapter/tools.py` maps Sonic tools to ACP tool kinds and builds editor-facing content.
 
 Examples:
 
@@ -116,7 +116,7 @@ Examples:
 ```text
 new_session(cwd)
   -> create SessionState
-  -> create AIAgent(platform="acp", enabled_toolsets=["lightning-acp"])
+  -> create AIAgent(platform="acp", enabled_toolsets=["sonic-acp"])
   -> bind task_id/session_id to cwd override
 
 prompt(..., session_id)
@@ -144,12 +144,12 @@ prompt(..., session_id)
 
 ACP does not implement its own auth store.
 
-Instead it reuses Lightning' runtime resolver:
+Instead it reuses Sonic' runtime resolver:
 
 - `acp_adapter/auth.py`
-- `lightning_cli/runtime_provider.py`
+- `sonic_cli/runtime_provider.py`
 
-So ACP advertises and uses the currently configured Lightning provider/credentials. It also always advertises a terminal setup auth method (`lightning-setup`, args `--setup`) so first-run registry clients can open Lightning' interactive model/provider configuration before starting a normal ACP session.
+So ACP advertises and uses the currently configured Sonic provider/credentials. It also always advertises a terminal setup auth method (`sonic-setup`, args `--setup`) so first-run registry clients can open Sonic' interactive model/provider configuration before starting a normal ACP session.
 
 ## Working directory binding
 
@@ -172,13 +172,13 @@ ACP temporarily installs an approval callback on the terminal tool during prompt
 
 ## Current limitations
 
-- ACP sessions are persisted to the shared `~/.lightning/state.db` (SessionDB) and transparently restored across process restarts; they appear in `session_search`
+- ACP sessions are persisted to the shared `~/.sonic/state.db` (SessionDB) and transparently restored across process restarts; they appear in `session_search`
 - non-text prompt blocks are currently ignored for request text extraction
 - editor-specific UX varies by ACP client implementation
 
 ## Related files
 
 - `tests/acp/` — ACP test suite
-- `toolsets.py` — `lightning-acp` toolset definition
-- `lightning_cli/main.py` — `lightning acp` CLI subcommand
-- `pyproject.toml` — `[acp]` optional dependency + `lightning-acp` script
+- `toolsets.py` — `sonic-acp` toolset definition
+- `sonic_cli/main.py` — `sonic acp` CLI subcommand
+- `pyproject.toml` — `[acp]` optional dependency + `sonic-acp` script

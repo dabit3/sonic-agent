@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from lightning_cli.runtime_provider import (
+from sonic_cli.runtime_provider import (
     _VALID_API_MODES,
     _maybe_apply_codex_app_server_runtime,
 )
@@ -245,7 +245,7 @@ class TestSpawnEnvIsolation:
     def test_kanban_worker_adds_only_kanban_writable_root(self, monkeypatch):
         """Codex-runtime Kanban workers need to write board state outside
         their scratch/worktree workspace, but should not fall back to
-        danger-full-access. Lightning passes a narrow app-server config override
+        danger-full-access. Sonic passes a narrow app-server config override
         for the Kanban root only.
         """
         import subprocess
@@ -277,11 +277,11 @@ class TestSpawnEnvIsolation:
 
         monkeypatch.setattr(subprocess, "Popen", FakePopen)
         monkeypatch.setenv("HOME", "/users/alice")
-        monkeypatch.setenv("LIGHTNING_HOME", "/users/alice/.lightning/profiles/backend-worker")
-        monkeypatch.setenv("LIGHTNING_KANBAN_TASK", "t_smoke")
+        monkeypatch.setenv("SONIC_HOME", "/users/alice/.sonic/profiles/backend-worker")
+        monkeypatch.setenv("SONIC_KANBAN_TASK", "t_smoke")
         monkeypatch.setenv(
-            "LIGHTNING_KANBAN_DB",
-            "/users/alice/.lightning/kanban/boards/smoke/kanban.db",
+            "SONIC_KANBAN_DB",
+            "/users/alice/.sonic/kanban/boards/smoke/kanban.db",
         )
 
         client = cas.CodexAppServerClient(codex_bin="codex")
@@ -291,7 +291,7 @@ class TestSpawnEnvIsolation:
         assert cmd[:2] == ["codex", "app-server"]
         assert 'sandbox_mode="workspace-write"' in cmd
         assert (
-            'sandbox_workspace_write.writable_roots=["/users/alice/.lightning/kanban/boards/smoke"]'
+            'sandbox_workspace_write.writable_roots=["/users/alice/.sonic/kanban/boards/smoke"]'
             in cmd
         )
         assert "sandbox_workspace_write.network_access=false" in cmd

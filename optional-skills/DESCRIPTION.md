@@ -2,14 +2,14 @@
 
 Official skills maintained by Nous Research that are **not activated by default**.
 
-These skills ship with the lightning-agent repository but are not copied to
-`~/.lightning/skills/` during setup. They are discoverable via the Skills Hub:
+These skills ship with the sonic-agent repository but are not copied to
+`~/.sonic/skills/` during setup. They are discoverable via the Skills Hub:
 
 ```bash
-lightning skills browse               # browse all skills, official shown first
-lightning skills browse --source official  # browse only official optional skills
-lightning skills search <query>       # finds optional skills labeled "official"
-lightning skills install <identifier> # copies to ~/.lightning/skills/ and activates
+sonic skills browse               # browse all skills, official shown first
+sonic skills browse --source official  # browse only official optional skills
+sonic skills search <query>       # finds optional skills labeled "official"
+sonic skills install <identifier> # copies to ~/.sonic/skills/ and activates
 ```
 
 ## Why optional?

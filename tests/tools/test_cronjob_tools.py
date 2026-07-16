@@ -95,59 +95,59 @@ class TestScanCronPrompt:
 class TestCronjobRequirements:
     def test_requires_no_crontab_binary(self, monkeypatch):
         """Cron is internal (JSON-based scheduler), no system crontab needed."""
-        monkeypatch.setenv("LIGHTNING_INTERACTIVE", "1")
-        monkeypatch.delenv("LIGHTNING_GATEWAY_SESSION", raising=False)
-        monkeypatch.delenv("LIGHTNING_EXEC_ASK", raising=False)
+        monkeypatch.setenv("SONIC_INTERACTIVE", "1")
+        monkeypatch.delenv("SONIC_GATEWAY_SESSION", raising=False)
+        monkeypatch.delenv("SONIC_EXEC_ASK", raising=False)
         # Even with no crontab in PATH, the cronjob tool should be available
-        # because lightning uses an internal scheduler, not system crontab.
+        # because sonic uses an internal scheduler, not system crontab.
         assert check_cronjob_requirements() is True
 
     def test_accepts_interactive_mode(self, monkeypatch):
-        monkeypatch.setenv("LIGHTNING_INTERACTIVE", "1")
-        monkeypatch.delenv("LIGHTNING_GATEWAY_SESSION", raising=False)
-        monkeypatch.delenv("LIGHTNING_EXEC_ASK", raising=False)
+        monkeypatch.setenv("SONIC_INTERACTIVE", "1")
+        monkeypatch.delenv("SONIC_GATEWAY_SESSION", raising=False)
+        monkeypatch.delenv("SONIC_EXEC_ASK", raising=False)
 
         assert check_cronjob_requirements() is True
 
     def test_accepts_gateway_session(self, monkeypatch):
-        monkeypatch.delenv("LIGHTNING_INTERACTIVE", raising=False)
-        monkeypatch.setenv("LIGHTNING_GATEWAY_SESSION", "1")
-        monkeypatch.delenv("LIGHTNING_EXEC_ASK", raising=False)
+        monkeypatch.delenv("SONIC_INTERACTIVE", raising=False)
+        monkeypatch.setenv("SONIC_GATEWAY_SESSION", "1")
+        monkeypatch.delenv("SONIC_EXEC_ASK", raising=False)
 
         assert check_cronjob_requirements() is True
 
     def test_accepts_exec_ask(self, monkeypatch):
-        monkeypatch.delenv("LIGHTNING_INTERACTIVE", raising=False)
-        monkeypatch.delenv("LIGHTNING_GATEWAY_SESSION", raising=False)
-        monkeypatch.setenv("LIGHTNING_EXEC_ASK", "1")
+        monkeypatch.delenv("SONIC_INTERACTIVE", raising=False)
+        monkeypatch.delenv("SONIC_GATEWAY_SESSION", raising=False)
+        monkeypatch.setenv("SONIC_EXEC_ASK", "1")
 
         assert check_cronjob_requirements() is True
 
     def test_rejects_when_no_session_env(self, monkeypatch):
         """Without any session env vars, cronjob tool should not be available."""
-        monkeypatch.delenv("LIGHTNING_INTERACTIVE", raising=False)
-        monkeypatch.delenv("LIGHTNING_GATEWAY_SESSION", raising=False)
-        monkeypatch.delenv("LIGHTNING_EXEC_ASK", raising=False)
+        monkeypatch.delenv("SONIC_INTERACTIVE", raising=False)
+        monkeypatch.delenv("SONIC_GATEWAY_SESSION", raising=False)
+        monkeypatch.delenv("SONIC_EXEC_ASK", raising=False)
 
         assert check_cronjob_requirements() is False
 
     @pytest.mark.parametrize("false_like_value", ["0", "false", "no", "off"])
     def test_rejects_false_like_interactive_env(self, monkeypatch, false_like_value):
-        monkeypatch.setenv("LIGHTNING_INTERACTIVE", false_like_value)
-        monkeypatch.delenv("LIGHTNING_GATEWAY_SESSION", raising=False)
-        monkeypatch.delenv("LIGHTNING_EXEC_ASK", raising=False)
+        monkeypatch.setenv("SONIC_INTERACTIVE", false_like_value)
+        monkeypatch.delenv("SONIC_GATEWAY_SESSION", raising=False)
+        monkeypatch.delenv("SONIC_EXEC_ASK", raising=False)
         assert check_cronjob_requirements() is False
 
     @pytest.mark.parametrize(
         "var_name",
-        ["LIGHTNING_INTERACTIVE", "LIGHTNING_GATEWAY_SESSION", "LIGHTNING_EXEC_ASK"],
+        ["SONIC_INTERACTIVE", "SONIC_GATEWAY_SESSION", "SONIC_EXEC_ASK"],
     )
     @pytest.mark.parametrize("false_like_value", ["0", "false", "no", "off"])
     def test_rejects_false_like_any_session_env(
         self, monkeypatch, var_name, false_like_value
     ):
         """All three session env vars share the same truthy semantics."""
-        for v in ("LIGHTNING_INTERACTIVE", "LIGHTNING_GATEWAY_SESSION", "LIGHTNING_EXEC_ASK"):
+        for v in ("SONIC_INTERACTIVE", "SONIC_GATEWAY_SESSION", "SONIC_EXEC_ASK"):
             monkeypatch.delenv(v, raising=False)
         monkeypatch.setenv(var_name, false_like_value)
         assert check_cronjob_requirements() is False

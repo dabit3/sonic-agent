@@ -38,14 +38,14 @@ def _write_manifest(root: Path, version: str) -> None:
     (manifest_dir / "agent.json").write_text(
         json.dumps(
             {
-                "id": "lightning-agent",
-                "name": "Lightning Agent",
+                "id": "sonic-agent",
+                "name": "Sonic Agent",
                 "version": version,
                 "description": "test",
                 "distribution": {
                     "uvx": {
-                        "package": f"lightning-agent[acp]=={version}",
-                        "args": ["lightning-acp"],
+                        "package": f"sonic-agent[acp]=={version}",
+                        "args": ["sonic-acp"],
                     }
                 },
             },
@@ -66,9 +66,9 @@ def test_update_acp_registry_versions_bumps_manifest_and_pin(monkeypatch, tmp_pa
         (tmp_path / "acp_registry" / "agent.json").read_text(encoding="utf-8")
     )
     assert manifest["version"] == "0.14.0"
-    assert manifest["distribution"]["uvx"]["package"] == "lightning-agent[acp]==0.14.0"
+    assert manifest["distribution"]["uvx"]["package"] == "sonic-agent[acp]==0.14.0"
     # args stay untouched so we don't accidentally rewrite them.
-    assert manifest["distribution"]["uvx"]["args"] == ["lightning-acp"]
+    assert manifest["distribution"]["uvx"]["args"] == ["sonic-acp"]
 
 
 def test_update_acp_registry_versions_is_silent_when_manifest_missing(
@@ -88,9 +88,9 @@ def test_update_version_files_bumps_manifest_alongside_pyproject(
     calls, so it must drive the manifest bump too."""
     _write_manifest(tmp_path, "0.13.0")
     (tmp_path / "pyproject.toml").write_text(
-        '[project]\nname = "lightning-agent"\nversion = "0.13.0"\n', encoding="utf-8"
+        '[project]\nname = "sonic-agent"\nversion = "0.13.0"\n', encoding="utf-8"
     )
-    version_dir = tmp_path / "lightning_cli"
+    version_dir = tmp_path / "sonic_cli"
     version_dir.mkdir()
     (version_dir / "__init__.py").write_text(
         '__version__ = "0.13.0"\n__release_date__ = "2026-05-14"\n',
@@ -110,4 +110,4 @@ def test_update_version_files_bumps_manifest_alongside_pyproject(
         (tmp_path / "acp_registry" / "agent.json").read_text(encoding="utf-8")
     )
     assert manifest["version"] == "0.14.0"
-    assert manifest["distribution"]["uvx"]["package"] == "lightning-agent[acp]==0.14.0"
+    assert manifest["distribution"]["uvx"]["package"] == "sonic-agent[acp]==0.14.0"

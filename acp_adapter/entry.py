@@ -1,6 +1,6 @@
-"""CLI entry point for the lightning-agent ACP adapter.
+"""CLI entry point for the sonic-agent ACP adapter.
 
-Loads environment variables from ``~/.lightning/.env``, configures logging
+Loads environment variables from ``~/.sonic/.env``, configures logging
 to write to stderr (so stdout is reserved for ACP JSON-RPC transport),
 and starts the ACP agent server.
 
@@ -8,18 +8,18 @@ Usage::
 
     python -m acp_adapter.entry
     # or
-    lightning acp
+    sonic acp
     # or
-    lightning-acp
+    sonic-acp
 """
 
-# IMPORTANT: lightning_bootstrap must be the very first import — UTF-8 stdio
-# on Windows.  No-op on POSIX.  See lightning_bootstrap.py for full rationale.
+# IMPORTANT: sonic_bootstrap must be the very first import — UTF-8 stdio
+# on Windows.  No-op on POSIX.  See sonic_bootstrap.py for full rationale.
 try:
-    import lightning_bootstrap  # noqa: F401
+    import sonic_bootstrap  # noqa: F401
 except ModuleNotFoundError:
-    # Graceful fallback when lightning_bootstrap isn't registered in the venv
-    # yet — happens during partial ``lightning update`` where git-reset landed
+    # Graceful fallback when sonic_bootstrap isn't registered in the venv
+    # yet — happens during partial ``sonic update`` where git-reset landed
     # new code but ``uv pip install -e .`` didn't finish.  Missing bootstrap
     # means UTF-8 stdio setup is skipped on Windows; POSIX is unaffected.
     pass
@@ -29,7 +29,7 @@ import asyncio
 import logging
 import sys
 from pathlib import Path
-from lightning_constants import get_lightning_home
+from sonic_constants import get_sonic_home
 
 
 # Methods clients send as periodic liveness probes. They are not part of the
@@ -94,26 +94,26 @@ def _setup_logging() -> None:
 
 
 def _load_env() -> None:
-    """Load .env from LIGHTNING_HOME (default ``~/.lightning``)."""
-    from lightning_cli.env_loader import load_lightning_dotenv
+    """Load .env from SONIC_HOME (default ``~/.sonic``)."""
+    from sonic_cli.env_loader import load_sonic_dotenv
 
-    lightning_home = get_lightning_home()
-    loaded = load_lightning_dotenv(lightning_home=lightning_home)
+    sonic_home = get_sonic_home()
+    loaded = load_sonic_dotenv(sonic_home=sonic_home)
     if loaded:
         for env_file in loaded:
             logging.getLogger(__name__).info("Loaded env from %s", env_file)
     else:
         logging.getLogger(__name__).info(
-            "No .env found at %s, using system env", lightning_home / ".env"
+            "No .env found at %s, using system env", sonic_home / ".env"
         )
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        prog="lightning-acp",
-        description="Run Lightning Agent as an ACP stdio server.",
+        prog="sonic-acp",
+        description="Run Sonic Agent as an ACP stdio server.",
     )
-    parser.add_argument("--version", action="store_true", help="Print Lightning version and exit")
+    parser.add_argument("--version", action="store_true", help="Print Sonic version and exit")
     parser.add_argument(
         "--check",
         action="store_true",
@@ -122,12 +122,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--setup",
         action="store_true",
-        help="Run interactive Lightning provider/model setup for ACP terminal auth",
+        help="Run interactive Sonic provider/model setup for ACP terminal auth",
     )
     parser.add_argument(
         "--setup-browser",
         action="store_true",
-        help="Install agent-browser + Playwright Chromium into ~/.lightning/node/ "
+        help="Install agent-browser + Playwright Chromium into ~/.sonic/node/ "
              "for browser tool support. Idempotent.",
     )
     parser.add_argument(
@@ -142,25 +142,25 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def _print_version() -> None:
-    from lightning_cli import __version__ as lightning_version
+    from sonic_cli import __version__ as sonic_version
 
-    print(lightning_version)
+    print(sonic_version)
 
 
 def _run_check() -> None:
     import acp  # noqa: F401
-    from acp_adapter.server import LightningACPAgent  # noqa: F401
+    from acp_adapter.server import SonicACPAgent  # noqa: F401
 
-    print("Lightning ACP check OK")
+    print("Sonic ACP check OK")
 
 
 def _run_setup() -> None:
-    from lightning_cli.main import main as lightning_main
+    from sonic_cli.main import main as sonic_main
 
     old_argv = sys.argv[:]
     try:
-        sys.argv = [old_argv[0] if old_argv else "lightning", "model"]
-        lightning_main()
+        sys.argv = [old_argv[0] if old_argv else "sonic", "model"]
+        sonic_main()
     finally:
         sys.argv = old_argv
 
@@ -185,11 +185,11 @@ def _run_setup_browser(assume_yes: bool = False) -> int:
     """Bootstrap agent-browser + Chromium.
 
     Routes through dep_ensure -> install.{sh,ps1} --ensure, sharing code
-    with ``lightning postinstall`` and the runtime lazy installer.
+    with ``sonic postinstall`` and the runtime lazy installer.
 
     Returns 0 on success, 1 on failure.
     """
-    from lightning_cli.dep_ensure import ensure_dependency
+    from sonic_cli.dep_ensure import ensure_dependency
 
     try:
         node_ok = ensure_dependency("node", interactive=not assume_yes)
@@ -231,7 +231,7 @@ def main(argv: list[str] | None = None) -> None:
     _load_env()
 
     logger = logging.getLogger(__name__)
-    logger.info("Starting lightning-agent ACP adapter")
+    logger.info("Starting sonic-agent ACP adapter")
 
     # Ensure the project root is on sys.path so ``from run_agent import AIAgent`` works
     project_root = str(Path(__file__).resolve().parent.parent)
@@ -239,7 +239,7 @@ def main(argv: list[str] | None = None) -> None:
         sys.path.insert(0, project_root)
 
     import acp
-    from .server import LightningACPAgent
+    from .server import SonicACPAgent
 
     # MCP tool discovery from config.yaml — run before asyncio.run() so
     # it's safe to use blocking waits.  (ACP also registers per-session
@@ -252,7 +252,7 @@ def main(argv: list[str] | None = None) -> None:
     except Exception:
         logger.debug("MCP tool discovery failed at ACP startup", exc_info=True)
 
-    agent = LightningACPAgent()
+    agent = SonicACPAgent()
     try:
         asyncio.run(acp.run_agent(agent, use_unstable_protocol=True))
     except KeyboardInterrupt:

@@ -19,7 +19,7 @@ This page covers:
 ### Validate the config snapshot
 
 ```bash
-lightning teams-pipeline validate
+sonic teams-pipeline validate
 ```
 
 Use this first after any config change.
@@ -27,8 +27,8 @@ Use this first after any config change.
 ### Inspect token health
 
 ```bash
-lightning teams-pipeline token-health
-lightning teams-pipeline token-health --force-refresh
+sonic teams-pipeline token-health
+sonic teams-pipeline token-health --force-refresh
 ```
 
 Use `--force-refresh` when you suspect stale auth state.
@@ -36,14 +36,14 @@ Use `--force-refresh` when you suspect stale auth state.
 ### Inspect subscriptions
 
 ```bash
-lightning teams-pipeline subscriptions
+sonic teams-pipeline subscriptions
 ```
 
 ### Renew near-expiry subscriptions
 
 ```bash
-lightning teams-pipeline maintain-subscriptions
-lightning teams-pipeline maintain-subscriptions --dry-run
+sonic teams-pipeline maintain-subscriptions
+sonic teams-pipeline maintain-subscriptions --dry-run
 ```
 
 ### Automating subscription renewal (REQUIRED for production)
@@ -52,23 +52,23 @@ lightning teams-pipeline maintain-subscriptions --dry-run
 
 You MUST run `maintain-subscriptions` on a schedule. Pick one of these three options:
 
-#### Option 1: Lightning cron (recommended if you already run the Lightning gateway)
+#### Option 1: Sonic cron (recommended if you already run the Sonic gateway)
 
-Lightning ships a built-in cron scheduler. The `--no-agent` mode runs a script as the job (rather than using an LLM), and `--script` must point at a file under `~/.lightning/scripts/`. First create the script:
+Sonic ships a built-in cron scheduler. The `--no-agent` mode runs a script as the job (rather than using an LLM), and `--script` must point at a file under `~/.sonic/scripts/`. First create the script:
 
 ```bash
-mkdir -p ~/.lightning/scripts
-cat > ~/.lightning/scripts/maintain-teams-subscriptions.sh <<'EOF'
+mkdir -p ~/.sonic/scripts
+cat > ~/.sonic/scripts/maintain-teams-subscriptions.sh <<'EOF'
 #!/usr/bin/env bash
-exec lightning teams-pipeline maintain-subscriptions
+exec sonic teams-pipeline maintain-subscriptions
 EOF
-chmod +x ~/.lightning/scripts/maintain-teams-subscriptions.sh
+chmod +x ~/.sonic/scripts/maintain-teams-subscriptions.sh
 ```
 
 Then register a script-only cron job that runs every 12 hours (gives 6x headroom against the 72h expiry window):
 
 ```bash
-lightning cron create "0 */12 * * *" \
+sonic cron create "0 */12 * * *" \
   --name "teams-pipeline-maintain-subscriptions" \
   --no-agent \
   --script maintain-teams-subscriptions.sh \
@@ -78,31 +78,31 @@ lightning cron create "0 */12 * * *" \
 Verify it was registered and inspect the next run time:
 
 ```bash
-lightning cron list
-lightning cron status        # scheduler status
+sonic cron list
+sonic cron status        # scheduler status
 ```
 
 #### Option 2: systemd timer (recommended for Linux production deployments)
 
-Create `/etc/systemd/system/lightning-teams-pipeline-maintain.service`:
+Create `/etc/systemd/system/sonic-teams-pipeline-maintain.service`:
 
 ```ini
 [Unit]
-Description=Lightning Teams pipeline subscription maintenance
+Description=Sonic Teams pipeline subscription maintenance
 After=network-online.target
 
 [Service]
 Type=oneshot
-User=lightning
-EnvironmentFile=/etc/lightning/env
-ExecStart=/usr/local/bin/lightning teams-pipeline maintain-subscriptions
+User=sonic
+EnvironmentFile=/etc/sonic/env
+ExecStart=/usr/local/bin/sonic teams-pipeline maintain-subscriptions
 ```
 
-And `/etc/systemd/system/lightning-teams-pipeline-maintain.timer`:
+And `/etc/systemd/system/sonic-teams-pipeline-maintain.timer`:
 
 ```ini
 [Unit]
-Description=Run Lightning Teams pipeline subscription maintenance every 12 hours
+Description=Run Sonic Teams pipeline subscription maintenance every 12 hours
 
 [Timer]
 OnBootSec=5min
@@ -117,25 +117,25 @@ Enable:
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable --now lightning-teams-pipeline-maintain.timer
-systemctl list-timers lightning-teams-pipeline-maintain.timer
+sudo systemctl enable --now sonic-teams-pipeline-maintain.timer
+systemctl list-timers sonic-teams-pipeline-maintain.timer
 ```
 
 #### Option 3: Plain crontab
 
 ```cron
-0 */12 * * * /usr/local/bin/lightning teams-pipeline maintain-subscriptions >> /var/log/lightning/teams-pipeline-maintain.log 2>&1
+0 */12 * * * /usr/local/bin/sonic teams-pipeline maintain-subscriptions >> /var/log/sonic/teams-pipeline-maintain.log 2>&1
 ```
 
-Make sure the cron environment has the `MSGRAPH_*` credentials. Simplest fix: source `~/.lightning/.env` at the top of a wrapper script that crontab calls.
+Make sure the cron environment has the `MSGRAPH_*` credentials. Simplest fix: source `~/.sonic/.env` at the top of a wrapper script that crontab calls.
 
 #### Verifying renewal is working
 
 After you've set up the schedule, check renewal activity after the first scheduled run:
 
 ```bash
-lightning teams-pipeline subscriptions   # should show expirationDateTime advanced
-lightning teams-pipeline maintain-subscriptions --dry-run   # should show "0 expiring soon" most of the time
+sonic teams-pipeline subscriptions   # should show expirationDateTime advanced
+sonic teams-pipeline maintain-subscriptions --dry-run   # should show "0 expiring soon" most of the time
 ```
 
 If you ever see your Graph webhook mysteriously "stop working" after exactly ~72 hours, this is the first thing to check: did the renewal job actually run?
@@ -143,22 +143,22 @@ If you ever see your Graph webhook mysteriously "stop working" after exactly ~72
 ### Inspect recent jobs
 
 ```bash
-lightning teams-pipeline list
-lightning teams-pipeline list --status failed
-lightning teams-pipeline show <job-id>
+sonic teams-pipeline list
+sonic teams-pipeline list --status failed
+sonic teams-pipeline show <job-id>
 ```
 
 ### Replay a stored job
 
 ```bash
-lightning teams-pipeline run <job-id>
+sonic teams-pipeline run <job-id>
 ```
 
 ### Dry-run meeting artifact fetches
 
 ```bash
-lightning teams-pipeline fetch --meeting-id <meeting-id>
-lightning teams-pipeline fetch --join-web-url "<join-url>"
+sonic teams-pipeline fetch --meeting-id <meeting-id>
+sonic teams-pipeline fetch --join-web-url "<join-url>"
 ```
 
 ## Routine Runbook
@@ -168,28 +168,28 @@ lightning teams-pipeline fetch --join-web-url "<join-url>"
 Run these in order:
 
 ```bash
-lightning teams-pipeline validate
-lightning teams-pipeline token-health --force-refresh
-lightning teams-pipeline subscriptions
+sonic teams-pipeline validate
+sonic teams-pipeline token-health --force-refresh
+sonic teams-pipeline subscriptions
 ```
 
 Then trigger or wait for a real meeting event and confirm:
 
 ```bash
-lightning teams-pipeline list
-lightning teams-pipeline show <job-id>
+sonic teams-pipeline list
+sonic teams-pipeline show <job-id>
 ```
 
 ### Daily or periodic checks
 
-- run `lightning teams-pipeline maintain-subscriptions --dry-run`
-- inspect `lightning teams-pipeline list --status failed`
+- run `sonic teams-pipeline maintain-subscriptions --dry-run`
+- inspect `sonic teams-pipeline list --status failed`
 - verify the Teams delivery target is still the correct chat or channel
 
 ### Before changing webhook URLs or delivery targets
 
 - update the public notification URL or Teams target config
-- run `lightning teams-pipeline validate`
+- run `sonic teams-pipeline validate`
 - renew or recreate affected subscriptions
 - confirm new events land in the expected sink
 
@@ -223,7 +223,7 @@ Check:
 ### Duplicate or unexpected replays
 
 Check:
-- whether you manually replayed a job with `lightning teams-pipeline run`
+- whether you manually replayed a job with `sonic teams-pipeline run`
 - whether the sink record already exists for that meeting
 - whether you intentionally enabled a resend path in your local config
 
@@ -237,9 +237,9 @@ Check:
 - [ ] `ffmpeg` is installed if recording fallback is enabled
 - [ ] Teams outbound delivery target is configured and verified
 - [ ] Notion and Linear sinks are configured only if actually needed
-- [ ] `lightning teams-pipeline validate` returns an OK snapshot
-- [ ] `lightning teams-pipeline token-health --force-refresh` succeeds
-- [ ] **`maintain-subscriptions` is scheduled** (Lightning cron, systemd timer, or crontab — see [Automating subscription renewal](#automating-subscription-renewal-required-for-production)). Without this, Graph subscriptions silently expire within 72 hours.
+- [ ] `sonic teams-pipeline validate` returns an OK snapshot
+- [ ] `sonic teams-pipeline token-health --force-refresh` succeeds
+- [ ] **`maintain-subscriptions` is scheduled** (Sonic cron, systemd timer, or crontab — see [Automating subscription renewal](#automating-subscription-renewal-required-for-production)). Without this, Graph subscriptions silently expire within 72 hours.
 - [ ] a real end-to-end meeting event has produced a stored job
 - [ ] at least one summary has reached the intended delivery sink
 

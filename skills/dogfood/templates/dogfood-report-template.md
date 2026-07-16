@@ -3,7 +3,7 @@
 **Target:** {target_url}
 **Date:** {date}
 **Scope:** {scope_description}
-**Tester:** Lightning Agent (automated exploratory QA)
+**Tester:** Sonic Agent (automated exploratory QA)
 
 ---
 

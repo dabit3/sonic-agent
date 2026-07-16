@@ -13,11 +13,11 @@ from .constants import QQBOT_VERSION
 # User-Agent
 # ---------------------------------------------------------------------------
 
-def _get_lightning_version() -> str:
-    """Return the lightning-agent package version, or 'dev' if unavailable."""
+def _get_sonic_version() -> str:
+    """Return the sonic-agent package version, or 'dev' if unavailable."""
     try:
         from importlib.metadata import version
-        return version("lightning-agent")
+        return version("sonic-agent")
     except Exception:
         return "dev"
 
@@ -27,16 +27,16 @@ def build_user_agent() -> str:
 
     Format::
 
-        QQBotAdapter/<qqbot_version> (Python/<py_version>; <os>; Lightning/<lightning_version>)
+        QQBotAdapter/<qqbot_version> (Python/<py_version>; <os>; Sonic/<sonic_version>)
 
     Example::
 
-        QQBotAdapter/1.0.0 (Python/3.11.15; darwin; Lightning/0.9.0)
+        QQBotAdapter/1.0.0 (Python/3.11.15; darwin; Sonic/0.9.0)
     """
     py_version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
     os_name = platform.system().lower()
-    lightning_version = _get_lightning_version()
-    return f"QQBotAdapter/{QQBOT_VERSION} (Python/{py_version}; {os_name}; Lightning/{lightning_version})"
+    sonic_version = _get_sonic_version()
+    return f"QQBotAdapter/{QQBOT_VERSION} (Python/{py_version}; {os_name}; Sonic/{sonic_version})"
 
 
 def get_api_headers() -> Dict[str, str]:

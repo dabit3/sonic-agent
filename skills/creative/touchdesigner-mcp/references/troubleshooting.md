@@ -133,11 +133,11 @@ n.cook(force=True)
 actual = str(n.width) + 'x' + str(n.height)
 ```
 
-## 5. Lightning Configuration
+## 5. Sonic Configuration
 
 ### Config location
 
-`$LIGHTNING_HOME/config.yaml` (defaults to `~/.lightning/config.yaml` when `LIGHTNING_HOME` is unset)
+`$SONIC_HOME/config.yaml` (defaults to `~/.sonic/config.yaml` when `SONIC_HOME` is unset)
 
 ### MCP entry format
 
@@ -150,7 +150,7 @@ mcpServers:
 
 ### After config changes
 
-Restart the Lightning session for changes to take effect. The MCP connection is
+Restart the Sonic session for changes to take effect. The MCP connection is
 established at session startup.
 
 ### Verifying MCP tools are available

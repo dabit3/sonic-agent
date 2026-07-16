@@ -1,4 +1,4 @@
-import { Box, Text } from '@lightning/ink'
+import { Box, Text } from '@sonic/ink'
 import { useStore } from '@nanostores/react'
 
 import { useGateway } from '../app/gatewayContext.js'

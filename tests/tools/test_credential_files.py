@@ -32,26 +32,26 @@ def _clean_state():
 
 class TestRegisterCredentialFiles:
     def test_dict_with_path_key(self, tmp_path):
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
-        (lightning_home / "token.json").write_text("{}")
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        (sonic_home / "token.json").write_text("{}")
 
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             missing = register_credential_files([{"path": "token.json"}])
 
         assert missing == []
         mounts = get_credential_file_mounts()
         assert len(mounts) == 1
-        assert mounts[0]["host_path"] == str(lightning_home / "token.json")
-        assert mounts[0]["container_path"] == "/root/.lightning/token.json"
+        assert mounts[0]["host_path"] == str(sonic_home / "token.json")
+        assert mounts[0]["container_path"] == "/root/.sonic/token.json"
 
     def test_dict_with_name_key_fallback(self, tmp_path):
         """Skills use 'name' instead of 'path' — both should work."""
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
-        (lightning_home / "google_token.json").write_text("{}")
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        (sonic_home / "google_token.json").write_text("{}")
 
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             missing = register_credential_files([
                 {"name": "google_token.json", "description": "OAuth token"},
             ])
@@ -62,11 +62,11 @@ class TestRegisterCredentialFiles:
         assert "google_token.json" in mounts[0]["container_path"]
 
     def test_string_entry(self, tmp_path):
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
-        (lightning_home / "secret.key").write_text("key")
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        (sonic_home / "secret.key").write_text("key")
 
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             missing = register_credential_files(["secret.key"])
 
         assert missing == []
@@ -74,10 +74,10 @@ class TestRegisterCredentialFiles:
         assert len(mounts) == 1
 
     def test_missing_file_reported(self, tmp_path):
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
 
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             missing = register_credential_files([
                 {"name": "does_not_exist.json"},
             ])
@@ -87,11 +87,11 @@ class TestRegisterCredentialFiles:
 
     def test_path_takes_precedence_over_name(self, tmp_path):
         """When both path and name are present, path wins."""
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
-        (lightning_home / "real.json").write_text("{}")
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        (sonic_home / "real.json").write_text("{}")
 
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             missing = register_credential_files([
                 {"path": "real.json", "name": "wrong.json"},
             ])
@@ -103,24 +103,24 @@ class TestRegisterCredentialFiles:
 
 class TestSkillsDirectoryMount:
     def test_returns_mount_when_skills_dir_exists(self, tmp_path):
-        lightning_home = tmp_path / ".lightning"
-        skills_dir = lightning_home / "skills"
+        sonic_home = tmp_path / ".sonic"
+        skills_dir = sonic_home / "skills"
         skills_dir.mkdir(parents=True)
         (skills_dir / "test-skill").mkdir()
         (skills_dir / "test-skill" / "SKILL.md").write_text("# test")
 
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             mounts = get_skills_directory_mount()
 
         assert len(mounts) >= 1
         assert mounts[0]["host_path"] == str(skills_dir)
-        assert mounts[0]["container_path"] == "/root/.lightning/skills"
+        assert mounts[0]["container_path"] == "/root/.sonic/skills"
 
     def test_returns_none_when_no_skills_dir(self, tmp_path):
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
 
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             mounts = get_skills_directory_mount()
 
         # No local skills dir → no local mount (external dirs may still appear)
@@ -128,18 +128,18 @@ class TestSkillsDirectoryMount:
         assert local_mounts == []
 
     def test_custom_container_base(self, tmp_path):
-        lightning_home = tmp_path / ".lightning"
-        (lightning_home / "skills").mkdir(parents=True)
+        sonic_home = tmp_path / ".sonic"
+        (sonic_home / "skills").mkdir(parents=True)
 
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
-            mounts = get_skills_directory_mount(container_base="/home/user/.lightning")
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
+            mounts = get_skills_directory_mount(container_base="/home/user/.sonic")
 
-        assert mounts[0]["container_path"] == "/home/user/.lightning/skills"
+        assert mounts[0]["container_path"] == "/home/user/.sonic/skills"
 
     def test_symlinks_are_sanitized(self, tmp_path):
         """Symlinks in skills dir should be excluded from the mount."""
-        lightning_home = tmp_path / ".lightning"
-        skills_dir = lightning_home / "skills"
+        sonic_home = tmp_path / ".sonic"
+        skills_dir = sonic_home / "skills"
         skills_dir.mkdir(parents=True)
         (skills_dir / "legit.md").write_text("# real skill")
         # Create a symlink pointing outside the skills tree
@@ -147,7 +147,7 @@ class TestSkillsDirectoryMount:
         secret.write_text("TOP SECRET")
         (skills_dir / "evil_link").symlink_to(secret)
 
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             mounts = get_skills_directory_mount()
 
         assert len(mounts) >= 1
@@ -163,12 +163,12 @@ class TestSkillsDirectoryMount:
 
     def test_no_symlinks_returns_original_dir(self, tmp_path):
         """When no symlinks exist, the original dir is returned (no copy)."""
-        lightning_home = tmp_path / ".lightning"
-        skills_dir = lightning_home / "skills"
+        sonic_home = tmp_path / ".sonic"
+        skills_dir = sonic_home / "skills"
         skills_dir.mkdir(parents=True)
         (skills_dir / "skill.md").write_text("ok")
 
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             mounts = get_skills_directory_mount()
 
         assert mounts[0]["host_path"] == str(skills_dir)
@@ -176,8 +176,8 @@ class TestSkillsDirectoryMount:
 
 class TestIterSkillsFiles:
     def test_returns_files_skipping_symlinks(self, tmp_path):
-        lightning_home = tmp_path / ".lightning"
-        skills_dir = lightning_home / "skills"
+        sonic_home = tmp_path / ".sonic"
+        skills_dir = sonic_home / "skills"
         (skills_dir / "cat" / "myskill").mkdir(parents=True)
         (skills_dir / "cat" / "myskill" / "SKILL.md").write_text("# skill")
         (skills_dir / "cat" / "myskill" / "scripts").mkdir()
@@ -187,20 +187,20 @@ class TestIterSkillsFiles:
         secret.write_text("nope")
         (skills_dir / "cat" / "myskill" / "evil").symlink_to(secret)
 
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             files = iter_skills_files()
 
         paths = {f["container_path"] for f in files}
-        assert "/root/.lightning/skills/cat/myskill/SKILL.md" in paths
-        assert "/root/.lightning/skills/cat/myskill/scripts/run.sh" in paths
+        assert "/root/.sonic/skills/cat/myskill/SKILL.md" in paths
+        assert "/root/.sonic/skills/cat/myskill/scripts/run.sh" in paths
         # Symlink should be excluded
         assert not any("evil" in f["container_path"] for f in files)
 
     def test_empty_when_no_skills_dir(self, tmp_path):
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
 
-        with patch.dict(os.environ, {"LIGHTNING_HOME": str(lightning_home)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(sonic_home)}):
             assert iter_skills_files() == []
 
 class TestPathTraversalSecurity:
@@ -216,11 +216,11 @@ class TestPathTraversalSecurity:
     """
 
     def test_dotdot_traversal_rejected(self, tmp_path, monkeypatch):
-        """'../sensitive' must not escape LIGHTNING_HOME."""
-        monkeypatch.setenv("LIGHTNING_HOME", str(tmp_path / ".lightning"))
-        (tmp_path / ".lightning").mkdir()
+        """'../sensitive' must not escape SONIC_HOME."""
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path / ".sonic"))
+        (tmp_path / ".sonic").mkdir()
 
-        # Create a sensitive file one level above lightning_home
+        # Create a sensitive file one level above sonic_home
         sensitive = tmp_path / "sensitive.json"
         sensitive.write_text('{"secret": "value"}')
 
@@ -231,11 +231,11 @@ class TestPathTraversalSecurity:
 
     def test_deep_traversal_rejected(self, tmp_path, monkeypatch):
         """'../../etc/passwd' style traversal must be rejected."""
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
-        monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
-        # Create a fake sensitive file outside lightning_home
+        # Create a fake sensitive file outside sonic_home
         ssh_dir = tmp_path / ".ssh"
         ssh_dir.mkdir()
         (ssh_dir / "id_rsa").write_text("PRIVATE KEY")
@@ -247,9 +247,9 @@ class TestPathTraversalSecurity:
 
     def test_absolute_path_rejected(self, tmp_path, monkeypatch):
         """Absolute paths must be rejected regardless of whether they exist."""
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
-        monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         # Create a file at an absolute path
         sensitive = tmp_path / "absolute.json"
@@ -261,11 +261,11 @@ class TestPathTraversalSecurity:
         assert get_credential_file_mounts() == []
 
     def test_legitimate_file_still_works(self, tmp_path, monkeypatch):
-        """Normal files inside LIGHTNING_HOME must still be registered."""
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
-        monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
-        (lightning_home / "token.json").write_text('{"token": "abc"}')
+        """Normal files inside SONIC_HOME must still be registered."""
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
+        (sonic_home / "token.json").write_text('{"token": "abc"}')
 
         result = register_credential_file("token.json")
 
@@ -274,31 +274,31 @@ class TestPathTraversalSecurity:
         assert len(mounts) == 1
         assert "token.json" in mounts[0]["container_path"]
 
-    def test_nested_subdir_inside_lightning_home_allowed(self, tmp_path, monkeypatch):
-        """Files in subdirectories of LIGHTNING_HOME must be allowed."""
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
-        subdir = lightning_home / "creds"
+    def test_nested_subdir_inside_sonic_home_allowed(self, tmp_path, monkeypatch):
+        """Files in subdirectories of SONIC_HOME must be allowed."""
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        subdir = sonic_home / "creds"
         subdir.mkdir()
         (subdir / "oauth.json").write_text("{}")
-        monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         result = register_credential_file("creds/oauth.json")
 
         assert result is True
 
     def test_symlink_traversal_rejected(self, tmp_path, monkeypatch):
-        """A symlink inside LIGHTNING_HOME pointing outside must be rejected."""
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
-        monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+        """A symlink inside SONIC_HOME pointing outside must be rejected."""
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
-        # Create a sensitive file outside lightning_home
+        # Create a sensitive file outside sonic_home
         sensitive = tmp_path / "sensitive.json"
         sensitive.write_text('{"secret": "value"}')
 
-        # Create a symlink inside lightning_home pointing outside
-        symlink = lightning_home / "evil_link.json"
+        # Create a symlink inside sonic_home pointing outside
+        symlink = sonic_home / "evil_link.json"
         try:
             symlink.symlink_to(sensitive)
         except (OSError, NotImplementedError):
@@ -306,7 +306,7 @@ class TestPathTraversalSecurity:
 
         result = register_credential_file("evil_link.json")
 
-        # The resolved path escapes LIGHTNING_HOME — must be rejected
+        # The resolved path escapes SONIC_HOME — must be rejected
         assert result is False
         assert get_credential_file_mounts() == []
 
@@ -318,20 +318,20 @@ class TestPathTraversalSecurity:
 class TestConfigPathTraversal:
     """terminal.credential_files in config.yaml must also reject traversal."""
 
-    def _write_config(self, lightning_home: Path, cred_files: list):
+    def _write_config(self, sonic_home: Path, cred_files: list):
         import yaml
-        config_path = lightning_home / "config.yaml"
+        config_path = sonic_home / "config.yaml"
         config_path.write_text(yaml.dump({"terminal": {"credential_files": cred_files}}))
 
     def test_config_traversal_rejected(self, tmp_path, monkeypatch):
-        """'../secret' in config.yaml must not escape LIGHTNING_HOME."""
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
-        monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+        """'../secret' in config.yaml must not escape SONIC_HOME."""
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         sensitive = tmp_path / "secret.json"
         sensitive.write_text("{}")
-        self._write_config(lightning_home, ["../secret.json"])
+        self._write_config(sonic_home, ["../secret.json"])
 
         mounts = get_credential_file_mounts()
         host_paths = [m["host_path"] for m in mounts]
@@ -340,25 +340,25 @@ class TestConfigPathTraversal:
 
     def test_config_absolute_path_rejected(self, tmp_path, monkeypatch):
         """Absolute paths in config.yaml must be rejected."""
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
-        monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         sensitive = tmp_path / "abs.json"
         sensitive.write_text("{}")
-        self._write_config(lightning_home, [str(sensitive)])
+        self._write_config(sonic_home, [str(sensitive)])
 
         mounts = get_credential_file_mounts()
         assert mounts == []
 
     def test_config_legitimate_file_works(self, tmp_path, monkeypatch):
-        """Normal files inside LIGHTNING_HOME via config must still mount."""
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
-        monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+        """Normal files inside SONIC_HOME via config must still mount."""
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
-        (lightning_home / "oauth.json").write_text("{}")
-        self._write_config(lightning_home, ["oauth.json"])
+        (sonic_home / "oauth.json").write_text("{}")
+        self._write_config(sonic_home, ["oauth.json"])
 
         mounts = get_credential_file_mounts()
         assert len(mounts) == 1
@@ -374,52 +374,52 @@ class TestCacheDirectoryMounts:
 
     def test_returns_existing_cache_dirs(self, tmp_path, monkeypatch):
         """Existing cache dirs are returned with correct container paths."""
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
-        (lightning_home / "cache" / "documents").mkdir(parents=True)
-        (lightning_home / "cache" / "audio").mkdir(parents=True)
-        monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        (sonic_home / "cache" / "documents").mkdir(parents=True)
+        (sonic_home / "cache" / "audio").mkdir(parents=True)
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         mounts = get_cache_directory_mounts()
         paths = {m["container_path"] for m in mounts}
-        assert "/root/.lightning/cache/documents" in paths
-        assert "/root/.lightning/cache/audio" in paths
+        assert "/root/.sonic/cache/documents" in paths
+        assert "/root/.sonic/cache/audio" in paths
 
     def test_skips_nonexistent_dirs(self, tmp_path, monkeypatch):
         """Dirs that don't exist on disk are not returned."""
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
         # Create only one cache dir
-        (lightning_home / "cache" / "documents").mkdir(parents=True)
-        monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+        (sonic_home / "cache" / "documents").mkdir(parents=True)
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         mounts = get_cache_directory_mounts()
         assert len(mounts) == 1
-        assert mounts[0]["container_path"] == "/root/.lightning/cache/documents"
+        assert mounts[0]["container_path"] == "/root/.sonic/cache/documents"
 
     def test_legacy_dir_names_resolved(self, tmp_path, monkeypatch):
         """Old-style dir names (e.g. document_cache) are resolved correctly."""
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
-        # Use legacy dir name — get_lightning_dir prefers old if it exists
-        (lightning_home / "document_cache").mkdir()
-        (lightning_home / "image_cache").mkdir()
-        monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        # Use legacy dir name — get_sonic_dir prefers old if it exists
+        (sonic_home / "document_cache").mkdir()
+        (sonic_home / "image_cache").mkdir()
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         mounts = get_cache_directory_mounts()
         host_paths = {m["host_path"] for m in mounts}
-        assert str(lightning_home / "document_cache") in host_paths
-        assert str(lightning_home / "image_cache") in host_paths
+        assert str(sonic_home / "document_cache") in host_paths
+        assert str(sonic_home / "image_cache") in host_paths
         # Container paths always use the new layout
         container_paths = {m["container_path"] for m in mounts}
-        assert "/root/.lightning/cache/documents" in container_paths
-        assert "/root/.lightning/cache/images" in container_paths
+        assert "/root/.sonic/cache/documents" in container_paths
+        assert "/root/.sonic/cache/images" in container_paths
 
-    def test_empty_lightning_home(self, tmp_path, monkeypatch):
+    def test_empty_sonic_home(self, tmp_path, monkeypatch):
         """No cache dirs → empty list."""
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
-        monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         assert get_cache_directory_mounts() == []
 
@@ -429,12 +429,12 @@ class TestIterCacheFiles:
 
     def test_enumerates_files(self, tmp_path, monkeypatch):
         """Regular files in cache dirs are returned."""
-        lightning_home = tmp_path / ".lightning"
-        doc_dir = lightning_home / "cache" / "documents"
+        sonic_home = tmp_path / ".sonic"
+        doc_dir = sonic_home / "cache" / "documents"
         doc_dir.mkdir(parents=True)
         (doc_dir / "upload.zip").write_bytes(b"PK\x03\x04")
         (doc_dir / "report.pdf").write_bytes(b"%PDF-1.4")
-        monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         entries = iter_cache_files()
         names = {Path(e["container_path"]).name for e in entries}
@@ -443,13 +443,13 @@ class TestIterCacheFiles:
 
     def test_skips_symlinks(self, tmp_path, monkeypatch):
         """Symlinks inside cache dirs are skipped."""
-        lightning_home = tmp_path / ".lightning"
-        doc_dir = lightning_home / "cache" / "documents"
+        sonic_home = tmp_path / ".sonic"
+        doc_dir = sonic_home / "cache" / "documents"
         doc_dir.mkdir(parents=True)
         real_file = doc_dir / "real.txt"
         real_file.write_text("content")
         (doc_dir / "link.txt").symlink_to(real_file)
-        monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         entries = iter_cache_files()
         names = [Path(e["container_path"]).name for e in entries]
@@ -458,21 +458,21 @@ class TestIterCacheFiles:
 
     def test_nested_files(self, tmp_path, monkeypatch):
         """Files in subdirectories are included with correct relative paths."""
-        lightning_home = tmp_path / ".lightning"
-        ss_dir = lightning_home / "cache" / "screenshots"
+        sonic_home = tmp_path / ".sonic"
+        ss_dir = sonic_home / "cache" / "screenshots"
         sub = ss_dir / "session_abc"
         sub.mkdir(parents=True)
         (sub / "screen1.png").write_bytes(b"PNG")
-        monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         entries = iter_cache_files()
         assert len(entries) == 1
-        assert entries[0]["container_path"] == "/root/.lightning/cache/screenshots/session_abc/screen1.png"
+        assert entries[0]["container_path"] == "/root/.sonic/cache/screenshots/session_abc/screen1.png"
 
     def test_empty_cache(self, tmp_path, monkeypatch):
         """No cache dirs → empty list."""
-        lightning_home = tmp_path / ".lightning"
-        lightning_home.mkdir()
-        monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         assert iter_cache_files() == []

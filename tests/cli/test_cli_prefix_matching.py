@@ -1,10 +1,10 @@
-"""Tests for slash command prefix matching in LightningCLI.process_command."""
+"""Tests for slash command prefix matching in SonicCLI.process_command."""
 from unittest.mock import MagicMock, patch
-from cli import LightningCLI
+from cli import SonicCLI
 
 
 def _make_cli():
-    cli_obj = LightningCLI.__new__(LightningCLI)
+    cli_obj = SonicCLI.__new__(SonicCLI)
     cli_obj.config = {}
     cli_obj.console = MagicMock()
     cli_obj.agent = None
@@ -51,7 +51,7 @@ class TestSlashCommandPrefixMatching:
         cli_obj = _make_cli()
         call_count = [0]
 
-        original_pc = LightningCLI.process_command
+        original_pc = SonicCLI.process_command
 
         def guarded(self_inner, cmd):
             call_count[0] += 1
@@ -60,7 +60,7 @@ class TestSlashCommandPrefixMatching:
             return original_pc(self_inner, cmd)
 
         # Mock show_config since the test is about recursion, not config display
-        with patch.object(LightningCLI, 'process_command', guarded), \
+        with patch.object(SonicCLI, 'process_command', guarded), \
              patch.object(cli_obj, 'show_config'):
             try:
                 cli_obj.process_command("/config set key value")

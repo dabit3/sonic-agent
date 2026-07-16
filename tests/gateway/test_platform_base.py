@@ -20,7 +20,7 @@ class TestSecretCaptureGuidance:
     def test_gateway_secret_capture_message_points_to_local_setup(self):
         message = GATEWAY_SECRET_CAPTURE_UNSUPPORTED_MESSAGE
         assert "local cli" in message.lower()
-        assert "~/.lightning/.env" in message
+        assert "~/.sonic/.env" in message
 
 
 class TestSafeUrlForLog:
@@ -422,7 +422,7 @@ class TestMediaDeliveryPathValidation:
         media_file.parent.mkdir(parents=True)
         media_file.write_bytes(b"%PDF-1.4")
         self._patch_roots(monkeypatch)
-        monkeypatch.setenv("LIGHTNING_MEDIA_ALLOW_DIRS", str(extra_root))
+        monkeypatch.setenv("SONIC_MEDIA_ALLOW_DIRS", str(extra_root))
 
         assert BasePlatformAdapter.validate_media_delivery_path(str(media_file)) == str(media_file.resolve())
 
@@ -576,24 +576,24 @@ class TestTruncateMessage:
 
 class TestGetHumanDelay:
     def test_off_mode(self):
-        with patch.dict(os.environ, {"LIGHTNING_HUMAN_DELAY_MODE": "off"}):
+        with patch.dict(os.environ, {"SONIC_HUMAN_DELAY_MODE": "off"}):
             assert BasePlatformAdapter._get_human_delay() == 0.0
 
     def test_default_is_off(self):
         with patch.dict(os.environ, {}, clear=False):
-            os.environ.pop("LIGHTNING_HUMAN_DELAY_MODE", None)
+            os.environ.pop("SONIC_HUMAN_DELAY_MODE", None)
             assert BasePlatformAdapter._get_human_delay() == 0.0
 
     def test_natural_mode_range(self):
-        with patch.dict(os.environ, {"LIGHTNING_HUMAN_DELAY_MODE": "natural"}):
+        with patch.dict(os.environ, {"SONIC_HUMAN_DELAY_MODE": "natural"}):
             delay = BasePlatformAdapter._get_human_delay()
             assert 0.8 <= delay <= 2.5
 
     def test_natural_mode_ignores_malformed_custom_env_vars(self):
         env = {
-            "LIGHTNING_HUMAN_DELAY_MODE": "natural",
-            "LIGHTNING_HUMAN_DELAY_MIN_MS": "oops",
-            "LIGHTNING_HUMAN_DELAY_MAX_MS": "still-bad",
+            "SONIC_HUMAN_DELAY_MODE": "natural",
+            "SONIC_HUMAN_DELAY_MIN_MS": "oops",
+            "SONIC_HUMAN_DELAY_MAX_MS": "still-bad",
         }
         with patch.dict(os.environ, env):
             delay = BasePlatformAdapter._get_human_delay()
@@ -601,9 +601,9 @@ class TestGetHumanDelay:
 
     def test_custom_mode_uses_env_vars(self):
         env = {
-            "LIGHTNING_HUMAN_DELAY_MODE": "custom",
-            "LIGHTNING_HUMAN_DELAY_MIN_MS": "100",
-            "LIGHTNING_HUMAN_DELAY_MAX_MS": "200",
+            "SONIC_HUMAN_DELAY_MODE": "custom",
+            "SONIC_HUMAN_DELAY_MIN_MS": "100",
+            "SONIC_HUMAN_DELAY_MAX_MS": "200",
         }
         with patch.dict(os.environ, env):
             delay = BasePlatformAdapter._get_human_delay()
@@ -611,9 +611,9 @@ class TestGetHumanDelay:
 
     def test_custom_mode_tolerates_malformed_env_vars(self):
         env = {
-            "LIGHTNING_HUMAN_DELAY_MODE": "custom",
-            "LIGHTNING_HUMAN_DELAY_MIN_MS": "oops",
-            "LIGHTNING_HUMAN_DELAY_MAX_MS": "still-bad",
+            "SONIC_HUMAN_DELAY_MODE": "custom",
+            "SONIC_HUMAN_DELAY_MIN_MS": "oops",
+            "SONIC_HUMAN_DELAY_MAX_MS": "still-bad",
         }
         with patch.dict(os.environ, env):
             # falls back to the custom-mode defaults instead of crashing

@@ -1,14 +1,14 @@
 ---
 sidebar_position: 1
 title: "Messaging Gateway"
-description: "Chat with Lightning from Telegram, Discord, Slack, WhatsApp, Signal, SMS, Email, Home Assistant, Mattermost, Matrix, DingTalk, Yuanbao, Microsoft Teams, LINE, Webhooks, or any OpenAI-compatible frontend via the API server — architecture and setup overview"
+description: "Chat with Sonic from Telegram, Discord, Slack, WhatsApp, Signal, SMS, Email, Home Assistant, Mattermost, Matrix, DingTalk, Yuanbao, Microsoft Teams, LINE, Webhooks, or any OpenAI-compatible frontend via the API server — architecture and setup overview"
 ---
 
 # Messaging Gateway
 
-Chat with Lightning from Telegram, Discord, Slack, WhatsApp, Signal, SMS, Email, Home Assistant, Mattermost, Matrix, DingTalk, Feishu/Lark, WeCom, Weixin, BlueBubbles (iMessage), QQ, Yuanbao, Microsoft Teams, LINE, or your browser. The gateway is a single background process that connects to all your configured platforms, handles sessions, runs cron jobs, and delivers voice messages.
+Chat with Sonic from Telegram, Discord, Slack, WhatsApp, Signal, SMS, Email, Home Assistant, Mattermost, Matrix, DingTalk, Feishu/Lark, WeCom, Weixin, BlueBubbles (iMessage), QQ, Yuanbao, Microsoft Teams, LINE, or your browser. The gateway is a single background process that connects to all your configured platforms, handles sessions, runs cron jobs, and delivers voice messages.
 
-For the full voice feature set — including CLI microphone mode, spoken replies in messaging, and Discord voice-channel conversations — see [Voice Mode](/docs/user-guide/features/voice-mode) and [Use Voice Mode with Lightning](/docs/guides/use-voice-mode-with-lightning).
+For the full voice feature set — including CLI microphone mode, spoken replies in messaging, and Discord voice-channel conversations — see [Voice Mode](/docs/user-guide/features/voice-mode) and [Use Voice Mode with Sonic](/docs/guides/use-voice-mode-with-sonic).
 
 ## Platform Comparison
 
@@ -42,7 +42,7 @@ For the full voice feature set — including CLI microphone mode, spoken replies
 
 ```mermaid
 flowchart TB
-    subgraph Gateway["Lightning Gateway"]
+    subgraph Gateway["Sonic Gateway"]
         subgraph Adapters["Platform adapters"]
             tg[Telegram]
             dc[Discord]
@@ -106,7 +106,7 @@ Each platform adapter receives messages, routes them through a per-chat session 
 The easiest way to configure messaging platforms is the interactive wizard:
 
 ```bash
-lightning gateway setup        # Interactive setup for all messaging platforms
+sonic gateway setup        # Interactive setup for all messaging platforms
 ```
 
 This walks you through configuring each platform with arrow-key selection, shows which platforms are already configured, and offers to start/restart the gateway when done.
@@ -114,14 +114,14 @@ This walks you through configuring each platform with arrow-key selection, shows
 ## Gateway Commands
 
 ```bash
-lightning gateway              # Run in foreground
-lightning gateway setup        # Configure messaging platforms interactively
-lightning gateway install      # Install as a user service (Linux) / launchd service (macOS)
-sudo lightning gateway install --system   # Linux only: install a boot-time system service
-lightning gateway start        # Start the default service
-lightning gateway stop         # Stop the default service
-lightning gateway status       # Check default service status
-lightning gateway status --system         # Linux only: inspect the system service explicitly
+sonic gateway              # Run in foreground
+sonic gateway setup        # Configure messaging platforms interactively
+sonic gateway install      # Install as a user service (Linux) / launchd service (macOS)
+sudo sonic gateway install --system   # Linux only: install a boot-time system service
+sonic gateway start        # Start the default service
+sonic gateway stop         # Stop the default service
+sonic gateway status       # Check default service status
+sonic gateway status --system         # Linux only: inspect the system service explicitly
 ```
 
 ## Chat Commands (Inside Messaging)
@@ -149,7 +149,7 @@ lightning gateway status --system         # Linux only: inspect the system servi
 | `/rollback [number]` | List or restore filesystem checkpoints |
 | `/background <prompt>` | Run a prompt in a separate background session |
 | `/reload-mcp` | Reload MCP servers from config |
-| `/update` | Update Lightning Agent to the latest version |
+| `/update` | Update Sonic Agent to the latest version |
 | `/help` | Show available commands |
 | `/<skill-name>` | Invoke any installed skill |
 
@@ -169,7 +169,7 @@ Sessions reset based on configurable policies:
 | Idle | 1440 min | Reset after N minutes of inactivity |
 | Both | (combined) | Whichever triggers first |
 
-Configure per-platform overrides in `~/.lightning/gateway.json`:
+Configure per-platform overrides in `~/.sonic/gateway.json`:
 
 ```json
 {
@@ -213,11 +213,11 @@ Instead of manually configuring user IDs, unknown users receive a one-time pairi
 ```bash
 # The user sees: "Pairing code: XKGH5N7P"
 # You approve them with:
-lightning pairing approve telegram XKGH5N7P
+sonic pairing approve telegram XKGH5N7P
 
 # Other pairing commands:
-lightning pairing list          # View pending + approved users
-lightning pairing revoke telegram 123456789  # Remove access
+sonic pairing list          # View pending + approved users
+sonic pairing revoke telegram 123456789  # Remove access
 ```
 
 Pairing codes expire after 1 hour, are rate-limited, and use cryptographic randomness.
@@ -280,13 +280,13 @@ display:
   busy_ack_enabled: true   # set to false to suppress the ⚡/⏳/⏩ chat reply entirely
 ```
 
-The first time you message a busy agent on any platform, Lightning appends a one-line reminder to the busy-ack explaining the knob (`"💡 First-time tip — …"`). The reminder fires once per install — a flag under `onboarding.seen.busy_input_prompt` latches it. Delete that key to see the tip again.
+The first time you message a busy agent on any platform, Sonic appends a one-line reminder to the busy-ack explaining the knob (`"💡 First-time tip — …"`). The reminder fires once per install — a flag under `onboarding.seen.busy_input_prompt` latches it. Delete that key to see the tip again.
 
 If you find the busy-ack noisy — especially with voice input or rapid-fire messages — set `display.busy_ack_enabled: false`. Your input is still queued/steered/interrupts as normal, only the chat reply is silenced.
 
 ## Tool Progress Notifications
 
-Control how much tool activity is displayed in `~/.lightning/config.yaml`:
+Control how much tool activity is displayed in `~/.sonic/config.yaml`:
 
 ```yaml
 display:
@@ -311,7 +311,7 @@ Run a prompt in a separate background session so the agent works on it independe
 /background Check all servers in the cluster and report any that are down
 ```
 
-Lightning confirms immediately:
+Sonic confirms immediately:
 
 ```
 🔄 Background task started: "Check all servers in the cluster..."
@@ -329,7 +329,7 @@ Each `/background` prompt spawns a **separate agent instance** that runs asynchr
 
 ### Background Process Notifications
 
-When the agent running a background session uses `terminal(background=true)` to start long-running processes (servers, builds, etc.), the gateway can push status updates to your chat. Control this with `display.background_process_notifications` in `~/.lightning/config.yaml`:
+When the agent running a background session uses `terminal(background=true)` to start long-running processes (servers, builds, etc.), the gateway can push status updates to your chat. Control this with `display.background_process_notifications` in `~/.sonic/config.yaml`:
 
 ```yaml
 display:
@@ -346,7 +346,7 @@ display:
 You can also set this via environment variable:
 
 ```bash
-LIGHTNING_BACKGROUND_NOTIFICATIONS=result
+SONIC_BACKGROUND_NOTIFICATIONS=result
 ```
 
 ### Use Cases
@@ -365,52 +365,52 @@ Background tasks on messaging platforms are fire-and-forget — you don't need t
 ### Linux (systemd)
 
 ```bash
-lightning gateway install               # Install as user service
-lightning gateway start                 # Start the service
-lightning gateway stop                  # Stop the service
-lightning gateway status                # Check status
-journalctl --user -u lightning-gateway -f  # View logs
+sonic gateway install               # Install as user service
+sonic gateway start                 # Start the service
+sonic gateway stop                  # Stop the service
+sonic gateway status                # Check status
+journalctl --user -u sonic-gateway -f  # View logs
 
 # Enable lingering (keeps running after logout)
 sudo loginctl enable-linger $USER
 
 # Or install a boot-time system service that still runs as your user
-sudo lightning gateway install --system
-sudo lightning gateway start --system
-sudo lightning gateway status --system
-journalctl -u lightning-gateway -f
+sudo sonic gateway install --system
+sudo sonic gateway start --system
+sudo sonic gateway status --system
+journalctl -u sonic-gateway -f
 ```
 
 Use the user service on laptops and dev boxes. Use the system service on VPS or headless hosts that should come back at boot without relying on systemd linger.
 
-Avoid keeping both the user and system gateway units installed at once unless you really mean to. Lightning will warn if it detects both because start/stop/status behavior gets ambiguous.
+Avoid keeping both the user and system gateway units installed at once unless you really mean to. Sonic will warn if it detects both because start/stop/status behavior gets ambiguous.
 
 :::info Multiple installations
-If you run multiple Lightning installations on the same machine (with different `LIGHTNING_HOME` directories), each gets its own systemd service name. The default `~/.lightning` uses `lightning-gateway`; other installations use `lightning-gateway-<hash>`. The `lightning gateway` commands automatically target the correct service for your current `LIGHTNING_HOME`.
+If you run multiple Sonic installations on the same machine (with different `SONIC_HOME` directories), each gets its own systemd service name. The default `~/.sonic` uses `sonic-gateway`; other installations use `sonic-gateway-<hash>`. The `sonic gateway` commands automatically target the correct service for your current `SONIC_HOME`.
 :::
 
 ### macOS (launchd)
 
 ```bash
-lightning gateway install               # Install as launchd agent
-lightning gateway start                 # Start the service
-lightning gateway stop                  # Stop the service
-lightning gateway status                # Check status
-tail -f ~/.lightning/logs/gateway.log   # View logs
+sonic gateway install               # Install as launchd agent
+sonic gateway start                 # Start the service
+sonic gateway stop                  # Stop the service
+sonic gateway status                # Check status
+tail -f ~/.sonic/logs/gateway.log   # View logs
 ```
 
-The generated plist lives at `~/Library/LaunchAgents/ai.lightning.gateway.plist`. It includes three environment variables:
+The generated plist lives at `~/Library/LaunchAgents/ai.sonic.gateway.plist`. It includes three environment variables:
 
 - **PATH** — your full shell PATH at install time, with the venv `bin/` and `node_modules/.bin` prepended. This ensures user-installed tools (Node.js, ffmpeg, etc.) are available to gateway subprocesses like the WhatsApp bridge.
 - **VIRTUAL_ENV** — points to the Python virtualenv so tools can resolve packages correctly.
-- **LIGHTNING_HOME** — scopes the gateway to your Lightning installation.
+- **SONIC_HOME** — scopes the gateway to your Sonic installation.
 
 :::tip PATH changes after install
-launchd plists are static — if you install new tools (e.g. a new Node.js version via nvm, or ffmpeg via Homebrew) after setting up the gateway, run `lightning gateway install` again to capture the updated PATH. The gateway will detect the stale plist and reload automatically.
+launchd plists are static — if you install new tools (e.g. a new Node.js version via nvm, or ffmpeg via Homebrew) after setting up the gateway, run `sonic gateway install` again to capture the updated PATH. The gateway will detect the stale plist and reload automatically.
 :::
 
 :::info Multiple installations
-Like the Linux systemd service, each `LIGHTNING_HOME` directory gets its own launchd label. The default `~/.lightning` uses `ai.lightning.gateway`; other installations use `ai.lightning.gateway-<suffix>`.
+Like the Linux systemd service, each `SONIC_HOME` directory gets its own launchd label. The default `~/.sonic` uses `ai.sonic.gateway`; other installations use `ai.sonic.gateway-<suffix>`.
 :::
 
 ## Platform-Specific Toolsets
@@ -419,29 +419,29 @@ Each platform has its own toolset:
 
 | Platform | Toolset | Capabilities |
 |----------|---------|--------------|
-| CLI | `lightning-cli` | Full access |
-| Telegram | `lightning-telegram` | Full tools including terminal |
-| Discord | `lightning-discord` | Full tools including terminal |
-| WhatsApp | `lightning-whatsapp` | Full tools including terminal |
-| Slack | `lightning-slack` | Full tools including terminal |
-| Google Chat | `lightning-google_chat` | Full tools including terminal |
-| Signal | `lightning-signal` | Full tools including terminal |
-| SMS | `lightning-sms` | Full tools including terminal |
-| Email | `lightning-email` | Full tools including terminal |
-| Home Assistant | `lightning-homeassistant` | Full tools + HA device control (ha_list_entities, ha_get_state, ha_call_service, ha_list_services) |
-| Mattermost | `lightning-mattermost` | Full tools including terminal |
-| Matrix | `lightning-matrix` | Full tools including terminal |
-| DingTalk | `lightning-dingtalk` | Full tools including terminal |
-| Feishu/Lark | `lightning-feishu` | Full tools including terminal |
-| WeCom | `lightning-wecom` | Full tools including terminal |
-| WeCom Callback | `lightning-wecom-callback` | Full tools including terminal |
-| Weixin | `lightning-weixin` | Full tools including terminal |
-| BlueBubbles | `lightning-bluebubbles` | Full tools including terminal |
-| QQBot | `lightning-qqbot` | Full tools including terminal |
-| Yuanbao | `lightning-yuanbao` | Full tools including terminal |
-| Microsoft Teams | `lightning-teams` | Full tools including terminal |
-| API Server | `lightning-api-server` | Full tools (drops `clarify`, `send_message`, `text_to_speech` — programmatic access doesn't have an interactive user) |
-| Webhooks | `lightning-webhook` | Full tools including terminal |
+| CLI | `sonic-cli` | Full access |
+| Telegram | `sonic-telegram` | Full tools including terminal |
+| Discord | `sonic-discord` | Full tools including terminal |
+| WhatsApp | `sonic-whatsapp` | Full tools including terminal |
+| Slack | `sonic-slack` | Full tools including terminal |
+| Google Chat | `sonic-google_chat` | Full tools including terminal |
+| Signal | `sonic-signal` | Full tools including terminal |
+| SMS | `sonic-sms` | Full tools including terminal |
+| Email | `sonic-email` | Full tools including terminal |
+| Home Assistant | `sonic-homeassistant` | Full tools + HA device control (ha_list_entities, ha_get_state, ha_call_service, ha_list_services) |
+| Mattermost | `sonic-mattermost` | Full tools including terminal |
+| Matrix | `sonic-matrix` | Full tools including terminal |
+| DingTalk | `sonic-dingtalk` | Full tools including terminal |
+| Feishu/Lark | `sonic-feishu` | Full tools including terminal |
+| WeCom | `sonic-wecom` | Full tools including terminal |
+| WeCom Callback | `sonic-wecom-callback` | Full tools including terminal |
+| Weixin | `sonic-weixin` | Full tools including terminal |
+| BlueBubbles | `sonic-bluebubbles` | Full tools including terminal |
+| QQBot | `sonic-qqbot` | Full tools including terminal |
+| Yuanbao | `sonic-yuanbao` | Full tools including terminal |
+| Microsoft Teams | `sonic-teams` | Full tools including terminal |
+| API Server | `sonic-api-server` | Full tools (drops `clarify`, `send_message`, `text_to_speech` — programmatic access doesn't have an interactive user) |
+| Webhooks | `sonic-webhook` | Full tools including terminal |
 
 ## Operating a multi-platform gateway
 
@@ -471,7 +471,7 @@ The breaker does **not** auto-resume — it stays open until you run `/platform 
 
 When an adapter is paused, check:
 
-1. **Gateway log** (`~/.lightning/logs/gateway.log` or the systemd / launchd unit log). Search for the platform name and `circuit breaker`, `paused`, or `disabled`. The trip event includes the failure count and the last error.
+1. **Gateway log** (`~/.sonic/logs/gateway.log` or the systemd / launchd unit log). Search for the platform name and `circuit breaker`, `paused`, or `disabled`. The trip event includes the failure count and the last error.
 2. **`/platform list`** output — shows the current state and last reason.
 3. **The provider's status page** (Telegram bot API status, Discord status, etc.). The breaker tripped because the platform was unhealthy; don't try to resume until it's back.
 

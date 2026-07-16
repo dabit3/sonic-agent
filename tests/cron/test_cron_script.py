@@ -4,7 +4,7 @@ Tests cover:
 - Script field in job creation / storage / update
 - Script execution and output injection into prompts
 - Error handling (missing script, timeout, non-zero exit)
-- Path resolution (absolute, relative to LIGHTNING_HOME/scripts/)
+- Path resolution (absolute, relative to SONIC_HOME/scripts/)
 """
 
 import json
@@ -23,22 +23,22 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 @pytest.fixture
 def cron_env(tmp_path, monkeypatch):
-    """Isolated cron environment with temp LIGHTNING_HOME."""
-    lightning_home = tmp_path / ".lightning"
-    lightning_home.mkdir()
-    (lightning_home / "cron").mkdir()
-    (lightning_home / "cron" / "output").mkdir()
-    (lightning_home / "scripts").mkdir()
-    monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+    """Isolated cron environment with temp SONIC_HOME."""
+    sonic_home = tmp_path / ".sonic"
+    sonic_home.mkdir()
+    (sonic_home / "cron").mkdir()
+    (sonic_home / "cron" / "output").mkdir()
+    (sonic_home / "scripts").mkdir()
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
     # Clear cached module-level paths
     import cron.jobs as jobs_mod
-    monkeypatch.setattr(jobs_mod, "LIGHTNING_DIR", lightning_home)
-    monkeypatch.setattr(jobs_mod, "CRON_DIR", lightning_home / "cron")
-    monkeypatch.setattr(jobs_mod, "JOBS_FILE", lightning_home / "cron" / "jobs.json")
-    monkeypatch.setattr(jobs_mod, "OUTPUT_DIR", lightning_home / "cron" / "output")
+    monkeypatch.setattr(jobs_mod, "SONIC_DIR", sonic_home)
+    monkeypatch.setattr(jobs_mod, "CRON_DIR", sonic_home / "cron")
+    monkeypatch.setattr(jobs_mod, "JOBS_FILE", sonic_home / "cron" / "jobs.json")
+    monkeypatch.setattr(jobs_mod, "OUTPUT_DIR", sonic_home / "cron" / "output")
 
-    return lightning_home
+    return sonic_home
 
 
 class TestJobScriptField:
@@ -219,7 +219,7 @@ class TestCronjobToolScript:
     """Test the cronjob tool's script parameter."""
 
     def test_create_with_script(self, cron_env, monkeypatch):
-        monkeypatch.setenv("LIGHTNING_INTERACTIVE", "1")
+        monkeypatch.setenv("SONIC_INTERACTIVE", "1")
         from tools.cronjob_tools import cronjob
 
         result = json.loads(cronjob(
@@ -232,7 +232,7 @@ class TestCronjobToolScript:
         assert result["job"]["script"] == "monitor.py"
 
     def test_update_script(self, cron_env, monkeypatch):
-        monkeypatch.setenv("LIGHTNING_INTERACTIVE", "1")
+        monkeypatch.setenv("SONIC_INTERACTIVE", "1")
         from tools.cronjob_tools import cronjob
 
         create_result = json.loads(cronjob(
@@ -251,7 +251,7 @@ class TestCronjobToolScript:
         assert update_result["job"]["script"] == "new_script.py"
 
     def test_clear_script(self, cron_env, monkeypatch):
-        monkeypatch.setenv("LIGHTNING_INTERACTIVE", "1")
+        monkeypatch.setenv("SONIC_INTERACTIVE", "1")
         from tools.cronjob_tools import cronjob
 
         create_result = json.loads(cronjob(
@@ -271,7 +271,7 @@ class TestCronjobToolScript:
         assert "script" not in update_result["job"]
 
     def test_list_shows_script(self, cron_env, monkeypatch):
-        monkeypatch.setenv("LIGHTNING_INTERACTIVE", "1")
+        monkeypatch.setenv("SONIC_INTERACTIVE", "1")
         from tools.cronjob_tools import cronjob
 
         cronjob(
@@ -296,7 +296,7 @@ class TestScriptPathContainment:
     """
 
     def test_absolute_path_outside_scripts_dir_blocked(self, cron_env):
-        """Absolute paths outside ~/.lightning/scripts/ must be rejected."""
+        """Absolute paths outside ~/.sonic/scripts/ must be rejected."""
         from cron.scheduler import _run_job_script
 
         # Create a script outside the scripts dir
@@ -399,7 +399,7 @@ class TestCronjobToolScriptValidation:
     """Test API-boundary validation of cron script paths in cronjob_tools."""
 
     def test_create_with_absolute_script_rejected(self, cron_env, monkeypatch):
-        monkeypatch.setenv("LIGHTNING_INTERACTIVE", "1")
+        monkeypatch.setenv("SONIC_INTERACTIVE", "1")
         from tools.cronjob_tools import cronjob
 
         result = json.loads(cronjob(
@@ -412,7 +412,7 @@ class TestCronjobToolScriptValidation:
         assert "relative" in result["error"].lower() or "absolute" in result["error"].lower()
 
     def test_create_with_tilde_script_rejected(self, cron_env, monkeypatch):
-        monkeypatch.setenv("LIGHTNING_INTERACTIVE", "1")
+        monkeypatch.setenv("SONIC_INTERACTIVE", "1")
         from tools.cronjob_tools import cronjob
 
         result = json.loads(cronjob(
@@ -425,7 +425,7 @@ class TestCronjobToolScriptValidation:
         assert "relative" in result["error"].lower() or "absolute" in result["error"].lower()
 
     def test_create_with_traversal_script_rejected(self, cron_env, monkeypatch):
-        monkeypatch.setenv("LIGHTNING_INTERACTIVE", "1")
+        monkeypatch.setenv("SONIC_INTERACTIVE", "1")
         from tools.cronjob_tools import cronjob
 
         result = json.loads(cronjob(
@@ -438,7 +438,7 @@ class TestCronjobToolScriptValidation:
         assert "escapes" in result["error"].lower() or "traversal" in result["error"].lower()
 
     def test_create_with_relative_script_allowed(self, cron_env, monkeypatch):
-        monkeypatch.setenv("LIGHTNING_INTERACTIVE", "1")
+        monkeypatch.setenv("SONIC_INTERACTIVE", "1")
         from tools.cronjob_tools import cronjob
 
         result = json.loads(cronjob(
@@ -451,7 +451,7 @@ class TestCronjobToolScriptValidation:
         assert result["job"]["script"] == "monitor.py"
 
     def test_update_with_absolute_script_rejected(self, cron_env, monkeypatch):
-        monkeypatch.setenv("LIGHTNING_INTERACTIVE", "1")
+        monkeypatch.setenv("SONIC_INTERACTIVE", "1")
         from tools.cronjob_tools import cronjob
 
         create_result = json.loads(cronjob(
@@ -471,7 +471,7 @@ class TestCronjobToolScriptValidation:
 
     def test_update_clear_script_allowed(self, cron_env, monkeypatch):
         """Clearing a script (empty string) should always be permitted."""
-        monkeypatch.setenv("LIGHTNING_INTERACTIVE", "1")
+        monkeypatch.setenv("SONIC_INTERACTIVE", "1")
         from tools.cronjob_tools import cronjob
 
         create_result = json.loads(cronjob(
@@ -491,7 +491,7 @@ class TestCronjobToolScriptValidation:
         assert "script" not in update_result["job"]
 
     def test_windows_absolute_path_rejected(self, cron_env, monkeypatch):
-        monkeypatch.setenv("LIGHTNING_INTERACTIVE", "1")
+        monkeypatch.setenv("SONIC_INTERACTIVE", "1")
         from tools.cronjob_tools import cronjob
 
         result = json.loads(cronjob(
@@ -510,9 +510,9 @@ class TestRunJobEnvVarCleanup:
         """Origin env vars must be cleaned up even if run_job fails early."""
         # Ensure env vars are clean before test
         for key in (
-            "LIGHTNING_SESSION_PLATFORM",
-            "LIGHTNING_SESSION_CHAT_ID",
-            "LIGHTNING_SESSION_CHAT_NAME",
+            "SONIC_SESSION_PLATFORM",
+            "SONIC_SESSION_CHAT_ID",
+            "SONIC_SESSION_CHAT_NAME",
         ):
             monkeypatch.delenv(key, raising=False)
 
@@ -539,6 +539,6 @@ class TestRunJobEnvVarCleanup:
             pass
 
         # Verify env vars were cleaned up by the finally block
-        assert os.environ.get("LIGHTNING_SESSION_PLATFORM") is None
-        assert os.environ.get("LIGHTNING_SESSION_CHAT_ID") is None
-        assert os.environ.get("LIGHTNING_SESSION_CHAT_NAME") is None
+        assert os.environ.get("SONIC_SESSION_PLATFORM") is None
+        assert os.environ.get("SONIC_SESSION_CHAT_ID") is None
+        assert os.environ.get("SONIC_SESSION_CHAT_NAME") is None

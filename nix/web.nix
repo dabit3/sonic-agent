@@ -1,19 +1,19 @@
-# nix/web.nix — Lightning Web Dashboard (Vite/React) frontend build
-{ pkgs, lightningNpmLib, ... }:
+# nix/web.nix — Sonic Web Dashboard (Vite/React) frontend build
+{ pkgs, sonicNpmLib, ... }:
 let
   src = ../web;
   npmDeps = pkgs.fetchNpmDeps {
     inherit src;
-    hash = "sha256-6qhGuifHVtCeep1SiQdCUxBMr7UGhYpdMTvXhrQu/zA=";
+    hash = "sha256-RPPWPM0nEkwsaQHrkdEP+UMTZ2aF7JHUNfsIEnKt1l8=";
   };
 
-  npm = lightningNpmLib.mkNpmPassthru { folder = "web"; attr = "web"; pname = "lightning-web"; };
+  npm = sonicNpmLib.mkNpmPassthru { folder = "web"; attr = "web"; pname = "sonic-web"; };
 
   packageJson = builtins.fromJSON (builtins.readFile (src + "/package.json"));
   version = packageJson.version;
 in
 pkgs.buildNpmPackage (npm // {
-  pname = "lightning-web";
+  pname = "sonic-web";
   inherit src npmDeps version;
 
   doCheck = false;

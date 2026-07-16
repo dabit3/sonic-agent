@@ -7,28 +7,28 @@ from pathlib import Path
 from typing import Optional
 
 
-def _lightning_home_path() -> Path:
-    """Resolve the active LIGHTNING_HOME (profile-aware) without circular imports."""
+def _sonic_home_path() -> Path:
+    """Resolve the active SONIC_HOME (profile-aware) without circular imports."""
     try:
-        from lightning_constants import get_lightning_home  # local import to avoid cycles
-        return get_lightning_home()
+        from sonic_constants import get_sonic_home  # local import to avoid cycles
+        return get_sonic_home()
     except Exception:
-        return Path(os.path.expanduser("~/.lightning"))
+        return Path(os.path.expanduser("~/.sonic"))
 
 
-def _lightning_root_path() -> Path:
-    """Resolve the Lightning root dir (always the parent of any profile, never per-profile)."""
+def _sonic_root_path() -> Path:
+    """Resolve the Sonic root dir (always the parent of any profile, never per-profile)."""
     try:
-        from lightning_constants import get_default_lightning_root  # local import to avoid cycles
-        return get_default_lightning_root()
+        from sonic_constants import get_default_sonic_root  # local import to avoid cycles
+        return get_default_sonic_root()
     except Exception:
-        return Path(os.path.expanduser("~/.lightning"))
+        return Path(os.path.expanduser("~/.sonic"))
 
 
 def build_write_denied_paths(home: str) -> set[str]:
     """Return exact sensitive paths that must never be written."""
-    lightning_home = _lightning_home_path()
-    lightning_root = _lightning_root_path()
+    sonic_home = _sonic_home_path()
+    sonic_root = _sonic_root_path()
     return {
         os.path.realpath(p)
         for p in [
@@ -37,10 +37,10 @@ def build_write_denied_paths(home: str) -> set[str]:
             os.path.join(home, ".ssh", "id_ed25519"),
             os.path.join(home, ".ssh", "config"),
             # Active profile .env (or top-level .env when not in profile mode).
-            str(lightning_home / ".env"),
+            str(sonic_home / ".env"),
             # Top-level .env, even when running under a profile — overwriting it
             # leaks credentials across every profile that inherits from root (#15981).
-            str(lightning_root / ".env"),
+            str(sonic_root / ".env"),
             os.path.join(home, ".bashrc"),
             os.path.join(home, ".zshrc"),
             os.path.join(home, ".profile"),
@@ -76,8 +76,8 @@ def build_write_denied_prefixes(home: str) -> list[str]:
 
 
 def get_safe_write_root() -> Optional[str]:
-    """Return the resolved LIGHTNING_WRITE_SAFE_ROOT path, or None if unset."""
-    root = os.getenv("LIGHTNING_WRITE_SAFE_ROOT", "")
+    """Return the resolved SONIC_WRITE_SAFE_ROOT path, or None if unset."""
+    root = os.getenv("SONIC_WRITE_SAFE_ROOT", "")
     if not root:
         return None
     try:
@@ -97,24 +97,24 @@ def is_write_denied(path: str) -> bool:
         if resolved.startswith(prefix):
             return True
 
-    # Lightning control-plane files: block both the ACTIVE profile's view
-    # (lightning_home) AND the global root view. Without the root pass, a
+    # Sonic control-plane files: block both the ACTIVE profile's view
+    # (sonic_home) AND the global root view. Without the root pass, a
     # profile-mode session leaves <root>/auth.json + <root>/config.yaml
     # writable — letting a prompt-injected write_file overwrite the global
     # files that every profile inherits from (same shape as #15981).
     control_file_names = ("auth.json", "config.yaml", "webhook_subscriptions.json")
     mcp_tokens_dir_name = "mcp-tokens"
 
-    lightning_dirs = []
-    for base in (_lightning_home_path(), _lightning_root_path()):
+    sonic_dirs = []
+    for base in (_sonic_home_path(), _sonic_root_path()):
         try:
             real = os.path.realpath(base)
-            if real not in lightning_dirs:
-                lightning_dirs.append(real)
+            if real not in sonic_dirs:
+                sonic_dirs.append(real)
         except Exception:
             continue
 
-    for base_real in lightning_dirs:
+    for base_real in sonic_dirs:
         for name in control_file_names:
             try:
                 if resolved == os.path.realpath(os.path.join(base_real, name)):
@@ -136,14 +136,14 @@ def is_write_denied(path: str) -> bool:
 
 
 def get_read_block_error(path: str) -> Optional[str]:
-    """Return an error message when a read targets a denied Lightning path.
+    """Return an error message when a read targets a denied Sonic path.
 
     Two categories are blocked:
 
-      * Internal Lightning cache files under ``LIGHTNING_HOME/skills/.hub`` —
+      * Internal Sonic cache files under ``SONIC_HOME/skills/.hub`` —
         readable metadata that an attacker could use as a prompt-injection
         carrier.
-      * Credential / secret stores under LIGHTNING_HOME and the global Lightning
+      * Credential / secret stores under SONIC_HOME and the global Sonic
         root: ``auth.json``, ``auth.lock``, ``.anthropic_oauth.json``,
         ``.env``, ``webhook_subscriptions.json``, and anything under
         ``mcp-tokens/``. These hold plaintext provider keys, OAuth tokens,
@@ -153,7 +153,7 @@ def get_read_block_error(path: str) -> Optional[str]:
 
     **This is NOT a security boundary.** The terminal tool runs as the
     same OS user with shell access; the agent can still ``cat auth.json``
-    or ``cat ~/.lightning/.env`` and exfiltrate the file. The read-deny exists
+    or ``cat ~/.sonic/.env`` and exfiltrate the file. The read-deny exists
     as defense-in-depth that:
 
       * Returns a clear error to models that respect tool denials, which
@@ -175,22 +175,22 @@ def get_read_block_error(path: str) -> Optional[str]:
     """
     resolved = Path(path).expanduser().resolve()
 
-    # Resolve BOTH the active LIGHTNING_HOME (profile-aware) AND the global
-    # Lightning root so credential stores at <root>/auth.json etc. are also
-    # blocked when running under a profile (LIGHTNING_HOME points at
+    # Resolve BOTH the active SONIC_HOME (profile-aware) AND the global
+    # Sonic root so credential stores at <root>/auth.json etc. are also
+    # blocked when running under a profile (SONIC_HOME points at
     # <root>/profiles/<name> in profile mode). Same shape as the write
     # deny widening (#15981, #14157).
-    lightning_dirs: list[Path] = []
-    for base in (_lightning_home_path(), _lightning_root_path()):
+    sonic_dirs: list[Path] = []
+    for base in (_sonic_home_path(), _sonic_root_path()):
         try:
             real = base.resolve()
-            if real not in lightning_dirs:
-                lightning_dirs.append(real)
+            if real not in sonic_dirs:
+                sonic_dirs.append(real)
         except Exception:
             continue
 
     # Skills .hub: prompt-injection carriers.
-    for hd in lightning_dirs:
+    for hd in sonic_dirs:
         blocked_dirs = [
             hd / "skills" / ".hub" / "index-cache",
             hd / "skills" / ".hub",
@@ -201,13 +201,13 @@ def get_read_block_error(path: str) -> Optional[str]:
             except ValueError:
                 continue
             return (
-                f"Access denied: {path} is an internal Lightning cache file "
+                f"Access denied: {path} is an internal Sonic cache file "
                 "and cannot be read directly to prevent prompt injection. "
                 "Use the skills_list or skill_view tools instead."
             )
 
     # Credential / secret stores. Exact-file matches under either
-    # LIGHTNING_HOME or <root>.
+    # SONIC_HOME or <root>.
     credential_file_names = (
         "auth.json",
         "auth.lock",
@@ -215,7 +215,7 @@ def get_read_block_error(path: str) -> Optional[str]:
         ".env",
         "webhook_subscriptions.json",
     )
-    for hd in lightning_dirs:
+    for hd in sonic_dirs:
         for name in credential_file_names:
             try:
                 blocked = (hd / name).resolve()
@@ -223,7 +223,7 @@ def get_read_block_error(path: str) -> Optional[str]:
                 continue
             if resolved == blocked:
                 return (
-                    f"Access denied: {path} is a Lightning credential store "
+                    f"Access denied: {path} is a Sonic credential store "
                     "and cannot be read directly. Provider tools consume "
                     "these credentials through internal channels. "
                     "(Defense-in-depth — not a security boundary; the "
@@ -232,14 +232,14 @@ def get_read_block_error(path: str) -> Optional[str]:
 
     # mcp-tokens/: directory prefix match — anything inside is OAuth
     # token material.
-    for hd in lightning_dirs:
+    for hd in sonic_dirs:
         try:
             mcp_tokens = (hd / "mcp-tokens").resolve()
         except Exception:
             continue
         if resolved == mcp_tokens:
             return (
-                f"Access denied: {path} is the Lightning MCP token directory "
+                f"Access denied: {path} is the Sonic MCP token directory "
                 "and cannot be read directly. (Defense-in-depth — not a "
                 "security boundary; the terminal tool can still bypass.)"
             )
@@ -248,7 +248,7 @@ def get_read_block_error(path: str) -> Optional[str]:
         except ValueError:
             continue
         return (
-            f"Access denied: {path} is a Lightning MCP token file "
+            f"Access denied: {path} is a Sonic MCP token file "
             "and cannot be read directly. (Defense-in-depth — not a "
             "security boundary; the terminal tool can still bypass.)"
         )

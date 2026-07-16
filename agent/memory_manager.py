@@ -592,13 +592,13 @@ class MemoryManager:
     def initialize_all(self, session_id: str, **kwargs) -> None:
         """Initialize all providers.
 
-        Automatically injects ``lightning_home`` into *kwargs* so that every
+        Automatically injects ``sonic_home`` into *kwargs* so that every
         provider can resolve profile-scoped storage paths without importing
-        ``get_lightning_home()`` themselves.
+        ``get_sonic_home()`` themselves.
         """
-        if "lightning_home" not in kwargs:
-            from lightning_constants import get_lightning_home
-            kwargs["lightning_home"] = str(get_lightning_home())
+        if "sonic_home" not in kwargs:
+            from sonic_constants import get_sonic_home
+            kwargs["sonic_home"] = str(get_sonic_home())
         for provider in self._providers:
             try:
                 provider.initialize(session_id=session_id, **kwargs)

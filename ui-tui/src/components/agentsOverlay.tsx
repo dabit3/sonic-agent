@@ -1,4 +1,4 @@
-import { Box, NoSelect, ScrollBox, type ScrollBoxHandle, Text, useInput, useStdout } from '@lightning/ink'
+import { Box, NoSelect, ScrollBox, type ScrollBoxHandle, Text, useInput, useStdout } from '@sonic/ink'
 import { useStore } from '@nanostores/react'
 import { type ReactNode, type RefObject, useEffect, useMemo, useRef, useState } from 'react'
 

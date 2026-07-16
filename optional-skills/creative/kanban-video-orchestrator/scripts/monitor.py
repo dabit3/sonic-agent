@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Monitor a running video-production kanban. Polls `lightning kanban list` and
+Monitor a running video-production kanban. Polls `sonic kanban list` and
 `events` for a tenant and surfaces issues (stuck tasks, missing heartbeats,
 repeated retries, dependency deadlocks).
 
@@ -26,25 +26,25 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 
 
-def lightning_available() -> bool:
-    return shutil.which("lightning") is not None
+def sonic_available() -> bool:
+    return shutil.which("sonic") is not None
 
 
 def kanban_list(tenant: str) -> list[dict]:
     """Returns parsed task rows. Falls back to plain stdout parsing if JSON
-    output isn't supported by the installed lightning CLI."""
+    output isn't supported by the installed sonic CLI."""
     try:
         out = subprocess.run(
-            ["lightning", "kanban", "list", "--tenant", tenant, "--json"],
+            ["sonic", "kanban", "list", "--tenant", tenant, "--json"],
             capture_output=True, text=True, check=False,
         )
         if out.returncode == 0 and out.stdout.strip().startswith("["):
             return json.loads(out.stdout)
     except (FileNotFoundError, json.JSONDecodeError):
         pass
-    # Fallback: textual parse of `lightning kanban list`
+    # Fallback: textual parse of `sonic kanban list`
     out = subprocess.run(
-        ["lightning", "kanban", "list", "--tenant", tenant],
+        ["sonic", "kanban", "list", "--tenant", tenant],
         capture_output=True, text=True, check=False,
     )
     rows = []
@@ -68,7 +68,7 @@ def kanban_list(tenant: str) -> list[dict]:
 
 def kanban_show(task_id: str) -> dict | None:
     out = subprocess.run(
-        ["lightning", "kanban", "show", task_id, "--json"],
+        ["sonic", "kanban", "show", task_id, "--json"],
         capture_output=True, text=True, check=False,
     )
     if out.returncode != 0:
@@ -171,8 +171,8 @@ def main():
                     help="Print one snapshot and exit (no polling loop)")
     args = ap.parse_args()
 
-    if not lightning_available():
-        print("ERROR: 'lightning' CLI not found in PATH", file=sys.stderr)
+    if not sonic_available():
+        print("ERROR: 'sonic' CLI not found in PATH", file=sys.stderr)
         sys.exit(1)
 
     if args.once:

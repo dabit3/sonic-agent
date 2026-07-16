@@ -25,7 +25,7 @@ import { api } from "@/lib/api";
 
 /** LocalStorage key — pre-applied before the React tree mounts to avoid
  *  a visible flash of the default palette on theme-overridden installs. */
-const STORAGE_KEY = "lightning-dashboard-theme";
+const STORAGE_KEY = "sonic-dashboard-theme";
 
 /** Tracks fontUrls we've already injected so multiple theme switches don't
  *  pile up <link> tags. Keyed by URL. */
@@ -131,7 +131,7 @@ function overrideVars(
 // ---------------------------------------------------------------------------
 
 /** Well-known named asset slots a theme may populate. Kept in sync with
- *  `_THEME_NAMED_ASSET_KEYS` in `lightning_cli/web_server.py`. */
+ *  `_THEME_NAMED_ASSET_KEYS` in `sonic_cli/web_server.py`. */
 const NAMED_ASSET_KEYS = ["bg", "hero", "logo", "crest", "sidebar", "header"] as const;
 
 /** Component buckets mirrored from the backend's `_THEME_COMPONENT_BUCKETS`.
@@ -207,7 +207,7 @@ let _PREV_DYNAMIC_VAR_KEYS: Set<string> = new Set();
 
 /** ID for the injected <style> tag that carries a theme's customCSS.
  *  A single tag is reused + replaced on every theme switch. */
-const CUSTOM_CSS_STYLE_ID = "lightning-theme-custom-css";
+const CUSTOM_CSS_STYLE_ID = "sonic-theme-custom-css";
 
 function applyCustomCSS(css: string | undefined) {
   if (typeof document === "undefined") return;
@@ -219,7 +219,7 @@ function applyCustomCSS(css: string | undefined) {
   if (!el) {
     el = document.createElement("style");
     el.id = CUSTOM_CSS_STYLE_ID;
-    el.setAttribute("data-lightning-theme-css", "true");
+    el.setAttribute("data-sonic-theme-css", "true");
     document.head.appendChild(el);
   }
   el.textContent = css;
@@ -251,7 +251,7 @@ function injectFontStylesheet(url: string | undefined) {
   const link = document.createElement("link");
   link.rel = "stylesheet";
   link.href = url;
-  link.setAttribute("data-lightning-theme-font", "true");
+  link.setAttribute("data-sonic-theme-font", "true");
   document.head.appendChild(link);
   INJECTED_FONT_URLS.add(url);
 }

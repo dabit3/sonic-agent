@@ -1,7 +1,7 @@
 ---
 sidebar_position: 3
 title: "Updating & Uninstalling"
-description: "How to update Lightning Agent to the latest version or uninstall it"
+description: "How to update Sonic Agent to the latest version or uninstall it"
 ---
 
 # Updating & Uninstalling
@@ -13,7 +13,7 @@ description: "How to update Lightning Agent to the latest version or uninstall i
 Update to the latest version with a single command:
 
 ```bash
-lightning update
+sonic update
 ```
 
 This pulls the latest code from `main`, updates dependencies, and prompts you to configure any new options that were added since your last update.
@@ -23,67 +23,67 @@ This pulls the latest code from `main`, updates dependencies, and prompts you to
 PyPI releases track **tagged versions** (major and minor releases), not every commit on `main`. Check for updates and upgrade with:
 
 ```bash
-lightning update --check    # see if a newer release is on PyPI
-lightning update            # runs pip install --upgrade lightning-agent
+sonic update --check    # see if a newer release is on PyPI
+sonic update            # runs pip install --upgrade sonic-agent
 ```
 
 Or manually:
 
 ```bash
-pip install --upgrade lightning-agent    # or: uv pip install --upgrade lightning-agent
+pip install --upgrade sonic-agent    # or: uv pip install --upgrade sonic-agent
 ```
 
 :::tip
-`lightning update` automatically detects new configuration options and prompts you to add them. If you skipped that prompt, you can manually run `lightning config check` to see missing options, then `lightning config migrate` to interactively add them.
+`sonic update` automatically detects new configuration options and prompts you to add them. If you skipped that prompt, you can manually run `sonic config check` to see missing options, then `sonic config migrate` to interactively add them.
 :::
 
 ### What happens during an update (git installs)
 
-When you run `lightning update`, the following steps occur:
+When you run `sonic update`, the following steps occur:
 
-1. **Pairing-data snapshot** — a lightweight pre-update state snapshot is saved (covers `~/.lightning/pairing/`, Feishu comment rules, and other state files that get modified at runtime). Recoverable via the snapshot restore flow described under [Snapshots and rollback](../user-guide/checkpoints-and-rollback.md), or by extracting the most recent quick-snapshot zip Lightning wrote next to your `~/.lightning/` directory.
+1. **Pairing-data snapshot** — a lightweight pre-update state snapshot is saved (covers `~/.sonic/pairing/`, Feishu comment rules, and other state files that get modified at runtime). Recoverable via the snapshot restore flow described under [Snapshots and rollback](../user-guide/checkpoints-and-rollback.md), or by extracting the most recent quick-snapshot zip Sonic wrote next to your `~/.sonic/` directory.
 2. **Git pull** — pulls the latest code from the `main` branch and updates submodules
 3. **Dependency install** — runs `uv pip install -e ".[all]"` to pick up new or changed dependencies
 4. **Config migration** — detects new config options added since your version and prompts you to set them
-5. **Gateway auto-restart** — running gateways are refreshed after the update completes so the new code takes effect immediately. Service-managed gateways (systemd on Linux, launchd on macOS) are restarted through the service manager. Manual gateways are relaunched automatically when Lightning can map the running PID back to a profile.
+5. **Gateway auto-restart** — running gateways are refreshed after the update completes so the new code takes effect immediately. Service-managed gateways (systemd on Linux, launchd on macOS) are restarted through the service manager. Manual gateways are relaunched automatically when Sonic can map the running PID back to a profile.
 
-### Preview-only: `lightning update --check`
+### Preview-only: `sonic update --check`
 
-Want to know if an update is available before pulling? Run `lightning update --check` — for git installs it fetches and compares commits against `origin/main`; for pip installs it queries PyPI for the latest release. No files are modified, no gateway is restarted. Useful in scripts and cron jobs that gate on "is there an update".
+Want to know if an update is available before pulling? Run `sonic update --check` — for git installs it fetches and compares commits against `origin/main`; for pip installs it queries PyPI for the latest release. No files are modified, no gateway is restarted. Useful in scripts and cron jobs that gate on "is there an update".
 
 ### Full pre-update backup: `--backup`
 
-For high-value profiles (production gateways, shared team installs) you can opt into a full pre-pull backup of `LIGHTNING_HOME` (config, auth, sessions, skills, pairing):
+For high-value profiles (production gateways, shared team installs) you can opt into a full pre-pull backup of `SONIC_HOME` (config, auth, sessions, skills, pairing):
 
 ```bash
-lightning update --backup
+sonic update --backup
 ```
 
 Or make it the default for every run:
 
 ```yaml
-# ~/.lightning/config.yaml
+# ~/.sonic/config.yaml
 updates:
   pre_update_backup: true
 ```
 
 `--backup` was the always-on behavior in earlier builds, but it was adding minutes to every update on large homes, so it's now opt-in. The lightweight pairing-data snapshot above still runs unconditionally.
 
-### Windows: another `lightning.exe` is running
+### Windows: another `sonic.exe` is running
 
-On Windows, `lightning update` will refuse to run if it detects another `lightning.exe` process holding the venv's entry-point executable open — most commonly the Lightning Desktop app's spawned backend, an open `lightning` REPL in another terminal, or a running gateway:
+On Windows, `sonic update` will refuse to run if it detects another `sonic.exe` process holding the venv's entry-point executable open — most commonly the Sonic Desktop app's spawned backend, an open `sonic` REPL in another terminal, or a running gateway:
 
 ```
-$ lightning update
-✗ Another lightning.exe is running:
-    PID 12345  lightning.exe
+$ sonic update
+✗ Another sonic.exe is running:
+    PID 12345  sonic.exe
 
-  Updating now would fail to overwrite ...\venv\Scripts\lightning.exe because
+  Updating now would fail to overwrite ...\venv\Scripts\sonic.exe because
   Windows blocks REPLACE on a running executable.
 
-  Close Lightning Desktop, exit any open `lightning` REPLs, and
-  stop the gateway (`lightning gateway stop`) before retrying.
-  Override with `lightning update --force` if you've already
+  Close Sonic Desktop, exit any open `sonic` REPLs, and
+  stop the gateway (`sonic gateway stop`) before retrying.
+  Override with `sonic update --force` if you've already
   confirmed those processes will not write to the venv.
 ```
 
@@ -92,8 +92,8 @@ Close the listed processes and re-run. If you're sure the concurrent process won
 Expected output looks like:
 
 ```
-$ lightning update
-Updating Lightning Agent...
+$ sonic update
+Updating Sonic Agent...
 📥 Pulling latest code...
 Already up to date.  (or: Updating abc1234..def5678)
 📦 Updating dependencies...
@@ -102,45 +102,45 @@ Already up to date.  (or: Updating abc1234..def5678)
 ✅ Config is up to date  (or: Found 2 new options — running migration...)
 🔄 Restarting gateways...
 ✅ Gateway restarted
-✅ Lightning Agent updated successfully!
+✅ Sonic Agent updated successfully!
 ```
 
 ### Recommended Post-Update Validation
 
-`lightning update` handles the main update path, but a quick validation confirms everything landed cleanly:
+`sonic update` handles the main update path, but a quick validation confirms everything landed cleanly:
 
 1. `git status --short` — if the tree is unexpectedly dirty, inspect before continuing
-2. `lightning doctor` — checks config, dependencies, and service health
-3. `lightning --version` — confirm the version bumped as expected
-4. If you use the gateway: `lightning gateway status`
+2. `sonic doctor` — checks config, dependencies, and service health
+3. `sonic --version` — confirm the version bumped as expected
+4. If you use the gateway: `sonic gateway status`
 5. If `doctor` reports npm audit issues: run `npm audit fix` in the flagged directory
 
 :::warning Dirty working tree after update
-If `git status --short` shows unexpected changes after `lightning update`, stop and inspect them before continuing. This usually means local modifications were reapplied on top of the updated code, or a dependency step refreshed lockfiles.
+If `git status --short` shows unexpected changes after `sonic update`, stop and inspect them before continuing. This usually means local modifications were reapplied on top of the updated code, or a dependency step refreshed lockfiles.
 :::
 
 ### If your terminal disconnects mid-update
 
-`lightning update` protects itself against accidental terminal loss:
+`sonic update` protects itself against accidental terminal loss:
 
 - The update ignores `SIGHUP`, so closing your SSH session or terminal window no longer kills it mid-install. `pip` and `git` child processes inherit this protection, so the Python environment cannot be left half-installed by a dropped connection.
-- All output is mirrored to `~/.lightning/logs/update.log` while the update runs. If your terminal disappears, reconnect and inspect the log to see whether the update finished and whether the gateway restart succeeded:
+- All output is mirrored to `~/.sonic/logs/update.log` while the update runs. If your terminal disappears, reconnect and inspect the log to see whether the update finished and whether the gateway restart succeeded:
 
 ```bash
-tail -f ~/.lightning/logs/update.log
+tail -f ~/.sonic/logs/update.log
 ```
 
 - `Ctrl-C` (SIGINT) and system shutdown (SIGTERM) are still honored — those are deliberate cancellations, not accidents.
 
-You no longer need to wrap `lightning update` in `screen` or `tmux` to survive a terminal drop.
+You no longer need to wrap `sonic update` in `screen` or `tmux` to survive a terminal drop.
 
 ### Checking your current version
 
 ```bash
-lightning version
+sonic version
 ```
 
-Compare against the latest release at the [GitHub releases page](https://github.com/NousResearch/lightning-agent/releases).
+Compare against the latest release at the [GitHub releases page](https://github.com/dabit3/sonic-agent/releases).
 
 ### Updating from Messaging Platforms
 
@@ -157,7 +157,7 @@ This pulls the latest code, updates dependencies, and restarts running gateways.
 If you installed manually (not via the quick installer):
 
 ```bash
-cd /path/to/lightning-agent
+cd /path/to/sonic-agent
 export VIRTUAL_ENV="$(pwd)/venv"
 
 # Pull latest code
@@ -167,8 +167,8 @@ git pull origin main
 uv pip install -e ".[all]"
 
 # Check for new config options
-lightning config check
-lightning config migrate   # Interactively add any missing options
+sonic config check
+sonic config migrate   # Interactively add any missing options
 ```
 
 ### Rollback instructions
@@ -176,7 +176,7 @@ lightning config migrate   # Interactively add any missing options
 If an update introduces a problem, you can roll back to a previous version:
 
 ```bash
-cd /path/to/lightning-agent
+cd /path/to/sonic-agent
 
 # List recent versions
 git log --oneline -10
@@ -187,7 +187,7 @@ git submodule update --init --recursive
 uv pip install -e ".[all]"
 
 # Restart the gateway if running
-lightning gateway restart
+sonic gateway restart
 ```
 
 To roll back to a specific release tag:
@@ -199,7 +199,7 @@ uv pip install -e ".[all]"
 ```
 
 :::warning
-Rolling back may cause config incompatibilities if new options were added. Run `lightning config check` after rolling back and remove any unrecognized options from `config.yaml` if you encounter errors.
+Rolling back may cause config incompatibilities if new options were added. Run `sonic config check` after rolling back and remove any unrecognized options from `config.yaml` if you encounter errors.
 :::
 
 ### Note for Nix users
@@ -208,10 +208,10 @@ If you installed via Nix flake, updates are managed through the Nix package mana
 
 ```bash
 # Update the flake input
-nix flake update lightning-agent
+nix flake update sonic-agent
 
 # Or rebuild with the latest
-nix profile upgrade lightning-agent
+nix profile upgrade sonic-agent
 ```
 
 Nix installations are immutable — rollback is handled by Nix's generation system:
@@ -229,31 +229,31 @@ See [Nix Setup](./nix-setup.md) for more details.
 ### Git installs
 
 ```bash
-lightning uninstall
+sonic uninstall
 ```
 
-The uninstaller gives you the option to keep your configuration files (`~/.lightning/`) for a future reinstall.
+The uninstaller gives you the option to keep your configuration files (`~/.sonic/`) for a future reinstall.
 
 ### pip installs
 
 ```bash
-pip uninstall lightning-agent
-rm -rf ~/.lightning            # Optional — keep if you plan to reinstall
+pip uninstall sonic-agent
+rm -rf ~/.sonic            # Optional — keep if you plan to reinstall
 ```
 
 ### Manual Uninstall
 
 ```bash
-rm -f ~/.local/bin/lightning
-rm -rf /path/to/lightning-agent
-rm -rf ~/.lightning            # Optional — keep if you plan to reinstall
+rm -f ~/.local/bin/sonic
+rm -rf /path/to/sonic-agent
+rm -rf ~/.sonic            # Optional — keep if you plan to reinstall
 ```
 
 :::info
 If you installed the gateway as a system service, stop and disable it first:
 ```bash
-lightning gateway stop
-# Linux: systemctl --user disable lightning-gateway
-# macOS: launchctl remove ai.lightning.gateway
+sonic gateway stop
+# Linux: systemctl --user disable sonic-gateway
+# macOS: launchctl remove ai.sonic.gateway
 ```
 :::

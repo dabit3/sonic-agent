@@ -1,4 +1,4 @@
-import { Box, Text } from '@lightning/ink'
+import { Box, Text } from '@sonic/ink'
 
 import { HOTKEYS } from '../content/hotkeys.js'
 import type { Theme } from '../theme.js'
@@ -9,7 +9,7 @@ const COMMON_COMMANDS: [string, string][] = [
   ['/resume', 'resume a prior session'],
   ['/details', 'control transcript detail level'],
   ['/copy', 'copy selection or last assistant message'],
-  ['/quit', 'exit lightning']
+  ['/quit', 'exit sonic']
 ]
 
 const HOTKEY_PREVIEW = HOTKEYS.slice(0, 8)

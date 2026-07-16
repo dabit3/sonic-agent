@@ -82,10 +82,10 @@ class TestParseFrontmatter:
 
     def test_nested_yaml(self):
         content = (
-            "---\nname: test\nmetadata:\n  lightning:\n    tags: [a, b]\n---\n\nBody.\n"
+            "---\nname: test\nmetadata:\n  sonic:\n    tags: [a, b]\n---\n\nBody.\n"
         )
         fm, body = _parse_frontmatter(content)
-        assert fm["metadata"]["lightning"]["tags"] == ["a", "b"]
+        assert fm["metadata"]["sonic"]["tags"] == ["a", "b"]
 
     def test_malformed_yaml_fallback(self):
         """Malformed YAML falls back to simple key:value parsing."""
@@ -384,14 +384,14 @@ class TestSkillView:
             skill_dir = _make_skill(
                 tmp_path,
                 "templated",
-                body="Run ${LIGHTNING_SKILL_DIR}/scripts/do.sh in ${LIGHTNING_SESSION_ID}",
+                body="Run ${SONIC_SKILL_DIR}/scripts/do.sh in ${SONIC_SESSION_ID}",
             )
             raw = skill_view("templated", task_id="session-123")
 
         result = json.loads(raw)
         assert result["success"] is True
         assert f"Run {skill_dir}/scripts/do.sh in session-123" in result["content"]
-        assert "${LIGHTNING_SKILL_DIR}" not in result["content"]
+        assert "${SONIC_SKILL_DIR}" not in result["content"]
 
     def test_skill_view_applies_inline_shell_when_enabled(self, tmp_path):
         with (
@@ -480,7 +480,7 @@ class TestSkillView:
             _make_skill(
                 tmp_path,
                 "tagged",
-                frontmatter_extra="metadata:\n  lightning:\n    tags: [fine-tuning, llm]\n",
+                frontmatter_extra="metadata:\n  sonic:\n    tags: [fine-tuning, llm]\n",
             )
             raw = skill_view("tagged")
         result = json.loads(raw)
@@ -900,7 +900,7 @@ class TestSkillViewPrerequisites:
                 "remote-ready",
                 frontmatter_extra="prerequisites:\n  env_vars: [PERSISTED_REMOTE_KEY]\n",
             )
-            from lightning_cli.config import save_env_value
+            from sonic_cli.config import save_env_value
 
             save_env_value("PERSISTED_REMOTE_KEY", "persisted-value")
             monkeypatch.delenv("PERSISTED_REMOTE_KEY", raising=False)
@@ -1032,7 +1032,7 @@ class TestSkillViewPrerequisites:
 name: legacy-flat
 description: Legacy flat skill.
 metadata:
-  lightning:
+  sonic:
     tags: [legacy, flat]
 required_environment_variables:
   - name: LEGACY_KEY
@@ -1065,7 +1065,7 @@ Do the legacy thing.
         monkeypatch.delenv("TENOR_API_KEY", raising=False)
 
         def fake_secret_callback(var_name, prompt, metadata=None):
-            from lightning_cli.config import save_env_value
+            from sonic_cli.config import save_env_value
 
             save_env_value(var_name, "captured-value")
             return {
@@ -1092,7 +1092,7 @@ Do the legacy thing.
                     "    prompt: Tenor API key\n"
                 ),
             )
-            from lightning_cli.config import save_env_value
+            from sonic_cli.config import save_env_value
 
             save_env_value("TENOR_API_KEY", "")
             raw = skill_view("gif-search")

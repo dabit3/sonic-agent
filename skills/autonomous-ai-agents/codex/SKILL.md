@@ -2,18 +2,18 @@
 name: codex
 description: "Delegate coding to OpenAI Codex CLI (features, PRs)."
 version: 1.0.0
-author: Lightning Agent
+author: Sonic Agent
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
-  lightning:
+  sonic:
     tags: [Coding-Agent, Codex, OpenAI, Code-Review, Refactoring]
-    related_skills: [claude-code, lightning-agent]
+    related_skills: [claude-code, sonic-agent]
 ---
 
 # Codex CLI
 
-Delegate coding tasks to [Codex](https://github.com/openai/codex) via the Lightning terminal. Codex is OpenAI's autonomous coding agent CLI.
+Delegate coding tasks to [Codex](https://github.com/openai/codex) via the Sonic terminal. Codex is OpenAI's autonomous coding agent CLI.
 
 ## When to use
 
@@ -32,8 +32,8 @@ Requires the codex CLI and a git repository.
 - **Must run inside a git repository** — Codex refuses to run outside one
 - Use `pty=true` in terminal calls — Codex is an interactive terminal app
 
-For Lightning itself, `model.provider: openai-codex` uses Lightning-managed Codex
-OAuth from `~/.lightning/auth.json` after `lightning auth add openai-codex`. For the
+For Sonic itself, `model.provider: openai-codex` uses Sonic-managed Codex
+OAuth from `~/.sonic/auth.json` after `sonic auth add openai-codex`. For the
 standalone Codex CLI, a valid CLI OAuth session may live under
 `~/.codex/auth.json`; do not treat a missing `OPENAI_API_KEY` alone as proof
 that Codex auth is missing.

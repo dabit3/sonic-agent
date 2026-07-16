@@ -137,14 +137,14 @@ class TestFirecrawlClientConfig:
                     api_url="https://firecrawl-gateway.nousresearch.com",
                 )
 
-    def test_nous_auth_token_respects_lightning_home_override(self, tmp_path):
-        """Auth lookup should read from LIGHTNING_HOME/auth.json, not ~/.lightning/auth.json."""
+    def test_nous_auth_token_respects_sonic_home_override(self, tmp_path):
+        """Auth lookup should read from SONIC_HOME/auth.json, not ~/.sonic/auth.json."""
         real_home = tmp_path / "real-home"
-        (real_home / ".lightning").mkdir(parents=True)
+        (real_home / ".sonic").mkdir(parents=True)
 
-        lightning_home = tmp_path / "lightning-home"
-        lightning_home.mkdir()
-        (lightning_home / "auth.json").write_text(json.dumps({
+        sonic_home = tmp_path / "sonic-home"
+        sonic_home.mkdir()
+        (sonic_home / "auth.json").write_text(json.dumps({
             "providers": {
                 "nous": {
                     "access_token": "nous-token",
@@ -154,7 +154,7 @@ class TestFirecrawlClientConfig:
 
         with patch.dict(os.environ, {
             "HOME": str(real_home),
-            "LIGHTNING_HOME": str(lightning_home),
+            "SONIC_HOME": str(sonic_home),
         }, clear=False):
             import tools.web_tools
             importlib.reload(tools.web_tools)
@@ -245,7 +245,7 @@ class TestBackendSelection:
     """Test suite for _get_backend() backend selection logic.
 
     The backend is configured via config.yaml (web.backend), set by
-    ``lightning tools``.  Falls back to key-based detection for legacy/manual
+    ``sonic tools``.  Falls back to key-based detection for legacy/manual
     setups.
     """
 

@@ -32,9 +32,9 @@ def _state_dir() -> Path:
     override = os.environ.get("WATCHER_STATE_DIR")
     if override:
         return Path(override)
-    # Default: $LIGHTNING_HOME/watcher-state/, falling back to ~/.lightning/watcher-state/.
-    lightning_home = os.environ.get("LIGHTNING_HOME") or str(Path.home() / ".lightning")
-    return Path(lightning_home) / "watcher-state"
+    # Default: $SONIC_HOME/watcher-state/, falling back to ~/.sonic/watcher-state/.
+    sonic_home = os.environ.get("SONIC_HOME") or str(Path.home() / ".sonic")
+    return Path(sonic_home) / "watcher-state"
 
 
 class Watermark:

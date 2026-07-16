@@ -25,7 +25,7 @@ Notion API + ntn CLI: pages, databases, markdown, Workers.
 ## Reference: full SKILL.md
 
 :::info
-The following is the complete skill definition that Lightning loads when this skill is triggered. This is what the agent sees as instructions when the skill is active.
+The following is the complete skill definition that Sonic loads when this skill is triggered. This is what the agent sees as instructions when the skill is active.
 :::
 
 # Notion
@@ -41,7 +41,7 @@ Talk to Notion two ways. Same integration token works for both — pick by what'
 
 1. Create an integration at https://notion.so/my-integrations
 2. Copy the API key (starts with `ntn_` or `secret_`)
-3. Store in `~/.lightning/.env`:
+3. Store in `~/.sonic/.env`:
    ```
    NOTION_API_KEY=ntn_your_key_here
    ```
@@ -65,7 +65,7 @@ export NOTION_API_TOKEN=$NOTION_API_KEY      # ntn reads NOTION_API_TOKEN
 export NOTION_KEYRING=0                       # don't try to use the OS keychain
 ```
 
-Add those exports to your shell profile (or to `~/.lightning/.env`) so every session inherits them.
+Add those exports to your shell profile (or to `~/.sonic/.env`) so every session inherits them.
 
 ### 3. Choose path at runtime
 
@@ -297,7 +297,7 @@ curl -s -X PATCH "https://api.notion.com/v1/blocks/{page_id}/children" \
   -H "Content-Type: application/json" \
   -d '{
     "children": [
-      {"object": "block", "type": "paragraph", "paragraph": {"rich_text": [{"text": {"content": "Hello from Lightning!"}}]}}
+      {"object": "block", "type": "paragraph", "paragraph": {"rich_text": [{"text": {"content": "Hello from Sonic!"}}]}}
     ]
   }'
 ```
@@ -460,4 +460,4 @@ Headings 5/6 collapse to H4. Multiple `>` lines render as separate quote blocks 
 - Use `"is_inline": true` when creating data sources to embed them in a page.
 - Always pass `-s` to curl to suppress progress bars (cleaner agent output).
 - Pipe JSON through `jq` when reading: `... | jq '.results[0].properties'`.
-- Notion also ships an MCP server now (`Notion MCP`, ~91% more token-efficient on DB ops than the previous version) — wire it via Lightning' MCP support if you want streaming Notion access from inside a session, but the paths above are enough for most one-shot tasks.
+- Notion also ships an MCP server now (`Notion MCP`, ~91% more token-efficient on DB ops than the previous version) — wire it via Sonic' MCP support if you want streaming Notion access from inside a session, but the paths above are enough for most one-shot tasks.

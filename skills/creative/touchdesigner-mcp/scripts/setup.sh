@@ -8,8 +8,8 @@ OK="${GREEN}✔${NC}"; FAIL="${RED}✘${NC}"; WARN="${YELLOW}⚠${NC}"
 
 TWOZERO_URL="https://www.404zero.com/pisang/twozero.tox"
 TOX_PATH="$HOME/Downloads/twozero.tox"
-LIGHTNING_HOME_DIR="${LIGHTNING_HOME:-$HOME/.lightning}"
-LIGHTNING_CFG="${LIGHTNING_HOME_DIR}/config.yaml"
+SONIC_HOME_DIR="${SONIC_HOME:-$HOME/.sonic}"
+SONIC_CFG="${SONIC_HOME_DIR}/config.yaml"
 MCP_PORT=40404
 MCP_ENDPOINT="http://localhost:${MCP_PORT}/mcp"
 
@@ -43,18 +43,18 @@ else
     fi
 fi
 
-# ── 3. Ensure Lightning config has twozero_td MCP entry ──
-if [[ ! -f "$LIGHTNING_CFG" ]]; then
-    echo -e " ${FAIL} Lightning config not found at ${LIGHTNING_CFG}"
-    manual_steps+=("Create ${LIGHTNING_CFG} with twozero_td MCP server entry")
-elif grep -q 'twozero_td' "$LIGHTNING_CFG" 2>/dev/null; then
-    echo -e " ${OK} twozero_td MCP entry exists in Lightning config"
+# ── 3. Ensure Sonic config has twozero_td MCP entry ──
+if [[ ! -f "$SONIC_CFG" ]]; then
+    echo -e " ${FAIL} Sonic config not found at ${SONIC_CFG}"
+    manual_steps+=("Create ${SONIC_CFG} with twozero_td MCP server entry")
+elif grep -q 'twozero_td' "$SONIC_CFG" 2>/dev/null; then
+    echo -e " ${OK} twozero_td MCP entry exists in Sonic config"
 else
-    echo -e " ${WARN} Adding twozero_td MCP entry to Lightning config..."
+    echo -e " ${WARN} Adding twozero_td MCP entry to Sonic config..."
     python3 -c "
 import yaml, sys, copy
 
-cfg_path = '$LIGHTNING_CFG'
+cfg_path = '$SONIC_CFG'
 with open(cfg_path, 'r') as f:
     cfg = yaml.safe_load(f) or {}
 
@@ -71,8 +71,8 @@ if 'twozero_td' not in cfg['mcp_servers']:
         yaml.dump(cfg, f, default_flow_style=False, sort_keys=False)
 " 2>/dev/null && echo -e " ${OK} twozero_td MCP entry added to config" \
               || { echo -e " ${FAIL} Could not update config (is PyYAML installed?)"; \
-                   manual_steps+=("Add twozero_td MCP entry to ${LIGHTNING_CFG} manually"); }
-    manual_steps+=("Restart Lightning session to pick up config change")
+                   manual_steps+=("Add twozero_td MCP entry to ${SONIC_CFG} manually"); }
+    manual_steps+=("Restart Sonic session to pick up config change")
 fi
 
 # ── 4. Test if MCP port is responding ──

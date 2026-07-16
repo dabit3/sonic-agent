@@ -1,1 +1,1 @@
-# Lightning plugins package
+# Sonic plugins package

@@ -1,7 +1,7 @@
 {
-  "name": "lightning-whatsapp-bridge",
+  "name": "sonic-whatsapp-bridge",
   "version": "1.0.0",
-  "description": "WhatsApp bridge for Lightning Agent using Baileys",
+  "description": "WhatsApp bridge for Sonic Agent using Baileys",
   "private": true,
   "type": "module",
   "scripts": {

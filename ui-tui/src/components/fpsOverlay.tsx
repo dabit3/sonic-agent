@@ -1,6 +1,6 @@
-// FPS counter overlay (LIGHTNING_TUI_FPS=1). Zero-cost when disabled.
+// FPS counter overlay (SONIC_TUI_FPS=1). Zero-cost when disabled.
 
-import { Text } from '@lightning/ink'
+import { Text } from '@sonic/ink'
 import { useStore } from '@nanostores/react'
 
 import { SHOW_FPS } from '../config/env.js'

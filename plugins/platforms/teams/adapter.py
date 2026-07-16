@@ -1,5 +1,5 @@
 """
-Microsoft Teams platform adapter for Lightning Agent.
+Microsoft Teams platform adapter for Sonic Agent.
 
 Uses the microsoft-teams-apps SDK for authentication and activity processing.
 Runs an aiohttp webhook server to receive messages from Teams.
@@ -505,8 +505,8 @@ async def _standalone_send(
     """Acquire a Bot Framework bearer token and POST a single message activity.
 
     Used by ``tools/send_message_tool._send_via_adapter`` when the gateway
-    runner is not in this process (e.g. ``lightning cron`` running as a
-    separate process from ``lightning gateway``).  Without this hook,
+    runner is not in this process (e.g. ``sonic cron`` running as a
+    separate process from ``sonic gateway``).  Without this hook,
     ``deliver=teams`` cron jobs fail with ``No live adapter for platform``.
 
     Configuration: requires ``TEAMS_CLIENT_ID``, ``TEAMS_CLIENT_SECRET``,
@@ -675,7 +675,7 @@ class TeamsAdapter(BasePlatformAdapter):
                 client_secret=self._client_secret,
                 tenant_id=self._tenant_id,
                 http_server_adapter=_AiohttpBridgeAdapter(aiohttp_app),
-                client=ClientOptions(headers={"User-Agent": "Lightning"}),
+                client=ClientOptions(headers={"User-Agent": "Sonic"}),
             )
 
             # Register message handler before initialize()
@@ -826,10 +826,10 @@ class TeamsAdapter(BasePlatformAdapter):
 
         action = ctx.activity.value.action
         data = action.data or {}
-        lightning_action = data.get("lightning_action", "")
+        sonic_action = data.get("sonic_action", "")
         session_key = data.get("session_key", "")
 
-        if not lightning_action or not session_key:
+        if not sonic_action or not session_key:
             return InvokeResponse(
                 status=200,
                 body=AdaptiveCardActionMessageResponse(value="Unknown action."),
@@ -871,7 +871,7 @@ class TeamsAdapter(BasePlatformAdapter):
             "approve_always": "always",
             "deny": "deny",
         }
-        choice = choice_map.get(lightning_action)
+        choice = choice_map.get(sonic_action)
         if not choice:
             return InvokeResponse(
                 status=200,
@@ -944,24 +944,24 @@ class TeamsAdapter(BasePlatformAdapter):
             .with_actions([
                 ExecuteAction(
                     title="Allow Once",
-                    verb="lightning_approve",
-                    data={**btn_data_base, "lightning_action": "approve_once"},
+                    verb="sonic_approve",
+                    data={**btn_data_base, "sonic_action": "approve_once"},
                     style="positive",
                 ),
                 ExecuteAction(
                     title="Allow Session",
-                    verb="lightning_approve",
-                    data={**btn_data_base, "lightning_action": "approve_session"},
+                    verb="sonic_approve",
+                    data={**btn_data_base, "sonic_action": "approve_session"},
                 ),
                 ExecuteAction(
                     title="Always Allow",
-                    verb="lightning_approve",
-                    data={**btn_data_base, "lightning_action": "approve_always"},
+                    verb="sonic_approve",
+                    data={**btn_data_base, "sonic_action": "approve_always"},
                 ),
                 ExecuteAction(
                     title="Deny",
-                    verb="lightning_approve",
-                    data={**btn_data_base, "lightning_action": "deny"},
+                    verb="sonic_approve",
+                    data={**btn_data_base, "sonic_action": "deny"},
                     style="destructive",
                 ),
             ])
@@ -1084,11 +1084,11 @@ class TeamsAdapter(BasePlatformAdapter):
 
 def interactive_setup() -> None:
     """Guide the user through Teams setup using the Teams CLI."""
-    from lightning_cli.config import (
+    from sonic_cli.config import (
         get_env_value,
         save_env_value,
     )
-    from lightning_cli.cli_output import (
+    from sonic_cli.cli_output import (
         prompt,
         prompt_yes_no,
         print_info,
@@ -1108,7 +1108,7 @@ def interactive_setup() -> None:
     print()
     print_info("Then expose port 3978 publicly (devtunnel / ngrok / cloudflared),")
     print_info("and create your bot:")
-    print_info("  teams app create --name \"Lightning\" --endpoint \"https://<tunnel>/api/messages\"")
+    print_info("  teams app create --name \"Sonic\" --endpoint \"https://<tunnel>/api/messages\"")
     print()
     print_info("The CLI will print CLIENT_ID, CLIENT_SECRET, and TENANT_ID. Paste them below.")
     print()
@@ -1148,15 +1148,15 @@ def interactive_setup() -> None:
         print_warning("⚠️  Open access — anyone who can message the bot can command it.")
 
     print()
-    print_success("Teams configuration saved to ~/.lightning/.env")
+    print_success("Teams configuration saved to ~/.sonic/.env")
     print_info("Install the app in Teams:  teams app install --id <teamsAppId>")
-    print_info("Restart the gateway:       lightning gateway restart")
+    print_info("Restart the gateway:       sonic gateway restart")
 
 
 # ── Plugin entry point ────────────────────────────────────────────────────────
 
 def register(ctx) -> None:
-    """Plugin entry point — called by the Lightning plugin system."""
+    """Plugin entry point — called by the Sonic plugin system."""
     ctx.register_platform(
         name="teams",
         label="Microsoft Teams",

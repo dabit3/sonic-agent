@@ -23,11 +23,11 @@ from tools.approval import (
 
 class TestApprovalModeParsing:
     def test_unquoted_yaml_off_boolean_false_maps_to_off(self):
-        with mock_patch("lightning_cli.config.load_config", return_value={"approvals": {"mode": False}}):
+        with mock_patch("sonic_cli.config.load_config", return_value={"approvals": {"mode": False}}):
             assert _get_approval_mode() == "off"
 
     def test_string_off_still_maps_to_off(self):
-        with mock_patch("lightning_cli.config.load_config", return_value={"approvals": {"mode": "off"}}):
+        with mock_patch("sonic_cli.config.load_config", return_value={"approvals": {"mode": "off"}}):
             assert _get_approval_mode() == "off"
 
 
@@ -150,7 +150,7 @@ class TestSessionKeyContext:
     def test_context_session_key_overrides_process_env(self):
         token = approval_module.set_current_session_key("alice")
         try:
-            with mock_patch.dict("os.environ", {"LIGHTNING_SESSION_KEY": "bob"}, clear=False):
+            with mock_patch.dict("os.environ", {"SONIC_SESSION_KEY": "bob"}, clear=False):
                 assert approval_module.get_current_session_key() == "alice"
         finally:
             approval_module.reset_current_session_key(token)
@@ -364,18 +364,18 @@ class TestTeePattern:
         assert dangerous is True
         assert key is not None
 
-    def test_tee_lightning_env(self):
-        dangerous, key, desc = detect_dangerous_command("echo x | tee ~/.lightning/.env")
+    def test_tee_sonic_env(self):
+        dangerous, key, desc = detect_dangerous_command("echo x | tee ~/.sonic/.env")
         assert dangerous is True
         assert key is not None
 
-    def test_tee_custom_lightning_home_env(self):
-        dangerous, key, desc = detect_dangerous_command("echo x | tee $LIGHTNING_HOME/.env")
+    def test_tee_custom_sonic_home_env(self):
+        dangerous, key, desc = detect_dangerous_command("echo x | tee $SONIC_HOME/.env")
         assert dangerous is True
         assert key is not None
 
-    def test_tee_quoted_custom_lightning_home_env(self):
-        dangerous, key, desc = detect_dangerous_command('echo x | tee "$LIGHTNING_HOME/.env"')
+    def test_tee_quoted_custom_sonic_home_env(self):
+        dangerous, key, desc = detect_dangerous_command('echo x | tee "$SONIC_HOME/.env"')
         assert dangerous is True
         assert key is not None
 
@@ -417,8 +417,8 @@ class TestFindExecFullPathRm:
 class TestSensitiveRedirectPattern:
     """Detect shell redirection writes to sensitive user-managed paths."""
 
-    def test_redirect_to_custom_lightning_home_env(self):
-        dangerous, key, desc = detect_dangerous_command("echo x > $LIGHTNING_HOME/.env")
+    def test_redirect_to_custom_sonic_home_env(self):
+        dangerous, key, desc = detect_dangerous_command("echo x > $SONIC_HOME/.env")
         assert dangerous is True
         assert key is not None
 
@@ -614,48 +614,48 @@ class TestGatewayProtection:
     """Prevent agents from starting the gateway outside systemd management."""
 
     def test_gateway_run_with_disown_detected(self):
-        cmd = "kill 1605 && cd ~/.lightning/lightning-agent && source venv/bin/activate && python -m lightning_cli.main gateway run --replace &disown; echo done"
+        cmd = "kill 1605 && cd ~/.sonic/sonic-agent && source venv/bin/activate && python -m sonic_cli.main gateway run --replace &disown; echo done"
         dangerous, key, desc = detect_dangerous_command(cmd)
         assert dangerous is True
         assert "systemctl" in desc
 
     def test_gateway_run_with_ampersand_detected(self):
-        cmd = "python -m lightning_cli.main gateway run --replace &"
+        cmd = "python -m sonic_cli.main gateway run --replace &"
         dangerous, key, desc = detect_dangerous_command(cmd)
         assert dangerous is True
 
     def test_gateway_run_with_nohup_detected(self):
-        cmd = "nohup python -m lightning_cli.main gateway run --replace"
+        cmd = "nohup python -m sonic_cli.main gateway run --replace"
         dangerous, key, desc = detect_dangerous_command(cmd)
         assert dangerous is True
 
     def test_gateway_run_with_setsid_detected(self):
-        cmd = "lightning_cli.main gateway run --replace &disown"
+        cmd = "sonic_cli.main gateway run --replace &disown"
         dangerous, key, desc = detect_dangerous_command(cmd)
         assert dangerous is True
 
     def test_gateway_run_foreground_not_flagged(self):
         """Normal foreground gateway run (as in systemd ExecStart) is fine."""
-        cmd = "python -m lightning_cli.main gateway run --replace"
+        cmd = "python -m sonic_cli.main gateway run --replace"
         dangerous, key, desc = detect_dangerous_command(cmd)
         assert dangerous is False
 
     def test_systemctl_restart_flagged(self):
         """systemctl restart kills running agents and should require approval."""
-        cmd = "systemctl --user restart lightning-gateway"
+        cmd = "systemctl --user restart sonic-gateway"
         dangerous, key, desc = detect_dangerous_command(cmd)
         assert dangerous is True
         assert "stop/restart" in desc
 
-    def test_pkill_lightning_detected(self):
-        """pkill targeting lightning/gateway processes must be caught."""
+    def test_pkill_sonic_detected(self):
+        """pkill targeting sonic/gateway processes must be caught."""
         cmd = 'pkill -f "cli.py --gateway"'
         dangerous, key, desc = detect_dangerous_command(cmd)
         assert dangerous is True
         assert "self-termination" in desc
 
-    def test_killall_lightning_detected(self):
-        cmd = "killall lightning"
+    def test_killall_sonic_detected(self):
+        cmd = "killall sonic"
         dangerous, key, desc = detect_dangerous_command(cmd)
         assert dangerous is True
         assert "self-termination" in desc
@@ -791,20 +791,20 @@ class TestHeredocScriptExecution:
 
 
 class TestPgrepKillExpansion:
-    """kill -9 $(pgrep lightning) bypasses the pkill/killall name-matching
+    """kill -9 $(pgrep sonic) bypasses the pkill/killall name-matching
     pattern because the command substitution is opaque to regex.
 
     See security audit Test 7.
     """
 
     def test_kill_dollar_pgrep_detected(self):
-        cmd = 'kill -9 $(pgrep -f "lightning.*gateway")'
+        cmd = 'kill -9 $(pgrep -f "sonic.*gateway")'
         dangerous, _, desc = detect_dangerous_command(cmd)
         assert dangerous is True
         assert "pgrep" in desc.lower()
 
     def test_kill_backtick_pgrep_detected(self):
-        cmd = "kill -9 `pgrep lightning`"
+        cmd = "kill -9 `pgrep sonic`"
         dangerous, _, desc = detect_dangerous_command(cmd)
         assert dangerous is True
 
@@ -813,9 +813,9 @@ class TestPgrepKillExpansion:
         dangerous, _, _ = detect_dangerous_command(cmd)
         assert dangerous is True
 
-    def test_pkill_lightning_still_detected(self):
+    def test_pkill_sonic_still_detected(self):
         """Existing pkill pattern must not regress."""
-        cmd = "pkill -9 lightning"
+        cmd = "pkill -9 sonic"
         dangerous, _, _ = detect_dangerous_command(cmd)
         assert dangerous is True
 
@@ -1345,13 +1345,13 @@ class TestApprovalTimeoutIsNotConsent:
 
         self._saved_env = {
             k: os.environ.get(k)
-            for k in ("LIGHTNING_GATEWAY_SESSION", "LIGHTNING_YOLO_MODE",
-                      "LIGHTNING_SESSION_KEY", "LIGHTNING_INTERACTIVE")
+            for k in ("SONIC_GATEWAY_SESSION", "SONIC_YOLO_MODE",
+                      "SONIC_SESSION_KEY", "SONIC_INTERACTIVE")
         }
-        os.environ.pop("LIGHTNING_YOLO_MODE", None)
-        os.environ.pop("LIGHTNING_INTERACTIVE", None)
-        os.environ["LIGHTNING_GATEWAY_SESSION"] = "1"
-        os.environ["LIGHTNING_SESSION_KEY"] = self.SESSION_KEY
+        os.environ.pop("SONIC_YOLO_MODE", None)
+        os.environ.pop("SONIC_INTERACTIVE", None)
+        os.environ["SONIC_GATEWAY_SESSION"] = "1"
+        os.environ["SONIC_SESSION_KEY"] = self.SESSION_KEY
 
     def teardown_method(self):
         from tools import approval as mod

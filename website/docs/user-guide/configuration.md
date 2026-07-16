@@ -1,17 +1,17 @@
 ---
 sidebar_position: 2
 title: "Configuration"
-description: "Configure Lightning Agent — config.yaml, providers, models, API keys, and more"
+description: "Configure Sonic Agent — config.yaml, providers, models, API keys, and more"
 ---
 
 # Configuration
 
-All settings are stored in the `~/.lightning/` directory for easy access.
+All settings are stored in the `~/.sonic/` directory for easy access.
 
 ## Directory Structure
 
 ```text
-~/.lightning/
+~/.sonic/
 ├── config.yaml     # Settings (model, terminal, TTS, compression, etc.)
 ├── .env            # API keys and secrets
 ├── auth.json       # OAuth provider credentials (Nous Portal, etc.)
@@ -26,29 +26,29 @@ All settings are stored in the `~/.lightning/` directory for easy access.
 ## Managing Configuration
 
 ```bash
-lightning config              # View current configuration
-lightning config edit         # Open config.yaml in your editor
-lightning config set KEY VAL  # Set a specific value
-lightning config check        # Check for missing options (after updates)
-lightning config migrate      # Interactively add missing options
+sonic config              # View current configuration
+sonic config edit         # Open config.yaml in your editor
+sonic config set KEY VAL  # Set a specific value
+sonic config check        # Check for missing options (after updates)
+sonic config migrate      # Interactively add missing options
 
 # Examples:
-lightning config set model anthropic/claude-opus-4
-lightning config set terminal.backend docker
-lightning config set OPENROUTER_API_KEY sk-or-...  # Saves to .env
+sonic config set model anthropic/claude-opus-4
+sonic config set terminal.backend docker
+sonic config set OPENROUTER_API_KEY sk-or-...  # Saves to .env
 ```
 
 :::tip
-The `lightning config set` command automatically routes values to the right file — API keys are saved to `.env`, everything else to `config.yaml`.
+The `sonic config set` command automatically routes values to the right file — API keys are saved to `.env`, everything else to `config.yaml`.
 :::
 
 ## Configuration Precedence
 
 Settings are resolved in this order (highest priority first):
 
-1. **CLI arguments** — e.g., `lightning chat --model anthropic/claude-sonnet-4` (per-invocation override)
-2. **`~/.lightning/config.yaml`** — the primary config file for all non-secret settings
-3. **`~/.lightning/.env`** — fallback for env vars; **required** for secrets (API keys, tokens, passwords)
+1. **CLI arguments** — e.g., `sonic chat --model anthropic/claude-sonnet-4` (per-invocation override)
+2. **`~/.sonic/config.yaml`** — the primary config file for all non-secret settings
+3. **`~/.sonic/.env`** — fallback for env vars; **required** for secrets (API keys, tokens, passwords)
 4. **Built-in defaults** — hardcoded safe defaults when nothing else is set
 
 :::info Rule of Thumb
@@ -75,15 +75,15 @@ For AI provider setup (OpenRouter, Anthropic, Copilot, custom endpoints, self-ho
 
 ### Provider Timeouts
 
-You can set `providers.<id>.request_timeout_seconds` for a provider-wide request timeout, plus `providers.<id>.models.<model>.timeout_seconds` for a model-specific override. Applies to the primary turn client on every transport (OpenAI-wire, native Anthropic, Anthropic-compatible), the fallback chain, rebuilds after credential rotation, and (for OpenAI-wire) the per-request timeout kwarg — so the configured value wins over the legacy `LIGHTNING_API_TIMEOUT` env var.
+You can set `providers.<id>.request_timeout_seconds` for a provider-wide request timeout, plus `providers.<id>.models.<model>.timeout_seconds` for a model-specific override. Applies to the primary turn client on every transport (OpenAI-wire, native Anthropic, Anthropic-compatible), the fallback chain, rebuilds after credential rotation, and (for OpenAI-wire) the per-request timeout kwarg — so the configured value wins over the legacy `SONIC_API_TIMEOUT` env var.
 
-You can also set `providers.<id>.stale_timeout_seconds` for the non-streaming stale-call detector, plus `providers.<id>.models.<model>.stale_timeout_seconds` for a model-specific override. This wins over the legacy `LIGHTNING_API_CALL_STALE_TIMEOUT` env var.
+You can also set `providers.<id>.stale_timeout_seconds` for the non-streaming stale-call detector, plus `providers.<id>.models.<model>.stale_timeout_seconds` for a model-specific override. This wins over the legacy `SONIC_API_CALL_STALE_TIMEOUT` env var.
 
-Leaving these unset keeps the legacy defaults (`LIGHTNING_API_TIMEOUT=1800`s, `LIGHTNING_API_CALL_STALE_TIMEOUT=300`s, native Anthropic 900s). Not currently wired for AWS Bedrock (both `bedrock_converse` and AnthropicBedrock SDK paths use boto3 with its own timeout configuration). See the commented example in [`cli-config.yaml.example`](https://github.com/NousResearch/lightning-agent/blob/main/cli-config.yaml.example).
+Leaving these unset keeps the legacy defaults (`SONIC_API_TIMEOUT=1800`s, `SONIC_API_CALL_STALE_TIMEOUT=300`s, native Anthropic 900s). Not currently wired for AWS Bedrock (both `bedrock_converse` and AnthropicBedrock SDK paths use boto3 with its own timeout configuration). See the commented example in [`cli-config.yaml.example`](https://github.com/dabit3/sonic-agent/blob/main/cli-config.yaml.example).
 
 ## Terminal Backend Configuration
 
-Lightning supports seven terminal backends. Each determines where the agent's shell commands actually execute — your local machine, a Docker container, a remote server via SSH, a Modal cloud sandbox (direct or via the Nous-managed gateway), a Daytona workspace, a Vercel Sandbox, or a Singularity/Apptainer container.
+Sonic supports seven terminal backends. Each determines where the agent's shell commands actually execute — your local machine, a Docker container, a remote server via SSH, a Modal cloud sandbox (direct or via the Nous-managed gateway), a Daytona workspace, a Vercel Sandbox, or a Singularity/Apptainer container.
 
 ```yaml
 terminal:
@@ -96,7 +96,7 @@ terminal:
   daytona_image: "nikolaik/python-nodejs:python3.11-nodejs20"               # Container image for Daytona backend
 ```
 
-For cloud sandboxes such as Modal, Daytona, and Vercel Sandbox, `container_persistent: true` means Lightning will try to preserve filesystem state across sandbox recreation. It does not promise that the same live sandbox, PID space, or background processes will still be running later.
+For cloud sandboxes such as Modal, Daytona, and Vercel Sandbox, `container_persistent: true` means Sonic will try to preserve filesystem state across sandbox recreation. It does not promise that the same live sandbox, PID space, or background processes will still be running later.
 
 ### Backend Overview
 
@@ -120,14 +120,14 @@ terminal:
 ```
 
 :::warning
-The agent has the same filesystem access as your user account. Use `lightning tools` to disable tools you don't want, or switch to Docker for sandboxing.
+The agent has the same filesystem access as your user account. Use `sonic tools` to disable tools you don't want, or switch to Docker for sandboxing.
 :::
 
 ### Docker Backend
 
 Runs commands inside a Docker container with security hardening (all capabilities dropped, no privilege escalation, PID limits).
 
-**Single persistent container, not per-command.** Lightning starts ONE long-lived container on first use and routes every terminal, file, and `execute_code` call through `docker exec` into that same container — across sessions, `/new`, `/reset`, and `delegate_task` subagents — for the lifetime of the Lightning process. Working-directory changes, installed packages, and files in `/workspace` carry over from one tool call to the next, just like a local shell. The container is stopped and removed on shutdown. See **Container lifecycle** below for details.
+**Single persistent container, not per-command.** Sonic starts ONE long-lived container on first use and routes every terminal, file, and `execute_code` call through `docker exec` into that same container — across sessions, `/new`, `/reset`, and `delegate_task` subagents — for the lifetime of the Sonic process. Working-directory changes, installed packages, and files in `/workspace` carry over from one tool call to the next, just like a local shell. The container is stopped and removed on shutdown. See **Container lifecycle** below for details.
 
 ```yaml
 terminal:
@@ -151,13 +151,13 @@ terminal:
   container_persistent: true       # Persist /workspace and /root across sessions
 ```
 
-**`terminal.docker_extra_args`** (also overridable via `TERMINAL_DOCKER_EXTRA_ARGS='["--gpus=all"]'`) lets you pass arbitrary `docker run` flags that Lightning doesn't surface as first-class keys — `--gpus`, `--network`, `--add-host`, alternative `--security-opt` overrides, etc. Each entry must be a string; the list is appended last to the assembled `docker run` invocation so it can override Lightning' defaults if needed. Use sparingly — flags that conflict with the sandbox hardening (capability drops, `--user`, the workspace bind mount) will silently weaken isolation.
+**`terminal.docker_extra_args`** (also overridable via `TERMINAL_DOCKER_EXTRA_ARGS='["--gpus=all"]'`) lets you pass arbitrary `docker run` flags that Sonic doesn't surface as first-class keys — `--gpus`, `--network`, `--add-host`, alternative `--security-opt` overrides, etc. Each entry must be a string; the list is appended last to the assembled `docker run` invocation so it can override Sonic' defaults if needed. Use sparingly — flags that conflict with the sandbox hardening (capability drops, `--user`, the workspace bind mount) will silently weaken isolation.
 
-**Requirements:** Docker Desktop or Docker Engine installed and running. Lightning probes `$PATH` plus common macOS install locations (`/usr/local/bin/docker`, `/opt/homebrew/bin/docker`, Docker Desktop app bundle). Podman is supported out of the box: set `LIGHTNING_DOCKER_BINARY=podman` (or the full path) to force it when both are installed.
+**Requirements:** Docker Desktop or Docker Engine installed and running. Sonic probes `$PATH` plus common macOS install locations (`/usr/local/bin/docker`, `/opt/homebrew/bin/docker`, Docker Desktop app bundle). Podman is supported out of the box: set `SONIC_DOCKER_BINARY=podman` (or the full path) to force it when both are installed.
 
-**Container lifecycle:** Lightning reuses a single long-lived container (`docker run -d ... sleep 2h`) for every terminal and file-tool call, across sessions, `/new`, `/reset`, and `delegate_task` subagents, for the lifetime of the Lightning process. Commands run via `docker exec` with a login shell, so working-directory changes, installed packages, and files in `/workspace` all persist from one tool call to the next. The container is stopped and removed on Lightning shutdown (or when the idle-sweep reclaims it).
+**Container lifecycle:** Sonic reuses a single long-lived container (`docker run -d ... sleep 2h`) for every terminal and file-tool call, across sessions, `/new`, `/reset`, and `delegate_task` subagents, for the lifetime of the Sonic process. Commands run via `docker exec` with a login shell, so working-directory changes, installed packages, and files in `/workspace` all persist from one tool call to the next. The container is stopped and removed on Sonic shutdown (or when the idle-sweep reclaims it).
 
-Parallel subagents spawned via `delegate_task(tasks=[...])` share this one container — concurrent `cd`, env mutations, and writes to the same path will collide. If a subagent needs an isolated sandbox, it must register a per-task image override via `register_task_env_overrides()`, which RL and benchmark environments (TerminalBench2, LightningSweEnv, etc.) do automatically for their per-task Docker images.
+Parallel subagents spawned via `delegate_task(tasks=[...])` share this one container — concurrent `cd`, env mutations, and writes to the same path will collide. If a subagent needs an isolated sandbox, it must register a per-task image override via `register_task_env_overrides()`, which RL and benchmark environments (TerminalBench2, SonicSweEnv, etc.) do automatically for their per-task Docker images.
 
 **Security hardening:**
 - `--cap-drop ALL` with only `DAC_OVERRIDE`, `CHOWN`, `FOWNER` added back
@@ -165,7 +165,7 @@ Parallel subagents spawned via `delegate_task(tasks=[...])` share this one conta
 - `--pids-limit 256`
 - Size-limited tmpfs for `/tmp` (512MB), `/var/tmp` (256MB), `/run` (64MB)
 
-**Credential forwarding:** Env vars listed in `docker_forward_env` are resolved from your shell environment first, then `~/.lightning/.env`. Skills can also declare `required_environment_variables` which are merged automatically.
+**Credential forwarding:** Env vars listed in `docker_forward_env` are resolved from your shell environment first, then `~/.sonic/.env`. Skills can also declare `required_environment_variables` which are merged automatically.
 
 ### SSH Backend
 
@@ -209,9 +209,9 @@ terminal:
 
 **Required:** Either `MODAL_TOKEN_ID` + `MODAL_TOKEN_SECRET` environment variables, or a `~/.modal.toml` config file.
 
-**Persistence:** When enabled, the sandbox filesystem is snapshotted on cleanup and restored on next session. Snapshots are tracked in `~/.lightning/modal_snapshots.json`. This preserves filesystem state, not live processes, PID space, or background jobs.
+**Persistence:** When enabled, the sandbox filesystem is snapshotted on cleanup and restored on next session. Snapshots are tracked in `~/.sonic/modal_snapshots.json`. This preserves filesystem state, not live processes, PID space, or background jobs.
 
-**Credential files:** Automatically mounted from `~/.lightning/` (OAuth tokens, etc.) and synced before each command.
+**Credential files:** Automatically mounted from `~/.sonic/` (OAuth tokens, etc.) and synced before each command.
 
 ### Daytona Backend
 
@@ -228,13 +228,13 @@ terminal:
 
 **Required:** `DAYTONA_API_KEY` environment variable.
 
-**Persistence:** When enabled, sandboxes are stopped (not deleted) on cleanup and resumed on next session. Sandbox names follow the pattern `lightning-{task_id}`.
+**Persistence:** When enabled, sandboxes are stopped (not deleted) on cleanup and resumed on next session. Sandbox names follow the pattern `sonic-{task_id}`.
 
 **Disk limit:** Daytona enforces a 10 GiB maximum. Requests above this are capped with a warning.
 
 ### Vercel Sandbox Backend
 
-Runs commands in a [Vercel Sandbox](https://vercel.com/docs/vercel-sandbox) cloud microVM. Lightning uses the normal terminal and file tool surfaces; there are no Vercel-specific model-facing tools.
+Runs commands in a [Vercel Sandbox](https://vercel.com/docs/vercel-sandbox) cloud microVM. Sonic uses the normal terminal and file tool surfaces; there are no Vercel-specific model-facing tools.
 
 ```yaml
 terminal:
@@ -248,32 +248,32 @@ terminal:
 **Required install:** Install the optional SDK extra:
 
 ```bash
-pip install 'lightning-agent[vercel]'
+pip install 'sonic-agent[vercel]'
 ```
 
-**Required authentication:** Configure access-token auth with all three of `VERCEL_TOKEN`, `VERCEL_PROJECT_ID`, and `VERCEL_TEAM_ID`. This is the supported setup for deployments and normal long-running Lightning processes on Render, Railway, Docker, and similar hosts.
+**Required authentication:** Configure access-token auth with all three of `VERCEL_TOKEN`, `VERCEL_PROJECT_ID`, and `VERCEL_TEAM_ID`. This is the supported setup for deployments and normal long-running Sonic processes on Render, Railway, Docker, and similar hosts.
 
-For one-off local development, Lightning also accepts short-lived Vercel OIDC tokens:
+For one-off local development, Sonic also accepts short-lived Vercel OIDC tokens:
 
 ```bash
-VERCEL_OIDC_TOKEN="$(vc project token <project-name>)" lightning chat
+VERCEL_OIDC_TOKEN="$(vc project token <project-name>)" sonic chat
 ```
 
 From a linked Vercel project directory, you can omit the project name:
 
 ```bash
-VERCEL_OIDC_TOKEN="$(vc project token)" lightning chat
+VERCEL_OIDC_TOKEN="$(vc project token)" sonic chat
 ```
 
 OIDC tokens are short-lived and should not be used as the documented deployment path.
 
-**Runtime:** `terminal.vercel_runtime` supports `node24`, `node22`, and `python3.13`. If unset, Lightning defaults to `node24`.
+**Runtime:** `terminal.vercel_runtime` supports `node24`, `node22`, and `python3.13`. If unset, Sonic defaults to `node24`.
 
-**Persistence:** When `container_persistent: true`, Lightning snapshots the sandbox filesystem during cleanup and restores a later sandbox for the same task from that snapshot. Snapshot contents can include Lightning-synced credentials, skills, and cache files that were copied into the sandbox. This preserves filesystem state only; it does not preserve live sandbox identity, PID space, shell state, or running background processes.
+**Persistence:** When `container_persistent: true`, Sonic snapshots the sandbox filesystem during cleanup and restores a later sandbox for the same task from that snapshot. Snapshot contents can include Sonic-synced credentials, skills, and cache files that were copied into the sandbox. This preserves filesystem state only; it does not preserve live sandbox identity, PID space, shell state, or running background processes.
 
-**Background commands:** `terminal(background=true)` uses Lightning' generic non-local background process flow. You can spawn, poll, wait, view logs, and kill processes through the normal process tool while the sandbox is alive. Lightning does not provide native Vercel detached-process recovery after cleanup or restart.
+**Background commands:** `terminal(background=true)` uses Sonic' generic non-local background process flow. You can spawn, poll, wait, view logs, and kill processes through the normal process tool while the sandbox is alive. Sonic does not provide native Vercel detached-process recovery after cleanup or restart.
 
-**Disk sizing:** Vercel Sandbox does not currently support Lightning' `container_disk` resource knob. Leave `container_disk` unset or at the shared default `51200`; non-default values fail diagnostics and backend creation instead of being silently ignored.
+**Disk sizing:** Vercel Sandbox does not currently support Sonic' `container_disk` resource knob. Leave `container_disk` unset or at the shared default `51200`; non-default values fail diagnostics and backend creation instead of being silently ignored.
 
 ### Singularity/Apptainer Backend
 
@@ -292,7 +292,7 @@ terminal:
 
 **Image handling:** Docker URLs (`docker://...`) are automatically converted to SIF files and cached. Existing `.sif` files are used directly.
 
-**Scratch directory:** Resolved in order: `TERMINAL_SCRATCH_DIR` → `TERMINAL_SANDBOX_DIR/singularity` → `/scratch/$USER/lightning-agent` (HPC convention) → `~/.lightning/sandboxes/singularity`.
+**Scratch directory:** Resolved in order: `TERMINAL_SCRATCH_DIR` → `TERMINAL_SANDBOX_DIR/singularity` → `/scratch/$USER/sonic-agent` (HPC convention) → `~/.sonic/sandboxes/singularity`.
 
 **Isolation:** Uses `--containall --no-home` for full namespace isolation without mounting the host home directory.
 
@@ -301,9 +301,9 @@ terminal:
 If terminal commands fail immediately or the terminal tool is reported as disabled:
 
 - **Local** — No special requirements. The safest default when getting started.
-- **Docker** — Run `docker version` to verify Docker is working. If it fails, fix Docker or `lightning config set terminal.backend local`.
-- **SSH** — Both `TERMINAL_SSH_HOST` and `TERMINAL_SSH_USER` must be set. Lightning logs a clear error if either is missing.
-- **Modal** — Needs `MODAL_TOKEN_ID` env var or `~/.modal.toml`. Run `lightning doctor` to check.
+- **Docker** — Run `docker version` to verify Docker is working. If it fails, fix Docker or `sonic config set terminal.backend local`.
+- **SSH** — Both `TERMINAL_SSH_HOST` and `TERMINAL_SSH_USER` must be set. Sonic logs a clear error if either is missing.
+- **Modal** — Needs `MODAL_TOKEN_ID` env var or `~/.modal.toml`. Run `sonic doctor` to check.
 - **Daytona** — Needs `DAYTONA_API_KEY`. The Daytona SDK handles server URL configuration.
 - **Singularity** — Needs `apptainer` or `singularity` in `$PATH`. Common on HPC clusters.
 
@@ -311,11 +311,11 @@ When in doubt, set `terminal.backend` back to `local` and verify that commands r
 
 ### Remote-to-Host File Sync on Teardown
 
-For the **SSH**, **Modal**, and **Daytona** backends (anywhere the agent's working tree lives on a different machine than the host running Lightning), Lightning tracks files the agent touched inside the remote sandbox and, on session teardown / sandbox cleanup, **syncs the modified files back to the host** under `~/.lightning/cache/remote-syncs/<session-id>/`.
+For the **SSH**, **Modal**, and **Daytona** backends (anywhere the agent's working tree lives on a different machine than the host running Sonic), Sonic tracks files the agent touched inside the remote sandbox and, on session teardown / sandbox cleanup, **syncs the modified files back to the host** under `~/.sonic/cache/remote-syncs/<session-id>/`.
 
 - Triggers on: session close, `/new`, `/reset`, gateway message timeout, `delegate_task` subagent completion when the child used a remote backend.
 - Covers the whole tree the agent modified, not just files it explicitly opened. Additions, edits, and deletions are all captured.
-- The remote sandbox may have been torn down by the time you go looking; the local `~/.lightning/cache/remote-syncs/…` copy is the authoritative record of what the agent changed.
+- The remote sandbox may have been torn down by the time you go looking; the local `~/.sonic/cache/remote-syncs/…` copy is the authoritative record of what the agent changed.
 - Large binary outputs (model checkpoints, raw datasets) are capped by size — the sync skips files over `file_sync_max_mb` (default `100`). Bump that if you expect bigger artifacts to come back.
 
 ```yaml
@@ -336,7 +336,7 @@ terminal:
   docker_volumes:
     - "/home/user/projects:/workspace/projects"   # Read-write (default)
     - "/home/user/datasets:/data:ro"              # Read-only
-    - "/home/user/.lightning/cache/documents:/output" # Gateway-visible exports
+    - "/home/user/.sonic/cache/documents:/output" # Gateway-visible exports
 ```
 
 This is useful for:
@@ -346,11 +346,11 @@ This is useful for:
 
 If you use a messaging gateway and want the agent to send generated files via
 `MEDIA:/...`, prefer a dedicated host-visible export mount such as
-`/home/user/.lightning/cache/documents:/output`.
+`/home/user/.sonic/cache/documents:/output`.
 
 - Write files inside Docker to `/output/...`
 - Emit the **host path** in `MEDIA:`, for example:
-  `MEDIA:/home/user/.lightning/cache/documents/report.txt`
+  `MEDIA:/home/user/.sonic/cache/documents/report.txt`
 - Do **not** emit `/workspace/...` or `/output/...` unless that exact path also
   exists for the gateway process on the host
 
@@ -374,7 +374,7 @@ terminal:
     - "NPM_TOKEN"
 ```
 
-Lightning resolves each listed variable from your current shell first, then falls back to `~/.lightning/.env` if it was saved with `lightning config set`.
+Sonic resolves each listed variable from your current shell first, then falls back to `~/.sonic/.env` if it was saved with `sonic config set`.
 
 :::warning
 Anything listed in `docker_forward_env` becomes visible to commands run inside the container. Only forward credentials you are comfortable exposing to the terminal session.
@@ -390,13 +390,13 @@ terminal:
   docker_run_as_host_user: true   # default: false
 ```
 
-When enabled, Lightning appends `--user $(id -u):$(id -g)` to the `docker run` command so files written into bind-mounted directories (`/workspace`, `/root`, anything in `docker_volumes`) are owned by your host user, not root. The trade-off: the container can no longer `apt install` or write to root-owned paths like `/root/.npm` — use a base image whose `HOME` is owned by a non-root user (or add your required tooling at image build time) if you need both.
+When enabled, Sonic appends `--user $(id -u):$(id -g)` to the `docker run` command so files written into bind-mounted directories (`/workspace`, `/root`, anything in `docker_volumes`) are owned by your host user, not root. The trade-off: the container can no longer `apt install` or write to root-owned paths like `/root/.npm` — use a base image whose `HOME` is owned by a non-root user (or add your required tooling at image build time) if you need both.
 
 Leave this `false` (the default) for backwards-compatible behavior. Turn it on when your workflow is mostly "edit mounted host files" and you're tired of `sudo chown -R`.
 
 ### Optional: Mount the Launch Directory into `/workspace`
 
-Docker sandboxes stay isolated by default. Lightning does **not** pass your current host working directory into the container unless you explicitly opt in.
+Docker sandboxes stay isolated by default. Sonic does **not** pass your current host working directory into the container unless you explicitly opt in.
 
 Enable it in `config.yaml`:
 
@@ -407,7 +407,7 @@ terminal:
 ```
 
 When enabled:
-- if you launch Lightning from `~/projects/my-app`, that host directory is bind-mounted to `/workspace`
+- if you launch Sonic from `~/projects/my-app`, that host directory is bind-mounted to `/workspace`
 - the Docker backend starts in `/workspace`
 - file tools and terminal commands both see the same mounted project
 
@@ -415,7 +415,7 @@ When disabled, `/workspace` stays sandbox-owned unless you explicitly mount some
 
 Security tradeoff:
 - `false` preserves the sandbox boundary
-- `true` gives the sandbox direct access to the directory you launched Lightning from
+- `true` gives the sandbox direct access to the directory you launched Sonic from
 
 Use the opt-in only when you intentionally want the container to work on live host files.
 
@@ -433,7 +433,7 @@ terminal:
 To disable:
 
 ```bash
-lightning config set terminal.persistent_shell false
+sonic config set terminal.persistent_shell false
 ```
 
 **What persists across commands:**
@@ -474,21 +474,21 @@ skills:
 
 **How skill settings work:**
 
-- `lightning config migrate` scans all enabled skills, finds unconfigured settings, and offers to prompt you
-- `lightning config show` displays all skill settings under "Skill Settings" with the skill they belong to
+- `sonic config migrate` scans all enabled skills, finds unconfigured settings, and offers to prompt you
+- `sonic config show` displays all skill settings under "Skill Settings" with the skill they belong to
 - When a skill loads, its resolved config values are injected into the skill context automatically
 
 **Setting values manually:**
 
 ```bash
-lightning config set skills.config.myplugin.path ~/myplugin-data
+sonic config set skills.config.myplugin.path ~/myplugin-data
 ```
 
 For details on declaring config settings in your own skills, see [Creating Skills — Config Settings](/docs/developer-guide/creating-skills#config-settings-configyaml).
 
 ### Guard on agent-created skill writes
 
-When the agent uses `skill_manage` to create, edit, patch, or delete a skill, Lightning can optionally scan the new/updated content for dangerous keyword patterns (credential harvesting, obvious prompt injection, exfil instructions). The scanner is **off by default** — real agent workflows that legitimately touch `~/.ssh/` or mention `$OPENAI_API_KEY` were tripping the heuristic too often. Turn it back on if you want the scanner to prompt you before the agent's skill writes land:
+When the agent uses `skill_manage` to create, edit, patch, or delete a skill, Sonic can optionally scan the new/updated content for dangerous keyword patterns (credential harvesting, obvious prompt injection, exfil instructions). The scanner is **off by default** — real agent workflows that legitimately touch `~/.ssh/` or mention `$OPENAI_API_KEY` were tripping the heuristic too often. Turn it back on if you want the scanner to prompt you before the agent's skill writes land:
 
 ```yaml
 skills:
@@ -529,7 +529,7 @@ The agent also deduplicates file reads automatically — if the same file region
 
 ## Tool Output Truncation Limits
 
-Three related caps control how much raw output a tool can return before Lightning truncates it:
+Three related caps control how much raw output a tool can return before Sonic truncates it:
 
 ```yaml
 tool_output:
@@ -538,7 +538,7 @@ tool_output:
   max_line_length: 2000   # per-line cap in read_file's line-numbered view
 ```
 
-- **`max_bytes`** — When a `terminal` command produces more than this many characters of combined stdout/stderr, Lightning keeps the first 40% and last 60% and inserts a `[OUTPUT TRUNCATED]` notice between them. Default `50000` (≈12-15K tokens across typical tokenisers).
+- **`max_bytes`** — When a `terminal` command produces more than this many characters of combined stdout/stderr, Sonic keeps the first 40% and last 60% and inserts a `[OUTPUT TRUNCATED]` notice between them. Default `50000` (≈12-15K tokens across typical tokenisers).
 - **`max_lines`** — Upper bound on the `limit` parameter of a single `read_file` call. Requests above this are clamped so a single read can't flood the context window. Default `2000`.
 - **`max_line_length`** — Per-line cap applied when `read_file` emits the line-numbered view. Lines longer than this are truncated to this many chars followed by `... [truncated]`. Default `2000`.
 
@@ -569,10 +569,10 @@ agent:
 ```
 
 This applies **after** per-platform tool config (`platform_toolsets` written by
-`lightning tools`), so a toolset listed here is always removed — even if a
+`sonic tools`), so a toolset listed here is always removed — even if a
 platform's saved config still lists it. Use this when you want a single
 switch for "turn X off everywhere" rather than editing 15+ platform rows in
-the `lightning tools` UI.
+the `sonic tools` UI.
 
 Leaving the list empty, or omitting the key, is a no-op.
 
@@ -581,7 +581,7 @@ Leaving the list empty, or omitting the key, is a no-op.
 Enable isolated git worktrees for running multiple agents in parallel on the same repo:
 
 ```yaml
-worktree: true    # Always create a worktree (same as lightning -w)
+worktree: true    # Always create a worktree (same as sonic -w)
 # worktree: false # Default — only when -w flag is passed
 ```
 
@@ -598,7 +598,7 @@ node_modules/
 
 ## Context Compression
 
-Lightning automatically compresses long conversations to stay within your model's context window. The compression summarizer is a separate LLM call — you can point it at any provider or endpoint.
+Sonic automatically compresses long conversations to stay within your model's context window. The compression summarizer is a separate LLM call — you can point it at any provider or endpoint.
 
 All compression settings live in `config.yaml` (no environment variables).
 
@@ -624,7 +624,7 @@ auxiliary:
 Older configs with `compression.summary_model`, `compression.summary_provider`, and `compression.summary_base_url` are automatically migrated to `auxiliary.compression.*` on first load (config version 17). No manual action needed.
 :::
 
-`hygiene_hard_message_limit` is a gateway-only **pre-compression safety valve**. Runaway sessions with thousands of messages can hit model context limits before the normal percent-of-context threshold fires; when message count crosses this ceiling, Lightning forces compression regardless of token usage. Default `400` — raise it for platforms where very long sessions are normal, lower it to force more aggressive compression. Editing this value on a running gateway takes effect on the next message (see below).
+`hygiene_hard_message_limit` is a gateway-only **pre-compression safety valve**. Runaway sessions with thousands of messages can hit model context limits before the normal percent-of-context threshold fires; when message count crosses this ceiling, Sonic forces compression regardless of token usage. Default `400` — raise it for platforms where very long sessions are normal, lower it to force more aggressive compression. Editing this value on a running gateway takes effect on the next message (see below).
 
 :::tip Gateway hot-reload of compression and context length
 As of recent releases, editing `model.context_length` or any `compression.*` key in `config.yaml` on a running gateway takes effect on the next message — no gateway restart, no `/reset`, no session rotation required. The cached-agent signature includes these keys, so the gateway transparently rebuilds the agent when it sees a change. API keys and tool/skill config still require the usual reload paths.
@@ -686,7 +686,7 @@ context:
   engine: "lcm"          # must match the plugin's name
 ```
 
-Plugin engines are **never auto-activated** — you must explicitly set `context.engine` to the plugin name. Available engines can be browsed and selected via `lightning plugins` → Provider Plugins → Context Engine.
+Plugin engines are **never auto-activated** — you must explicitly set `context.engine` to the plugin name. Available engines can be browsed and selected via `sonic plugins` → Provider Plugins → Context Engine.
 
 See [Memory Providers](/docs/user-guide/features/memory-providers) for the analogous single-select system for memory plugins.
 
@@ -711,24 +711,24 @@ Budget pressure is enabled by default. The agent sees warnings naturally as part
 
 When the iteration budget is fully exhausted, the CLI shows a notification to the user: `⚠ Iteration budget reached (90/90) — response may be incomplete`. If the budget runs out during active work, the agent generates a summary of what was accomplished before stopping.
 
-`agent.api_max_retries` controls how many times Lightning retries a provider API call on transient errors (rate limits, connection drops, 5xx) **before** fallback-provider switching engages. The default is `3` — four attempts total. If you have [fallback providers](/docs/user-guide/features/fallback-providers) configured and want to fail over faster, drop this to `0` so the first transient error on your primary immediately hands off to the fallback instead of churning retries against the flaky endpoint.
+`agent.api_max_retries` controls how many times Sonic retries a provider API call on transient errors (rate limits, connection drops, 5xx) **before** fallback-provider switching engages. The default is `3` — four attempts total. If you have [fallback providers](/docs/user-guide/features/fallback-providers) configured and want to fail over faster, drop this to `0` so the first transient error on your primary immediately hands off to the fallback instead of churning retries against the flaky endpoint.
 
 ### API Timeouts
 
-Lightning has separate timeout layers for streaming, plus a stale detector for non-streaming calls. The stale detectors auto-adjust for local providers only when you leave them at their implicit defaults.
+Sonic has separate timeout layers for streaming, plus a stale detector for non-streaming calls. The stale detectors auto-adjust for local providers only when you leave them at their implicit defaults.
 
 | Timeout | Default | Local providers | Config / env |
 |---------|---------|----------------|--------------|
-| Socket read timeout | 120s | Auto-raised to 1800s | `LIGHTNING_STREAM_READ_TIMEOUT` |
-| Stale stream detection | 180s | Auto-disabled | `LIGHTNING_STREAM_STALE_TIMEOUT` |
-| Stale non-stream detection | 300s | Auto-disabled when left implicit | `providers.<id>.stale_timeout_seconds` or `LIGHTNING_API_CALL_STALE_TIMEOUT` |
-| API call (non-streaming) | 1800s | Unchanged | `providers.<id>.request_timeout_seconds` / `timeout_seconds` or `LIGHTNING_API_TIMEOUT` |
+| Socket read timeout | 120s | Auto-raised to 1800s | `SONIC_STREAM_READ_TIMEOUT` |
+| Stale stream detection | 180s | Auto-disabled | `SONIC_STREAM_STALE_TIMEOUT` |
+| Stale non-stream detection | 300s | Auto-disabled when left implicit | `providers.<id>.stale_timeout_seconds` or `SONIC_API_CALL_STALE_TIMEOUT` |
+| API call (non-streaming) | 1800s | Unchanged | `providers.<id>.request_timeout_seconds` / `timeout_seconds` or `SONIC_API_TIMEOUT` |
 
-The **socket read timeout** controls how long httpx waits for the next chunk of data from the provider. Local LLMs can take minutes for prefill on large contexts before producing the first token, so Lightning raises this to 30 minutes when it detects a local endpoint. If you explicitly set `LIGHTNING_STREAM_READ_TIMEOUT`, that value is always used regardless of endpoint detection.
+The **socket read timeout** controls how long httpx waits for the next chunk of data from the provider. Local LLMs can take minutes for prefill on large contexts before producing the first token, so Sonic raises this to 30 minutes when it detects a local endpoint. If you explicitly set `SONIC_STREAM_READ_TIMEOUT`, that value is always used regardless of endpoint detection.
 
 The **stale stream detection** kills connections that receive SSE keep-alive pings but no actual content. This is disabled entirely for local providers since they don't send keep-alive pings during prefill.
 
-The **stale non-stream detection** kills non-streaming calls that produce no response for too long. By default Lightning disables this on local endpoints to avoid false positives during long prefills. If you explicitly set `providers.<id>.stale_timeout_seconds`, `providers.<id>.models.<model>.stale_timeout_seconds`, or `LIGHTNING_API_CALL_STALE_TIMEOUT`, that explicit value is honored even on local endpoints.
+The **stale non-stream detection** kills non-streaming calls that produce no response for too long. By default Sonic disables this on local endpoints to avoid false positives during long prefills. If you explicitly set `providers.<id>.stale_timeout_seconds`, `providers.<id>.models.<model>.stale_timeout_seconds`, or `SONIC_API_CALL_STALE_TIMEOUT`, that explicit value is honored even on local endpoints.
 
 ## Context Pressure Warnings
 
@@ -769,17 +769,17 @@ Options: `fill_first` (default), `round_robin`, `least_used`, `random`. See [Cre
 
 ## Prompt caching
 
-Lightning turns on cross-session prompt caching automatically when the active provider supports it — no user config needed.
+Sonic turns on cross-session prompt caching automatically when the active provider supports it — no user config needed.
 
-For Claude on **native Anthropic**, **OpenRouter**, and **Nous Portal**, Lightning attaches `cache_control` breakpoints with the 1-hour TTL (`ttl: "1h"`) on the system prompt and skill blocks. The first send within a fresh hour pays full input rates; subsequent sends across any session within the same hour pull from the cache at the discounted cached-read rate. This means the system prompt, loaded skill content, and the early portion of any long-context include get reused across `lightning` sessions and across forked subagents for the first hour.
+For Claude on **native Anthropic**, **OpenRouter**, and **Nous Portal**, Sonic attaches `cache_control` breakpoints with the 1-hour TTL (`ttl: "1h"`) on the system prompt and skill blocks. The first send within a fresh hour pays full input rates; subsequent sends across any session within the same hour pull from the cache at the discounted cached-read rate. This means the system prompt, loaded skill content, and the early portion of any long-context include get reused across `sonic` sessions and across forked subagents for the first hour.
 
-The Qwen Cloud (Alibaba DashScope) upstream caps cache TTL at 5 minutes, so Lightning uses the 5-minute breakpoint TTL there instead. Other Claude-via-third-party paths (AWS Bedrock, Azure Foundry) fall back to the provider's own caching defaults. xAI Grok uses a separate session-pinned conversation-id mechanism — see [xAI prompt caching](/docs/integrations/providers#xai-grok--responses-api--prompt-caching).
+The Qwen Cloud (Alibaba DashScope) upstream caps cache TTL at 5 minutes, so Sonic uses the 5-minute breakpoint TTL there instead. Other Claude-via-third-party paths (AWS Bedrock, Azure Foundry) fall back to the provider's own caching defaults. xAI Grok uses a separate session-pinned conversation-id mechanism — see [xAI prompt caching](/docs/integrations/providers#xai-grok--responses-api--prompt-caching).
 
 No knob exists to disable this — caching is always-on and saves money even on single-turn conversations because the system prompt alone is a meaningful fraction of the input token count.
 
 ## Auxiliary Models
 
-Lightning uses "auxiliary" models for side tasks like image analysis, web page summarization, browser screenshot analysis, session-title generation, and context compression. By default (`auxiliary.*.provider: "auto"`), Lightning routes every auxiliary task to your **main chat model** — the same provider/model you picked in `lightning model`. You don't need to configure anything to get started, but be aware that on expensive reasoning models (Opus, MiniMax M2.7, etc.) auxiliary tasks add meaningful cost. If you want cheap-and-fast side tasks regardless of your main model, set `auxiliary.<task>.provider` and `auxiliary.<task>.model` explicitly (for example, Gemini Flash on OpenRouter for vision and web extraction).
+Sonic uses "auxiliary" models for side tasks like image analysis, web page summarization, browser screenshot analysis, session-title generation, and context compression. By default (`auxiliary.*.provider: "auto"`), Sonic routes every auxiliary task to your **main chat model** — the same provider/model you picked in `sonic model`. You don't need to configure anything to get started, but be aware that on expensive reasoning models (Opus, MiniMax M2.7, etc.) auxiliary tasks add meaningful cost. If you want cheap-and-fast side tasks regardless of your main model, set `auxiliary.<task>.provider` and `auxiliary.<task>.model` explicitly (for example, Gemini Flash on OpenRouter for vision and web extraction).
 
 :::note Why "auto" uses your main model
 Earlier builds split aggregator users (OpenRouter, Nous Portal) onto a cheap provider-side default. That was surprising — users who paid for an aggregator subscription would see a different model handling their auxiliary traffic. `auto` now uses the main model for everyone, and per-task overrides in `config.yaml` still win (see [Full auxiliary config reference](#full-auxiliary-config-reference) below).
@@ -787,10 +787,10 @@ Earlier builds split aggregator users (OpenRouter, Nous Portal) onto a cheap pro
 
 ### Configuring auxiliary models interactively
 
-Instead of hand-editing YAML, run `lightning model` and pick **"Configure auxiliary models"** from the menu. You'll get an interactive per-task picker:
+Instead of hand-editing YAML, run `sonic model` and pick **"Configure auxiliary models"** from the menu. You'll get an interactive per-task picker:
 
 ```
-$ lightning model
+$ sonic model
 → Configure auxiliary models
 
 [ ] vision               currently: auto / main model
@@ -810,7 +810,7 @@ Select a task, pick a provider (OAuth flows open a browser; API-key providers pr
 <div style={{position: 'relative', width: '100%', aspectRatio: '16 / 9', marginBottom: '1.5rem'}}>
   <iframe
     src="https://www.youtube.com/embed/NoF-YajElIM"
-    title="Lightning Agent — Auxiliary Models Tutorial"
+    title="Sonic Agent — Auxiliary Models Tutorial"
     style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0}}
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
     allowFullScreen
@@ -819,7 +819,7 @@ Select a task, pick a provider (OAuth flows open a browser; API-key providers pr
 
 ### The universal config pattern
 
-Every model slot in Lightning — auxiliary tasks, compression, fallback — uses the same three knobs:
+Every model slot in Sonic — auxiliary tasks, compression, fallback — uses the same three knobs:
 
 | Key | What it does | Default |
 |-----|-------------|---------|
@@ -827,16 +827,16 @@ Every model slot in Lightning — auxiliary tasks, compression, fallback — use
 | `model` | Which model to request | provider's default |
 | `base_url` | Custom OpenAI-compatible endpoint (overrides provider) | not set |
 
-When `base_url` is set, Lightning ignores the provider and calls that endpoint directly (using `api_key` or `OPENAI_API_KEY` for auth). When only `provider` is set, Lightning uses that provider's built-in auth and base URL.
+When `base_url` is set, Sonic ignores the provider and calls that endpoint directly (using `api_key` or `OPENAI_API_KEY` for auth). When only `provider` is set, Sonic uses that provider's built-in auth and base URL.
 
 Available providers for auxiliary tasks: `auto`, `main`, plus any provider in the [provider registry](/docs/reference/environment-variables) — `openrouter`, `nous`, `openai-codex`, `copilot`, `copilot-acp`, `anthropic`, `gemini`, `google-gemini-cli`, `qwen-oauth`, `zai`, `kimi-coding`, `kimi-coding-cn`, `minimax`, `minimax-cn`, `minimax-oauth`, `deepseek`, `nvidia`, `xai`, `xai-oauth`, `ollama-cloud`, `alibaba`, `bedrock`, `huggingface`, `arcee`, `xiaomi`, `kilocode`, `opencode-zen`, `opencode-go`, `ai-gateway`, `azure-foundry` — or any named custom provider from your `custom_providers` list (e.g. `provider: "beans"`).
 
 :::tip MiniMax OAuth
-`minimax-oauth` logs in via browser OAuth (no API key needed). Run `lightning model` and select **MiniMax (OAuth)** to authenticate. Auxiliary tasks use `MiniMax-M2.7-highspeed` automatically. See the [MiniMax OAuth guide](../guides/minimax-oauth.md).
+`minimax-oauth` logs in via browser OAuth (no API key needed). Run `sonic model` and select **MiniMax (OAuth)** to authenticate. Auxiliary tasks use `MiniMax-M2.7-highspeed` automatically. See the [MiniMax OAuth guide](../guides/minimax-oauth.md).
 :::
 
 :::tip xAI Grok OAuth
-`xai-oauth` logs in via browser OAuth for SuperGrok and X Premium+ subscribers (no API key needed). Run `lightning model` and select **xAI Grok OAuth (SuperGrok Subscription)** to authenticate. The same OAuth token is reused for every direct-to-xAI surface (chat, auxiliary tasks, TTS, image gen, video gen, transcription). See the [xAI Grok OAuth guide](../guides/xai-grok-oauth.md), and if Lightning is on a remote host see [OAuth over SSH / Remote Hosts](../guides/oauth-over-ssh.md).
+`xai-oauth` logs in via browser OAuth for SuperGrok and X Premium+ subscribers (no API key needed). Run `sonic model` and select **xAI Grok OAuth (SuperGrok Subscription)** to authenticate. The same OAuth token is reused for every direct-to-xAI surface (chat, auxiliary tasks, TTS, image gen, video gen, transcription). See the [xAI Grok OAuth guide](../guides/xai-grok-oauth.md), and if Sonic is on a remote host see [OAuth over SSH / Remote Hosts](../guides/oauth-over-ssh.md).
 :::
 
 :::warning `"main"` is for auxiliary tasks only
@@ -892,7 +892,7 @@ auxiliary:
     api_key: ""
     timeout: 30
 
-  # Kanban triage specifier — `lightning kanban specify <id>` (or the
+  # Kanban triage specifier — `sonic kanban specify <id>` (or the
   # dashboard's ✨ Specify button on Triage-column cards) uses this
   # slot to expand a one-liner into a concrete spec and promote the
   # task to `todo`. Cheap fast models work well here; spec expansion
@@ -933,7 +933,7 @@ auxiliary:
           min_coding_score: 0.5            # 0.0–1.0; higher = stronger coders
 ```
 
-The shape mirrors what OpenRouter accepts in the chat completions request body. Lightning forwards the entire `extra_body` verbatim, so any other OpenRouter request-body field documented at [openrouter.ai/docs](https://openrouter.ai/docs) works the same way.
+The shape mirrors what OpenRouter accepts in the chat completions request body. Sonic forwards the entire `extra_body` verbatim, so any other OpenRouter request-body field documented at [openrouter.ai/docs](https://openrouter.ai/docs) works the same way.
 
 ### Changing the Vision Model
 
@@ -945,7 +945,7 @@ auxiliary:
     model: "openai/gpt-4o"
 ```
 
-Or via environment variable (in `~/.lightning/.env`):
+Or via environment variable (in `~/.sonic/.env`):
 
 ```bash
 AUXILIARY_VISION_MODEL=openai/gpt-4o
@@ -959,11 +959,11 @@ These options apply to **auxiliary task configs** (`auxiliary:`, `compression:`,
 |----------|-------------|-------------|
 | `"auto"` | Best available (default). Vision tries OpenRouter → Nous → Codex. | — |
 | `"openrouter"` | Force OpenRouter — routes to any model (Gemini, GPT-4o, Claude, etc.) | `OPENROUTER_API_KEY` |
-| `"nous"` | Force Nous Portal | `lightning auth` |
-| `"codex"` | Force Codex OAuth (ChatGPT account). Supports vision (gpt-5.3-codex). | `lightning model` → Codex |
-| `"minimax-oauth"` | Force MiniMax OAuth (browser login, no API key). Uses MiniMax-M2.7-highspeed for auxiliary tasks. | `lightning model` → MiniMax (OAuth) |
-| `"xai-oauth"` | Force xAI Grok OAuth (browser login for SuperGrok or X Premium+ subscribers, no API key). Same OAuth token covers chat, TTS, image, video, and transcription. | `lightning model` → xAI Grok OAuth (SuperGrok Subscription) |
-| `"main"` | Use your active custom/main endpoint. This can come from `OPENAI_BASE_URL` + `OPENAI_API_KEY` or from a custom endpoint saved via `lightning model` / `config.yaml`. Works with OpenAI, local models, or any OpenAI-compatible API. **Auxiliary tasks only — not valid for `model.provider`.** | Custom endpoint credentials + base URL |
+| `"nous"` | Force Nous Portal | `sonic auth` |
+| `"codex"` | Force Codex OAuth (ChatGPT account). Supports vision (gpt-5.3-codex). | `sonic model` → Codex |
+| `"minimax-oauth"` | Force MiniMax OAuth (browser login, no API key). Uses MiniMax-M2.7-highspeed for auxiliary tasks. | `sonic model` → MiniMax (OAuth) |
+| `"xai-oauth"` | Force xAI Grok OAuth (browser login for SuperGrok or X Premium+ subscribers, no API key). Same OAuth token covers chat, TTS, image, video, and transcription. | `sonic model` → xAI Grok OAuth (SuperGrok Subscription) |
+| `"main"` | Use your active custom/main endpoint. This can come from `OPENAI_BASE_URL` + `OPENAI_API_KEY` or from a custom endpoint saved via `sonic model` / `config.yaml`. Works with OpenAI, local models, or any OpenAI-compatible API. **Auxiliary tasks only — not valid for `model.provider`.** | Custom endpoint credentials + base URL |
 
 Direct API-key providers from the main provider catalog also work here when you want side tasks to bypass your default router. `gmi` is valid once `GMI_API_KEY` is configured:
 
@@ -987,11 +987,11 @@ auxiliary:
     model: "qwen2.5-vl"
 ```
 
-`base_url` takes precedence over `provider`, so this is the most explicit way to route an auxiliary task to a specific endpoint. For direct endpoint overrides, Lightning uses the configured `api_key` or falls back to `OPENAI_API_KEY`; it does not reuse `OPENROUTER_API_KEY` for that custom endpoint.
+`base_url` takes precedence over `provider`, so this is the most explicit way to route an auxiliary task to a specific endpoint. For direct endpoint overrides, Sonic uses the configured `api_key` or falls back to `OPENAI_API_KEY`; it does not reuse `OPENROUTER_API_KEY` for that custom endpoint.
 
 **Using OpenAI API key for vision:**
 ```yaml
-# In ~/.lightning/.env:
+# In ~/.sonic/.env:
 # OPENAI_BASE_URL=https://api.openai.com/v1
 # OPENAI_API_KEY=sk-...
 
@@ -1024,7 +1024,7 @@ model:
   provider: minimax-oauth
   base_url: https://api.minimax.io/anthropic
 ```
-Run `lightning model` and select **MiniMax (OAuth)** to log in and set this automatically. For the China region, the base URL will be `https://api.minimaxi.com/anthropic`. See the [MiniMax OAuth guide](../guides/minimax-oauth.md) for the full walkthrough.
+Run `sonic model` and select **MiniMax (OAuth)** to log in and set this automatically. For the China region, the base URL will be `https://api.minimaxi.com/anthropic`. See the [MiniMax OAuth guide](../guides/minimax-oauth.md) for the full walkthrough.
 
 **Using a local/self-hosted model:**
 ```yaml
@@ -1034,7 +1034,7 @@ auxiliary:
     model: "my-local-model"
 ```
 
-`provider: "main"` uses whatever provider Lightning uses for normal chat — whether that's a named custom provider (e.g. `beans`), a built-in provider like `openrouter`, or a legacy `OPENAI_BASE_URL` endpoint.
+`provider: "main"` uses whatever provider Sonic uses for normal chat — whether that's a named custom provider (e.g. `beans`), a built-in provider like `openrouter`, or a legacy `OPENAI_BASE_URL` endpoint.
 
 :::tip
 If you use Codex OAuth as your main model provider, vision works automatically — no extra configuration needed. Codex is included in the auto-detection chain for vision.
@@ -1062,7 +1062,7 @@ Auxiliary models can also be configured via environment variables. However, `con
 Compression and fallback model settings are config.yaml-only.
 
 :::tip
-Run `lightning config` to see your current auxiliary model settings. Overrides only show up when they differ from the defaults.
+Run `sonic config` to see your current auxiliary model settings. Overrides only show up when they differ from the defaults.
 :::
 
 ## Reasoning Effort
@@ -1194,7 +1194,7 @@ display:
 
 ### File-mutation verifier
 
-When `display.file_mutation_verifier` is `true` (default), Lightning appends a one-line advisory to the assistant's final response whenever a `write_file` or `patch` call failed during the turn and was never superseded by a successful write to the same path. This catches the "batch of parallel patches, half silently fail, model summarises success" class of over-claim without requiring you to manually run `git status` after every edit.
+When `display.file_mutation_verifier` is `true` (default), Sonic appends a one-line advisory to the assistant's final response whenever a `write_file` or `patch` call failed during the turn and was never superseded by a successful write to the same path. This catches the "batch of parallel patches, half silently fail, model summarises success" class of over-claim without requiring you to manually run `git status` after every edit.
 
 Example footer:
 
@@ -1205,7 +1205,7 @@ Example footer:
   • concepts/rag-pipeline.md — [patch] Could not find match for old_string
 ```
 
-Set `file_mutation_verifier: false` (or `LIGHTNING_FILE_MUTATION_VERIFIER=0`) to suppress the footer. The verifier only fires when real failures are outstanding at turn end — a model that retries a failed patch and succeeds within the same turn will not trigger it for that file.
+Set `file_mutation_verifier: false` (or `SONIC_FILE_MUTATION_VERIFIER=0`) to suppress the footer. The verifier only fires when real failures are outstanding at turn end — a model that retries a failed patch and succeeds within the same turn will not trigger it for that file.
 
 ### UI language for static messages
 
@@ -1213,7 +1213,7 @@ The `display.language` setting translates a small set of static user-facing mess
 
 Supported values: `en` (default), `zh` (Simplified Chinese), `ja` (Japanese), `de` (German), `es` (Spanish), `fr` (French), `tr` (Turkish), `uk` (Ukrainian). Unknown values fall back to English.
 
-You can also set this per-session with the `LIGHTNING_LANGUAGE` env var, which overrides the config value.
+You can also set this per-session with the `SONIC_LANGUAGE` env var, which overrides the config value.
 
 ```yaml
 display:
@@ -1231,7 +1231,7 @@ In the CLI, cycle through these modes with `/verbose`. To use `/verbose` in mess
 
 ### Runtime-metadata footer (gateway only)
 
-When `display.runtime_footer.enabled: true`, Lightning appends a small runtime-context footer to the **final** message of each gateway turn — same info the CLI shows in its status bar (model, context %, cwd, session duration, tokens, cost). Off by default; opt in per-gateway if your team wants every reply to include the provenance.
+When `display.runtime_footer.enabled: true`, Sonic appends a small runtime-context footer to the **final** message of each gateway turn — same info the CLI shows in its status bar (model, context %, cwd, session duration, tokens, cost). Off by default; opt in per-gateway if your team wants every reply to include the provenance.
 
 ```yaml
 display:
@@ -1268,7 +1268,7 @@ display:
 
 Platforms without an override fall back to the global `tool_progress` value. Valid platform keys: `telegram`, `discord`, `slack`, `signal`, `whatsapp`, `matrix`, `mattermost`, `email`, `sms`, `homeassistant`, `dingtalk`, `feishu`, `wecom`, `weixin`, `bluebubbles`, `qqbot`. The legacy `display.tool_progress_overrides` key still loads for backward compatibility but is deprecated and migrated into `display.platforms` on first load.
 
-`interim_assistant_messages` is gateway-only. When enabled, Lightning sends completed mid-turn assistant updates as separate chat messages. This is independent from `tool_progress` and does not require gateway streaming.
+`interim_assistant_messages` is gateway-only. When enabled, Sonic sends completed mid-turn assistant updates as separate chat messages. This is independent from `tool_progress` and does not require gateway streaming.
 
 ## Privacy
 
@@ -1309,7 +1309,7 @@ Provider behavior:
 - `groq` uses Groq's Whisper-compatible endpoint and reads `GROQ_API_KEY`.
 - `openai` uses the OpenAI speech API and reads `VOICE_TOOLS_OPENAI_KEY`.
 
-If the requested provider is unavailable, Lightning falls back automatically in this order: `local` → `groq` → `openai`.
+If the requested provider is unavailable, Sonic falls back automatically in this order: `local` → `groq` → `openai`.
 
 Groq and OpenAI model overrides are environment-driven:
 
@@ -1369,7 +1369,7 @@ For separate natural mid-turn assistant updates without progressive token editin
 **Fresh final (Telegram):** Telegram's `editMessageText` preserves the original message timestamp, so a long-running streamed reply would keep the first-token timestamp even after completion. When `fresh_final_after_seconds > 0` (default `60`), the completed reply is delivered as a brand-new message (with the stale preview best-effort deleted) so Telegram's visible timestamp reflects completion time. Short previews still finalize in place. Set to `0` to always edit in place.
 
 :::note
-Streaming is disabled by default. Enable it in `~/.lightning/config.yaml` to try the streaming UX.
+Streaming is disabled by default. Enable it in `~/.sonic/config.yaml` to try the streaming UX.
 :::
 
 ## Group Chat Session Isolation
@@ -1381,15 +1381,15 @@ group_sessions_per_user: true  # true = per-user isolation in groups/channels, f
 ```
 
 - `true` is the default and recommended setting. In Discord channels, Telegram groups, Slack channels, and similar shared contexts, each sender gets their own session when the platform provides a user ID.
-- `false` reverts to the old shared-room behavior. That can be useful if you explicitly want Lightning to treat a channel like one collaborative conversation, but it also means users share context, token costs, and interrupt state.
-- Direct messages are unaffected. Lightning still keys DMs by chat/DM ID as usual.
+- `false` reverts to the old shared-room behavior. That can be useful if you explicitly want Sonic to treat a channel like one collaborative conversation, but it also means users share context, token costs, and interrupt state.
+- Direct messages are unaffected. Sonic still keys DMs by chat/DM ID as usual.
 - Threads stay isolated from their parent channel either way; with `true`, each participant also gets their own session inside the thread.
 
 For the behavior details and examples, see [Sessions](/docs/user-guide/sessions) and the [Discord guide](/docs/user-guide/messaging/discord).
 
 ## Unauthorized DM Behavior
 
-Control what Lightning does when an unknown user sends a direct message:
+Control what Sonic does when an unknown user sends a direct message:
 
 ```yaml
 unauthorized_dm_behavior: pair
@@ -1398,7 +1398,7 @@ whatsapp:
   unauthorized_dm_behavior: ignore
 ```
 
-- `pair` is the default. Lightning denies access, but replies with a one-time pairing code in DMs.
+- `pair` is the default. Sonic denies access, but replies with a one-time pairing code in DMs.
 - `ignore` silently drops unauthorized DMs.
 - Platform sections override the global default, so you can keep pairing enabled broadly while making one platform quieter.
 
@@ -1410,13 +1410,13 @@ Define custom commands that either run shell commands without invoking the LLM, 
 quick_commands:
   status:
     type: exec
-    command: systemctl status lightning-agent
+    command: systemctl status sonic-agent
   disk:
     type: exec
     command: df -h /
   update:
     type: exec
-    command: cd ~/.lightning/lightning-agent && git pull && pip install -e .
+    command: cd ~/.sonic/sonic-agent && git pull && pip install -e .
   gpu:
     type: exec
     command: nvidia-smi --query-gpu=name,utilization.gpu,memory.used,memory.total --format=csv,noheader
@@ -1460,13 +1460,13 @@ code_execution:
 **`mode`** controls the working directory and Python interpreter for scripts:
 
 - **`project`** (default) — scripts run in the session's working directory with the active virtualenv/conda env's python. Project deps (`pandas`, `torch`, project packages) and relative paths (`.env`, `./data.csv`) resolve naturally, matching what `terminal()` sees.
-- **`strict`** — scripts run in a temp staging directory with `sys.executable` (Lightning's own python). Maximum reproducibility, but project deps and relative paths won't resolve.
+- **`strict`** — scripts run in a temp staging directory with `sys.executable` (Sonic's own python). Maximum reproducibility, but project deps and relative paths won't resolve.
 
 Environment scrubbing (strips `*_API_KEY`, `*_TOKEN`, `*_SECRET`, `*_PASSWORD`, `*_CREDENTIAL`, `*_PASSWD`, `*_AUTH`) and the tool whitelist apply identically in both modes — switching mode does not change the security posture.
 
 ## Web Search Backends
 
-The `web_search`, `web_extract`, and `web_crawl` tools support five backend providers. Configure the backend in `config.yaml` or via `lightning tools`:
+The `web_search`, `web_extract`, and `web_crawl` tools support five backend providers. Configure the backend in `config.yaml` or via `sonic tools`:
 
 ```yaml
 web:
@@ -1493,7 +1493,7 @@ web:
 
 **Parallel search modes:** Set `PARALLEL_SEARCH_MODE` to control search behavior — `fast`, `one-shot`, or `agentic` (default: `agentic`).
 
-**Exa:** Set `EXA_API_KEY` in `~/.lightning/.env`. Supports `category` filtering (`company`, `research paper`, `news`, `people`, `personal site`, `pdf`) and domain/date filters.
+**Exa:** Set `EXA_API_KEY` in `~/.sonic/.env`. Supports `category` filtering (`company`, `research paper`, `news`, `people`, `personal site`, `pdf`) and domain/date filters.
 
 ## Browser
 
@@ -1503,8 +1503,8 @@ Configure browser automation behavior:
 browser:
   inactivity_timeout: 120        # Seconds before auto-closing idle sessions
   command_timeout: 30             # Timeout in seconds for browser commands (screenshot, navigate, etc.)
-  record_sessions: false         # Auto-record browser sessions as WebM videos to ~/.lightning/browser_recordings/
-  # Optional CDP override — when set, Lightning attaches directly to your own
+  record_sessions: false         # Auto-record browser sessions as WebM videos to ~/.sonic/browser_recordings/
+  # Optional CDP override — when set, Sonic attaches directly to your own
   # Chromium-family browser (via /browser connect) rather than starting a headless browser.
   cdp_url: ""
   # Dialog supervisor — controls how native JS dialogs (alert / confirm / prompt)
@@ -1515,7 +1515,7 @@ browser:
   camofox:
     managed_persistence: false   # When true, Camofox sessions persist cookies/logins across restarts
     user_id: ""                  # Optional externally managed Camofox userId
-    session_key: ""              # Optional session key sent when Lightning creates a tab
+    session_key: ""              # Optional session key sent when Sonic creates a tab
     adopt_existing_tab: false    # Reuse an existing tab for this identity before creating one
 ```
 
@@ -1590,7 +1590,7 @@ security:
       - "admin.example.com"
       - "*.local"
     shared_files:                # Load additional rules from external files
-      - "/etc/lightning/blocked-sites.txt"
+      - "/etc/sonic/blocked-sites.txt"
 ```
 
 When enabled, any URL matching a blocked domain pattern is rejected before the web or browser tool executes. This applies to `web_search`, `web_extract`, `browser_navigate`, and any tool that accesses URLs.
@@ -1606,7 +1606,7 @@ The policy is cached for 30 seconds, so config changes take effect quickly witho
 
 ## Smart Approvals
 
-Control how Lightning handles potentially dangerous commands:
+Control how Sonic handles potentially dangerous commands:
 
 ```yaml
 approvals:
@@ -1617,7 +1617,7 @@ approvals:
 |------|----------|
 | `manual` (default) | Prompt the user before executing any flagged command. In the CLI, shows an interactive approval dialog. In messaging, queues a pending approval request. |
 | `smart` | Use an auxiliary LLM to assess whether a flagged command is actually dangerous. Low-risk commands are auto-approved with session-level persistence. Genuinely risky commands are escalated to the user. |
-| `off` | Skip all approval checks. Equivalent to `LIGHTNING_YOLO_MODE=true`. **Use with caution.** |
+| `off` | Skip all approval checks. Equivalent to `SONIC_YOLO_MODE=true`. **Use with caution.** |
 
 Smart mode is particularly useful for reducing approval fatigue — it lets the agent work more autonomously on safe operations while still catching genuinely destructive commands.
 
@@ -1631,7 +1631,7 @@ Automatic filesystem snapshots before destructive file operations. See the [Chec
 
 ```yaml
 checkpoints:
-  enabled: false                 # Enable automatic checkpoints (also: lightning chat --checkpoints). Default: false (opt-in).
+  enabled: false                 # Enable automatic checkpoints (also: sonic chat --checkpoints). Default: false (opt-in).
   max_snapshots: 20              # Max checkpoints to keep per directory (default: 20)
 ```
 
@@ -1654,9 +1654,9 @@ delegation:
 
 **Subagent provider:model override:** By default, subagents inherit the parent agent's provider and model. Set `delegation.provider` and `delegation.model` to route subagents to a different provider:model pair — e.g., use a cheap/fast model for narrowly-scoped subtasks while your primary agent runs an expensive reasoning model.
 
-**Direct endpoint override:** If you want the obvious custom-endpoint path, set `delegation.base_url`, `delegation.api_key`, and `delegation.model`. That sends subagents directly to that OpenAI-compatible endpoint and takes precedence over `delegation.provider`. If `delegation.api_key` is omitted, Lightning falls back to `OPENAI_API_KEY` only.
+**Direct endpoint override:** If you want the obvious custom-endpoint path, set `delegation.base_url`, `delegation.api_key`, and `delegation.model`. That sends subagents directly to that OpenAI-compatible endpoint and takes precedence over `delegation.provider`. If `delegation.api_key` is omitted, Sonic falls back to `OPENAI_API_KEY` only.
 
-**Wire protocol (`api_mode`):** Lightning auto-detects the wire protocol from `delegation.base_url` (e.g. paths ending in `/anthropic` → `anthropic_messages`; Codex / native Anthropic / Kimi-coding hostnames keep their existing detection). For endpoints the heuristic can't classify — for example Azure AI Foundry, MiniMax, Zhipu GLM, or LiteLLM proxies fronting an Anthropic-shaped backend — set `delegation.api_mode` explicitly to one of `chat_completions`, `codex_responses`, or `anthropic_messages`. Leave it empty (the default) to keep auto-detection.
+**Wire protocol (`api_mode`):** Sonic auto-detects the wire protocol from `delegation.base_url` (e.g. paths ending in `/anthropic` → `anthropic_messages`; Codex / native Anthropic / Kimi-coding hostnames keep their existing detection). For endpoints the heuristic can't classify — for example Azure AI Foundry, MiniMax, Zhipu GLM, or LiteLLM proxies fronting an Anthropic-shaped backend — set `delegation.api_mode` explicitly to one of `chat_completions`, `codex_responses`, or `anthropic_messages`. Leave it empty (the default) to keep auto-detection.
 
 The delegation provider uses the same credential resolution as CLI/gateway startup. All configured providers are supported: `openrouter`, `nous`, `copilot`, `zai`, `kimi-coding`, `minimax`, `minimax-cn`. When a provider is set, the system automatically resolves the correct base URL, API key, and API mode — no manual credential wiring needed.
 
@@ -1675,22 +1675,22 @@ clarify:
 
 ## Context Files (SOUL.md, AGENTS.md)
 
-Lightning uses two different context scopes:
+Sonic uses two different context scopes:
 
 | File | Purpose | Scope |
 |------|---------|-------|
-| `SOUL.md` | **Primary agent identity** — defines who the agent is (slot #1 in the system prompt) | `~/.lightning/SOUL.md` or `$LIGHTNING_HOME/SOUL.md` |
-| `.lightning.md` / `LIGHTNING.md` | Project-specific instructions (highest priority) | Walks to git root |
+| `SOUL.md` | **Primary agent identity** — defines who the agent is (slot #1 in the system prompt) | `~/.sonic/SOUL.md` or `$SONIC_HOME/SOUL.md` |
+| `.sonic.md` / `SONIC.md` | Project-specific instructions (highest priority) | Walks to git root |
 | `AGENTS.md` | Project-specific instructions, coding conventions | Recursive directory walk |
 | `CLAUDE.md` | Claude Code context files (also detected) | Working directory only |
 | `.cursorrules` | Cursor IDE rules (also detected) | Working directory only |
 | `.cursor/rules/*.mdc` | Cursor rule files (also detected) | Working directory only |
 
 - **SOUL.md** is the agent's primary identity. It occupies slot #1 in the system prompt, completely replacing the built-in default identity. Edit it to fully customize who the agent is.
-- If SOUL.md is missing, empty, or cannot be loaded, Lightning falls back to a built-in default identity.
-- **Project context files use a priority system** — only ONE type is loaded (first match wins): `.lightning.md` → `AGENTS.md` → `CLAUDE.md` → `.cursorrules`. SOUL.md is always loaded independently.
+- If SOUL.md is missing, empty, or cannot be loaded, Sonic falls back to a built-in default identity.
+- **Project context files use a priority system** — only ONE type is loaded (first match wins): `.sonic.md` → `AGENTS.md` → `CLAUDE.md` → `.cursorrules`. SOUL.md is always loaded independently.
 - **AGENTS.md** is hierarchical: if subdirectories also have AGENTS.md, all are combined.
-- Lightning automatically seeds a default `SOUL.md` if one does not already exist.
+- Sonic automatically seeds a default `SOUL.md` if one does not already exist.
 - All loaded context files are capped at 20,000 characters with smart truncation.
 
 See also:
@@ -1701,13 +1701,13 @@ See also:
 
 | Context | Default |
 |---------|---------|
-| **CLI (`lightning`)** | Current directory where you run the command |
+| **CLI (`sonic`)** | Current directory where you run the command |
 | **Messaging gateway** | Home directory `~` (override with `MESSAGING_CWD`) |
 | **Docker / Singularity / Modal / SSH** | User's home directory inside the container or remote machine |
 
 Override the working directory:
 ```bash
-# In ~/.lightning/.env or ~/.lightning/config.yaml:
+# In ~/.sonic/.env or ~/.sonic/config.yaml:
 MESSAGING_CWD=/home/myuser/projects    # Gateway sessions
 TERMINAL_CWD=/workspace                # All terminal sessions
 ```

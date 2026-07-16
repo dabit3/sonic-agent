@@ -1,6 +1,6 @@
 # Secrets
 
-Lightning can pull API keys from external secret managers at process startup instead of storing them in `~/.lightning/.env`. The bootstrap token for the secret manager lives in `.env`; every other provider key (OpenAI, Anthropic, OpenRouter, etc.) can stay in the manager and rotate centrally.
+Sonic can pull API keys from external secret managers at process startup instead of storing them in `~/.sonic/.env`. The bootstrap token for the secret manager lives in `.env`; every other provider key (OpenAI, Anthropic, OpenRouter, etc.) can stay in the manager and rotate centrally.
 
 Supported:
 

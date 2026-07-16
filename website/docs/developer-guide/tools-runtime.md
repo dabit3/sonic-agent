@@ -6,7 +6,7 @@ description: "Runtime behavior of the tool registry, toolsets, dispatch, and ter
 
 # Tools Runtime
 
-Lightning tools are self-registering functions grouped into toolsets and executed through a central registry/dispatch system.
+Sonic tools are self-registering functions grouped into toolsets and executed through a central registry/dispatch system.
 
 Primary files:
 
@@ -64,7 +64,7 @@ Each import triggers the module's `registry.register()` calls. Errors in optiona
 After core tool discovery, MCP tools and plugin tools are also discovered:
 
 1. **MCP tools** — `tools.mcp_tool.discover_mcp_tools()` reads MCP server config and registers tools from external servers.
-2. **Plugin tools** — `lightning_cli.plugins.discover_plugins()` loads user/project/pip plugins that may register additional tools.
+2. **Plugin tools** — `sonic_cli.plugins.discover_plugins()` loads user/project/pip plugins that may register additional tools.
 
 ## Tool availability checking (`check_fn`)
 
@@ -94,12 +94,12 @@ Key behaviors:
 
 ## Toolset resolution
 
-Toolsets are named bundles of tools. Lightning resolves them through:
+Toolsets are named bundles of tools. Sonic resolves them through:
 
 - explicit enabled/disabled toolset lists
-- platform presets (`lightning-cli`, `lightning-telegram`, etc.)
+- platform presets (`sonic-cli`, `sonic-telegram`, etc.)
 - dynamic MCP toolsets
-- curated special-purpose sets like `lightning-acp`
+- curated special-purpose sets like `sonic-acp`
 
 ### How `get_tool_definitions()` filters tools
 

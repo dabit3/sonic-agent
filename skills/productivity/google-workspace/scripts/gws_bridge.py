@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bridge between Lightning OAuth token and gws CLI.
+"""Bridge between Sonic OAuth token and gws CLI.
 
 Refreshes the token if expired, then executes gws with the valid access token.
 """
@@ -10,16 +10,16 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Ensure sibling modules (_lightning_home) are importable when run standalone.
+# Ensure sibling modules (_sonic_home) are importable when run standalone.
 _SCRIPTS_DIR = str(Path(__file__).resolve().parent)
 if _SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, _SCRIPTS_DIR)
 
-from _lightning_home import get_lightning_home
+from _sonic_home import get_sonic_home
 
 
 def get_token_path() -> Path:
-    return get_lightning_home() / "google_token.json"
+    return get_sonic_home() / "google_token.json"
 
 
 def _normalize_authorized_user_payload(payload: dict) -> dict:

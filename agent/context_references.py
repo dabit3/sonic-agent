@@ -19,7 +19,7 @@ REFERENCE_PATTERN = re.compile(
 )
 TRAILING_PUNCTUATION = ",.;!?"
 _SENSITIVE_HOME_DIRS = (".ssh", ".aws", ".gnupg", ".kube", ".docker", ".azure", ".config/gh")
-_SENSITIVE_LIGHTNING_DIRS = (Path("skills") / ".hub",)
+_SENSITIVE_SONIC_DIRS = (Path("skills") / ".hub",)
 _SENSITIVE_HOME_FILES = (
     Path(".ssh") / "authorized_keys",
     Path(".ssh") / "id_rsa",
@@ -340,14 +340,14 @@ def _resolve_path(cwd: Path, target: str, *, allowed_root: Path | None = None) -
 
 
 def _ensure_reference_path_allowed(path: Path) -> None:
-    from lightning_constants import get_lightning_home
+    from sonic_constants import get_sonic_home
     home = Path(os.path.expanduser("~")).resolve()
-    lightning_home = get_lightning_home().resolve()
+    sonic_home = get_sonic_home().resolve()
 
     blocked_exact = {home / rel for rel in _SENSITIVE_HOME_FILES}
-    blocked_exact.add(lightning_home / ".env")
+    blocked_exact.add(sonic_home / ".env")
     blocked_dirs = [home / rel for rel in _SENSITIVE_HOME_DIRS]
-    blocked_dirs.extend(lightning_home / rel for rel in _SENSITIVE_LIGHTNING_DIRS)
+    blocked_dirs.extend(sonic_home / rel for rel in _SENSITIVE_SONIC_DIRS)
 
     if path in blocked_exact:
         raise ValueError("path is a sensitive credential file and cannot be attached")
@@ -357,7 +357,7 @@ def _ensure_reference_path_allowed(path: Path) -> None:
             path.relative_to(blocked_dir)
         except ValueError:
             continue
-        raise ValueError("path is a sensitive credential or internal Lightning path and cannot be attached")
+        raise ValueError("path is a sensitive credential or internal Sonic path and cannot be attached")
 
 
 def _strip_trailing_punctuation(value: str) -> str:

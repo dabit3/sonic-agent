@@ -9,14 +9,14 @@ from tools.delegate_tool import _expand_parent_toolsets
 class TestExpandParentToolsets(unittest.TestCase):
     """Verify _expand_parent_toolsets recognises individual toolsets within composites."""
 
-    def test_composite_lightning_cli_expands_web(self):
-        """lightning-cli includes web_search/web_extract → 'web' should be in expansion."""
-        expanded = _expand_parent_toolsets({"lightning-cli"})
+    def test_composite_sonic_cli_expands_web(self):
+        """sonic-cli includes web_search/web_extract → 'web' should be in expansion."""
+        expanded = _expand_parent_toolsets({"sonic-cli"})
         self.assertIn("web", expanded)
         self.assertIn("terminal", expanded)
         self.assertIn("browser", expanded)
         # Original composite is preserved
-        self.assertIn("lightning-cli", expanded)
+        self.assertIn("sonic-cli", expanded)
 
     def test_individual_toolset_unchanged(self):
         """When parent already uses individual toolsets, expansion keeps them."""
@@ -34,8 +34,8 @@ class TestExpandParentToolsets(unittest.TestCase):
         self.assertIn("nonexistent-toolset-xyz", expanded)
 
     def test_intersection_with_expanded_composite(self):
-        """End-to-end: requesting ['web'] from parent with ['lightning-cli'] yields ['web']."""
-        parent_toolsets = {"lightning-cli"}
+        """End-to-end: requesting ['web'] from parent with ['sonic-cli'] yields ['web']."""
+        parent_toolsets = {"sonic-cli"}
         expanded = _expand_parent_toolsets(parent_toolsets)
         toolsets = ["web"]
         child_toolsets = [t for t in toolsets if t in expanded]

@@ -9,24 +9,24 @@ import pytest
 
 @pytest.fixture
 def _isolate(tmp_path, monkeypatch):
-    """Isolate LIGHTNING_HOME so tests don't touch real config."""
-    home = tmp_path / ".lightning"
+    """Isolate SONIC_HOME so tests don't touch real config."""
+    home = tmp_path / ".sonic"
     home.mkdir()
-    monkeypatch.setenv("LIGHTNING_HOME", str(home))
+    monkeypatch.setenv("SONIC_HOME", str(home))
 
 
 @pytest.fixture
 def cli_obj(_isolate):
-    """Create a minimal LightningCLI instance for banner testing."""
+    """Create a minimal SonicCLI instance for banner testing."""
     with patch("cli.load_cli_config", return_value={
         "display": {"tool_progress": "new"},
         "terminal": {},
     }), patch("cli.get_tool_definitions", return_value=[]), \
          patch("cli.build_welcome_banner"):
-        from cli import LightningCLI
-        obj = LightningCLI.__new__(LightningCLI)
+        from cli import SonicCLI
+        obj = SonicCLI.__new__(SonicCLI)
         obj.model = "test-model"
-        obj.enabled_toolsets = ["lightning-core"]
+        obj.enabled_toolsets = ["sonic-core"]
         obj.compact = False
         obj.console = MagicMock()
         obj.session_id = None

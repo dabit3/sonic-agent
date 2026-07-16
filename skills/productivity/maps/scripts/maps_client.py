@@ -29,7 +29,7 @@ import urllib.request
 # Constants
 # ---------------------------------------------------------------------------
 
-USER_AGENT = "LightningAgent/1.0 (contact: lightning@agent.ai)"
+USER_AGENT = "SonicAgent/1.0 (contact: sonic@agent.ai)"
 DATA_SOURCE = "OpenStreetMap/Nominatim"
 
 NOMINATIM_SEARCH  = "https://nominatim.openstreetmap.org/search"

@@ -21,7 +21,7 @@ const buildUiState = (): UiState => ({
   showCost: false,
   showReasoning: false,
   sid: null,
-  status: 'summoning lightning…',
+  status: 'summoning sonic…',
   statusBar: 'top',
   streaming: true,
   theme: DEFAULT_THEME,

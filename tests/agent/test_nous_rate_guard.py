@@ -10,11 +10,11 @@ import pytest
 @pytest.fixture
 def rate_guard_env(tmp_path, monkeypatch):
     """Isolate rate guard state to a temp directory."""
-    lightning_home = str(tmp_path / ".lightning")
-    os.makedirs(lightning_home, exist_ok=True)
-    monkeypatch.setenv("LIGHTNING_HOME", lightning_home)
+    sonic_home = str(tmp_path / ".sonic")
+    os.makedirs(sonic_home, exist_ok=True)
+    monkeypatch.setenv("SONIC_HOME", sonic_home)
     # Clear any cached module-level imports
-    return lightning_home
+    return sonic_home
 
 
 class TestRecordNousRateLimit:
@@ -256,7 +256,7 @@ class TestAuxiliaryClientIntegration:
 class TestIsGenuineNousRateLimit:
     """Tell a real account-level 429 apart from an upstream-capacity 429.
 
-    Nous Portal multiplexes upstreams (DeepSeek, Kimi, MiMo, Lightning).
+    Nous Portal multiplexes upstreams (DeepSeek, Kimi, MiMo, Sonic).
     A 429 from an upstream out of capacity should NOT trip the
     cross-session breaker; a real user-quota 429 should.
     """

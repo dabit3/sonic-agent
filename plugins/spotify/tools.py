@@ -1,10 +1,10 @@
-"""Native Spotify tools for Lightning (registered via plugins/spotify)."""
+"""Native Spotify tools for Sonic (registered via plugins/spotify)."""
 
 from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from lightning_cli.auth import get_auth_status
+from sonic_cli.auth import get_auth_status
 from plugins.spotify.client import (
     SpotifyAPIError,
     SpotifyAuthRequiredError,

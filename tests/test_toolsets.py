@@ -212,14 +212,14 @@ class TestToolsetConsistency:
             for inc in ts["includes"]:
                 assert inc in TOOLSETS, f"{name} includes unknown toolset '{inc}'"
 
-    def test_lightning_platforms_share_core_tools(self):
-        """All lightning-* platform toolsets share the same core tools.
+    def test_sonic_platforms_share_core_tools(self):
+        """All sonic-* platform toolsets share the same core tools.
 
         Platform-specific additions (e.g. ``discord`` / ``discord_admin``
-        on lightning-discord, gated on DISCORD_BOT_TOKEN) are allowed on top —
+        on sonic-discord, gated on DISCORD_BOT_TOKEN) are allowed on top —
         the invariant is that the core set is identical across platforms.
         """
-        platforms = ["lightning-cli", "lightning-telegram", "lightning-discord", "lightning-whatsapp", "lightning-slack", "lightning-signal", "lightning-homeassistant"]
+        platforms = ["sonic-cli", "sonic-telegram", "sonic-discord", "sonic-whatsapp", "sonic-slack", "sonic-signal", "sonic-homeassistant"]
         tool_sets = [set(TOOLSETS[p]["tools"]) for p in platforms]
         # All platforms must contain the shared core; platform-specific
         # extras are OK (subset check, not equality).
@@ -249,8 +249,8 @@ class TestPluginToolsets:
 
 
 class TestDefaultPlatformWebSearchCoverage:
-    def test_lightning_whatsapp_toolset_includes_web_search(self):
-        assert "web_search" in resolve_toolset("lightning-whatsapp")
+    def test_sonic_whatsapp_toolset_includes_web_search(self):
+        assert "web_search" in resolve_toolset("sonic-whatsapp")
 
-    def test_lightning_api_server_toolset_includes_web_search(self):
-        assert "web_search" in resolve_toolset("lightning-api-server")
+    def test_sonic_api_server_toolset_includes_web_search(self):
+        assert "web_search" in resolve_toolset("sonic-api-server")

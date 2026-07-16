@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock, patch
 
-from cli import LightningCLI
+from cli import SonicCLI
 
 
 class _InsightsEngineStub:
@@ -18,10 +18,10 @@ class _InsightsEngineStub:
 
 
 def _run_show_insights(command: str):
-    cli_obj = LightningCLI.__new__(LightningCLI)
+    cli_obj = SonicCLI.__new__(SonicCLI)
     db = MagicMock()
     _InsightsEngineStub.calls = []
-    with patch("lightning_state.SessionDB", return_value=db), \
+    with patch("sonic_state.SessionDB", return_value=db), \
          patch("agent.insights.InsightsEngine", _InsightsEngineStub):
         cli_obj._show_insights(command)
     return _InsightsEngineStub.calls, db

@@ -1,15 +1,15 @@
-"""ACP auth helpers — detect and advertise Lightning authentication methods."""
+"""ACP auth helpers — detect and advertise Sonic authentication methods."""
 
 from __future__ import annotations
 
 from typing import Any, Optional
 
 
-TERMINAL_SETUP_AUTH_METHOD_ID = "lightning-setup"
+TERMINAL_SETUP_AUTH_METHOD_ID = "sonic-setup"
 
 
 def detect_provider() -> Optional[str]:
-    """Resolve the active Lightning runtime provider, or None if unavailable.
+    """Resolve the active Sonic runtime provider, or None if unavailable.
 
     Treats a ``Callable`` ``api_key`` (Azure Foundry Entra ID bearer
     token provider — see :mod:`agent.azure_identity_adapter`) as a valid
@@ -18,7 +18,7 @@ def detect_provider() -> Optional[str]:
     handshake rejects the legitimate provider.
     """
     try:
-        from lightning_cli.runtime_provider import resolve_runtime_provider
+        from sonic_cli.runtime_provider import resolve_runtime_provider
         runtime = resolve_runtime_provider()
         api_key = runtime.get("api_key")
         provider = runtime.get("provider")
@@ -34,16 +34,16 @@ def detect_provider() -> Optional[str]:
 
 
 def has_provider() -> bool:
-    """Return True if Lightning can resolve any runtime provider credentials."""
+    """Return True if Sonic can resolve any runtime provider credentials."""
     return detect_provider() is not None
 
 
 def build_auth_methods() -> list[Any]:
-    """Return registry-compatible ACP auth methods for Lightning.
+    """Return registry-compatible ACP auth methods for Sonic.
 
     The official ACP registry validates that agents advertise at least one
     usable auth method during the initial handshake. A fresh Zed install may
-    not have Lightning provider credentials configured yet, so Lightning always
+    not have Sonic provider credentials configured yet, so Sonic always
     advertises a terminal setup method. When credentials are already present,
     it also advertises the resolved provider as the default agent-managed
     runtime credential method.
@@ -58,7 +58,7 @@ def build_auth_methods() -> list[Any]:
                 id=provider,
                 name=f"{provider} runtime credentials",
                 description=(
-                    "Authenticate Lightning using the currently configured "
+                    "Authenticate Sonic using the currently configured "
                     f"{provider} runtime credentials."
                 ),
             )
@@ -67,10 +67,10 @@ def build_auth_methods() -> list[Any]:
     methods.append(
         TerminalAuthMethod(
             id=TERMINAL_SETUP_AUTH_METHOD_ID,
-            name="Configure Lightning provider",
+            name="Configure Sonic provider",
             description=(
-                "Open Lightning' interactive model/provider setup in a terminal. "
-                "Use this when Lightning has not been configured on this machine yet."
+                "Open Sonic' interactive model/provider setup in a terminal. "
+                "Use this when Sonic has not been configured on this machine yet."
             ),
             type="terminal",
             args=["--setup"],

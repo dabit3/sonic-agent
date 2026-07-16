@@ -43,15 +43,15 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Lightning Agent — Nous DS with the LENS_0 (Lightning teal) lens applied   */
-/* statically. Mirrors nousnet-web/(lightning-agent)/layout.tsx so the    */
-/* canonical Lightning palette is the default — teal canvas + cream      */
+/* Sonic Agent — Nous DS with the LENS_0 (Sonic teal) lens applied   */
+/* statically. Mirrors nousnet-web/(sonic-agent)/layout.tsx so the    */
+/* canonical Sonic palette is the default — teal canvas + cream      */
 /* accent — without relying on leva/gsap at runtime.                  */
 /* ------------------------------------------------------------------ */
 
 :root {
   /* LENS_0 — from design-language/src/ui/components/overlays/index.tsx.
-     These are the defaults for the `default` (Lightning Teal) dashboard theme;
+     These are the defaults for the `default` (Sonic Teal) dashboard theme;
      ThemeProvider rewrites them as inline styles when a user switches themes. */
   --foreground: color-mix(in srgb, #ffffff 0%, transparent);
   --foreground-base: #ffffff;
@@ -124,7 +124,7 @@ code, kbd, pre, samp, .font-mono, .font-mono-ui {
   overflow: hidden;
 }
 
-/* Nousnet's lightning-agent layout bumps `small` and `code` to readable
+/* Nousnet's sonic-agent layout bumps `small` and `code` to readable
    dashboard sizes. Keep in sync. */
 small { font-size: 1.0625rem; }
 code { font-size: 0.875rem; }

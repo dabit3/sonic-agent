@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: "CLI Commands Reference"
-description: "Authoritative reference for Lightning terminal commands and command families"
+description: "Authoritative reference for Sonic terminal commands and command families"
 ---
 
 # CLI Commands Reference
@@ -13,7 +13,7 @@ For in-chat slash commands, see [Slash Commands Reference](./slash-commands.md).
 ## Global entrypoint
 
 ```bash
-lightning [global-options] <command> [subcommand/options]
+sonic [global-options] <command> [subcommand/options]
 ```
 
 ### Global options
@@ -21,70 +21,70 @@ lightning [global-options] <command> [subcommand/options]
 | Option | Description |
 |--------|-------------|
 | `--version`, `-V` | Show version and exit. |
-| `--profile <name>`, `-p <name>` | Select which Lightning profile to use for this invocation. Overrides the sticky default set by `lightning profile use`. |
+| `--profile <name>`, `-p <name>` | Select which Sonic profile to use for this invocation. Overrides the sticky default set by `sonic profile use`. |
 | `--resume <session>`, `-r <session>` | Resume a previous session by ID or title. |
 | `--continue [name]`, `-c [name]` | Resume the most recent session, or the most recent session matching a title. |
 | `--worktree`, `-w` | Start in an isolated git worktree for parallel-agent workflows. |
 | `--yolo` | Bypass dangerous-command approval prompts. |
 | `--pass-session-id` | Include the session ID in the agent's system prompt. |
-| `--ignore-user-config` | Ignore `~/.lightning/config.yaml` and fall back to built-in defaults. Credentials in `.env` are still loaded. |
+| `--ignore-user-config` | Ignore `~/.sonic/config.yaml` and fall back to built-in defaults. Credentials in `.env` are still loaded. |
 | `--ignore-rules` | Skip auto-injection of `AGENTS.md`, `SOUL.md`, `.cursorrules`, memory, and preloaded skills. |
-| `--tui` | Launch the [TUI](../user-guide/tui.md) instead of the classic CLI. Equivalent to `LIGHTNING_TUI=1`. |
+| `--tui` | Launch the [TUI](../user-guide/tui.md) instead of the classic CLI. Equivalent to `SONIC_TUI=1`. |
 | `--dev` | With `--tui`: run the TypeScript sources directly via `tsx` instead of the prebuilt bundle (for TUI contributors). |
 
 ## Top-level commands
 
 | Command | Purpose |
 |---------|---------|
-| `lightning chat` | Interactive or one-shot chat with the agent. |
-| `lightning model` | Interactively choose the default provider and model. |
-| `lightning fallback` | Manage fallback providers tried when the primary model errors. |
-| `lightning gateway` | Run or manage the messaging gateway service. |
-| `lightning proxy` | Local OpenAI-compatible proxy that attaches OAuth provider credentials. See [Subscription Proxy](../user-guide/features/subscription-proxy.md). |
-| `lightning lsp` | Manage Language Server Protocol integration (semantic diagnostics for write_file/patch). |
-| `lightning setup` | Interactive setup wizard for all or part of the configuration. |
-| `lightning whatsapp` | Configure and pair the WhatsApp bridge. |
-| `lightning slack` | Slack helpers (currently: generate the app manifest with every command as a native slash). |
-| `lightning auth` | Manage credentials — add, list, remove, reset, set strategy. Handles OAuth flows for Codex/Nous/Anthropic. |
-| `lightning login` / `logout` | **Deprecated** — use `lightning auth` instead. |
-| `lightning status` | Show agent, auth, and platform status. |
-| `lightning cron` | Inspect and tick the cron scheduler. |
-| `lightning kanban` | Multi-profile collaboration board (tasks, links, dispatcher). |
-| `lightning webhook` | Manage dynamic webhook subscriptions for event-driven activation. |
-| `lightning hooks` | Inspect, approve, or remove shell-script hooks declared in `config.yaml`. |
-| `lightning doctor` | Diagnose config and dependency issues. |
-| `lightning dump` | Copy-pasteable setup summary for support/debugging. |
-| `lightning debug` | Debug tools — upload logs and system info for support. |
-| `lightning backup` | Back up Lightning home directory to a zip file. |
-| `lightning checkpoints` | Inspect / prune / clear `~/.lightning/checkpoints/` (the shadow store used by `/rollback`). Run with no args for a status overview. |
-| `lightning import` | Restore a Lightning backup from a zip file. |
-| `lightning logs` | View, tail, and filter agent/gateway/error log files. |
-| `lightning config` | Show, edit, migrate, and query configuration files. |
-| `lightning pairing` | Approve or revoke messaging pairing codes. |
-| `lightning skills` | Browse, install, publish, audit, and configure skills. |
-| `lightning bundles` | Group several skills under a single `/<name>` slash command. See [Skill Bundles](../user-guide/features/skills.md#skill-bundles). |
-| `lightning curator` | Background skill maintenance — status, run, pause, pin. See [Curator](../user-guide/features/curator.md). |
-| `lightning memory` | Configure external memory provider. Plugin-specific subcommands (e.g. `lightning honcho`) register automatically when their provider is active. |
-| `lightning acp` | Run Lightning as an ACP server for editor integration. |
-| `lightning mcp` | Manage MCP server configurations and run Lightning as an MCP server. |
-| `lightning plugins` | Manage Lightning Agent plugins (install, enable, disable, remove). |
-| `lightning portal` | Nous Portal status, subscription link, and Tool Gateway routing. See [Tool Gateway](../user-guide/features/tool-gateway.md). |
-| `lightning tools` | Configure enabled tools per platform. |
-| `lightning computer-use` | Install or check the cua-driver backend (macOS Computer Use). |
-| `lightning sessions` | Browse, export, prune, rename, and delete sessions. |
-| `lightning insights` | Show token/cost/activity analytics. |
-| `lightning claw` | OpenClaw migration helpers. |
-| `lightning dashboard` | Launch the web dashboard for managing config, API keys, and sessions. |
-| `lightning profile` | Manage profiles — multiple isolated Lightning instances. |
-| `lightning completion` | Print shell completion scripts (bash/zsh/fish). |
-| `lightning version` | Show version information. |
-| `lightning update` | Pull latest code and reinstall dependencies (git installs), or check PyPI and `pip install --upgrade` (pip installs). `--check` previews without installing; `--backup` takes a pre-pull `LIGHTNING_HOME` snapshot. |
-| `lightning uninstall` | Remove Lightning from the system. |
+| `sonic chat` | Interactive or one-shot chat with the agent. |
+| `sonic model` | Interactively choose the default provider and model. |
+| `sonic fallback` | Manage fallback providers tried when the primary model errors. |
+| `sonic gateway` | Run or manage the messaging gateway service. |
+| `sonic proxy` | Local OpenAI-compatible proxy that attaches OAuth provider credentials. See [Subscription Proxy](../user-guide/features/subscription-proxy.md). |
+| `sonic lsp` | Manage Language Server Protocol integration (semantic diagnostics for write_file/patch). |
+| `sonic setup` | Interactive setup wizard for all or part of the configuration. |
+| `sonic whatsapp` | Configure and pair the WhatsApp bridge. |
+| `sonic slack` | Slack helpers (currently: generate the app manifest with every command as a native slash). |
+| `sonic auth` | Manage credentials — add, list, remove, reset, set strategy. Handles OAuth flows for Codex/Nous/Anthropic. |
+| `sonic login` / `logout` | **Deprecated** — use `sonic auth` instead. |
+| `sonic status` | Show agent, auth, and platform status. |
+| `sonic cron` | Inspect and tick the cron scheduler. |
+| `sonic kanban` | Multi-profile collaboration board (tasks, links, dispatcher). |
+| `sonic webhook` | Manage dynamic webhook subscriptions for event-driven activation. |
+| `sonic hooks` | Inspect, approve, or remove shell-script hooks declared in `config.yaml`. |
+| `sonic doctor` | Diagnose config and dependency issues. |
+| `sonic dump` | Copy-pasteable setup summary for support/debugging. |
+| `sonic debug` | Debug tools — upload logs and system info for support. |
+| `sonic backup` | Back up Sonic home directory to a zip file. |
+| `sonic checkpoints` | Inspect / prune / clear `~/.sonic/checkpoints/` (the shadow store used by `/rollback`). Run with no args for a status overview. |
+| `sonic import` | Restore a Sonic backup from a zip file. |
+| `sonic logs` | View, tail, and filter agent/gateway/error log files. |
+| `sonic config` | Show, edit, migrate, and query configuration files. |
+| `sonic pairing` | Approve or revoke messaging pairing codes. |
+| `sonic skills` | Browse, install, publish, audit, and configure skills. |
+| `sonic bundles` | Group several skills under a single `/<name>` slash command. See [Skill Bundles](../user-guide/features/skills.md#skill-bundles). |
+| `sonic curator` | Background skill maintenance — status, run, pause, pin. See [Curator](../user-guide/features/curator.md). |
+| `sonic memory` | Configure external memory provider. Plugin-specific subcommands (e.g. `sonic honcho`) register automatically when their provider is active. |
+| `sonic acp` | Run Sonic as an ACP server for editor integration. |
+| `sonic mcp` | Manage MCP server configurations and run Sonic as an MCP server. |
+| `sonic plugins` | Manage Sonic Agent plugins (install, enable, disable, remove). |
+| `sonic portal` | Nous Portal status, subscription link, and Tool Gateway routing. See [Tool Gateway](../user-guide/features/tool-gateway.md). |
+| `sonic tools` | Configure enabled tools per platform. |
+| `sonic computer-use` | Install or check the cua-driver backend (macOS Computer Use). |
+| `sonic sessions` | Browse, export, prune, rename, and delete sessions. |
+| `sonic insights` | Show token/cost/activity analytics. |
+| `sonic claw` | OpenClaw migration helpers. |
+| `sonic dashboard` | Launch the web dashboard for managing config, API keys, and sessions. |
+| `sonic profile` | Manage profiles — multiple isolated Sonic instances. |
+| `sonic completion` | Print shell completion scripts (bash/zsh/fish). |
+| `sonic version` | Show version information. |
+| `sonic update` | Pull latest code and reinstall dependencies (git installs), or check PyPI and `pip install --upgrade` (pip installs). `--check` previews without installing; `--backup` takes a pre-pull `SONIC_HOME` snapshot. |
+| `sonic uninstall` | Remove Sonic from the system. |
 
-## `lightning chat`
+## `sonic chat`
 
 ```bash
-lightning chat [options]
+sonic chat [options]
 ```
 
 Common options:
@@ -104,7 +104,7 @@ Common options:
 | `--checkpoints` | Enable filesystem checkpoints before destructive file changes. |
 | `--yolo` | Skip approval prompts. |
 | `--pass-session-id` | Pass the session ID into the system prompt. |
-| `--ignore-user-config` | Ignore `~/.lightning/config.yaml` and use built-in defaults. Credentials in `.env` are still loaded. Useful for isolated CI runs, reproducible bug reports, and third-party integrations. |
+| `--ignore-user-config` | Ignore `~/.sonic/config.yaml` and use built-in defaults. Credentials in `.env` are still loaded. Useful for isolated CI runs, reproducible bug reports, and third-party integrations. |
 | `--ignore-rules` | Skip auto-injection of `AGENTS.md`, `SOUL.md`, `.cursorrules`, persistent memory, and preloaded skills. Combine with `--ignore-user-config` for a fully isolated run. |
 | `--source <tag>` | Session source tag for filtering (default: `cli`). Use `tool` for third-party integrations that should not appear in user session lists. |
 | `--max-turns <N>` | Maximum tool-calling iterations per conversation turn (default: 90, or `agent.max_turns` in config). |
@@ -112,48 +112,48 @@ Common options:
 Examples:
 
 ```bash
-lightning
-lightning chat -q "Summarize the latest PRs"
-lightning chat --provider openrouter --model anthropic/claude-sonnet-4.6
-lightning chat --toolsets web,terminal,skills
-lightning chat --quiet -q "Return only JSON"
-lightning chat --worktree -q "Review this repo and open a PR"
-lightning chat --ignore-user-config --ignore-rules -q "Repro without my personal setup"
+sonic
+sonic chat -q "Summarize the latest PRs"
+sonic chat --provider openrouter --model anthropic/claude-sonnet-4.6
+sonic chat --toolsets web,terminal,skills
+sonic chat --quiet -q "Return only JSON"
+sonic chat --worktree -q "Review this repo and open a PR"
+sonic chat --ignore-user-config --ignore-rules -q "Repro without my personal setup"
 ```
 
-### `lightning -z <prompt>` — scripted one-shot
+### `sonic -z <prompt>` — scripted one-shot
 
-For programmatic callers (shell scripts, CI, cron, parent processes piping in a prompt), `lightning -z` is the purest one-shot entry point: **single prompt in, final response text out, nothing else on stdout or stderr.** No banner, no spinner, no tool previews, no `Session:` line — just the agent's final reply as plain text.
+For programmatic callers (shell scripts, CI, cron, parent processes piping in a prompt), `sonic -z` is the purest one-shot entry point: **single prompt in, final response text out, nothing else on stdout or stderr.** No banner, no spinner, no tool previews, no `Session:` line — just the agent's final reply as plain text.
 
 ```bash
-lightning -z "What's the capital of France?"
+sonic -z "What's the capital of France?"
 # → Paris.
 
 # Parent scripts can cleanly capture the response:
-answer=$(lightning -z "summarize this" < /path/to/file.txt)
+answer=$(sonic -z "summarize this" < /path/to/file.txt)
 ```
 
-Per-run overrides (no mutation to `~/.lightning/config.yaml`):
+Per-run overrides (no mutation to `~/.sonic/config.yaml`):
 
 | Flag | Equivalent env var | Purpose |
 |---|---|---|
-| `-m` / `--model <model>` | `LIGHTNING_INFERENCE_MODEL` | Override the model for this run |
-| `--provider <provider>` | `LIGHTNING_INFERENCE_PROVIDER` | Override the provider for this run |
+| `-m` / `--model <model>` | `SONIC_INFERENCE_MODEL` | Override the model for this run |
+| `--provider <provider>` | `SONIC_INFERENCE_PROVIDER` | Override the provider for this run |
 
 ```bash
-lightning -z "…" --provider openrouter --model openai/gpt-5.5
+sonic -z "…" --provider openrouter --model openai/gpt-5.5
 # or:
-LIGHTNING_INFERENCE_MODEL=anthropic/claude-sonnet-4.6 lightning -z "…"
+SONIC_INFERENCE_MODEL=anthropic/claude-sonnet-4.6 sonic -z "…"
 ```
 
-Same agent, same tools, same skills — just strips every interactive / cosmetic layer. If you need tool output in the transcript too, use `lightning chat -q` instead; `-z` is explicitly for "I only want the final answer".
+Same agent, same tools, same skills — just strips every interactive / cosmetic layer. If you need tool output in the transcript too, use `sonic chat -q` instead; `-z` is explicitly for "I only want the final answer".
 
-## `lightning model`
+## `sonic model`
 
-Interactive provider + model selector. **This is the command for adding new providers, setting up API keys, and running OAuth flows.** Run it from your terminal — not from inside an active Lightning chat session.
+Interactive provider + model selector. **This is the command for adding new providers, setting up API keys, and running OAuth flows.** Run it from your terminal — not from inside an active Sonic chat session.
 
 ```bash
-lightning model
+sonic model
 ```
 
 Use this when you want to:
@@ -164,12 +164,12 @@ Use this when you want to:
 - configure a custom/self-hosted endpoint
 - save the new default into config
 
-:::warning lightning model vs /model — know the difference
-**`lightning model`** (run from your terminal, outside any Lightning session) is the **full provider setup wizard**. It can add new providers, run OAuth flows, prompt for API keys, and configure endpoints.
+:::warning sonic model vs /model — know the difference
+**`sonic model`** (run from your terminal, outside any Sonic session) is the **full provider setup wizard**. It can add new providers, run OAuth flows, prompt for API keys, and configure endpoints.
 
-**`/model`** (typed inside an active Lightning chat session) can only **switch between providers and models you've already set up**. It cannot add new providers, run OAuth, or prompt for API keys.
+**`/model`** (typed inside an active Sonic chat session) can only **switch between providers and models you've already set up**. It cannot add new providers, run OAuth, or prompt for API keys.
 
-**If you need to add a new provider:** Exit your Lightning session first (`Ctrl+C` or `/quit`), then run `lightning model` from your terminal prompt.
+**If you need to add a new provider:** Exit your Sonic session first (`Ctrl+C` or `/quit`), then run `sonic model` from your terminal prompt.
 :::
 
 ### `/model` slash command (mid-session)
@@ -193,15 +193,15 @@ By default, `/model` changes apply **to the current session only**. Add `--globa
 ```
 
 :::info What if I only see OpenRouter models?
-If you've only configured OpenRouter, `/model` will only show OpenRouter models. To add another provider (Anthropic, DeepSeek, Copilot, etc.), exit your session and run `lightning model` from the terminal.
+If you've only configured OpenRouter, `/model` will only show OpenRouter models. To add another provider (Anthropic, DeepSeek, Copilot, etc.), exit your session and run `sonic model` from the terminal.
 :::
 
 Provider and base URL changes are persisted to `config.yaml` automatically. When switching away from a custom endpoint, the stale base URL is cleared to prevent it leaking into other providers.
 
-## `lightning gateway`
+## `sonic gateway`
 
 ```bash
-lightning gateway <subcommand>
+sonic gateway <subcommand>
 ```
 
 Subcommands:
@@ -222,16 +222,16 @@ Options:
 
 | Option | Description |
 |--------|-------------|
-| `--all` | On `start` / `restart` / `stop`: act on **every profile's** gateway, not just the active `LIGHTNING_HOME`. Useful if you run multiple profiles side-by-side and want to restart them all after `lightning update`. |
+| `--all` | On `start` / `restart` / `stop`: act on **every profile's** gateway, not just the active `SONIC_HOME`. Useful if you run multiple profiles side-by-side and want to restart them all after `sonic update`. |
 
 :::tip WSL users
-Use `lightning gateway run` instead of `lightning gateway start` — WSL's systemd support is unreliable. Wrap it in tmux for persistence: `tmux new -s lightning 'lightning gateway run'`. See [WSL FAQ](/docs/reference/faq#wsl-gateway-keeps-disconnecting-or-lightning-gateway-start-fails) for details.
+Use `sonic gateway run` instead of `sonic gateway start` — WSL's systemd support is unreliable. Wrap it in tmux for persistence: `tmux new -s sonic 'sonic gateway run'`. See [WSL FAQ](/docs/reference/faq#wsl-gateway-keeps-disconnecting-or-sonic-gateway-start-fails) for details.
 :::
 
-## `lightning lsp`
+## `sonic lsp`
 
 ```bash
-lightning lsp <subcommand>
+sonic lsp <subcommand>
 ```
 
 Manage the Language Server Protocol integration. LSP runs real
@@ -255,10 +255,10 @@ Subcommands:
 See [LSP — Semantic Diagnostics](/docs/user-guide/features/lsp) for
 the full guide, supported languages, and configuration knobs.
 
-## `lightning setup`
+## `sonic setup`
 
 ```bash
-lightning setup [model|tts|terminal|gateway|tools|agent] [--non-interactive] [--reset] [--quick] [--reconfigure] [--portal]
+sonic setup [model|tts|terminal|gateway|tools|agent] [--non-interactive] [--reset] [--quick] [--reconfigure] [--portal]
 ```
 
 **First run:** launches the first-time wizard.
@@ -282,13 +282,13 @@ Options:
 | `--quick` | On returning-user runs: only prompt for items that are missing or unset. Skip items you already have configured. |
 | `--non-interactive` | Use defaults / environment values without prompts. |
 | `--reset` | Reset configuration to defaults before setup. |
-| `--reconfigure` | Backwards-compat alias — bare `lightning setup` on an existing install now does this by default. |
+| `--reconfigure` | Backwards-compat alias — bare `sonic setup` on an existing install now does this by default. |
 | `--portal` | One-shot Nous Portal setup: log in via OAuth, set Nous as the inference provider, and opt into the [Tool Gateway](../user-guide/features/tool-gateway.md). Skips the rest of the wizard. |
 
-## `lightning portal`
+## `sonic portal`
 
 ```bash
-lightning portal [status|open|tools]
+sonic portal [status|open|tools]
 ```
 
 Inspect Nous Portal auth, Tool Gateway routing, and reach the subscription page. Subcommand-less invocation runs `status`.
@@ -299,22 +299,22 @@ Inspect Nous Portal auth, Tool Gateway routing, and reach the subscription page.
 | `open` | Open `portal.nousresearch.com/manage-subscription` in your default browser. |
 | `tools` | List every Tool Gateway partner (Firecrawl, FAL, OpenAI TTS, Browser Use, Modal) and which are routed via Nous. |
 
-For configuration of the gateway itself, see [Tool Gateway](../user-guide/features/tool-gateway.md). For the one-shot setup path, see `lightning setup --portal` above.
+For configuration of the gateway itself, see [Tool Gateway](../user-guide/features/tool-gateway.md). For the one-shot setup path, see `sonic setup --portal` above.
 
-## `lightning whatsapp`
+## `sonic whatsapp`
 
 ```bash
-lightning whatsapp
+sonic whatsapp
 ```
 
 Runs the WhatsApp pairing/setup flow, including mode selection and QR-code pairing.
 
-## `lightning slack`
+## `sonic slack`
 
 ```bash
-lightning slack manifest              # print manifest to stdout
-lightning slack manifest --write      # write to ~/.lightning/slack-manifest.json
-lightning slack manifest --slashes-only  # just the features.slash_commands array
+sonic slack manifest              # print manifest to stdout
+sonic slack manifest --write      # write to ~/.sonic/slack-manifest.json
+sonic slack manifest --slashes-only  # just the features.slash_commands array
 ```
 
 Generates a Slack app manifest that registers every gateway command in
@@ -327,44 +327,44 @@ reinstall if scopes or slash commands changed.
 
 | Flag | Default | Purpose |
 |------|---------|---------|
-| `--write [PATH]` | stdout | Write to a file instead of stdout. Bare `--write` writes `$LIGHTNING_HOME/slack-manifest.json`. |
-| `--name NAME` | `Lightning` | Bot display name in Slack. |
+| `--write [PATH]` | stdout | Write to a file instead of stdout. Bare `--write` writes `$SONIC_HOME/slack-manifest.json`. |
+| `--name NAME` | `Sonic` | Bot display name in Slack. |
 | `--description DESC` | default blurb | Bot description shown in the Slack app directory. |
 | `--slashes-only` | off | Emit only `features.slash_commands` for merging into a manually-maintained manifest. |
 
-Run `lightning slack manifest --write` again after `lightning update` to pick
+Run `sonic slack manifest --write` again after `sonic update` to pick
 up any new commands.
 
 
-## `lightning login` / `lightning logout` *(Deprecated)*
+## `sonic login` / `sonic logout` *(Deprecated)*
 
 :::caution
-`lightning login` has been removed. Use `lightning auth` to manage OAuth credentials, `lightning model` to select a provider, or `lightning setup` for full interactive setup.
+`sonic login` has been removed. Use `sonic auth` to manage OAuth credentials, `sonic model` to select a provider, or `sonic setup` for full interactive setup.
 :::
 
-## `lightning auth`
+## `sonic auth`
 
 Manage credential pools for same-provider key rotation. See [Credential Pools](/docs/user-guide/features/credential-pools) for full documentation.
 
 ```bash
-lightning auth                                              # Interactive wizard
-lightning auth list                                         # Show all pools
-lightning auth list openrouter                              # Show specific provider
-lightning auth add openrouter --api-key sk-or-v1-xxx        # Add API key
-lightning auth add anthropic --type oauth                   # Add OAuth credential
-lightning auth remove openrouter 2                          # Remove by index
-lightning auth reset openrouter                             # Clear cooldowns
-lightning auth status anthropic                             # Show auth status for a provider
-lightning auth logout anthropic                             # Log out and clear stored auth state
-lightning auth spotify                                      # Authenticate Lightning with Spotify via PKCE
+sonic auth                                              # Interactive wizard
+sonic auth list                                         # Show all pools
+sonic auth list openrouter                              # Show specific provider
+sonic auth add openrouter --api-key sk-or-v1-xxx        # Add API key
+sonic auth add anthropic --type oauth                   # Add OAuth credential
+sonic auth remove openrouter 2                          # Remove by index
+sonic auth reset openrouter                             # Clear cooldowns
+sonic auth status anthropic                             # Show auth status for a provider
+sonic auth logout anthropic                             # Log out and clear stored auth state
+sonic auth spotify                                      # Authenticate Sonic with Spotify via PKCE
 ```
 
 Subcommands: `add`, `list`, `remove`, `reset`, `status`, `logout`, `spotify`. When called with no subcommand, launches the interactive management wizard.
 
-## `lightning status`
+## `sonic status`
 
 ```bash
-lightning status [--all] [--deep]
+sonic status [--all] [--deep]
 ```
 
 | Option | Description |
@@ -372,10 +372,10 @@ lightning status [--all] [--deep]
 | `--all` | Show all details in a shareable redacted format. |
 | `--deep` | Run deeper checks that may take longer. |
 
-## `lightning cron`
+## `sonic cron`
 
 ```bash
-lightning cron <list|create|edit|pause|resume|run|remove|status|tick>
+sonic cron <list|create|edit|pause|resume|run|remove|status|tick>
 ```
 
 | Subcommand | Description |
@@ -390,28 +390,28 @@ lightning cron <list|create|edit|pause|resume|run|remove|status|tick>
 | `status` | Check whether the cron scheduler is running. |
 | `tick` | Run due jobs once and exit. |
 
-## `lightning kanban`
+## `sonic kanban`
 
 ```bash
-lightning kanban [--board <slug>] <action> [options]
+sonic kanban [--board <slug>] <action> [options]
 ```
 
-Multi-profile, multi-project collaboration board. Each install can host many boards (one per project, repo, or domain); each board is a standalone queue with its own SQLite DB and dispatcher scope. New installs start with one board called `default`, whose DB is `~/.lightning/kanban.db` for back-compat; additional boards live at `~/.lightning/kanban/boards/<slug>/kanban.db`. The gateway-embedded dispatcher sweeps every board per tick.
+Multi-profile, multi-project collaboration board. Each install can host many boards (one per project, repo, or domain); each board is a standalone queue with its own SQLite DB and dispatcher scope. New installs start with one board called `default`, whose DB is `~/.sonic/kanban.db` for back-compat; additional boards live at `~/.sonic/kanban/boards/<slug>/kanban.db`. The gateway-embedded dispatcher sweeps every board per tick.
 
 **Global flags (apply to every action below):**
 
 | Flag | Purpose |
 |------|---------|
-| `--board <slug>` | Operate on a specific board. Defaults to the current board (set via `lightning kanban boards switch`, the `LIGHTNING_KANBAN_BOARD` env var, or `default`). |
+| `--board <slug>` | Operate on a specific board. Defaults to the current board (set via `sonic kanban boards switch`, the `SONIC_KANBAN_BOARD` env var, or `default`). |
 
-**This is the human / scripting surface.** Agent workers spawned by the dispatcher drive the board through a dedicated `kanban_*` [toolset](/docs/user-guide/features/kanban#how-workers-interact-with-the-board) (`kanban_show`, `kanban_complete`, `kanban_block`, `kanban_create`, `kanban_link`, `kanban_comment`, `kanban_heartbeat`; orchestrator profiles also get `kanban_list` and `kanban_unblock`) instead of shelling to `lightning kanban`. Workers have `LIGHTNING_KANBAN_BOARD` pinned in their env so they physically cannot see other boards.
+**This is the human / scripting surface.** Agent workers spawned by the dispatcher drive the board through a dedicated `kanban_*` [toolset](/docs/user-guide/features/kanban#how-workers-interact-with-the-board) (`kanban_show`, `kanban_complete`, `kanban_block`, `kanban_create`, `kanban_link`, `kanban_comment`, `kanban_heartbeat`; orchestrator profiles also get `kanban_list` and `kanban_unblock`) instead of shelling to `sonic kanban`. Workers have `SONIC_KANBAN_BOARD` pinned in their env so they physically cannot see other boards.
 
 | Action | Purpose |
 |--------|---------|
 | `init` | Create `kanban.db` if missing. Idempotent. |
 | `boards list` / `boards ls` | List all boards with task counts. `--json`, `--all` (include archived). |
 | `boards create <slug>` | Create a new board. Flags: `--name`, `--description`, `--icon`, `--color`, `--switch` (make active). Slug is kebab-case, auto-downcased. |
-| `boards switch <slug>` / `boards use` | Persist `<slug>` as the active board (writes `~/.lightning/kanban/current`). |
+| `boards switch <slug>` / `boards use` | Persist `<slug>` as the active board (writes `~/.sonic/kanban/current`). |
 | `boards show` / `boards current` | Print the currently-active board's name, DB path, and task counts. |
 | `boards rename <slug> "<name>"` | Change a board's display name. Slug is immutable. |
 | `boards rm <slug>` | Archive (default) or hard-delete a board. `--delete` skips the archive step. Archived boards move to `boards/_archived/<slug>-<ts>/`. Refused for `default`. |
@@ -439,28 +439,28 @@ Examples:
 
 ```bash
 # Create a second board and put a task on it without switching away.
-lightning kanban boards create atm10-server --name "ATM10 Server" --icon 🎮
-lightning kanban --board atm10-server create "Restart server" --assignee ops
+sonic kanban boards create atm10-server --name "ATM10 Server" --icon 🎮
+sonic kanban --board atm10-server create "Restart server" --assignee ops
 
 # Switch the active board for subsequent calls.
-lightning kanban boards switch atm10-server
-lightning kanban list                  # shows atm10-server tasks
+sonic kanban boards switch atm10-server
+sonic kanban list                  # shows atm10-server tasks
 
 # Archive a board (recoverable) or hard-delete it.
-lightning kanban boards rm atm10-server
-lightning kanban boards rm atm10-server --delete
+sonic kanban boards rm atm10-server
+sonic kanban boards rm atm10-server --delete
 ```
 
-Board resolution order (highest precedence first): `--board <slug>` flag → `LIGHTNING_KANBAN_BOARD` env var → `~/.lightning/kanban/current` file → `default`.
+Board resolution order (highest precedence first): `--board <slug>` flag → `SONIC_KANBAN_BOARD` env var → `~/.sonic/kanban/current` file → `default`.
 
 All actions are also available as a slash command in the gateway (`/kanban …`), with the same argument surface — including `boards` subcommands and the `--board` flag.
 
-For the full design — comparison with Cline Kanban / Paperclip / NanoClaw / Gemini Enterprise, eight collaboration patterns, four user stories, concurrency correctness proof — see `docs/lightning-kanban-v1-spec.pdf` in the repository or the [Kanban user guide](/docs/user-guide/features/kanban).
+For the full design — comparison with Cline Kanban / Paperclip / NanoClaw / Gemini Enterprise, eight collaboration patterns, four user stories, concurrency correctness proof — see `docs/sonic-kanban-v1-spec.pdf` in the repository or the [Kanban user guide](/docs/user-guide/features/kanban).
 
-## `lightning webhook`
+## `sonic webhook`
 
 ```bash
-lightning webhook <subscribe|list|remove|test>
+sonic webhook <subscribe|list|remove|test>
 ```
 
 Manage dynamic webhook subscriptions for event-driven agent activation. Requires the webhook platform to be enabled in config — if not configured, prints setup instructions.
@@ -472,10 +472,10 @@ Manage dynamic webhook subscriptions for event-driven agent activation. Requires
 | `remove` / `rm` | Delete a dynamic subscription. Static routes from config.yaml are not affected. |
 | `test` | Send a test POST to verify a subscription is working. |
 
-### `lightning webhook subscribe`
+### `sonic webhook subscribe`
 
 ```bash
-lightning webhook subscribe <name> [options]
+sonic webhook subscribe <name> [options]
 ```
 
 | Option | Description |
@@ -489,25 +489,25 @@ lightning webhook subscribe <name> [options]
 | `--secret` | Custom HMAC secret. Auto-generated if omitted. |
 | `--deliver-only` | Skip the agent — deliver the rendered `--prompt` as the literal message. Zero LLM cost, sub-second delivery. Requires `--deliver` to be a real target (not `log`). |
 
-Subscriptions persist to `~/.lightning/webhook_subscriptions.json` and are hot-reloaded by the webhook adapter without a gateway restart.
+Subscriptions persist to `~/.sonic/webhook_subscriptions.json` and are hot-reloaded by the webhook adapter without a gateway restart.
 
-## `lightning doctor`
+## `sonic doctor`
 
 ```bash
-lightning doctor [--fix]
+sonic doctor [--fix]
 ```
 
 | Option | Description |
 |--------|-------------|
 | `--fix` | Attempt automatic repairs where possible. |
 
-## `lightning dump`
+## `sonic dump`
 
 ```bash
-lightning dump [--show-keys]
+sonic dump [--show-keys]
 ```
 
-Outputs a compact, plain-text summary of your entire Lightning setup. Designed to be copy-pasted into Discord, GitHub issues, or Telegram when asking for support — no ANSI colors, no special formatting, just data.
+Outputs a compact, plain-text summary of your entire Sonic setup. Designed to be copy-pasted into Discord, GitHub issues, or Telegram when asking for support — no ANSI colors, no special formatting, just data.
 
 | Option | Description |
 |--------|-------------|
@@ -517,9 +517,9 @@ Outputs a compact, plain-text summary of your entire Lightning setup. Designed t
 
 | Section | Details |
 |---------|---------|
-| **Header** | Lightning version, release date, git commit hash |
+| **Header** | Sonic version, release date, git commit hash |
 | **Environment** | OS, Python version, OpenAI SDK version |
-| **Identity** | Active profile name, LIGHTNING_HOME path |
+| **Identity** | Active profile name, SONIC_HOME path |
 | **Model** | Configured default model and provider |
 | **Terminal** | Backend type (local, docker, ssh, etc.) |
 | **API keys** | Presence check for all 22 provider/tool API keys |
@@ -531,13 +531,13 @@ Outputs a compact, plain-text summary of your entire Lightning setup. Designed t
 ### Example output
 
 ```
---- lightning dump ---
+--- sonic dump ---
 version:          0.8.0 (2026.4.8) [af4abd2f]
 os:               Linux 6.14.0-37-generic x86_64
 python:           3.11.14
 openai_sdk:       2.24.0
 profile:          default
-lightning_home:      ~/.lightning
+sonic_home:      ~/.sonic
 model:            anthropic/claude-opus-4.6
 provider:         openrouter
 terminal:         local
@@ -574,13 +574,13 @@ config_overrides:
 - Quick sanity check when something isn't working
 
 :::tip
-`lightning dump` is specifically designed for sharing. For interactive diagnostics, use `lightning doctor`. For a visual overview, use `lightning status`.
+`sonic dump` is specifically designed for sharing. For interactive diagnostics, use `sonic doctor`. For a visual overview, use `sonic status`.
 :::
 
-## `lightning debug`
+## `sonic debug`
 
 ```bash
-lightning debug share [options]
+sonic debug share [options]
 ```
 
 Upload a debug report (system info + recent logs) to a paste service and get a shareable URL. Useful for quick support requests — includes everything a helper needs to diagnose your issue.
@@ -591,61 +591,61 @@ Upload a debug report (system info + recent logs) to a paste service and get a s
 | `--expire <days>` | Paste expiry in days (default: 7). |
 | `--local` | Print the report locally instead of uploading. |
 
-The report includes system info (OS, Python version, Lightning version), recent agent and gateway logs (512 KB limit per file), and redacted API key status. Keys are always redacted — no secrets are uploaded.
+The report includes system info (OS, Python version, Sonic version), recent agent and gateway logs (512 KB limit per file), and redacted API key status. Keys are always redacted — no secrets are uploaded.
 
 Paste services tried in order: paste.rs, dpaste.com.
 
 ### Examples
 
 ```bash
-lightning debug share              # Upload debug report, print URL
-lightning debug share --lines 500  # Include more log lines
-lightning debug share --expire 30  # Keep paste for 30 days
-lightning debug share --local      # Print report to terminal (no upload)
+sonic debug share              # Upload debug report, print URL
+sonic debug share --lines 500  # Include more log lines
+sonic debug share --expire 30  # Keep paste for 30 days
+sonic debug share --local      # Print report to terminal (no upload)
 ```
 
-## `lightning backup`
+## `sonic backup`
 
 ```bash
-lightning backup [options]
+sonic backup [options]
 ```
 
-Create a zip archive of your Lightning configuration, skills, sessions, and data. The backup excludes the lightning-agent codebase itself.
+Create a zip archive of your Sonic configuration, skills, sessions, and data. The backup excludes the sonic-agent codebase itself.
 
 | Option | Description |
 |--------|-------------|
-| `-o`, `--output <path>` | Output path for the zip file (default: `~/lightning-backup-<timestamp>.zip`). |
+| `-o`, `--output <path>` | Output path for the zip file (default: `~/sonic-backup-<timestamp>.zip`). |
 | `-q`, `--quick` | Quick snapshot: only critical state files (config.yaml, state.db, .env, auth, cron jobs). Much faster than a full backup. |
 | `-l`, `--label <name>` | Label for the snapshot (only used with `--quick`). |
 
-The backup uses SQLite's `backup()` API for safe copying, so it works correctly even when Lightning is running (WAL-mode safe).
+The backup uses SQLite's `backup()` API for safe copying, so it works correctly even when Sonic is running (WAL-mode safe).
 
 **What's excluded from the zip:**
 
 - `*.db-wal`, `*.db-shm`, `*.db-journal` — SQLite's WAL / shared-memory / journal sidecars. The `*.db` file already got a consistent snapshot via `sqlite3.backup()`; shipping the live sidecars alongside it would let a restore see a half-committed state.
 - `checkpoints/` — per-session trajectory caches. Hash-keyed and regenerated per session; wouldn't port cleanly to another install anyway.
-- The `lightning-agent` code itself (this is a user-data backup, not a repo snapshot).
+- The `sonic-agent` code itself (this is a user-data backup, not a repo snapshot).
 
 ### Examples
 
 ```bash
-lightning backup                           # Full backup to ~/lightning-backup-*.zip
-lightning backup -o /tmp/lightning.zip        # Full backup to specific path
-lightning backup --quick                   # Quick state-only snapshot
-lightning backup --quick --label "pre-upgrade"  # Quick snapshot with label
+sonic backup                           # Full backup to ~/sonic-backup-*.zip
+sonic backup -o /tmp/sonic.zip        # Full backup to specific path
+sonic backup --quick                   # Quick state-only snapshot
+sonic backup --quick --label "pre-upgrade"  # Quick snapshot with label
 ```
 
-## `lightning checkpoints`
+## `sonic checkpoints`
 
 ```bash
-lightning checkpoints [COMMAND]
+sonic checkpoints [COMMAND]
 ```
 
-Inspect and manage the shadow git store at `~/.lightning/checkpoints/` — the storage layer behind the in-session `/rollback` command. Safe to run any time; does not require the agent to be running.
+Inspect and manage the shadow git store at `~/.sonic/checkpoints/` — the storage layer behind the in-session `/rollback` command. Safe to run any time; does not require the agent to be running.
 
 | Subcommand | Description |
 |------------|-------------|
-| `status` (default) | Show total size, project count, and per-project breakdown. Bare `lightning checkpoints` is equivalent. |
+| `status` (default) | Show total size, project count, and per-project breakdown. Bare `sonic checkpoints` is equivalent. |
 | `list` | Alias for `status`. |
 | `prune` | Force a cleanup sweep — delete orphan and stale projects, GC the store, enforce the size cap. Ignores the 24h idempotency marker. |
 | `clear` | Delete the entire checkpoint base. Irreversible; asks for confirmation unless `-f`. |
@@ -664,22 +664,22 @@ Inspect and manage the shadow git store at `~/.lightning/checkpoints/` — the s
 ### Examples
 
 ```bash
-lightning checkpoints                                  # status overview
-lightning checkpoints prune --retention-days 3         # aggressive cleanup
-lightning checkpoints prune --max-size-mb 200          # tighten size cap once
-lightning checkpoints clear-legacy -f                  # drop v1 archive dirs
-lightning checkpoints clear -f                         # wipe everything
+sonic checkpoints                                  # status overview
+sonic checkpoints prune --retention-days 3         # aggressive cleanup
+sonic checkpoints prune --max-size-mb 200          # tighten size cap once
+sonic checkpoints clear-legacy -f                  # drop v1 archive dirs
+sonic checkpoints clear -f                         # wipe everything
 ```
 
 See [Checkpoints and `/rollback`](../user-guide/checkpoints-and-rollback.md) for the full architecture and the in-session commands.
 
-## `lightning import`
+## `sonic import`
 
 ```bash
-lightning import <zipfile> [options]
+sonic import <zipfile> [options]
 ```
 
-Restore a previously created Lightning backup into your Lightning home directory. All files in the archive overwrite existing files in your Lightning home; `--force` only skips the confirmation prompt that fires when the target already has a Lightning installation.
+Restore a previously created Sonic backup into your Sonic home directory. All files in the archive overwrite existing files in your Sonic home; `--force` only skips the confirmation prompt that fires when the target already has a Sonic installation.
 
 | Option | Description |
 |--------|-------------|
@@ -691,17 +691,17 @@ Stop the gateway before importing to avoid conflicts with running processes.
 
 ### Examples
 ```bash
-lightning import ~/lightning-backup-20260423.zip           # Prompts before overwriting existing config
-lightning import ~/lightning-backup-20260423.zip --force   # Overwrite without prompting
+sonic import ~/sonic-backup-20260423.zip           # Prompts before overwriting existing config
+sonic import ~/sonic-backup-20260423.zip --force   # Overwrite without prompting
 ```
 
-## `lightning logs`
+## `sonic logs`
 
 ```bash
-lightning logs [log_name] [options]
+sonic logs [log_name] [options]
 ```
 
-View, tail, and filter Lightning log files. All logs are stored in `~/.lightning/logs/` (or `<profile>/logs/` for non-default profiles).
+View, tail, and filter Sonic log files. All logs are stored in `~/.sonic/logs/` (or `<profile>/logs/` for non-default profiles).
 
 ### Log files
 
@@ -727,25 +727,25 @@ View, tail, and filter Lightning log files. All logs are stored in `~/.lightning
 
 ```bash
 # View the last 50 lines of agent.log (default)
-lightning logs
+sonic logs
 
 # Follow agent.log in real time
-lightning logs -f
+sonic logs -f
 
 # View the last 100 lines of gateway.log
-lightning logs gateway -n 100
+sonic logs gateway -n 100
 
 # Show only warnings and errors from the last hour
-lightning logs --level WARNING --since 1h
+sonic logs --level WARNING --since 1h
 
 # Filter by a specific session
-lightning logs --session abc123
+sonic logs --session abc123
 
 # Follow errors.log, starting from 30 minutes ago
-lightning logs errors --since 30m -f
+sonic logs errors --since 30m -f
 
 # List all log files with their sizes
-lightning logs list
+sonic logs list
 ```
 
 ### Filtering
@@ -754,19 +754,19 @@ Filters can be combined. When multiple filters are active, a log line must pass 
 
 ```bash
 # WARNING+ lines from the last 2 hours containing session "tg-12345"
-lightning logs --level WARNING --since 2h --session tg-12345
+sonic logs --level WARNING --since 2h --session tg-12345
 ```
 
 Lines without a parseable timestamp are included when `--since` is active (they may be continuation lines from a multi-line log entry). Lines without a detectable level are included when `--level` is active.
 
 ### Log rotation
 
-Lightning uses Python's `RotatingFileHandler`. Old logs are rotated automatically — look for `agent.log.1`, `agent.log.2`, etc. The `lightning logs list` subcommand shows all log files including rotated ones.
+Sonic uses Python's `RotatingFileHandler`. Old logs are rotated automatically — look for `agent.log.1`, `agent.log.2`, etc. The `sonic logs list` subcommand shows all log files including rotated ones.
 
-## `lightning config`
+## `sonic config`
 
 ```bash
-lightning config <subcommand>
+sonic config <subcommand>
 ```
 
 Subcommands:
@@ -781,10 +781,10 @@ Subcommands:
 | `check` | Check for missing or stale config. |
 | `migrate` | Add newly introduced options interactively. |
 
-## `lightning pairing`
+## `sonic pairing`
 
 ```bash
-lightning pairing <list|approve|revoke|clear-pending>
+sonic pairing <list|approve|revoke|clear-pending>
 ```
 
 | Subcommand | Description |
@@ -794,10 +794,10 @@ lightning pairing <list|approve|revoke|clear-pending>
 | `revoke <platform> <user-id>` | Revoke a user's access. |
 | `clear-pending` | Clear pending pairing codes. |
 
-## `lightning skills`
+## `sonic skills`
 
 ```bash
-lightning skills <subcommand>
+sonic skills <subcommand>
 ```
 
 Subcommands:
@@ -822,38 +822,38 @@ Subcommands:
 Common examples:
 
 ```bash
-lightning skills browse
-lightning skills browse --source official
-lightning skills search react --source skills-sh
-lightning skills search https://mintlify.com/docs --source well-known
-lightning skills inspect official/security/1password
-lightning skills inspect skills-sh/vercel-labs/json-render/json-render-react
-lightning skills install official/migration/openclaw-migration
-lightning skills install skills-sh/anthropics/skills/pdf --force
-lightning skills install https://sharethis.chat/SKILL.md                     # Direct URL (single-file SKILL.md)
-lightning skills install https://example.com/SKILL.md --name my-skill        # Override name when frontmatter has none
-lightning skills check
-lightning skills update
-lightning skills config
-lightning skills reset google-workspace
-lightning skills reset google-workspace --restore --yes
+sonic skills browse
+sonic skills browse --source official
+sonic skills search react --source skills-sh
+sonic skills search https://mintlify.com/docs --source well-known
+sonic skills inspect official/security/1password
+sonic skills inspect skills-sh/vercel-labs/json-render/json-render-react
+sonic skills install official/migration/openclaw-migration
+sonic skills install skills-sh/anthropics/skills/pdf --force
+sonic skills install https://sharethis.chat/SKILL.md                     # Direct URL (single-file SKILL.md)
+sonic skills install https://example.com/SKILL.md --name my-skill        # Override name when frontmatter has none
+sonic skills check
+sonic skills update
+sonic skills config
+sonic skills reset google-workspace
+sonic skills reset google-workspace --restore --yes
 ```
 
 Notes:
 - `--force` can override non-dangerous policy blocks for third-party/community skills.
 - `--force` does not override a `dangerous` scan verdict.
 - `--source skills-sh` searches the public `skills.sh` directory.
-- `--source well-known` lets you point Lightning at a site exposing `/.well-known/skills/index.json`.
+- `--source well-known` lets you point Sonic at a site exposing `/.well-known/skills/index.json`.
 - `--source browse-sh` searches [browse.sh](https://browse.sh)'s catalog of 200+ site-specific browser-automation skills. Identifiers look like `browse-sh/airbnb.com/search-listings-ddgioa`.
 - Passing an `http(s)://…/*.md` URL installs a single-file SKILL.md directly. When frontmatter has no `name:` and the URL slug isn't a valid identifier, an interactive terminal prompts for a name; non-interactive surfaces (`/skills install` inside the TUI, gateway platforms) require `--name <x>` instead.
 
-## `lightning bundles`
+## `sonic bundles`
 
 ```bash
-lightning bundles <subcommand>
+sonic bundles <subcommand>
 ```
 
-Skill bundles group several skills under one `/<bundle-name>` slash command. Invoking the bundle loads every referenced skill into a single combined user message. Storage: `~/.lightning/skill-bundles/<slug>.yaml`. See [Skill Bundles](../user-guide/features/skills.md#skill-bundles) for the YAML schema and behavior.
+Skill bundles group several skills under one `/<bundle-name>` slash command. Invoking the bundle loads every referenced skill into a single combined user message. Storage: `~/.sonic/skill-bundles/<slug>.yaml`. See [Skill Bundles](../user-guide/features/skills.md#skill-bundles) for the YAML schema and behavior.
 
 Subcommands:
 
@@ -863,28 +863,28 @@ Subcommands:
 | `show <name>` | Show one bundle's name, description, skills, and file path |
 | `create <name>` | Create a new bundle. Pass `--skill <id>` (repeat) or omit for interactive entry. `--description`, `--instruction`, `--force` available. |
 | `delete <name>` | Remove a bundle file |
-| `reload` | Re-scan `~/.lightning/skill-bundles/` and report added/removed bundles |
+| `reload` | Re-scan `~/.sonic/skill-bundles/` and report added/removed bundles |
 
 Examples:
 
 ```bash
-lightning bundles create backend-dev \
+sonic bundles create backend-dev \
   --skill github-code-review \
   --skill test-driven-development \
   --skill github-pr-workflow \
   -d "Backend feature work"
 
-lightning bundles list
-lightning bundles show backend-dev
-lightning bundles delete backend-dev
+sonic bundles list
+sonic bundles show backend-dev
+sonic bundles delete backend-dev
 ```
 
 In a chat session, `/bundles` lists installed bundles and `/<bundle-name>` loads one.
 
-## `lightning curator`
+## `sonic curator`
 
 ```bash
-lightning curator <subcommand>
+sonic curator <subcommand>
 ```
 
 The curator is an auxiliary-model background task that periodically reviews agent-created skills, prunes stale ones, consolidates overlaps, and archives obsolete skills. Bundled and hub-installed skills are never touched. Archives are recoverable; auto-deletion never happens.
@@ -895,8 +895,8 @@ The curator is an auxiliary-model background task that periodically reviews agen
 | `run` | Trigger a curator review now (blocks until the LLM pass finishes) |
 | `run --background` | Start the LLM pass in a background thread and return immediately |
 | `run --dry-run` | Preview only — produce the review report with no mutations |
-| `backup` | Take a manual tar.gz snapshot of `~/.lightning/skills/` (curator also snapshots automatically before every real run) |
-| `rollback` | Restore `~/.lightning/skills/` from a snapshot (defaults to newest) |
+| `backup` | Take a manual tar.gz snapshot of `~/.sonic/skills/` (curator also snapshots automatically before every real run) |
+| `rollback` | Restore `~/.sonic/skills/` from a snapshot (defaults to newest) |
 | `rollback --list` | List available snapshots |
 | `rollback --id <ts>` | Restore a specific snapshot by id |
 | `rollback -y` | Skip the confirmation prompt |
@@ -909,14 +909,14 @@ The curator is an auxiliary-model background task that periodically reviews agen
 | `prune` | Manually prune skills the curator would normally clean up |
 | `list-archived` | List archived skills (recoverable via `restore`) |
 
-On a fresh install the first scheduled pass is deferred by one full `interval_hours` (7 days by default) — the gateway will not curate immediately on the first tick after `lightning update`. Use `lightning curator run --dry-run` to preview before that happens.
+On a fresh install the first scheduled pass is deferred by one full `interval_hours` (7 days by default) — the gateway will not curate immediately on the first tick after `sonic update`. Use `sonic curator run --dry-run` to preview before that happens.
 
 See [Curator](../user-guide/features/curator.md) for behavior and config.
 
-## `lightning fallback`
+## `sonic fallback`
 
 ```bash
-lightning fallback <subcommand>
+sonic fallback <subcommand>
 ```
 
 Manage the fallback provider chain. Fallback providers are tried in order when the primary model fails with rate-limit, overload, or connection errors.
@@ -924,19 +924,19 @@ Manage the fallback provider chain. Fallback providers are tried in order when t
 | Subcommand | Description |
 |------------|-------------|
 | `list` (alias: `ls`) | Show the current fallback chain (default when no subcommand) |
-| `add` | Pick a provider + model (same picker as `lightning model`) and append to the chain |
+| `add` | Pick a provider + model (same picker as `sonic model`) and append to the chain |
 | `remove` (alias: `rm`) | Pick an entry to delete from the chain |
 | `clear` | Remove all fallback entries |
 
 See [Fallback Providers](../user-guide/features/fallback-providers.md).
 
-## `lightning hooks`
+## `sonic hooks`
 
 ```bash
-lightning hooks <subcommand>
+sonic hooks <subcommand>
 ```
 
-Inspect shell-script hooks declared in `~/.lightning/config.yaml`, test them against synthetic payloads, and manage the first-use consent allowlist at `~/.lightning/shell-hooks-allowlist.json`.
+Inspect shell-script hooks declared in `~/.sonic/config.yaml`, test them against synthetic payloads, and manage the first-use consent allowlist at `~/.sonic/shell-hooks-allowlist.json`.
 
 | Subcommand | Description |
 |------------|-------------|
@@ -947,10 +947,10 @@ Inspect shell-script hooks declared in `~/.lightning/config.yaml`, test them aga
 
 See [Hooks](../user-guide/features/hooks.md) for event signatures and payload shapes.
 
-## `lightning memory`
+## `sonic memory`
 
 ```bash
-lightning memory <subcommand>
+sonic memory <subcommand>
 ```
 
 Set up and manage external memory provider plugins. Available providers: honcho, openviking, mem0, hindsight, holographic, retaindb, byterover, supermemory. Only one external provider can be active at a time. Built-in memory (MEMORY.md/USER.md) is always active.
@@ -964,21 +964,21 @@ Subcommands:
 | `off` | Disable external provider (built-in only). |
 
 :::info Provider-specific subcommands
-When an external memory provider is active, it may register its own top-level `lightning <provider>` command for provider-specific management (e.g. `lightning honcho` when Honcho is active). Inactive providers do not expose their subcommands. Run `lightning --help` to see what's currently wired in.
+When an external memory provider is active, it may register its own top-level `sonic <provider>` command for provider-specific management (e.g. `sonic honcho` when Honcho is active). Inactive providers do not expose their subcommands. Run `sonic --help` to see what's currently wired in.
 :::
 
-## `lightning acp`
+## `sonic acp`
 
 ```bash
-lightning acp
+sonic acp
 ```
 
-Starts Lightning as an ACP (Agent Client Protocol) stdio server for editor integration.
+Starts Sonic as an ACP (Agent Client Protocol) stdio server for editor integration.
 
 Related entrypoints:
 
 ```bash
-lightning-acp
+sonic-acp
 python -m acp_adapter
 ```
 
@@ -990,17 +990,17 @@ pip install -e '.[acp]'
 
 See [ACP Editor Integration](../user-guide/features/acp.md) and [ACP Internals](../developer-guide/acp-internals.md).
 
-## `lightning mcp`
+## `sonic mcp`
 
 ```bash
-lightning mcp <subcommand>
+sonic mcp <subcommand>
 ```
 
-Manage MCP (Model Context Protocol) server configurations and run Lightning as an MCP server.
+Manage MCP (Model Context Protocol) server configurations and run Sonic as an MCP server.
 
 | Subcommand | Description |
 |------------|-------------|
-| `serve [-v\|--verbose]` | Run Lightning as an MCP server — expose conversations to other agents. |
+| `serve [-v\|--verbose]` | Run Sonic as an MCP server — expose conversations to other agents. |
 | `add <name> [--url URL] [--command CMD] [--args ...] [--auth oauth\|header]` | Add an MCP server with automatic tool discovery. |
 | `remove <name>` (alias: `rm`) | Remove an MCP server from config. |
 | `list` (alias: `ls`) | List configured MCP servers. |
@@ -1008,15 +1008,15 @@ Manage MCP (Model Context Protocol) server configurations and run Lightning as a
 | `configure <name>` (alias: `config`) | Toggle tool selection for a server. |
 | `login <name>` | Force re-authentication for an OAuth-based MCP server. |
 
-See [MCP Config Reference](./mcp-config-reference.md), [Use MCP with Lightning](../guides/use-mcp-with-lightning.md), and [MCP Server Mode](../user-guide/features/mcp.md#running-lightning-as-an-mcp-server).
+See [MCP Config Reference](./mcp-config-reference.md), [Use MCP with Sonic](../guides/use-mcp-with-sonic.md), and [MCP Server Mode](../user-guide/features/mcp.md#running-sonic-as-an-mcp-server).
 
-## `lightning plugins`
+## `sonic plugins`
 
 ```bash
-lightning plugins [subcommand]
+sonic plugins [subcommand]
 ```
 
-Unified plugin management — general plugins, memory providers, and context engines in one place. Running `lightning plugins` with no subcommand opens a composite interactive screen with two sections:
+Unified plugin management — general plugins, memory providers, and context engines in one place. Running `sonic plugins` with no subcommand opens a composite interactive screen with two sections:
 
 - **General Plugins** — multi-select checkboxes to enable/disable installed plugins
 - **Provider Plugins** — single-select configuration for Memory Provider and Context Engine. Press ENTER on a category to open a radio picker.
@@ -1037,12 +1037,12 @@ Provider plugin selections are saved to `config.yaml`:
 
 General plugin disabled list is stored in `config.yaml` under `plugins.disabled`.
 
-See [Plugins](../user-guide/features/plugins.md) and [Build a Lightning Plugin](../guides/build-a-lightning-plugin.md).
+See [Plugins](../user-guide/features/plugins.md) and [Build a Sonic Plugin](../guides/build-a-sonic-plugin.md).
 
-## `lightning tools`
+## `sonic tools`
 
 ```bash
-lightning tools [--summary]
+sonic tools [--summary]
 ```
 
 | Option | Description |
@@ -1051,10 +1051,10 @@ lightning tools [--summary]
 
 Without `--summary`, this launches the interactive per-platform tool configuration UI.
 
-## `lightning computer-use`
+## `sonic computer-use`
 
 ```bash
-lightning computer-use <subcommand>
+sonic computer-use <subcommand>
 ```
 
 Subcommands:
@@ -1065,22 +1065,22 @@ Subcommands:
 | `install --upgrade` | Re-run the installer even if cua-driver is already on PATH. The upstream script always pulls the latest release, so this performs an in-place upgrade. |
 | `status` | Print whether `cua-driver` is on `$PATH` and which version is installed. |
 
-`lightning computer-use install` is the stable entry point for installing the
+`sonic computer-use install` is the stable entry point for installing the
 [cua-driver](https://github.com/trycua/cua) binary used by the
 `computer_use` toolset. It runs the same upstream installer that
-`lightning tools` invokes when you first enable Computer Use, so it's safe
+`sonic tools` invokes when you first enable Computer Use, so it's safe
 to use for re-running the install if the toolset toggle didn't trigger
 it (for example, on returning-user setups).
 
-`lightning update` automatically re-runs the upstream installer at the end
+`sonic update` automatically re-runs the upstream installer at the end
 of the update if cua-driver is on PATH, so most users will not need to
 call `--upgrade` manually. Use it when upstream ships a fix you want
-right now without waiting for the next Lightning update.
+right now without waiting for the next Sonic update.
 
-## `lightning sessions`
+## `sonic sessions`
 
 ```bash
-lightning sessions <subcommand>
+sonic sessions <subcommand>
 ```
 
 Subcommands:
@@ -1095,10 +1095,10 @@ Subcommands:
 | `stats` | Show session-store statistics. |
 | `rename <session-id> <title>` | Set or change a session title. |
 
-## `lightning insights`
+## `sonic insights`
 
 ```bash
-lightning insights [--days N] [--source platform]
+sonic insights [--days N] [--source platform]
 ```
 
 | Option | Description |
@@ -1106,21 +1106,21 @@ lightning insights [--days N] [--source platform]
 | `--days <n>` | Analyze the last `n` days (default: 30). |
 | `--source <platform>` | Filter by source such as `cli`, `telegram`, or `discord`. |
 
-## `lightning claw`
+## `sonic claw`
 
 ```bash
-lightning claw migrate [options]
+sonic claw migrate [options]
 ```
 
-Migrate your OpenClaw setup to Lightning. Reads from `~/.openclaw` (or a custom path) and writes to `~/.lightning`. Automatically detects legacy directory names (`~/.clawdbot`, `~/.moltbot`) and config filenames (`clawdbot.json`, `moltbot.json`).
+Migrate your OpenClaw setup to Sonic. Reads from `~/.openclaw` (or a custom path) and writes to `~/.sonic`. Automatically detects legacy directory names (`~/.clawdbot`, `~/.moltbot`) and config filenames (`clawdbot.json`, `moltbot.json`).
 
 | Option | Description |
 |--------|-------------|
 | `--dry-run` | Preview what would be migrated without writing anything. |
 | `--preset <name>` | Migration preset: `full` (all compatible settings) or `user-data` (excludes infrastructure config). Neither preset imports secrets — pass `--migrate-secrets` explicitly. |
-| `--overwrite` | Overwrite existing Lightning files on conflicts (default: refuse to apply when the plan has conflicts). |
+| `--overwrite` | Overwrite existing Sonic files on conflicts (default: refuse to apply when the plan has conflicts). |
 | `--migrate-secrets` | Include API keys in migration. Required even under `--preset full`. |
-| `--no-backup` | Skip the pre-migration zip snapshot of `~/.lightning/` (by default a single restore-point archive is written to `~/.lightning/backups/pre-migration-*.zip` before apply; restorable with `lightning import`). |
+| `--no-backup` | Skip the pre-migration zip snapshot of `~/.sonic/` (by default a single restore-point archive is written to `~/.sonic/backups/pre-migration-*.zip` before apply; restorable with `sonic import`). |
 | `--source <path>` | Custom OpenClaw directory (default: `~/.openclaw`). |
 | `--workspace-target <path>` | Target directory for workspace instructions (AGENTS.md). |
 | `--skill-conflict <mode>` | Handle skill name collisions: `skip` (default), `overwrite`, or `rename`. |
@@ -1128,7 +1128,7 @@ Migrate your OpenClaw setup to Lightning. Reads from `~/.openclaw` (or a custom 
 
 ### What gets migrated
 
-The migration covers 30+ categories across persona, memory, skills, model providers, messaging platforms, agent behavior, session policies, MCP servers, TTS, and more. Items are either **directly imported** into Lightning equivalents or **archived** for manual review.
+The migration covers 30+ categories across persona, memory, skills, model providers, messaging platforms, agent behavior, session policies, MCP servers, TTS, and more. Items are either **directly imported** into Sonic equivalents or **archived** for manual review.
 
 **Directly imported:** SOUL.md, MEMORY.md, USER.md, AGENTS.md, skills (4 source directories), default model, custom providers, MCP servers, messaging platform tokens and allowlists (Telegram, Discord, Slack, WhatsApp, Signal, Matrix, Mattermost), agent defaults (reasoning effort, compression, human delay, timezone, sandbox), session reset policies, approval rules, TTS config, browser settings, tool settings, exec timeout, command allowlist, gateway config, and API keys from 3 sources.
 
@@ -1142,57 +1142,57 @@ For the complete config key mapping, SecretRef handling details, and post-migrat
 
 ```bash
 # Preview what would be migrated
-lightning claw migrate --dry-run
+sonic claw migrate --dry-run
 
 # Full migration (all compatible settings, no secrets)
-lightning claw migrate --preset full
+sonic claw migrate --preset full
 
 # Full migration including API keys
-lightning claw migrate --preset full --migrate-secrets
+sonic claw migrate --preset full --migrate-secrets
 
 # Migrate user data only (no secrets), overwrite conflicts
-lightning claw migrate --preset user-data --overwrite
+sonic claw migrate --preset user-data --overwrite
 
 # Migrate from a custom OpenClaw path
-lightning claw migrate --source /home/user/old-openclaw
+sonic claw migrate --source /home/user/old-openclaw
 ```
 
-## `lightning dashboard`
+## `sonic dashboard`
 
 ```bash
-lightning dashboard [options]
+sonic dashboard [options]
 ```
 
-Launch the web dashboard — a browser-based UI for managing configuration, API keys, and monitoring sessions. Requires `pip install lightning-agent[web]` (FastAPI + Uvicorn). The embedded browser Chat tab requires `--tui` plus the `pty` extra. See [Web Dashboard](/docs/user-guide/features/web-dashboard) for full documentation.
+Launch the web dashboard — a browser-based UI for managing configuration, API keys, and monitoring sessions. Requires `pip install sonic-agent[web]` (FastAPI + Uvicorn). The embedded browser Chat tab requires `--tui` plus the `pty` extra. See [Web Dashboard](/docs/user-guide/features/web-dashboard) for full documentation.
 
 | Option | Default | Description |
 |--------|---------|-------------|
 | `--port` | `9119` | Port to run the web server on |
 | `--host` | `127.0.0.1` | Bind address |
 | `--no-open` | — | Don't auto-open the browser |
-| `--tui` | off | Enable the in-browser Chat tab by running `lightning --tui` behind a PTY/WebSocket bridge. Requires `pip install 'lightning-agent[web,pty]'` and a POSIX PTY environment such as Linux, macOS, or WSL2. |
+| `--tui` | off | Enable the in-browser Chat tab by running `sonic --tui` behind a PTY/WebSocket bridge. Requires `pip install 'sonic-agent[web,pty]'` and a POSIX PTY environment such as Linux, macOS, or WSL2. |
 | `--insecure` | off | Allow binding to non-localhost hosts. Exposes dashboard credentials on the network; use only behind trusted network controls. |
-| `--stop` | — | Stop running `lightning dashboard` processes and exit. |
-| `--status` | — | List running `lightning dashboard` processes and exit. |
+| `--stop` | — | Stop running `sonic dashboard` processes and exit. |
+| `--status` | — | List running `sonic dashboard` processes and exit. |
 
 ```bash
 # Default — opens browser to http://127.0.0.1:9119
-lightning dashboard
+sonic dashboard
 
 # Custom port, no browser
-lightning dashboard --port 8080 --no-open
+sonic dashboard --port 8080 --no-open
 
 # Enable the browser Chat tab
-lightning dashboard --tui
+sonic dashboard --tui
 ```
 
-## `lightning profile`
+## `sonic profile`
 
 ```bash
-lightning profile <subcommand>
+sonic profile <subcommand>
 ```
 
-Manage profiles — multiple isolated Lightning instances, each with its own config, sessions, skills, and home directory.
+Manage profiles — multiple isolated Sonic instances, each with its own config, sessions, skills, and home directory.
 
 | Subcommand | Description |
 |------------|-------------|
@@ -1212,67 +1212,67 @@ Manage profiles — multiple isolated Lightning instances, each with its own con
 Examples:
 
 ```bash
-lightning profile list
-lightning profile create work --clone
-lightning profile use work
-lightning profile alias work --name h-work
-lightning profile export work -o work-backup.tar.gz
-lightning profile import work-backup.tar.gz --name restored
-lightning profile install github.com/user/my-distro --alias
-lightning profile update work
-lightning -p work chat -q "Hello from work profile"
+sonic profile list
+sonic profile create work --clone
+sonic profile use work
+sonic profile alias work --name h-work
+sonic profile export work -o work-backup.tar.gz
+sonic profile import work-backup.tar.gz --name restored
+sonic profile install github.com/user/my-distro --alias
+sonic profile update work
+sonic -p work chat -q "Hello from work profile"
 ```
 
-## `lightning completion`
+## `sonic completion`
 
 ```bash
-lightning completion [bash|zsh|fish]
+sonic completion [bash|zsh|fish]
 ```
 
-Print a shell completion script to stdout. Source the output in your shell profile for tab-completion of Lightning commands, subcommands, and profile names.
+Print a shell completion script to stdout. Source the output in your shell profile for tab-completion of Sonic commands, subcommands, and profile names.
 
 Examples:
 
 ```bash
 # Bash
-lightning completion bash >> ~/.bashrc
+sonic completion bash >> ~/.bashrc
 
 # Zsh
-lightning completion zsh >> ~/.zshrc
+sonic completion zsh >> ~/.zshrc
 
 # Fish
-lightning completion fish > ~/.config/fish/completions/lightning.fish
+sonic completion fish > ~/.config/fish/completions/sonic.fish
 ```
 
-## `lightning update`
+## `sonic update`
 
 ```bash
-lightning update [--check] [--backup] [--restart-gateway]
+sonic update [--check] [--backup] [--restart-gateway]
 ```
 
-Pulls the latest `lightning-agent` code and reinstalls dependencies in your venv, then re-runs the post-install hooks (MCP servers, skills sync, completion install). Safe to run on a live install.
+Pulls the latest `sonic-agent` code and reinstalls dependencies in your venv, then re-runs the post-install hooks (MCP servers, skills sync, completion install). Safe to run on a live install.
 
-**pip installs:** `lightning update` detects pip-based installations automatically — it queries PyPI for the latest release and runs `pip install --upgrade lightning-agent` instead of `git pull`. PyPI releases track tagged versions (major/minor releases), not every commit on `main`. Use `--check` to see if a newer PyPI release is available without installing.
+**pip installs:** `sonic update` detects pip-based installations automatically — it queries PyPI for the latest release and runs `pip install --upgrade sonic-agent` instead of `git pull`. PyPI releases track tagged versions (major/minor releases), not every commit on `main`. Use `--check` to see if a newer PyPI release is available without installing.
 
 | Option | Description |
 |--------|-------------|
 | `--check` | Print the current commit and the latest `origin/main` commit side by side, and exit 0 if in sync or 1 if behind. Does not pull, install, or restart anything. |
-| `--backup` | Create a labeled pre-update snapshot of `LIGHTNING_HOME` (config, auth, sessions, skills, pairing data) before pulling. Default is **off** — the previous always-backup behavior was adding minutes to every update on large homes. Flip it on permanently via `update.backup: true` in `config.yaml`. |
+| `--backup` | Create a labeled pre-update snapshot of `SONIC_HOME` (config, auth, sessions, skills, pairing data) before pulling. Default is **off** — the previous always-backup behavior was adding minutes to every update on large homes. Flip it on permanently via `update.backup: true` in `config.yaml`. |
 | `--restart-gateway` | After a successful update, restart the running gateway service. Implies `--all` semantics if multiple profiles are installed. |
 
 Additional behavior:
 
-- **Pairing data snapshot.** Even when `--backup` is off, `lightning update` takes a lightweight snapshot of `~/.lightning/pairing/` and the Feishu comment rules before `git pull`. You can roll it back with `lightning backup restore --state pre-update` if a pull rewrites a file you were editing.
-- **Legacy `lightning.service` warning.** If Lightning detects a pre-rename `lightning.service` systemd unit (instead of the current `lightning-gateway.service`), it prints a one-time migration hint so you can avoid flap-loop issues.
+- **Pairing data snapshot.** Even when `--backup` is off, `sonic update` takes a lightweight snapshot of `~/.sonic/pairing/` and the Feishu comment rules before `git pull`. You can roll it back with `sonic backup restore --state pre-update` if a pull rewrites a file you were editing.
+- **Legacy `sonic.service` warning.** If Sonic detects a pre-rename `sonic.service` systemd unit (instead of the current `sonic-gateway.service`), it prints a one-time migration hint so you can avoid flap-loop issues.
 - **Exit codes.** `0` on success, `1` on pull/install/post-install errors, `2` on unexpected working-tree changes that block `git pull`.
 
 ## Maintenance commands
 
 | Command | Description |
 |---------|-------------|
-| `lightning version` | Print version information. |
-| `lightning update` | Pull latest changes and reinstall dependencies. |
-| `lightning uninstall [--full] [--yes]` | Remove Lightning, optionally deleting all config/data. |
+| `sonic version` | Print version information. |
+| `sonic update` | Pull latest changes and reinstall dependencies. |
+| `sonic uninstall [--full] [--yes]` | Remove Sonic, optionally deleting all config/data. |
 
 ## See also
 

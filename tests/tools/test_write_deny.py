@@ -34,37 +34,37 @@ class TestWriteDenyExactPaths:
         path = os.path.join(str(Path.home()), ".netrc")
         assert _is_write_denied(path) is True
 
-    def test_lightning_env(self):
-        # ``.env`` under the active LIGHTNING_HOME (profile-aware, not just
-        # ``~/.lightning``) must be write-denied. The hermetic test conftest
-        # points LIGHTNING_HOME at a tempdir — resolve via get_lightning_home()
+    def test_sonic_env(self):
+        # ``.env`` under the active SONIC_HOME (profile-aware, not just
+        # ``~/.sonic``) must be write-denied. The hermetic test conftest
+        # points SONIC_HOME at a tempdir — resolve via get_sonic_home()
         # to match the denylist.
-        from lightning_constants import get_lightning_home
-        path = str(get_lightning_home() / ".env")
+        from sonic_constants import get_sonic_home
+        path = str(get_sonic_home() / ".env")
         assert _is_write_denied(path) is True
 
-    def test_lightning_root_env_when_running_under_profile(self, tmp_path, monkeypatch):
+    def test_sonic_root_env_when_running_under_profile(self, tmp_path, monkeypatch):
         """Top-level ``<root>/.env`` stays write-denied even when running under
         a profile (#15981).
 
         Before the fix, ``build_write_denied_paths`` only added
         ``<active_profile>/.env`` to the deny list, so the global
-        ``~/.lightning/.env`` (whose credentials are inherited by every profile)
+        ``~/.sonic/.env`` (whose credentials are inherited by every profile)
         could be silently overwritten by ``write_file`` while a profile was
         active.
         """
-        root = tmp_path / "lightning_root"
+        root = tmp_path / "sonic_root"
         profile_home = root / "profiles" / "coder"
         profile_home.mkdir(parents=True)
         global_env = root / ".env"
         global_env.write_text("OPENAI_API_KEY=sk-real\n")
 
-        monkeypatch.setenv("LIGHTNING_HOME", str(profile_home))
+        monkeypatch.setenv("SONIC_HOME", str(profile_home))
 
-        # Sanity check: LIGHTNING_HOME does point to the profile dir, not the root.
-        from lightning_constants import get_lightning_home, get_default_lightning_root
-        assert get_lightning_home() == profile_home
-        assert get_default_lightning_root() == root
+        # Sanity check: SONIC_HOME does point to the profile dir, not the root.
+        from sonic_constants import get_sonic_home, get_default_sonic_root
+        assert get_sonic_home() == profile_home
+        assert get_default_sonic_root() == root
 
         assert _is_write_denied(str(global_env)) is True
 
@@ -124,6 +124,6 @@ class TestWriteAllowed:
     def test_project_file(self):
         assert _is_write_denied("/home/user/project/main.py") is False
 
-    def test_lightning_config_not_env(self):
-        path = os.path.join(str(Path.home()), ".lightning", "config.yaml")
+    def test_sonic_config_not_env(self):
+        path = os.path.join(str(Path.home()), ".sonic", "config.yaml")
         assert _is_write_denied(path) is False

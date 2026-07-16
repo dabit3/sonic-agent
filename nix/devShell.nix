@@ -21,9 +21,9 @@
             combined = pkgs.lib.concatStringsSep "\n" (builtins.filter (h: h != "") hooks);
           in
           ''
-            echo "Lightning Agent dev shell"
+            echo "Sonic Agent dev shell"
             ${combined}
-            echo "Ready. Run 'lightning' to start."
+            echo "Ready. Run 'sonic' to start."
           '';
       };
     };

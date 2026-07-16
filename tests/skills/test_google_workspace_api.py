@@ -25,9 +25,9 @@ API_PATH = (
 
 @pytest.fixture
 def bridge_module(monkeypatch, tmp_path):
-    lightning_home = tmp_path / ".lightning"
-    lightning_home.mkdir()
-    monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+    sonic_home = tmp_path / ".sonic"
+    sonic_home.mkdir()
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
     spec = importlib.util.spec_from_file_location("gws_bridge_test", BRIDGE_PATH)
     module = importlib.util.module_from_spec(spec)
@@ -38,9 +38,9 @@ def bridge_module(monkeypatch, tmp_path):
 
 @pytest.fixture
 def api_module(monkeypatch, tmp_path):
-    lightning_home = tmp_path / ".lightning"
-    lightning_home.mkdir()
-    monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+    sonic_home = tmp_path / ".sonic"
+    sonic_home.mkdir()
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
     spec = importlib.util.spec_from_file_location("gws_api_test", API_PATH)
     module = importlib.util.module_from_spec(spec)

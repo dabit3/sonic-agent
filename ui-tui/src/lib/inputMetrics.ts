@@ -1,4 +1,4 @@
-import { stringWidth, wrapAnsi } from '@lightning/ink'
+import { stringWidth, wrapAnsi } from '@sonic/ink'
 
 import type { Role } from '../types.js'
 

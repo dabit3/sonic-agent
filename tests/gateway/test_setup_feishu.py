@@ -1,4 +1,4 @@
-"""Tests for _setup_feishu() in lightning_cli/gateway.py.
+"""Tests for _setup_feishu() in sonic_cli/gateway.py.
 
 Verifies that the interactive setup writes env vars that correctly drive the
 Feishu adapter: credentials, connection mode, DM policy, and group policy.
@@ -39,19 +39,19 @@ def _run_setup_feishu(
     def mock_get(name):
         return existing_env.get(name, "")
 
-    with patch("lightning_cli.gateway.save_env_value", side_effect=mock_save), \
-         patch("lightning_cli.gateway.get_env_value", side_effect=mock_get), \
-         patch("lightning_cli.gateway.prompt_yes_no", side_effect=prompt_yes_no_responses), \
-         patch("lightning_cli.gateway.prompt_choice", side_effect=prompt_choice_responses), \
-         patch("lightning_cli.gateway.prompt", side_effect=prompt_responses), \
-         patch("lightning_cli.gateway.print_info"), \
-         patch("lightning_cli.gateway.print_success"), \
-         patch("lightning_cli.gateway.print_warning"), \
-         patch("lightning_cli.gateway.print_error"), \
-         patch("lightning_cli.gateway.color", side_effect=lambda t, c: t), \
+    with patch("sonic_cli.gateway.save_env_value", side_effect=mock_save), \
+         patch("sonic_cli.gateway.get_env_value", side_effect=mock_get), \
+         patch("sonic_cli.gateway.prompt_yes_no", side_effect=prompt_yes_no_responses), \
+         patch("sonic_cli.gateway.prompt_choice", side_effect=prompt_choice_responses), \
+         patch("sonic_cli.gateway.prompt", side_effect=prompt_responses), \
+         patch("sonic_cli.gateway.print_info"), \
+         patch("sonic_cli.gateway.print_success"), \
+         patch("sonic_cli.gateway.print_warning"), \
+         patch("sonic_cli.gateway.print_error"), \
+         patch("sonic_cli.gateway.color", side_effect=lambda t, c: t), \
          patch("gateway.platforms.feishu.qr_register", return_value=qr_result):
 
-        from lightning_cli.gateway import _setup_feishu
+        from sonic_cli.gateway import _setup_feishu
         _setup_feishu()
 
     return saved_env

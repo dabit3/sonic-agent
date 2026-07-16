@@ -1,18 +1,18 @@
 ---
 sidebar_position: 16
 title: "xAI Grok OAuth (SuperGrok / X Premium+)"
-description: "Sign in with your SuperGrok or X Premium+ subscription to use Grok models in Lightning Agent — no API key required"
+description: "Sign in with your SuperGrok or X Premium+ subscription to use Grok models in Sonic Agent — no API key required"
 ---
 
 # xAI Grok OAuth (SuperGrok / X Premium+)
 
-Lightning Agent supports xAI Grok through a browser-based OAuth login flow against [accounts.x.ai](https://accounts.x.ai), using either a **SuperGrok subscription** ([grok.com](https://x.ai/grok)) or an **X Premium+ subscription** (linked X account). No `XAI_API_KEY` is required — log in once and Lightning automatically refreshes your session in the background.
+Sonic Agent supports xAI Grok through a browser-based OAuth login flow against [accounts.x.ai](https://accounts.x.ai), using either a **SuperGrok subscription** ([grok.com](https://x.ai/grok)) or an **X Premium+ subscription** (linked X account). No `XAI_API_KEY` is required — log in once and Sonic automatically refreshes your session in the background.
 
 When you sign in with an X account that has Premium+, xAI automatically links the subscription status to your xAI session, so the OAuth flow works the same as it does for direct SuperGrok subscribers.
 
 The transport reuses the `codex_responses` adapter (xAI exposes a Responses-style endpoint), so reasoning, tool-calling, streaming, and prompt caching work without any adapter changes.
 
-The same OAuth bearer token is also reused by every direct-to-xAI surface in Lightning — TTS, image generation, video generation, and transcription — so a single login covers all four.
+The same OAuth bearer token is also reused by every direct-to-xAI surface in Sonic — TTS, image generation, video generation, and transcription — so a single login covers all four.
 
 ## Overview
 
@@ -31,41 +31,41 @@ The same OAuth bearer token is also reused by every direct-to-xAI surface in Lig
 ## Prerequisites
 
 - Python 3.9+
-- Lightning Agent installed
+- Sonic Agent installed
 - An active **SuperGrok** subscription on your xAI account, **or** an **X Premium+** subscription on the X account you sign in with (xAI links the subscription automatically)
 - A browser available on the local machine (or use `--no-browser` for remote sessions)
 
 :::warning xAI may restrict OAuth API access by tier
-xAI's backend enforces its own allowlist on the OAuth API surface and has been seen to reject standard SuperGrok subscribers with `HTTP 403` (see issue [#26847](https://github.com/NousResearch/lightning-agent/issues/26847)) even though the in-app subscription is active. If OAuth login succeeds in the browser but inference returns 403, set `XAI_API_KEY` and switch to the API-key path (`provider: xai`) — that surface is not subject to the same gating today.
+xAI's backend enforces its own allowlist on the OAuth API surface and has been seen to reject standard SuperGrok subscribers with `HTTP 403` (see issue [#26847](https://github.com/dabit3/sonic-agent/issues/26847)) even though the in-app subscription is active. If OAuth login succeeds in the browser but inference returns 403, set `XAI_API_KEY` and switch to the API-key path (`provider: xai`) — that surface is not subject to the same gating today.
 :::
 
 ## Quick Start
 
 ```bash
 # Launch the provider and model picker
-lightning model
+sonic model
 # → Select "xAI Grok OAuth (SuperGrok / X Premium+)" from the provider list
-# → Lightning opens your browser to accounts.x.ai
+# → Sonic opens your browser to accounts.x.ai
 # → Approve access in the browser
 # → Pick a model (grok-4.3 is at the top)
 # → Start chatting
 
-lightning
+sonic
 ```
 
-After the first login, credentials are stored under `~/.lightning/auth.json` and refreshed automatically before they expire.
+After the first login, credentials are stored under `~/.sonic/auth.json` and refreshed automatically before they expire.
 
 ## Logging In Manually
 
 You can trigger a login without going through the model picker:
 
 ```bash
-lightning auth add xai-oauth
+sonic auth add xai-oauth
 ```
 
 ### Remote / headless sessions
 
-On servers, containers, or SSH sessions where no browser is available, Lightning detects the remote environment and prints the authorization URL instead of opening a browser.
+On servers, containers, or SSH sessions where no browser is available, Sonic detects the remote environment and prints the authorization URL instead of opening a browser.
 
 **Important:** the loopback listener still runs on the remote machine at `127.0.0.1:56121`. The xAI redirect needs to reach *that* listener, so opening the URL on your laptop will fail (`Could not establish connection. We couldn't reach your app.`) unless you forward the port:
 
@@ -74,7 +74,7 @@ On servers, containers, or SSH sessions where no browser is available, Lightning
 ssh -N -L 56121:127.0.0.1:56121 user@remote-host
 
 # Then in your SSH session on the remote machine:
-lightning auth add xai-oauth --no-browser
+sonic auth add xai-oauth --no-browser
 # Open the printed authorize URL in your local browser.
 ```
 
@@ -84,27 +84,27 @@ See [OAuth over SSH / Remote Hosts](./oauth-over-ssh.md) for the full step-by-st
 
 ### Browser-only remotes (Cloud Shell, Codespaces, EC2 Instance Connect)
 
-If you don't have a regular SSH client (e.g. you're running Lightning inside GCP Cloud Shell, GitHub Codespaces, AWS EC2 Instance Connect, Gitpod, or another browser-based console), the `ssh -L` recipe above isn't available. Use `--manual-paste` instead — Lightning skips the loopback listener and lets you paste the failed callback URL straight from your browser:
+If you don't have a regular SSH client (e.g. you're running Sonic inside GCP Cloud Shell, GitHub Codespaces, AWS EC2 Instance Connect, Gitpod, or another browser-based console), the `ssh -L` recipe above isn't available. Use `--manual-paste` instead — Sonic skips the loopback listener and lets you paste the failed callback URL straight from your browser:
 
 ```bash
-lightning auth add xai-oauth --manual-paste
+sonic auth add xai-oauth --manual-paste
 # Or via the model picker:
-lightning model --manual-paste
+sonic model --manual-paste
 ```
 
-See [OAuth over SSH / Remote Hosts](./oauth-over-ssh.md#browser-only-remote-cloud-shell--codespaces--ec2-instance-connect) for the full walkthrough. Regression fix for [#26923](https://github.com/NousResearch/lightning-agent/issues/26923).
+See [OAuth over SSH / Remote Hosts](./oauth-over-ssh.md#browser-only-remote-cloud-shell--codespaces--ec2-instance-connect) for the full walkthrough. Regression fix for [#26923](https://github.com/dabit3/sonic-agent/issues/26923).
 
 ## How the Login Works
 
-1. Lightning opens your browser to `accounts.x.ai`.
+1. Sonic opens your browser to `accounts.x.ai`.
 2. You sign in (or confirm your existing session) and approve access.
-3. xAI redirects back to Lightning and the tokens are saved to `~/.lightning/auth.json`.
-4. From then on, Lightning refreshes the access token in the background — you stay signed in until you `lightning auth remove xai-oauth` or revoke access from your xAI account settings.
+3. xAI redirects back to Sonic and the tokens are saved to `~/.sonic/auth.json`.
+4. From then on, Sonic refreshes the access token in the background — you stay signed in until you `sonic auth remove xai-oauth` or revoke access from your xAI account settings.
 
 ## Checking Login Status
 
 ```bash
-lightning doctor
+sonic doctor
 ```
 
 The `◆ Auth Providers` section will show the current state of every provider, including `xai-oauth`.
@@ -112,7 +112,7 @@ The `◆ Auth Providers` section will show the current state of every provider, 
 ## Switching Models
 
 ```bash
-lightning model
+sonic model
 # → Select "xAI Grok OAuth (SuperGrok / X Premium+)"
 # → Pick from the model list (grok-4.3 is pinned to the top)
 ```
@@ -120,13 +120,13 @@ lightning model
 Or set the model directly:
 
 ```bash
-lightning config set model.default grok-4.3
-lightning config set model.provider xai-oauth
+sonic config set model.default grok-4.3
+sonic config set model.provider xai-oauth
 ```
 
 ## Configuration Reference
 
-After login, `~/.lightning/config.yaml` will contain:
+After login, `~/.sonic/config.yaml` will contain:
 
 ```yaml
 model:
@@ -140,10 +140,10 @@ model:
 All of the following resolve to `xai-oauth`:
 
 ```bash
-lightning --provider xai-oauth        # canonical
-lightning --provider grok-oauth       # alias
-lightning --provider x-ai-oauth       # alias
-lightning --provider xai-grok-oauth   # alias
+sonic --provider xai-oauth        # canonical
+sonic --provider grok-oauth       # alias
+sonic --provider x-ai-oauth       # alias
+sonic --provider xai-grok-oauth   # alias
 ```
 
 ## Direct-to-xAI Tools (TTS / Image / Video / Transcription / X Search)
@@ -153,7 +153,7 @@ Once you're logged in via OAuth, every direct-to-xAI tool reuses the same bearer
 To pick a backend for each tool:
 
 ```bash
-lightning tools
+sonic tools
 # → Text-to-Speech       → "xAI TTS"
 # → Image Generation     → "xAI Grok Imagine (image)"
 # → Video Generation     → "xAI Grok Imagine"
@@ -163,11 +163,11 @@ lightning tools
 If OAuth tokens are already stored, the picker confirms it and skips the credential prompt. If neither OAuth nor `XAI_API_KEY` is set, the picker offers a 3-choice menu: OAuth login, paste API key, or skip.
 
 :::note Video generation is off by default
-The `video_gen` toolset is disabled by default. Enable it in `lightning tools` → `🎬 Video Generation` (press space) before the agent can call `video_generate`. Otherwise the agent may fall back to the bundled ComfyUI skill, which is also tagged for video generation.
+The `video_gen` toolset is disabled by default. Enable it in `sonic tools` → `🎬 Video Generation` (press space) before the agent can call `video_generate`. Otherwise the agent may fall back to the bundled ComfyUI skill, which is also tagged for video generation.
 :::
 
 :::note X search auto-enables when xAI credentials are present
-The `x_search` toolset auto-enables whenever xAI credentials (a SuperGrok / X Premium+ OAuth token or `XAI_API_KEY`) are configured. Disable explicitly via `lightning tools` → `🐦 X (Twitter) Search` (press space) if you don't want this. The tool routes through xAI's built-in `x_search` Responses API — it works with **either** your SuperGrok / X Premium+ OAuth login or a paid `XAI_API_KEY`, and prefers OAuth when both are configured (uses your subscription quota instead of API spend). The tool schema is hidden from the model when no xAI credentials are configured, regardless of whether the toolset is enabled.
+The `x_search` toolset auto-enables whenever xAI credentials (a SuperGrok / X Premium+ OAuth token or `XAI_API_KEY`) are configured. Disable explicitly via `sonic tools` → `🐦 X (Twitter) Search` (press space) if you don't want this. The tool routes through xAI's built-in `x_search` Responses API — it works with **either** your SuperGrok / X Premium+ OAuth login or a paid `XAI_API_KEY`, and prefers OAuth when both are configured (uses your subscription quota instead of API spend). The tool schema is hidden from the model when no xAI credentials are configured, regardless of whether the toolset is enabled.
 :::
 
 ### Models
@@ -190,40 +190,40 @@ The chat catalog is derived live from the on-disk `models.dev` cache; new xAI re
 | Variable | Effect |
 |----------|--------|
 | `XAI_BASE_URL` | Override the default `https://api.x.ai/v1` endpoint (rarely needed). |
-| `LIGHTNING_INFERENCE_PROVIDER` | Force the active provider at runtime, e.g. `LIGHTNING_INFERENCE_PROVIDER=xai-oauth lightning`. |
+| `SONIC_INFERENCE_PROVIDER` | Force the active provider at runtime, e.g. `SONIC_INFERENCE_PROVIDER=xai-oauth sonic`. |
 
 ## Troubleshooting
 
 ### Token expired — not re-logging in automatically
 
-Lightning refreshes the token before each session and again reactively on a 401. If refresh fails with `invalid_grant` (the refresh token was revoked, or the account was rotated), Lightning surfaces a typed re-auth message instead of crashing.
+Sonic refreshes the token before each session and again reactively on a 401. If refresh fails with `invalid_grant` (the refresh token was revoked, or the account was rotated), Sonic surfaces a typed re-auth message instead of crashing.
 
-When the refresh failure is terminal (HTTP 4xx, `invalid_grant`, revoked grant, etc.), Lightning marks the refresh token as dead and quarantines it locally — subsequent calls skip the doomed refresh attempt instead of replaying the same 401 over and over. The agent surfaces a single "re-authentication required" message and stays out of the way until you log in again.
+When the refresh failure is terminal (HTTP 4xx, `invalid_grant`, revoked grant, etc.), Sonic marks the refresh token as dead and quarantines it locally — subsequent calls skip the doomed refresh attempt instead of replaying the same 401 over and over. The agent surfaces a single "re-authentication required" message and stays out of the way until you log in again.
 
-**Fix:** run `lightning auth add xai-oauth` again to start a fresh login. The quarantine clears on the next successful exchange.
+**Fix:** run `sonic auth add xai-oauth` again to start a fresh login. The quarantine clears on the next successful exchange.
 
 ### Authorization timed out
 
-The loopback listener has a finite expiry window (default 180 s). If you don't approve the login in time, Lightning raises a timeout error.
+The loopback listener has a finite expiry window (default 180 s). If you don't approve the login in time, Sonic raises a timeout error.
 
-**Fix:** re-run `lightning auth add xai-oauth` (or `lightning model`). The flow starts fresh.
+**Fix:** re-run `sonic auth add xai-oauth` (or `sonic model`). The flow starts fresh.
 
 ### State mismatch (possible CSRF)
 
-Lightning detected that the `state` value returned by the authorization server doesn't match what it sent.
+Sonic detected that the `state` value returned by the authorization server doesn't match what it sent.
 
 **Fix:** re-run the login. If it persists, check for a proxy or redirect that is modifying the OAuth response.
 
 ### Logging in from a remote server
 
-On SSH or container sessions Lightning prints the authorization URL instead of opening a browser. The loopback callback listener still binds `127.0.0.1:56121` on the remote host — your laptop's browser can't reach it without an SSH local-forward:
+On SSH or container sessions Sonic prints the authorization URL instead of opening a browser. The loopback callback listener still binds `127.0.0.1:56121` on the remote host — your laptop's browser can't reach it without an SSH local-forward:
 
 ```bash
 # Local machine, separate terminal:
 ssh -N -L 56121:127.0.0.1:56121 user@remote-host
 
 # Remote machine:
-lightning auth add xai-oauth --no-browser
+sonic auth add xai-oauth --no-browser
 ```
 
 Full walkthrough (jump boxes, mosh/tmux, port conflicts): [OAuth over SSH / Remote Hosts](./oauth-over-ssh.md).
@@ -232,13 +232,13 @@ Full walkthrough (jump boxes, mosh/tmux, port conflicts): [OAuth over SSH / Remo
 
 OAuth completed in the browser, tokens are saved, but inference or token refresh returns `HTTP 403` with a message similar to *"The caller does not have permission to execute the specified operation"*.
 
-This is **not** a stale-token problem — re-running `lightning model` won't change it. xAI's backend has been seen to restrict OAuth API access to specific SuperGrok tiers despite the in-app subscription being active (issue [#26847](https://github.com/NousResearch/lightning-agent/issues/26847)).
+This is **not** a stale-token problem — re-running `sonic model` won't change it. xAI's backend has been seen to restrict OAuth API access to specific SuperGrok tiers despite the in-app subscription being active (issue [#26847](https://github.com/dabit3/sonic-agent/issues/26847)).
 
 **Fix:** set `XAI_API_KEY` and switch to the API-key path:
 
 ```bash
 export XAI_API_KEY=xai-...
-lightning config set model.provider xai
+sonic config set model.provider xai
 ```
 
 Or upgrade your subscription at [x.ai/grok](https://x.ai/grok) if the OAuth route is required.
@@ -247,21 +247,21 @@ Or upgrade your subscription at [x.ai/grok](https://x.ai/grok) if the OAuth rout
 
 The auth store has no `xai-oauth` entry and no `XAI_API_KEY` is set. You haven't logged in yet, or the credential file was deleted.
 
-**Fix:** run `lightning model` and pick the xAI Grok OAuth provider, or run `lightning auth add xai-oauth`.
+**Fix:** run `sonic model` and pick the xAI Grok OAuth provider, or run `sonic auth add xai-oauth`.
 
 ## Logging Out
 
 To remove all stored xAI Grok OAuth credentials:
 
 ```bash
-lightning auth logout xai-oauth
+sonic auth logout xai-oauth
 ```
 
-This clears both the singleton OAuth entry in `auth.json` and any credential-pool rows for `xai-oauth`. Use `lightning auth remove xai-oauth <index|id|label>` if you only want to drop a single pool entry (run `lightning auth list xai-oauth` to see them).
+This clears both the singleton OAuth entry in `auth.json` and any credential-pool rows for `xai-oauth`. Use `sonic auth remove xai-oauth <index|id|label>` if you only want to drop a single pool entry (run `sonic auth list xai-oauth` to see them).
 
 ## See Also
 
-- [OAuth over SSH / Remote Hosts](./oauth-over-ssh.md) — required reading if Lightning is on a different machine than your browser
+- [OAuth over SSH / Remote Hosts](./oauth-over-ssh.md) — required reading if Sonic is on a different machine than your browser
 - [AI Providers reference](../integrations/providers.md)
 - [Environment Variables](../reference/environment-variables.md)
 - [Configuration](../user-guide/configuration.md)

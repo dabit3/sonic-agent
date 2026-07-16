@@ -4,30 +4,30 @@ sidebar_position: 2
 
 # Profiles: Running Multiple Agents
 
-Run multiple independent Lightning agents on the same machine — each with its own config, API keys, memory, sessions, skills, and gateway state.
+Run multiple independent Sonic agents on the same machine — each with its own config, API keys, memory, sessions, skills, and gateway state.
 
 ## What are profiles?
 
-A profile is a separate Lightning home directory. Each profile gets its own directory containing its own `config.yaml`, `.env`, `SOUL.md`, memories, sessions, skills, cron jobs, and state database. Profiles let you run separate agents for different purposes — a coding assistant, a personal bot, a research agent — without mixing up Lightning state.
+A profile is a separate Sonic home directory. Each profile gets its own directory containing its own `config.yaml`, `.env`, `SOUL.md`, memories, sessions, skills, cron jobs, and state database. Profiles let you run separate agents for different purposes — a coding assistant, a personal bot, a research agent — without mixing up Sonic state.
 
 When you create a profile, it automatically becomes its own command. Create a profile called `coder` and you immediately have `coder chat`, `coder setup`, `coder gateway start`, etc.
 
 ## Quick start
 
 ```bash
-lightning profile create coder       # creates profile + "coder" command alias
+sonic profile create coder       # creates profile + "coder" command alias
 coder setup                       # configure API keys and model
 coder chat                        # start chatting
 ```
 
-That's it. `coder` is now its own Lightning profile with its own config, memory, and state.
+That's it. `coder` is now its own Sonic profile with its own config, memory, and state.
 
 ## Creating a profile
 
 ### Blank profile
 
 ```bash
-lightning profile create mybot
+sonic profile create mybot
 ```
 
 Creates a fresh profile with bundled skills seeded. Run `mybot setup` to configure API keys, model, and gateway tokens.
@@ -35,23 +35,23 @@ Creates a fresh profile with bundled skills seeded. Run `mybot setup` to configu
 If you plan to use this profile as a kanban worker (or want the kanban orchestrator to route work to it), pass `--description "<role>"` at create time so the orchestrator knows what it's good at:
 
 ```bash
-lightning profile create researcher --description "Reads source code and external docs, writes findings."
+sonic profile create researcher --description "Reads source code and external docs, writes findings."
 ```
 
-You can also set or auto-generate the description later with `lightning profile describe` — see the [Kanban guide](./features/kanban#auto-vs-manual-orchestration) for the full routing model.
+You can also set or auto-generate the description later with `sonic profile describe` — see the [Kanban guide](./features/kanban#auto-vs-manual-orchestration) for the full routing model.
 
 ### Clone config only (`--clone`)
 
 ```bash
-lightning profile create work --clone
+sonic profile create work --clone
 ```
 
-Copies your current profile's `config.yaml`, `.env`, and `SOUL.md` into the new profile. Same API keys and model, but fresh sessions and memory. Edit `~/.lightning/profiles/work/.env` for different API keys, or `~/.lightning/profiles/work/SOUL.md` for a different personality.
+Copies your current profile's `config.yaml`, `.env`, and `SOUL.md` into the new profile. Same API keys and model, but fresh sessions and memory. Edit `~/.sonic/profiles/work/.env` for different API keys, or `~/.sonic/profiles/work/SOUL.md` for a different personality.
 
 ### Clone everything (`--clone-all`)
 
 ```bash
-lightning profile create backup --clone-all
+sonic profile create backup --clone-all
 ```
 
 Copies **everything** — config, API keys, personality, all memories, full session history, skills, cron jobs, plugins. A complete snapshot. Useful for backups or forking an agent that already has context.
@@ -59,7 +59,7 @@ Copies **everything** — config, API keys, personality, all memories, full sess
 ### Clone from a specific profile
 
 ```bash
-lightning profile create work --clone --clone-from coder
+sonic profile create work --clone --clone-from coder
 ```
 
 :::tip Honcho memory + profiles
@@ -81,28 +81,28 @@ coder skills list             # list coder's skills
 coder config set model.default anthropic/claude-sonnet-4
 ```
 
-The alias works with every lightning subcommand — it's just `lightning -p <name>` under the hood.
+The alias works with every sonic subcommand — it's just `sonic -p <name>` under the hood.
 
 ### The `-p` flag
 
 You can also target a profile explicitly with any command:
 
 ```bash
-lightning -p coder chat
-lightning --profile=coder doctor
-lightning chat -p coder -q "hello"    # works in any position
+sonic -p coder chat
+sonic --profile=coder doctor
+sonic chat -p coder -q "hello"    # works in any position
 ```
 
-### Sticky default (`lightning profile use`)
+### Sticky default (`sonic profile use`)
 
 ```bash
-lightning profile use coder
-lightning chat                   # now targets coder
-lightning tools                  # configures coder's tools
-lightning profile use default    # switch back
+sonic profile use coder
+sonic chat                   # now targets coder
+sonic tools                  # configures coder's tools
+sonic profile use default    # switch back
 ```
 
-Sets a default so plain `lightning` commands target that profile. Like `kubectl config use-context`.
+Sets a default so plain `sonic` commands target that profile. Like `kubectl config use-context`.
 
 ### Knowing where you are
 
@@ -110,13 +110,13 @@ The CLI always shows which profile is active:
 
 - **Prompt**: `coder ❯` instead of `❯`
 - **Banner**: Shows `Profile: coder` on startup
-- **`lightning profile`**: Shows current profile name, path, model, gateway status
+- **`sonic profile`**: Shows current profile name, path, model, gateway status
 
 ## Profiles vs workspaces vs sandboxing
 
 Profiles are often confused with workspaces or sandboxes, but they are different things:
 
-- A **profile** gives Lightning its own state directory: `config.yaml`, `.env`, `SOUL.md`, sessions, memory, logs, cron jobs, and gateway state.
+- A **profile** gives Sonic its own state directory: `config.yaml`, `.env`, `SOUL.md`, sessions, memory, logs, cron jobs, and gateway state.
 - A **workspace** or **working directory** is where terminal commands start. That is controlled separately by `terminal.cwd`.
 - A **sandbox** is what limits filesystem access. Profiles do **not** sandbox the agent.
 
@@ -130,7 +130,7 @@ terminal:
   cwd: /absolute/path/to/project
 ```
 
-Using `cwd: "."` on the local backend means "the directory Lightning was launched from", not "the profile directory".
+Using `cwd: "."` on the local backend means "the directory Sonic was launched from", not "the profile directory".
 
 Also note:
 
@@ -153,10 +153,10 @@ Each profile has its own `.env` file. Configure a different Telegram/Discord/Sla
 
 ```bash
 # Edit coder's tokens
-nano ~/.lightning/profiles/coder/.env
+nano ~/.sonic/profiles/coder/.env
 
 # Edit assistant's tokens
-nano ~/.lightning/profiles/assistant/.env
+nano ~/.sonic/profiles/assistant/.env
 ```
 
 ### Safety: token locks
@@ -166,8 +166,8 @@ If two profiles accidentally use the same bot token, the second gateway will be 
 ### Persistent services
 
 ```bash
-coder gateway install         # creates lightning-gateway-coder systemd/launchd service
-assistant gateway install     # creates lightning-gateway-assistant service
+coder gateway install         # creates sonic-gateway-coder systemd/launchd service
+assistant gateway install     # creates sonic-gateway-assistant service
 ```
 
 Each profile gets its own service name. They run independently.
@@ -182,7 +182,7 @@ Each profile has its own:
 
 ```bash
 coder config set model.default anthropic/claude-sonnet-4
-echo "You are a focused coding assistant." > ~/.lightning/profiles/coder/SOUL.md
+echo "You are a focused coding assistant." > ~/.sonic/profiles/coder/SOUL.md
 ```
 
 If you want this profile to work in a specific project by default, also set its own `terminal.cwd`:
@@ -193,10 +193,10 @@ coder config set terminal.cwd /absolute/path/to/project
 
 ## Updating
 
-`lightning update` pulls code once (shared) and syncs new bundled skills to **all** profiles automatically:
+`sonic update` pulls code once (shared) and syncs new bundled skills to **all** profiles automatically:
 
 ```bash
-lightning update
+sonic update
 # → Code updated (12 commits)
 # → Skills synced: default (up to date), coder (+2 new), assistant (+2 new)
 ```
@@ -206,46 +206,46 @@ User-modified skills are never overwritten.
 ## Managing profiles
 
 ```bash
-lightning profile list           # show all profiles with status
-lightning profile show coder     # detailed info for one profile
-lightning profile rename coder dev-bot   # rename (updates alias + service)
-lightning profile export coder   # export to coder.tar.gz
-lightning profile import coder.tar.gz   # import from archive
+sonic profile list           # show all profiles with status
+sonic profile show coder     # detailed info for one profile
+sonic profile rename coder dev-bot   # rename (updates alias + service)
+sonic profile export coder   # export to coder.tar.gz
+sonic profile import coder.tar.gz   # import from archive
 ```
 
 ## Deleting a profile
 
 ```bash
-lightning profile delete coder
+sonic profile delete coder
 ```
 
 This stops the gateway, removes the systemd/launchd service, removes the command alias, and deletes all profile data. You'll be asked to type the profile name to confirm.
 
-Use `--yes` to skip confirmation: `lightning profile delete coder --yes`
+Use `--yes` to skip confirmation: `sonic profile delete coder --yes`
 
 :::note
-You cannot delete the default profile (`~/.lightning`). To remove everything, use `lightning uninstall`.
+You cannot delete the default profile (`~/.sonic`). To remove everything, use `sonic uninstall`.
 :::
 
 ## Tab completion
 
 ```bash
 # Bash
-eval "$(lightning completion bash)"
+eval "$(sonic completion bash)"
 
 # Zsh
-eval "$(lightning completion zsh)"
+eval "$(sonic completion zsh)"
 ```
 
 Add the line to your `~/.bashrc` or `~/.zshrc` for persistent completion. Completes profile names after `-p`, profile subcommands, and top-level commands.
 
 ## How it works
 
-Profiles use the `LIGHTNING_HOME` environment variable. When you run `coder chat`, the wrapper script sets `LIGHTNING_HOME=~/.lightning/profiles/coder` before launching lightning. Since 119+ files in the codebase resolve paths via `get_lightning_home()`, Lightning state automatically scopes to the profile's directory — config, sessions, memory, skills, state database, gateway PID, logs, and cron jobs.
+Profiles use the `SONIC_HOME` environment variable. When you run `coder chat`, the wrapper script sets `SONIC_HOME=~/.sonic/profiles/coder` before launching sonic. Since 119+ files in the codebase resolve paths via `get_sonic_home()`, Sonic state automatically scopes to the profile's directory — config, sessions, memory, skills, state database, gateway PID, logs, and cron jobs.
 
-This is separate from terminal working directory. Tool execution starts from `terminal.cwd` (or the launch directory when `cwd: "."` on the local backend), not automatically from `LIGHTNING_HOME`.
+This is separate from terminal working directory. Tool execution starts from `terminal.cwd` (or the launch directory when `cwd: "."` on the local backend), not automatically from `SONIC_HOME`.
 
-The default profile is simply `~/.lightning` itself. No migration needed — existing installs work identically.
+The default profile is simply `~/.sonic` itself. No migration needed — existing installs work identically.
 
 ## Sharing profiles as distributions
 
@@ -253,10 +253,10 @@ A profile you built on one machine can be packaged as a **git repository** and i
 
 ```bash
 # Install a whole agent from a git repo
-lightning profile install github.com/you/research-bot --alias
+sonic profile install github.com/you/research-bot --alias
 
 # Update later when the author ships a new version (keeps your memories + .env)
-lightning profile update research-bot
+sonic profile update research-bot
 ```
 
 See **[Profile Distributions: Share a Whole Agent](./profile-distributions.md)** for the full guide — authoring, publishing, update semantics, security model, and use cases.

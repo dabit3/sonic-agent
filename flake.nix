@@ -1,5 +1,5 @@
 {
-  description = "Lightning Agent - AI agent framework by Nous Research";
+  description = "Sonic Agent - AI agent framework by Nous Research";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

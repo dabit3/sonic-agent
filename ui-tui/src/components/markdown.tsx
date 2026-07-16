@@ -1,4 +1,4 @@
-import { Box, Link, stringWidth, Text } from '@lightning/ink'
+import { Box, Link, stringWidth, Text } from '@sonic/ink'
 import { Fragment, memo, type ReactNode, useMemo } from 'react'
 
 import { ensureEmojiPresentation } from '../lib/emoji.js'

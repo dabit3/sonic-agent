@@ -86,7 +86,7 @@ export default [
     }
   },
   {
-    files: ['packages/lightning-ink/**/*.{ts,tsx}'],
+    files: ['packages/sonic-ink/**/*.{ts,tsx}'],
     rules: {
       '@typescript-eslint/consistent-type-imports': 'off',
       'no-constant-condition': 'off',

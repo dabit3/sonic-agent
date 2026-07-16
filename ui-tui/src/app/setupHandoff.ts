@@ -1,4 +1,4 @@
-import type { RunExternalProcess } from '@lightning/ink'
+import type { RunExternalProcess } from '@sonic/ink'
 
 import type { SetupStatusResponse } from '../gatewayTypes.js'
 import type { LaunchResult } from '../lib/externalCli.js'
@@ -17,7 +17,7 @@ export interface RunExternalSetupOptions {
 export async function runExternalSetup({ args, ctx, done, launcher, suspend }: RunExternalSetupOptions) {
   const { gateway, session, transcript } = ctx
 
-  transcript.sys(`launching \`lightning ${args.join(' ')}\`…`)
+  transcript.sys(`launching \`sonic ${args.join(' ')}\`…`)
   patchUiState({ status: 'setup running…' })
 
   let result: LaunchResult = { code: null }
@@ -27,14 +27,14 @@ export async function runExternalSetup({ args, ctx, done, launcher, suspend }: R
   })
 
   if (result.error) {
-    transcript.sys(`error launching lightning: ${result.error}`)
+    transcript.sys(`error launching sonic: ${result.error}`)
     patchUiState({ status: 'setup required' })
 
     return
   }
 
   if (result.code !== 0) {
-    transcript.sys(`lightning ${args[0]} exited with code ${result.code}`)
+    transcript.sys(`sonic ${args[0]} exited with code ${result.code}`)
     patchUiState({ status: 'setup required' })
 
     return

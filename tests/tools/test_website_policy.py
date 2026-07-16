@@ -88,7 +88,7 @@ def test_check_website_access_supports_wildcard_subdomains_only(tmp_path):
 
 
 def test_default_config_exposes_website_blocklist_shape():
-    from lightning_cli.config import DEFAULT_CONFIG
+    from sonic_cli.config import DEFAULT_CONFIG
 
     website_blocklist = DEFAULT_CONFIG["security"]["website_blocklist"]
     assert website_blocklist["enabled"] is False
@@ -241,10 +241,10 @@ def test_load_website_blocklist_wraps_shared_file_read_errors(tmp_path, monkeypa
     assert result["rules"] == []  # shared file rules skipped
 
 
-def test_check_website_access_uses_dynamic_lightning_home(monkeypatch, tmp_path):
-    lightning_home = tmp_path / "lightning-home"
-    lightning_home.mkdir()
-    (lightning_home / "config.yaml").write_text(
+def test_check_website_access_uses_dynamic_sonic_home(monkeypatch, tmp_path):
+    sonic_home = tmp_path / "sonic-home"
+    sonic_home.mkdir()
+    (sonic_home / "config.yaml").write_text(
         yaml.safe_dump(
             {
                 "security": {
@@ -259,11 +259,11 @@ def test_check_website_access_uses_dynamic_lightning_home(monkeypatch, tmp_path)
         encoding="utf-8",
     )
 
-    monkeypatch.setenv("LIGHTNING_HOME", str(lightning_home))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
-    # Invalidate the module-level cache so the new LIGHTNING_HOME is picked up.
+    # Invalidate the module-level cache so the new SONIC_HOME is picked up.
     # A prior test may have cached a default policy (enabled=False) under the
-    # old LIGHTNING_HOME set by the autouse _isolate_lightning_home fixture.
+    # old SONIC_HOME set by the autouse _isolate_sonic_home fixture.
     from tools.website_policy import invalidate_cache
     invalidate_cache()
 
@@ -545,8 +545,8 @@ def test_check_website_access_fails_open_on_malformed_config(tmp_path, monkeypat
     with pytest.raises(WebsitePolicyError):
         check_website_access("https://example.com", config_path=config_path)
 
-    # Simulate default path by pointing LIGHTNING_HOME to tmp_path
-    monkeypatch.setenv("LIGHTNING_HOME", str(tmp_path))
+    # Simulate default path by pointing SONIC_HOME to tmp_path
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     from tools import website_policy
     website_policy.invalidate_cache()
 

@@ -3,9 +3,9 @@
 
 Usage (via cron with --no-agent):
 
-    lightning cron create api-events \\
+    sonic cron create api-events \\
       --schedule "*/1 * * * *" --no-agent \\
-      --script "$LIGHTNING_HOME/skills/devops/watchers/scripts/watch_http_json.py" \\
+      --script "$SONIC_HOME/skills/devops/watchers/scripts/watch_http_json.py" \\
       --script-args "--name api --url https://api.example.com/events \\
                      --id-field event_id --items-path data.events"
 
@@ -76,7 +76,7 @@ def main() -> int:
                    help="HTTP timeout in seconds (default: 20)")
     args = p.parse_args()
 
-    req = urllib.request.Request(args.url, headers={"User-Agent": "Lightning-Watcher/1.0"})
+    req = urllib.request.Request(args.url, headers={"User-Agent": "Sonic-Watcher/1.0"})
     for k, v in args.header:
         req.add_header(k, v)
 

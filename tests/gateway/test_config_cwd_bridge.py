@@ -81,9 +81,9 @@ class TestTopLevelCwdAlias:
     """Top-level `cwd:` should be treated as `terminal.cwd`."""
 
     def test_top_level_cwd_sets_terminal_cwd(self):
-        cfg = {"cwd": "/home/lightning/projects"}
+        cfg = {"cwd": "/home/sonic/projects"}
         result = _simulate_config_bridge(cfg)
-        assert result["TERMINAL_CWD"] == "/home/lightning/projects"
+        assert result["TERMINAL_CWD"] == "/home/sonic/projects"
 
     def test_top_level_backend_sets_terminal_env(self):
         cfg = {"backend": "docker"}
@@ -91,19 +91,19 @@ class TestTopLevelCwdAlias:
         assert result["TERMINAL_ENV"] == "docker"
 
     def test_top_level_cwd_and_backend(self):
-        cfg = {"backend": "local", "cwd": "/home/lightning/projects"}
+        cfg = {"backend": "local", "cwd": "/home/sonic/projects"}
         result = _simulate_config_bridge(cfg)
-        assert result["TERMINAL_CWD"] == "/home/lightning/projects"
+        assert result["TERMINAL_CWD"] == "/home/sonic/projects"
         assert result["TERMINAL_ENV"] == "local"
 
     def test_nested_terminal_takes_precedence_over_top_level(self):
         """terminal.cwd should win over top-level cwd."""
         cfg = {
             "cwd": "/should/not/use",
-            "terminal": {"cwd": "/home/lightning/real"},
+            "terminal": {"cwd": "/home/sonic/real"},
         }
         result = _simulate_config_bridge(cfg)
-        assert result["TERMINAL_CWD"] == "/home/lightning/real"
+        assert result["TERMINAL_CWD"] == "/home/sonic/real"
 
     def test_nested_terminal_backend_takes_precedence(self):
         cfg = {
@@ -115,8 +115,8 @@ class TestTopLevelCwdAlias:
 
     def test_no_cwd_falls_back_to_messaging_cwd(self):
         cfg = {}
-        result = _simulate_config_bridge(cfg, {"MESSAGING_CWD": "/home/lightning/projects"})
-        assert result["TERMINAL_CWD"] == "/home/lightning/projects"
+        result = _simulate_config_bridge(cfg, {"MESSAGING_CWD": "/home/sonic/projects"})
+        assert result["TERMINAL_CWD"] == "/home/sonic/projects"
 
     def test_no_cwd_no_messaging_cwd_falls_back_to_home(self):
         cfg = {}
@@ -126,24 +126,24 @@ class TestTopLevelCwdAlias:
     def test_dot_cwd_triggers_messaging_fallback(self):
         """cwd: '.' should trigger MESSAGING_CWD fallback."""
         cfg = {"cwd": "."}
-        result = _simulate_config_bridge(cfg, {"MESSAGING_CWD": "/home/lightning"})
+        result = _simulate_config_bridge(cfg, {"MESSAGING_CWD": "/home/sonic"})
         # "." is stripped but truthy, so it gets set as TERMINAL_CWD
         # Then the MESSAGING_CWD fallback does NOT trigger since TERMINAL_CWD
         # is set and not in (".", "auto", "cwd").
         # Wait — "." IS in the fallback list! So this should fall through.
         # Actually the alias sets it to ".", then the messaging fallback
         # checks if it's in (".", "auto", "cwd") and overrides.
-        assert result["TERMINAL_CWD"] == "/home/lightning"
+        assert result["TERMINAL_CWD"] == "/home/sonic"
 
     def test_auto_cwd_triggers_messaging_fallback(self):
         cfg = {"cwd": "auto"}
-        result = _simulate_config_bridge(cfg, {"MESSAGING_CWD": "/home/lightning"})
-        assert result["TERMINAL_CWD"] == "/home/lightning"
+        result = _simulate_config_bridge(cfg, {"MESSAGING_CWD": "/home/sonic"})
+        assert result["TERMINAL_CWD"] == "/home/sonic"
 
     def test_empty_cwd_ignored(self):
         cfg = {"cwd": ""}
-        result = _simulate_config_bridge(cfg, {"MESSAGING_CWD": "/home/lightning"})
-        assert result["TERMINAL_CWD"] == "/home/lightning"
+        result = _simulate_config_bridge(cfg, {"MESSAGING_CWD": "/home/sonic"})
+        assert result["TERMINAL_CWD"] == "/home/sonic"
 
     def test_whitespace_only_cwd_ignored(self):
         cfg = {"cwd": "   "}
@@ -153,8 +153,8 @@ class TestTopLevelCwdAlias:
     def test_messaging_cwd_env_var_works(self):
         """MESSAGING_CWD in initial env should be picked up as fallback."""
         cfg = {}
-        result = _simulate_config_bridge(cfg, {"MESSAGING_CWD": "/home/lightning/projects"})
-        assert result["TERMINAL_CWD"] == "/home/lightning/projects"
+        result = _simulate_config_bridge(cfg, {"MESSAGING_CWD": "/home/sonic/projects"})
+        assert result["TERMINAL_CWD"] == "/home/sonic/projects"
 
     def test_top_level_cwd_beats_messaging_cwd(self):
         """Explicit top-level cwd should take precedence over MESSAGING_CWD."""

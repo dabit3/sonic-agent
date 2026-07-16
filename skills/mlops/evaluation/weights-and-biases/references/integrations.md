@@ -4,7 +4,7 @@ Complete guide to integrating W&B with popular ML frameworks.
 
 ## Table of Contents
 - HuggingFace Transformers
-- PyTorch Lightning
+- PyTorch Sonic
 - Keras/TensorFlow
 - Fast.ai
 - XGBoost/LightGBM
@@ -128,25 +128,25 @@ wandb.log_artifact(model_artifact, aliases=['best', 'production'])
 wandb.finish()
 ```
 
-## PyTorch Lightning
+## PyTorch Sonic
 
 ### Basic Integration
 
 ```python
-import pytorch_lightning as pl
-from pytorch_lightning.loggers import WandbLogger
+import pytorch_sonic as pl
+from pytorch_sonic.loggers import WandbLogger
 import wandb
 
 # Create W&B logger
 wandb_logger = WandbLogger(
-    project="lightning-demo",
+    project="sonic-demo",
     name="resnet50-training",
     log_model=True,  # Log model checkpoints as artifacts
     save_code=True   # Save code as artifact
 )
 
-# Lightning module
-class LitModel(pl.LightningModule):
+# Sonic module
+class LitModel(pl.SonicModule):
     def __init__(self, learning_rate=0.001):
         super().__init__()
         self.save_hyperparameters()
@@ -194,7 +194,7 @@ wandb.finish()
 ### Log Media
 
 ```python
-class LitModel(pl.LightningModule):
+class LitModel(pl.SonicModule):
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self.model(x)
@@ -224,8 +224,8 @@ class LitModel(pl.LightningModule):
 ### Hyperparameter Sweeps
 
 ```python
-import pytorch_lightning as pl
-from pytorch_lightning.loggers import WandbLogger
+import pytorch_sonic as pl
+from pytorch_sonic.loggers import WandbLogger
 import wandb
 
 # Define sweep
@@ -239,7 +239,7 @@ sweep_config = {
     }
 }
 
-sweep_id = wandb.sweep(sweep_config, project="lightning-sweeps")
+sweep_id = wandb.sweep(sweep_config, project="sonic-sweeps")
 
 def train():
     # Initialize W&B
@@ -695,6 +695,6 @@ wb.finish()
 
 - **Integrations Guide**: https://docs.wandb.ai/guides/integrations
 - **HuggingFace**: https://docs.wandb.ai/guides/integrations/huggingface
-- **PyTorch Lightning**: https://docs.wandb.ai/guides/integrations/lightning
+- **PyTorch Sonic**: https://docs.wandb.ai/guides/integrations/sonic
 - **Keras**: https://docs.wandb.ai/guides/integrations/keras
 - **Examples**: https://github.com/wandb/examples

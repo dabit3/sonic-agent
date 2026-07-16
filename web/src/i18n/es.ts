@@ -50,7 +50,7 @@ export const es: Translations = {
   },
 
   app: {
-    brand: "Lightning Agent",
+    brand: "Sonic Agent",
     brandShort: "HA",
     closeNavigation: "Cerrar navegación",
     closeModelTools: "Cerrar modelo y herramientas",
@@ -120,8 +120,8 @@ export const es: Translations = {
     starting: "Iniciando",
     startedInBackground: "Iniciado en segundo plano — revisa los registros para ver el progreso",
     stopped: "Detenido",
-    updateLightning: "Actualizar Lightning",
-    updatingLightning: "Actualizando Lightning…",
+    updateSonic: "Actualizar Sonic",
+    updatingSonic: "Actualizando Sonic…",
     waitingForOutput: "Esperando salida…",
   },
 
@@ -267,7 +267,7 @@ export const es: Translations = {
     enableRuntime: "Habilitar",
     forceReinstall: "Forzar reinstalación (eliminar carpeta existente primero)",
     headline:
-      "Descubre, instala, habilita y actualiza complementos de Lightning (equivalente a `lightning plugins`).",
+      "Descubre, instala, habilita y actualiza complementos de Sonic (equivalente a `sonic plugins`).",
     identifierLabel: "URL de Git u owner/repo",
     inactive: "inactivo",
     installBtn: "Instalar",
@@ -284,8 +284,8 @@ export const es: Translations = {
     providersHint:
       "Escribe memory.provider (vacío = incorporado) y context.engine en config.yaml. Surte efecto en la próxima sesión.",
     refreshDashboard: "Volver a escanear extensiones del panel",
-    removeConfirm: "¿Eliminar este complemento de ~/.lightning/plugins/?",
-    removeHint: "Solo se pueden eliminar complementos instalados por el usuario en ~/.lightning/plugins.",
+    removeConfirm: "¿Eliminar este complemento de ~/.sonic/plugins/?",
+    removeHint: "Solo se pueden eliminar complementos instalados por el usuario en ~/.sonic/plugins.",
     rescanHeading: "Registro de complementos SPA",
     rescanHint: "Vuelve a escanear tras añadir archivos en disco para que la barra lateral del panel detecte nuevos manifiestos.",
     runtimeHeading: "Tiempo de ejecución del Gateway (complementos YAML)",
@@ -307,7 +307,7 @@ export const es: Translations = {
     all: "Todas",
     categories: "Categorías",
     filters: "Filtros",
-    noSkills: "No se encontraron habilidades. Las habilidades se cargan desde ~/.lightning/skills/",
+    noSkills: "No se encontraron habilidades. Las habilidades se cargan desde ~/.sonic/skills/",
     noSkillsMatch: "Ninguna habilidad coincide con tu búsqueda o filtro.",
     skillCount: "{count} habilidad{s}",
     resultCount: "{count} resultado{s}",
@@ -321,7 +321,7 @@ export const es: Translations = {
   },
 
   config: {
-    configPath: "~/.lightning/config.yaml",
+    configPath: "~/.sonic/config.yaml",
     filters: "Filtros",
     sections: "Secciones",
     exportConfig: "Exportar configuración como JSON",
@@ -432,11 +432,11 @@ export const es: Translations = {
   achievements: {
     hero: {
       kicker: "Agentic Gamerscore",
-      title: "Lightning Achievements",
+      title: "Sonic Achievements",
       subtitle:
-        "Insignias coleccionables de Lightning ganadas a partir del historial real de sesiones. Los logros conocidos no completados se muestran como Descubiertos; los logros secretos permanecen ocultos hasta que aparece el primer comportamiento coincidente.",
+        "Insignias coleccionables de Sonic ganadas a partir del historial real de sesiones. Los logros conocidos no completados se muestran como Descubiertos; los logros secretos permanecen ocultos hasta que aparece el primer comportamiento coincidente.",
       scan_subtitle:
-        "Escaneando el historial de sesiones de Lightning. El primer escaneo puede tardar 5–10 segundos en historiales grandes.",
+        "Escaneando el historial de sesiones de Sonic. El primer escaneo puede tardar 5–10 segundos en historiales grandes.",
     },
     actions: {
       rescan: "Volver a escanear",
@@ -451,7 +451,7 @@ export const es: Translations = {
       highest_tier: "Nivel más alto",
       highest_tier_hint: "Copper → Silver → Gold → Diamond → Olympian",
       latest: "Más reciente",
-      latest_hint_empty: "usa Lightning más",
+      latest_hint_empty: "usa Sonic más",
       none_yet: "Ninguno aún",
     },
     state: {
@@ -482,10 +482,10 @@ export const es: Translations = {
       tiers_header: "Niveles",
       secret_header: "Logros secretos",
       secret_body:
-        "Los secretos ocultan su disparador exacto. Una vez que Lightning detecta una señal relacionada, la tarjeta pasa a Descubierto y muestra su requisito.",
+        "Los secretos ocultan su disparador exacto. Una vez que Sonic detecta una señal relacionada, la tarjeta pasa a Descubierto y muestra su requisito.",
       scan_status_header: "Estado del escaneo",
       scan_status_body:
-        "Lightning está escaneando el historial local una vez, después las tarjetas aparecerán automáticamente. No hay nada bloqueado si tarda unos segundos.",
+        "Sonic está escaneando el historial local una vez, después las tarjetas aparecerán automáticamente. No hay nada bloqueado si tarda unos segundos.",
       what_scanned_header: "Qué se escanea",
       what_scanned_body:
         "Sesiones, llamadas a herramientas, metadatos del modelo, errores, logros y estado de desbloqueo local.",
@@ -532,7 +532,7 @@ export const es: Translations = {
         "Compartir en X abre una publicación predefinida en una nueva pestaña. Haz clic primero en Copiar imagen si quieres adjuntar la insignia 1200×630: X te permite pegarla directamente en el redactor del tuit. Descargar PNG guarda el archivo para usarlo en cualquier lugar.",
       clipboard_unsupported:
         "Este navegador no admite copiar imágenes al portapapeles: usa Descargar en su lugar.",
-      tweet_text: "Just unlocked {tier_part}\"{name}\" in Lightning Agent ☤",
+      tweet_text: "Just unlocked {tier_part}\"{name}\" in Sonic Agent ☤",
     },
   },
   kanban: {

@@ -29,25 +29,25 @@ def _reset_modules(prefixes: tuple[str, ...]):
 
 @pytest.fixture(autouse=True)
 def _restore_tool_modules():
-    original_lightning_home = os.environ.get("LIGHTNING_HOME")
+    original_sonic_home = os.environ.get("SONIC_HOME")
     original_modules = {
         name: module
         for name, module in sys.modules.items()
         if name == "tools"
         or name.startswith("tools.")
-        or name == "lightning_cli"
-        or name.startswith("lightning_cli.")
+        or name == "sonic_cli"
+        or name.startswith("sonic_cli.")
         or name == "modal"
         or name.startswith("modal.")
     }
     try:
         yield
     finally:
-        if original_lightning_home is None:
-            os.environ.pop("LIGHTNING_HOME", None)
+        if original_sonic_home is None:
+            os.environ.pop("SONIC_HOME", None)
         else:
-            os.environ["LIGHTNING_HOME"] = original_lightning_home
-        _reset_modules(("tools", "lightning_cli", "modal"))
+            os.environ["SONIC_HOME"] = original_sonic_home
+        _reset_modules(("tools", "sonic_cli", "modal"))
         sys.modules.update(original_modules)
 
 
@@ -57,15 +57,15 @@ def _install_modal_test_modules(
     fail_on_snapshot_ids: set[str] | None = None,
     snapshot_id: str = "im-fresh",
 ):
-    _reset_modules(("tools", "lightning_cli", "modal"))
+    _reset_modules(("tools", "sonic_cli", "modal"))
 
-    lightning_cli = types.ModuleType("lightning_cli")
-    lightning_cli.__path__ = []  # type: ignore[attr-defined]
-    sys.modules["lightning_cli"] = lightning_cli
-    lightning_home = tmp_path / "lightning-home"
-    os.environ["LIGHTNING_HOME"] = str(lightning_home)
-    sys.modules["lightning_cli.config"] = types.SimpleNamespace(
-        get_lightning_home=lambda: lightning_home,
+    sonic_cli = types.ModuleType("sonic_cli")
+    sonic_cli.__path__ = []  # type: ignore[attr-defined]
+    sys.modules["sonic_cli"] = sonic_cli
+    sonic_home = tmp_path / "sonic-home"
+    os.environ["SONIC_HOME"] = str(sonic_home)
+    sys.modules["sonic_cli.config"] = types.SimpleNamespace(
+        get_sonic_home=lambda: sonic_home,
     )
 
     tools_package = types.ModuleType("tools")
@@ -144,7 +144,7 @@ def _install_modal_test_modules(
             return {"kind": "registry", "image": image}
 
     async def _lookup_aio(_name: str, create_if_missing: bool = False):
-        return types.SimpleNamespace(name="lightning-agent", create_if_missing=create_if_missing)
+        return types.SimpleNamespace(name="sonic-agent", create_if_missing=create_if_missing)
 
     class _FakeSandboxInstance:
         def __init__(self, image):
@@ -190,7 +190,7 @@ def _install_modal_test_modules(
     )
 
     return {
-        "snapshot_store": lightning_home / "modal_snapshots.json",
+        "snapshot_store": sonic_home / "modal_snapshots.json",
         "create_calls": create_calls,
         "from_id_calls": from_id_calls,
         "registry_calls": registry_calls,

@@ -104,7 +104,7 @@ def adapter():
         tree=FakeTree(),
         get_channel=lambda _id: None,
         fetch_channel=AsyncMock(),
-        user=SimpleNamespace(id=99999, name="LightningBot"),
+        user=SimpleNamespace(id=99999, name="SonicBot"),
     )
     adapter._text_batch_delay_seconds = 0  # disable batching for tests
     # Slash auth is exercised in test_discord_slash_auth.py — bypass it here
@@ -215,7 +215,7 @@ async def test_auto_registers_plugin_commands_for_discord(adapter):
     adapter._run_simple_slash = AsyncMock()
 
     with patch(
-        "lightning_cli.plugins.get_plugin_commands",
+        "sonic_cli.plugins.get_plugin_commands",
         return_value={
             "metricas": {
                 "handler": lambda _a: "ok",
@@ -244,7 +244,7 @@ async def test_auto_registered_plugin_command_without_args_hint(adapter):
     adapter._run_simple_slash = AsyncMock()
 
     with patch(
-        "lightning_cli.plugins.get_plugin_commands",
+        "sonic_cli.plugins.get_plugin_commands",
         return_value={
             "ping": {
                 "handler": lambda _a: "pong",
@@ -269,7 +269,7 @@ async def test_plugin_command_name_conflict_skipped(adapter):
     adapter._run_simple_slash = AsyncMock()
 
     with patch(
-        "lightning_cli.plugins.get_plugin_commands",
+        "sonic_cli.plugins.get_plugin_commands",
         return_value={
             "status": {
                 "handler": lambda _a: "plugin-status",
@@ -342,10 +342,10 @@ async def test_handle_thread_create_slash_dispatches_session_when_message_provid
 
     adapter._dispatch_thread_session = AsyncMock()
 
-    await adapter._handle_thread_create_slash(interaction, "Planning", "Hello Lightning", 1440)
+    await adapter._handle_thread_create_slash(interaction, "Planning", "Hello Sonic", 1440)
 
     adapter._dispatch_thread_session.assert_awaited_once_with(
-        interaction, "555", "Planning", "Hello Lightning",
+        interaction, "555", "Planning", "Hello Sonic",
     )
 
 
@@ -537,10 +537,10 @@ async def test_auto_create_thread_strips_mention_syntax_from_name(adapter):
 
 
 @pytest.mark.asyncio
-async def test_auto_create_thread_falls_back_to_lightning_when_only_mentions(adapter):
+async def test_auto_create_thread_falls_back_to_sonic_when_only_mentions(adapter):
     """If a message contains only mention syntax, the stripped content is
-    empty — fall back to the 'Lightning' default rather than ''."""
-    thread = SimpleNamespace(id=999, name="Lightning")
+    empty — fall back to the 'Sonic' default rather than ''."""
+    thread = SimpleNamespace(id=999, name="Sonic")
     message = SimpleNamespace(
         content="<@&1490963422786093149>",
         create_thread=AsyncMock(return_value=thread),
@@ -551,7 +551,7 @@ async def test_auto_create_thread_falls_back_to_lightning_when_only_mentions(ada
     await adapter._auto_create_thread(message)
 
     name = message.create_thread.await_args[1]["name"]
-    assert name == "Lightning"
+    assert name == "Sonic"
 
 
 @pytest.mark.asyncio
@@ -586,7 +586,7 @@ async def test_auto_create_thread_falls_back_to_seed_message(adapter):
 
     result = await adapter._auto_create_thread(message)
     assert result is thread
-    message.channel.send.assert_awaited_once_with("🧵 Thread created by Lightning: **Hello**")
+    message.channel.send.assert_awaited_once_with("🧵 Thread created by Sonic: **Hello**")
     seed_message.create_thread.assert_awaited_once_with(
         name="Hello",
         auto_archive_duration=1440,
@@ -761,15 +761,15 @@ def test_discord_auto_thread_config_bridge(monkeypatch, tmp_path):
     from pathlib import Path
 
     # Write a config.yaml the loader will find
-    lightning_dir = tmp_path / ".lightning"
-    lightning_dir.mkdir()
-    config_path = lightning_dir / "config.yaml"
+    sonic_dir = tmp_path / ".sonic"
+    sonic_dir.mkdir()
+    config_path = sonic_dir / "config.yaml"
     config_path.write_text(yaml.dump({
         "discord": {"auto_thread": True},
     }))
 
     monkeypatch.delenv("DISCORD_AUTO_THREAD", raising=False)
-    monkeypatch.setenv("LIGHTNING_HOME", str(lightning_dir))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_dir))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
 
     from gateway.config import load_gateway_config
@@ -807,7 +807,7 @@ def test_register_skill_command_is_flat_not_nested(adapter):
     ]
 
     with patch(
-        "lightning_cli.commands.discord_skill_commands_by_category",
+        "sonic_cli.commands.discord_skill_commands_by_category",
         return_value=(mock_categories, mock_uncategorized, 0),
     ):
         adapter._register_slash_commands()
@@ -825,7 +825,7 @@ def test_register_skill_command_is_flat_not_nested(adapter):
 def test_register_skill_command_empty_skills_no_command(adapter):
     """No /skill command should be registered when there are zero skills."""
     with patch(
-        "lightning_cli.commands.discord_skill_commands_by_category",
+        "sonic_cli.commands.discord_skill_commands_by_category",
         return_value=({}, [], 0),
     ):
         adapter._register_slash_commands()
@@ -848,7 +848,7 @@ def test_register_skill_command_callback_dispatches_by_name(adapter):
     ]
 
     with patch(
-        "lightning_cli.commands.discord_skill_commands_by_category",
+        "sonic_cli.commands.discord_skill_commands_by_category",
         return_value=(mock_categories, mock_uncategorized, 0),
     ):
         adapter._register_slash_commands()
@@ -880,7 +880,7 @@ def test_register_skill_command_handles_unknown_skill_gracefully(adapter):
     an ephemeral error message, NOT crash the callback.
     """
     with patch(
-        "lightning_cli.commands.discord_skill_commands_by_category",
+        "sonic_cli.commands.discord_skill_commands_by_category",
         return_value=({"media": [("gif-search", "GIFs", "/gif-search")]}, [], 0),
     ):
         adapter._register_slash_commands()
@@ -928,7 +928,7 @@ def test_register_skill_command_payload_fits_discord_8kb_limit(adapter):
         ]
 
     with patch(
-        "lightning_cli.commands.discord_skill_commands_by_category",
+        "sonic_cli.commands.discord_skill_commands_by_category",
         return_value=(large_categories, [], 0),
     ):
         adapter._register_slash_commands()
@@ -964,7 +964,7 @@ def test_register_skill_command_autocomplete_filters_by_name_and_description(ada
     }
 
     with patch(
-        "lightning_cli.commands.discord_skill_commands_by_category",
+        "sonic_cli.commands.discord_skill_commands_by_category",
         return_value=(mock_categories, [], 0),
     ):
         adapter._register_slash_commands()

@@ -1,4 +1,4 @@
-import { Box, Text, useInput } from '@lightning/ink'
+import { Box, Text, useInput } from '@sonic/ink'
 import { useState } from 'react'
 
 import { isMac } from '../lib/platform.js'

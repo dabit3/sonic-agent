@@ -1,4 +1,4 @@
-import { wrapAnsi } from '@lightning/ink'
+import { wrapAnsi } from '@sonic/ink'
 import { describe, expect, it } from 'vitest'
 
 import { offsetFromPosition } from '../components/textInput.js'

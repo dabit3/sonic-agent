@@ -1,16 +1,16 @@
 {
-  "id": "lightning-agent",
-  "name": "Lightning Agent",
+  "id": "sonic-agent",
+  "name": "Sonic Agent",
   "version": "0.14.0",
   "description": "Self-improving open-source AI agent by Nous Research with ACP editor integration, persistent memory, skills, and rich tool support.",
-  "repository": "https://github.com/NousResearch/lightning-agent",
+  "repository": "https://github.com/dabit3/sonic-agent",
   "website": "https://lightning-agent.nousresearch.com/docs/user-guide/features/acp",
   "authors": ["Nous Research"],
   "license": "MIT",
   "distribution": {
     "uvx": {
-      "package": "lightning-agent[acp]==0.14.0",
-      "args": ["lightning-acp"]
+      "package": "sonic-agent[acp]==0.14.0",
+      "args": ["sonic-acp"]
     }
   }
 }

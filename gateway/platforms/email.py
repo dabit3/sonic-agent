@@ -1,7 +1,7 @@
 """
-Email platform adapter for the Lightning gateway.
+Email platform adapter for the Sonic gateway.
 
-Allows users to interact with Lightning by sending emails.
+Allows users to interact with Sonic by sending emails.
 Uses IMAP to receive and SMTP to send messages.
 
 Environment variables:
@@ -75,12 +75,12 @@ def _send_imap_id(imap: "imaplib.IMAP4") -> None:
     """
     try:
         try:
-            from lightning_cli import __version__ as _lightning_version
+            from sonic_cli import __version__ as _sonic_version
         except Exception:  # noqa: BLE001 — keep ID best-effort if import fails
-            _lightning_version = "0"
+            _sonic_version = "0"
         imap.xatom(
             "ID",
-            f'("name" "lightning-agent" "version" "{_lightning_version}" '
+            f'("name" "sonic-agent" "version" "{_sonic_version}" '
             '"vendor" "NousResearch" '
             '"support-email" "noreply@nousresearch.com")',
         )
@@ -531,7 +531,7 @@ class EmailAdapter(BasePlatformAdapter):
 
         # Thread context for reply
         ctx = self._thread_context.get(to_addr, {})
-        subject = ctx.get("subject", "Lightning Agent")
+        subject = ctx.get("subject", "Sonic Agent")
         if not subject.startswith("Re:"):
             subject = f"Re: {subject}"
         msg["Subject"] = subject
@@ -543,7 +543,7 @@ class EmailAdapter(BasePlatformAdapter):
             msg["References"] = original_msg_id
 
         msg["Date"] = formatdate(localtime=True)
-        msg_id = f"<lightning-{uuid.uuid4().hex[:12]}@{self._address.split('@')[1]}>"
+        msg_id = f"<sonic-{uuid.uuid4().hex[:12]}@{self._address.split('@')[1]}>"
         msg["Message-ID"] = msg_id
 
         msg.attach(MIMEText(body, "plain", "utf-8"))
@@ -641,7 +641,7 @@ class EmailAdapter(BasePlatformAdapter):
         msg["To"] = to_addr
 
         ctx = self._thread_context.get(to_addr, {})
-        subject = ctx.get("subject", "Lightning Agent")
+        subject = ctx.get("subject", "Sonic Agent")
         if not subject.startswith("Re:"):
             subject = f"Re: {subject}"
         msg["Subject"] = subject
@@ -652,7 +652,7 @@ class EmailAdapter(BasePlatformAdapter):
             msg["References"] = original_msg_id
 
         msg["Date"] = formatdate(localtime=True)
-        msg_id = f"<lightning-{uuid.uuid4().hex[:12]}@{self._address.split('@')[1]}>"
+        msg_id = f"<sonic-{uuid.uuid4().hex[:12]}@{self._address.split('@')[1]}>"
         msg["Message-ID"] = msg_id
 
         if body:
@@ -722,7 +722,7 @@ class EmailAdapter(BasePlatformAdapter):
         msg["To"] = to_addr
 
         ctx = self._thread_context.get(to_addr, {})
-        subject = ctx.get("subject", "Lightning Agent")
+        subject = ctx.get("subject", "Sonic Agent")
         if not subject.startswith("Re:"):
             subject = f"Re: {subject}"
         msg["Subject"] = subject
@@ -733,7 +733,7 @@ class EmailAdapter(BasePlatformAdapter):
             msg["References"] = original_msg_id
 
         msg["Date"] = formatdate(localtime=True)
-        msg_id = f"<lightning-{uuid.uuid4().hex[:12]}@{self._address.split('@')[1]}>"
+        msg_id = f"<sonic-{uuid.uuid4().hex[:12]}@{self._address.split('@')[1]}>"
         msg["Message-ID"] = msg_id
 
         if body:

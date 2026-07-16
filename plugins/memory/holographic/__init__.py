@@ -1,14 +1,14 @@
-"""lightning-memory-store — holographic memory plugin using MemoryProvider interface.
+"""sonic-memory-store — holographic memory plugin using MemoryProvider interface.
 
 Registers as a MemoryProvider plugin, giving the agent structured fact storage
 with entity resolution, trust scoring, and HRR-based compositional retrieval.
 
 Original plugin by dusterbloom (PR #2351), adapted to the MemoryProvider ABC.
 
-Config in $LIGHTNING_HOME/config.yaml (profile-scoped):
+Config in $SONIC_HOME/config.yaml (profile-scoped):
   plugins:
-    lightning-memory-store:
-      db_path: $LIGHTNING_HOME/memory_store.db   # omit to use the default
+    sonic-memory-store:
+      db_path: $SONIC_HOME/memory_store.db   # omit to use the default
       auto_extract: false
       default_trust: 0.5
       min_trust_threshold: 0.3
@@ -26,7 +26,7 @@ from agent.memory_provider import MemoryProvider
 from tools.registry import tool_error
 from .store import MemoryStore
 from .retrieval import FactRetriever
-from lightning_cli.config import cfg_get
+from sonic_cli.config import cfg_get
 
 logger = logging.getLogger(__name__)
 
@@ -95,15 +95,15 @@ FACT_FEEDBACK_SCHEMA = {
 # ---------------------------------------------------------------------------
 
 def _load_plugin_config() -> dict:
-    from lightning_constants import get_lightning_home
-    config_path = get_lightning_home() / "config.yaml"
+    from sonic_constants import get_sonic_home
+    config_path = get_sonic_home() / "config.yaml"
     if not config_path.exists():
         return {}
     try:
         import yaml
         with open(config_path, encoding="utf-8-sig") as f:
             all_config = yaml.safe_load(f) or {}
-        return cfg_get(all_config, "plugins", "lightning-memory-store", default={}) or {}
+        return cfg_get(all_config, "plugins", "sonic-memory-store", default={}) or {}
     except Exception:
         return {}
 
@@ -128,10 +128,10 @@ class HolographicMemoryProvider(MemoryProvider):
     def is_available(self) -> bool:
         return True  # SQLite is always available, numpy is optional
 
-    def save_config(self, values, lightning_home):
-        """Write config to config.yaml under plugins.lightning-memory-store."""
+    def save_config(self, values, sonic_home):
+        """Write config to config.yaml under plugins.sonic-memory-store."""
         from pathlib import Path
-        config_path = Path(lightning_home) / "config.yaml"
+        config_path = Path(sonic_home) / "config.yaml"
         try:
             import yaml
             existing = {}
@@ -139,15 +139,15 @@ class HolographicMemoryProvider(MemoryProvider):
                 with open(config_path, encoding="utf-8-sig") as f:
                     existing = yaml.safe_load(f) or {}
             existing.setdefault("plugins", {})
-            existing["plugins"]["lightning-memory-store"] = values
+            existing["plugins"]["sonic-memory-store"] = values
             with open(config_path, "w", encoding="utf-8") as f:
                 yaml.dump(existing, f, default_flow_style=False)
         except Exception:
             pass
 
     def get_config_schema(self):
-        from lightning_constants import display_lightning_home
-        _default_db = f"{display_lightning_home()}/memory_store.db"
+        from sonic_constants import display_sonic_home
+        _default_db = f"{display_sonic_home()}/memory_store.db"
         return [
             {"key": "db_path", "description": "SQLite database path", "default": _default_db},
             {"key": "auto_extract", "description": "Auto-extract facts at session end", "default": "false", "choices": ["true", "false"]},
@@ -156,16 +156,16 @@ class HolographicMemoryProvider(MemoryProvider):
         ]
 
     def initialize(self, session_id: str, **kwargs) -> None:
-        from lightning_constants import get_lightning_home
-        _lightning_home = str(get_lightning_home())
-        _default_db = _lightning_home + "/memory_store.db"
+        from sonic_constants import get_sonic_home
+        _sonic_home = str(get_sonic_home())
+        _default_db = _sonic_home + "/memory_store.db"
         db_path = self._config.get("db_path", _default_db)
-        # Expand $LIGHTNING_HOME in user-supplied paths so config values like
-        # "$LIGHTNING_HOME/memory_store.db" or "~/.lightning/memory_store.db" both
+        # Expand $SONIC_HOME in user-supplied paths so config values like
+        # "$SONIC_HOME/memory_store.db" or "~/.sonic/memory_store.db" both
         # resolve to the active profile's directory.
         if isinstance(db_path, str):
-            db_path = db_path.replace("$LIGHTNING_HOME", _lightning_home)
-            db_path = db_path.replace("${LIGHTNING_HOME}", _lightning_home)
+            db_path = db_path.replace("$SONIC_HOME", _sonic_home)
+            db_path = db_path.replace("${SONIC_HOME}", _sonic_home)
         default_trust = float(self._config.get("default_trust", 0.5))
         hrr_dim = int(self._config.get("hrr_dim", 1024))
         hrr_weight = float(self._config.get("hrr_weight", 0.3))

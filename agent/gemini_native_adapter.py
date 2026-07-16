@@ -1,6 +1,6 @@
 """OpenAI-compatible facade over Google AI Studio's native Gemini API.
 
-Lightning keeps ``api_mode='chat_completions'`` for the ``gemini`` provider so the
+Sonic keeps ``api_mode='chat_completions'`` for the ``gemini`` provider so the
 main agent loop can keep using its existing OpenAI-shaped message flow.
 This adapter is the transport shim that converts those OpenAI-style
 ``messages[]`` / ``tools[]`` requests into Gemini's native
@@ -8,7 +8,7 @@ This adapter is the transport shim that converts those OpenAI-style
 
 Why this exists
 ---------------
-Google's OpenAI-compatible endpoint has been brittle for Lightning's multi-turn
+Google's OpenAI-compatible endpoint has been brittle for Sonic's multi-turn
 agent/tool loop (auth churn, tool-call replay quirks, thought-signature
 requirements).  The native Gemini API is the canonical path and avoids the
 OpenAI-compat layer entirely.
@@ -55,7 +55,7 @@ def probe_gemini_tier(
 
     Returns one of:
 
-    - ``"free"``    -- key is on the free tier (unusable with Lightning)
+    - ``"free"``    -- key is on the free tier (unusable with Sonic)
     - ``"paid"``    -- key is on a paid tier
     - ``"unknown"`` -- probe failed; callers should proceed without blocking.
     """
@@ -127,7 +127,7 @@ def is_free_tier_quota_error(error_message: str) -> bool:
 
 _FREE_TIER_GUIDANCE = (
     "\n\nYour Google API key is on the free tier (<= 250 requests/day for "
-    "gemini-2.5-flash). Lightning typically makes 3-10 API calls per user turn, "
+    "gemini-2.5-flash). Sonic typically makes 3-10 API calls per user turn, "
     "so the free tier is exhausted in a handful of messages and cannot sustain "
     "an agent session. Enable billing on your Google Cloud project and "
     "regenerate the key in a billing-enabled project: "
@@ -136,7 +136,7 @@ _FREE_TIER_GUIDANCE = (
 
 
 class GeminiAPIError(Exception):
-    """Error shape compatible with Lightning retry/error classification."""
+    """Error shape compatible with Sonic retry/error classification."""
 
     def __init__(
         self,
@@ -818,8 +818,8 @@ class GeminiNativeClient:
         if not (api_key or "").strip():
             raise RuntimeError(
                 "Gemini native client requires an API key, but none was provided. "
-                "Set GOOGLE_API_KEY or GEMINI_API_KEY in your environment / ~/.lightning/.env "
-                "(get one at https://aistudio.google.com/app/apikey), or run `lightning setup` "
+                "Set GOOGLE_API_KEY or GEMINI_API_KEY in your environment / ~/.sonic/.env "
+                "(get one at https://aistudio.google.com/app/apikey), or run `sonic setup` "
                 "to configure the Google provider."
             )
         self.api_key = api_key
@@ -852,7 +852,7 @@ class GeminiNativeClient:
             "Content-Type": "application/json",
             "Accept": "application/json",
             "x-goog-api-key": self.api_key,
-            "User-Agent": "lightning-agent (gemini-native)",
+            "User-Agent": "sonic-agent (gemini-native)",
         }
         headers.update(self._default_headers)
         return headers

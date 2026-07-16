@@ -1,10 +1,10 @@
 """Tests for /save — the conversation snapshot slash command.
 
-Regression: the old implementation wrote ``lightning_conversation_<ts>.json``
+Regression: the old implementation wrote ``sonic_conversation_<ts>.json``
 to the current working directory (CWD). Users who ran /save expected the
-file to be discoverable via ``lightning sessions browse``, but CWD-resident
+file to be discoverable via ``sonic sessions browse``, but CWD-resident
 snapshots are not indexed in the state DB and are generally invisible.
-The fix writes snapshots under ``~/.lightning/sessions/saved/`` and prints
+The fix writes snapshots under ``~/.sonic/sessions/saved/`` and prints
 the absolute path plus the resume hint for the live session.
 """
 
@@ -21,15 +21,15 @@ import pytest
 
 
 @pytest.fixture
-def lightning_home(tmp_path, monkeypatch):
-    home = tmp_path / ".lightning"
+def sonic_home(tmp_path, monkeypatch):
+    home = tmp_path / ".sonic"
     home.mkdir()
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    monkeypatch.setenv("LIGHTNING_HOME", str(home))
-    # Clear any cached lightning_home computation
-    import lightning_constants
-    if hasattr(lightning_constants, "_lightning_home_cache"):
-        lightning_constants._lightning_home_cache = None
+    monkeypatch.setenv("SONIC_HOME", str(home))
+    # Clear any cached sonic_home computation
+    import sonic_constants
+    if hasattr(sonic_constants, "_sonic_home_cache"):
+        sonic_constants._sonic_home_cache = None
     return home
 
 
@@ -43,15 +43,15 @@ def _make_stub_cli(history):
     )
 
 
-def test_save_conversation_writes_under_lightning_home(lightning_home, tmp_path, monkeypatch, capsys):
-    """Snapshot must land under ~/.lightning/sessions/saved/, not CWD."""
+def test_save_conversation_writes_under_sonic_home(sonic_home, tmp_path, monkeypatch, capsys):
+    """Snapshot must land under ~/.sonic/sessions/saved/, not CWD."""
     # Change CWD to a different directory to prove the file does NOT go there.
     work = tmp_path / "somewhere-else"
     work.mkdir()
     monkeypatch.chdir(work)
 
-    # Import fresh to pick up the LIGHTNING_HOME fixture
-    for mod in [m for m in sys.modules if m.startswith("cli") or m == "lightning_constants"]:
+    # Import fresh to pick up the SONIC_HOME fixture
+    for mod in [m for m in sys.modules if m.startswith("cli") or m == "sonic_constants"]:
         sys.modules.pop(mod, None)
 
     import cli  # noqa: F401  (module under test)
@@ -62,16 +62,16 @@ def test_save_conversation_writes_under_lightning_home(lightning_home, tmp_path,
     ])
 
     # Call the unbound method against our stub.
-    cli.LightningCLI.save_conversation(stub)
+    cli.SonicCLI.save_conversation(stub)
 
     # File must NOT be in CWD
-    cwd_leak = list(work.glob("lightning_conversation_*.json"))
+    cwd_leak = list(work.glob("sonic_conversation_*.json"))
     assert not cwd_leak, f"snapshot leaked to CWD: {cwd_leak}"
 
-    # File MUST be under ~/.lightning/sessions/saved/
-    saved_dir = lightning_home / "sessions" / "saved"
+    # File MUST be under ~/.sonic/sessions/saved/
+    saved_dir = sonic_home / "sessions" / "saved"
     assert saved_dir.is_dir(), "expected saved/ subdirectory to be created"
-    files = list(saved_dir.glob("lightning_conversation_*.json"))
+    files = list(saved_dir.glob("sonic_conversation_*.json"))
     assert len(files) == 1, files
 
     payload = json.loads(files[0].read_text())
@@ -85,18 +85,18 @@ def test_save_conversation_writes_under_lightning_home(lightning_home, tmp_path,
     # User-facing message must include the absolute path AND the resume hint.
     out = capsys.readouterr().out
     assert str(files[0]) in out, out
-    assert "lightning --resume 20260101_120000_abc123" in out, out
+    assert "sonic --resume 20260101_120000_abc123" in out, out
 
 
-def test_save_conversation_empty_history_does_nothing(lightning_home, capsys):
-    for mod in [m for m in sys.modules if m.startswith("cli") or m == "lightning_constants"]:
+def test_save_conversation_empty_history_does_nothing(sonic_home, capsys):
+    for mod in [m for m in sys.modules if m.startswith("cli") or m == "sonic_constants"]:
         sys.modules.pop(mod, None)
     import cli
 
     stub = _make_stub_cli([])
-    cli.LightningCLI.save_conversation(stub)
+    cli.SonicCLI.save_conversation(stub)
 
-    saved_dir = lightning_home / "sessions" / "saved"
+    saved_dir = sonic_home / "sessions" / "saved"
     assert not saved_dir.exists() or not list(saved_dir.iterdir())
     out = capsys.readouterr().out
     assert "No conversation to save" in out

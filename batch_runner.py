@@ -20,13 +20,13 @@ Usage:
     python batch_runner.py --dataset_file=data.jsonl --batch_size=10 --run_name=my_run --distribution=image_gen
 """
 
-# IMPORTANT: lightning_bootstrap must be the very first import — UTF-8 stdio
-# on Windows.  No-op on POSIX.  See lightning_bootstrap.py for full rationale.
+# IMPORTANT: sonic_bootstrap must be the very first import — UTF-8 stdio
+# on Windows.  No-op on POSIX.  See sonic_bootstrap.py for full rationale.
 try:
-    import lightning_bootstrap  # noqa: F401
+    import sonic_bootstrap  # noqa: F401
 except ModuleNotFoundError:
-    # Graceful fallback when lightning_bootstrap isn't registered in the venv
-    # yet — happens during partial ``lightning update`` where git-reset landed
+    # Graceful fallback when sonic_bootstrap isn't registered in the venv
+    # yet — happens during partial ``sonic update`` where git-reset landed
     # new code but ``uv pip install -e .`` didn't finish.  Missing bootstrap
     # means UTF-8 stdio setup is skipped on Windows; POSIX is unaffected.
     pass

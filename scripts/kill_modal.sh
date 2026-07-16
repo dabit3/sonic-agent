@@ -2,7 +2,7 @@
 # Kill all running Modal apps (sandboxes, deployments, etc.)
 #
 # Usage:
-#   bash scripts/kill_modal.sh          # Stop lightning-agent sandboxes
+#   bash scripts/kill_modal.sh          # Stop sonic-agent sandboxes
 #   bash scripts/kill_modal.sh --all    # Stop ALL Modal apps
 
 set -uo pipefail
@@ -17,10 +17,10 @@ if [[ "${1:-}" == "--all" ]]; then
         modal app stop "$app_id" 2>/dev/null || true
     done
 else
-    echo "Stopping lightning-agent sandboxes..."
-    APPS=$(echo "$APP_LIST" | grep 'lightning-agent' | grep -oE 'ap-[A-Za-z0-9]+' || true)
+    echo "Stopping sonic-agent sandboxes..."
+    APPS=$(echo "$APP_LIST" | grep 'sonic-agent' | grep -oE 'ap-[A-Za-z0-9]+' || true)
     if [[ -z "$APPS" ]]; then
-        echo "  No lightning-agent apps found."
+        echo "  No sonic-agent apps found."
     else
         echo "$APPS" | while read app_id; do
             echo "  Stopping $app_id"
@@ -30,5 +30,5 @@ else
 fi
 
 echo ""
-echo "Current lightning-agent status:"
-modal app list 2>/dev/null | grep -E 'State|lightning-agent' || echo "  (none)"
+echo "Current sonic-agent status:"
+modal app list 2>/dev/null | grep -E 'State|sonic-agent' || echo "  (none)"

@@ -1,7 +1,7 @@
 ---
 sidebar_position: 12
 title: "Kanban (멀티 에이전트 보드)"
-description: "여러 Lightning 프로필을 조율하기 위한, 지속형 SQLite 기반 작업 보드"
+description: "여러 Sonic 프로필을 조율하기 위한, 지속형 SQLite 기반 작업 보드"
 sidebar_label: "Kanban"
 ---
 
@@ -9,14 +9,14 @@ sidebar_label: "Kanban"
 
 > **전체 흐름을 먼저 보고 싶다면?** [Kanban 튜토리얼](./kanban-tutorial)을 읽어보세요. 이 문서는 레퍼런스이고, 튜토리얼은 사용자 시나리오 중심 설명입니다.
 
-Lightning Kanban은 모든 Lightning 프로필이 함께 쓰는 **지속형 작업 보드**입니다. 취약한 in-process 서브에이전트 무리 대신, 이름 있는 여러 에이전트가 같은 작업을 협업할 수 있게 해줍니다. 모든 task는 `~/.lightning/kanban.db`의 한 row이고, 모든 handoff도 누구나 읽고 쓸 수 있는 row이며, 모든 worker는 자기 정체성을 가진 **독립 OS 프로세스**입니다.
+Sonic Kanban은 모든 Sonic 프로필이 함께 쓰는 **지속형 작업 보드**입니다. 취약한 in-process 서브에이전트 무리 대신, 이름 있는 여러 에이전트가 같은 작업을 협업할 수 있게 해줍니다. 모든 task는 `~/.sonic/kanban.db`의 한 row이고, 모든 handoff도 누구나 읽고 쓸 수 있는 row이며, 모든 worker는 자기 정체성을 가진 **독립 OS 프로세스**입니다.
 
 ### 두 개의 표면: 모델은 tool로 말하고, 사용자는 CLI로 다룹니다
 
-보드에는 두 개의 진입점이 있고, 둘 다 같은 `~/.lightning/kanban.db`를 사용합니다.
+보드에는 두 개의 진입점이 있고, 둘 다 같은 `~/.sonic/kanban.db`를 사용합니다.
 
-- **에이전트는 전용 `kanban_*` toolset으로 보드를 다룹니다.** `kanban_show`, `kanban_complete`, `kanban_block`, `kanban_heartbeat`, `kanban_comment`, `kanban_create`, `kanban_link`가 여기에 포함됩니다. dispatcher는 worker를 띄울 때 이 tool들을 스키마에 넣어주며, 모델은 `lightning kanban` CLI를 shell로 호출하지 않고 **직접 tool call**로 task를 읽고 넘깁니다. 아래의 [작업자는 보드와 어떻게 상호작용하나](#how-workers-interact-with-the-board)를 참고하세요.
-- **사람(그리고 스크립트, cron)은 `lightning kanban …` CLI, `/kanban …` 슬래시 명령, 혹은 dashboard로 보드를 다룹니다.** 이 표면은 tool-calling 모델이 없는 인간/자동화를 위한 인터페이스입니다.
+- **에이전트는 전용 `kanban_*` toolset으로 보드를 다룹니다.** `kanban_show`, `kanban_complete`, `kanban_block`, `kanban_heartbeat`, `kanban_comment`, `kanban_create`, `kanban_link`가 여기에 포함됩니다. dispatcher는 worker를 띄울 때 이 tool들을 스키마에 넣어주며, 모델은 `sonic kanban` CLI를 shell로 호출하지 않고 **직접 tool call**로 task를 읽고 넘깁니다. 아래의 [작업자는 보드와 어떻게 상호작용하나](#how-workers-interact-with-the-board)를 참고하세요.
+- **사람(그리고 스크립트, cron)은 `sonic kanban …` CLI, `/kanban …` 슬래시 명령, 혹은 dashboard로 보드를 다룹니다.** 이 표면은 tool-calling 모델이 없는 인간/자동화를 위한 인터페이스입니다.
 
 두 표면 모두 같은 `kanban_db` 계층을 통하기 때문에, 읽기 결과는 일관되고 쓰기 결과가 어긋나지 않습니다. 이 문서는 복사해 쓰기 쉬운 CLI 예시를 중심으로 설명하지만, 여기 등장하는 CLI 동작은 전부 모델이 쓰는 tool-call 대응물이 있습니다.
 
@@ -28,7 +28,7 @@ Lightning Kanban은 모든 Lightning 프로필이 함께 쓰는 **지속형 작�
 - **엔지니어링 파이프라인** — 분해 → 병렬 구현(worktree) → 리뷰 → 반복 → PR
 - **플릿 작업** — 한 specialist가 N개의 대상(예: 50개 소셜 계정, 12개 서비스)을 관리
 
-설계 배경, 비교 분석(Cline Kanban / Paperclip / NanoClaw / Google Gemini Enterprise), 8개의 정형 협업 패턴은 레포의 `docs/lightning-kanban-v1-spec.pdf`를 참고하세요.
+설계 배경, 비교 분석(Cline Kanban / Paperclip / NanoClaw / Google Gemini Enterprise), 8개의 정형 협업 패턴은 레포의 `docs/sonic-kanban-v1-spec.pdf`를 참고하세요.
 
 ## Kanban vs. `delegate_task`
 
@@ -68,7 +68,7 @@ Lightning Kanban은 모든 Lightning 프로필이 함께 쓰는 **지속형 작�
 - **Link** — 부모 → 자식 의존성을 기록하는 `task_links` row. 부모가 모두 `done`이면 dispatcher가 `todo → ready`로 승격시킵니다.
 - **Comment** — 에이전트 간 프로토콜. agent와 사람이 comment를 붙이고, worker가 (재)실행될 때 전체 thread를 컨텍스트로 읽습니다.
 - **Workspace** — worker가 실제 작업을 수행하는 디렉터리.
-  - `scratch` (기본값) — `~/.lightning/kanban/workspaces/<id>/` 아래의 새 tmp 디렉터리 (non-default board는 board 경로 아래). **task가 완료되면 삭제됩니다** — scratch는 설계상 일회용이라 worker(또는 `lightning kanban complete <id>`)가 task를 done 처리하는 순간 디렉터리가 비워집니다. worker 결과물을 보존하려면 `worktree:` 또는 `dir:<path>`를 사용하세요. 설치 후 처음으로 scratch workspace가 생성될 때 dispatcher가 경고를 로그에 남기고 해당 task에 `tip_scratch_workspace` 이벤트를 추가합니다(`lightning kanban show <id>`로 확인 가능).
+  - `scratch` (기본값) — `~/.sonic/kanban/workspaces/<id>/` 아래의 새 tmp 디렉터리 (non-default board는 board 경로 아래). **task가 완료되면 삭제됩니다** — scratch는 설계상 일회용이라 worker(또는 `sonic kanban complete <id>`)가 task를 done 처리하는 순간 디렉터리가 비워집니다. worker 결과물을 보존하려면 `worktree:` 또는 `dir:<path>`를 사용하세요. 설치 후 처음으로 scratch workspace가 생성될 때 dispatcher가 경고를 로그에 남기고 해당 task에 `tip_scratch_workspace` 이벤트를 추가합니다(`sonic kanban show <id>`로 확인 가능).
   - `dir:<path>` — 기존 공유 디렉터리. **절대경로만 허용**됩니다. **완료 시 보존됩니다.**
   - `worktree` — 코딩 task를 위한 git worktree (`.worktrees/<id>/`). **완료 시 보존됩니다.**
 - **Dispatcher** — 주기적으로 stale claim 회수, crashed worker 정리, ready task 승격, atomic claim, assigned profile spawn을 수행하는 장기 실행 루프. 기본적으로 gateway 내부(`kanban.dispatch_in_gateway: true`)에서 동작합니다.
@@ -76,58 +76,58 @@ Lightning Kanban은 모든 Lightning 프로필이 함께 쓰는 **지속형 작�
 
 ## Boards (멀티 프로젝트) {#boards-multi-project}
 
-board를 쓰면 서로 무관한 작업 흐름을 프로젝트/레포/도메인별로 완전히 분리할 수 있습니다. 새 설치에는 `default` board 하나만 존재하며, DB는 하위 호환 때문에 `~/.lightning/kanban.db`에 놓입니다. 작업 흐름이 하나뿐인 사용자는 board 개념을 몰라도 됩니다.
+board를 쓰면 서로 무관한 작업 흐름을 프로젝트/레포/도메인별로 완전히 분리할 수 있습니다. 새 설치에는 `default` board 하나만 존재하며, DB는 하위 호환 때문에 `~/.sonic/kanban.db`에 놓입니다. 작업 흐름이 하나뿐인 사용자는 board 개념을 몰라도 됩니다.
 
 board 단위 격리는 다음을 의미합니다.
 
-- board별 별도 SQLite DB (`~/.lightning/kanban/boards/<slug>/kanban.db`)
+- board별 별도 SQLite DB (`~/.sonic/kanban/boards/<slug>/kanban.db`)
 - 별도 `workspaces/` 및 `logs/`
-- worker는 자기 board task만 볼 수 있음 (`LIGHTNING_KANBAN_BOARD` 고정)
+- worker는 자기 board task만 볼 수 있음 (`SONIC_KANBAN_BOARD` 고정)
 - board 간 task link는 불가
 
 ### CLI에서 board 관리
 
 ```bash
 # 현재 디스크에 있는 board 확인
-lightning kanban boards list
+sonic kanban boards list
 
 # 새 board 생성
-lightning kanban boards create atm10-server \
+sonic kanban boards create atm10-server \
     --name "ATM10 Server" \
     --description "Minecraft modded server ops" \
     --icon 🎮 \
     --switch
 
 # switch 없이 특정 board만 대상으로 실행
-lightning kanban --board atm10-server list
-lightning kanban --board atm10-server create "Restart ATM server" --assignee ops
+sonic kanban --board atm10-server list
+sonic kanban --board atm10-server create "Restart ATM server" --assignee ops
 
 # 현재 board 바꾸기
-lightning kanban boards switch atm10-server
-lightning kanban boards show
+sonic kanban boards switch atm10-server
+sonic kanban boards show
 
 # 표시 이름 변경 (slug는 디렉터리 이름이라 immutable)
-lightning kanban boards rename atm10-server "ATM10 (Prod)"
+sonic kanban boards rename atm10-server "ATM10 (Prod)"
 
 # 아카이브(기본): dir을 boards/_archived/<slug>-<ts>/ 로 이동
-lightning kanban boards rm atm10-server
+sonic kanban boards rm atm10-server
 
 # 영구 삭제
-lightning kanban boards rm atm10-server --delete
+sonic kanban boards rm atm10-server --delete
 ```
 
 board 해석 우선순위는 다음과 같습니다.
 
 1. 명시적 `--board <slug>`
-2. `LIGHTNING_KANBAN_BOARD` 환경변수
-3. `~/.lightning/kanban/current`
+2. `SONIC_KANBAN_BOARD` 환경변수
+3. `~/.sonic/kanban/current`
 4. `default`
 
 slug는 소문자 영숫자 + `-` + `_`, 길이 1–64로 제한되며, 대문자 입력은 자동 소문자화됩니다.
 
 ### Dashboard에서 board 관리
 
-`lightning dashboard`의 Kanban 탭은 board가 2개 이상이거나 task가 존재하면 상단에 board switcher를 표시합니다.
+`sonic dashboard`의 Kanban 탭은 board가 2개 이상이거나 task가 존재하면 상단에 board switcher를 표시합니다.
 
 - **Board dropdown** — 활성 board 선택. 브라우저 `localStorage`에 저장되므로 새로고침 후에도 유지됩니다.
 - **+ New board** — slug, display name, description, icon 입력 modal
@@ -141,23 +141,23 @@ slug는 소문자 영숫자 + `-` + `_`, 길이 1–64로 제한되며, 대문�
 
 ```bash
 # 1. board 생성
-lightning kanban init
+sonic kanban init
 
 # 2. gateway 시작 (내장 dispatcher 포함)
-lightning gateway start
+sonic gateway start
 
 # 3. task 생성
-lightning kanban create "research AI funding landscape" --assignee researcher
+sonic kanban create "research AI funding landscape" --assignee researcher
 
 # 4. 실시간 확인
-lightning kanban watch
+sonic kanban watch
 
 # 5. board 상태 보기
-lightning kanban list
-lightning kanban stats
+sonic kanban list
+sonic kanban stats
 ```
 
-dispatcher가 `t_abcd`를 집어 `researcher` profile을 worker로 띄우면, 그 worker가 제일 먼저 하는 일은 `kanban_show()` 호출입니다. `lightning kanban show t_abcd`를 shell로 실행하지 않습니다.
+dispatcher가 `t_abcd`를 집어 `researcher` profile을 worker로 띄우면, 그 worker가 제일 먼저 하는 일은 `kanban_show()` 호출입니다. `sonic kanban show t_abcd`를 shell로 실행하지 않습니다.
 
 ### Gateway 내장 dispatcher (기본값)
 
@@ -169,12 +169,12 @@ kanban:
   dispatch_interval_seconds: 60
 ```
 
-디버깅용으로만 `LIGHTNING_KANBAN_DISPATCH_IN_GATEWAY=0`으로 끌 수 있습니다. `lightning kanban daemon` 단독 실행 방식은 **deprecated**이며, 가능하면 gateway를 쓰는 것이 권장됩니다.
+디버깅용으로만 `SONIC_KANBAN_DISPATCH_IN_GATEWAY=0`으로 끌 수 있습니다. `sonic kanban daemon` 단독 실행 방식은 **deprecated**이며, 가능하면 gateway를 쓰는 것이 권장됩니다.
 
 ### Idempotent create (자동화 / webhook용)
 
 ```bash
-lightning kanban create "nightly ops review" \
+sonic kanban create "nightly ops review" \
     --assignee ops \
     --idempotency-key "nightly-ops-$(date -u +%Y-%m-%d)" \
     --json
@@ -185,15 +185,15 @@ lightning kanban create "nightly ops review" \
 ### Bulk CLI verbs
 
 ```bash
-lightning kanban complete t_abc t_def t_hij --result "batch wrap"
-lightning kanban archive  t_abc t_def t_hij
-lightning kanban unblock  t_abc t_def
-lightning kanban block    t_abc "need input" --ids t_def t_hij
+sonic kanban complete t_abc t_def t_hij --result "batch wrap"
+sonic kanban archive  t_abc t_def t_hij
+sonic kanban unblock  t_abc t_def
+sonic kanban block    t_abc "need input" --ids t_def t_hij
 ```
 
 ## 작업자는 보드와 어떻게 상호작용하나 {#how-workers-interact-with-the-board}
 
-**Worker는 `lightning kanban`을 shell로 호출하지 않습니다.** dispatcher는 worker spawn 시 `LIGHTNING_KANBAN_TASK=t_abcd`를 child env에 넣고, 그 환경변수가 모델 스키마에서 전용 **kanban toolset**을 활성화합니다. 이 7개 tool은 CLI와 동일하게 Python `kanban_db` 계층을 직접 호출합니다.
+**Worker는 `sonic kanban`을 shell로 호출하지 않습니다.** dispatcher는 worker spawn 시 `SONIC_KANBAN_TASK=t_abcd`를 child env에 넣고, 그 환경변수가 모델 스키마에서 전용 **kanban toolset**을 활성화합니다. 이 7개 tool은 CLI와 동일하게 Python `kanban_db` 계층을 직접 호출합니다.
 
 | Tool | 목적 | 필수 파라미터 |
 |---|---|---|
@@ -238,13 +238,13 @@ kanban_complete(summary="decomposed into 2 research tasks + 1 writer; linked dep
 
 `kanban_create`, `kanban_link`, 다른 task에 대한 `kanban_comment`는 모든 worker에게 기술적으로 열려 있지만, **worker profile은 fan-out하지 않고 orchestrator profile은 직접 실행하지 않는다**는 운영 규칙을 `kanban-orchestrator` skill이 강제하는 것이 권장됩니다.
 
-### 왜 `lightning kanban` shell 호출 대신 tool인가
+### 왜 `sonic kanban` shell 호출 대신 tool인가
 
-1. **백엔드 이식성** — terminal backend가 Docker / Modal / Singularity / SSH여도, kanban tool은 agent 자신의 Python 프로세스에서 돌아가므로 항상 `~/.lightning/kanban.db`에 도달합니다.
+1. **백엔드 이식성** — terminal backend가 Docker / Modal / Singularity / SSH여도, kanban tool은 agent 자신의 Python 프로세스에서 돌아가므로 항상 `~/.sonic/kanban.db`에 도달합니다.
 2. **shell quoting 취약성 제거** — `--metadata '{"files": [...]}'` 같은 문자열 인자 문제를 피합니다.
 3. **더 좋은 오류 처리** — stderr 파싱이 아니라 structured JSON 결과를 모델이 바로 읽습니다.
 
-**일반 세션에는 schema footprint가 0입니다.** 평범한 `lightning chat` 세션에는 `kanban_*` tool이 나타나지 않습니다. `LIGHTNING_KANBAN_TASK`가 있을 때만 `check_fn`이 True가 되기 때문입니다.
+**일반 세션에는 schema footprint가 0입니다.** 평범한 `sonic chat` 세션에는 `kanban_*` tool이 나타나지 않습니다. `SONIC_KANBAN_TASK`가 있을 때만 `check_fn`이 True가 되기 때문입니다.
 
 ### 추천 handoff evidence
 
@@ -258,7 +258,7 @@ kanban_complete(summary="decomposed into 2 research tasks + 1 writer; linked dep
 ```json
 {
   "changed_files": ["path/to/file.py"],
-  "verification": ["pytest tests/lightning_cli/test_kanban_db.py -q"],
+  "verification": ["pytest tests/sonic_cli/test_kanban_db.py -q"],
   "dependencies": ["parent task id or external issue, if any"],
   "blocked_reason": null,
   "retry_notes": "what failed before, if this was a retry",
@@ -280,14 +280,14 @@ kanban_complete(summary="decomposed into 2 research tasks + 1 writer; linked dep
 kanban task를 처리할 수 있는 profile은 `kanban-worker` skill을 로드해야 합니다. 이 skill은 CLI가 아니라 **tool call 기준 lifecycle**을 가르칩니다.
 
 1. spawn되면 `kanban_show()` 호출
-2. terminal tool로 `cd $LIGHTNING_KANBAN_WORKSPACE`
+2. terminal tool로 `cd $SONIC_KANBAN_WORKSPACE`
 3. 장기 작업 중 `kanban_heartbeat(note="...")`
 4. 끝나면 `kanban_complete(...)`, 막히면 `kanban_block(...)`
 
 설치 예시는 다음과 같습니다.
 
 ```bash
-lightning skills install devops/kanban-worker
+sonic skills install devops/kanban-worker
 ```
 
 dispatcher는 worker를 띄울 때 자동으로 `--skills kanban-worker`도 함께 넘기므로, profile 기본 skill 설정에 없더라도 실행 시점에는 항상 패턴 라이브러리를 갖게 됩니다.
@@ -315,11 +315,11 @@ kanban_create(
 **사람이 CLI / slash command에서**
 
 ```bash
-lightning kanban create "translate README to Japanese" \
+sonic kanban create "translate README to Japanese" \
     --assignee linguist \
     --skill translation
 
-lightning kanban create "audit auth flow" \
+sonic kanban create "audit auth flow" \
     --assignee reviewer \
     --skill security-pr-audit \
     --skill github-code-review
@@ -354,20 +354,20 @@ kanban_complete(
 설치:
 
 ```bash
-lightning skills install devops/kanban-orchestrator
+sonic skills install devops/kanban-orchestrator
 ```
 
 가장 깔끔한 운용은 orchestrator profile의 toolset을 board operation 위주(`kanban`, `gateway`, `memory`)로 제한해, 구현 작업을 **물리적으로 직접 실행할 수 없게** 만드는 것입니다.
 
 ## Dashboard (GUI)
 
-`/kanban` CLI와 slash command만으로도 headless 운영은 가능하지만, triage, cross-profile supervision, comment thread 읽기, 카드 drag/drop 같은 작업은 사람이 보기엔 시각 보드가 더 편합니다. Lightning는 이를 core 기능이 아니라 `plugins/kanban/`의 **bundled dashboard plugin**으로 제공합니다.
+`/kanban` CLI와 slash command만으로도 headless 운영은 가능하지만, triage, cross-profile supervision, comment thread 읽기, 카드 drag/drop 같은 작업은 사람이 보기엔 시각 보드가 더 편합니다. Sonic는 이를 core 기능이 아니라 `plugins/kanban/`의 **bundled dashboard plugin**으로 제공합니다.
 
 열기:
 
 ```bash
-lightning kanban init
-lightning dashboard
+sonic kanban init
+sonic dashboard
 ```
 
 ### Plugin이 제공하는 것
@@ -414,7 +414,7 @@ GUI는 철저히 **DB 읽기 + `kanban_db` 쓰기** 레이어입니다.
            │                                                  │
            ▼                                                  │
 ┌────────────────────────┐                                    │
-│  ~/.lightning/kanban.db   │ ───── append task_events ──────────┘
+│  ~/.sonic/kanban.db   │ ───── append task_events ──────────┘
 │  (WAL, shared)         │
 └────────────────────────┘
 ```
@@ -441,7 +441,7 @@ handler는 전부 얇은 wrapper이고, 실제 비즈니스 로직은 `kanban_db
 
 ### Dashboard 설정
 
-`~/.lightning/config.yaml`의 `dashboard.kanban` 아래 키로 기본 동작을 바꿀 수 있습니다.
+`~/.sonic/config.yaml`의 `dashboard.kanban` 아래 키로 기본 동작을 바꿀 수 있습니다.
 
 ```yaml
 dashboard:
@@ -458,7 +458,7 @@ dashboard는 기본적으로 localhost에 bind되므로 plugin route들은 별�
 
 WebSocket은 브라우저 upgrade 요청 특성상 `Authorization` 헤더를 못 쓰기 때문에 `?token=…` query parameter로 dashboard session token을 요구합니다.
 
-`lightning dashboard --host 0.0.0.0`로 띄우면 모든 plugin route가 네트워크에 노출됩니다. **공유 호스트에서는 권장되지 않습니다.** task body, comment, workspace path 등 협업 surface 전체가 노출될 수 있습니다.
+`sonic dashboard --host 0.0.0.0`로 띄우면 모든 plugin route가 네트워크에 노출됩니다. **공유 호스트에서는 권장되지 않습니다.** task body, comment, workspace path 등 협업 surface 전체가 노출될 수 있습니다.
 
 ### Live updates
 
@@ -466,7 +466,7 @@ WebSocket은 브라우저 upgrade 요청 특성상 `Authorization` 헤더를 못
 
 ### 확장
 
-plugin은 표준 Lightning dashboard plugin contract를 사용합니다. 추가 컬럼, 커스텀 카드 UI, tenant-filtered layout, 전체 `tab.override` 교체도 plugin fork 없이 표현 가능합니다.
+plugin은 표준 Sonic dashboard plugin contract를 사용합니다. 추가 컬럼, 커스텀 카드 UI, tenant-filtered layout, 전체 `tab.override` 교체도 plugin fork 없이 표현 가능합니다.
 
 비활성화만 하고 싶다면 `config.yaml`에 다음을 추가하면 됩니다.
 
@@ -486,46 +486,46 @@ GUI는 의도적으로 얇습니다. auto-assignment, budget, governance gate, o
 이 표면은 **사람, 스크립트, cron, dashboard**가 보드를 조작할 때 씁니다. dispatcher 내부 worker는 동일 작업을 `kanban_*` [tool 표면](#how-workers-interact-with-the-board)으로 수행합니다.
 
 ```
-lightning kanban init
-lightning kanban create "<title>" [--body ...] [--assignee <profile>]
+sonic kanban init
+sonic kanban create "<title>" [--body ...] [--assignee <profile>]
                                 [--parent <id>]... [--tenant <name>]
                                 [--workspace scratch|worktree|dir:<path>]
                                 [--priority N] [--triage] [--idempotency-key KEY]
                                 [--max-runtime 30m|2h|1d|<seconds>]
                                 [--skill <name>]...
                                 [--json]
-lightning kanban list [--mine] [--assignee P] [--status S] [--tenant T] [--archived] [--json]
-lightning kanban show <id> [--json]
-lightning kanban assign <id> <profile>
-lightning kanban link <parent_id> <child_id>
-lightning kanban unlink <parent_id> <child_id>
-lightning kanban claim <id> [--ttl SECONDS]
-lightning kanban comment <id> "<text>" [--author NAME]
-lightning kanban complete <id>... [--result "..."]
-lightning kanban block <id> "<reason>" [--ids <id>...]
-lightning kanban unblock <id>...
-lightning kanban archive <id>...
-lightning kanban tail <id>
-lightning kanban watch [--assignee P] [--tenant T] [--kinds completed,blocked,…] [--interval SECS]
-lightning kanban heartbeat <id> [--note "..."]
-lightning kanban runs <id> [--json]
-lightning kanban assignees [--json]
-lightning kanban dispatch [--dry-run] [--max N] [--failure-limit N] [--json]
-lightning kanban daemon --force
-lightning kanban stats [--json]
-lightning kanban log <id> [--tail BYTES]
-lightning kanban notify-subscribe <id> --platform <name> --chat-id <id> [--thread-id <id>] [--user-id <id>]
-lightning kanban notify-list [<id>] [--json]
-lightning kanban notify-unsubscribe <id> --platform <name> --chat-id <id> [--thread-id <id>]
-lightning kanban context <id>
-lightning kanban gc [--event-retention-days N] [--log-retention-days N]
+sonic kanban list [--mine] [--assignee P] [--status S] [--tenant T] [--archived] [--json]
+sonic kanban show <id> [--json]
+sonic kanban assign <id> <profile>
+sonic kanban link <parent_id> <child_id>
+sonic kanban unlink <parent_id> <child_id>
+sonic kanban claim <id> [--ttl SECONDS]
+sonic kanban comment <id> "<text>" [--author NAME]
+sonic kanban complete <id>... [--result "..."]
+sonic kanban block <id> "<reason>" [--ids <id>...]
+sonic kanban unblock <id>...
+sonic kanban archive <id>...
+sonic kanban tail <id>
+sonic kanban watch [--assignee P] [--tenant T] [--kinds completed,blocked,…] [--interval SECS]
+sonic kanban heartbeat <id> [--note "..."]
+sonic kanban runs <id> [--json]
+sonic kanban assignees [--json]
+sonic kanban dispatch [--dry-run] [--max N] [--failure-limit N] [--json]
+sonic kanban daemon --force
+sonic kanban stats [--json]
+sonic kanban log <id> [--tail BYTES]
+sonic kanban notify-subscribe <id> --platform <name> --chat-id <id> [--thread-id <id>] [--user-id <id>]
+sonic kanban notify-list [<id>] [--json]
+sonic kanban notify-unsubscribe <id> --platform <name> --chat-id <id> [--thread-id <id>]
+sonic kanban context <id>
+sonic kanban gc [--event-retention-days N] [--log-retention-days N]
 ```
 
 모든 명령은 interactive CLI와 messaging gateway에서도 `/kanban` slash command로 쓸 수 있습니다.
 
 ## `/kanban` 슬래시 명령 {#kanban-slash-command}
 
-모든 `lightning kanban <action>`은 `/kanban <action>`으로도 호출할 수 있습니다. interactive `lightning chat` 세션과 Telegram/Discord/Slack/WhatsApp/Signal/Matrix/Mattermost/email/SMS 등 gateway 플랫폼에서 모두 동작합니다.
+모든 `sonic kanban <action>`은 `/kanban <action>`으로도 호출할 수 있습니다. interactive `sonic chat` 세션과 Telegram/Discord/Slack/WhatsApp/Signal/Matrix/Mattermost/email/SMS 등 gateway 플랫폼에서 모두 동작합니다.
 
 ```
 /kanban list
@@ -540,7 +540,7 @@ lightning kanban gc [--event-retention-days N] [--log-retention-days N]
 
 ### 실행 중 사용: `/kanban`은 running-agent guard를 우회합니다
 
-일반적으로 gateway는 agent가 아직 응답 중이면 slash command와 user message를 queue에 쌓습니다. 그러나 **`/kanban`은 예외입니다.** board는 `~/.lightning/kanban.db`에 있고 실행 중인 agent의 내부 state에 묶여 있지 않기 때문입니다.
+일반적으로 gateway는 agent가 아직 응답 중이면 slash command와 user message를 queue에 쌓습니다. 그러나 **`/kanban`은 예외입니다.** board는 `~/.sonic/kanban.db`에 있고 실행 중인 agent의 내부 state에 묶여 있지 않기 때문입니다.
 
 예:
 
@@ -567,7 +567,7 @@ bot> ✓ t_9fc1a3 completed by transcriber
 
 ### 메시징 출력 잘림
 
-gateway 플랫폼은 메시지 길이 제한이 있어서 `/kanban list`, `/kanban show`, `/kanban tail` 결과가 약 3800자를 넘으면 잘려서 반환됩니다. 전체 출력은 터미널의 `lightning kanban …`를 쓰면 됩니다.
+gateway 플랫폼은 메시지 길이 제한이 있어서 `/kanban list`, `/kanban show`, `/kanban tail` 결과가 약 3800자를 넘으면 잘려서 반환됩니다. 전체 출력은 터미널의 `sonic kanban …`를 쓰면 됩니다.
 
 ### 자동완성
 
@@ -589,20 +589,20 @@ interactive CLI에서 `/kanban ` 뒤 Tab을 누르면 built-in subcommand hint�
 | **P8 Fleet farming** | 한 profile, N subjects | 50개 소셜 계정 |
 | **P9 Triage specifier** | rough idea → `triage` → specifier 확장 → `todo` | 한 줄 아이디어를 spec로 승격 |
 
-실전 예시는 `docs/lightning-kanban-v1-spec.pdf` 참고.
+실전 예시는 `docs/sonic-kanban-v1-spec.pdf` 참고.
 
 ## 멀티 테넌트 사용
 
 하나의 specialist fleet가 여러 비즈니스를 담당한다면 task에 tenant를 붙입니다.
 
 ```bash
-lightning kanban create "monthly report" \
+sonic kanban create "monthly report" \
     --assignee researcher \
     --tenant business-a \
     --workspace dir:~/tenants/business-a/data/
 ```
 
-worker는 `$LIGHTNING_TENANT`를 받고 memory write를 prefix namespace로 분리합니다. board, dispatcher, profile 정의는 공유하고 데이터만 scope됩니다.
+worker는 `$SONIC_TENANT`를 받고 memory write를 prefix namespace로 분리합니다. board, dispatcher, profile 정의는 공유하고 데이터만 scope됩니다.
 
 ## Gateway 알림
 
@@ -611,10 +611,10 @@ gateway에서 `/kanban create …`를 실행하면 원래 chat이 새 task에 �
 명시적으로 CLI에서 구독을 관리할 수도 있습니다.
 
 ```bash
-lightning kanban notify-subscribe t_abcd \
+sonic kanban notify-subscribe t_abcd \
     --platform telegram --chat-id 12345678 --thread-id 7
-lightning kanban notify-list
-lightning kanban notify-unsubscribe t_abcd \
+sonic kanban notify-list
+sonic kanban notify-unsubscribe t_abcd \
     --platform telegram --chat-id 12345678 --thread-id 7
 ```
 
@@ -648,12 +648,12 @@ kanban_complete(
 사람이 CLI로 직접 닫을 수도 있습니다.
 
 ```bash
-lightning kanban complete t_abcd \
+sonic kanban complete t_abcd \
     --result "rate limiter shipped" \
     --summary "implemented token bucket, keys on user_id with IP fallback, all tests pass" \
     --metadata '{"changed_files": ["limiter.py", "tests/test_limiter.py"], "tests_run": 14}'
 
-lightning kanban runs t_abcd
+sonic kanban runs t_abcd
 ```
 
 주의 사항:
@@ -708,14 +708,14 @@ v1 kernel은 routing에는 쓰지 않지만, client가 기록하는 것은 허�
 | `spawn_failed` | `{error, failures}` | spawn 시도 1회 실패 |
 | `gave_up` | `{failures, error}` | circuit breaker 발동 후 auto-block |
 
-개별 task 이벤트는 `lightning kanban tail <id>`, 보드 전체 이벤트는 `lightning kanban watch`로 볼 수 있습니다.
+개별 task 이벤트는 `sonic kanban tail <id>`, 보드 전체 이벤트는 `sonic kanban watch`로 볼 수 있습니다.
 
 ## 범위 밖
 
-Kanban은 의도적으로 **single-host** 설계입니다. `~/.lightning/kanban.db`는 로컬 SQLite 파일이고, dispatcher는 같은 머신에서 worker를 spawn합니다. 두 호스트가 하나의 board를 공유하는 구조는 지원하지 않습니다.
+Kanban은 의도적으로 **single-host** 설계입니다. `~/.sonic/kanban.db`는 로컬 SQLite 파일이고, dispatcher는 같은 머신에서 worker를 spawn합니다. 두 호스트가 하나의 board를 공유하는 구조는 지원하지 않습니다.
 
 멀티 호스트가 필요하다면 호스트별 독립 board를 두고, 그 사이를 `delegate_task`나 별도 message queue로 연결해야 합니다.
 
 ## 설계 문서
 
-아키텍처, 동시성 정합성, 타 시스템 비교, 구현 계획, 리스크, open question을 포함한 전체 설계 문서는 `docs/lightning-kanban-v1-spec.pdf`에 있습니다. 동작 변경 PR을 넣기 전에는 이 문서를 먼저 읽는 것이 좋습니다.
+아키텍처, 동시성 정합성, 타 시스템 비교, 구현 계획, 리스크, open question을 포함한 전체 설계 문서는 `docs/sonic-kanban-v1-spec.pdf`에 있습니다. 동작 변경 PR을 넣기 전에는 이 문서를 먼저 읽는 것이 좋습니다.

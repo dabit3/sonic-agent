@@ -1,4 +1,4 @@
-import { Box, Text } from '@lightning/ink'
+import { Box, Text } from '@sonic/ink'
 import { useState } from 'react'
 
 import type { Theme } from '../theme.js'

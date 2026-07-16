@@ -8,7 +8,7 @@ instances via ``PluginContext.register_image_gen_provider()``; the active one
 ``image_generate`` tool call.
 
 Providers live in ``<repo>/plugins/image_gen/<name>/`` (built-in, auto-loaded
-as ``kind: backend``) or ``~/.lightning/plugins/image_gen/<name>/`` (user, opt-in
+as ``kind: backend``) or ``~/.sonic/plugins/image_gen/<name>/`` (user, opt-in
 via ``plugins.enabled``).
 
 Response shape
@@ -65,7 +65,7 @@ class ImageGenProvider(abc.ABC):
 
     @property
     def display_name(self) -> str:
-        """Human-readable label shown in ``lightning tools``. Defaults to ``name.title()``."""
+        """Human-readable label shown in ``sonic tools``. Defaults to ``name.title()``."""
         return self.name.title()
 
     def is_available(self) -> bool:
@@ -77,7 +77,7 @@ class ImageGenProvider(abc.ABC):
         return True
 
     def list_models(self) -> List[Dict[str, Any]]:
-        """Return catalog entries for ``lightning tools`` model picker.
+        """Return catalog entries for ``sonic tools`` model picker.
 
         Each entry::
 
@@ -94,7 +94,7 @@ class ImageGenProvider(abc.ABC):
         return []
 
     def get_setup_schema(self) -> Dict[str, Any]:
-        """Return provider metadata for the ``lightning tools`` picker.
+        """Return provider metadata for the ``sonic tools`` picker.
 
         Used by ``tools_config.py`` to inject this provider as a row in
         the Image Generation provider list. Shape::
@@ -163,10 +163,10 @@ def resolve_aspect_ratio(value: Optional[str]) -> str:
 
 
 def _images_cache_dir() -> Path:
-    """Return ``$LIGHTNING_HOME/cache/images/``, creating parents as needed."""
-    from lightning_constants import get_lightning_home
+    """Return ``$SONIC_HOME/cache/images/``, creating parents as needed."""
+    from sonic_constants import get_sonic_home
 
-    path = get_lightning_home() / "cache" / "images"
+    path = get_sonic_home() / "cache" / "images"
     path.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -177,7 +177,7 @@ def save_b64_image(
     prefix: str = "image",
     extension: str = "png",
 ) -> Path:
-    """Decode base64 image data and write it under ``$LIGHTNING_HOME/cache/images/``.
+    """Decode base64 image data and write it under ``$SONIC_HOME/cache/images/``.
 
     Returns the absolute :class:`Path` to the saved file.
 

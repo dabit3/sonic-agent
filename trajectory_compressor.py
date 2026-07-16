@@ -45,15 +45,15 @@ from utils import base_url_host_matches, base_url_hostname
 import fire
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeElapsedColumn, TimeRemainingColumn
 from rich.console import Console
-from lightning_constants import OPENROUTER_BASE_URL, get_lightning_home
+from sonic_constants import OPENROUTER_BASE_URL, get_sonic_home
 from agent.retry_utils import jittered_backoff
 
-# Load .env from LIGHTNING_HOME first, then project root as a dev fallback.
-from lightning_cli.env_loader import load_lightning_dotenv
+# Load .env from SONIC_HOME first, then project root as a dev fallback.
+from sonic_cli.env_loader import load_sonic_dotenv
 
-_lightning_home = get_lightning_home()
+_sonic_home = get_sonic_home()
 _project_env = Path(__file__).parent / ".env"
-load_lightning_dotenv(lightning_home=_lightning_home, project_env=_project_env)
+load_sonic_dotenv(sonic_home=_sonic_home, project_env=_project_env)
 
 
 def _effective_temperature_for_model(
@@ -391,7 +391,7 @@ class TrajectoryCompressor:
             if client is None:
                 raise RuntimeError(
                     f"Provider '{provider}' is not configured. "
-                    f"Check your API key or run: lightning setup")
+                    f"Check your API key or run: sonic setup")
             self.client = None  # Not used directly
             self.async_client = None  # Not used directly
         else:

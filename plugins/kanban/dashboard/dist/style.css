@@ -1,11 +1,11 @@
 /*
- * Lightning Kanban — dashboard plugin styles.
+ * Sonic Kanban — dashboard plugin styles.
  *
  * All colors reference theme CSS vars so the board reskins with the
  * active dashboard theme. No hardcoded palette.
  */
 
-.lightning-kanban {
+.sonic-kanban {
   width: 100%;
 }
 
@@ -18,11 +18,11 @@
  * surfaces that must read as plain text on the board's own background.
  *
  * Rather than play whack-a-mole with theme rules (the pre-#21086 approach
- * was a single ``.lightning-kanban code { background: transparent }`` rule
+ * was a single ``.sonic-kanban code { background: transparent }`` rule
  * that lost specificity fights in the drawer context), reset EVERY
  * <code>/<pre> inside the kanban plugin container to transparent with
  * ``!important``, then opt back in ONLY on the class that carries
- * intentional styling (``.lightning-kanban-md code``, the inline code pill
+ * intentional styling (``.sonic-kanban-md code``, the inline code pill
  * inside rendered task-body Markdown).
  *
  * Net effect: any new theme, shipped or third-party, can introduce
@@ -31,16 +31,16 @@
  * Regression coverage: #21086 (task-drawer event payloads unreadable
  * across every shipped theme).
  */
-.lightning-kanban code,
-.lightning-kanban pre,
-.lightning-kanban-drawer code,
-.lightning-kanban-drawer pre {
+.sonic-kanban code,
+.sonic-kanban pre,
+.sonic-kanban-drawer code,
+.sonic-kanban-drawer pre {
   background: transparent !important;
   color: inherit;
 }
 /* The Markdown renderer intentionally paints a subtle code pill behind
  * inline ``<code>`` inside task-body prose — but NOT inside a fenced
- * block (those are a ``<pre class="lightning-kanban-md-code">`` with a
+ * block (those are a ``<pre class="sonic-kanban-md-code">`` with a
  * bare ``<code>`` inside, and the pill would double up with the pre
  * background). ``:not()`` scopes this opt-back-in to inline code only.
  *
@@ -48,32 +48,32 @@
  * so the pill renders consistently even when a theme forgets to set
  * ``--color-foreground`` (pre-existing safeguard from #18576).
  */
-.lightning-kanban .lightning-kanban-md code:not(.lightning-kanban-md-code *) {
+.sonic-kanban .sonic-kanban-md code:not(.sonic-kanban-md-code *) {
   background: color-mix(in srgb, currentColor 8%, transparent) !important;
 }
 /* Tighten contrast on the drawer-specific payload class — it lives on
  * its own line in the events list, so matching the muted-foreground
  * color keeps it visually distinct from the event title without
  * screaming for attention. */
-.lightning-kanban-event-payload,
-.lightning-kanban-drawer .lightning-kanban-event-payload {
+.sonic-kanban-event-payload,
+.sonic-kanban-drawer .sonic-kanban-event-payload {
   color: var(--color-muted-foreground) !important;
 }
 
 /* ---- Columns layout -------------------------------------------------- */
 
-.lightning-kanban-columns {
+.sonic-kanban-columns {
   display: flex;
   gap: 0.75rem;
   align-items: start;
   overflow-x: auto;
   scrollbar-width: none;
 }
-.lightning-kanban-columns::-webkit-scrollbar {
+.sonic-kanban-columns::-webkit-scrollbar {
   display: none;
 }
 
-.lightning-kanban-column {
+.sonic-kanban-column {
   flex: 0 0 280px;
   display: flex;
   flex-direction: column;
@@ -86,12 +86,12 @@
   transition: border-color 120ms ease, background-color 120ms ease;
 }
 
-.lightning-kanban-column--drop {
+.sonic-kanban-column--drop {
   border-color: var(--color-ring);
   background: color-mix(in srgb, var(--color-ring) 8%, var(--color-card));
 }
 
-.lightning-kanban-column-header {
+.sonic-kanban-column-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -101,19 +101,19 @@
   color: var(--color-foreground);
 }
 
-.lightning-kanban-column-label {
+.sonic-kanban-column-label {
   flex: 1;
   letter-spacing: 0.01em;
 }
 
-.lightning-kanban-column-count {
+.sonic-kanban-column-count {
   font-variant-numeric: tabular-nums;
   color: var(--color-muted-foreground);
   font-size: 0.75rem;
   font-weight: 500;
 }
 
-.lightning-kanban-column-add {
+.sonic-kanban-column-add {
   appearance: none;
   background: transparent;
   border: 1px solid var(--color-border);
@@ -125,11 +125,11 @@
   font-size: 1rem;
   cursor: pointer;
 }
-.lightning-kanban-column-add:hover {
+.sonic-kanban-column-add:hover {
   background: color-mix(in srgb, var(--color-foreground) 8%, transparent);
 }
 
-.lightning-kanban-column-sub {
+.sonic-kanban-column-sub {
   padding: 0 0.25rem 0.5rem;
   font-size: 0.7rem;
   color: var(--color-muted-foreground);
@@ -137,7 +137,7 @@
   margin-bottom: 0.5rem;
 }
 
-.lightning-kanban-column-body {
+.sonic-kanban-column-body {
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
@@ -145,7 +145,7 @@
   padding-right: 0.1rem;
 }
 
-.lightning-kanban-empty {
+.sonic-kanban-empty {
   padding: 1.5rem 0.5rem;
   text-align: center;
   font-size: 0.75rem;
@@ -156,24 +156,24 @@
 
 /* ---- Status dots ----------------------------------------------------- */
 
-.lightning-kanban-dot {
+.sonic-kanban-dot {
   display: inline-block;
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 999px;
   background: var(--color-muted-foreground);
 }
-.lightning-kanban-dot-triage   { background: #b47dd6; }  /* lilac — fresh/unspecified */
-.lightning-kanban-dot-todo     { background: var(--color-muted-foreground); }
-.lightning-kanban-dot-ready    { background: #d4b348; }  /* amber */
-.lightning-kanban-dot-running  { background: #3fb97d; }  /* green */
-.lightning-kanban-dot-blocked  { background: var(--color-destructive, #d14a4a); }
-.lightning-kanban-dot-done     { background: #4a8cd1; }  /* blue */
-.lightning-kanban-dot-archived { background: var(--color-border); }
+.sonic-kanban-dot-triage   { background: #b47dd6; }  /* lilac — fresh/unspecified */
+.sonic-kanban-dot-todo     { background: var(--color-muted-foreground); }
+.sonic-kanban-dot-ready    { background: #d4b348; }  /* amber */
+.sonic-kanban-dot-running  { background: #3fb97d; }  /* green */
+.sonic-kanban-dot-blocked  { background: var(--color-destructive, #d14a4a); }
+.sonic-kanban-dot-done     { background: #4a8cd1; }  /* blue */
+.sonic-kanban-dot-archived { background: var(--color-border); }
 
 /* ---- Progress pill (N/M child tasks done) --------------------------- */
 
-.lightning-kanban-progress {
+.sonic-kanban-progress {
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 0.62rem;
   padding: 0.05rem 0.35rem;
@@ -183,7 +183,7 @@
   color: var(--color-muted-foreground);
   letter-spacing: 0.02em;
 }
-.lightning-kanban-progress--full {
+.sonic-kanban-progress--full {
   background: color-mix(in srgb, #3fb97d 22%, transparent);
   border-color: color-mix(in srgb, #3fb97d 45%, transparent);
   color: var(--color-foreground);
@@ -191,18 +191,18 @@
 
 /* ---- Lanes (per-profile sub-grouping inside Running) ---------------- */
 
-.lightning-kanban-lane {
+.sonic-kanban-lane {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
   padding: 0.25rem 0 0.35rem;
   border-top: 1px dashed color-mix(in srgb, var(--color-border) 70%, transparent);
 }
-.lightning-kanban-lane:first-child {
+.sonic-kanban-lane:first-child {
   border-top: 0;
   padding-top: 0;
 }
-.lightning-kanban-lane-head {
+.sonic-kanban-lane-head {
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -214,51 +214,51 @@
   color: var(--color-muted-foreground);
   padding: 0 0.1rem;
 }
-.lightning-kanban-lane-name {
+.sonic-kanban-lane-name {
   font-weight: 600;
   font-family: var(--font-mono, ui-monospace, monospace);
 }
-.lightning-kanban-lane-count {
+.sonic-kanban-lane-count {
   margin-left: auto;
   font-variant-numeric: tabular-nums;
 }
 
 /* ---- Card ------------------------------------------------------------ */
 
-.lightning-kanban-card {
+.sonic-kanban-card {
   cursor: grab;
   transition: transform 100ms ease, box-shadow 100ms ease;
 }
-.lightning-kanban-card:hover {
+.sonic-kanban-card:hover {
   box-shadow: 0 1px 0 0 var(--color-ring) inset, 0 0 0 1px var(--color-ring) inset;
 }
-.lightning-kanban-card:active {
+.sonic-kanban-card:active {
   cursor: grabbing;
   transform: scale(0.995);
 }
 
-.lightning-kanban-card-content {
+.sonic-kanban-card-content {
   padding: 0.5rem 0.6rem !important;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
 }
 
-.lightning-kanban-card-row {
+.sonic-kanban-card-row {
   display: flex;
   align-items: center;
   gap: 0.35rem;
   flex-wrap: wrap;
 }
 
-.lightning-kanban-card-id {
+.sonic-kanban-card-id {
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 0.65rem;
   color: var(--color-muted-foreground);
   letter-spacing: 0.03em;
 }
 
-.lightning-kanban-card-title {
+.sonic-kanban-card-title {
   font-size: 0.85rem;
   font-weight: 500;
   line-height: 1.3;
@@ -266,13 +266,13 @@
   word-break: break-word;
 }
 
-.lightning-kanban-card-meta {
+.sonic-kanban-card-meta {
   font-size: 0.7rem;
   color: var(--color-muted-foreground);
   gap: 0.55rem;
 }
 
-.lightning-kanban-priority {
+.sonic-kanban-priority {
   font-size: 0.6rem !important;
   padding: 0.05rem 0.3rem !important;
   background: color-mix(in srgb, var(--color-ring) 18%, transparent);
@@ -280,12 +280,12 @@
   border: 1px solid color-mix(in srgb, var(--color-ring) 40%, transparent);
 }
 
-.lightning-kanban-tag {
+.sonic-kanban-tag {
   font-size: 0.6rem !important;
   padding: 0.05rem 0.3rem !important;
 }
 
-.lightning-kanban-needs-assignee {
+.sonic-kanban-needs-assignee {
   font-size: 0.6rem !important;
   padding: 0.05rem 0.3rem !important;
   background: color-mix(in srgb, var(--color-warning, #d4b348) 16%, transparent);
@@ -293,20 +293,20 @@
   color: var(--color-foreground);
 }
 
-.lightning-kanban-assignee {
+.sonic-kanban-assignee {
   font-weight: 500;
   color: color-mix(in srgb, var(--color-foreground) 80%, var(--color-muted-foreground));
 }
-.lightning-kanban-unassigned {
+.sonic-kanban-unassigned {
   font-style: italic;
 }
-.lightning-kanban-ago {
+.sonic-kanban-ago {
   margin-left: auto;
 }
 
 /* ---- Inline create --------------------------------------------------- */
 
-.lightning-kanban-inline-create {
+.sonic-kanban-inline-create {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
@@ -317,14 +317,14 @@
   border-radius: var(--radius-sm, 0.25rem);
 }
 
-.lightning-kanban-inline-create > .flex.gap-2:last-child > button:first-of-type {
+.sonic-kanban-inline-create > .flex.gap-2:last-child > button:first-of-type {
   flex: 1;
   min-width: 0;
 }
 
 /* ---- Drawer (task detail side panel) --------------------------------- */
 
-.lightning-kanban-drawer-shade {
+.sonic-kanban-drawer-shade {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
@@ -333,23 +333,23 @@
   justify-content: flex-end;
 }
 
-.lightning-kanban-drawer {
-  width: min(var(--lightning-kanban-drawer-width, 640px), 92vw);
+.sonic-kanban-drawer {
+  width: min(var(--sonic-kanban-drawer-width, 640px), 92vw);
   height: 100vh;
   background: var(--color-card);
   border-left: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   box-shadow: -4px 0 18px rgba(0, 0, 0, 0.35);
-  animation: lightning-kanban-drawer-in 180ms ease-out;
+  animation: sonic-kanban-drawer-in 180ms ease-out;
 }
 
-@keyframes lightning-kanban-drawer-in {
+@keyframes sonic-kanban-drawer-in {
   from { transform: translateX(100%); opacity: 0.3; }
   to   { transform: translateX(0);    opacity: 1; }
 }
 
-.lightning-kanban-drawer-head {
+.sonic-kanban-drawer-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -358,7 +358,7 @@
   font-family: var(--font-mono, ui-monospace, monospace);
 }
 
-.lightning-kanban-drawer-close {
+.sonic-kanban-drawer-close {
   appearance: none;
   background: transparent;
   border: 0;
@@ -368,9 +368,9 @@
   cursor: pointer;
   padding: 0 0.25rem;
 }
-.lightning-kanban-drawer-close:hover { color: var(--color-foreground); }
+.sonic-kanban-drawer-close:hover { color: var(--color-foreground); }
 
-.lightning-kanban-drawer-body {
+.sonic-kanban-drawer-body {
   flex: 1;
   overflow-y: auto;
   padding: 0.9rem;
@@ -379,7 +379,7 @@
   gap: 0.85rem;
 }
 
-.lightning-kanban-drawer-title {
+.sonic-kanban-drawer-title {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -387,7 +387,7 @@
   font-weight: 600;
 }
 
-.lightning-kanban-drawer-meta {
+.sonic-kanban-drawer-meta {
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
@@ -397,41 +397,41 @@
   border-radius: var(--radius-sm, 0.25rem);
 }
 
-.lightning-kanban-meta-row {
+.sonic-kanban-meta-row {
   display: flex;
   gap: 0.5rem;
   font-size: 0.8rem;
 }
-.lightning-kanban-meta-label {
+.sonic-kanban-meta-label {
   width: 92px;
   color: var(--color-muted-foreground);
 }
-.lightning-kanban-meta-value {
+.sonic-kanban-meta-value {
   color: var(--color-foreground);
   word-break: break-word;
 }
 
-.lightning-kanban-actions {
+.sonic-kanban-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.3rem;
 }
 
 /* Specifier result banner — sits directly under the status action row. */
-.lightning-kanban-msg-ok,
-.lightning-kanban-msg-err {
+.sonic-kanban-msg-ok,
+.sonic-kanban-msg-err {
   margin-top: 0.4rem;
   padding: 0.35rem 0.55rem;
   border-radius: 0.375rem;
   font-size: 0.85rem;
   line-height: 1.3;
 }
-.lightning-kanban-msg-ok {
+.sonic-kanban-msg-ok {
   background: rgba(46, 160, 67, 0.12);
   color: #2ea043;
   border: 1px solid rgba(46, 160, 67, 0.35);
 }
-.lightning-kanban-msg-err {
+.sonic-kanban-msg-err {
   background: rgba(248, 81, 73, 0.12);
   color: #f85149;
   border: 1px solid rgba(248, 81, 73, 0.35);
@@ -439,17 +439,17 @@
 
 /* ---- Home channel subscription toggles (per-platform, per-task) ----- */
 
-.lightning-kanban-home-subs {
+.sonic-kanban-home-subs {
   display: flex;
   flex-wrap: wrap;
   gap: 0.3rem;
 }
-.lightning-kanban-home-sub {
+.sonic-kanban-home-sub {
   font-family: var(--font-mono, ui-monospace, monospace);
   text-transform: lowercase;
   letter-spacing: 0.02em;
 }
-.lightning-kanban-home-sub--on {
+.sonic-kanban-home-sub--on {
   /* Subscribed toggle — use a strong ring-colored accent so the on/off
    * distinction reads at a glance, not just from the ✓ prefix. Border +
    * filled background + bolder weight keep the state obvious across
@@ -461,20 +461,20 @@
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-ring) 40%, transparent);
 }
 
-.lightning-kanban-section {
+.sonic-kanban-section {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
 
-.lightning-kanban-section-head {
+.sonic-kanban-section-head {
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.07em;
   color: var(--color-muted-foreground);
 }
 
-.lightning-kanban-pre {
+.sonic-kanban-pre {
   margin: 0;
   padding: 0.5rem 0.6rem;
   white-space: pre-wrap;
@@ -488,7 +488,7 @@
   color: var(--color-foreground);
 }
 
-.lightning-kanban-comment {
+.sonic-kanban-comment {
   border-left: 2px solid color-mix(in srgb, var(--color-ring) 35%, transparent);
   padding-left: 0.5rem;
   display: flex;
@@ -496,31 +496,31 @@
   gap: 0.2rem;
 }
 
-.lightning-kanban-comment-head {
+.sonic-kanban-comment-head {
   display: flex;
   gap: 0.5rem;
   font-size: 0.7rem;
 }
-.lightning-kanban-comment-author {
+.sonic-kanban-comment-author {
   font-weight: 600;
   color: var(--color-foreground);
 }
-.lightning-kanban-comment-ago {
+.sonic-kanban-comment-ago {
   color: var(--color-muted-foreground);
 }
 
-.lightning-kanban-event {
+.sonic-kanban-event {
   display: flex;
   gap: 0.5rem;
   font-size: 0.7rem;
   color: var(--color-muted-foreground);
   font-family: var(--font-mono, ui-monospace, monospace);
 }
-.lightning-kanban-event-kind {
+.sonic-kanban-event-kind {
   color: var(--color-foreground);
   min-width: 6rem;
 }
-.lightning-kanban-event-payload {
+.sonic-kanban-event-payload {
   color: var(--color-muted-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -528,7 +528,7 @@
   max-width: 280px;
 }
 
-.lightning-kanban-drawer-comment-row {
+.sonic-kanban-drawer-comment-row {
   display: flex;
   gap: 0.4rem;
   padding: 0.55rem 0.75rem;
@@ -536,7 +536,7 @@
   background: color-mix(in srgb, var(--color-card) 90%, transparent);
 }
 
-.lightning-kanban-count {
+.sonic-kanban-count {
   display: inline-flex;
   gap: 0.2rem;
   align-items: center;
@@ -544,7 +544,7 @@
 
 /* ---- Selection chrome ----------------------------------------------- */
 
-.lightning-kanban-card--selected :where(.lightning-kanban-card-content) {
+.sonic-kanban-card--selected :where(.sonic-kanban-card-content) {
   box-shadow: 0 0 0 2px var(--color-ring) inset,
               0 0 0 1px var(--color-ring) inset;
   background: color-mix(in srgb, var(--color-ring) 6%, var(--color-card));
@@ -553,13 +553,13 @@
 /* Batch drag source styling — cards that are part of the current multi-drag.
    The browser ghost image floats; we dim the original DOM nodes so the user
    sees the whole set is in-flight. */
-.lightning-kanban-card--dragging-source :where(.lightning-kanban-card-content) {
+.sonic-kanban-card--dragging-source :where(.sonic-kanban-card-content) {
   opacity: 0.45;
   filter: grayscale(0.6);
   transition: opacity 120ms ease, filter 120ms ease;
 }
 
-.lightning-kanban-card-check {
+.sonic-kanban-card-check {
   width: 0.85rem;
   height: 0.85rem;
   margin: 0;
@@ -569,7 +569,7 @@
 
 /* ---- Bulk action bar ------------------------------------------------ */
 
-.lightning-kanban-bulk {
+.sonic-kanban-bulk {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -579,25 +579,25 @@
   border-radius: var(--radius-sm, 0.25rem);
   flex-wrap: wrap;
 }
-.lightning-kanban-bulk-count {
+.sonic-kanban-bulk-count {
   font-weight: 600;
   font-size: 0.75rem;
   padding-right: 0.25rem;
 }
 
-.lightning-kanban-bulk > button,
-.lightning-kanban-bulk-reassign > button {
+.sonic-kanban-bulk > button,
+.sonic-kanban-bulk-reassign > button {
   height: 1.7rem !important;
   padding: 0 0.5rem !important;
   font-size: 0.7rem !important;
   border: 1px solid var(--color-border);
   cursor: pointer;
 }
-.lightning-kanban-bulk > button:hover:not(:disabled),
-.lightning-kanban-bulk-reassign > button:hover:not(:disabled) {
+.sonic-kanban-bulk > button:hover:not(:disabled),
+.sonic-kanban-bulk-reassign > button:hover:not(:disabled) {
   background: color-mix(in srgb, var(--color-foreground) 8%, transparent);
 }
-.lightning-kanban-bulk-reassign {
+.sonic-kanban-bulk-reassign {
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -607,30 +607,30 @@
 
 /* ---- Dependency editor chips --------------------------------------- */
 
-.lightning-kanban-deps-row {
+.sonic-kanban-deps-row {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.4rem;
 }
-.lightning-kanban-deps-label {
+.sonic-kanban-deps-label {
   font-size: 0.68rem;
   letter-spacing: 0.08em;
   color: var(--color-muted-foreground);
   min-width: 4rem;
 }
-.lightning-kanban-deps-chips {
+.sonic-kanban-deps-chips {
   display: flex;
   gap: 0.3rem;
   flex-wrap: wrap;
   flex: 1;
 }
-.lightning-kanban-deps-empty {
+.sonic-kanban-deps-empty {
   font-size: 0.7rem;
   color: var(--color-muted-foreground);
   font-style: italic;
 }
-.lightning-kanban-dep-chip {
+.sonic-kanban-dep-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.15rem;
@@ -642,7 +642,7 @@
   font-size: 0.68rem;
   color: var(--color-foreground);
 }
-.lightning-kanban-dep-chip-x {
+.sonic-kanban-dep-chip-x {
   appearance: none;
   background: transparent;
   border: 0;
@@ -652,43 +652,43 @@
   line-height: 1;
   padding: 0 0.15rem;
 }
-.lightning-kanban-dep-chip-x:hover { color: var(--color-destructive, #d14a4a); }
+.sonic-kanban-dep-chip-x:hover { color: var(--color-destructive, #d14a4a); }
 
 /* ---- Inline edit affordances --------------------------------------- */
 
-.lightning-kanban-editable {
+.sonic-kanban-editable {
   cursor: pointer;
   border-bottom: 1px dotted color-mix(in srgb, var(--color-border) 80%, transparent);
 }
-.lightning-kanban-editable:hover {
+.sonic-kanban-editable:hover {
   color: var(--color-foreground);
   border-bottom-color: var(--color-ring);
 }
 
-.lightning-kanban-drawer-title-text {
+.sonic-kanban-drawer-title-text {
   cursor: pointer;
 }
-.lightning-kanban-drawer-title-text:hover {
+.sonic-kanban-drawer-title-text:hover {
   text-decoration: underline;
   text-decoration-color: var(--color-ring);
   text-decoration-style: dotted;
   text-underline-offset: 3px;
 }
 
-.lightning-kanban-edit-row {
+.sonic-kanban-edit-row {
   display: flex;
   align-items: center;
   gap: 0.35rem;
   width: 100%;
 }
 
-.lightning-kanban-section-head-row {
+.sonic-kanban-section-head-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
 }
-.lightning-kanban-edit-link {
+.sonic-kanban-edit-link {
   appearance: none;
   background: transparent;
   border: 0;
@@ -698,9 +698,9 @@
   cursor: pointer;
   padding: 0;
 }
-.lightning-kanban-edit-link:hover { color: var(--color-ring); }
+.sonic-kanban-edit-link:hover { color: var(--color-ring); }
 
-.lightning-kanban-textarea {
+.sonic-kanban-textarea {
   width: 100%;
   min-height: 8rem;
   background: var(--color-card);
@@ -713,7 +713,7 @@
   line-height: 1.5;
   resize: vertical;
 }
-.lightning-kanban-textarea:focus {
+.sonic-kanban-textarea:focus {
   outline: none;
   border-color: var(--color-ring);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-ring) 30%, transparent);
@@ -721,33 +721,33 @@
 
 /* ---- Markdown rendering -------------------------------------------- */
 
-.lightning-kanban-md {
+.sonic-kanban-md {
   font-size: 0.85rem;
   line-height: 1.6;
   color: var(--color-foreground);
 }
-.lightning-kanban-md p  { margin: 0.25rem 0; }
-.lightning-kanban-md h1,
-.lightning-kanban-md h2,
-.lightning-kanban-md h3,
-.lightning-kanban-md h4 {
+.sonic-kanban-md p  { margin: 0.25rem 0; }
+.sonic-kanban-md h1,
+.sonic-kanban-md h2,
+.sonic-kanban-md h3,
+.sonic-kanban-md h4 {
   margin: 0.6rem 0 0.2rem;
   line-height: 1.25;
 }
-.lightning-kanban-md h1 { font-size: 1.05rem; }
-.lightning-kanban-md h2 { font-size: 0.95rem; }
-.lightning-kanban-md h3 { font-size: 0.88rem; }
-.lightning-kanban-md h4 { font-size: 0.82rem; }
-.lightning-kanban-md ul {
+.sonic-kanban-md h1 { font-size: 1.05rem; }
+.sonic-kanban-md h2 { font-size: 0.95rem; }
+.sonic-kanban-md h3 { font-size: 0.88rem; }
+.sonic-kanban-md h4 { font-size: 0.82rem; }
+.sonic-kanban-md ul {
   margin: 0.25rem 0 0.25rem 1.1rem;
   padding: 0;
 }
-.lightning-kanban-md li { margin: 0.1rem 0; }
-.lightning-kanban-md a {
+.sonic-kanban-md li { margin: 0.1rem 0; }
+.sonic-kanban-md a {
   color: var(--color-ring);
   text-decoration: underline;
 }
-.lightning-kanban-md code {
+.sonic-kanban-md code {
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 0.8rem;
   padding: 0.05rem 0.3rem;
@@ -763,11 +763,11 @@
  * UA default on <code> elements — otherwise themes that don't set
  * --color-foreground leave code text rendering near-black on dark themes
  * (see issue #18576). */
-.lightning-kanban pre.lightning-kanban-md-code {
+.sonic-kanban pre.sonic-kanban-md-code {
   margin: 0.35rem 0;
   padding: 0.5rem 0.6rem;
-  /* Higher specificity (``.lightning-kanban pre.lightning-kanban-md-code`` vs
-   * the reset's ``.lightning-kanban pre``) so this intentional pill wins
+  /* Higher specificity (``.sonic-kanban pre.sonic-kanban-md-code`` vs
+   * the reset's ``.sonic-kanban pre``) so this intentional pill wins
    * over our own ``<pre>`` reset. ``!important`` also needed so theme
    * rules that drop their own ``code``/``pre`` fill don't knock it out
    * either. #21086. */
@@ -776,18 +776,18 @@
   border-radius: var(--radius-sm, 0.25rem);
   overflow-x: auto;
 }
-.lightning-kanban-md-code code {
+.sonic-kanban-md-code code {
   background: transparent;
   padding: 0;
   font-size: 0.8rem;
   white-space: pre;
   color: inherit;
 }
-.lightning-kanban-md strong { font-weight: 600; }
+.sonic-kanban-md strong { font-weight: 600; }
 
 /* ---- Touch-drag proxy ---------------------------------------------- */
 
-.lightning-kanban-touch-proxy {
+.sonic-kanban-touch-proxy {
   pointer-events: none;
   opacity: 0.85;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
@@ -797,7 +797,7 @@
 
 /* ---- Multi-drag ghost ----------------------------------------------- */
 
-.lightning-kanban-drag-ghost {
+.sonic-kanban-drag-ghost {
   position: fixed;
   left: -9999px;
   padding: 0.45rem 0.8rem;
@@ -814,24 +814,24 @@
 
 /* ---- Staleness tiers ------------------------------------------------ */
 
-.lightning-kanban-card--stale-amber :where(.lightning-kanban-card-content) {
+.sonic-kanban-card--stale-amber :where(.sonic-kanban-card-content) {
   box-shadow: 0 0 0 1px #d4b34888 inset;
 }
-.lightning-kanban-card--stale-amber:hover :where(.lightning-kanban-card-content) {
+.sonic-kanban-card--stale-amber:hover :where(.sonic-kanban-card-content) {
   box-shadow: 0 0 0 2px #d4b348 inset;
 }
-.lightning-kanban-card--stale-red :where(.lightning-kanban-card-content) {
+.sonic-kanban-card--stale-red :where(.sonic-kanban-card-content) {
   box-shadow: 0 0 0 1px var(--color-destructive, #d14a4a) inset,
               0 0 8px color-mix(in srgb, var(--color-destructive, #d14a4a) 30%, transparent);
 }
-.lightning-kanban-card--stale-red:hover :where(.lightning-kanban-card-content) {
+.sonic-kanban-card--stale-red:hover :where(.sonic-kanban-card-content) {
   box-shadow: 0 0 0 2px var(--color-destructive, #d14a4a) inset,
               0 0 10px color-mix(in srgb, var(--color-destructive, #d14a4a) 45%, transparent);
 }
 
 /* ---- Worker log pane ------------------------------------------------ */
 
-.lightning-kanban-log {
+.sonic-kanban-log {
   max-height: 360px;
   overflow: auto;
   white-space: pre;
@@ -842,56 +842,56 @@
 
 /* ---- Run history (per-attempt log in the drawer) ------------------- */
 
-.lightning-kanban-run {
+.sonic-kanban-run {
   border-left: 2px solid var(--color-border);
   padding: 0.35rem 0.5rem;
   margin-bottom: 0.4rem;
   background: color-mix(in srgb, var(--color-foreground) 3%, transparent);
   border-radius: var(--radius-sm, 0.25rem);
 }
-.lightning-kanban-run--active  { border-left-color: #3fb97d; }
-.lightning-kanban-run--completed { border-left-color: #4a8cd1; }
-.lightning-kanban-run--ended { border-left-color: #6b7280; }  /* generic fallback when outcome is unset */
-.lightning-kanban-run--blocked { border-left-color: var(--color-destructive, #d14a4a); }
-.lightning-kanban-run--crashed,
-.lightning-kanban-run--timed_out,
-.lightning-kanban-run--gave_up,
-.lightning-kanban-run--spawn_failed {
+.sonic-kanban-run--active  { border-left-color: #3fb97d; }
+.sonic-kanban-run--completed { border-left-color: #4a8cd1; }
+.sonic-kanban-run--ended { border-left-color: #6b7280; }  /* generic fallback when outcome is unset */
+.sonic-kanban-run--blocked { border-left-color: var(--color-destructive, #d14a4a); }
+.sonic-kanban-run--crashed,
+.sonic-kanban-run--timed_out,
+.sonic-kanban-run--gave_up,
+.sonic-kanban-run--spawn_failed {
   border-left-color: var(--color-destructive, #d14a4a);
   background: color-mix(in srgb, var(--color-destructive, #d14a4a) 6%, transparent);
 }
-.lightning-kanban-run--reclaimed { border-left-color: #d4b348; }
+.sonic-kanban-run--reclaimed { border-left-color: #d4b348; }
 
-.lightning-kanban-run-head {
+.sonic-kanban-run-head {
   display: flex;
   align-items: center;
   gap: 0.6rem;
   font-size: 0.7rem;
 }
-.lightning-kanban-run-outcome {
+.sonic-kanban-run-outcome {
   font-family: var(--font-mono, ui-monospace, monospace);
   font-weight: 600;
   letter-spacing: 0.05em;
   color: var(--color-foreground);
 }
-.lightning-kanban-run-profile {
+.sonic-kanban-run-profile {
   color: var(--color-muted-foreground);
 }
-.lightning-kanban-run-elapsed {
+.sonic-kanban-run-elapsed {
   font-variant-numeric: tabular-nums;
   color: var(--color-muted-foreground);
 }
-.lightning-kanban-run-ago {
+.sonic-kanban-run-ago {
   margin-left: auto;
   color: var(--color-muted-foreground);
 }
-.lightning-kanban-run-summary {
+.sonic-kanban-run-summary {
   font-size: 0.82rem;
   line-height: 1.5;
   padding: 0.2rem 0 0;
   color: var(--color-foreground);
 }
-.lightning-kanban-run-error {
+.sonic-kanban-run-error {
   font-size: 0.7rem;
   color: var(--color-destructive, #d14a4a);
   padding: 0.15rem 0 0;
@@ -904,37 +904,37 @@
  * Uses a native <details>/<summary> pair so collapse is browser-handled
  * (zero JS); large blobs default collapsed via the open=false attribute.
  * See issue #19548. */
-.lightning-kanban-run-meta-block {
+.sonic-kanban-run-meta-block {
   margin-top: 0.4rem;
   padding: 0.25rem 0.5rem;
   border-left: 2px solid var(--color-border);
   background: transparent;
 }
-.lightning-kanban-run-meta-block > summary.lightning-kanban-run-meta-label {
+.sonic-kanban-run-meta-block > summary.sonic-kanban-run-meta-label {
   cursor: pointer;
   list-style: none;
 }
-.lightning-kanban-run-meta-block > summary.lightning-kanban-run-meta-label::-webkit-details-marker {
+.sonic-kanban-run-meta-block > summary.sonic-kanban-run-meta-label::-webkit-details-marker {
   display: none;
 }
-.lightning-kanban-run-meta-block > summary.lightning-kanban-run-meta-label::before {
+.sonic-kanban-run-meta-block > summary.sonic-kanban-run-meta-label::before {
   content: "▶ ";
   display: inline-block;
   font-size: 0.6rem;
   margin-right: 0.25rem;
   transition: transform 120ms ease;
 }
-.lightning-kanban-run-meta-block[open] > summary.lightning-kanban-run-meta-label::before {
+.sonic-kanban-run-meta-block[open] > summary.sonic-kanban-run-meta-label::before {
   transform: rotate(90deg);
 }
-.lightning-kanban-run-meta-label {
+.sonic-kanban-run-meta-label {
   font-size: 0.65rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   color: var(--color-muted-foreground);
   padding-bottom: 0.15rem;
 }
-.lightning-kanban-run-meta {
+.sonic-kanban-run-meta {
   display: block;
   max-height: 8.5rem;
   overflow: auto;
@@ -951,26 +951,26 @@
 /* -------------------------------------------------------------------------
    Multi-project: board switcher + create-board dialog
    ------------------------------------------------------------------------- */
-.lightning-kanban-boardswitcher {
+.sonic-kanban-boardswitcher {
   border: 1px solid var(--color-border, rgba(120, 120, 140, 0.25));
   border-radius: 0.5rem;
   padding: 0.6rem 0.85rem;
   background: var(--color-card-subtle, rgba(255, 255, 255, 0.02));
 }
-.lightning-kanban-boardswitcher-inner {
+.sonic-kanban-boardswitcher-inner {
   display: flex;
   align-items: flex-end;
   gap: 0.75rem;
   flex-wrap: wrap;
 }
-.lightning-kanban-boardswitcher-compact {
+.sonic-kanban-boardswitcher-compact {
   display: flex;
   justify-content: flex-end;
   padding: 0 0.25rem;
   gap: 0.5rem;
   align-items: center;
 }
-.lightning-kanban-docs-link {
+.sonic-kanban-docs-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -987,14 +987,14 @@
   cursor: help;
   transition: color 0.15s, background 0.15s, border-color 0.15s;
 }
-.lightning-kanban-docs-link:hover,
-.lightning-kanban-docs-link:focus-visible {
+.sonic-kanban-docs-link:hover,
+.sonic-kanban-docs-link:focus-visible {
   color: var(--color-foreground, #e7e7ee);
   background: var(--color-card, rgba(255, 255, 255, 0.08));
   border-color: var(--color-border, rgba(160, 160, 190, 0.45));
   outline: none;
 }
-.lightning-kanban-dialog-backdrop {
+.sonic-kanban-dialog-backdrop {
   position: fixed;
   inset: 0;
   background: rgba(8, 10, 16, 0.55);
@@ -1004,7 +1004,7 @@
   align-items: center;
   justify-content: center;
 }
-.lightning-kanban-dialog {
+.sonic-kanban-dialog {
   background: var(--color-card, #121421);
   color: var(--color-foreground);
   border: 1px solid var(--color-border, rgba(120, 120, 140, 0.25));
@@ -1016,12 +1016,12 @@
   overflow: auto;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
 }
-.lightning-kanban-dialog-title {
+.sonic-kanban-dialog-title {
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 0.25rem;
 }
-.lightning-kanban-dialog-actions {
+.sonic-kanban-dialog-actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
@@ -1033,7 +1033,7 @@
 /* strip, recovery popover. Orange/red palette but muted so the board     */
 /* doesn't scream on every render.                                        */
 /* ---------------------------------------------------------------------- */
-.lightning-kanban-warning-badge {
+.sonic-kanban-warning-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1044,24 +1044,24 @@
 }
 
 /* Attention strip — collapsed state is a thin bar. */
-.lightning-kanban-attention {
+.sonic-kanban-attention {
   border: 1px solid rgba(255, 158, 59, 0.35);
   background: rgba(255, 158, 59, 0.06);
   border-radius: 0.5rem;
   overflow: hidden;
 }
-.lightning-kanban-attention-bar {
+.sonic-kanban-attention-bar {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.4rem 0.75rem;
   font-size: 0.8125rem;
 }
-.lightning-kanban-attention-icon { color: #ff9e3b; font-size: 1rem; }
-.lightning-kanban-attention-text { flex: 1; }
-.lightning-kanban-attention-toggle,
-.lightning-kanban-attention-dismiss,
-.lightning-kanban-attention-row-btn {
+.sonic-kanban-attention-icon { color: #ff9e3b; font-size: 1rem; }
+.sonic-kanban-attention-text { flex: 1; }
+.sonic-kanban-attention-toggle,
+.sonic-kanban-attention-dismiss,
+.sonic-kanban-attention-row-btn {
   background: transparent;
   border: 1px solid rgba(120, 120, 140, 0.3);
   border-radius: 0.3rem;
@@ -1070,63 +1070,63 @@
   color: inherit;
   cursor: pointer;
 }
-.lightning-kanban-attention-toggle:hover,
-.lightning-kanban-attention-dismiss:hover,
-.lightning-kanban-attention-row-btn:hover {
+.sonic-kanban-attention-toggle:hover,
+.sonic-kanban-attention-dismiss:hover,
+.sonic-kanban-attention-row-btn:hover {
   background: rgba(255, 158, 59, 0.12);
 }
-.lightning-kanban-attention-list {
+.sonic-kanban-attention-list {
   border-top: 1px solid rgba(255, 158, 59, 0.2);
   padding: 0.25rem 0;
 }
-.lightning-kanban-attention-row {
+.sonic-kanban-attention-row {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.3rem 0.75rem;
   font-size: 0.8125rem;
 }
-.lightning-kanban-attention-row:hover {
+.sonic-kanban-attention-row:hover {
   background: rgba(255, 158, 59, 0.08);
 }
-.lightning-kanban-attention-row-id {
+.sonic-kanban-attention-row-id {
   font-family: ui-monospace, SFMono-Regular, monospace;
   font-size: 0.75rem;
   color: var(--color-muted-foreground, #888);
   min-width: 7rem;
 }
-.lightning-kanban-attention-row-title {
+.sonic-kanban-attention-row-title {
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.lightning-kanban-attention-row-meta {
+.sonic-kanban-attention-row-meta {
   font-size: 0.75rem;
   color: var(--color-muted-foreground, #888);
 }
 
 /* Events tab — callout style for hallucination events. */
-.lightning-kanban-event--hallucination {
+.sonic-kanban-event--hallucination {
   border-left: 3px solid #ff6b6b;
   background: rgba(255, 107, 107, 0.08);
   padding: 0.5rem 0.65rem;
   border-radius: 0.35rem;
   margin: 0.25rem 0;
 }
-.lightning-kanban-event-header,
-.lightning-kanban-event-header-plain {
+.sonic-kanban-event-header,
+.sonic-kanban-event-header-plain {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
-.lightning-kanban-event-warning-icon { color: #ff6b6b; font-size: 1rem; }
-.lightning-kanban-event-warning-label {
+.sonic-kanban-event-warning-icon { color: #ff6b6b; font-size: 1rem; }
+.sonic-kanban-event-warning-label {
   color: #ff6b6b;
   font-weight: 600;
   font-size: 0.8125rem;
 }
-.lightning-kanban-event-phantom-row {
+.sonic-kanban-event-phantom-row {
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -1134,11 +1134,11 @@
   margin-top: 0.3rem;
   padding-left: 1.35rem;
 }
-.lightning-kanban-event-phantom-label {
+.sonic-kanban-event-phantom-label {
   font-size: 0.75rem;
   color: var(--color-muted-foreground, #999);
 }
-.lightning-kanban-event-phantom-chip {
+.sonic-kanban-event-phantom-chip {
   font-family: ui-monospace, SFMono-Regular, monospace;
   font-size: 0.75rem;
   padding: 0.1rem 0.4rem;
@@ -1148,14 +1148,14 @@
 }
 
 /* Recovery section header — amber accent when the task has warnings. */
-.lightning-kanban-section-head-warning { color: #ff9e3b; }
-.lightning-kanban-section-head-row {
+.sonic-kanban-section-head-warning { color: #ff9e3b; }
+.sonic-kanban-section-head-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
 }
-.lightning-kanban-section-toggle {
+.sonic-kanban-section-toggle {
   background: transparent;
   border: 1px solid rgba(120, 120, 140, 0.3);
   border-radius: 0.3rem;
@@ -1166,7 +1166,7 @@
 }
 
 /* Recovery popover body. */
-.lightning-kanban-recovery {
+.sonic-kanban-recovery {
   border: 1px solid rgba(120, 120, 140, 0.25);
   background: rgba(255, 158, 59, 0.04);
   border-radius: 0.5rem;
@@ -1175,26 +1175,26 @@
   flex-direction: column;
   gap: 0.75rem;
 }
-.lightning-kanban-recovery-title {
+.sonic-kanban-recovery-title {
   font-weight: 600;
   font-size: 0.8125rem;
 }
-.lightning-kanban-recovery-hint {
+.sonic-kanban-recovery-hint {
   font-size: 0.75rem;
   color: var(--color-muted-foreground, #888);
   line-height: 1.35;
 }
-.lightning-kanban-recovery-section {
+.sonic-kanban-recovery-section {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
-.lightning-kanban-recovery-label {
+.sonic-kanban-recovery-label {
   font-size: 0.75rem;
   color: var(--color-muted-foreground, #888);
 }
-.lightning-kanban-recovery-input,
-.lightning-kanban-recovery-select {
+.sonic-kanban-recovery-input,
+.sonic-kanban-recovery-select {
   padding: 0.25rem 0.4rem;
   font-size: 0.8125rem;
   background: rgba(0, 0, 0, 0.15);
@@ -1203,23 +1203,23 @@
   color: inherit;
   outline: none;
 }
-.lightning-kanban-recovery-action-row {
+.sonic-kanban-recovery-action-row {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
-.lightning-kanban-recovery-action-label {
+.sonic-kanban-recovery-action-label {
   font-size: 0.8125rem;
   font-weight: 600;
   min-width: 8rem;
 }
-.lightning-kanban-recovery-action-desc {
+.sonic-kanban-recovery-action-desc {
   flex: 1;
   font-size: 0.75rem;
   color: var(--color-muted-foreground, #888);
 }
-.lightning-kanban-recovery-btn {
+.sonic-kanban-recovery-btn {
   padding: 0.25rem 0.7rem;
   font-size: 0.75rem;
   background: rgba(255, 158, 59, 0.15);
@@ -1228,32 +1228,32 @@
   color: inherit;
   cursor: pointer;
 }
-.lightning-kanban-recovery-btn:hover:not(:disabled) {
+.sonic-kanban-recovery-btn:hover:not(:disabled) {
   background: rgba(255, 158, 59, 0.25);
 }
-.lightning-kanban-recovery-btn:disabled {
+.sonic-kanban-recovery-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
-.lightning-kanban-recovery-reassign-row {
+.sonic-kanban-recovery-reassign-row {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
-.lightning-kanban-recovery-checkbox {
+.sonic-kanban-recovery-checkbox {
   font-size: 0.75rem;
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
 }
-.lightning-kanban-recovery-cmd-row {
+.sonic-kanban-recovery-cmd-row {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
-.lightning-kanban-recovery-cmd {
+.sonic-kanban-recovery-cmd {
   font-family: ui-monospace, SFMono-Regular, monospace;
   font-size: 0.75rem;
   padding: 0.2rem 0.5rem;
@@ -1265,17 +1265,17 @@
   overflow-x: auto;
   white-space: nowrap;
 }
-.lightning-kanban-recovery-msg {
+.sonic-kanban-recovery-msg {
   font-size: 0.75rem;
   padding: 0.35rem 0.5rem;
   border-radius: 0.3rem;
 }
-.lightning-kanban-recovery-msg--ok {
+.sonic-kanban-recovery-msg--ok {
   background: rgba(120, 200, 120, 0.12);
   color: #6bc46b;
   border: 1px solid rgba(120, 200, 120, 0.3);
 }
-.lightning-kanban-recovery-msg--err {
+.sonic-kanban-recovery-msg--err {
   background: rgba(255, 107, 107, 0.12);
   color: #ff8b8b;
   border: 1px solid rgba(255, 107, 107, 0.3);
@@ -1288,54 +1288,54 @@
 
 /* Severity token variables so every diagnostic-coloured surface uses the */
 /* same palette. */
-.lightning-kanban-diag,
-.lightning-kanban-attention,
-.lightning-kanban-warning-badge,
-.lightning-kanban-attention-row {
-  --lightning-diag-warning: #ff9e3b;
-  --lightning-diag-error:   #ff6b3d;
-  --lightning-diag-critical: #ff4d4d;
+.sonic-kanban-diag,
+.sonic-kanban-attention,
+.sonic-kanban-warning-badge,
+.sonic-kanban-attention-row {
+  --sonic-diag-warning: #ff9e3b;
+  --sonic-diag-error:   #ff6b3d;
+  --sonic-diag-critical: #ff4d4d;
 }
 
 /* Warning-badge severity variants (overrides the base colour). */
-.lightning-kanban-warning-badge--warning { color: var(--lightning-diag-warning); }
-.lightning-kanban-warning-badge--error   { color: var(--lightning-diag-error); font-weight: 700; }
-.lightning-kanban-warning-badge--critical { color: var(--lightning-diag-critical); font-weight: 700; }
+.sonic-kanban-warning-badge--warning { color: var(--sonic-diag-warning); }
+.sonic-kanban-warning-badge--error   { color: var(--sonic-diag-error); font-weight: 700; }
+.sonic-kanban-warning-badge--critical { color: var(--sonic-diag-critical); font-weight: 700; }
 
 /* Attention-strip severity variants. */
-.lightning-kanban-attention--warning {
+.sonic-kanban-attention--warning {
   border-color: rgba(255, 158, 59, 0.35);
   background: rgba(255, 158, 59, 0.06);
 }
-.lightning-kanban-attention--error {
+.sonic-kanban-attention--error {
   border-color: rgba(255, 107, 61, 0.45);
   background: rgba(255, 107, 61, 0.08);
 }
-.lightning-kanban-attention--critical {
+.sonic-kanban-attention--critical {
   border-color: rgba(255, 77, 77, 0.55);
   background: rgba(255, 77, 77, 0.10);
 }
-.lightning-kanban-attention--error .lightning-kanban-attention-icon { color: var(--lightning-diag-error); }
-.lightning-kanban-attention--critical .lightning-kanban-attention-icon { color: var(--lightning-diag-critical); }
+.sonic-kanban-attention--error .sonic-kanban-attention-icon { color: var(--sonic-diag-error); }
+.sonic-kanban-attention--critical .sonic-kanban-attention-icon { color: var(--sonic-diag-critical); }
 
 /* Per-row severity marker in the expanded attention list. */
-.lightning-kanban-attention-row-sev {
+.sonic-kanban-attention-row-sev {
   display: inline-block;
   min-width: 1.5rem;
   font-weight: 600;
 }
-.lightning-kanban-attention-row--warning .lightning-kanban-attention-row-sev { color: var(--lightning-diag-warning); }
-.lightning-kanban-attention-row--error    .lightning-kanban-attention-row-sev { color: var(--lightning-diag-error); font-weight: 700; }
-.lightning-kanban-attention-row--critical .lightning-kanban-attention-row-sev { color: var(--lightning-diag-critical); font-weight: 700; }
+.sonic-kanban-attention-row--warning .sonic-kanban-attention-row-sev { color: var(--sonic-diag-warning); }
+.sonic-kanban-attention-row--error    .sonic-kanban-attention-row-sev { color: var(--sonic-diag-error); font-weight: 700; }
+.sonic-kanban-attention-row--critical .sonic-kanban-attention-row-sev { color: var(--sonic-diag-critical); font-weight: 700; }
 
 /* Individual diagnostic card inside the drawer's Diagnostics section. */
-.lightning-kanban-diag-list {
+.sonic-kanban-diag-list {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
 }
-.lightning-kanban-diag {
-  border-left: 3px solid var(--lightning-diag-warning);
+.sonic-kanban-diag {
+  border-left: 3px solid var(--sonic-diag-warning);
   background: rgba(255, 158, 59, 0.05);
   border-radius: 0.35rem;
   padding: 0.6rem 0.75rem;
@@ -1343,70 +1343,70 @@
   flex-direction: column;
   gap: 0.4rem;
 }
-.lightning-kanban-diag--error {
-  border-left-color: var(--lightning-diag-error);
+.sonic-kanban-diag--error {
+  border-left-color: var(--sonic-diag-error);
   background: rgba(255, 107, 61, 0.06);
 }
-.lightning-kanban-diag--critical {
-  border-left-color: var(--lightning-diag-critical);
+.sonic-kanban-diag--critical {
+  border-left-color: var(--sonic-diag-critical);
   background: rgba(255, 77, 77, 0.07);
 }
-.lightning-kanban-diag-header {
+.sonic-kanban-diag-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
-.lightning-kanban-diag-sev {
+.sonic-kanban-diag-sev {
   font-weight: 700;
   min-width: 1.5rem;
 }
-.lightning-kanban-diag--warning .lightning-kanban-diag-sev { color: var(--lightning-diag-warning); }
-.lightning-kanban-diag--error    .lightning-kanban-diag-sev { color: var(--lightning-diag-error); }
-.lightning-kanban-diag--critical .lightning-kanban-diag-sev { color: var(--lightning-diag-critical); }
-.lightning-kanban-diag-title {
+.sonic-kanban-diag--warning .sonic-kanban-diag-sev { color: var(--sonic-diag-warning); }
+.sonic-kanban-diag--error    .sonic-kanban-diag-sev { color: var(--sonic-diag-error); }
+.sonic-kanban-diag--critical .sonic-kanban-diag-sev { color: var(--sonic-diag-critical); }
+.sonic-kanban-diag-title {
   font-weight: 600;
   font-size: 0.875rem;
 }
-.lightning-kanban-diag-detail {
+.sonic-kanban-diag-detail {
   font-size: 0.8125rem;
   color: var(--color-foreground, #ccc);
   line-height: 1.4;
 }
-.lightning-kanban-diag-data {
+.sonic-kanban-diag-data {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
   font-size: 0.75rem;
 }
-.lightning-kanban-diag-data-row {
+.sonic-kanban-diag-data-row {
   display: flex;
   align-items: center;
   gap: 0.35rem;
   flex-wrap: wrap;
 }
-.lightning-kanban-diag-data-key {
+.sonic-kanban-diag-data-key {
   color: var(--color-muted-foreground, #888);
   font-weight: 500;
 }
-.lightning-kanban-diag-data-val {
+.sonic-kanban-diag-data-val {
   font-family: ui-monospace, SFMono-Regular, monospace;
 }
-.lightning-kanban-diag-reassign-row {
+.sonic-kanban-diag-reassign-row {
   display: flex;
   align-items: center;
   gap: 0.4rem;
   font-size: 0.75rem;
 }
-.lightning-kanban-diag-reassign-label {
+.sonic-kanban-diag-reassign-label {
   color: var(--color-muted-foreground, #888);
 }
-.lightning-kanban-diag-actions {
+.sonic-kanban-diag-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
   margin-top: 0.1rem;
 }
-.lightning-kanban-diag-action-btn {
+.sonic-kanban-diag-action-btn {
   padding: 0.25rem 0.6rem;
   font-size: 0.75rem;
   background: rgba(0, 0, 0, 0.2);
@@ -1416,48 +1416,48 @@
   cursor: pointer;
   text-decoration: none;
 }
-.lightning-kanban-diag-action-btn:hover:not(:disabled) {
+.sonic-kanban-diag-action-btn:hover:not(:disabled) {
   background: rgba(0, 0, 0, 0.3);
 }
-.lightning-kanban-diag-action-btn:disabled {
+.sonic-kanban-diag-action-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
-.lightning-kanban-diag-action-btn--suggested {
+.sonic-kanban-diag-action-btn--suggested {
   background: rgba(255, 158, 59, 0.15);
   border-color: rgba(255, 158, 59, 0.4);
   font-weight: 600;
 }
-.lightning-kanban-diag-action-btn--suggested:hover:not(:disabled) {
+.sonic-kanban-diag-action-btn--suggested:hover:not(:disabled) {
   background: rgba(255, 158, 59, 0.25);
 }
-.lightning-kanban-diag-action-btn--unknown {
+.sonic-kanban-diag-action-btn--unknown {
   opacity: 0.6;
   cursor: default;
 }
-.lightning-kanban-diag-msg {
+.sonic-kanban-diag-msg {
   font-size: 0.75rem;
   padding: 0.35rem 0.5rem;
   border-radius: 0.3rem;
 }
-.lightning-kanban-diag-msg--ok {
+.sonic-kanban-diag-msg--ok {
   background: rgba(120, 200, 120, 0.12);
   color: #6bc46b;
   border: 1px solid rgba(120, 200, 120, 0.3);
 }
-.lightning-kanban-diag-msg--err {
+.sonic-kanban-diag-msg--err {
   background: rgba(255, 107, 61, 0.12);
   color: #ff8b6b;
   border: 1px solid rgba(255, 107, 61, 0.3);
 }
 /* ---- Partial failure highlight --------------------------------------- */
-.lightning-kanban-card--failed :where(.lightning-kanban-card-content) {
+.sonic-kanban-card--failed :where(.sonic-kanban-card-content) {
   box-shadow: 0 0 0 2px var(--color-destructive, #d14a4a) inset,
               0 0 8px color-mix(in srgb, var(--color-destructive, #d14a4a) 30%, transparent);
 }
 
 /* ---- Larger checkbox hit target -------------------------------------- */
-.lightning-kanban-card-check-wrap {
+.sonic-kanban-card-check-wrap {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1466,7 +1466,7 @@
   margin: -0.3rem;
   cursor: pointer;
 }
-.lightning-kanban-card-check {
+.sonic-kanban-card-check {
   width: 0.95rem;
   height: 0.95rem;
   margin: 0;
@@ -1475,7 +1475,7 @@
 }
 
 /* ---- Column select-all checkbox -------------------------------------- */
-.lightning-kanban-col-check {
+.sonic-kanban-col-check {
   width: 0.9rem;
   height: 0.9rem;
   margin: 0 0.15rem 0 0;
@@ -1484,14 +1484,14 @@
 }
 
 /* ---- Bulk action bar extras ------------------------------------------ */
-.lightning-kanban-bulk-priority {
+.sonic-kanban-bulk-priority {
   display: flex;
   align-items: center;
   gap: 0.25rem;
   padding-left: 0.5rem;
   border-left: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
 }
-.lightning-kanban-bulk-reclaim-first {
+.sonic-kanban-bulk-reclaim-first {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
@@ -1501,7 +1501,7 @@
 
 /* ---- Trash drop zone ------------------------------------------------- */
 
-.lightning-kanban-trash {
+.sonic-kanban-trash {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1520,22 +1520,22 @@
   pointer-events: none;
 }
 
-.lightning-kanban-trash--active {
+.sonic-kanban-trash--active {
   opacity: 1;
   pointer-events: auto;
 }
 
-.lightning-kanban-trash--drop {
+.sonic-kanban-trash--drop {
   border-color: var(--color-destructive, #d14a4a);
   background: color-mix(in srgb, var(--color-destructive, #d14a4a) 8%, var(--color-card));
   color: var(--color-destructive, #d14a4a);
 }
 
-.lightning-kanban-trash-icon {
+.sonic-kanban-trash-icon {
   font-size: 1.25rem;
   line-height: 1;
 }
 
-.lightning-kanban-trash-label {
+.sonic-kanban-trash-label {
   font-weight: 500;
 }

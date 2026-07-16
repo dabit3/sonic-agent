@@ -9,7 +9,7 @@ bulk download:
 
 ~70 MB, ~6 CSVs inside (nodes-entities, nodes-officers, nodes-intermediaries,
 nodes-addresses, relationships, ...). We cache it under
-$LIGHTNING_OSINT_CACHE/icij/ (default: ~/.cache/lightning-osint/icij/) and search
+$SONIC_OSINT_CACHE/icij/ (default: ~/.cache/sonic-osint/icij/) and search
 locally so the agent doesn't re-download for every query.
 
 Output CSV columns match the original `fetch_icij_offshore.py` contract.
@@ -45,10 +45,10 @@ COLUMNS = [
 
 
 def _cache_dir() -> Path:
-    base = os.environ.get("LIGHTNING_OSINT_CACHE")
+    base = os.environ.get("SONIC_OSINT_CACHE")
     if base:
         return Path(base) / "icij"
-    return Path.home() / ".cache" / "lightning-osint" / "icij"
+    return Path.home() / ".cache" / "sonic-osint" / "icij"
 
 
 def _download(dest: Path, force: bool = False) -> Path:
@@ -63,7 +63,7 @@ def _download(dest: Path, force: bool = False) -> Path:
     print(f"Downloading ICIJ bulk database (~70 MB) to {zip_path}", file=sys.stderr)
     req = urllib.request.Request(
         BULK_URL,
-        headers={"User-Agent": "lightning-agent osint-investigation skill"},
+        headers={"User-Agent": "sonic-agent osint-investigation skill"},
     )
     with urllib.request.urlopen(req, timeout=120) as resp:  # noqa: S310
         tmp = zip_path.with_suffix(".zip.tmp")
@@ -207,7 +207,7 @@ def main() -> int:
         "--cache-dir",
         type=Path,
         default=None,
-        help="Override cache directory (default: $LIGHTNING_OSINT_CACHE/icij or ~/.cache/lightning-osint/icij)",
+        help="Override cache directory (default: $SONIC_OSINT_CACHE/icij or ~/.cache/sonic-osint/icij)",
     )
     p.add_argument(
         "--force-refresh",

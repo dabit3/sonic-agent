@@ -8,9 +8,9 @@ description: "On-demand knowledge documents — progressive disclosure, agent-ma
 
 Skills are on-demand knowledge documents the agent can load when needed. They follow a **progressive disclosure** pattern to minimize token usage and are compatible with the [agentskills.io](https://agentskills.io/specification) open standard.
 
-All skills live in **`~/.lightning/skills/`** — the primary directory and source of truth. On fresh install, bundled skills are copied from the repo. Hub-installed and agent-created skills also go here. The agent can modify or delete any skill.
+All skills live in **`~/.sonic/skills/`** — the primary directory and source of truth. On fresh install, bundled skills are copied from the repo. Hub-installed and agent-created skills also go here. The agent can modify or delete any skill.
 
-You can also point Lightning at **external skill directories** — additional folders scanned alongside the local one. See [External Skill Directories](#external-skill-directories) below.
+You can also point Sonic at **external skill directories** — additional folders scanned alongside the local one. See [External Skill Directories](#external-skill-directories) below.
 
 See also:
 
@@ -32,13 +32,13 @@ Every installed skill is automatically available as a slash command:
 /excalidraw
 ```
 
-The bundled `plan` skill is a good example. Running `/plan [request]` loads the skill's instructions, telling Lightning to inspect context if needed, write a markdown implementation plan instead of executing the task, and save the result under `.lightning/plans/` relative to the active workspace/backend working directory.
+The bundled `plan` skill is a good example. Running `/plan [request]` loads the skill's instructions, telling Sonic to inspect context if needed, write a markdown implementation plan instead of executing the task, and save the result under `.sonic/plans/` relative to the active workspace/backend working directory.
 
 You can also interact with skills through natural conversation:
 
 ```bash
-lightning chat --toolsets skills -q "What skills do you have?"
-lightning chat --toolsets skills -q "Show me the axolotl skill"
+sonic chat --toolsets skills -q "What skills do you have?"
+sonic chat --toolsets skills -q "Show me the axolotl skill"
 ```
 
 ## Progressive Disclosure
@@ -62,7 +62,7 @@ description: Brief description of what this skill does
 version: 1.0.0
 platforms: [macos, linux]     # Optional — restrict to specific OS platforms
 metadata:
-  lightning:
+  sonic:
     tags: [python, automation]
     category: devops
     fallback_for_toolsets: [web]    # Optional — conditional activation (see below)
@@ -122,7 +122,7 @@ If a response (or any text inside it — typically the last line) contains the l
 ```
 Here is your rendered chart:
 
-/home/user/.lightning/cache/chart-q4-2025.png
+/home/user/.sonic/cache/chart-q4-2025.png
 
 [[as_document]]
 ```
@@ -142,7 +142,7 @@ Skills can automatically show or hide themselves based on which tools are availa
 
 ```yaml
 metadata:
-  lightning:
+  sonic:
     fallback_for_toolsets: [web]      # Show ONLY when these toolsets are unavailable
     requires_toolsets: [terminal]     # Show ONLY when these toolsets are available
     fallback_for_tools: [web_search]  # Show ONLY when these specific tools are unavailable
@@ -172,7 +172,7 @@ required_environment_variables:
     required_for: full functionality
 ```
 
-When a missing value is encountered, Lightning asks for it securely only when the skill is actually loaded in the local CLI. You can skip setup and keep using the skill. Messaging surfaces never ask for secrets in chat — they tell you to use `lightning setup` or `~/.lightning/.env` locally instead.
+When a missing value is encountered, Sonic asks for it securely only when the skill is actually loaded in the local CLI. You can skip setup and keep using the skill. Messaging surfaces never ask for secrets in chat — they tell you to use `sonic setup` or `~/.sonic/.env` locally instead.
 
 Once set, declared env vars are **automatically passed through** to `execute_code` and `terminal` sandboxes — the skill's scripts can use `$TENOR_API_KEY` directly. For non-skill env vars, use the `terminal.env_passthrough` config option. See [Environment Variable Passthrough](/docs/user-guide/security#environment-variable-passthrough) for details.
 
@@ -182,7 +182,7 @@ Skills can also declare non-secret config settings (paths, preferences) stored i
 
 ```yaml
 metadata:
-  lightning:
+  sonic:
     config:
       - key: myplugin.path
         description: Path to the plugin data directory
@@ -190,14 +190,14 @@ metadata:
         prompt: Plugin data directory path
 ```
 
-Settings are stored under `skills.config` in your config.yaml. `lightning config migrate` prompts for unconfigured settings, and `lightning config show` displays them. When a skill loads, its resolved config values are injected into the context so the agent knows the configured values automatically.
+Settings are stored under `skills.config` in your config.yaml. `sonic config migrate` prompts for unconfigured settings, and `sonic config show` displays them. When a skill loads, its resolved config values are injected into the context so the agent knows the configured values automatically.
 
 See [Skill Settings](/docs/user-guide/configuration#skill-settings) and [Creating Skills — Config Settings](/docs/developer-guide/creating-skills#config-settings-configyaml) for details.
 
 ## Skill Directory Structure
 
 ```text
-~/.lightning/skills/                  # Single source of truth
+~/.sonic/skills/                  # Single source of truth
 ├── mlops/                         # Category directory
 │   ├── axolotl/
 │   │   ├── SKILL.md               # Main instructions (required)
@@ -220,9 +220,9 @@ See [Skill Settings](/docs/user-guide/configuration#skill-settings) and [Creatin
 
 ## External Skill Directories
 
-If you maintain skills outside of Lightning — for example, a shared `~/.agents/skills/` directory used by multiple AI tools — you can tell Lightning to scan those directories too.
+If you maintain skills outside of Sonic — for example, a shared `~/.agents/skills/` directory used by multiple AI tools — you can tell Sonic to scan those directories too.
 
-Add `external_dirs` under the `skills` section in `~/.lightning/config.yaml`:
+Add `external_dirs` under the `skills` section in `~/.sonic/config.yaml`:
 
 ```yaml
 skills:
@@ -236,16 +236,16 @@ Paths support `~` expansion and `${VAR}` environment variable substitution.
 
 ### How it works
 
-- **Create locally, update in place**: New agent-created skills are written to `~/.lightning/skills/`. Existing skills are modified where they are found, including skills under `external_dirs`, when the agent uses `skill_manage` actions such as `patch`, `edit`, `write_file`, `remove_file`, or `delete`.
-- **External dirs are not a write-protection boundary**: If an external skill directory is writable by the Lightning process, agent-managed skill updates can change files in that directory. Use filesystem permissions or a separate profile/toolset setup if shared external skills must stay read-only.
+- **Create locally, update in place**: New agent-created skills are written to `~/.sonic/skills/`. Existing skills are modified where they are found, including skills under `external_dirs`, when the agent uses `skill_manage` actions such as `patch`, `edit`, `write_file`, `remove_file`, or `delete`.
+- **External dirs are not a write-protection boundary**: If an external skill directory is writable by the Sonic process, agent-managed skill updates can change files in that directory. Use filesystem permissions or a separate profile/toolset setup if shared external skills must stay read-only.
 - **Local precedence**: If the same skill name exists in both the local dir and an external dir, the local version wins.
 - **Full integration**: External skills appear in the system prompt index, `skills_list`, `skill_view`, and as `/skill-name` slash commands — no different from local skills.
-- **Non-existent paths are silently skipped**: If a configured directory doesn't exist, Lightning ignores it without errors. Useful for optional shared directories that may not be present on every machine.
+- **Non-existent paths are silently skipped**: If a configured directory doesn't exist, Sonic ignores it without errors. Useful for optional shared directories that may not be present on every machine.
 
 ### Example
 
 ```text
-~/.lightning/skills/               # Local (primary, read-write)
+~/.sonic/skills/               # Local (primary, read-write)
 ├── devops/deploy-k8s/
 │   └── SKILL.md
 └── mlops/axolotl/
@@ -268,7 +268,7 @@ Skill bundles are tiny YAML files that group several skills under a single slash
 
 ```bash
 # Create a bundle for backend feature work
-lightning bundles create backend-dev \
+sonic bundles create backend-dev \
   --skill github-code-review \
   --skill test-driven-development \
   --skill github-pr-workflow \
@@ -285,7 +285,7 @@ The agent receives all three skills loaded into one user message, with any text 
 
 ### YAML schema
 
-Bundles live in **`~/.lightning/skill-bundles/<slug>.yaml`** and look like this:
+Bundles live in **`~/.sonic/skill-bundles/<slug>.yaml`** and look like this:
 
 ```yaml
 name: backend-dev
@@ -301,7 +301,7 @@ instruction: |
 
 Fields:
 - `name` (optional — defaults to the filename stem) — the bundle's display name. Normalized to a hyphen slug for the slash command (`Backend Dev` → `/backend-dev`).
-- `description` (optional) — short text shown in `/bundles` and `lightning bundles list`.
+- `description` (optional) — short text shown in `/bundles` and `sonic bundles list`.
 - `skills` (required, non-empty list) — skill names or paths relative to your skills directory. Use the same identifier you'd pass to `/<skill-name>`.
 - `instruction` (optional) — extra guidance prepended to the loaded skill content. Useful for codifying "how we always use these together."
 
@@ -309,22 +309,22 @@ Fields:
 
 ```bash
 # List all installed bundles
-lightning bundles list
+sonic bundles list
 
 # Inspect one bundle
-lightning bundles show backend-dev
+sonic bundles show backend-dev
 
 # Create a bundle interactively (omit --skill flags to enter them one per line)
-lightning bundles create research
+sonic bundles create research
 
 # Overwrite an existing bundle
-lightning bundles create backend-dev --skill ... --force
+sonic bundles create backend-dev --skill ... --force
 
 # Delete a bundle
-lightning bundles delete backend-dev
+sonic bundles delete backend-dev
 
-# Re-scan ~/.lightning/skill-bundles/ and report changes
-lightning bundles reload
+# Re-scan ~/.sonic/skill-bundles/ and report changes
+sonic bundles reload
 ```
 
 From inside a chat session, `/bundles` lists every installed bundle and its skills.
@@ -341,9 +341,9 @@ From inside a chat session, `/bundles` lists every installed bundle and its skil
 Use a bundle when:
 - You always pair the same skills for a recurring task (`/backend-dev`, `/release-prep`, `/incident-response`).
 - You want a one-character-shorter mental model than typing several `/skill` invocations in a row.
-- You want to ship a team-wide "task profile" by checking the bundle YAML into a shared dotfiles repo and symlinking it into `~/.lightning/skill-bundles/`.
+- You want to ship a team-wide "task profile" by checking the bundle YAML into a shared dotfiles repo and symlinking it into `~/.sonic/skill-bundles/`.
 
-A bundle is just a YAML alias — it doesn't install skills for you. The skills themselves must already be present (in `~/.lightning/skills/` or an external skill directory). Otherwise the bundle invocation just skips the missing ones.
+A bundle is just a YAML alias — it doesn't install skills for you. The skills themselves must already be present (in `~/.sonic/skills/` or an external skill directory). Otherwise the bundle invocation just skips the missing ones.
 
 ## Agent-Managed Skills (skill_manage tool)
 
@@ -378,36 +378,36 @@ Browse, search, install, and manage skills from online registries, `skills.sh`, 
 ### Common commands
 
 ```bash
-lightning skills browse                              # Browse all hub skills (official first)
-lightning skills browse --source official            # Browse only official optional skills
-lightning skills search kubernetes                   # Search all sources
-lightning skills search react --source skills-sh     # Search the skills.sh directory
-lightning skills search https://mintlify.com/docs --source well-known
-lightning skills inspect openai/skills/k8s           # Preview before installing
-lightning skills install openai/skills/k8s           # Install with security scan
-lightning skills install official/security/1password
-lightning skills install skills-sh/vercel-labs/json-render/json-render-react --force
-lightning skills install well-known:https://mintlify.com/docs/.well-known/skills/mintlify
-lightning skills install https://sharethis.chat/SKILL.md              # Direct URL (single-file SKILL.md)
-lightning skills install https://example.com/SKILL.md --name my-skill # Override name when frontmatter has none
-lightning skills list --source hub                   # List hub-installed skills
-lightning skills check                               # Check installed hub skills for upstream updates
-lightning skills update                              # Reinstall hub skills with upstream changes when needed
-lightning skills audit                               # Re-scan all hub skills for security
-lightning skills uninstall k8s                       # Remove a hub skill
-lightning skills reset google-workspace              # Un-stick a bundled skill from "user-modified" (see below)
-lightning skills reset google-workspace --restore    # Also restore the bundled version, deleting your local edits
-lightning skills publish skills/my-skill --to github --repo owner/repo
-lightning skills snapshot export setup.json          # Export skill config
-lightning skills tap add myorg/skills-repo           # Add a custom GitHub source
+sonic skills browse                              # Browse all hub skills (official first)
+sonic skills browse --source official            # Browse only official optional skills
+sonic skills search kubernetes                   # Search all sources
+sonic skills search react --source skills-sh     # Search the skills.sh directory
+sonic skills search https://mintlify.com/docs --source well-known
+sonic skills inspect openai/skills/k8s           # Preview before installing
+sonic skills install openai/skills/k8s           # Install with security scan
+sonic skills install official/security/1password
+sonic skills install skills-sh/vercel-labs/json-render/json-render-react --force
+sonic skills install well-known:https://mintlify.com/docs/.well-known/skills/mintlify
+sonic skills install https://sharethis.chat/SKILL.md              # Direct URL (single-file SKILL.md)
+sonic skills install https://example.com/SKILL.md --name my-skill # Override name when frontmatter has none
+sonic skills list --source hub                   # List hub-installed skills
+sonic skills check                               # Check installed hub skills for upstream updates
+sonic skills update                              # Reinstall hub skills with upstream changes when needed
+sonic skills audit                               # Re-scan all hub skills for security
+sonic skills uninstall k8s                       # Remove a hub skill
+sonic skills reset google-workspace              # Un-stick a bundled skill from "user-modified" (see below)
+sonic skills reset google-workspace --restore    # Also restore the bundled version, deleting your local edits
+sonic skills publish skills/my-skill --to github --repo owner/repo
+sonic skills snapshot export setup.json          # Export skill config
+sonic skills tap add myorg/skills-repo           # Add a custom GitHub source
 ```
 
 ### Supported hub sources
 
 | Source | Example | Notes |
 |--------|---------|-------|
-| `official` | `official/security/1password` | Optional skills shipped with Lightning. |
-| `skills-sh` | `skills-sh/vercel-labs/agent-skills/vercel-react-best-practices` | Searchable via `lightning skills search <query> --source skills-sh`. Lightning resolves alias-style skills when the skills.sh slug differs from the repo folder. |
+| `official` | `official/security/1password` | Optional skills shipped with Sonic. |
+| `skills-sh` | `skills-sh/vercel-labs/agent-skills/vercel-react-best-practices` | Searchable via `sonic skills search <query> --source skills-sh`. Sonic resolves alias-style skills when the skills.sh slug differs from the repo folder. |
 | `well-known` | `well-known:https://mintlify.com/docs/.well-known/skills/mintlify` | Skills served directly from `/.well-known/skills/index.json` on a website. Search using the site or docs URL. |
 | `url` | `https://sharethis.chat/SKILL.md` | Direct HTTP(S) URL to a single-file `SKILL.md`. Name resolution: frontmatter → URL slug → interactive prompt → `--name` flag. |
 | `github` | `openai/skills/k8s` | Direct GitHub repo/path installs and custom taps. |
@@ -415,24 +415,24 @@ lightning skills tap add myorg/skills-repo           # Add a custom GitHub sourc
 
 ### Integrated hubs and registries
 
-Lightning currently integrates with these skills ecosystems and discovery sources:
+Sonic currently integrates with these skills ecosystems and discovery sources:
 
 #### 1. Official optional skills (`official`)
 
-These are maintained in the Lightning repository itself and install with builtin trust.
+These are maintained in the Sonic repository itself and install with builtin trust.
 
 - Catalog: [Official Optional Skills Catalog](../../reference/optional-skills-catalog)
 - Source in repo: `optional-skills/`
 - Example:
 
 ```bash
-lightning skills browse --source official
-lightning skills install official/security/1password
+sonic skills browse --source official
+sonic skills install official/security/1password
 ```
 
 #### 2. skills.sh (`skills-sh`)
 
-This is Vercel's public skills directory. Lightning can search it directly, inspect skill detail pages, resolve alias-style slugs, and install from the underlying source repo.
+This is Vercel's public skills directory. Sonic can search it directly, inspect skill detail pages, resolve alias-style slugs, and install from the underlying source repo.
 
 - Directory: [skills.sh](https://skills.sh/)
 - CLI/tooling repo: [vercel-labs/skills](https://github.com/vercel-labs/skills)
@@ -440,9 +440,9 @@ This is Vercel's public skills directory. Lightning can search it directly, insp
 - Example:
 
 ```bash
-lightning skills search react --source skills-sh
-lightning skills inspect skills-sh/vercel-labs/json-render/json-render-react
-lightning skills install skills-sh/vercel-labs/json-render/json-render-react --force
+sonic skills search react --source skills-sh
+sonic skills inspect skills-sh/vercel-labs/json-render/json-render-react
+sonic skills install skills-sh/vercel-labs/json-render/json-render-react --force
 ```
 
 #### 3. Well-known skill endpoints (`well-known`)
@@ -454,14 +454,14 @@ This is URL-based discovery from sites that publish `/.well-known/skills/index.j
 - Example:
 
 ```bash
-lightning skills search https://mintlify.com/docs --source well-known
-lightning skills inspect well-known:https://mintlify.com/docs/.well-known/skills/mintlify
-lightning skills install well-known:https://mintlify.com/docs/.well-known/skills/mintlify
+sonic skills search https://mintlify.com/docs --source well-known
+sonic skills inspect well-known:https://mintlify.com/docs/.well-known/skills/mintlify
+sonic skills install well-known:https://mintlify.com/docs/.well-known/skills/mintlify
 ```
 
 #### 4. Direct GitHub skills (`github`)
 
-Lightning can install directly from GitHub repositories and GitHub-based taps. This is useful when you already know the repo/path or want to add your own custom source repo.
+Sonic can install directly from GitHub repositories and GitHub-based taps. This is useful when you already know the repo/path or want to add your own custom source repo.
 
 Default taps (browsable without any setup):
 - [openai/skills](https://github.com/openai/skills)
@@ -473,8 +473,8 @@ Default taps (browsable without any setup):
 - Example:
 
 ```bash
-lightning skills install openai/skills/k8s
-lightning skills tap add myorg/skills-repo
+sonic skills install openai/skills/k8s
+sonic skills tap add myorg/skills-repo
 ```
 
 #### 5. ClawHub (`clawhub`)
@@ -482,55 +482,55 @@ lightning skills tap add myorg/skills-repo
 A third-party skills marketplace integrated as a community source.
 
 - Site: [clawhub.ai](https://clawhub.ai/)
-- Lightning source id: `clawhub`
+- Sonic source id: `clawhub`
 
 #### 6. Claude marketplace-style repos (`claude-marketplace`)
 
-Lightning supports marketplace repos that publish Claude-compatible plugin/marketplace manifests.
+Sonic supports marketplace repos that publish Claude-compatible plugin/marketplace manifests.
 
 Known integrated sources include:
 - [anthropics/skills](https://github.com/anthropics/skills)
 - [aiskillstore/marketplace](https://github.com/aiskillstore/marketplace)
 
-Lightning source id: `claude-marketplace`
+Sonic source id: `claude-marketplace`
 
 #### 7. LobeHub (`lobehub`)
 
-Lightning can search and convert agent entries from LobeHub's public catalog into installable Lightning skills.
+Sonic can search and convert agent entries from LobeHub's public catalog into installable Sonic skills.
 
 - Site: [LobeHub](https://lobehub.com/)
 - Public agents index: [chat-agents.lobehub.com](https://chat-agents.lobehub.com/)
 - Backing repo: [lobehub/lobe-chat-agents](https://github.com/lobehub/lobe-chat-agents)
-- Lightning source id: `lobehub`
+- Sonic source id: `lobehub`
 
 #### 8. browse.sh (`browse-sh`)
 
-Lightning integrates with [browse.sh](https://browse.sh), Browserbase's catalog of 200+ site-specific browser-automation SKILL.md files (Airbnb, Amazon, arXiv, 12306.cn, Etsy, Xero, and many more). Each skill describes how to drive one website end-to-end and is suitable for use with Lightning' browser tools and any browser-automation skills you already have installed.
+Sonic integrates with [browse.sh](https://browse.sh), Browserbase's catalog of 200+ site-specific browser-automation SKILL.md files (Airbnb, Amazon, arXiv, 12306.cn, Etsy, Xero, and many more). Each skill describes how to drive one website end-to-end and is suitable for use with Sonic' browser tools and any browser-automation skills you already have installed.
 
 - Site: [browse.sh](https://browse.sh/)
 - Catalog API: `https://browse.sh/api/skills`
-- Lightning source id: `browse-sh`
+- Sonic source id: `browse-sh`
 - Trust level: `community`
 
 ```bash
-lightning skills search airbnb --source browse-sh
-lightning skills inspect browse-sh/airbnb.com/search-listings-ddgioa
-lightning skills install browse-sh/airbnb.com/search-listings-ddgioa
+sonic skills search airbnb --source browse-sh
+sonic skills inspect browse-sh/airbnb.com/search-listings-ddgioa
+sonic skills install browse-sh/airbnb.com/search-listings-ddgioa
 ```
 
 Identifiers use the form `browse-sh/<hostname>/<task-id>` and match the slug exposed by the browse.sh catalog. Content is resolved through the per-skill detail endpoint (`/api/skills/<slug>` → `skillMdUrl`), not through the catalog's GitHub `sourceUrl`.
 
 #### 9. Direct URL (`url`)
 
-Install a single-file `SKILL.md` directly from any HTTP(S) URL — useful when an author hosts a skill on their own site (no hub listing, no GitHub path to type). Lightning fetches the URL, parses the YAML frontmatter, security-scans it, and installs.
+Install a single-file `SKILL.md` directly from any HTTP(S) URL — useful when an author hosts a skill on their own site (no hub listing, no GitHub path to type). Sonic fetches the URL, parses the YAML frontmatter, security-scans it, and installs.
 
-- Lightning source id: `url`
+- Sonic source id: `url`
 - Identifier: the URL itself (no prefix needed)
 - Scope: **single-file `SKILL.md`** only. Multi-file skills with `references/` or `scripts/` need a manifest and should be published via one of the other sources above.
 
 ```bash
-lightning skills install https://sharethis.chat/SKILL.md
-lightning skills install https://example.com/my-skill/SKILL.md --category productivity
+sonic skills install https://sharethis.chat/SKILL.md
+sonic skills install https://example.com/my-skill/SKILL.md --category productivity
 ```
 
 Name resolution, in order:
@@ -541,19 +541,19 @@ Name resolution, in order:
 
 ```bash
 # Frontmatter has no name and the URL slug is unhelpful — supply one:
-lightning skills install https://example.com/SKILL.md --name sharethis-chat
+sonic skills install https://example.com/SKILL.md --name sharethis-chat
 
 # Or inside a chat session:
 /skills install https://example.com/SKILL.md --name sharethis-chat
 ```
 
-Trust level is always `community` — the same security scan runs as for every other source. The URL is stored as the install identifier, so `lightning skills update` re-fetches from the same URL automatically when you want to refresh.
+Trust level is always `community` — the same security scan runs as for every other source. The URL is stored as the install identifier, so `sonic skills update` re-fetches from the same URL automatically when you want to refresh.
 
 ### Security scanning and `--force`
 
 All hub-installed skills go through a **security scanner** that checks for data exfiltration, prompt injection, destructive commands, supply-chain signals, and other threats.
 
-`lightning skills inspect ...` now also surfaces upstream metadata when available:
+`sonic skills inspect ...` now also surfaces upstream metadata when available:
 - repo URL
 - skills.sh detail page URL
 - install command
@@ -564,7 +564,7 @@ All hub-installed skills go through a **security scanner** that checks for data 
 Use `--force` when you have reviewed a third-party skill and want to override a non-dangerous policy block:
 
 ```bash
-lightning skills install skills-sh/anthropics/skills/pdf --force
+sonic skills install skills-sh/anthropics/skills/pdf --force
 ```
 
 Important behavior:
@@ -576,7 +576,7 @@ Important behavior:
 
 | Level | Source | Policy |
 |-------|--------|--------|
-| `builtin` | Ships with Lightning | Always trusted |
+| `builtin` | Ships with Sonic | Always trusted |
 | `official` | `optional-skills/` in the repo | Builtin trust, no third-party warning |
 | `trusted` | Trusted registries/repos such as `openai/skills`, `anthropics/skills`, `huggingface/skills` | More permissive policy than community sources |
 | `community` | Everything else (`skills.sh`, well-known endpoints, custom GitHub repos, most marketplaces) | Non-dangerous findings can be overridden with `--force`; `dangerous` verdicts stay blocked |
@@ -586,9 +586,9 @@ Important behavior:
 The hub now tracks enough provenance to re-check upstream copies of installed skills:
 
 ```bash
-lightning skills check          # Report which installed hub skills changed upstream
-lightning skills update         # Reinstall only the skills with updates available
-lightning skills update react   # Update one specific installed hub skill
+sonic skills check          # Report which installed hub skills changed upstream
+sonic skills update         # Reinstall only the skills with updates available
+sonic skills update react   # Update one specific installed hub skill
 ```
 
 This uses the stored source identifier plus the current upstream bundle content hash to detect drift.
@@ -599,7 +599,7 @@ Skills hub operations use the GitHub API, which has a rate limit of 60 requests/
 
 ### Publishing a custom skill tap
 
-If you want to share a curated set of skills — for your team, your org, or publicly — you can publish them as a **tap**: a GitHub repository other Lightning users add with `lightning skills tap add <owner/repo>`. No server, no registry sign-up, no release pipeline. Just a directory of `SKILL.md` files.
+If you want to share a curated set of skills — for your team, your org, or publicly — you can publish them as a **tap**: a GitHub repository other Sonic users add with `sonic skills tap add <owner/repo>`. No server, no registry sign-up, no release pipeline. Just a directory of `SKILL.md` files.
 
 #### Repo layout
 
@@ -623,16 +623,16 @@ owner/repo
 Rules:
 - Each skill lives in its own directory under the tap's root path (default `skills/`).
 - The directory name becomes the skill's install slug.
-- Each skill directory must contain a `SKILL.md` with standard [SKILL.md frontmatter](#skillmd-format) (`name`, `description`, plus optional `metadata.lightning.tags`, `version`, `author`, `platforms`, `metadata.lightning.config`).
+- Each skill directory must contain a `SKILL.md` with standard [SKILL.md frontmatter](#skillmd-format) (`name`, `description`, plus optional `metadata.sonic.tags`, `version`, `author`, `platforms`, `metadata.sonic.config`).
 - Subdirectories like `references/`, `templates/`, `scripts/`, `assets/` are downloaded alongside `SKILL.md` at install time.
 - Skills whose directory name starts with `.` or `_` are ignored.
 
-Lightning discovers skills by listing every subdirectory of the tap path and probing each for `SKILL.md`.
+Sonic discovers skills by listing every subdirectory of the tap path and probing each for `SKILL.md`.
 
 #### Minimal tap example
 
 ```
-my-org/lightning-skills
+my-org/sonic-skills
 └── skills/
     └── deploy-runbook/
         └── SKILL.md
@@ -647,7 +647,7 @@ description: Our deployment runbook — services, rollback, Slack channels
 version: 1.0.0
 author: My Org Platform Team
 metadata:
-  lightning:
+  sonic:
     tags: [deployment, runbook, internal]
 ---
 
@@ -656,17 +656,17 @@ metadata:
 Step 1: ...
 ```
 
-After pushing that to GitHub, any Lightning user can subscribe and install:
+After pushing that to GitHub, any Sonic user can subscribe and install:
 
 ```bash
-lightning skills tap add my-org/lightning-skills
-lightning skills search deploy
-lightning skills install my-org/lightning-skills/deploy-runbook
+sonic skills tap add my-org/sonic-skills
+sonic skills search deploy
+sonic skills install my-org/sonic-skills/deploy-runbook
 ```
 
 #### Non-default paths
 
-If your skills don't live under `skills/` (common when you're adding a `skills/` subtree to an existing project), edit the tap entry in `~/.lightning/.hub/taps.json`:
+If your skills don't live under `skills/` (common when you're adding a `skills/` subtree to an existing project), edit the tap entry in `~/.sonic/.hub/taps.json`:
 
 ```json
 {
@@ -676,28 +676,28 @@ If your skills don't live under `skills/` (common when you're adding a `skills/`
 }
 ```
 
-The `lightning skills tap add` CLI defaults new taps to `path: "skills/"`; edit the file directly if you need a different path. `lightning skills tap list` shows the effective path per tap.
+The `sonic skills tap add` CLI defaults new taps to `path: "skills/"`; edit the file directly if you need a different path. `sonic skills tap list` shows the effective path per tap.
 
 #### Installing individual skills directly (without adding a tap)
 
 Users can also install a single skill from any public GitHub repo without adding the whole repo as a tap:
 
 ```bash
-lightning skills install owner/repo/skills/my-workflow
+sonic skills install owner/repo/skills/my-workflow
 ```
 
 Useful when you want to share one skill without asking the user to subscribe to your whole registry.
 
 #### Trust levels for taps
 
-New taps are assigned `community` trust by default. Skills installed from them run through the standard security scan and show the third-party warning panel on first install. If your org or a widely-trusted source should get higher trust, add its repo to `TRUSTED_REPOS` in `tools/skills_hub.py` (requires a Lightning core PR).
+New taps are assigned `community` trust by default. Skills installed from them run through the standard security scan and show the third-party warning panel on first install. If your org or a widely-trusted source should get higher trust, add its repo to `TRUSTED_REPOS` in `tools/skills_hub.py` (requires a Sonic core PR).
 
 #### Tap management
 
 ```bash
-lightning skills tap list                                # show all configured taps
-lightning skills tap add myorg/skills-repo               # add (default path: skills/)
-lightning skills tap remove myorg/skills-repo            # remove
+sonic skills tap list                                # show all configured taps
+sonic skills tap add myorg/skills-repo               # add (default path: skills/)
+sonic skills tap remove myorg/skills-repo            # remove
 ```
 
 Inside a running session:
@@ -708,32 +708,32 @@ Inside a running session:
 /skills tap remove myorg/skills-repo
 ```
 
-Taps are stored in `~/.lightning/.hub/taps.json` (created on demand).
+Taps are stored in `~/.sonic/.hub/taps.json` (created on demand).
 
-## Bundled skill updates (`lightning skills reset`)
+## Bundled skill updates (`sonic skills reset`)
 
-Lightning ships with a set of bundled skills in `skills/` inside the repo. On install and on every `lightning update`, a sync pass copies those into `~/.lightning/skills/` and records a manifest at `~/.lightning/skills/.bundled_manifest` mapping each skill name to the content hash at the time it was synced (the **origin hash**).
+Sonic ships with a set of bundled skills in `skills/` inside the repo. On install and on every `sonic update`, a sync pass copies those into `~/.sonic/skills/` and records a manifest at `~/.sonic/skills/.bundled_manifest` mapping each skill name to the content hash at the time it was synced (the **origin hash**).
 
-On each sync, Lightning recomputes the hash of your local copy and compares it to the origin hash:
+On each sync, Sonic recomputes the hash of your local copy and compares it to the origin hash:
 
 - **Unchanged** → safe to pull upstream changes, copy the new bundled version in, record the new origin hash.
 - **Changed** → treated as **user-modified** and skipped forever, so your edits never get stomped.
 
-The protection is good, but it has one sharp edge. If you edit a bundled skill and then later want to abandon your changes and go back to the bundled version by just copy-pasting from `~/.lightning/lightning-agent/skills/`, the manifest still holds the *old* origin hash from whenever the last successful sync ran. Your fresh copy-paste contents (current bundled hash) won't match that stale origin hash, so sync keeps flagging it as user-modified.
+The protection is good, but it has one sharp edge. If you edit a bundled skill and then later want to abandon your changes and go back to the bundled version by just copy-pasting from `~/.sonic/sonic-agent/skills/`, the manifest still holds the *old* origin hash from whenever the last successful sync ran. Your fresh copy-paste contents (current bundled hash) won't match that stale origin hash, so sync keeps flagging it as user-modified.
 
-`lightning skills reset` is the escape hatch:
+`sonic skills reset` is the escape hatch:
 
 ```bash
 # Safe: clears the manifest entry for this skill. Your current copy is preserved,
 # but the next sync re-baselines against it so future updates work normally.
-lightning skills reset google-workspace
+sonic skills reset google-workspace
 
 # Full restore: also deletes your local copy and re-copies the current bundled
 # version. Use this when you want the pristine upstream skill back.
-lightning skills reset google-workspace --restore
+sonic skills reset google-workspace --restore
 
 # Non-interactive (e.g. in scripts or TUI mode) — skip the --restore confirmation.
-lightning skills reset google-workspace --restore --yes
+sonic skills reset google-workspace --restore --yes
 ```
 
 The same command works in chat as a slash command:
@@ -744,7 +744,7 @@ The same command works in chat as a slash command:
 ```
 
 :::note Profiles
-Each profile has its own `.bundled_manifest` under its own `LIGHTNING_HOME`, so `lightning -p coder skills reset <name>` only affects that profile.
+Each profile has its own `.bundled_manifest` under its own `SONIC_HOME`, so `sonic -p coder skills reset <name>` only affects that profile.
 :::
 
 ### Slash commands (inside chat)

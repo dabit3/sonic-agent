@@ -9,7 +9,7 @@ sidebar_position: 2
 
 **One subscription. Every tool built in.**
 
-The Tool Gateway is included with every paid [Nous Portal](https://portal.nousresearch.com) subscription. It routes Lightning' tool calls — web search, image generation, text-to-speech, and cloud browser automation — through infrastructure Nous already runs, so you don't have to sign up with Firecrawl, FAL, OpenAI, Browser Use, or anyone else just to make your agent useful.
+The Tool Gateway is included with every paid [Nous Portal](https://portal.nousresearch.com) subscription. It routes Sonic' tool calls — web search, image generation, text-to-speech, and cloud browser automation — through infrastructure Nous already runs, so you don't have to sign up with Firecrawl, FAL, OpenAI, Browser Use, or anyone else just to make your agent useful.
 
 <div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap', margin: '1.5rem 0'}}>
   <a href="https://portal.nousresearch.com/manage-subscription" style={{background: 'var(--ifm-color-primary)', color: 'white', padding: '0.75rem 1.5rem', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>Start or manage subscription →</a>
@@ -20,7 +20,7 @@ The Tool Gateway is included with every paid [Nous Portal](https://portal.nousre
 | | Tool | What you get |
 |---|---|---|
 | 🔍 | **Web search & extract** | Agent-grade web search and full-page extraction via Firecrawl. No rate limits to worry about — the gateway handles scaling. |
-| 🎨 | **Image generation** | Nine models under one endpoint: **FLUX 2 Klein 9B**, **FLUX 2 Pro**, **Z-Image Turbo**, **Nano Banana Pro** (Gemini 3 Pro Image), **GPT Image 1.5**, **GPT Image 2**, **Ideogram V3**, **Recraft V4 Pro**, **Qwen Image**. Pick per-generation with a flag, or let Lightning default to FLUX 2 Klein. |
+| 🎨 | **Image generation** | Nine models under one endpoint: **FLUX 2 Klein 9B**, **FLUX 2 Pro**, **Z-Image Turbo**, **Nano Banana Pro** (Gemini 3 Pro Image), **GPT Image 1.5**, **GPT Image 2**, **Ideogram V3**, **Recraft V4 Pro**, **Qwen Image**. Pick per-generation with a flag, or let Sonic default to FLUX 2 Klein. |
 | 🔊 | **Text-to-speech** | OpenAI TTS voices wired into the `text_to_speech` tool. Drop voice notes into Telegram, generate audio for pipelines, narrate anything. |
 | 🌐 | **Cloud browser automation** | Headless Chromium sessions via Browser Use. `browser_navigate`, `browser_click`, `browser_type`, `browser_vision` — all the agent-driving primitives, no Browserbase account required. |
 
@@ -42,26 +42,26 @@ Bring your own keys anytime — per-tool, whenever you want to. The gateway isn'
 The fastest path for a fresh install:
 
 ```bash
-lightning setup --portal     # Nous OAuth, set Nous as provider, and turn on the Tool Gateway in one go
+sonic setup --portal     # Nous OAuth, set Nous as provider, and turn on the Tool Gateway in one go
 ```
 
-Already have Lightning configured? Just switch your provider:
+Already have Sonic configured? Just switch your provider:
 
 ```bash
-lightning model              # Pick Nous Portal — Lightning will offer to turn on the Tool Gateway
+sonic model              # Pick Nous Portal — Sonic will offer to turn on the Tool Gateway
 ```
 
-When you select Nous Portal, Lightning offers to turn on the Tool Gateway. Accept, and you're done — every supported tool is live on the next run.
+When you select Nous Portal, Sonic offers to turn on the Tool Gateway. Accept, and you're done — every supported tool is live on the next run.
 
 Check what's active at any time:
 
 ```bash
-lightning portal status      # Portal auth + Tool Gateway routing summary
-lightning portal tools       # Gateway catalog with current routing per tool
-lightning status             # Full system status (Tool Gateway is one section)
+sonic portal status      # Portal auth + Tool Gateway routing summary
+sonic portal tools       # Gateway catalog with current routing per tool
+sonic status             # Full system status (Tool Gateway is one section)
 ```
 
-`lightning portal status` shows a section like:
+`sonic portal status` shows a section like:
 
 ```
 ◆ Nous Tool Gateway
@@ -89,7 +89,7 @@ The gateway is per-tool. Turn it on for just what you want:
 Switch any tool at any time via:
 
 ```bash
-lightning tools          # Interactive picker for each tool category
+sonic tools          # Interactive picker for each tool category
 ```
 
 Select the tool, pick **Nous Subscription** as the provider (or any direct provider you prefer). No config editing required.
@@ -110,13 +110,13 @@ Image generation defaults to FLUX 2 Klein 9B for speed. Override per-call by pas
 | Recraft V4 Pro | `fal-ai/recraft/v4/pro` | Vector-style, graphic design |
 | Qwen Image | `fal-ai/qwen-image` | Alibaba multimodal |
 
-The set evolves — `lightning tools` → Image Generation shows the current live list.
+The set evolves — `sonic tools` → Image Generation shows the current live list.
 
 ---
 
 ## Configuration reference
 
-Most users never need to touch this — `lightning model` and `lightning tools` cover every workflow interactively. This section is for writing config.yaml directly or scripting setups.
+Most users never need to touch this — `sonic model` and `sonic tools` cover every workflow interactively. This section is for writing config.yaml directly or scripting setups.
 
 ### Per-tool `use_gateway` flag
 
@@ -145,14 +145,14 @@ Precedence: `use_gateway: true` routes through Nous regardless of any direct key
 
 ```yaml
 web:
-  use_gateway: false   # Lightning now uses FIRECRAWL_API_KEY from .env
+  use_gateway: false   # Sonic now uses FIRECRAWL_API_KEY from .env
 ```
 
-`lightning tools` automatically clears the flag when you pick a non-gateway provider, so this usually happens for you.
+`sonic tools` automatically clears the flag when you pick a non-gateway provider, so this usually happens for you.
 
 ### Self-hosted gateway (advanced)
 
-Running your own Nous-compatible gateway? Override endpoints in `~/.lightning/.env`:
+Running your own Nous-compatible gateway? Override endpoints in `~/.sonic/.env`:
 
 ```bash
 TOOL_GATEWAY_DOMAIN=your-domain.example.com
@@ -171,7 +171,7 @@ Yes. Tool Gateway operates at the tool-execution layer, not the CLI. Every inter
 
 ### What happens if my subscription expires?
 
-Tools routed through the gateway stop working until you renew or swap in direct API keys via `lightning tools`. Lightning shows a clear error pointing at the portal.
+Tools routed through the gateway stop working until you renew or swap in direct API keys via `sonic tools`. Sonic shows a clear error pointing at the portal.
 
 ### Can I see usage or costs per tool?
 
@@ -179,8 +179,8 @@ Yes — the [Nous Portal dashboard](https://portal.nousresearch.com) breaks usag
 
 ### Is Modal (serverless terminal) included?
 
-Modal is available as an **optional add-on** through the Nous subscription, not part of the default Tool Gateway bundle. Configure it via `lightning setup terminal` or directly in `config.yaml` when you want a remote sandbox for shell execution.
+Modal is available as an **optional add-on** through the Nous subscription, not part of the default Tool Gateway bundle. Configure it via `sonic setup terminal` or directly in `config.yaml` when you want a remote sandbox for shell execution.
 
 ### Do I need to delete my existing API keys when I enable the gateway?
 
-No — keep them in `.env`. When `use_gateway: true`, Lightning skips direct keys and uses the gateway. Flip the flag back to `false` and your keys become the source again. The gateway isn't a lock-in.
+No — keep them in `.env`. When `use_gateway: true`, Sonic skips direct keys and uses the gateway. Flip the flag back to `false` and your keys become the source again. The gateway isn't a lock-in.

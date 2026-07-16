@@ -7,10 +7,10 @@ import pytest
 
 
 def _make_cli_stub():
-    """Create a minimal LightningCLI-like object with stream state."""
-    from cli import LightningCLI
+    """Create a minimal SonicCLI-like object with stream state."""
+    from cli import SonicCLI
 
-    cli = LightningCLI.__new__(LightningCLI)
+    cli = SonicCLI.__new__(SonicCLI)
     cli.show_reasoning = False
     cli._stream_buf = ""
     cli._stream_started = False

@@ -11,7 +11,7 @@ which handles discovery, dynamic client registration, PKCE, token exchange,
 refresh, and step-up authorization automatically.
 
 This module provides the glue:
-    - ``LightningTokenStorage``: persists tokens/client-info to disk so they
+    - ``SonicTokenStorage``: persists tokens/client-info to disk so they
       survive across process restarts.
     - Callback server: ephemeral localhost HTTP server to capture the OAuth
       redirect with the authorization code.
@@ -29,7 +29,7 @@ Configuration in config.yaml::
           client_secret: "secret"               # confidential clients only
           scope: "read write"                   # default: server-provided
           redirect_port: 0                      # 0 = auto-pick free port
-          client_name: "My Custom Client"       # default: "Lightning Agent"
+          client_name: "My Custom Client"       # default: "Sonic Agent"
 """
 
 import asyncio
@@ -48,7 +48,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlparse
-from lightning_constants import secure_parent_dir
+from sonic_constants import secure_parent_dir
 
 logger = logging.getLogger(__name__)
 
@@ -102,14 +102,14 @@ _oauth_port: int | None = None
 def _get_token_dir() -> Path:
     """Return the directory for MCP OAuth token files.
 
-    Uses LIGHTNING_HOME so each profile gets its own OAuth tokens.
-    Layout: ``LIGHTNING_HOME/mcp-tokens/``
+    Uses SONIC_HOME so each profile gets its own OAuth tokens.
+    Layout: ``SONIC_HOME/mcp-tokens/``
     """
     try:
-        from lightning_constants import get_lightning_home
-        base = Path(get_lightning_home())
+        from sonic_constants import get_sonic_home
+        base = Path(get_sonic_home())
     except ImportError:
-        base = Path(os.environ.get("LIGHTNING_HOME", str(Path.home() / ".lightning")))
+        base = Path(os.environ.get("SONIC_HOME", str(Path.home() / ".sonic")))
     return base / "mcp-tokens"
 
 
@@ -201,18 +201,18 @@ def _write_json(path: Path, data: dict) -> None:
 
 
 # ---------------------------------------------------------------------------
-# LightningTokenStorage -- persistent token/client-info on disk
+# SonicTokenStorage -- persistent token/client-info on disk
 # ---------------------------------------------------------------------------
 
 
-class LightningTokenStorage:
+class SonicTokenStorage:
     """Persist OAuth tokens and client registration to JSON files.
 
     File layout::
 
-        LIGHTNING_HOME/mcp-tokens/<server_name>.json         -- tokens
-        LIGHTNING_HOME/mcp-tokens/<server_name>.client.json   -- client info
-        LIGHTNING_HOME/mcp-tokens/<server_name>.meta.json     -- oauth server metadata
+        SONIC_HOME/mcp-tokens/<server_name>.json         -- tokens
+        SONIC_HOME/mcp-tokens/<server_name>.client.json   -- client info
+        SONIC_HOME/mcp-tokens/<server_name>.meta.json     -- oauth server metadata
     """
 
     def __init__(self, server_name: str):
@@ -233,7 +233,7 @@ class LightningTokenStorage:
         data = _read_json(self._tokens_path())
         if data is None:
             return None
-        # Lightning records an absolute wall-clock ``expires_at`` alongside the
+        # Sonic records an absolute wall-clock ``expires_at`` alongside the
         # SDK's serialized token (see ``set_tokens``). On read we rewrite
         # ``expires_in`` to the remaining seconds so the SDK's downstream
         # ``update_token_expiry`` computes the correct absolute time and
@@ -366,7 +366,7 @@ def _make_callback_handler() -> tuple[type, dict]:
 
             body = (
                 "<html><body><h2>Authorization Successful</h2>"
-                "<p>You can close this tab and return to Lightning.</p></body></html>"
+                "<p>You can close this tab and return to Sonic.</p></body></html>"
             ) if code else (
                 "<html><body><h2>Authorization Failed</h2>"
                 f"<p>Error: {error or 'unknown'}</p></body></html>"
@@ -498,7 +498,7 @@ async def _wait_for_callback() -> tuple[str, str | None]:
 
 def remove_oauth_tokens(server_name: str) -> None:
     """Delete stored OAuth tokens and client info for a server."""
-    storage = LightningTokenStorage(server_name)
+    storage = SonicTokenStorage(server_name)
     storage.remove()
     logger.info("OAuth tokens removed for '%s'", server_name)
 
@@ -544,7 +544,7 @@ def _build_client_metadata(cfg: dict) -> "OAuthClientMetadata":
         raise ValueError(
             "_configure_callback_port() must be called before _build_client_metadata()"
         )
-    client_name = cfg.get("client_name", "Lightning Agent")
+    client_name = cfg.get("client_name", "Sonic Agent")
     scope = cfg.get("scope")
     redirect_uri = f"http://127.0.0.1:{port}/callback"
 
@@ -564,7 +564,7 @@ def _build_client_metadata(cfg: dict) -> "OAuthClientMetadata":
 
 
 def _maybe_preregister_client(
-    storage: "LightningTokenStorage",
+    storage: "SonicTokenStorage",
     cfg: dict,
     client_metadata: "OAuthClientMetadata",
 ) -> None:
@@ -623,7 +623,7 @@ def build_oauth_auth(
         return None
 
     cfg = dict(oauth_config or {})  # copy — we mutate _resolved_port
-    storage = LightningTokenStorage(server_name)
+    storage = SonicTokenStorage(server_name)
 
     if not _is_interactive() and not storage.has_cached_tokens():
         logger.warning(

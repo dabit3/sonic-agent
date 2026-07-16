@@ -2,11 +2,11 @@
 name: codebase-inspection
 description: "Inspect codebases w/ pygount: LOC, languages, ratios."
 version: 1.0.0
-author: Lightning Agent
+author: Sonic Agent
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
-  lightning:
+  sonic:
     tags: [LOC, Code Analysis, pygount, Codebase, Metrics, Repository]
     related_skills: [github-repo-management]
 prerequisites:

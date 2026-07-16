@@ -7,7 +7,7 @@ license: MIT
 dependencies: [instructor, pydantic, openai, anthropic]
 platforms: [linux, macos, windows]
 metadata:
-  lightning:
+  sonic:
     tags: [Prompt Engineering, Instructor, Structured Output, Pydantic, Data Extraction, JSON Parsing, Type Safety, Validation, Streaming, OpenAI, Anthropic]
 
 ---

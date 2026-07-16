@@ -60,8 +60,8 @@ class TestSSHBulkUpload:
         f2.write_text("bbb")
 
         files = [
-            (str(f1), "/home/testuser/.lightning/skills/a.txt"),
-            (str(f2), "/home/testuser/.lightning/credentials/b.txt"),
+            (str(f1), "/home/testuser/.sonic/skills/a.txt"),
+            (str(f2), "/home/testuser/.sonic/credentials/b.txt"),
         ]
 
         # Mock subprocess.run for mkdir and Popen for tar pipe
@@ -87,16 +87,16 @@ class TestSSHBulkUpload:
         # Should contain mkdir -p with both parent dirs
         mkdir_str = " ".join(mkdir_cmd)
         assert "mkdir -p" in mkdir_str
-        assert "/home/testuser/.lightning/skills" in mkdir_str
-        assert "/home/testuser/.lightning/credentials" in mkdir_str
+        assert "/home/testuser/.sonic/skills" in mkdir_str
+        assert "/home/testuser/.sonic/credentials" in mkdir_str
 
     def test_staging_symlinks_mirror_remote_layout(self, mock_env, tmp_path):
-        """Symlinks in staging dir should mirror the .lightning-relative layout."""
+        """Symlinks in staging dir should mirror the .sonic-relative layout."""
         f1 = tmp_path / "local_a.txt"
         f1.write_text("content a")
 
         files = [
-            (str(f1), "/home/testuser/.lightning/skills/my_skill.md"),
+            (str(f1), "/home/testuser/.sonic/skills/my_skill.md"),
         ]
 
         staging_paths = []
@@ -133,7 +133,7 @@ class TestSSHBulkUpload:
         f1 = tmp_path / "x.txt"
         f1.write_text("x")
 
-        files = [(str(f1), "/home/testuser/.lightning/cache/x.txt")]
+        files = [(str(f1), "/home/testuser/.sonic/cache/x.txt")]
 
         popen_cmds = []
 
@@ -164,19 +164,19 @@ class TestSSHBulkUpload:
         assert "-" in tar_cmd  # stdout
         assert "-C" in tar_cmd
 
-        # ssh: extract from stdin at ~/.lightning, preserving existing dir modes (#17767)
+        # ssh: extract from stdin at ~/.sonic, preserving existing dir modes (#17767)
         ssh_str = " ".join(ssh_cmd)
         assert "ssh" in ssh_str
         assert "tar xf -" in ssh_str
         assert "--no-overwrite-dir" in ssh_str
-        assert "-C /home/testuser/.lightning" in ssh_str
+        assert "-C /home/testuser/.sonic" in ssh_str
         assert "testuser@example.com" in ssh_str
 
     def test_bulk_upload_never_stages_remote_home_prefix(self, mock_env, tmp_path):
         """Regression: do not archive /home/<user> path components."""
         f1 = tmp_path / "nested.txt"
         f1.write_text("nested")
-        files = [(str(f1), "/home/testuser/.lightning/cache/nested.txt")]
+        files = [(str(f1), "/home/testuser/.sonic/cache/nested.txt")]
 
         def capture_tar_cmd(cmd, **kwargs):
             if cmd[0] == "tar":
@@ -204,7 +204,7 @@ class TestSSHBulkUpload:
         """mkdir failure should raise RuntimeError before tar pipe."""
         f1 = tmp_path / "y.txt"
         f1.write_text("y")
-        files = [(str(f1), "/home/testuser/.lightning/skills/y.txt")]
+        files = [(str(f1), "/home/testuser/.sonic/skills/y.txt")]
 
         failed_run = subprocess.CompletedProcess([], 1, stderr="Permission denied")
         with patch.object(subprocess, "run", return_value=failed_run):
@@ -215,7 +215,7 @@ class TestSSHBulkUpload:
         """tar create failure should raise RuntimeError."""
         f1 = tmp_path / "z.txt"
         f1.write_text("z")
-        files = [(str(f1), "/home/testuser/.lightning/skills/z.txt")]
+        files = [(str(f1), "/home/testuser/.sonic/skills/z.txt")]
 
         mock_tar = MagicMock()
         mock_tar.stdout = MagicMock()
@@ -244,7 +244,7 @@ class TestSSHBulkUpload:
         """SSH tar extract failure should raise RuntimeError."""
         f1 = tmp_path / "w.txt"
         f1.write_text("w")
-        files = [(str(f1), "/home/testuser/.lightning/skills/w.txt")]
+        files = [(str(f1), "/home/testuser/.sonic/skills/w.txt")]
 
         mock_tar = MagicMock()
         mock_tar.stdout = MagicMock()
@@ -273,7 +273,7 @@ class TestSSHBulkUpload:
         """SSH command for tar extract should reuse ControlMaster socket."""
         f1 = tmp_path / "c.txt"
         f1.write_text("c")
-        files = [(str(f1), "/home/testuser/.lightning/cache/c.txt")]
+        files = [(str(f1), "/home/testuser/.sonic/cache/c.txt")]
 
         popen_cmds = []
 
@@ -312,7 +312,7 @@ class TestSSHBulkUpload:
 
         f1 = tmp_path / "d.txt"
         f1.write_text("d")
-        files = [(str(f1), "/home/u/.lightning/skills/d.txt")]
+        files = [(str(f1), "/home/u/.sonic/skills/d.txt")]
 
         run_cmds = []
         popen_cmds = []
@@ -357,9 +357,9 @@ class TestSSHBulkUpload:
         f3.write_text("c")
 
         files = [
-            (str(f1), "/home/testuser/.lightning/skills/a.txt"),
-            (str(f2), "/home/testuser/.lightning/skills/b.txt"),
-            (str(f3), "/home/testuser/.lightning/credentials/c.txt"),
+            (str(f1), "/home/testuser/.sonic/skills/a.txt"),
+            (str(f2), "/home/testuser/.sonic/skills/b.txt"),
+            (str(f3), "/home/testuser/.sonic/credentials/c.txt"),
         ]
 
         run_cmds = []
@@ -386,14 +386,14 @@ class TestSSHBulkUpload:
         assert len(run_cmds) == 1
         mkdir_str = " ".join(run_cmds[0])
         # skills dir should appear exactly once despite two files
-        assert mkdir_str.count("/home/testuser/.lightning/skills") == 1
-        assert "/home/testuser/.lightning/credentials" in mkdir_str
+        assert mkdir_str.count("/home/testuser/.sonic/skills") == 1
+        assert "/home/testuser/.sonic/credentials" in mkdir_str
 
     def test_tar_stdout_closed_for_sigpipe(self, mock_env, tmp_path):
         """tar_proc.stdout must be closed so SIGPIPE propagates correctly."""
         f1 = tmp_path / "s.txt"
         f1.write_text("s")
-        files = [(str(f1), "/home/testuser/.lightning/skills/s.txt")]
+        files = [(str(f1), "/home/testuser/.sonic/skills/s.txt")]
 
         mock_tar_stdout = MagicMock()
 
@@ -421,7 +421,7 @@ class TestSSHBulkUpload:
         """TimeoutExpired during communicate should kill both processes."""
         f1 = tmp_path / "t.txt"
         f1.write_text("t")
-        files = [(str(f1), "/home/testuser/.lightning/skills/t.txt")]
+        files = [(str(f1), "/home/testuser/.sonic/skills/t.txt")]
 
         mock_tar = MagicMock()
         mock_tar.stdout = MagicMock()
@@ -522,7 +522,7 @@ class TestSSHBulkUploadEdgeCases:
         """If SSH Popen raises, tar process must be killed and cleaned up."""
         f1 = tmp_path / "e.txt"
         f1.write_text("e")
-        files = [(str(f1), "/home/testuser/.lightning/skills/e.txt")]
+        files = [(str(f1), "/home/testuser/.sonic/skills/e.txt")]
 
         mock_tar = _mock_proc()
 

@@ -321,7 +321,7 @@ class TestAllResolvableCommandsBypassGuard:
 
     def test_should_bypass_returns_true_for_every_registered_command(self):
         """Spot-check: the commands previously-broken on Discord all bypass."""
-        from lightning_cli.commands import should_bypass_active_session
+        from sonic_cli.commands import should_bypass_active_session
 
         for cmd in (
             "model", "reasoning", "personality", "voice", "insights", "title",
@@ -334,7 +334,7 @@ class TestAllResolvableCommandsBypassGuard:
 
     def test_should_bypass_returns_false_for_unknown(self):
         """Unknown words don't bypass — they get queued as user text."""
-        from lightning_cli.commands import should_bypass_active_session
+        from sonic_cli.commands import should_bypass_active_session
 
         assert should_bypass_active_session("foobar") is False
         assert should_bypass_active_session(None) is False
@@ -429,31 +429,31 @@ class TestPendingCommandSafetyNet:
     def test_stop_command_detected(self):
         """resolve_command must recognize /stop so the safety net can
         discard it."""
-        from lightning_cli.commands import resolve_command
+        from sonic_cli.commands import resolve_command
 
         assert resolve_command("stop") is not None
         assert resolve_command("stop").name == "stop"
 
     def test_new_command_detected(self):
-        from lightning_cli.commands import resolve_command
+        from sonic_cli.commands import resolve_command
 
         assert resolve_command("new") is not None
         assert resolve_command("new").name == "new"
 
     def test_reset_alias_detected(self):
-        from lightning_cli.commands import resolve_command
+        from sonic_cli.commands import resolve_command
 
         assert resolve_command("reset") is not None
         assert resolve_command("reset").name == "new"  # alias
 
     def test_unknown_command_not_detected(self):
-        from lightning_cli.commands import resolve_command
+        from sonic_cli.commands import resolve_command
 
         assert resolve_command("foobar") is None
 
     def test_file_path_not_detected_as_command(self):
         """'/path/to/file' should not resolve as a command."""
-        from lightning_cli.commands import resolve_command
+        from sonic_cli.commands import resolve_command
 
         # The safety net splits on whitespace and takes the first word
         # after stripping '/'.  For '/path/to/file', that's 'path/to/file'.
@@ -470,26 +470,26 @@ class TestBypassWithBotnameSuffix:
 
     @pytest.mark.asyncio
     async def test_stop_with_botname(self):
-        """/stop@MyLightningBot must bypass the guard."""
+        """/stop@MySonicBot must bypass the guard."""
         adapter = _make_adapter()
         sk = _session_key()
         adapter._active_sessions[sk] = asyncio.Event()
 
-        await adapter.handle_message(_make_event("/stop@MyLightningBot"))
+        await adapter.handle_message(_make_event("/stop@MySonicBot"))
 
         assert sk not in adapter._pending_messages, (
-            "/stop@MyLightningBot was queued instead of bypassing"
+            "/stop@MySonicBot was queued instead of bypassing"
         )
         assert any("handled:stop" in r for r in adapter.sent_responses)
 
     @pytest.mark.asyncio
     async def test_new_with_botname(self):
-        """/new@MyLightningBot must bypass the guard."""
+        """/new@MySonicBot must bypass the guard."""
         adapter = _make_adapter()
         sk = _session_key()
         adapter._active_sessions[sk] = asyncio.Event()
 
-        await adapter.handle_message(_make_event("/new@MyLightningBot"))
+        await adapter.handle_message(_make_event("/new@MySonicBot"))
 
         assert sk not in adapter._pending_messages
         assert any("handled:new" in r for r in adapter.sent_responses)

@@ -1,19 +1,19 @@
 ---
 sidebar_position: 3
 title: "Android / Termux"
-description: "Run Lightning Agent directly on an Android phone with Termux"
+description: "Run Sonic Agent directly on an Android phone with Termux"
 ---
 
-# Lightning on Android with Termux
+# Sonic on Android with Termux
 
-This is the tested path for running Lightning Agent directly on an Android phone through [Termux](https://termux.dev/).
+This is the tested path for running Sonic Agent directly on an Android phone through [Termux](https://termux.dev/).
 
 It gives you a working local CLI on the phone, plus the core extras that are currently known to install cleanly on Android.
 
 ## What is supported in the tested path?
 
 The tested Termux bundle installs:
-- the Lightning CLI
+- the Sonic CLI
 - cron support
 - PTY/background terminal support
 - Telegram gateway support (manual / best-effort background runs)
@@ -37,23 +37,23 @@ A few features still need desktop/server-style dependencies that are not publish
 - Docker-based terminal isolation is not available inside Termux
 - Android may still suspend Termux background jobs, so gateway persistence is best-effort rather than a normal managed service
 
-That does not stop Lightning from working well as a phone-native CLI agent — it just means the recommended mobile install is intentionally narrower than the desktop/server install.
+That does not stop Sonic from working well as a phone-native CLI agent — it just means the recommended mobile install is intentionally narrower than the desktop/server install.
 
 ---
 
 ## Option 1: One-line installer
 
-Lightning now ships a Termux-aware installer path:
+Sonic now ships a Termux-aware installer path:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/NousResearch/lightning-agent/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.sh | bash
 ```
 
 On Termux, the installer automatically:
 - uses `pkg` for system packages
 - creates the venv with `python -m venv`
 - attempts the broad `.[termux-all]` extra first and falls back to the smaller `.[termux]` extra (then a base install) — the curl installer matches this order automatically
-- links `lightning` into `$PREFIX/bin` so it stays on your Termux PATH
+- links `sonic` into `$PREFIX/bin` so it stays on your Termux PATH
 - skips the untested browser / WhatsApp bootstrap
 
 If you want the explicit commands or need to debug a failed install, use the manual path below.
@@ -77,11 +77,11 @@ Why these packages?
 - `ripgrep` — fast file search
 - `ffmpeg` — media / TTS conversions
 
-### 2. Clone Lightning
+### 2. Clone Sonic
 
 ```bash
-git clone --recurse-submodules https://github.com/NousResearch/lightning-agent.git
-cd lightning-agent
+git clone --recurse-submodules https://github.com/dabit3/sonic-agent.git
+cd sonic-agent
 ```
 
 If you already cloned without submodules:
@@ -113,25 +113,25 @@ If you only want the minimal core agent, this also works:
 python -m pip install -e '.' -c constraints-termux.txt
 ```
 
-### 5. Put `lightning` on your Termux PATH
+### 5. Put `sonic` on your Termux PATH
 
 ```bash
-ln -sf "$PWD/venv/bin/lightning" "$PREFIX/bin/lightning"
+ln -sf "$PWD/venv/bin/sonic" "$PREFIX/bin/sonic"
 ```
 
-`$PREFIX/bin` is already on PATH in Termux, so this makes the `lightning` command persist across new shells without re-activating the venv every time.
+`$PREFIX/bin` is already on PATH in Termux, so this makes the `sonic` command persist across new shells without re-activating the venv every time.
 
 ### 6. Verify the install
 
 ```bash
-lightning version
-lightning doctor
+sonic version
+sonic doctor
 ```
 
-### 7. Start Lightning
+### 7. Start Sonic
 
 ```bash
-lightning
+sonic
 ```
 
 ---
@@ -141,15 +141,15 @@ lightning
 ### Configure a model
 
 ```bash
-lightning model
+sonic model
 ```
 
-Or set keys directly in `~/.lightning/.env`.
+Or set keys directly in `~/.sonic/.env`.
 
 ### Re-run the full interactive setup wizard later
 
 ```bash
-lightning setup
+sonic setup
 ```
 
 ### Install optional Node dependencies manually
@@ -203,7 +203,7 @@ export ANDROID_API_LEVEL="$(getprop ro.build.version.sdk)"
 python -m pip install -e '.[termux]' -c constraints-termux.txt
 ```
 
-### `lightning doctor` says ripgrep or Node is missing
+### `sonic doctor` says ripgrep or Node is missing
 
 Install them with Termux packages:
 
@@ -238,5 +238,5 @@ If you hit a new Android-specific issue, please open a GitHub issue with:
 - your Android version
 - `termux-info`
 - `python --version`
-- `lightning doctor`
+- `sonic doctor`
 - the exact install command and full error output

@@ -1,22 +1,22 @@
 ---
 sidebar_position: 9
 title: "Optional Skills Catalog"
-description: "Official optional skills shipped with lightning-agent — install via lightning skills install official/<category>/<skill>"
+description: "Official optional skills shipped with sonic-agent — install via sonic skills install official/<category>/<skill>"
 ---
 
 # Optional Skills Catalog
 
-Optional skills ship with lightning-agent under `optional-skills/` but are **not active by default**. Install them explicitly:
+Optional skills ship with sonic-agent under `optional-skills/` but are **not active by default**. Install them explicitly:
 
 ```bash
-lightning skills install official/<category>/<skill>
+sonic skills install official/<category>/<skill>
 ```
 
 For example:
 
 ```bash
-lightning skills install official/blockchain/solana
-lightning skills install official/mlops/flash-attention
+sonic skills install official/blockchain/solana
+sonic skills install official/mlops/flash-attention
 ```
 
 Each skill below links to a dedicated page with its full definition, setup, and usage.
@@ -24,7 +24,7 @@ Each skill below links to a dedicated page with its full definition, setup, and 
 To uninstall:
 
 ```bash
-lightning skills uninstall <skill-name>
+sonic skills uninstall <skill-name>
 ```
 
 ## autonomous-ai-agents
@@ -32,7 +32,7 @@ lightning skills uninstall <skill-name>
 | Skill | Description |
 |-------|-------------|
 | [**blackbox**](/docs/user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-blackbox) | Delegate coding tasks to Blackbox AI CLI agent. Multi-model agent with built-in judge that runs tasks through multiple LLMs and picks the best result. Requires the blackbox CLI and a Blackbox AI API key. |
-| [**honcho**](/docs/user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-honcho) | Configure and use Honcho memory with Lightning -- cross-session user modeling, multi-profile peer isolation, observation config, dialectic reasoning, session summaries, and context budget enforcement. Use when setting up Honcho, troubleshoo... |
+| [**honcho**](/docs/user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-honcho) | Configure and use Honcho memory with Sonic -- cross-session user modeling, multi-profile peer isolation, observation config, dialectic reasoning, session summaries, and context budget enforcement. Use when setting up Honcho, troubleshoo... |
 
 ## blockchain
 
@@ -52,10 +52,10 @@ lightning skills uninstall <skill-name>
 
 | Skill | Description |
 |-------|-------------|
-| [**blender-mcp**](/docs/user-guide/skills/optional/creative/creative-blender-mcp) | Control Blender directly from Lightning via socket connection to the blender-mcp addon. Create 3D objects, materials, animations, and run arbitrary Blender Python (bpy) code. Use when user wants to create or modify anything in Blender. |
+| [**blender-mcp**](/docs/user-guide/skills/optional/creative/creative-blender-mcp) | Control Blender directly from Sonic via socket connection to the blender-mcp addon. Create 3D objects, materials, animations, and run arbitrary Blender Python (bpy) code. Use when user wants to create or modify anything in Blender. |
 | [**concept-diagrams**](/docs/user-guide/skills/optional/creative/creative-concept-diagrams) | Generate flat, minimal light/dark-aware SVG diagrams as standalone HTML files, using a unified educational visual language with 9 semantic color ramps, sentence-case typography, and automatic dark mode. Best suited for educational and no... |
 | [**hyperframes**](/docs/user-guide/skills/optional/creative/creative-hyperframes) | Create HTML-based video compositions, animated title cards, social overlays, captioned talking-head videos, audio-reactive visuals, and shader transitions using HyperFrames. HTML is the source of truth for video. Use when the user wants... |
-| [**kanban-video-orchestrator**](/docs/user-guide/skills/optional/creative/creative-kanban-video-orchestrator) | Plan, set up, and monitor a multi-agent video production pipeline backed by Lightning Kanban. Use when the user wants to make ANY video — narrative film, product/marketing, music video, explainer, ASCII/terminal art, abstract/generative loo... |
+| [**kanban-video-orchestrator**](/docs/user-guide/skills/optional/creative/creative-kanban-video-orchestrator) | Plan, set up, and monitor a multi-agent video production pipeline backed by Sonic Kanban. Use when the user wants to make ANY video — narrative film, product/marketing, music video, explainer, ASCII/terminal art, abstract/generative loo... |
 | [**meme-generation**](/docs/user-guide/skills/optional/creative/creative-meme-generation) | Generate real meme images by picking a template and overlaying text with Pillow. Produces actual .png meme files. |
 
 ## devops
@@ -77,7 +77,7 @@ lightning skills uninstall <skill-name>
 
 | Skill | Description |
 |-------|-------------|
-| [**agentmail**](/docs/user-guide/skills/optional/email/email-agentmail) | Give the agent its own dedicated email inbox via AgentMail. Send, receive, and manage email autonomously using agent-owned email addresses (e.g. lightning-agent@agentmail.to). |
+| [**agentmail**](/docs/user-guide/skills/optional/email/email-agentmail) | Give the agent its own dedicated email inbox via AgentMail. Send, receive, and manage email autonomously using agent-owned email addresses (e.g. sonic-agent@agentmail.to). |
 
 ## finance
 
@@ -110,7 +110,7 @@ lightning skills uninstall <skill-name>
 
 | Skill | Description |
 |-------|-------------|
-| [**openclaw-migration**](/docs/user-guide/skills/optional/migration/migration-openclaw-migration) | Migrate a user's OpenClaw customization footprint into Lightning Agent. Imports Lightning-compatible memories, SOUL.md, command allowlists, user skills, and selected workspace assets from ~/.openclaw, then reports exactly what could not be mig... |
+| [**openclaw-migration**](/docs/user-guide/skills/optional/migration/migration-openclaw-migration) | Migrate a user's OpenClaw customization footprint into Sonic Agent. Imports Sonic-compatible memories, SOUL.md, command allowlists, user skills, and selected workspace assets from ~/.openclaw, then reports exactly what could not be mig... |
 
 ## mlops
 
@@ -133,7 +133,7 @@ lightning skills uninstall <skill-name>
 | [**peft-fine-tuning**](/docs/user-guide/skills/optional/mlops/mlops-peft) | Parameter-efficient fine-tuning for LLMs using LoRA, QLoRA, and 25+ methods. Use when fine-tuning large models (7B-70B) with limited GPU memory, when you need to train &lt;1% of parameters with minimal accuracy loss, or for multi-adapter se... |
 | [**pinecone**](/docs/user-guide/skills/optional/mlops/mlops-pinecone) | Managed vector database for production AI applications. Fully managed, auto-scaling, with hybrid search (dense + sparse), metadata filtering, and namespaces. Low latency (&lt;100ms p95). Use for production RAG, recommendation systems, or se... |
 | [**pytorch-fsdp**](/docs/user-guide/skills/optional/mlops/mlops-pytorch-fsdp) | Expert guidance for Fully Sharded Data Parallel training with PyTorch FSDP - parameter sharding, mixed precision, CPU offloading, FSDP2 |
-| [**pytorch-lightning**](/docs/user-guide/skills/optional/mlops/mlops-pytorch-lightning) | High-level PyTorch framework with Trainer class, automatic distributed training (DDP/FSDP/DeepSpeed), callbacks system, and minimal boilerplate. Scales from laptop to supercomputer with same code. Use when you want clean training loops w... |
+| [**pytorch-sonic**](/docs/user-guide/skills/optional/mlops/mlops-pytorch-sonic) | High-level PyTorch framework with Trainer class, automatic distributed training (DDP/FSDP/DeepSpeed), callbacks system, and minimal boilerplate. Scales from laptop to supercomputer with same code. Use when you want clean training loops w... |
 | [**qdrant-vector-search**](/docs/user-guide/skills/optional/mlops/mlops-qdrant) | High-performance vector similarity search engine for RAG and semantic search. Use when building production RAG systems requiring fast nearest neighbor search, hybrid search with filtering, or scalable vector storage with Rust-powered per... |
 | [**sparse-autoencoder-training**](/docs/user-guide/skills/optional/mlops/mlops-saelens) | Provides guidance for training and analyzing Sparse Autoencoders (SAEs) using SAELens to decompose neural network activations into interpretable features. Use when discovering interpretable features, analyzing superposition, or studying... |
 | [**simpo-training**](/docs/user-guide/skills/optional/mlops/mlops-simpo) | Simple Preference Optimization for LLM alignment. Reference-free alternative to DPO with better performance (+6.4 points on AlpacaEval 2.0). No reference model needed, more efficient than DPO. Use for preference alignment when want simpl... |
@@ -155,7 +155,7 @@ lightning skills uninstall <skill-name>
 | [**shop-app**](/docs/user-guide/skills/optional/productivity/productivity-shop-app) | Shop.app: product search, order tracking, returns, reorder. |
 | [**shopify**](/docs/user-guide/skills/optional/productivity/productivity-shopify) | Shopify Admin & Storefront GraphQL APIs via curl. Products, orders, customers, inventory, metafields. |
 | [**siyuan**](/docs/user-guide/skills/optional/productivity/productivity-siyuan) | SiYuan Note API for searching, reading, creating, and managing blocks and documents in a self-hosted knowledge base via curl. |
-| [**telephony**](/docs/user-guide/skills/optional/productivity/productivity-telephony) | Give Lightning phone capabilities without core tool changes. Provision and persist a Twilio number, send and receive SMS/MMS, make direct calls, and place AI-driven outbound calls through Bland.ai or Vapi. |
+| [**telephony**](/docs/user-guide/skills/optional/productivity/productivity-telephony) | Give Sonic phone capabilities without core tool changes. Provision and persist a Twilio number, send and receive SMS/MMS, make direct calls, and place AI-driven outbound calls through Bland.ai or Vapi. |
 
 ## research
 

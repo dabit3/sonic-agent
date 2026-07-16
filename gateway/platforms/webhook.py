@@ -292,9 +292,9 @@ class WebhookAdapter(BasePlatformAdapter):
 
     def _reload_dynamic_routes(self) -> None:
         """Reload agent-created subscriptions from disk if the file changed."""
-        from lightning_constants import get_lightning_home
-        lightning_home = get_lightning_home()
-        subs_path = lightning_home / _DYNAMIC_ROUTES_FILENAME
+        from sonic_constants import get_sonic_home
+        sonic_home = get_sonic_home()
+        subs_path = sonic_home / _DYNAMIC_ROUTES_FILENAME
         if not subs_path.exists():
             if self._dynamic_routes:
                 self._dynamic_routes = {}
