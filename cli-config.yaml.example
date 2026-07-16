@@ -1106,8 +1106,8 @@ display:
 # knobs toward minimum time-to-first-token:
 #   - max_tokens: fills in model.max_tokens when you haven't set one,
 #     capping response length for fast answers
-#   - api_max_retries: caps agent.api_max_retries so a slow provider
-#     fails over quickly instead of retrying
+#   - api_max_retries: when > 0, caps agent.api_max_retries so a slow
+#     provider fails over quickly instead of retrying (opt-in, 0 = off)
 #   - disable_memory_nudges / disable_skill_nudges: drops per-turn prompt
 #     extras that inflate prefill on every request
 #   - prewarm_connection: opens the DNS + TCP + TLS connection to your
@@ -1118,7 +1118,7 @@ display:
 # speed:
 #   enabled: true
 #   max_tokens: 4096
-#   api_max_retries: 1
+#   api_max_retries: 0
 #   disable_memory_nudges: true
 #   disable_skill_nudges: true
 #   prewarm_connection: true

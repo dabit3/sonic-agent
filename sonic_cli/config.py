@@ -1783,7 +1783,7 @@ DEFAULT_CONFIG = {
     # profile tunes every knob toward minimum time-to-first-token:
     #   - caps response length (max_tokens) so budget checks and provider
     #     admission are cheap and 402/limit stalls are avoided
-    #   - fails over fast instead of retrying a slow provider
+    #   - optionally caps API retries for fast failover (opt-in)
     #   - drops per-turn prompt extras (memory/skill nudges) that add
     #     prefill tokens on every request
     #   - pre-warms the DNS + TCP + TLS connection to the provider at
@@ -1792,7 +1792,7 @@ DEFAULT_CONFIG = {
     "speed": {
         "enabled": True,
         "max_tokens": 4096,          # output cap; 0/None = provider default
-        "api_max_retries": 1,        # fast failover instead of slow retries
+        "api_max_retries": 0,        # >0 caps agent.api_max_retries (opt-in)
         "disable_memory_nudges": True,
         "disable_skill_nudges": True,
         "prewarm_connection": True,  # background TLS handshake at agent init

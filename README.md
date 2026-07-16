@@ -23,7 +23,7 @@ Latency in an agent comes from four places: process startup, request setup, pref
 | **Process startup** | Lazy-loads heavy model catalogs and multi-MB metadata caches off the import path — the CLI boots ~35% faster than upstream, and heavyweight subsystems only load if you actually use them. |
 | **Request setup** | Pre-warms the DNS + TCP + TLS connection to your provider in the background the moment the agent starts, and keeps it alive with TCP keepalive — your first request starts streaming immediately instead of paying a handshake. |
 | **Prefill (input tokens)** | The default **speed profile** strips per-turn prompt extras (memory/skill nudges) that silently inflate every request, and leans on provider-side prompt caching. Fewer tokens in = faster first token out. |
-| **Decode (output tokens)** | Streaming-first everywhere, response caching, capped output length (4096 by default) so the model answers instead of rambling, and a single fast retry policy — fail over quickly rather than waiting on a slow provider. |
+| **Decode (output tokens)** | Streaming-first everywhere, response caching, capped output length (4096 by default) so the model answers instead of rambling, and an opt-in retry cap (`speed.api_max_retries`) to fail over quickly rather than waiting on a slow provider. |
 
 All of this ships enabled as the `speed` profile in `~/.sonic/config.yaml`. Every knob is user-visible, and `speed.enabled: false` restores stock upstream behaviour:
 
@@ -31,7 +31,7 @@ All of this ships enabled as the `speed` profile in `~/.sonic/config.yaml`. Ever
 speed:
   enabled: true
   max_tokens: 4096          # output cap — fast answers over long essays
-  api_max_retries: 1        # fail over fast instead of retrying slowly
+  api_max_retries: 0        # >0 caps retries for fast failover (opt-in)
   disable_memory_nudges: true
   disable_skill_nudges: true
   prewarm_connection: true  # background TLS handshake at startup
