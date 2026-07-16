@@ -4,7 +4,7 @@ let
   src = ../ui-tui;
   npmDeps = pkgs.fetchNpmDeps {
     inherit src;
-    hash = "sha256-aC+wKz1VRmHsIDd5vB19w+5vuXeAvMqBFRuJ9yNDz7M=";
+    hash = "sha256-qts8wiSNxu9pH/I0pM9Cn/YExxhGcCkqQydFJ8eE934=";
   };
 
   npm = sonicNpmLib.mkNpmPassthru { folder = "ui-tui"; attr = "tui"; pname = "sonic-tui"; };
