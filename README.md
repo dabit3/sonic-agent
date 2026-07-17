@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="assets/banner.png" alt="Sonic Agent" width="100%">
-</p>
-
 # Sonic Agent ⚡
 
 <p align="center">
