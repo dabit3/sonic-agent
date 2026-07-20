@@ -14435,6 +14435,7 @@ def main(
     list_tools: bool = False,
     list_toolsets: bool = False,
     gateway: bool = False,
+    tui: bool = False,
     resume: str = None,
     worktree: bool = False,
     w: bool = False,
@@ -14461,6 +14462,7 @@ def main(
         compact: Use compact display mode
         list_tools: List available tools and exit
         list_toolsets: List available toolsets and exit
+        tui: Launch the Ink terminal UI (same as `sonic --tui`)
         resume: Resume a previous session by its ID (e.g., 20260225_143052_a1b2c3)
         worktree: Run in an isolated git worktree (for parallel agents). Alias: -w
         w: Shorthand for --worktree
@@ -14490,6 +14492,29 @@ def main(
     # Signal to terminal_tool that we're in interactive mode
     # This enables interactive sudo password prompts with timeout
     os.environ["SONIC_INTERACTIVE"] = "1"
+
+    # Hand off to the Ink terminal UI (`sonic --tui` path).  _launch_tui
+    # replaces this process's lifecycle: it runs the Node TUI to completion
+    # and exits with its return code.
+    if tui or os.environ.get("SONIC_TUI") == "1":
+        from sonic_cli.main import _launch_tui
+
+        _launch_tui(
+            resume,
+            model=model,
+            provider=provider,
+            toolsets=toolsets,
+            skills=skills,
+            verbose=verbose,
+            quiet=quiet,
+            query=query or q,
+            image=image,
+            worktree=worktree or w,
+            checkpoints=checkpoints,
+            pass_session_id=pass_session_id,
+            max_turns=max_turns,
+        )
+        return
     
     # Handle gateway mode (messaging + cron)
     if gateway:
