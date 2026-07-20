@@ -345,7 +345,7 @@ def build_api_kwargs(agent, api_messages: list) -> dict:
         # It also rejects ``enum`` values containing ``/`` (HuggingFace IDs
         # like ``Qwen/Qwen3.5-0.8B`` shipped by MCP servers) — same 400 with
         # the same opaque message; strip those enums too.
-        if is_xai_responses:
+        if is_xai_responses and tools_for_api:
             try:
                 from tools.schema_sanitizer import (
                     strip_pattern_and_format,
