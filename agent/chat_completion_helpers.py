@@ -280,6 +280,10 @@ def interruptible_api_call(agent, api_kwargs: dict):
 def build_api_kwargs(agent, api_messages: list) -> dict:
     """Build the keyword arguments dict for the active API mode."""
     tools_for_api = agent.tools
+    if agent.model in (getattr(agent, "_chat_only_models", None) or ()):
+        # No endpoint behind this model accepts tool schemas (e.g. some
+        # OpenRouter routers) — send the request chat-only.
+        tools_for_api = None
 
     if agent.api_mode == "anthropic_messages":
         _transport = agent._get_transport()

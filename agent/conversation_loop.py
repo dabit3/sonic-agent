@@ -990,6 +990,7 @@ def run_conversation(
         thinking_sig_retry_attempted = False
         image_shrink_retry_attempted = False
         multimodal_tool_content_retry_attempted = False
+        tool_use_unsupported_retry_attempted = False
         oauth_1m_beta_retry_attempted = False
         llama_cpp_grammar_retry_attempted = False
         has_retried_429 = False
@@ -2085,6 +2086,29 @@ def run_conversation(
                             "multimodal-tool-content recovery: no list-type tool "
                             "messages with image parts found; surfacing original error."
                         )
+
+                # Tool-use-unsupported recovery: OpenRouter returns 404
+                # "No endpoints found that support tool use" when no
+                # endpoint behind the model accepts tool schemas (e.g.
+                # chat-only routers like openrouter/bodybuilder). Mark the
+                # model as chat-only for the rest of this session, drop
+                # tool schemas, and retry once.
+                if (
+                    classified.reason == FailoverReason.tool_use_unsupported
+                    and not tool_use_unsupported_retry_attempted
+                ):
+                    tool_use_unsupported_retry_attempted = True
+                    _chat_only = getattr(agent, "_chat_only_models", None)
+                    if _chat_only is None:
+                        _chat_only = set()
+                        agent._chat_only_models = _chat_only
+                    _chat_only.add(agent.model)
+                    agent._vprint(
+                        f"{agent.log_prefix}⚠️  No endpoints for {agent.model} support tool use — "
+                        f"disabling tool calling for this model (chat-only) and retrying...",
+                        force=True,
+                    )
+                    continue
 
                 # Anthropic OAuth subscription rejected the 1M-context beta
                 # header ("long context beta is not yet available for this
