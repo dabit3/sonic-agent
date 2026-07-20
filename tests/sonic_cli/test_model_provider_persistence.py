@@ -192,16 +192,14 @@ class TestProviderPersistsAfterModelSave:
         }
 
         # Patch fetch_api_models so the named custom flow returns one model;
-        # patch simple_term_menu to force the input() fallback; patch input to
+        # force non-TTY so the numbered-input fallback is used; patch input to
         # auto-select the first model from the fallback prompt.
-        from unittest.mock import MagicMock
-        fake_menu_module = MagicMock()
-        fake_menu_module.TerminalMenu.side_effect = OSError("no tty in test")
         with patch("sonic_cli.auth._save_model_choice"), \
              patch("sonic_cli.auth.deactivate_provider"), \
              patch("sonic_cli.models.fetch_api_models", return_value=["gpt-5.4"]), \
-             patch.dict("sys.modules", {"simple_term_menu": fake_menu_module}), \
+             patch("sys.stdin") as mock_stdin, \
              patch("builtins.input", return_value="1"):
+            mock_stdin.isatty.return_value = False
             _model_flow_named_custom({}, provider_info)
 
         config = yaml.safe_load((config_home / "config.yaml").read_text()) or {}

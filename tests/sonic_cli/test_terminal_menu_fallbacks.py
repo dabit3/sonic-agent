@@ -1,4 +1,4 @@
-"""Regression tests for numbered fallbacks when TerminalMenu cannot initialize."""
+"""Regression tests for numbered fallbacks when arrow-key menus cannot initialize."""
 
 import subprocess
 import sys
@@ -12,20 +12,59 @@ class _BrokenTerminalMenu:
         raise subprocess.CalledProcessError(2, ["tput", "clear"])
 
 
-def test_prompt_model_selection_falls_back_on_terminalmenu_runtime_error(monkeypatch):
+def test_prompt_model_selection_falls_back_on_non_tty(monkeypatch):
+    """On non-TTY stdin the model picker uses the numbered input fallback."""
     from sonic_cli.auth import _prompt_model_selection
 
-    monkeypatch.setitem(
-        sys.modules,
-        "simple_term_menu",
-        types.SimpleNamespace(TerminalMenu=_BrokenTerminalMenu),
-    )
+    # Force non-TTY so curses path is skipped (matches piped/test environments).
+    class _FakeStdin:
+        def isatty(self):
+            return False
+
+    monkeypatch.setattr(sys, "stdin", _FakeStdin())
     responses = iter(["2"])
     monkeypatch.setattr("builtins.input", lambda _prompt="": next(responses))
 
     selected = _prompt_model_selection(["model-a", "model-b"])
 
     assert selected == "model-b"
+
+
+def test_prompt_model_selection_arrow_keys_via_curses(monkeypatch):
+    """When curses is available, arrow-key selection is used."""
+    from sonic_cli.auth import _prompt_model_selection
+
+    class _FakeStdin:
+        def isatty(self):
+            return True
+
+    monkeypatch.setattr(sys, "stdin", _FakeStdin())
+    # Index 1 → model-b
+    monkeypatch.setattr(
+        "sonic_cli.curses_ui.curses_radiolist",
+        lambda *args, **kwargs: 1,
+    )
+
+    selected = _prompt_model_selection(["model-a", "model-b"])
+    assert selected == "model-b"
+
+
+def test_prompt_model_selection_curses_cancel(monkeypatch):
+    """ESC/q in the curses picker returns None (no change)."""
+    from sonic_cli.auth import _prompt_model_selection
+
+    class _FakeStdin:
+        def isatty(self):
+            return True
+
+    monkeypatch.setattr(sys, "stdin", _FakeStdin())
+    monkeypatch.setattr(
+        "sonic_cli.curses_ui.curses_radiolist",
+        lambda *args, **kwargs: -1,
+    )
+
+    selected = _prompt_model_selection(["model-a", "model-b"])
+    assert selected is None
 
 
 def test_prompt_reasoning_effort_falls_back_on_terminalmenu_runtime_error(monkeypatch):
@@ -72,15 +111,16 @@ def test_remove_custom_provider_falls_back_on_terminalmenu_runtime_error(tmp_pat
     ]
 
 
-def test_named_custom_provider_model_picker_falls_back_on_terminalmenu_runtime_error(tmp_path, monkeypatch):
+def test_named_custom_provider_model_picker_falls_back_on_non_tty(tmp_path, monkeypatch):
     from sonic_cli.main import _model_flow_named_custom
 
     monkeypatch.setenv("SONIC_HOME", str(tmp_path))
-    monkeypatch.setitem(
-        sys.modules,
-        "simple_term_menu",
-        types.SimpleNamespace(TerminalMenu=_BrokenTerminalMenu),
-    )
+
+    class _FakeStdin:
+        def isatty(self):
+            return False
+
+    monkeypatch.setattr(sys, "stdin", _FakeStdin())
     monkeypatch.setattr("sonic_cli.models.fetch_api_models", lambda *args, **kwargs: ["model-a", "model-b"])
     monkeypatch.setattr("sonic_cli.auth.deactivate_provider", lambda: None)
 

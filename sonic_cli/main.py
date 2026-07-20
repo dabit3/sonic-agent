@@ -4395,32 +4395,29 @@ def _model_flow_named_custom(config, provider_info):
             default_idx = models.index(saved_model)
 
         print(f"Found {len(models)} model(s):\n")
+        menu_items = [
+            f"{m} (current)" if m == saved_model else m for m in models
+        ]
+        # Prefer curses arrow-key nav (stdlib); fall back to numbered list.
         try:
-            from simple_term_menu import TerminalMenu
+            import sys as _sys
+            if _sys.stdin.isatty():
+                from sonic_cli.curses_ui import curses_radiolist
 
-            menu_items = [
-                f"  {m} (current)" if m == saved_model else f"  {m}" for m in models
-            ] + ["  Cancel"]
-            menu = TerminalMenu(
-                menu_items,
-                cursor_index=default_idx,
-                menu_cursor="-> ",
-                menu_cursor_style=("fg_green", "bold"),
-                menu_highlight_style=("fg_green",),
-                cycle_cursor=True,
-                clear_screen=False,
-                title=f"Select model from {name}:",
-            )
-            idx = menu.show()
-            from sonic_cli.curses_ui import flush_stdin
-
-            flush_stdin()
-            print()
-            if idx is None or idx >= len(models):
-                print("Cancelled.")
-                return
-            model_name = models[idx]
-        except (ImportError, NotImplementedError, OSError, subprocess.SubprocessError):
+                idx = curses_radiolist(
+                    f"Select model from {name}:",
+                    menu_items + ["Cancel"],
+                    selected=default_idx,
+                    cancel_returns=-1,
+                )
+                print()
+                if idx < 0 or idx >= len(models):
+                    print("Cancelled.")
+                    return
+                model_name = models[idx]
+            else:
+                raise OSError("non-tty")
+        except Exception:
             for i, m in enumerate(models, 1):
                 suffix = " (current)" if m == saved_model else ""
                 print(f"  {i}. {m}{suffix}")

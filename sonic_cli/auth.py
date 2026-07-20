@@ -6101,83 +6101,82 @@ def _prompt_model_selection(
     # Default cursor on the current model (index 0 if it was reordered to top)
     default_idx = 0
 
-    # Build a pricing header hint for the menu title
+    # Build a pricing header hint for the menu title / description
     menu_title = "Select default model:"
+    pricing_header = ""
     if has_pricing:
-        # Align the header with the model column.
-        # Each choice is "  {label}" (2 spaces) and simple_term_menu prepends
-        # a 3-char cursor region ("-> " or "   "), so content starts at col 5.
-        pad = " " * 5
-        header = f"\n{pad}{'':>{name_col}} {'In':>{price_col}}  {'Out':>{price_col}}"
+        # curses_radiolist prefixes each item with " → (●) " (~7 cols).
+        pad = " " * 7
+        pricing_header = f"{pad}{'':>{name_col}} {'In':>{price_col}}  {'Out':>{price_col}}"
         if has_cache:
-            header += f"  {'Cache':>{cache_col}}"
-        menu_title += header + "  /Mtok"
+            pricing_header += f"  {'Cache':>{cache_col}}"
+        pricing_header += "  /Mtok"
 
-    # ANSI escape for dim text
+    # ANSI escape for dim text (numbered fallback only; curses strips ANSI)
     _DIM = "\033[2m"
     _RESET = "\033[0m"
 
-    # Try arrow-key menu first, fall back to number input
-    try:
-        from simple_term_menu import TerminalMenu
+    choices = [_label(mid) for mid in ordered]
+    choices.append("Enter custom model name")
+    choices.append("Skip (keep current)")
+    n = len(ordered)
+    custom_idx = n
 
-        choices = [f"  {_label(mid)}" for mid in ordered]
-        choices.append("  Enter custom model name")
-        choices.append("  Skip (keep current)")
+    _upgrade_url = (portal_url or DEFAULT_NOUS_PORTAL_URL).rstrip("/")
+    desc_lines: list[str] = []
+    if pricing_header:
+        desc_lines.append(pricing_header)
+    if _unavailable:
+        for mid in _unavailable:
+            desc_lines.append(f"  (unavailable) {_label(mid)}")
+        desc_lines.append(f"  ── Upgrade at {_upgrade_url} for paid models ──")
+    description = "\n".join(desc_lines) if desc_lines else None
+    effective_title = "Available free models:" if _unavailable else menu_title
 
-        # Print the unavailable block BEFORE the menu via regular print().
-        # simple_term_menu pads title lines to terminal width (causes wrapping),
-        # so we keep the title minimal and use stdout for the static block.
-        # clear_screen=False means our printed output stays visible above.
-        _upgrade_url = (portal_url or DEFAULT_NOUS_PORTAL_URL).rstrip("/")
-        if _unavailable:
-            print(menu_title)
-            print()
-            for mid in _unavailable:
-                print(f"{_DIM}     {_label(mid)}{_RESET}")
-            print()
-            print(f"{_DIM}  ── Upgrade at {_upgrade_url} for paid models ──{_RESET}")
-            print()
-            effective_title = "Available free models:"
-        else:
-            effective_title = menu_title
-
-        menu = TerminalMenu(
-            choices,
-            cursor_index=default_idx,
-            menu_cursor="-> ",
-            menu_cursor_style=("fg_green", "bold"),
-            menu_highlight_style=("fg_green",),
-            cycle_cursor=True,
-            clear_screen=False,
-            title=effective_title,
-        )
-        idx = menu.show()
-        from sonic_cli.curses_ui import flush_stdin
-        flush_stdin()
-        if idx is None:
+    def _resolve_choice(idx: int) -> Optional[str]:
+        if idx < 0:
             return None
-        print()
-        if idx < len(ordered):
+        if idx < n:
             return ordered[idx]
-        elif idx == len(ordered):
+        if idx == custom_idx:
             custom = input("Enter model name: ").strip()
             return custom if custom else None
-        return None
-    except (ImportError, NotImplementedError, OSError, subprocess.SubprocessError):
+        return None  # skip
+
+    # Prefer curses arrow-key navigation (stdlib). simple_term_menu is
+    # intentionally avoided — it ghost-duplicates rows in tmux/iTerm2 and is
+    # only an optional extra that many installs don't have, leaving users stuck
+    # on the numbered fallback. See AGENTS.md "DO NOT introduce new
+    # simple_term_menu usage".
+    try:
+        import sys as _sys
+        if _sys.stdin.isatty():
+            from sonic_cli.curses_ui import curses_radiolist
+
+            idx = curses_radiolist(
+                effective_title,
+                choices,
+                selected=default_idx,
+                cancel_returns=-1,
+                description=description,
+            )
+            # User cancelled via ESC/q
+            if idx < 0:
+                return None
+            print()
+            return _resolve_choice(idx)
+    except Exception:
         pass
 
-    # Fallback: numbered list
-    print(menu_title)
-    num_width = len(str(len(ordered) + 2))
-    for i, mid in enumerate(ordered, 1):
-        print(f"  {i:>{num_width}}. {_label(mid)}")
-    n = len(ordered)
-    print(f"  {n + 1:>{num_width}}. Enter custom model name")
-    print(f"  {n + 2:>{num_width}}. Skip (keep current)")
+    # Fallback: numbered list (non-TTY, broken curses, etc.)
+    print(menu_title if not _unavailable else effective_title)
+    if pricing_header:
+        print(pricing_header)
+    num_width = len(str(len(choices)))
+    for i, label in enumerate(choices, 1):
+        print(f"  {i:>{num_width}}. {label}")
 
     if _unavailable:
-        _upgrade_url = (portal_url or DEFAULT_NOUS_PORTAL_URL).rstrip("/")
         print()
         print(f"  {_DIM}── Unavailable models (requires paid tier — upgrade at {_upgrade_url}) ──{_RESET}")
         for mid in _unavailable:
@@ -6186,18 +6185,13 @@ def _prompt_model_selection(
 
     while True:
         try:
-            choice = input(f"Choice [1-{n + 2}] (default: skip): ").strip()
+            choice = input(f"Choice [1-{len(choices)}] (default: skip): ").strip()
             if not choice:
                 return None
-            idx = int(choice)
-            if 1 <= idx <= n:
-                return ordered[idx - 1]
-            elif idx == n + 1:
-                custom = input("Enter model name: ").strip()
-                return custom if custom else None
-            elif idx == n + 2:
-                return None
-            print(f"Please enter 1-{n + 2}")
+            idx = int(choice) - 1
+            if 0 <= idx < len(choices):
+                return _resolve_choice(idx)
+            print(f"Please enter 1-{len(choices)}")
         except ValueError:
             print("Please enter a number")
         except (KeyboardInterrupt, EOFError):
