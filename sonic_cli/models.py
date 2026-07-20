@@ -40,7 +40,6 @@ OPENROUTER_MODELS: list[tuple[str, str]] = [
     ("openrouter/auto",                        "routes each prompt to the best available model"),
     ("openrouter/auto-beta",                   "next-gen auto router (beta)"),
     ("openrouter/fusion",                      "blends multiple models per response"),
-    ("openrouter/bodybuilder",                 "tool-use optimized router (beta)"),
     ("qwen/qwen3.6-plus",                      ""),
     ("anthropic/claude-haiku-4.5",             ""),
     ("openai/gpt-5.5",                         ""),

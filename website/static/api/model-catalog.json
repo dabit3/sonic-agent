@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-07-20T13:59:39Z",
+  "updated_at": "2026-07-20T14:31:38Z",
   "metadata": {
     "source": "sonic-agent repo",
     "docs": "https://lightning-agent.nousresearch.com/docs/reference/model-catalog"
@@ -43,10 +43,6 @@
         {
           "id": "openrouter/fusion",
           "description": "blends multiple models per response"
-        },
-        {
-          "id": "openrouter/bodybuilder",
-          "description": "tool-use optimized router (beta)"
         },
         {
           "id": "qwen/qwen3.6-plus",
