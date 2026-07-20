@@ -556,6 +556,62 @@ class TestValidateApiNotFound:
         assert "not found" in result["message"]
 
 
+# -- validate — Anthropic aliases ---------------------------------------------
+
+ANTHROPIC_LISTED = [
+    "claude-opus-4-5-20251101",
+    "claude-haiku-4-5-20251001",
+    "claude-sonnet-4-5-20250929",
+    "claude-sonnet-4-6",
+]
+
+
+class TestValidateAnthropicAliases:
+    """Anthropic /v1/models lists dated snapshot IDs, but the Messages API
+    also accepts undated and ``-latest`` aliases that resolve to the newest
+    snapshot. Those aliases must be recognized without a warning."""
+
+    def _validate_anthropic(self, model):
+        with patch(
+            "sonic_cli.models._fetch_anthropic_models",
+            return_value=ANTHROPIC_LISTED,
+        ):
+            return validate_requested_model(model, "anthropic")
+
+    def test_undated_alias_recognized_without_warning(self):
+        result = self._validate_anthropic("claude-haiku-4-5")
+        assert result["accepted"] is True
+        assert result["recognized"] is True
+        assert result["message"] is None
+
+    def test_latest_alias_recognized_without_warning(self):
+        result = self._validate_anthropic("claude-opus-4-5-latest")
+        assert result["accepted"] is True
+        assert result["recognized"] is True
+        assert result["message"] is None
+
+    def test_exact_snapshot_id_recognized(self):
+        result = self._validate_anthropic("claude-haiku-4-5-20251001")
+        assert result["accepted"] is True
+        assert result["recognized"] is True
+        assert result["message"] is None
+
+    def test_undated_model_listed_without_snapshot_recognized(self):
+        result = self._validate_anthropic("claude-sonnet-4-6")
+        assert result["accepted"] is True
+        assert result["recognized"] is True
+
+    def test_unknown_model_still_warns(self):
+        result = self._validate_anthropic("claude-nonexistent-9")
+        assert result["accepted"] is True
+        assert result["recognized"] is False
+        assert "not found" in result["message"]
+
+    def test_alias_of_unlisted_family_not_recognized(self):
+        result = self._validate_anthropic("claude-haiku-3-0")
+        assert result["recognized"] is False
+
+
 # -- validate — API unreachable — soft-accept via catalog or warning --------
 
 class TestValidateApiFallback:
