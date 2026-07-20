@@ -37,6 +37,10 @@ OPENROUTER_MODELS: list[tuple[str, str]] = [
     ("anthropic/claude-sonnet-4.6",            ""),
     ("moonshotai/kimi-k2.6",                   "recommended"),
     ("openrouter/pareto-code",                 "auto-routes to cheapest coder meeting openrouter.min_coding_score"),
+    ("openrouter/auto",                        "routes each prompt to the best available model"),
+    ("openrouter/auto-beta",                   "next-gen auto router (beta)"),
+    ("openrouter/fusion",                      "blends multiple models per response"),
+    ("openrouter/bodybuilder",                 "tool-use optimized router (beta)"),
     ("qwen/qwen3.6-plus",                      ""),
     ("anthropic/claude-haiku-4.5",             ""),
     ("openai/gpt-5.5",                         ""),
@@ -59,6 +63,7 @@ OPENROUTER_MODELS: list[tuple[str, str]] = [
     ("nvidia/nemotron-3-super-120b-a12b",      ""),
     ("deepseek/deepseek-v4-pro",               ""),
     # Free tier
+    ("openrouter/free",                        "free — routes across free models"),
     ("openrouter/elephant-alpha",              "free"),
     ("openrouter/owl-alpha",                   "free"),
     ("tencent/hy3-preview:free",               "free"),
@@ -1159,6 +1164,12 @@ def _openrouter_model_supports_tools(item: Any) -> bool:
     params = item.get("supported_parameters")
     if not isinstance(params, list):
         # Field absent / malformed / None — be permissive.
+        return True
+    if not params and str(item.get("id") or "").startswith("openrouter/"):
+        # OpenRouter's own routers (auto, fusion, pareto-code, bodybuilder,
+        # free, ...) delegate to tool-capable underlying models but often
+        # publish an empty supported_parameters list in the catalog. Treat
+        # empty-on-a-router as "unknown capability → allow".
         return True
     return "tools" in params
 

@@ -214,6 +214,21 @@ class TestOpenRouterToolSupportHelper:
             {"id": "x", "supported_parameters": []}
         ) is False
 
+    def test_openrouter_router_with_empty_parameters_is_kept(self):
+        """OpenRouter routers publish empty supported_parameters → allow."""
+        from sonic_cli.models import _openrouter_model_supports_tools
+        for router in ("openrouter/pareto-code", "openrouter/fusion", "openrouter/bodybuilder"):
+            assert _openrouter_model_supports_tools(
+                {"id": router, "supported_parameters": []}
+            ) is True
+
+    def test_openrouter_router_with_explicit_non_tools_list_drops(self):
+        """A router with a non-empty list that omits tools is still dropped."""
+        from sonic_cli.models import _openrouter_model_supports_tools
+        assert _openrouter_model_supports_tools(
+            {"id": "openrouter/fusion", "supported_parameters": ["temperature"]}
+        ) is False
+
 
 class TestFindOpenrouterSlug:
     def test_exact_match(self):
