@@ -58,6 +58,7 @@ class TestFailoverReason:
             "model_not_found", "format_error",
             "multimodal_tool_content_unsupported",
             "provider_policy_blocked",
+            "tool_use_unsupported",
             "thinking_signature", "long_context_tier",
             "oauth_long_context_beta_forbidden",
             "llama_cpp_grammar_pattern",
@@ -354,6 +355,27 @@ class TestClassifyApiError:
         )
         result = classify_api_error(e)
         assert result.reason == FailoverReason.provider_policy_blocked
+
+    # ── Tool-use unsupported (OpenRouter chat-only routers) ──
+
+    def test_404_tool_use_unsupported(self):
+        # Real OpenRouter error when no endpoint behind the model accepts
+        # tool schemas (e.g. openrouter/bodybuilder). Must NOT classify as
+        # model_not_found — recovery is to retry chat-only, not fall back.
+        e = MockAPIError(
+            "No endpoints found that support tool use. "
+            "Try disabling \"browser_back\".",
+            status_code=404,
+        )
+        result = classify_api_error(e)
+        assert result.reason == FailoverReason.tool_use_unsupported
+        assert result.retryable is False
+        assert result.should_fallback is False
+
+    def test_message_only_tool_use_unsupported(self):
+        e = Exception("No endpoints found that support tool use.")
+        result = classify_api_error(e)
+        assert result.reason == FailoverReason.tool_use_unsupported
 
     def test_404_model_not_found_still_works(self):
         # Regression guard: the new policy-block check must not swallow

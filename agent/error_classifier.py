@@ -47,6 +47,7 @@ class FailoverReason(enum.Enum):
     # Model
     model_not_found = "model_not_found"  # 404 or invalid model — fallback to different model
     provider_policy_blocked = "provider_policy_blocked"  # Aggregator (e.g. OpenRouter) blocked the only endpoint due to account data/privacy policy
+    tool_use_unsupported = "tool_use_unsupported"  # No endpoint behind the model supports tool calling — retry without tool schemas (chat-only)
 
     # Request format
     format_error = "format_error"        # 400 bad request — abort or strip + retry
@@ -261,6 +262,20 @@ _PROVIDER_POLICY_BLOCKED_PATTERNS = [
     "no endpoints available matching your guardrail",
     "no endpoints available matching your data policy",
     "no endpoints found matching your data policy",
+]
+
+# OpenRouter 404 when no endpoint behind the requested model accepts tool
+# schemas (e.g. chat-only routers like openrouter/bodybuilder, or a
+# provider_routing.only restriction that filters out every tool-capable
+# provider):
+#
+#   "No endpoints found that support tool use. ..."
+#
+# Distinct from model_not_found (the model exists) and from the policy
+# block (unrelated to account privacy). Recovery: drop tool schemas for
+# this model and retry the request chat-only.
+_TOOL_USE_UNSUPPORTED_PATTERNS = [
+    "no endpoints found that support tool use",
 ]
 
 # Auth patterns (non-status-code signals)
@@ -700,6 +715,12 @@ def _classify_by_status(
                 retryable=False,
                 should_fallback=False,
             )
+        if any(p in error_msg for p in _TOOL_USE_UNSUPPORTED_PATTERNS):
+            return result_fn(
+                FailoverReason.tool_use_unsupported,
+                retryable=False,
+                should_fallback=False,
+            )
         if any(p in error_msg for p in _MODEL_NOT_FOUND_PATTERNS):
             return result_fn(
                 FailoverReason.model_not_found,
@@ -1041,6 +1062,15 @@ def _classify_by_message(
     if any(p in error_msg for p in _PROVIDER_POLICY_BLOCKED_PATTERNS):
         return result_fn(
             FailoverReason.provider_policy_blocked,
+            retryable=False,
+            should_fallback=False,
+        )
+
+    # No tool-capable endpoint behind the model — check before
+    # model_not_found so we don't mis-label as a missing model.
+    if any(p in error_msg for p in _TOOL_USE_UNSUPPORTED_PATTERNS):
+        return result_fn(
+            FailoverReason.tool_use_unsupported,
             retryable=False,
             should_fallback=False,
         )

@@ -280,6 +280,10 @@ def interruptible_api_call(agent, api_kwargs: dict):
 def build_api_kwargs(agent, api_messages: list) -> dict:
     """Build the keyword arguments dict for the active API mode."""
     tools_for_api = agent.tools
+    if agent.model in (getattr(agent, "_chat_only_models", None) or ()):
+        # No endpoint behind this model accepts tool schemas (e.g. some
+        # OpenRouter routers) — send the request chat-only.
+        tools_for_api = None
 
     if agent.api_mode == "anthropic_messages":
         _transport = agent._get_transport()
@@ -341,7 +345,7 @@ def build_api_kwargs(agent, api_messages: list) -> dict:
         # It also rejects ``enum`` values containing ``/`` (HuggingFace IDs
         # like ``Qwen/Qwen3.5-0.8B`` shipped by MCP servers) — same 400 with
         # the same opaque message; strip those enums too.
-        if is_xai_responses:
+        if is_xai_responses and tools_for_api:
             try:
                 from tools.schema_sanitizer import (
                     strip_pattern_and_format,
