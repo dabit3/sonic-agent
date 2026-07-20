@@ -2370,6 +2370,24 @@ def provider_model_ids(provider: Optional[str], *, force_refresh: bool = False) 
     return curated_static
 
 
+def _matches_anthropic_alias(requested: str, listed: list[str]) -> bool:
+    """Return True if ``requested`` is an Anthropic model alias.
+
+    Anthropic's /v1/models only lists dated snapshot IDs for some models
+    (e.g. ``claude-haiku-4-5-20251001``), but the Messages API accepts
+    undated aliases (``claude-haiku-4-5``) and ``-latest`` aliases
+    (``claude-3-5-sonnet-latest``) that resolve to the newest snapshot.
+    """
+    base = requested[: -len("-latest")] if requested.endswith("-latest") else requested
+    if not base:
+        return False
+    prefix = base + "-"
+    return any(
+        m == base or (m.startswith(prefix) and m[len(prefix):].isdigit())
+        for m in listed
+    )
+
+
 def _fetch_anthropic_models(timeout: float = 5.0) -> Optional[list[str]]:
     """Fetch available models from the Anthropic /v1/models endpoint.
 
@@ -3616,7 +3634,9 @@ def validate_requested_model(
     if normalized == "anthropic":
         anthropic_models = _fetch_anthropic_models()
         if anthropic_models is not None:
-            if requested_for_lookup in set(anthropic_models):
+            if requested_for_lookup in set(anthropic_models) or _matches_anthropic_alias(
+                requested_for_lookup, anthropic_models
+            ):
                 return {
                     "accepted": True,
                     "persist": True,
@@ -3657,7 +3677,9 @@ def validate_requested_model(
     if api_mode == "anthropic_messages":
         api_models = fetch_api_models(api_key, base_url, api_mode=api_mode)
         if api_models is not None:
-            if requested_for_lookup in set(api_models):
+            if requested_for_lookup in set(api_models) or _matches_anthropic_alias(
+                requested_for_lookup, api_models
+            ):
                 return {
                     "accepted": True,
                     "persist": True,
