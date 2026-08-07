@@ -86,6 +86,7 @@ AUTHOR_MAP = {
     "teknium@nousresearch.com": "teknium1",
     "markuscontasul@gmail.com": "Glucksberg",
     "80581902+Glucksberg@users.noreply.github.com": "Glucksberg",
+    "weichangyuwcy@gmail.com": "ChyuWei",
     "piyushvp1@gmail.com": "thelumiereguy",
     "dskwelmcy@163.com": "dskwe",
     "421774554@qq.com": "wuli666",
