@@ -323,7 +323,7 @@ def test_observed_group_context_preserves_slash_command_text_for_dispatch():
         observe_unmentioned_group_messages=True,
     )
     event = MessageEvent(
-        text="/new@hermes_bot",
+        text="/new@sonic_bot",
         message_type=MessageType.COMMAND,
         source=SessionSource(
             platform=Platform.TELEGRAM,
@@ -334,14 +334,14 @@ def test_observed_group_context_preserves_slash_command_text_for_dispatch():
             thread_id="7",
         ),
         raw_message=_group_message(
-            "/new@hermes_bot",
-            entities=[_bot_command_entity("/new@hermes_bot", "/new@hermes_bot")],
+            "/new@sonic_bot",
+            entities=[_bot_command_entity("/new@sonic_bot", "/new@sonic_bot")],
         ),
     )
 
     attributed = adapter._apply_telegram_group_observe_attribution(event)
 
-    assert attributed.text == "/new@hermes_bot"
+    assert attributed.text == "/new@sonic_bot"
     assert attributed.get_command() == "new"
     assert attributed.source.user_id is None
     assert "observed Telegram group context" in attributed.channel_prompt

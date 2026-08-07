@@ -400,7 +400,7 @@ def test_get_qwen_auth_status_refreshes_expired_token(qwen_env):
     refreshed = _make_qwen_tokens(access_token="refreshed-at")
 
     with patch(
-        "hermes_cli.auth._refresh_qwen_cli_tokens", return_value=refreshed
+        "sonic_cli.auth._refresh_qwen_cli_tokens", return_value=refreshed
     ) as mock_refresh:
         status = get_qwen_auth_status()
 
@@ -415,7 +415,7 @@ def test_get_qwen_auth_status_expired_unrefreshable_token_is_not_logged_in(qwen_
     _write_qwen_creds(qwen_env, tokens)
 
     with patch(
-        "hermes_cli.auth._refresh_qwen_cli_tokens",
+        "sonic_cli.auth._refresh_qwen_cli_tokens",
         side_effect=AuthError(
             "Qwen refresh rejected. Re-run 'qwen auth qwen-oauth'.",
             provider="qwen-oauth",
@@ -437,14 +437,14 @@ def test_get_qwen_auth_status_not_logged_in(qwen_env):
 
 
 def test_model_flow_qwen_oauth_stale_token_shows_reauth_guidance(qwen_env, monkeypatch, capsys):
-    from hermes_cli.main import _model_flow_qwen_oauth
+    from sonic_cli.main import _model_flow_qwen_oauth
 
     expired_ms = int((time.time() - 3600) * 1000)
     tokens = _make_qwen_tokens(access_token="dead-at", expiry_date=expired_ms)
     _write_qwen_creds(qwen_env, tokens)
 
     monkeypatch.setattr(
-        "hermes_cli.auth._refresh_qwen_cli_tokens",
+        "sonic_cli.auth._refresh_qwen_cli_tokens",
         lambda *args, **kwargs: (_ for _ in ()).throw(
             AuthError(
                 "Qwen refresh rejected. Re-run 'qwen auth qwen-oauth'.",
@@ -458,11 +458,11 @@ def test_model_flow_qwen_oauth_stale_token_shows_reauth_guidance(qwen_env, monke
     update_called = {"value": False}
 
     monkeypatch.setattr(
-        "hermes_cli.auth._prompt_model_selection",
+        "sonic_cli.auth._prompt_model_selection",
         lambda *args, **kwargs: prompt_called.__setitem__("value", True),
     )
     monkeypatch.setattr(
-        "hermes_cli.auth._update_config_for_provider",
+        "sonic_cli.auth._update_config_for_provider",
         lambda *args, **kwargs: update_called.__setitem__("value", True),
     )
 
