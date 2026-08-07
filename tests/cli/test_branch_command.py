@@ -168,6 +168,25 @@ class TestBranchCommandCLI:
 
         assert cli_instance._resumed is True
 
+    def test_branch_rotates_sonic_session_id_env_and_context(self, cli_instance, session_db):
+        """Branching must update process-local session-id readers too."""
+        from cli import SonicCLI
+        from gateway.session_context import _UNSET, _VAR_MAP, get_session_env
+
+        old_session_id = cli_instance.session_id
+        os.environ["SONIC_SESSION_ID"] = old_session_id
+        _VAR_MAP["SONIC_SESSION_ID"].set(old_session_id)
+
+        try:
+            SonicCLI._handle_branch_command(cli_instance, "/branch")
+
+            assert cli_instance.session_id != old_session_id
+            assert os.environ["SONIC_SESSION_ID"] == cli_instance.session_id
+            assert get_session_env("SONIC_SESSION_ID") == cli_instance.session_id
+        finally:
+            os.environ.pop("SONIC_SESSION_ID", None)
+            _VAR_MAP["SONIC_SESSION_ID"].set(_UNSET)
+
     def test_branch_fires_on_session_switch_hook(self, cli_instance, session_db):
         """The /branch command must notify memory providers of the rotation.
 
