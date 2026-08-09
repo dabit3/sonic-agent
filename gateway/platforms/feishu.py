@@ -2574,7 +2574,7 @@ class FeishuAdapter(BasePlatformAdapter):
         if not state:
             logger.debug("[Feishu] Approval %s already resolved or unknown", approval_id)
             return P2CardActionTriggerResponse() if P2CardActionTriggerResponse else None
-        choice = _APPROVAL_CHOICE_MAP.get(action_value.get("hermes_action"), "deny")
+        choice = _APPROVAL_CHOICE_MAP.get(action_value.get("sonic_action"), "deny")
 
         operator = getattr(event, "operator", None)
         open_id = str(getattr(operator, "open_id", "") or "")

@@ -601,7 +601,7 @@ class TestCardActionCallbackResponse:
             "chat_id": "oc_12345",
         }
         data = _make_card_action_data(
-            {"hermes_action": "approve_once", "approval_id": 5},
+            {"sonic_action": "approve_once", "approval_id": 5},
             open_id="ou_attacker",
         )
 
@@ -623,7 +623,7 @@ class TestCardActionCallbackResponse:
             "chat_id": "oc_expected",
         }
         data = _make_card_action_data(
-            {"hermes_action": "approve_once", "approval_id": 6},
+            {"sonic_action": "approve_once", "approval_id": 6},
             chat_id="oc_mismatch",
             open_id="ou_bob",
         )
