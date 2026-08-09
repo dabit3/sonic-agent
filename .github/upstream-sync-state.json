@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "5e6749fbf360c45ace951f22fb7630caf637aae4",
-  "synced_at": "2026-08-08T18:30:00Z",
-  "notes": "Partial sync (2026-08-08): ported first-parent commits e8fa415a..5e6749fb (55 upstream commits) on top of the 2026-08-07 baseline. Backlog remains large (~9.5k first-parent commits after this SHA); each daily run advances the baseline by a reviewable batch. Original bootstrap baseline 874c2b1fe6ec185f9d1da17d31d2c7885d58c35c was inferred and still warrants a human double-check."
+  "last_synced_upstream_sha": "889903f0fa4ba125c56acf21030b5b99c99778db",
+  "synced_at": "2026-08-08T19:40:00Z",
+  "notes": "Partial sync (2026-08-08): ported first-parent commits e8fa415a..889903f0 (58 upstream commits). Backlog remains large (~9.5k first-parent commits beyond this SHA); each daily run advances the baseline by a reviewable batch. The original bootstrap baseline was inferred in an earlier run and still warrants a human double-check."
 }
