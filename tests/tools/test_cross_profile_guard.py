@@ -39,7 +39,7 @@ def fake_sonic(tmp_path, monkeypatch):
     monkeypatch.setenv("SONIC_HOME", str(sec_home))
 
     import sonic_constants
-    monkeypatch.setattr(sonic_constants, "get_default_hermes_root", lambda: root)
+    monkeypatch.setattr(sonic_constants, "get_default_sonic_root", lambda: root)
 
     import agent.file_safety as fs
     monkeypatch.setattr(fs, "_sonic_home_path", lambda: sec_home)
@@ -94,7 +94,7 @@ class TestWriteFileCrossProfileGuard:
         assert not result.get("error"), f"cross_profile=True must succeed: {result}"
         assert target.read_text() == "user-directed override"
 
-    def test_non_hermes_path_unaffected(self, fake_sonic, tmp_path):
+    def test_non_sonic_path_unaffected(self, fake_sonic, tmp_path):
         from tools.file_tools import write_file_tool
         target = tmp_path / "outside" / "main.py"
         target.parent.mkdir()

@@ -59,7 +59,7 @@ def fake_sonic(tmp_path, monkeypatch):
     # Monkeypatch the resolver functions used by file_safety so each test
     # can choose which profile is "active".
     import sonic_constants
-    monkeypatch.setattr(sonic_constants, "get_default_hermes_root", lambda: root)
+    monkeypatch.setattr(sonic_constants, "get_default_sonic_root", lambda: root)
 
     # The reloads below ensure get_cross_profile_warning/classify see the patched root.
     import agent.file_safety as fs
@@ -73,10 +73,10 @@ def fake_sonic(tmp_path, monkeypatch):
     }
 
 
-def _set_active_home(monkeypatch, hermes_home: Path):
+def _set_active_home(monkeypatch, sonic_home: Path):
     """Point file_safety._sonic_home_path at a specific profile dir."""
     import agent.file_safety as fs
-    monkeypatch.setattr(fs, "_sonic_home_path", lambda: hermes_home)
+    monkeypatch.setattr(fs, "_sonic_home_path", lambda: sonic_home)
 
 
 # ---------------------------------------------------------------------------
@@ -162,13 +162,13 @@ class TestClassifyCrossProfileTarget:
         assert result is not None
         assert result["area"] == area
 
-    def test_non_hermes_path_returns_none(self, fake_sonic, monkeypatch, tmp_path):
+    def test_non_sonic_path_returns_none(self, fake_sonic, monkeypatch, tmp_path):
         _set_active_home(monkeypatch, fake_sonic["security_home"])
         from agent.file_safety import classify_cross_profile_target
         # Path outside any Sonic root
         assert classify_cross_profile_target(str(tmp_path / "random.txt")) is None
 
-    def test_hermes_config_not_classified_as_cross_profile(self, fake_sonic, monkeypatch):
+    def test_sonic_config_not_classified_as_cross_profile(self, fake_sonic, monkeypatch):
         """Files under <root>/config.yaml or <root>/.env are NOT profile-scoped
         (already covered by build_write_denied_paths). Don't double-warn."""
         _set_active_home(monkeypatch, fake_sonic["security_home"])
