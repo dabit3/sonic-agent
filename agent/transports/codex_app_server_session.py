@@ -88,7 +88,7 @@ _TURN_ABORTED_MARKERS = ("<turn_aborted>", "<turn_aborted/>")
 
 
 def _coerce_turn_input_text(user_input: Any) -> str:
-    """Collapse Hermes/OpenAI rich content into app-server text input.
+    """Collapse Sonic/OpenAI rich content into app-server text input.
 
     The current `turn/start` path sends text items only. TUI image attachment
     can hand us OpenAI-style content parts, so keep the text/path hints and

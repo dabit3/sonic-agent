@@ -1259,9 +1259,9 @@ class MCPServerTask:
             raise ImportError(
                 f"MCP server '{self.name}' requires the 'mcp' Python SDK, but "
                 "it is not installed. Install with:\n"
-                "  pip install 'hermes-agent[mcp]'\n"
+                "  pip install 'sonic-agent[mcp]'\n"
                 "or (full install):\n"
-                "  pip install 'hermes-agent[all]'"
+                "  pip install 'sonic-agent[all]'"
             )
 
         command = config.get("command")

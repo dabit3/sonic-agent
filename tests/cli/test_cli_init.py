@@ -497,7 +497,7 @@ class TestRootLevelProviderOverride:
         """Legacy root-level base_url still populates model.base_url in the CLI loader."""
         import yaml
 
-        sonic_home = tmp_path / ".hermes"
+        sonic_home = tmp_path / ".sonic"
         sonic_home.mkdir()
         monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 

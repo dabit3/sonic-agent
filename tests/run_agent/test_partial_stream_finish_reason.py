@@ -75,7 +75,7 @@ class TestPartialStreamStubFinishReason:
         agent = _make_agent()
         agent._current_streamed_assistant_text = "Here's my answer so far"
 
-        monkeypatch.setenv("HERMES_STREAM_RETRIES", "0")
+        monkeypatch.setenv("SONIC_STREAM_RETRIES", "0")
         response = agent._interruptible_streaming_api_call({})
 
         assert response.id == "partial-stream-stub"
@@ -111,7 +111,7 @@ class TestPartialStreamStubFinishReason:
         agent._fire_stream_delta = lambda text: None
         agent._current_streamed_assistant_text = "Let me write the audit: "
 
-        monkeypatch.setenv("HERMES_STREAM_RETRIES", "0")
+        monkeypatch.setenv("SONIC_STREAM_RETRIES", "0")
         response = agent._interruptible_streaming_api_call({})
 
         assert response.id == "partial-stream-stub"
