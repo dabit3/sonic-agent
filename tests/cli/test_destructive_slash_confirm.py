@@ -223,42 +223,42 @@ def test_slash_confirm_display_fragments_include_choice_mapping():
 
 def test_split_destructive_skip_recognized_tokens():
     """``now``, ``--yes``, and ``-y`` are recognized as skip tokens."""
-    from cli import HermesCLI
+    from cli import SonicCLI
 
-    assert HermesCLI._split_destructive_skip("/reset now") == ("", True)
-    assert HermesCLI._split_destructive_skip("/clear --yes") == ("", True)
-    assert HermesCLI._split_destructive_skip("/undo -y") == ("", True)
+    assert SonicCLI._split_destructive_skip("/reset now") == ("", True)
+    assert SonicCLI._split_destructive_skip("/clear --yes") == ("", True)
+    assert SonicCLI._split_destructive_skip("/undo -y") == ("", True)
 
 
 def test_split_destructive_skip_strips_command_word():
     """Leading ``/cmd`` token is stripped; remaining args survive."""
-    from cli import HermesCLI
+    from cli import SonicCLI
 
-    assert HermesCLI._split_destructive_skip("/new My title") == ("My title", False)
-    assert HermesCLI._split_destructive_skip("/new --yes My title") == ("My title", True)
+    assert SonicCLI._split_destructive_skip("/new My title") == ("My title", False)
+    assert SonicCLI._split_destructive_skip("/new --yes My title") == ("My title", True)
 
 
 def test_split_destructive_skip_case_insensitive():
     """Token matching is case-insensitive but not a substring match."""
-    from cli import HermesCLI
+    from cli import SonicCLI
 
-    assert HermesCLI._split_destructive_skip("/new NOW") == ("", True)
+    assert SonicCLI._split_destructive_skip("/new NOW") == ("", True)
     # Substring match must NOT trigger — "Now-Title" is a literal title token.
-    assert HermesCLI._split_destructive_skip("/new Now-Title") == ("Now-Title", False)
+    assert SonicCLI._split_destructive_skip("/new Now-Title") == ("Now-Title", False)
 
 
 def test_split_destructive_skip_handles_empty_and_none():
     """Defensive against missing/empty input."""
-    from cli import HermesCLI
+    from cli import SonicCLI
 
-    assert HermesCLI._split_destructive_skip(None) == ("", False)
-    assert HermesCLI._split_destructive_skip("") == ("", False)
-    assert HermesCLI._split_destructive_skip("   ") == ("", False)
+    assert SonicCLI._split_destructive_skip(None) == ("", False)
+    assert SonicCLI._split_destructive_skip("") == ("", False)
+    assert SonicCLI._split_destructive_skip("   ") == ("", False)
 
 
 def test_confirm_destructive_slash_now_skips_modal():
     """``/reset now`` skips the modal even when the gate is on."""
-    from cli import HermesCLI
+    from cli import SonicCLI
 
     # Build a prompt stub that fails the test if invoked — proving the modal
     # was never reached.
@@ -270,15 +270,15 @@ def test_confirm_destructive_slash_now_skips_modal():
         _prompt_text_input_modal=_explode,
     )
     self_._normalize_slash_confirm_choice = _bound(
-        HermesCLI._normalize_slash_confirm_choice, self_,
+        SonicCLI._normalize_slash_confirm_choice, self_,
     )
-    self_._split_destructive_skip = HermesCLI._split_destructive_skip  # classmethod
+    self_._split_destructive_skip = SonicCLI._split_destructive_skip  # classmethod
 
     with patch(
         "cli.load_cli_config",
         return_value={"approvals": {"destructive_slash_confirm": True}},
     ):
-        result = _bound(HermesCLI._confirm_destructive_slash, self_)(
+        result = _bound(SonicCLI._confirm_destructive_slash, self_)(
             "new", "detail", cmd_original="/reset now",
         )
 
@@ -287,7 +287,7 @@ def test_confirm_destructive_slash_now_skips_modal():
 
 def test_confirm_destructive_slash_yes_flag_skips_modal():
     """``--yes`` flag is equivalent to ``now``."""
-    from cli import HermesCLI
+    from cli import SonicCLI
 
     def _explode(**_kw):
         raise AssertionError("modal must not be invoked when --yes present")
@@ -297,15 +297,15 @@ def test_confirm_destructive_slash_yes_flag_skips_modal():
         _prompt_text_input_modal=_explode,
     )
     self_._normalize_slash_confirm_choice = _bound(
-        HermesCLI._normalize_slash_confirm_choice, self_,
+        SonicCLI._normalize_slash_confirm_choice, self_,
     )
-    self_._split_destructive_skip = HermesCLI._split_destructive_skip
+    self_._split_destructive_skip = SonicCLI._split_destructive_skip
 
     with patch(
         "cli.load_cli_config",
         return_value={"approvals": {"destructive_slash_confirm": True}},
     ):
-        result = _bound(HermesCLI._confirm_destructive_slash, self_)(
+        result = _bound(SonicCLI._confirm_destructive_slash, self_)(
             "new", "detail", cmd_original="/new --yes My Session",
         )
 
@@ -314,16 +314,16 @@ def test_confirm_destructive_slash_yes_flag_skips_modal():
 
 def test_confirm_destructive_slash_no_skip_token_still_prompts():
     """Without a skip token the gate-on path still consults the modal."""
-    from cli import HermesCLI
+    from cli import SonicCLI
 
     self_ = _make_self(prompt_response="3")  # cancel
-    self_._split_destructive_skip = HermesCLI._split_destructive_skip
+    self_._split_destructive_skip = SonicCLI._split_destructive_skip
 
     with patch(
         "cli.load_cli_config",
         return_value={"approvals": {"destructive_slash_confirm": True}},
     ):
-        result = _bound(HermesCLI._confirm_destructive_slash, self_)(
+        result = _bound(SonicCLI._confirm_destructive_slash, self_)(
             "new", "detail", cmd_original="/new My Session",
         )
 
