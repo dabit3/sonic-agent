@@ -211,7 +211,7 @@ def save_url_image(
     timeout: float = 60.0,
     max_bytes: int = 25 * 1024 * 1024,
 ) -> Path:
-    """Download an image URL and write it under ``$HERMES_HOME/cache/images/``.
+    """Download an image URL and write it under ``$SONIC_HOME/cache/images/``.
 
     Used by providers (xAI, fallback OpenAI) whose API returns an *ephemeral*
     URL instead of inline base64 — those URLs frequently expire before a

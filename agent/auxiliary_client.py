@@ -3746,7 +3746,7 @@ def _main_model_supports_vision(provider: str, model: Optional[str]) -> bool:
     """
     try:
         from agent.image_routing import _lookup_supports_vision
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
     except ImportError:
         return True
     try:

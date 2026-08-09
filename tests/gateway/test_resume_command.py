@@ -110,7 +110,7 @@ class TestHandleResumeCommand:
     @pytest.mark.asyncio
     async def test_resume_by_index(self, tmp_path):
         """Numeric argument resumes the indexed titled session from the list."""
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
         db = SessionDB(db_path=tmp_path / "state.db")
         db.create_session("sess_001", "telegram")
         db.create_session("sess_002", "telegram")
@@ -132,7 +132,7 @@ class TestHandleResumeCommand:
     @pytest.mark.asyncio
     async def test_resume_index_out_of_range(self, tmp_path):
         """Out-of-range numeric arguments show a helpful error."""
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
         db = SessionDB(db_path=tmp_path / "state.db")
         db.create_session("sess_001", "telegram")
         db.set_session_title("sess_001", "Research")

@@ -354,11 +354,11 @@ class TestCaptureLogSnapshotRedaction:
         assert _REDACT_FIXTURE_TOKEN not in snap.full_text
 
     def test_default_redacts_email_addresses_for_public_share(
-        self, hermes_home_with_secret
+        self, sonic_home_with_secret
     ):
-        from hermes_cli.debug import _capture_log_snapshot
+        from sonic_cli.debug import _capture_log_snapshot
 
-        log_path = hermes_home_with_secret / "logs" / "agent.log"
+        log_path = sonic_home_with_secret / "logs" / "agent.log"
         log_path.write_text(
             "2026-04-12 17:00:00 INFO gateway.run: "
             "inbound message: platform=bluebubbles "
@@ -372,10 +372,10 @@ class TestCaptureLogSnapshotRedaction:
         assert snap.full_text is not None
         assert "person@example.com" not in snap.full_text
 
-    def test_no_redact_preserves_email_addresses(self, hermes_home_with_secret):
-        from hermes_cli.debug import _capture_log_snapshot
+    def test_no_redact_preserves_email_addresses(self, sonic_home_with_secret):
+        from sonic_cli.debug import _capture_log_snapshot
 
-        log_path = hermes_home_with_secret / "logs" / "agent.log"
+        log_path = sonic_home_with_secret / "logs" / "agent.log"
         log_path.write_text(
             "2026-04-12 17:00:00 INFO gateway.run: "
             "inbound message: platform=bluebubbles "

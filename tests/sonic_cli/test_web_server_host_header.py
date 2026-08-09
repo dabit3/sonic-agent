@@ -155,7 +155,7 @@ class TestWebSocketHostOriginGuard:
         from fastapi.testclient import TestClient
         from starlette.websockets import WebSocketDisconnect
 
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         monkeypatch.setattr(ws.app.state, "bound_host", "127.0.0.1", raising=False)
         monkeypatch.setattr(ws, "_DASHBOARD_EMBEDDED_CHAT_ENABLED", True)
@@ -178,7 +178,7 @@ class TestWebSocketHostOriginGuard:
         from fastapi.testclient import TestClient
         from starlette.websockets import WebSocketDisconnect
 
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         monkeypatch.setattr(ws.app.state, "bound_host", "127.0.0.1", raising=False)
         monkeypatch.setattr(ws, "_DASHBOARD_EMBEDDED_CHAT_ENABLED", True)
@@ -200,7 +200,7 @@ class TestWebSocketHostOriginGuard:
     def test_loopback_websocket_host_and_origin_are_accepted(self, monkeypatch):
         from fastapi.testclient import TestClient
 
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         monkeypatch.setattr(ws.app.state, "bound_host", "127.0.0.1", raising=False)
         monkeypatch.setattr(ws, "_DASHBOARD_EMBEDDED_CHAT_ENABLED", True)

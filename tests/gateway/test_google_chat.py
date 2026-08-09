@@ -1618,7 +1618,7 @@ class TestUserOAuthHelper:
         assert "google_chat_user_oauth_pending" in str(a.parent)
 
     def test_persist_credentials_writes_private_json(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
         from plugins.platforms.google_chat.oauth import _persist_credentials, _token_path
 
         creds = type(
@@ -1651,7 +1651,7 @@ class TestUserOAuthHelper:
         )
 
     def test_store_client_secret_writes_private_json(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
         src = tmp_path / "client_secret.json"
         payload = {"installed": {"client_id": "cid", "client_secret": "secret"}}
         src.write_text(json.dumps(payload), encoding="utf-8")
@@ -1666,7 +1666,7 @@ class TestUserOAuthHelper:
         self._assert_private_json_file(_client_secret_path(), payload)
 
     def test_save_pending_auth_writes_private_json(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
         from plugins.platforms.google_chat.oauth import (
             _REDIRECT_URI,
             _pending_auth_path,

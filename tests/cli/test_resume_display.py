@@ -650,7 +650,7 @@ class TestHandleResumeCommandRecap:
         cli._session_db = mock_db
 
         with (
-            patch("hermes_cli.main._resolve_session_by_name_or_id", return_value="target_session"),
+            patch("sonic_cli.main._resolve_session_by_name_or_id", return_value="target_session"),
             patch.object(cli, "_display_resumed_history") as display_mock,
         ):
             cli._handle_resume_command("/resume test session")
@@ -672,7 +672,7 @@ class TestHandleResumeCommandRecap:
         cli._session_db = mock_db
 
         with (
-            patch("hermes_cli.main._resolve_session_by_name_or_id", return_value="target_session"),
+            patch("sonic_cli.main._resolve_session_by_name_or_id", return_value="target_session"),
             patch.object(cli, "_display_resumed_history") as display_mock,
         ):
             cli._handle_resume_command("/resume target_session")

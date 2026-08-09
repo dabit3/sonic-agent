@@ -12050,7 +12050,7 @@ def main():
     audit_parser.add_argument(
         "--skip-venv",
         action="store_true",
-        help="Skip scanning the Hermes Python venv",
+        help="Skip scanning the Sonic Python venv",
     )
     audit_parser.add_argument(
         "--skip-plugins",

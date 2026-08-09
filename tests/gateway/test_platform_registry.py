@@ -723,10 +723,10 @@ class TestPluginEnablementGate:
     """
 
     def _write_config(self, tmp_path, content: str = ""):
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
-        (hermes_home / "config.yaml").write_text(content, encoding="utf-8")
-        return hermes_home
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        (sonic_home / "config.yaml").write_text(content, encoding="utf-8")
+        return sonic_home
 
     def test_plugin_with_is_connected_false_is_NOT_enabled(
         self, tmp_path, monkeypatch
@@ -750,7 +750,7 @@ class TestPluginEnablementGate:
         ))
         try:
             home = self._write_config(tmp_path)
-            monkeypatch.setenv("HERMES_HOME", str(home))
+            monkeypatch.setenv("SONIC_HOME", str(home))
 
             from gateway.config import load_gateway_config, Platform
             cfg = load_gateway_config()
@@ -780,7 +780,7 @@ class TestPluginEnablementGate:
         ))
         try:
             home = self._write_config(tmp_path)
-            monkeypatch.setenv("HERMES_HOME", str(home))
+            monkeypatch.setenv("SONIC_HOME", str(home))
 
             from gateway.config import load_gateway_config, Platform
             cfg = load_gateway_config()
@@ -812,7 +812,7 @@ class TestPluginEnablementGate:
         ))
         try:
             home = self._write_config(tmp_path)
-            monkeypatch.setenv("HERMES_HOME", str(home))
+            monkeypatch.setenv("SONIC_HOME", str(home))
 
             from gateway.config import load_gateway_config, Platform
             cfg = load_gateway_config()
@@ -845,7 +845,7 @@ class TestPluginEnablementGate:
         ))
         try:
             home = self._write_config(tmp_path)
-            monkeypatch.setenv("HERMES_HOME", str(home))
+            monkeypatch.setenv("SONIC_HOME", str(home))
 
             from gateway.config import load_gateway_config, Platform
             cfg = load_gateway_config()
@@ -882,7 +882,7 @@ class TestPluginEnablementGate:
                 "  myexplicitplat:\n"
                 "    enabled: true\n",
             )
-            monkeypatch.setenv("HERMES_HOME", str(home))
+            monkeypatch.setenv("SONIC_HOME", str(home))
 
             from gateway.config import load_gateway_config, Platform
             cfg = load_gateway_config()
@@ -931,7 +931,7 @@ class TestPluginEnablementGate:
         ))
         try:
             home = self._write_config(tmp_path)
-            monkeypatch.setenv("HERMES_HOME", str(home))
+            monkeypatch.setenv("SONIC_HOME", str(home))
 
             from gateway.config import load_gateway_config, Platform
             cfg = load_gateway_config()
@@ -970,7 +970,7 @@ class TestPluginEnablementGate:
         ))
         try:
             home = self._write_config(tmp_path)
-            monkeypatch.setenv("HERMES_HOME", str(home))
+            monkeypatch.setenv("SONIC_HOME", str(home))
 
             from gateway.config import load_gateway_config, Platform
             cfg = load_gateway_config()
