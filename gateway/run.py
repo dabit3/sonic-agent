@@ -2833,7 +2833,7 @@ class GatewayRunner:
     @staticmethod
     def _load_busy_text_mode() -> str:
         """Load normal busy TEXT follow-up behavior from config/env."""
-        mode = os.getenv("HERMES_GATEWAY_BUSY_TEXT_MODE", "").strip().lower()
+        mode = os.getenv("SONIC_GATEWAY_BUSY_TEXT_MODE", "").strip().lower()
         if not mode:
             cfg = _load_gateway_runtime_config()
             mode = str(cfg_get(cfg, "display", "busy_text_mode", default="") or "").strip().lower()

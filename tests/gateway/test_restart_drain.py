@@ -117,8 +117,8 @@ def test_load_busy_input_mode_prefers_env_then_config_then_default(tmp_path, mon
 
 
 def test_load_busy_text_mode_defaults_to_queue_and_allows_interrupt(tmp_path, monkeypatch):
-    monkeypatch.setattr(gateway_run, "_hermes_home", tmp_path)
-    monkeypatch.delenv("HERMES_GATEWAY_BUSY_TEXT_MODE", raising=False)
+    monkeypatch.setattr(gateway_run, "_sonic_home", tmp_path)
+    monkeypatch.delenv("SONIC_GATEWAY_BUSY_TEXT_MODE", raising=False)
 
     assert gateway_run.GatewayRunner._load_busy_text_mode() == "queue"
 
@@ -127,10 +127,10 @@ def test_load_busy_text_mode_defaults_to_queue_and_allows_interrupt(tmp_path, mo
     )
     assert gateway_run.GatewayRunner._load_busy_text_mode() == "interrupt"
 
-    monkeypatch.setenv("HERMES_GATEWAY_BUSY_TEXT_MODE", "queue")
+    monkeypatch.setenv("SONIC_GATEWAY_BUSY_TEXT_MODE", "queue")
     assert gateway_run.GatewayRunner._load_busy_text_mode() == "queue"
 
-    monkeypatch.setenv("HERMES_GATEWAY_BUSY_TEXT_MODE", "bogus")
+    monkeypatch.setenv("SONIC_GATEWAY_BUSY_TEXT_MODE", "bogus")
     assert gateway_run.GatewayRunner._load_busy_text_mode() == "queue"
 
 
