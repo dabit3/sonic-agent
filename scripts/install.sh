@@ -168,7 +168,7 @@ print_banner() {
     echo "┌─────────────────────────────────────────────────────────┐"
     echo "│             ⚕ Sonic Agent Installer                    │"
     echo "├─────────────────────────────────────────────────────────┤"
-    echo "│  An open source AI agent by Nous Research.              │"
+    echo "│  An open source AI agent maintained by Nader Dabit.     │"
     echo "└─────────────────────────────────────────────────────────┘"
     echo -e "${NC}"
 }
