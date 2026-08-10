@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "e8fa415a9e29ce7667d131335d2a614e5a41290b",
-  "synced_at": "2026-08-07T17:00:00Z",
-  "notes": "Baseline was inferred (no prior state file): 874c2b1fe6ec185f9d1da17d31d2c7885d58c35c is the upstream commit whose tree best matches Sonic's squashed initial commit 4939686 (local minimum of tree diff). Partial sync: upstream has ~9344 first-parent commits pending after this SHA; this PR ports the first 15 (874c2b1..e8fa415a). Human should double-check the inferred baseline before merging."
+  "last_synced_upstream_sha": "af144cd60d2a69d47aa23090b5c51485cff46256",
+  "synced_at": "2026-08-09T22:40:00Z",
+  "notes": "Partial sync. 2026-08-08 batch: e8fa415a..889903f0 (58 first-parent commits). 2026-08-09 batch (same PR): 889903f0..af144cd6 (50 first-parent commits). Backlog remains large (~9.6k first-parent commits beyond af144cd6); each daily run advances the baseline by a reviewable batch. The original bootstrap baseline was inferred in an earlier run and still warrants a human double-check."
 }

@@ -53,6 +53,7 @@ sonic [global-options] <command> [subcommand/options]
 | `sonic webhook` | Manage dynamic webhook subscriptions for event-driven activation. |
 | `sonic hooks` | Inspect, approve, or remove shell-script hooks declared in `config.yaml`. |
 | `sonic doctor` | Diagnose config and dependency issues. |
+| `sonic security audit` | On-demand supply-chain audit (OSV.dev) for the venv, plugin requirements, and pinned MCP servers. |
 | `sonic dump` | Copy-pasteable setup summary for support/debugging. |
 | `sonic debug` | Debug tools — upload logs and system info for support. |
 | `sonic backup` | Back up Sonic home directory to a zip file. |
@@ -138,7 +139,7 @@ Per-run overrides (no mutation to `~/.sonic/config.yaml`):
 | Flag | Equivalent env var | Purpose |
 |---|---|---|
 | `-m` / `--model <model>` | `SONIC_INFERENCE_MODEL` | Override the model for this run |
-| `--provider <provider>` | `SONIC_INFERENCE_PROVIDER` | Override the provider for this run |
+| `--provider <provider>` | _(none)_ | Override the provider for this run |
 
 ```bash
 sonic -z "…" --provider openrouter --model openai/gpt-5.5
