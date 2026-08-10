@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sonic Agent — All speed, no waiting</title>
+  <meta name="description" content="Sonic Agent is the AI agent that feels instant. Terminal, skills, memory, messaging gateway, and cron — every layer tuned for minimum latency." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <a class="logo" href="#"><span>sonic</span><span class="bolt">⚡</span></a>
+    <nav class="site-nav">
+      <a href="#fast">Why Sonic</a>
+      <a href="#features">Features</a>
+      <a href="https://github.com/dabit3/sonic-agent/blob/main/README.md">Docs</a>
+      <a href="https://github.com/dabit3/sonic-agent/blob/main/CONTRIBUTING.md">Contributing</a>
+    </nav>
+    <div class="header-actions">
+      <a class="stat-pill" href="https://github.com/dabit3/sonic-agent">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        <span><span class="stat-label">GitHub</span><br /><span class="stat-sub">dabit3/sonic-agent</span></span>
+      </a>
+      <a class="stat-pill" href="https://github.com/NousResearch/hermes-agent">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+        <span><span class="stat-label">Fork of</span><br /><span class="stat-sub">Hermes Agent</span></span>
+      </a>
+      <a class="login-link" href="https://github.com/dabit3/sonic-agent#quick-install">Install</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-stripes" aria-hidden="true"></div>
+      <div class="container">
+        <div>
+          <h1>All speed no waiting</h1>
+          <p class="hero-sub">
+            <strong>The AI agent that feels instant.</strong>
+            <span> Terminal, skills, memory, messaging gateway, and cron — every layer tuned for minimum latency, from process startup to the last streamed token.</span>
+          </p>
+          <div class="hero-ctas">
+            <a class="btn btn-outline" href="https://github.com/dabit3/sonic-agent/blob/main/README.md">Read the docs</a>
+            <a class="btn btn-solid" href="https://github.com/dabit3/sonic-agent#quick-install">Start building</a>
+          </div>
+        </div>
+        <div class="terminal-card">
+          <div class="terminal-card-inner">
+            <div class="terminal-panel">
+              <span class="terminal-panel-label">Make your terminal Sonic fast</span>
+              <button class="prompt-pill" data-copy="curl -fsSL https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.sh | bash" type="button">
+                <span class="prompt-pill-left">
+                  <span class="avatar-stack" aria-hidden="true"><span>⚡</span><span>🖥</span><span>🤖</span></span>
+                  <span class="prompt-pill-text">Copy the one-line installer to get set up</span>
+                </span>
+                <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+              <span class="terminal-hint">Works great with any model, any provider, any endpoint →</span>
+            </div>
+            <div class="terminal-grid">
+              <div class="terminal-panel">
+                <span class="terminal-panel-label">Start chatting</span>
+                <button class="code-row" data-copy="sonic chat" type="button">
+                  <code><span class="hl">&gt;</span> sonic <span class="hl">chat</span></code>
+                  <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+              </div>
+              <div class="terminal-panel">
+                <span class="terminal-panel-label">Pick any model</span>
+                <button class="code-row" data-copy="sonic model" type="button">
+                  <code><span class="hl">&gt;</span> sonic <span class="hl">model</span></code>
+                  <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Works with -->
+    <section class="trusted">
+      <div class="container">
+        <span class="eyebrow">Works with</span>
+        <div class="trusted-logos">
+          <span>OpenRouter</span>
+          <span>OpenAI</span>
+          <span>Anthropic</span>
+          <span>Nous Portal</span>
+          <span>NVIDIA NIM</span>
+          <span>Moonshot</span>
+          <span>Hugging Face</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Solved / Fast -->
+    <section class="solved" id="fast">
+      <div class="container">
+        <h2>Fast.</h2>
+        <p class="solved-lede">Latency comes from four places: startup, request setup, prefill, and decode. Sonic attacks all four, so tokens hit your screen the moment you press Enter.</p>
+        <ul class="solved-list">
+          <li><span class="check">✓</span><p><strong>Lazy startup</strong>&nbsp;so the CLI boots ~35% faster than upstream</p></li>
+          <li><span class="check">✓</span><p><strong>Pre-warmed connections</strong>&nbsp;so your first request skips the TLS handshake</p></li>
+          <li><span class="check">✓</span><p><strong>Lean prompts &amp; caching</strong>&nbsp;so fewer tokens in means faster first token out</p></li>
+          <li><span class="check">✓</span><p><strong>Streaming-first decode</strong>&nbsp;so answers arrive as they're generated, never after</p></li>
+        </ul>
+        <p class="solved-kicker">Sonic is faster than your agent.</p>
+        <a class="btn btn-dark" href="https://github.com/dabit3/sonic-agent#built-for-speed-from-first-principles">Here's the proof →</a>
+      </div>
+    </section>
+
+    <!-- Agentic features -->
+    <section class="agentic" id="features">
+      <div class="container">
+        <span class="eyebrow">Built for the frontier</span>
+        <h2>Ready for real work (and everything else)</h2>
+        <p class="agentic-lede">Sonic keeps the full agent toolkit — nothing was traded away for speed. Skills are modular, self-improving capabilities your agent picks up as it works.</p>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <span class="eyebrow">Gateway</span>
+            <h3>Lives where you do</h3>
+            <p>Telegram, Discord, Slack, WhatsApp, Signal, and CLI — all from a single gateway process, with cross-platform conversation continuity.</p>
+            <button class="code-row" data-copy="sonic gateway" type="button">
+              <code>$ <span class="hl">sonic gateway</span></code>
+              <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <div class="feature-card">
+            <span class="eyebrow">Cron</span>
+            <h3>Automations that survive anything</h3>
+            <p>A built-in scheduler with delivery to any platform. Daily reports, nightly backups, weekly audits — in natural language, unattended.</p>
+            <button class="code-row" data-copy="sonic cron" type="button">
+              <code>$ <span class="hl">sonic cron</span></code>
+              <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <div class="feature-card">
+            <span class="eyebrow">Skills</span>
+            <h3>A closed learning loop</h3>
+            <p>Agent-curated memory, autonomous skill creation, and cross-session recall. Compatible with the agentskills.io open standard.</p>
+            <button class="code-row" data-copy="sonic skills" type="button">
+              <code>$ <span class="hl">sonic skills</span></code>
+              <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="platform-row">
+          <span class="platform-chip"><span class="dot" style="background:#2aabee">✈</span>Telegram</span>
+          <span class="platform-chip"><span class="dot" style="background:#5865f2">🎮</span>Discord</span>
+          <span class="platform-chip"><span class="dot" style="background:#611f69">＃</span>Slack</span>
+          <span class="platform-chip"><span class="dot" style="background:#25d366">✆</span>WhatsApp</span>
+          <span class="platform-chip"><span class="dot" style="background:#3a76f0">◉</span>Signal</span>
+        </div>
+        <div class="agentic-cta">
+          <a class="btn btn-outline" href="https://github.com/dabit3/sonic-agent/tree/main/skills">Browse the full library →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quotes -->
+    <section class="quotes">
+      <div class="container">
+        <span class="eyebrow">Quotes</span>
+        <p class="big-quote">“Every millisecond between Enter and tokens is a bug.”</p>
+        <div class="quote-attrib">
+          <p class="name">The Sonic Philosophy</p>
+          <p class="role">Fork of Hermes Agent<br />Rebuilt around one obsession / Speed</p>
+        </div>
+        <div class="quote-cards">
+          <div class="quote-card">
+            <blockquote>“The default speed profile strips per-turn prompt extras that silently inflate every request, and leans on provider-side prompt caching. Fewer tokens in = faster first token out.”</blockquote>
+            <div><p class="name">Prefill</p><p class="role">Input tokens</p></div>
+          </div>
+          <div class="quote-card">
+            <blockquote>“Streaming-first everywhere, response caching, capped output length so the model answers instead of rambling, and fast failover rather than waiting on a slow provider.”</blockquote>
+            <div><p class="name">Decode</p><p class="role">Output tokens</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Heritage -->
+    <section class="heritage">
+      <div class="container">
+        <span class="eyebrow">Built by</span>
+        <h2>Forked from Hermes Agent and tuned for minimum latency, so you don't have to</h2>
+        <div class="heritage-cols">
+          <div class="heritage-col">
+            <h3>Process startup <span class="tag">Layer 1</span></h3>
+            <p>Heavy model catalogs and multi-MB metadata caches are lazy-loaded off the import path. The CLI boots ~35% faster than upstream, and heavyweight subsystems only load if you actually use them.</p>
+          </div>
+          <div class="heritage-col">
+            <h3>Request setup <span class="tag">Layer 2</span></h3>
+            <p>The DNS + TCP + TLS connection to your provider is pre-warmed in the background the moment the agent starts, and kept alive — your first request streams immediately instead of paying a handshake.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Runs anywhere band -->
+    <section class="anywhere">
+      <div class="container anywhere-inner">
+        <span class="eyebrow">Runs anywhere</span>
+        <div class="anywhere-pill">
+          <span class="backends">Local<span class="sep">•</span>Docker<span class="sep">•</span>SSH<span class="sep">•</span>Modal<span class="sep">•</span>Daytona<span class="sep">•</span>Vercel Sandbox</span>
+          <span class="tag-soon">7 backends</span>
+          <a class="btn" href="https://github.com/dabit3/sonic-agent/tree/main/tools/environments">See the backends →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="final-cta">
+      <div class="final-cta-inner">
+        <span class="pixel" style="top:40px;left:60px;background:#8fb7c9" aria-hidden="true"></span>
+        <span class="pixel" style="top:70px;left:88px;background:#de5d33" aria-hidden="true"></span>
+        <span class="pixel" style="bottom:60px;right:80px;background:#f3b01c" aria-hidden="true"></span>
+        <span class="pixel" style="bottom:88px;right:52px;background:#8d2676" aria-hidden="true"></span>
+        <h2>Install Sonic this afternoon</h2>
+        <p class="tagline">Feel the speed for decades.</p>
+        <div class="terminal-card">
+          <div class="terminal-card-inner">
+            <div class="terminal-panel">
+              <span class="terminal-panel-label">One-line install — Linux, macOS, WSL2, Termux</span>
+              <button class="code-row" data-copy="curl -fsSL https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.sh | bash" type="button">
+                <code>$ <span class="hl">curl -fsSL https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.sh | bash</span></code>
+                <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="hero-ctas">
+          <a class="btn btn-outline" href="https://github.com/dabit3/sonic-agent/blob/main/README.md">Read the docs</a>
+          <a class="btn btn-accent" href="https://github.com/dabit3/sonic-agent#quick-install">Start building</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <p class="footer-logo">sonic<span style="color:var(--peach)">⚡</span></p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="#fast">Speed profile</a></li>
+            <li><a href="#features">Gateway</a></li>
+            <li><a href="#features">Skills</a></li>
+            <li><a href="#features">Cron</a></li>
+            <li><a href="https://github.com/dabit3/sonic-agent/tree/main/tools/environments">Terminal backends</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Developers</h4>
+          <ul>
+            <li><a href="https://github.com/dabit3/sonic-agent/blob/main/README.md">Docs<span class="ext">↗</span></a></li>
+            <li><a href="https://github.com/dabit3/sonic-agent/blob/main/CONTRIBUTING.md">Contributing<span class="ext">↗</span></a></li>
+            <li><a href="https://github.com/dabit3/sonic-agent/tree/main/skills">Skills library<span class="ext">↗</span></a></li>
+            <li><a href="https://github.com/dabit3/sonic-agent/blob/main/AGENTS.md">AGENTS.md<span class="ext">↗</span></a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Community</h4>
+          <ul>
+            <li><a href="https://github.com/dabit3/sonic-agent">GitHub<span class="ext">↗</span></a></li>
+            <li><a href="https://github.com/NousResearch/hermes-agent">Hermes Agent<span class="ext">↗</span></a></li>
+            <li><a href="https://nousresearch.com">Nous Research<span class="ext">↗</span></a></li>
+            <li><a href="https://agentskills.io">agentskills.io<span class="ext">↗</span></a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Open Source</h4>
+          <ul class="trusted-list">
+            <li><span class="check">✓</span><strong>MIT</strong><span>Licensed</span></li>
+            <li><span class="check">✓</span><strong>Hermes</strong><span>Fork, kept in sync</span></li>
+            <li><span class="check">✓</span><strong>Community</strong><span>Driven</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="footer-copyright">©2026 Sonic Agent</p>
+    </div>
+  </footer>
+
+  <script>
+    document.querySelectorAll("[data-copy]").forEach(function (el) {
+      el.addEventListener("click", function () {
+        navigator.clipboard.writeText(el.getAttribute("data-copy")).then(function () {
+          var icon = el.querySelector(".copy-icon");
+          if (icon) {
+            icon.style.opacity = "1";
+            setTimeout(function () { icon.style.opacity = "0.7"; }, 800);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
