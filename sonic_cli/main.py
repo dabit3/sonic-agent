@@ -3298,7 +3298,7 @@ def _model_flow_xai_oauth(_config, current_model="", *, args=None):
         DEFAULT_XAI_OAUTH_BASE_URL,
         PROVIDER_REGISTRY,
     )
-    from sonic_cli.models import _PROVIDER_MODELS
+    from sonic_cli.models import _PROVIDER_MODELS, fetch_api_models
 
     status = get_xai_oauth_auth_status()
     if status.get("logged_in"):
@@ -3363,13 +3363,23 @@ def _model_flow_xai_oauth(_config, current_model="", *, args=None):
     # completes successfully instead of bailing out with
     # ``Could not resolve xAI OAuth credentials``.
     base_url = DEFAULT_XAI_OAUTH_BASE_URL
+    api_key = ""
     try:
         creds = resolve_xai_oauth_runtime_credentials()
         base_url = (creds.get("base_url") or "").strip().rstrip("/") or base_url
+        api_key = str(creds.get("api_key") or "").strip()
     except Exception:
         pass
 
-    models = list(_PROVIDER_MODELS.get("xai-oauth") or _PROVIDER_MODELS.get("xai") or [])
+    # Prefer the live /models endpoint so newly released Grok models appear
+    # without a Sonic release; fall back to the curated static list.
+    models: list = []
+    if api_key:
+        models = fetch_api_models(api_key, base_url) or []
+        if models:
+            print(f"  Found {len(models)} model(s) from the xAI API")
+    if not models:
+        models = list(_PROVIDER_MODELS.get("xai-oauth") or _PROVIDER_MODELS.get("xai") or [])
     selected = _prompt_model_selection(models, current_model=current_model or (models[0] if models else "grok-4.3"))
     if selected:
         _save_model_choice(selected)
@@ -5938,7 +5948,7 @@ def _model_flow_anthropic(config, current_model=""):
         save_config,
         save_anthropic_api_key,
     )
-    from sonic_cli.models import _PROVIDER_MODELS
+    from sonic_cli.models import _PROVIDER_MODELS, _fetch_anthropic_models
 
     # Check ALL credential sources
     from sonic_cli.auth import get_anthropic_key
@@ -6046,8 +6056,19 @@ def _model_flow_anthropic(config, current_model=""):
             return
     print()
 
-    # Model selection
-    model_list = _PROVIDER_MODELS.get("anthropic", [])
+    # Model selection — prefer the live /v1/models catalog so newly released
+    # models appear without a Sonic release; fall back to the curated static
+    # list when the API is unreachable.
+    model_list = _fetch_anthropic_models() or []
+    if model_list:
+        print(f"  Found {len(model_list)} model(s) from the Anthropic API")
+    else:
+        model_list = _PROVIDER_MODELS.get("anthropic", [])
+        if model_list:
+            print(
+                "  ⚠ Could not fetch live models from Anthropic — showing defaults."
+            )
+            print('    Use "Enter custom model name" if you do not see your model.')
     if model_list:
         selected = _prompt_model_selection(model_list, current_model=current_model)
     else:
