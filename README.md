@@ -1,4 +1,4 @@
-# Sonic Agent ⚡
+# Sonic Agent
 
 <p align="center">
   <a href="https://github.com/dabit3/sonic-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
@@ -6,22 +6,22 @@
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/Lang-中文-red?style=for-the-badge" alt="中文"></a>
 </p>
 
-> **Sonic Agent is a fork of [Hermes Agent](https://github.com/NousResearch/hermes-agent)** by [Nous Research](https://nousresearch.com), rebuilt around a single obsession: **speed**. Everything in this fork is tuned for minimum latency — fast startup, fast time-to-first-token, fast streaming — even when that means trading away features. Upstream docs live at [lightning-agent.nousresearch.com/docs](https://lightning-agent.nousresearch.com/docs/).
+> Sonic Agent is a fork of [Hermes Agent](https://github.com/NousResearch/hermes-agent) from [Nous Research](https://nousresearch.com). This fork is tuned for one property: speed. It optimizes startup time, time to first token, and streaming speed. In some cases it removes features to get this speed. The upstream documentation is at [lightning-agent.nousresearch.com/docs](https://lightning-agent.nousresearch.com/docs/).
 
-**The AI agent that feels instant.** Sonic keeps the full agent toolkit — terminal, skills, memory, messaging gateway, cron — but treats every millisecond between you pressing Enter and tokens hitting your screen as a bug to be fixed.
+Sonic keeps the full agent toolkit: terminal, skills, memory, messaging gateway, and cron. It treats each millisecond between your Enter key and the first token on the screen as a defect.
 
-## Built for speed, from first principles
+## Speed design
 
-Latency in an agent comes from four places: process startup, request setup, prefill (every token you send), and decode (every token you get back). Sonic attacks all four:
+Latency in an agent comes from four places. These places are process startup, request setup, prefill (the tokens you send), and decode (the tokens you get back). Sonic reduces the latency of all four.
 
 | Layer | What Sonic does |
 |-------|-----------------|
-| **Process startup** | Lazy-loads heavy model catalogs and multi-MB metadata caches off the import path — the CLI boots ~35% faster than upstream, and heavyweight subsystems only load if you actually use them. |
-| **Request setup** | Pre-warms the DNS + TCP + TLS connection to your provider in the background the moment the agent starts, and keeps it alive with TCP keepalive — your first request starts streaming immediately instead of paying a handshake. |
-| **Prefill (input tokens)** | The default **speed profile** strips per-turn prompt extras (memory/skill nudges) that silently inflate every request, and leans on provider-side prompt caching. Fewer tokens in = faster first token out. |
-| **Decode (output tokens)** | Streaming-first everywhere, response caching, capped output length (4096 by default) so the model answers instead of rambling, and an opt-in retry cap (`speed.api_max_retries`) to fail over quickly rather than waiting on a slow provider. |
+| **Process startup** | Sonic loads large model catalogs and multi-MB metadata caches only on demand. The CLI starts about 35% faster than upstream. Large subsystems load only when you use them. |
+| **Request setup** | Sonic opens the DNS, TCP, and TLS connection to your provider in the background at startup. TCP keepalive holds the connection open. Your first request streams immediately, without a handshake. |
+| **Prefill (input tokens)** | The default **speed profile** removes the per-turn prompt extras (memory and skill nudges) that make each request larger. It also uses prompt caching on the provider side. Fewer input tokens give a faster first output token. |
+| **Decode (output tokens)** | Sonic streams everywhere and caches responses. The output length limit is 4096 tokens by default, so the model answers in short form. The optional retry limit (`speed.api_max_retries`) makes Sonic fail over quickly instead of waiting for a slow provider. |
 
-All of this ships enabled as the `speed` profile in `~/.sonic/config.yaml`. Every knob is user-visible, and `speed.enabled: false` restores stock upstream behaviour:
+These settings ship as the `speed` profile in `~/.sonic/config.yaml`. Each option is visible to you. To restore stock upstream behavior, set `speed.enabled: false`:
 
 ```yaml
 speed:
@@ -33,18 +33,18 @@ speed:
   prewarm_connection: true  # background TLS handshake at startup
 ```
 
-**Pick a fast model.** Speed is mostly the model: a small/fast model on a fast provider (e.g. `openai/gpt-4o-mini`, a Flash/Haiku/nano-class model, or anything served on high-throughput infrastructure) will always feel snappier than a frontier reasoning model. Switch anytime with `sonic model`.
+**Pick a fast model.** The model controls most of the speed. A small model on a fast provider is faster than a frontier reasoning model. Examples are `openai/gpt-4o-mini`, a Flash, Haiku, or nano class model, or any model on high-throughput infrastructure. To change the model at any time, run `sonic model`.
 
-Use any model you want — [OpenRouter](https://openrouter.ai) (200+ models), [Nous Portal](https://portal.nousresearch.com), [NovitaAI](https://novita.ai), [NVIDIA NIM](https://build.nvidia.com), [z.ai/GLM](https://z.ai), [Kimi/Moonshot](https://platform.moonshot.ai), [MiniMax](https://www.minimax.io), [Hugging Face](https://huggingface.co), OpenAI, or your own endpoint. Switch with `sonic model` — no code changes, no lock-in.
+You can use any model. The options include [OpenRouter](https://openrouter.ai) (200+ models), [Nous Portal](https://portal.nousresearch.com), [NovitaAI](https://novita.ai), [NVIDIA NIM](https://build.nvidia.com), [z.ai/GLM](https://z.ai), [Kimi/Moonshot](https://platform.moonshot.ai), [MiniMax](https://www.minimax.io), [Hugging Face](https://huggingface.co), OpenAI, and your own endpoint. To change the model, run `sonic model`. No code changes are necessary.
 
 <table>
-<tr><td><b>A real terminal interface</b></td><td>Full TUI with multiline editing, slash-command autocomplete, conversation history, interrupt-and-redirect, and streaming tool output.</td></tr>
-<tr><td><b>Lives where you do</b></td><td>Telegram, Discord, Slack, WhatsApp, Signal, and CLI — all from a single gateway process. Voice memo transcription, cross-platform conversation continuity.</td></tr>
-<tr><td><b>A closed learning loop</b></td><td>Agent-curated memory with periodic nudges. Autonomous skill creation after complex tasks. Skills self-improve during use. FTS5 session search with LLM summarization for cross-session recall. <a href="https://github.com/plastic-labs/honcho">Honcho</a> dialectic user modeling. Compatible with the <a href="https://agentskills.io">agentskills.io</a> open standard.</td></tr>
-<tr><td><b>Scheduled automations</b></td><td>Built-in cron scheduler with delivery to any platform. Daily reports, nightly backups, weekly audits — all in natural language, running unattended.</td></tr>
-<tr><td><b>Delegates and parallelizes</b></td><td>Spawn isolated subagents for parallel workstreams. Write Python scripts that call tools via RPC, collapsing multi-step pipelines into zero-context-cost turns.</td></tr>
-<tr><td><b>Runs anywhere, not just your laptop</b></td><td>Seven terminal backends — local, Docker, SSH, Singularity, Modal, Daytona, and Vercel Sandbox. Daytona and Modal offer serverless persistence — your agent's environment hibernates when idle and wakes on demand, costing nearly nothing between sessions. Run it on a $5 VPS or a GPU cluster.</td></tr>
-<tr><td><b>Research-ready</b></td><td>Batch trajectory generation, trajectory compression for training the next generation of tool-calling models.</td></tr>
+<tr><td><b>A real terminal interface</b></td><td>A full TUI with multiline editing, slash-command autocomplete, conversation history, interrupt-and-redirect, and streaming tool output.</td></tr>
+<tr><td><b>Lives where you do</b></td><td>Telegram, Discord, Slack, WhatsApp, Signal, and the CLI, all from one gateway process. It transcribes voice memos and continues one conversation across platforms.</td></tr>
+<tr><td><b>A closed learning loop</b></td><td>The agent curates its own memory and gets periodic nudges. It writes new skills after complex tasks, and skills improve themselves during use. FTS5 session search with LLM summarization gives recall across sessions. <a href="https://github.com/plastic-labs/honcho">Honcho</a> gives dialectic user modeling. Sonic is compatible with the <a href="https://agentskills.io">agentskills.io</a> open standard.</td></tr>
+<tr><td><b>Scheduled automations</b></td><td>A built-in cron scheduler with delivery to any platform. Daily reports, nightly backups, and weekly audits run unattended. You write them in natural language.</td></tr>
+<tr><td><b>Delegates and parallelizes</b></td><td>Sonic can start isolated subagents for parallel work. Python scripts can call tools through RPC. This collapses a multi-step pipeline into one turn with no context cost.</td></tr>
+<tr><td><b>Runs anywhere, not only your laptop</b></td><td>Seven terminal backends: local, Docker, SSH, Singularity, Modal, Daytona, and Vercel Sandbox. Daytona and Modal give serverless persistence. The environment of the agent hibernates when it is idle and wakes on demand, at almost no cost between sessions. Sonic runs on a $5 VPS or on a GPU cluster.</td></tr>
+<tr><td><b>Research-ready</b></td><td>Batch trajectory generation and trajectory compression, to train the next generation of tool-calling models.</td></tr>
 </table>
 
 ---
@@ -59,27 +59,27 @@ curl -fsSL https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/ins
 
 ### Windows (native, PowerShell) — Early Beta
 
-> **Heads up:** Native Windows support is **early beta**. It installs and runs, but hasn't been road-tested as broadly as our Linux/macOS/WSL2 paths. Please [file issues](https://github.com/dabit3/sonic-agent/issues) when you hit rough edges. For the most battle-tested Windows setup today, run the Linux/macOS one-liner above inside **WSL2**.
+> **Note:** Native Windows support is early beta. It installs and runs, but it has less test coverage than the Linux, macOS, and WSL2 paths. If you find a problem, [file an issue](https://github.com/dabit3/sonic-agent/issues). For the most tested Windows setup today, run the Linux and macOS command above inside WSL2.
 
-Run this in PowerShell:
+Run this command in PowerShell:
 
 ```powershell
 iex (irm https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.ps1)
 ```
 
-The installer handles everything: uv, Python 3.11, Node.js, ripgrep, ffmpeg, **and a portable Git Bash** (MinGit, unpacked to `%LOCALAPPDATA%\sonic\git` — no admin required, completely isolated from any system Git install).  Sonic uses this bundled Git Bash to run shell commands.
+The installer adds uv, Python 3.11, Node.js, ripgrep, ffmpeg, and a portable Git Bash. The portable Git Bash is MinGit. The installer unpacks it to `%LOCALAPPDATA%\sonic\git`, without admin rights, and keeps it isolated from a system Git installation. Sonic runs shell commands with this bundled Git Bash.
 
-If you already have Git installed, the installer detects it and uses that instead.  Otherwise a ~45MB MinGit download is all you need — it won't touch or interfere with any system Git.
+If Git is already installed, the installer finds it and uses it. If Git is not installed, the installer downloads MinGit (about 45 MB). MinGit does not change a system Git installation.
 
-> **Android / Termux:** The tested manual path is documented in the [Termux guide](https://lightning-agent.nousresearch.com/docs/getting-started/termux). On Termux, Sonic installs a curated `.[termux]` extra because the full `.[all]` extra currently pulls Android-incompatible voice dependencies.
+> **Android and Termux:** The tested manual path is in the [Termux guide](https://lightning-agent.nousresearch.com/docs/getting-started/termux). On Termux, Sonic installs the `.[termux]` extra, because the full `.[all]` extra pulls voice dependencies that Android does not support.
 >
-> **Windows:** Native Windows is supported as an **early beta** — the PowerShell one-liner above installs everything, but expect rough edges and please file issues when you hit them. If you'd rather use WSL2 (our most battle-tested Windows path), the Linux command works there too. Native Windows install lives under `%LOCALAPPDATA%\sonic`; WSL2 installs under `~/.sonic` as on Linux.  The only Sonic feature that currently needs WSL2 specifically is the browser-based dashboard chat pane (it uses a POSIX PTY — classic CLI and gateway both run natively).
+> **Windows:** Native Windows is an early beta. The PowerShell command above installs everything, but expect problems and file an issue for each one. WSL2 is the most tested Windows path, and the Linux command also works there. A native Windows installation goes in `%LOCALAPPDATA%\sonic`. A WSL2 installation goes in `~/.sonic`, as on Linux. One Sonic feature needs WSL2: the browser-based dashboard chat pane, because it uses a POSIX PTY. The classic CLI and the gateway both run natively.
 
-After installation:
+After the installation:
 
 ```bash
 source ~/.bashrc    # reload shell (or: source ~/.zshrc)
-sonic              # start chatting!
+sonic              # start chatting
 ```
 
 ---
@@ -91,71 +91,71 @@ sonic              # Interactive CLI — start a conversation
 sonic model        # Choose your LLM provider and model
 sonic tools        # Configure which tools are enabled
 sonic config set   # Set individual config values
-sonic gateway      # Start the messaging gateway (Telegram, Discord, etc.)
+sonic gateway      # Start the messaging gateway (Telegram, Discord, and more)
 sonic setup        # Run the full setup wizard (configures everything at once)
 sonic claw migrate # Migrate from OpenClaw (if coming from OpenClaw)
 sonic update       # Update to the latest version
-sonic doctor       # Diagnose any issues
+sonic doctor       # Diagnose problems
 ```
 
-📖 **[Full documentation →](https://lightning-agent.nousresearch.com/docs/)**
+**[Full documentation](https://lightning-agent.nousresearch.com/docs/)**
 
 ---
 
-## Skip the API-key collection — Nous Portal
+## One subscription for keys — Nous Portal
 
-Sonic works with whatever provider you want — that's not changing. But if you'd rather not collect five separate API keys for the model, web search, image generation, TTS, and a cloud browser, **[Nous Portal](https://portal.nousresearch.com)** covers all of them under one subscription:
+Sonic works with any provider, and that does not change. [Nous Portal](https://portal.nousresearch.com) is an alternative to five separate API keys for the model, web search, image generation, text-to-speech, and a cloud browser. One subscription covers all of them:
 
-- **300+ models** — pick any of them with `/model <name>`
-- **Tool Gateway** — web search (Firecrawl), image generation (FAL), text-to-speech (OpenAI), cloud browser (Browser Use), all routed through your sub. No extra accounts.
+- **300+ models** — select one with `/model <name>`
+- **Tool Gateway** — web search (Firecrawl), image generation (FAL), text-to-speech (OpenAI), and a cloud browser (Browser Use). Your subscription routes all of them. No other accounts are necessary.
 
-One command from a fresh install:
+From a new installation, one command is enough:
 
 ```bash
 sonic setup --portal
 ```
 
-That logs you in via OAuth, sets Nous as your provider, and turns on the Tool Gateway. Check what's wired up any time with `sonic portal status`. Full details on the [Tool Gateway docs page](https://lightning-agent.nousresearch.com/docs/user-guide/features/tool-gateway).
+This command logs you in with OAuth, sets Nous as your provider, and turns on the Tool Gateway. To see the current status, run `sonic portal status`. The details are on the [Tool Gateway docs page](https://lightning-agent.nousresearch.com/docs/user-guide/features/tool-gateway).
 
-You can still bring your own keys per-tool whenever you want — the gateway is per-backend, not all-or-nothing.
+You can still use your own key for each tool. The gateway works per backend, not for all backends together.
 
 ---
 
-## CLI vs Messaging Quick Reference
+## CLI and messaging reference
 
-Sonic has two entry points: start the terminal UI with `sonic`, or run the gateway and talk to it from Telegram, Discord, Slack, WhatsApp, Signal, or Email. Once you're in a conversation, many slash commands are shared across both interfaces.
+Sonic has two entry points. To start the terminal UI, run `sonic`. To use Telegram, Discord, Slack, WhatsApp, Signal, or Email, run the gateway. In a conversation, both interfaces share many slash commands.
 
 | Action | CLI | Messaging platforms |
 |---------|-----|---------------------|
-| Start chatting | `sonic` | Run `sonic gateway setup` + `sonic gateway start`, then send the bot a message |
-| Start fresh conversation | `/new` or `/reset` | `/new` or `/reset` |
+| Start chatting | `sonic` | Run `sonic gateway setup` and `sonic gateway start`. Then send the bot a message |
+| Start a new conversation | `/new` or `/reset` | `/new` or `/reset` |
 | Change model | `/model [provider:model]` | `/model [provider:model]` |
 | Set a personality | `/personality [name]` | `/personality [name]` |
 | Retry or undo the last turn | `/retry`, `/undo` | `/retry`, `/undo` |
-| Compress context / check usage | `/compress`, `/usage`, `/insights [--days N]` | `/compress`, `/usage`, `/insights [days]` |
+| Compress context or see usage | `/compress`, `/usage`, `/insights [--days N]` | `/compress`, `/usage`, `/insights [days]` |
 | Browse skills | `/skills` or `/<skill-name>` | `/<skill-name>` |
-| Interrupt current work | `Ctrl+C` or send a new message | `/stop` or send a new message |
+| Interrupt the current work | `Ctrl+C`, or send a new message | `/stop`, or send a new message |
 | Platform-specific status | `/platforms` | `/status`, `/sethome` |
 
-For the full command lists, see the [CLI guide](https://lightning-agent.nousresearch.com/docs/user-guide/cli) and the [Messaging Gateway guide](https://lightning-agent.nousresearch.com/docs/user-guide/messaging).
+For the full command lists, read the [CLI guide](https://lightning-agent.nousresearch.com/docs/user-guide/cli) and the [Messaging Gateway guide](https://lightning-agent.nousresearch.com/docs/user-guide/messaging).
 
 ---
 
 ## Documentation
 
-All documentation lives at **[lightning-agent.nousresearch.com/docs](https://lightning-agent.nousresearch.com/docs/)**:
+All documentation is at **[lightning-agent.nousresearch.com/docs](https://lightning-agent.nousresearch.com/docs/)**:
 
-| Section | What's Covered |
+| Section | Contents |
 |---------|---------------|
-| [Quickstart](https://lightning-agent.nousresearch.com/docs/getting-started/quickstart) | Install → setup → first conversation in 2 minutes |
+| [Quickstart](https://lightning-agent.nousresearch.com/docs/getting-started/quickstart) | Install, setup, and a first conversation in 2 minutes |
 | [CLI Usage](https://lightning-agent.nousresearch.com/docs/user-guide/cli) | Commands, keybindings, personalities, sessions |
 | [Configuration](https://lightning-agent.nousresearch.com/docs/user-guide/configuration) | Config file, providers, models, all options |
 | [Messaging Gateway](https://lightning-agent.nousresearch.com/docs/user-guide/messaging) | Telegram, Discord, Slack, WhatsApp, Signal, Home Assistant |
 | [Security](https://lightning-agent.nousresearch.com/docs/user-guide/security) | Command approval, DM pairing, container isolation |
-| [Tools & Toolsets](https://lightning-agent.nousresearch.com/docs/user-guide/features/tools) | 40+ tools, toolset system, terminal backends |
-| [Skills System](https://lightning-agent.nousresearch.com/docs/user-guide/features/skills) | Procedural memory, Skills Hub, creating skills |
+| [Tools & Toolsets](https://lightning-agent.nousresearch.com/docs/user-guide/features/tools) | 40+ tools, the toolset system, terminal backends |
+| [Skills System](https://lightning-agent.nousresearch.com/docs/user-guide/features/skills) | Procedural memory, Skills Hub, how to create skills |
 | [Memory](https://lightning-agent.nousresearch.com/docs/user-guide/features/memory) | Persistent memory, user profiles, best practices |
-| [MCP Integration](https://lightning-agent.nousresearch.com/docs/user-guide/features/mcp) | Connect any MCP server for extended capabilities |
+| [MCP Integration](https://lightning-agent.nousresearch.com/docs/user-guide/features/mcp) | How to connect an MCP server for more capabilities |
 | [Cron Scheduling](https://lightning-agent.nousresearch.com/docs/user-guide/features/cron) | Scheduled tasks with platform delivery |
 | [Context Files](https://lightning-agent.nousresearch.com/docs/user-guide/features/context-files) | Project context that shapes every conversation |
 | [Architecture](https://lightning-agent.nousresearch.com/docs/developer-guide/architecture) | Project structure, agent loop, key classes |
@@ -167,11 +167,11 @@ All documentation lives at **[lightning-agent.nousresearch.com/docs](https://lig
 
 ## Migrating from OpenClaw
 
-If you're coming from OpenClaw, Sonic can automatically import your settings, memories, skills, and API keys.
+If you come from OpenClaw, Sonic can import your settings, memories, skills, and API keys.
 
-**During first-time setup:** The setup wizard (`sonic setup`) automatically detects `~/.openclaw` and offers to migrate before configuration begins.
+**During first-time setup:** The setup wizard (`sonic setup`) finds `~/.openclaw` and offers the migration before the configuration starts.
 
-**Anytime after install:**
+**At any time after the installation:**
 
 ```bash
 sonic claw migrate              # Interactive migration (full preset)
@@ -180,25 +180,25 @@ sonic claw migrate --preset user-data   # Migrate without secrets
 sonic claw migrate --overwrite  # Overwrite existing conflicts
 ```
 
-What gets imported:
-- **SOUL.md** — persona file
+Sonic imports these items:
+- **SOUL.md** — the persona file
 - **Memories** — MEMORY.md and USER.md entries
-- **Skills** — user-created skills → `~/.sonic/skills/openclaw-imports/`
+- **Skills** — user-created skills, into `~/.sonic/skills/openclaw-imports/`
 - **Command allowlist** — approval patterns
 - **Messaging settings** — platform configs, allowed users, working directory
 - **API keys** — allowlisted secrets (Telegram, OpenRouter, OpenAI, Anthropic, ElevenLabs)
 - **TTS assets** — workspace audio files
 - **Workspace instructions** — AGENTS.md (with `--workspace-target`)
 
-See `sonic claw migrate --help` for all options, or use the `openclaw-migration` skill for an interactive agent-guided migration with dry-run previews.
+For all options, run `sonic claw migrate --help`. For an interactive migration with dry-run previews, use the `openclaw-migration` skill.
 
 ---
 
 ## Contributing
 
-We welcome contributions! See the [Contributing Guide](https://lightning-agent.nousresearch.com/docs/developer-guide/contributing) for development setup, code style, and PR process.
+Contributions are welcome. For development setup, code style, and the PR process, read the [Contributing Guide](https://lightning-agent.nousresearch.com/docs/developer-guide/contributing).
 
-Quick start for contributors — clone and go with `setup-sonic.sh`:
+To start as a contributor, clone the repository and run `setup-sonic.sh`:
 
 ```bash
 git clone https://github.com/dabit3/sonic-agent.git
@@ -207,7 +207,7 @@ cd sonic-agent
 ./sonic              # auto-detects the venv, no need to `source` first
 ```
 
-Manual path (equivalent to the above):
+The manual path does the same work:
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -221,11 +221,11 @@ scripts/run_tests.sh
 
 ## Community
 
-- 💬 [Discord](https://discord.gg/NousResearch)
-- 📚 [Skills Hub](https://agentskills.io)
-- 🐛 [Issues](https://github.com/dabit3/sonic-agent/issues)
-- 🔌 [computer-use-linux](https://github.com/avifenesh/computer-use-linux) — Linux desktop-control MCP server for Sonic and other MCP hosts, with AT-SPI accessibility trees, Wayland/X11 input, screenshots, and compositor window targeting.
-- 🔌 [SonicClaw](https://github.com/AaronWong1999/sonicclaw) — Community WeChat bridge: Run Sonic Agent and OpenClaw on the same WeChat account.
+- [Discord](https://discord.gg/NousResearch)
+- [Skills Hub](https://agentskills.io)
+- [Issues](https://github.com/dabit3/sonic-agent/issues)
+- [computer-use-linux](https://github.com/avifenesh/computer-use-linux) — a Linux desktop-control MCP server for Sonic and other MCP hosts. It gives AT-SPI accessibility trees, Wayland and X11 input, screenshots, and compositor window targeting.
+- [SonicClaw](https://github.com/AaronWong1999/sonicclaw) — a community WeChat bridge. It runs Sonic Agent and OpenClaw on the same WeChat account.
 
 ---
 
