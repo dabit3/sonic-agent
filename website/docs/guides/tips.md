@@ -80,7 +80,7 @@ Create an `AGENTS.md` in your project root with architecture decisions, coding c
 
 Want Sonic to have a stable default voice? Edit `~/.sonic/SOUL.md` (or `$SONIC_HOME/SOUL.md` if you use a custom Sonic home). Sonic now seeds a starter SOUL automatically and uses that global file as the instance-wide personality source.
 
-For a full walkthrough, see [Use SOUL.md with Sonic](/docs/guides/use-soul-with-sonic).
+For a full walkthrough, see [Use SOUL.md with Sonic](/guides/use-soul-with-sonic).
 
 ```markdown
 # Soul

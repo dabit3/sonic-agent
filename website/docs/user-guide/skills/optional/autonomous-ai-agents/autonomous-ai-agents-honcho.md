@@ -21,7 +21,7 @@ Configure and use Honcho memory with Sonic -- cross-session user modeling, multi
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `Honcho`, `Memory`, `Profiles`, `Observation`, `Dialectic`, `User-Modeling`, `Session-Summary` |
-| Related skills | [`sonic-agent`](/docs/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-sonic-agent) |
+| Related skills | [`sonic-agent`](/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-sonic-agent) |
 
 ## Reference: full SKILL.md
 

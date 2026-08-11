@@ -680,8 +680,8 @@ Sonic Agent supports Discord voice messages:
 - **Discord voice channels**: Sonic can also join a voice channel, listen to users speaking, and talk back in the channel.
 
 For the full setup and operational guide, see:
-- [Voice Mode](/docs/user-guide/features/voice-mode)
-- [Use Voice Mode with Sonic](/docs/guides/use-voice-mode-with-sonic)
+- [Voice Mode](/user-guide/features/voice-mode)
+- [Use Voice Mode with Sonic](/guides/use-voice-mode-with-sonic)
 
 ## Forum Channels
 

@@ -9,8 +9,8 @@ description: "Reference for Sonic Agent MCP configuration keys, filtering semant
 This page is the compact reference companion to the main MCP docs.
 
 For conceptual guidance, see:
-- [MCP (Model Context Protocol)](/docs/user-guide/features/mcp)
-- [Use MCP with Sonic](/docs/guides/use-mcp-with-sonic)
+- [MCP (Model Context Protocol)](/user-guide/features/mcp)
+- [Use MCP with Sonic](/guides/use-mcp-with-sonic)
 
 ## Root config shape
 

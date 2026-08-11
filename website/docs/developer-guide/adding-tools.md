@@ -13,8 +13,8 @@ This page is for adding a **built-in Sonic tool** to the repository itself.
 If you want a personal, project-local, or otherwise custom tool without
 modifying Sonic core, use the plugin route instead:
 
-- [Plugins](/docs/user-guide/features/plugins)
-- [Build a Sonic Plugin](/docs/guides/build-a-sonic-plugin)
+- [Plugins](/user-guide/features/plugins)
+- [Build a Sonic Plugin](/guides/build-a-sonic-plugin)
 
 Default to plugins for most custom tool creation. Only follow this page when
 you explicitly want to ship a new built-in tool in `tools/` and `toolsets.py`.

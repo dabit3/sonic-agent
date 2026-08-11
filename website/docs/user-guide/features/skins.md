@@ -259,7 +259,7 @@ npm start
 6. Click **Save** to write the skin YAML to `~/.sonic/skins/`.
 7. Click **Activate** to set it as the current skin (updates `display.skin` in `config.yaml`).
 
-Sonic Mod respects the `SONIC_HOME` environment variable, so it works with [profiles](/docs/user-guide/profiles) too.
+Sonic Mod respects the `SONIC_HOME` environment variable, so it works with [profiles](/user-guide/profiles) too.
 
 ## Operational notes
 

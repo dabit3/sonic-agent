@@ -364,7 +364,7 @@ Total messages: 3847
 Database size: 12.4 MB
 ```
 
-For deeper analytics — token usage, cost estimates, tool breakdown, and activity patterns — use [`sonic insights`](/docs/reference/cli-commands#sonic-insights).
+For deeper analytics — token usage, cost estimates, tool breakdown, and activity patterns — use [`sonic insights`](/reference/cli-commands#sonic-insights).
 
 ## Session Search Tool
 

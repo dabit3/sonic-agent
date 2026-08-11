@@ -4754,9 +4754,22 @@ class SonicCLI:
         # is non-empty and we skip the DB round-trip.
         if self._resumed and self._session_db and not self.conversation_history:
             session_meta = self._session_db.get_session(self.session_id)
+            # In quiet mode (`sonic chat -Q` / --quiet, surfaced via
+            # tool_progress_mode == "off"), resume status lines go to stderr
+            # so stdout stays machine-readable for automation wrappers that
+            # do `$(sonic chat -Q --resume <id> -q "...")`. Without this,
+            # the resume banner pollutes captured stdout. See #11793.
+            _quiet_mode = getattr(self, "tool_progress_mode", "full") == "off"
             if not session_meta:
-                _cprint(f"\033[1;31mSession not found: {self.session_id}{_RST}")
-                _cprint(f"{_DIM}Use a session ID from a previous CLI run (sonic sessions list).{_RST}")
+                if _quiet_mode:
+                    print(f"Session not found: {self.session_id}", file=sys.stderr)
+                    print(
+                        "Use a session ID from a previous CLI run (sonic sessions list).",
+                        file=sys.stderr,
+                    )
+                else:
+                    _cprint(f"\033[1;31mSession not found: {self.session_id}{_RST}")
+                    _cprint(f"{_DIM}Use a session ID from a previous CLI run (sonic sessions list).{_RST}")
                 return False
             # If the requested session is the (empty) head of a compression
             # chain, walk to the descendant that actually holds the messages.
@@ -4783,16 +4796,30 @@ class SonicCLI:
                 title_part = ""
                 if session_meta.get("title"):
                     title_part = f" \"{session_meta['title']}\""
-                ChatConsole().print(
-                    f"[bold {_accent_hex()}]↻ Resumed session[/] "
-                    f"[bold]{_escape(self.session_id)}[/]"
-                    f"[bold {_accent_hex()}]{_escape(title_part)}[/] "
-                    f"({msg_count} user message{'s' if msg_count != 1 else ''}, {len(restored)} total messages)"
-                )
+                if _quiet_mode:
+                    print(
+                        f"↻ Resumed session {self.session_id}{title_part} "
+                        f"({msg_count} user message{'s' if msg_count != 1 else ''}, "
+                        f"{len(restored)} total messages)",
+                        file=sys.stderr,
+                    )
+                else:
+                    ChatConsole().print(
+                        f"[bold {_accent_hex()}]↻ Resumed session[/] "
+                        f"[bold]{_escape(self.session_id)}[/]"
+                        f"[bold {_accent_hex()}]{_escape(title_part)}[/] "
+                        f"({msg_count} user message{'s' if msg_count != 1 else ''}, {len(restored)} total messages)"
+                    )
             else:
-                ChatConsole().print(
-                    f"[bold {_accent_hex()}]Session {_escape(self.session_id)} found but has no messages. Starting fresh.[/]"
-                )
+                if _quiet_mode:
+                    print(
+                        f"Session {self.session_id} found but has no messages. Starting fresh.",
+                        file=sys.stderr,
+                    )
+                else:
+                    ChatConsole().print(
+                        f"[bold {_accent_hex()}]Session {_escape(self.session_id)} found but has no messages. Starting fresh.[/]"
+                    )
             # Re-open the session (clear ended_at so it's active again)
             try:
                 self._session_db._conn.execute(
@@ -4956,20 +4983,22 @@ class SonicCLI:
         if os.environ.get("SONIC_DEFER_AGENT_STARTUP") != "1":
             self._show_tool_availability_warnings()
 
-        # Warn about very low context lengths (common with local servers)
-        if ctx_len and ctx_len <= 8192:
+        # Warn about low context lengths (common with local servers). Keep
+        # this tied to the runtime guard so guidance cannot drift again.
+        from agent.model_metadata import MINIMUM_CONTEXT_LENGTH
+        if ctx_len and ctx_len < MINIMUM_CONTEXT_LENGTH:
             self._console_print()
             self._console_print(
                 f"[yellow]⚠️  Context length is only {ctx_len:,} tokens — "
                 f"this is likely too low for agent use with tools.[/]"
             )
             self._console_print(
-                "[dim]   Sonic needs 16k–32k minimum. Tool schemas + system prompt alone use ~4k–8k.[/]"
+                f"[dim]   Sonic needs at least {MINIMUM_CONTEXT_LENGTH:,} tokens. Tool schemas + system prompt use a large fixed prefix.[/]"
             )
             base_url = getattr(self, "base_url", "") or ""
             if "11434" in base_url or "ollama" in base_url.lower():
                 self._console_print(
-                    "[dim]   Ollama fix: OLLAMA_CONTEXT_LENGTH=32768 ollama serve[/]"
+                    f"[dim]   Ollama fix: OLLAMA_CONTEXT_LENGTH={MINIMUM_CONTEXT_LENGTH} ollama serve[/]"
                 )
             elif "1234" in base_url:
                 self._console_print(
@@ -6523,6 +6552,19 @@ class SonicCLI:
         parts = cmd_original.split(None, 1)
         target = parts[1].strip() if len(parts) > 1 else ""
 
+        # Strip common outer brackets/quotes users may type literally from the
+        # usage hint (e.g. ``/resume <abc123>`` or ``/resume [abc123]``).  The
+        # `/resume` help text shows angle brackets as a placeholder and a few
+        # users copy them through verbatim.  Stripping them keeps the lookup
+        # working without changing the help string.
+        if len(target) >= 2 and (
+            (target[0] == "<" and target[-1] == ">")
+            or (target[0] == "[" and target[-1] == "]")
+            or (target[0] == '"' and target[-1] == '"')
+            or (target[0] == "'" and target[-1] == "'")
+        ):
+            target = target[1:-1].strip()
+
         if not target:
             _cprint("  Usage: /resume <number|session_id_or_title>")
             if self._show_recent_sessions(reason="resume"):
@@ -6990,7 +7032,28 @@ class SonicCLI:
         could be interpreted as EOF/exit.  A first-class modal state keeps the
         choices visible and lets the normal Enter key binding submit the typed
         or highlighted choice.
+
+        **Platform note (Windows dead-lock — issue #30768):**
+        The queue-based modal relies on prompt_toolkit key bindings receiving
+        keyboard events and calling ``_submit_slash_confirm_response``.  On
+        Windows (PowerShell / Windows Terminal) the prompt_toolkit input
+        channel can become unresponsive when the modal is entered from the
+        ``process_loop`` daemon thread, causing a dead-lock: the user sees the
+        confirmation panel but keystrokes never reach the key bindings and the
+        ``response_queue.get()`` blocks until the 120-second timeout expires.
+
+        To avoid this, we fall back to ``_prompt_text_input`` (a simple
+        ``input()``-based prompt) when any of these conditions hold:
+
+        * ``sys.platform == "win32"`` — native Windows console (ConPTY /
+          win32_input) does not support the modal reliably.
+        * Called from a non-main thread — the prompt_toolkit event loop only
+          runs on the main thread; key bindings can't fire from a daemon
+          thread (same rationale as the ``_prompt_text_input`` thread guard
+          in PR #23454).
+        * ``self._app`` is not set — unit tests / non-interactive contexts.
         """
+        import threading
         import time as _time
 
         if not choices:
@@ -6999,6 +7062,20 @@ class SonicCLI:
         # If prompt_toolkit is not running (unit tests / non-interactive calls),
         # keep the simple stdin fallback.
         if not getattr(self, "_app", None):
+            return self._prompt_text_input("Choice [1/2/3]: ")
+
+        # On Windows the prompt_toolkit input channel can deadlock when the
+        # modal is entered from the process_loop daemon thread — keystrokes
+        # never reach the key bindings, so response_queue.get() blocks for
+        # the full timeout (issue #30768).  Fall back to the simpler
+        # stdin-based prompt which works reliably on Windows.
+        if sys.platform == "win32":
+            return self._prompt_text_input("Choice [1/2/3]: ")
+
+        # Mirror the thread-aware guard from _prompt_text_input (PR #23454):
+        # run_in_terminal and the modal queue both depend on the main-thread
+        # event loop.  From a daemon thread the modal key bindings never fire.
+        if threading.current_thread() is not threading.main_thread():
             return self._prompt_text_input("Choice [1/2/3]: ")
 
         response_queue = queue.Queue()
@@ -11937,9 +12014,22 @@ class SonicCLI:
                     pass
 
             print("Resume this session with:")
-            print(f"  sonic --resume {self.session_id}")
+            # Session IDs are profile-constrained, so the resume hint must
+            # include `-p <profile>` for non-default profiles. Without this,
+            # copying the hint from a non-default profile fails to find the
+            # session on the next invocation. The "default" and "custom"
+            # profile names use the standard SONIC_HOME, so no -p needed.
+            try:
+                from sonic_cli.profiles import get_active_profile_name
+                _active_profile = get_active_profile_name()
+            except Exception:
+                _active_profile = "default"
+            profile_flag = (
+                "" if _active_profile in ("default", "custom") else f" -p {_active_profile}"
+            )
+            print(f"  sonic --resume {self.session_id}{profile_flag}")
             if session_title:
-                print(f"  sonic -c \"{session_title}\"")
+                print(f"  sonic -c \"{session_title}\"{profile_flag}")
             print()
             print(f"Session:        {self.session_id}")
             if session_title:
@@ -14143,11 +14233,19 @@ class SonicCLI:
 
                     if not _file_drop and isinstance(user_input, str) and _looks_like_slash_command(user_input):
                         _cprint(f"\n⚙️  {user_input}")
-                        if not self.process_command(user_input):
-                            self._should_exit = True
-                            # Schedule app exit
-                            if app.is_running:
-                                app.exit()
+                        try:
+                            if not self.process_command(user_input):
+                                self._should_exit = True
+                                # Schedule app exit
+                                if app.is_running:
+                                    app.exit()
+                        except KeyboardInterrupt:
+                            # Ctrl+C during a slow slash command (e.g. /skills browse,
+                            # /sessions list with a large DB) should interrupt the
+                            # command and return to the prompt, NOT exit the entire
+                            # session. Without this guard a KeyboardInterrupt unwinds
+                            # to the outer prompt_toolkit loop and the session dies.
+                            _cprint("\n[dim]Command interrupted.[/dim]")
                         continue
                     
                     # Expand paste references back to full content
