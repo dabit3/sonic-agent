@@ -25,12 +25,12 @@ description: "文章插图：类型 × 风格 × 调色板一致性"
 ## 参考：完整 SKILL.md
 
 :::info
-以下是 Hermes 在触发此 skill 时加载的完整 skill 定义。这是 agent 在 skill 激活时所看到的指令内容。
+以下是 Sonic 在触发此 skill 时加载的完整 skill 定义。这是 agent 在 skill 激活时所看到的指令内容。
 :::
 
 # 文章配图助手
 
-改编自 [baoyu-article-illustrator](https://github.com/JimLiu/baoyu-skills)，适配 Hermes Agent 的工具生态系统。
+改编自 [baoyu-article-illustrator](https://github.com/JimLiu/baoyu-skills)，适配 Sonic Agent 的工具生态系统。
 
 分析文章，识别插图位置，以 **类型 × 风格 × 调色板** 一致性生成图像。
 

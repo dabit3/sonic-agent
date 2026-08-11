@@ -41,7 +41,7 @@ def test_run_anthropic_oauth_flow_manual_token_still_persists(tmp_path, monkeypa
     monkeypatch.setattr("agent.anthropic_adapter.is_claude_code_token_valid", lambda creds: False)
     monkeypatch.setattr("builtins.input", lambda _prompt="": "sk-ant-oat01-manual-token")
     monkeypatch.setattr(
-        "hermes_cli.secret_prompt.masked_secret_prompt",
+        "sonic_cli.secret_prompt.masked_secret_prompt",
         lambda _prompt="": "sk-ant-oat01-manual-token",
     )
 

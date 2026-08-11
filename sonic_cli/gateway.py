@@ -985,7 +985,7 @@ def get_gateway_runtime_snapshot(system: bool = False) -> GatewayRuntimeSnapshot
         # Other container runtimes (or containers built before Phase 2)
         # still get the original "docker (foreground)" label.
         try:
-            from hermes_cli.service_manager import detect_service_manager
+            from sonic_cli.service_manager import detect_service_manager
             if detect_service_manager() == "s6":
                 return GatewayRuntimeSnapshot(
                     manager="s6 (container supervisor)",
@@ -1216,7 +1216,7 @@ def _systemd_operational(system: bool = False) -> bool:
 def _container_systemd_operational() -> bool:
     """Return True when a container exposes working user or system systemd.
 
-    This is NOT our Hermes Docker image — that one runs s6-overlay as
+    This is NOT our Sonic Docker image — that one runs s6-overlay as
     PID 1 (since Phase 2 of the s6-overlay supervision plan) and is
     detected via ``service_manager.detect_service_manager() == "s6"``.
     This function handles the "container managed by something else"
@@ -5040,10 +5040,10 @@ def _dispatch_via_service_manager_if_s6(
     The s6 service slot was created either by the Phase 4 profile-create
     hook or by the container-boot reconciler (cont-init.d/02-…). If it
     doesn't exist or s6 returns an error, the named errors from
-    :mod:`hermes_cli.service_manager` are caught and surfaced as
+    :mod:`sonic_cli.service_manager` are caught and surfaced as
     actionable CLI messages (no raw ``CalledProcessError`` traceback).
     """
-    from hermes_cli.service_manager import (
+    from sonic_cli.service_manager import (
         GatewayNotRegisteredError,
         S6CommandError,
         detect_service_manager,
@@ -5054,7 +5054,7 @@ def _dispatch_via_service_manager_if_s6(
         return False
     if profile is None:
         # _profile_suffix() returns the bare profile name for
-        # HERMES_HOME=<root>/profiles/<name>, "" for the default root,
+        # SONIC_HOME=<root>/profiles/<name>, "" for the default root,
         # or a hash for unrelated paths. Map "" → "default" so the
         # default-profile gateway is reachable as gateway-default.
         profile = _profile_suffix() or "default"
@@ -5085,7 +5085,7 @@ def _dispatch_all_via_service_manager_if_s6(action: str) -> bool:
     Returns True iff dispatched (caller should ``return``); False
     otherwise — caller continues with the host-side code path.
 
-    Without this, ``hermes gateway stop --all`` and ``... restart --all``
+    Without this, ``sonic gateway stop --all`` and ``... restart --all``
     fall through to ``kill_gateway_processes(all_profiles=True)``, which
     just ``pkill``s every gateway process. s6-supervise observes the
     crash and restarts each one ~1s later — so ``--all`` ends up
@@ -5098,7 +5098,7 @@ def _dispatch_all_via_service_manager_if_s6(action: str) -> bool:
     ``action`` is one of ``stop`` / ``restart`` (``start --all`` isn't
     a supported CLI surface).
     """
-    from hermes_cli.service_manager import (
+    from sonic_cli.service_manager import (
         detect_service_manager,
         get_service_manager,
     )
@@ -5216,13 +5216,13 @@ def _gateway_command_inner(args):
             # Phase 4: inside a container with s6 the gateway service is
             # auto-registered when the profile is created (and reconciled
             # at every container boot). `install` is therefore informational.
-            from hermes_cli.service_manager import detect_service_manager
+            from sonic_cli.service_manager import detect_service_manager
             if detect_service_manager() == "s6":
                 print("Per-profile gateways are auto-registered when you create a profile.")
                 print()
-                print("  hermes profile create <name>     # creates the s6 service slot")
-                print("  hermes -p <name> gateway start   # bring it up via s6")
-                print("  hermes status                    # see currently-supervised gateways")
+                print("  sonic profile create <name>     # creates the s6 service slot")
+                print("  sonic -p <name> gateway start   # bring it up via s6")
+                print("  sonic status                    # see currently-supervised gateways")
                 return
             # Fallback for pre-s6 containers or other container runtimes
             # we haven't taught about supervision (Podman without our
@@ -5258,12 +5258,12 @@ def _gateway_command_inner(args):
             from sonic_cli import gateway_windows
             gateway_windows.uninstall()
         elif is_container():
-            from hermes_cli.service_manager import detect_service_manager
+            from sonic_cli.service_manager import detect_service_manager
             if detect_service_manager() == "s6":
                 print("Per-profile gateways are auto-unregistered when you delete the profile.")
                 print()
-                print("  hermes profile delete <name>     # tears down the s6 service slot")
-                print("  hermes -p <name> gateway stop    # stop without deleting the profile")
+                print("  sonic profile delete <name>     # tears down the s6 service slot")
+                print("  sonic -p <name> gateway stop    # stop without deleting the profile")
                 return
             print("Service uninstall is not applicable inside a Docker container.")
             print("To stop the gateway, stop or remove the container:")
@@ -5282,7 +5282,7 @@ def _gateway_command_inner(args):
         # Phase 4: inside a container with s6, dispatch via the service
         # manager instead of falling through to systemd/launchd/windows.
         # `--all` isn't meaningful here (each profile has its own service
-        # slot — start them individually via `hermes -p <name> gateway
+        # slot — start them individually via `sonic -p <name> gateway
         # start`), so just bring up the current profile's slot.
         if not start_all and _dispatch_via_service_manager_if_s6("start"):
             return

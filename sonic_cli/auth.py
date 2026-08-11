@@ -2489,11 +2489,11 @@ def _make_xai_callback_handler(expected_path: str) -> tuple[type[BaseHTTPRequest
             }
 
             # Diagnostic logging — emits at INFO so reporters of loopback bugs
-            # (#27385 — "callback received but Hermes times out") can produce
+            # (#27385 — "callback received but Sonic times out") can produce
             # actionable evidence without a code change.  Logged values are
             # fingerprints / booleans only; no actual code/state strings leak
-            # into the log file.  Run with ``HERMES_LOG_LEVEL=INFO`` (or check
-            # ``~/.hermes/logs/agent.log`` which captures INFO+ unconditionally).
+            # into the log file.  Run with ``SONIC_LOG_LEVEL=INFO`` (or check
+            # ``~/.sonic/logs/agent.log`` which captures INFO+ unconditionally).
             try:
                 logger.info(
                     "xAI loopback callback received: path=%s has_code=%s has_state=%s has_error=%s "

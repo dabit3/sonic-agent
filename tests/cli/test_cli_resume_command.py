@@ -90,7 +90,7 @@ class TestCliResumeCommand:
         for raw in ("<sess_alpha>", "[sess_alpha]", '"sess_alpha"', "'sess_alpha'"):
             cli_obj.session_id = "current_session"
             with (
-                patch("hermes_cli.main._resolve_session_by_name_or_id", return_value="sess_alpha"),
+                patch("sonic_cli.main._resolve_session_by_name_or_id", return_value="sess_alpha"),
                 patch("cli._cprint"),
             ):
                 cli_obj._handle_resume_command(f"/resume {raw}")
@@ -109,7 +109,7 @@ class TestCliResumeCommand:
         cli_obj._session_db.get_session.return_value = None
 
         with (
-            patch("hermes_cli.main._resolve_session_by_name_or_id", return_value=None),
+            patch("sonic_cli.main._resolve_session_by_name_or_id", return_value=None),
             patch("cli._cprint") as mock_cprint,
         ):
             cli_obj._handle_resume_command("/resume <half")

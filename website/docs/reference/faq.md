@@ -82,7 +82,7 @@ sonic model
 # API base URL: http://localhost:11434/v1
 # API key: ollama
 # Model name: qwen3.5:27b
-# Context length: 64000   ← Hermes minimum; set this to match your server's actual context window
+# Context length: 64000   ← Sonic minimum; set this to match your server's actual context window
 ```
 
 Or configure it directly in `config.yaml`:

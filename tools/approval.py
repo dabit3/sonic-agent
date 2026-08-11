@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 # Freeze YOLO mode at module import time. Reading os.environ on every call
 # would allow any skill running inside the process to set this variable and
 # instantly bypass all approval checks — a prompt-injection escalation path.
-_YOLO_MODE_FROZEN: bool = is_truthy_value(os.getenv("HERMES_YOLO_MODE", ""))
+_YOLO_MODE_FROZEN: bool = is_truthy_value(os.getenv("SONIC_YOLO_MODE", ""))
 
 # Per-thread/per-task gateway session identity.
 # Gateway runs agent turns concurrently in executor threads, so reading a
@@ -975,7 +975,7 @@ def check_dangerous_command(command: str, env_type: str,
                 }
         logger.warning(
             "AUTO-APPROVED dangerous command in non-interactive non-gateway context "
-            "(pattern: %s): %s — set HERMES_INTERACTIVE or HERMES_GATEWAY_SESSION to require approval.",
+            "(pattern: %s): %s — set SONIC_INTERACTIVE or SONIC_GATEWAY_SESSION to require approval.",
             description, command[:200],
         )
         return {"approved": True, "message": None}

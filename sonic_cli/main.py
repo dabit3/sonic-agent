@@ -324,7 +324,7 @@ if _FORCE_IPV4_EARLY:
 
         _apply_ipv4(force=True)
     except Exception:
-        pass  # best-effort — don't crash if hermes_constants not importable yet
+        pass  # best-effort — don't crash if sonic_constants not importable yet
 
 import logging
 import threading
@@ -2810,7 +2810,7 @@ def _aux_flow_provider_model(
 
 def _aux_flow_custom_endpoint(task: str, task_cfg: dict) -> None:
     """Prompt for a direct OpenAI-compatible base_url + optional api_key/model."""
-    from hermes_cli.secret_prompt import masked_secret_prompt
+    from sonic_cli.secret_prompt import masked_secret_prompt
 
     display_name = next((name for key, name, _ in _all_aux_tasks() if key == task), task)
     current_base_url = str(task_cfg.get("base_url") or "").strip()
@@ -4168,7 +4168,7 @@ def _model_flow_azure_foundry(config, current_model=""):
             token_provider = None
     else:
         print()
-        from hermes_cli.secret_prompt import masked_secret_prompt
+        from sonic_cli.secret_prompt import masked_secret_prompt
 
         try:
             api_key = masked_secret_prompt(
@@ -4755,7 +4755,7 @@ def _model_flow_copilot(config, current_model=""):
                 print(f"  Login failed: {exc}")
                 return
         elif choice == "2":
-            from hermes_cli.secret_prompt import masked_secret_prompt
+            from sonic_cli.secret_prompt import masked_secret_prompt
 
             try:
                 new_key = masked_secret_prompt("  Token (COPILOT_GITHUB_TOKEN): ").strip()
@@ -5337,7 +5337,7 @@ def _model_flow_bedrock_api_key(config, region, current_model=""):
     else:
         print(f"  Endpoint: {mantle_base_url}")
         print()
-        from hermes_cli.secret_prompt import masked_secret_prompt
+        from sonic_cli.secret_prompt import masked_secret_prompt
 
         try:
             api_key = masked_secret_prompt("  Bedrock API Key: ").strip()
@@ -5912,7 +5912,7 @@ def _run_anthropic_oauth_flow(save_env_value):
         print()
         print("  If the setup-token was displayed above, paste it here:")
         print()
-        from hermes_cli.secret_prompt import masked_secret_prompt
+        from sonic_cli.secret_prompt import masked_secret_prompt
 
         try:
             manual_token = masked_secret_prompt(
@@ -5943,7 +5943,7 @@ def _run_anthropic_oauth_flow(save_env_value):
         print()
         print("  Or paste an existing setup-token now (sk-ant-oat-...):")
         print()
-        from hermes_cli.secret_prompt import masked_secret_prompt
+        from sonic_cli.secret_prompt import masked_secret_prompt
 
         try:
             token = masked_secret_prompt("  Setup-token (or Enter to cancel): ").strip()
@@ -6061,7 +6061,7 @@ def _model_flow_anthropic(config, current_model=""):
             print()
             print("  Get an API key at: https://platform.claude.com/settings/keys")
             print()
-            from hermes_cli.secret_prompt import masked_secret_prompt
+            from sonic_cli.secret_prompt import masked_secret_prompt
 
             try:
                 api_key = masked_secret_prompt("  API key (sk-ant-...): ").strip()
@@ -7724,11 +7724,11 @@ def _detect_concurrent_sonic_instances(
         return []
 
     # Build a set of PIDs to exclude: the Python process itself plus its
-    # entire parent chain. On Windows the setuptools-generated hermes.exe
+    # entire parent chain. On Windows the setuptools-generated sonic.exe
     # launcher is a separate native process that spawns python.exe (the
     # interpreter that runs our code).  os.getpid() returns the Python PID,
     # but the launcher (which holds the file lock) is the parent.  Without
-    # walking the parent chain, every ``hermes update`` reports its own
+    # walking the parent chain, every ``sonic update`` reports its own
     # launcher as a concurrent instance — a false positive.
     if exclude_pid is not None:
         exclude_pids: set[int] = {exclude_pid}

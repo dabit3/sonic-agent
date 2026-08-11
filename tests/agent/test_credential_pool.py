@@ -398,7 +398,7 @@ def test_load_pool_seeds_env_api_key(tmp_path, monkeypatch):
 def test_load_pool_does_not_persist_env_seeded_secret_value(tmp_path, monkeypatch):
     """Runtime env keys may be used in memory but must not land in auth.json."""
     sentinel = "S3NTINEL_DO_NOT_PERSIST_OPENROUTER"
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
     monkeypatch.setenv("OPENROUTER_API_KEY", sentinel)
     _write_auth_store(tmp_path, {"version": 1, "providers": {}})
 
@@ -411,7 +411,7 @@ def test_load_pool_does_not_persist_env_seeded_secret_value(tmp_path, monkeypatc
     assert entry.source == "env:OPENROUTER_API_KEY"
     assert entry.access_token == sentinel
 
-    auth_text = (tmp_path / "hermes" / "auth.json").read_text()
+    auth_text = (tmp_path / "sonic" / "auth.json").read_text()
     assert sentinel not in auth_text
     persisted = json.loads(auth_text)["credential_pool"]["openrouter"][0]
     assert persisted["source"] == "env:OPENROUTER_API_KEY"
@@ -426,10 +426,10 @@ def test_load_pool_does_not_persist_env_seeded_secret_value(tmp_path, monkeypatc
 def test_load_pool_persists_bitwarden_origin_metadata_without_secret(tmp_path, monkeypatch):
     """Bitwarden-injected env vars retain source metadata but not raw values."""
     sentinel = "S3NTINEL_DO_NOT_PERSIST_BITWARDEN"
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
     monkeypatch.setenv("OPENROUTER_API_KEY", sentinel)
     monkeypatch.setattr(
-        "hermes_cli.env_loader.get_secret_source",
+        "sonic_cli.env_loader.get_secret_source",
         lambda env_var: "bitwarden" if env_var == "OPENROUTER_API_KEY" else None,
     )
     _write_auth_store(tmp_path, {"version": 1, "providers": {}})
@@ -443,7 +443,7 @@ def test_load_pool_persists_bitwarden_origin_metadata_without_secret(tmp_path, m
     assert entry.access_token == sentinel
     assert entry.source == "env:OPENROUTER_API_KEY"
 
-    auth_text = (tmp_path / "hermes" / "auth.json").read_text()
+    auth_text = (tmp_path / "sonic" / "auth.json").read_text()
     assert sentinel not in auth_text
     persisted = json.loads(auth_text)["credential_pool"]["openrouter"][0]
     assert persisted["source"] == "env:OPENROUTER_API_KEY"
@@ -455,7 +455,7 @@ def test_load_pool_persists_bitwarden_origin_metadata_without_secret(tmp_path, m
 def test_load_pool_sanitizes_legacy_raw_borrowed_entry_when_value_unchanged(tmp_path, monkeypatch):
     """Existing raw env-seeded pool entries are rewritten even if the env value matches."""
     sentinel = "S3NTINEL_DO_NOT_PERSIST_LEGACY_RAW"
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
     monkeypatch.setenv("OPENROUTER_API_KEY", sentinel)
     _write_auth_store(
         tmp_path,
@@ -484,7 +484,7 @@ def test_load_pool_sanitizes_legacy_raw_borrowed_entry_when_value_unchanged(tmp_
 
     assert entry is not None
     assert entry.access_token == sentinel
-    auth_text = (tmp_path / "hermes" / "auth.json").read_text()
+    auth_text = (tmp_path / "sonic" / "auth.json").read_text()
     assert sentinel not in auth_text
     persisted = json.loads(auth_text)["credential_pool"]["openrouter"][0]
     assert persisted["id"] == "legacy-env"
@@ -582,7 +582,7 @@ def test_borrowed_source_variants_strip_secret_fields(source):
 
 def test_load_pool_prunes_stale_borrowed_custom_config_entry(tmp_path, monkeypatch):
     sentinel = "S3NTINEL_DO_NOT_PERSIST_STALE_CUSTOM"
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
     _write_auth_store(
         tmp_path,
         {
@@ -608,7 +608,7 @@ def test_load_pool_prunes_stale_borrowed_custom_config_entry(tmp_path, monkeypat
     pool = load_pool("custom:foo")
 
     assert pool.entries() == []
-    auth_text = (tmp_path / "hermes" / "auth.json").read_text()
+    auth_text = (tmp_path / "sonic" / "auth.json").read_text()
     assert sentinel not in auth_text
     assert json.loads(auth_text)["credential_pool"]["custom:foo"] == []
 
@@ -618,9 +618,9 @@ def test_write_credential_pool_sanitizes_borrowed_payload_at_disk_boundary(tmp_p
     """Direct dictionary callers cannot bypass the borrowed-secret guard."""
     sentinel = "S3NTINEL_DO_NOT_PERSIST_DIRECT_WRITE"
     manual_secret = "MANUAL_SECRET_STAYS_PERSISTABLE"
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
 
-    from hermes_cli.auth import write_credential_pool
+    from sonic_cli.auth import write_credential_pool
 
     write_credential_pool("openrouter", [
         {
@@ -628,7 +628,7 @@ def test_write_credential_pool_sanitizes_borrowed_payload_at_disk_boundary(tmp_p
             "label": "systemd-ref",
             "auth_type": "api_key",
             "priority": 0,
-            "source": "systemd://hermes/openrouter",
+            "source": "systemd://sonic/openrouter",
             "access_token": sentinel,
             "refresh_token": f"refresh-{sentinel}",
             "agent_key": f"agent-{sentinel}",
@@ -644,12 +644,12 @@ def test_write_credential_pool_sanitizes_borrowed_payload_at_disk_boundary(tmp_p
         },
     ])
 
-    auth_text = (tmp_path / "hermes" / "auth.json").read_text()
+    auth_text = (tmp_path / "sonic" / "auth.json").read_text()
     assert sentinel not in auth_text
     assert manual_secret in auth_text
     entries = json.loads(auth_text)["credential_pool"]["openrouter"]
     borrowed, manual = entries
-    assert borrowed["source"] == "systemd://hermes/openrouter"
+    assert borrowed["source"] == "systemd://sonic/openrouter"
     assert "access_token" not in borrowed
     assert "refresh_token" not in borrowed
     assert "agent_key" not in borrowed
@@ -661,9 +661,9 @@ def test_write_credential_pool_sanitizes_borrowed_payload_at_disk_boundary(tmp_p
 
 def test_write_credential_pool_treats_unowned_oauth_source_as_borrowed(tmp_path, monkeypatch):
     sentinel = "S3NTINEL_DO_NOT_PERSIST_UNOWNED_OAUTH"
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
 
-    from hermes_cli.auth import write_credential_pool
+    from sonic_cli.auth import write_credential_pool
 
     write_credential_pool("openrouter", [
         {
@@ -677,7 +677,7 @@ def test_write_credential_pool_treats_unowned_oauth_source_as_borrowed(tmp_path,
         }
     ])
 
-    auth_text = (tmp_path / "hermes" / "auth.json").read_text()
+    auth_text = (tmp_path / "sonic" / "auth.json").read_text()
     assert sentinel not in auth_text
     persisted = json.loads(auth_text)["credential_pool"]["openrouter"][0]
     assert persisted["source"] == "oauth"
@@ -689,9 +689,9 @@ def test_write_credential_pool_treats_unowned_oauth_source_as_borrowed(tmp_path,
 
 def test_write_credential_pool_preserves_known_provider_owned_oauth_state(tmp_path, monkeypatch):
     sentinel = "PROVIDER_OWNED_DEVICE_CODE_STAYS_PERSISTABLE"
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
 
-    from hermes_cli.auth import write_credential_pool
+    from sonic_cli.auth import write_credential_pool
 
     write_credential_pool("nous", [
         {
@@ -706,7 +706,7 @@ def test_write_credential_pool_preserves_known_provider_owned_oauth_state(tmp_pa
         }
     ])
 
-    persisted = json.loads((tmp_path / "hermes" / "auth.json").read_text())["credential_pool"]["nous"][0]
+    persisted = json.loads((tmp_path / "sonic" / "auth.json").read_text())["credential_pool"]["nous"][0]
     assert persisted["access_token"] == sentinel
     assert persisted["refresh_token"] == f"refresh-{sentinel}"
     assert persisted["agent_key"] == f"agent-{sentinel}"

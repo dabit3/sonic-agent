@@ -457,7 +457,7 @@ If your configured provider isn't available, Sonic automatically falls back:
 
 ### STT custom command providers
 
-If the STT engine you want isn't natively supported (Doubao ASR, NVIDIA Parakeet, a whisper.cpp build, an open-source SenseVoice CLI, anything else that exposes a shell command), wire it in as a **command-type provider** without writing any Python. Hermes runs your shell command against the audio file and reads back the transcript.
+If the STT engine you want isn't natively supported (Doubao ASR, NVIDIA Parakeet, a whisper.cpp build, an open-source SenseVoice CLI, anything else that exposes a shell command), wire it in as a **command-type provider** without writing any Python. Sonic runs your shell command against the audio file and reads back the transcript.
 
 Declare one or more providers under `stt.providers.<name>` and switch between them with `stt.provider: <name>` — same shape as the TTS [command-provider registry](#custom-command-providers), adapted for the input=audio → output=transcript direction.
 
@@ -483,11 +483,11 @@ stt:
       format: json
 ```
 
-This complements the legacy `HERMES_LOCAL_STT_COMMAND` escape hatch — that env var still works untouched via the built-in `local_command` path. Use `stt.providers.<name>` when you want **multiple** shell-driven STT engines, a name you can pick via `stt.provider`, or anything that needs per-provider `language` / `model` / `timeout`.
+This complements the legacy `SONIC_LOCAL_STT_COMMAND` escape hatch — that env var still works untouched via the built-in `local_command` path. Use `stt.providers.<name>` when you want **multiple** shell-driven STT engines, a name you can pick via `stt.provider`, or anything that needs per-provider `language` / `model` / `timeout`.
 
 #### STT placeholders
 
-Your command template can reference these placeholders. Hermes substitutes them at render time and shell-quotes each value for the surrounding context (bare / single-quoted / double-quoted), so paths with spaces are safe.
+Your command template can reference these placeholders. Sonic substitutes them at render time and shell-quotes each value for the surrounding context (bare / single-quoted / double-quoted), so paths with spaces are safe.
 
 | Placeholder       | Meaning                                                              |
 |-------------------|----------------------------------------------------------------------|
@@ -504,13 +504,13 @@ Use `{{` and `}}` for literal braces (handy when embedding JSON snippets in the 
 
 After your command exits successfully:
 
-1. If `{output_path}` exists and is non-empty → Hermes reads it as UTF-8 text.
-2. Otherwise, if the command wrote to stdout → Hermes uses that.
+1. If `{output_path}` exists and is non-empty → Sonic reads it as UTF-8 text.
+2. Otherwise, if the command wrote to stdout → Sonic uses that.
 3. Otherwise → error: "Command STT provider wrote no output file and produced no stdout".
 
 This lets you use the registry for both file-writing CLIs (`whisper-cli`, `parakeet-asr`) and curl-style one-liners that emit transcript to stdout (`curl … | jq -r .text`).
 
-For `format: json` / `srt` / `vtt`, Hermes returns the raw file content as the `transcript` field. Extracting `.text` from JSON is out of scope for the runner — either configure `format: txt`, or post-process JSON downstream.
+For `format: json` / `srt` / `vtt`, Sonic returns the raw file content as the `transcript` field. Extracting `.text` from JSON is out of scope for the runner — either configure `format: txt`, or post-process JSON downstream.
 
 #### STT command-provider optional keys
 
@@ -529,7 +529,7 @@ For `format: json` / `srt` / `vtt`, Hermes returns the raw file content as the `
 
 #### STT command-provider security
 
-The shell command runs under the same user as Hermes with full filesystem access — same trust model as `tts.providers.<name>: type: command` and `HERMES_LOCAL_STT_COMMAND`. Only declare command providers from sources you trust.
+The shell command runs under the same user as Sonic with full filesystem access — same trust model as `tts.providers.<name>: type: command` and `SONIC_LOCAL_STT_COMMAND`. Only declare command providers from sources you trust.
 
 ### Python plugin providers (STT)
 
@@ -540,7 +540,7 @@ For STT engines that aren't built-in AND can't be expressed as a shell command (
 | Backend has…                                                 | Use                                                              |
 |--------------------------------------------------------------|------------------------------------------------------------------|
 | A single shell command that takes an audio file and emits text | `stt.providers.<name>: type: command` (no Python needed)        |
-| Only the legacy single-command escape hatch is wanted        | `HERMES_LOCAL_STT_COMMAND` env var (preserved for back-compat)  |
+| Only the legacy single-command escape hatch is wanted        | `SONIC_LOCAL_STT_COMMAND` env var (preserved for back-compat)  |
 | A Python SDK with no CLI                                     | `register_transcription_provider()` plugin                      |
 | OAuth-refreshing auth, streaming chunks, voice-list metadata | `register_transcription_provider()` plugin                      |
 | A built-in already covers it (`local`, `groq`, `openai`, …)  | Set `stt.provider: <name>` — built-ins are inline               |
@@ -572,7 +572,7 @@ The dispatcher forwards `model` and `language` from this section; everything els
 
 #### Minimal plugin
 
-Drop this in `~/.hermes/plugins/my-stt/`:
+Drop this in `~/.sonic/plugins/my-stt/`:
 
 `plugin.yaml`:
 ```yaml
@@ -628,7 +628,7 @@ def register(ctx):
     ctx.register_transcription_provider(MySTTProvider())
 ```
 
-Enable it (`hermes plugins enable my-stt`), set `stt.provider: my-stt` in `config.yaml`, and voice-message transcription will route through your plugin.
+Enable it (`sonic plugins enable my-stt`), set `stt.provider: my-stt` in `config.yaml`, and voice-message transcription will route through your plugin.
 
 #### Optional hooks
 
@@ -636,6 +636,6 @@ Override these on your provider class for richer integration:
 
 - `list_models()` → list of `{id, display, languages, max_audio_seconds}` dicts.
 - `default_model()` → string returned when the user doesn't override the model.
-- `get_setup_schema()` → return `{name, badge, tag, env_vars: [{key, prompt, url}]}` to power picker rows in `hermes tools` / `hermes setup` (the picker category for STT is not yet shipped — this metadata is available to plugins for forward compatibility).
+- `get_setup_schema()` → return `{name, badge, tag, env_vars: [{key, prompt, url}]}` to power picker rows in `sonic tools` / `sonic setup` (the picker category for STT is not yet shipped — this metadata is available to plugins for forward compatibility).
 
 See `agent/transcription_provider.py` for the full ABC including docstrings.

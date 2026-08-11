@@ -1,41 +1,41 @@
 ---
-title: "Debugging Hermes Tui Commands — Debug Hermes TUI slash commands: Python, gateway, Ink UI"
-sidebar_label: "Debugging Hermes Tui Commands"
-description: "调试 Hermes TUI slash 命令：Python、gateway、Ink UI"
+title: "Debugging Sonic Tui Commands — Debug Sonic TUI slash commands: Python, gateway, Ink UI"
+sidebar_label: "Debugging Sonic Tui Commands"
+description: "调试 Sonic TUI slash 命令：Python、gateway、Ink UI"
 ---
 
 {/* This page is auto-generated from the skill's SKILL.md by website/scripts/generate-skill-docs.py. Edit the source SKILL.md, not this page. */}
 
-# 调试 Hermes TUI 命令
+# 调试 Sonic TUI 命令
 
-调试 Hermes TUI slash（斜杠）命令：Python、gateway、Ink UI。
+调试 Sonic TUI slash（斜杠）命令：Python、gateway、Ink UI。
 
 ## Skill 元数据
 
 | | |
 |---|---|
 | 来源 | 内置（默认安装） |
-| 路径 | `skills/software-development/debugging-hermes-tui-commands` |
+| 路径 | `skills/software-development/debugging-sonic-tui-commands` |
 | 版本 | `1.0.0` |
-| 作者 | Hermes Agent |
+| 作者 | Sonic Agent |
 | 许可证 | MIT |
 | 平台 | linux, macos, windows |
-| 标签 | `debugging`, `hermes-agent`, `tui`, `slash-commands`, `typescript`, `python` |
+| 标签 | `debugging`, `sonic-agent`, `tui`, `slash-commands`, `typescript`, `python` |
 | 相关 skill | [`python-debugpy`](/user-guide/skills/bundled/software-development/software-development-python-debugpy)、[`node-inspect-debugger`](/user-guide/skills/bundled/software-development/software-development-node-inspect-debugger)、[`systematic-debugging`](/user-guide/skills/bundled/software-development/software-development-systematic-debugging) |
 
 ## 参考：完整 SKILL.md
 
 :::info
-以下是 Hermes 在触发该 skill 时加载的完整 skill 定义。这是 agent 在 skill 激活时所看到的指令内容。
+以下是 Sonic 在触发该 skill 时加载的完整 skill 定义。这是 agent 在 skill 激活时所看到的指令内容。
 :::
 
-# 调试 Hermes TUI Slash 命令
+# 调试 Sonic TUI Slash 命令
 
 ## 概述
 
-Hermes slash 命令跨越三个层次——Python 命令注册表、tui_gateway JSON-RPC 桥接层，以及 Ink/TypeScript 前端。当某个命令出现异常（不在自动补全中显示、在 CLI 中正常但在 TUI 中不工作、配置已持久化但 UI 未更新），问题几乎总是某一层与另一层不同步所致。
+Sonic slash 命令跨越三个层次——Python 命令注册表、tui_gateway JSON-RPC 桥接层，以及 Ink/TypeScript 前端。当某个命令出现异常（不在自动补全中显示、在 CLI 中正常但在 TUI 中不工作、配置已持久化但 UI 未更新），问题几乎总是某一层与另一层不同步所致。
 
-当你在 Hermes TUI 中遇到 slash 命令问题时使用本 skill，尤其是命令未出现在自动补全中、在 TUI 中无法正常工作，或需要添加/更新命令时。
+当你在 Sonic TUI 中遇到 slash 命令问题时使用本 skill，尤其是命令未出现在自动补全中、在 TUI 中无法正常工作，或需要添加/更新命令时。
 
 ## 适用场景
 
@@ -49,7 +49,7 @@ Hermes slash 命令跨越三个层次——Python 命令注册表、tui_gateway 
 
 <!-- ascii-guard-ignore -->
 ```
-Python backend (hermes_cli/commands.py)     <- 规范的 COMMAND_REGISTRY
+Python backend (sonic_cli/commands.py)     <- 规范的 COMMAND_REGISTRY
        │
        ▼
 TUI gateway (tui_gateway/server.py)         <- slash.exec / command.dispatch
@@ -78,8 +78,8 @@ TUI frontend (ui-tui/src/app/slash/)        <- 本地处理器 + fallthrough
 
 3. **检查命令是否存在于 Python 后端：**
    ```bash
-   search_files --pattern "CommandDef" --file_glob "*.py" --path hermes_cli/
-   search_files --pattern "commandname" --path hermes_cli/commands.py --context 3
+   search_files --pattern "CommandDef" --file_glob "*.py" --path sonic_cli/
+   search_files --pattern "commandname" --path sonic_cli/commands.py --context 3
    ```
 
 4. **查看 gateway 实现：**
@@ -91,7 +91,7 @@ TUI frontend (ui-tui/src/app/slash/)        <- 本地处理器 + fallthrough
 
 如果命令存在于 TUI 但未出现在自动补全中：
 
-1. 在 `hermes_cli/commands.py` 的 `COMMAND_REGISTRY` 中添加 `CommandDef` 条目：
+1. 在 `sonic_cli/commands.py` 的 `COMMAND_REGISTRY` 中添加 `CommandDef` 条目：
    ```python
    CommandDef("commandname", "Description of the command", "Session",
               cli_only=True, aliases=("alias",),
@@ -107,7 +107,7 @@ TUI frontend (ui-tui/src/app/slash/)        <- 本地处理器 + fallthrough
 
 3. 确保 `subcommands` 与 TUI 显示的预期 tab 补全选项一致。
 
-4. 如果命令在服务端运行，在 `cli.py` 的 `HermesCLI.process_command()` 中添加处理器：
+4. 如果命令在服务端运行，在 `cli.py` 的 `SonicCLI.process_command()` 中添加处理器：
    ```python
    elif canonical == "commandname":
        self._handle_commandname(cmd_original)
@@ -121,7 +121,7 @@ TUI frontend (ui-tui/src/app/slash/)        <- 本地处理器 + fallthrough
 
 ## 常见问题
 
-1. **命令在 TUI 中显示但不在自动补全中。** 命令已在 TUI 代码库中定义，但 `hermes_cli/commands.py` 的 `COMMAND_REGISTRY` 中缺失。自动补全数据由 Python 端提供。
+1. **命令在 TUI 中显示但不在自动补全中。** 命令已在 TUI 代码库中定义，但 `sonic_cli/commands.py` 的 `COMMAND_REGISTRY` 中缺失。自动补全数据由 Python 端提供。
 
 2. **命令在自动补全中显示但不工作。** 检查 `tui_gateway/server.py` 中的命令处理器，以及 `ui-tui/src/app/createSlashHandler.ts` 中的前端处理器。如果命令在 Ink 中是纯本地命令，必须在 `app.tsx` 的内置分支中处理；否则会 fallthrough 到 `slash.exec`，必须有对应的 Python 处理器。
 
@@ -154,19 +154,19 @@ TUI frontend (ui-tui/src/app/slash/)        <- 本地处理器 + fallthrough
 
 1. 重新构建 TUI：
    ```bash
-   cd /home/bb/hermes-agent && npm --prefix ui-tui run build
+   cd /home/bb/sonic-agent && npm --prefix ui-tui run build
    ```
 
 2. 运行 TUI 并测试命令：
    ```bash
-   hermes --tui
+   sonic --tui
    ```
 
 3. 输入 `/` 并验证命令出现在自动补全建议中，且显示预期的描述和参数提示。
 
 4. 执行命令并确认：
    - 预期行为已触发
-   - 所有持久化配置正确更新（`read_file ~/.hermes/config.yaml`）
+   - 所有持久化配置正确更新（`read_file ~/.sonic/config.yaml`）
    - 实时 UI 状态立即反映变更（而非重启后才生效）
 
 5. 如果命令也支持 gateway，至少在一个消息平台上测试（或运行 gateway 测试：`scripts/run_tests.sh tests/gateway/`）。

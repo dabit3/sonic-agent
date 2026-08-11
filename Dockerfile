@@ -163,7 +163,7 @@ RUN chmod -R a+rX /opt/sonic && \
 RUN uv pip install --no-cache-dir --no-deps -e "."
 
 # ---------- s6-overlay service wiring ----------
-# Static services declared at build time: main-hermes + dashboard.
+# Static services declared at build time: main-sonic + dashboard.
 # Per-profile gateway services are registered dynamically at runtime by
 # the profile create/delete hooks (Phase 4); they live under
 # /run/service/ (tmpfs) and are reconciled on container restart by
@@ -172,16 +172,16 @@ COPY docker/s6-rc.d/ /etc/s6-overlay/s6-rc.d/
 
 # stage2-hook handles UID/GID remap, volume chown, config seeding,
 # skills sync — all the work the old entrypoint.sh did before
-# `exec hermes`. Wired in as cont-init.d/01- so it
+# `exec sonic`. Wired in as cont-init.d/01- so it
 # runs before user services start.
 #
 # 02-reconcile-profiles re-creates per-profile gateway s6 service
-# slots from $HERMES_HOME/profiles/<name>/ after a container restart
+# slots from $SONIC_HOME/profiles/<name>/ after a container restart
 # (the /run/service/ scandir is tmpfs and wiped on restart). Phase 4.
 RUN mkdir -p /etc/cont-init.d && \
-    printf '#!/bin/sh\nexec /opt/hermes/docker/stage2-hook.sh\n' \
-        > /etc/cont-init.d/01-hermes-setup && \
-    chmod +x /etc/cont-init.d/01-hermes-setup
+    printf '#!/bin/sh\nexec /opt/sonic/docker/stage2-hook.sh\n' \
+        > /etc/cont-init.d/01-sonic-setup && \
+    chmod +x /etc/cont-init.d/01-sonic-setup
 COPY --chmod=0755 docker/cont-init.d/015-supervise-perms /etc/cont-init.d/015-supervise-perms
 COPY --chmod=0755 docker/cont-init.d/02-reconcile-profiles /etc/cont-init.d/02-reconcile-profiles
 

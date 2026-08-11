@@ -249,7 +249,7 @@ BUILTIN_STT_PROVIDERS = frozenset({
 #   3. Plugin-registered TranscriptionProvider  → plugin dispatch.
 #   4. No match                                 → "No STT provider available".
 #
-# The single-env-var ``HERMES_LOCAL_STT_COMMAND`` escape hatch is preserved
+# The single-env-var ``SONIC_LOCAL_STT_COMMAND`` escape hatch is preserved
 # untouched via the built-in ``local_command`` path. Use the command-provider
 # registry when you want MULTIPLE shell-driven STT engines, or you want a
 # named provider you can pick via ``stt.provider`` in config.yaml.
@@ -447,7 +447,7 @@ def _render_command_stt_template(
 
     def replace_match(match: "re.Match[str]") -> str:
         name = match.group("double") or match.group("single")
-        token = f"__HERMES_STT_PLACEHOLDER_{len(replacements)}__"
+        token = f"__SONIC_STT_PLACEHOLDER_{len(replacements)}__"
         replacements.append((
             token,
             _quote_command_stt_placeholder(
@@ -655,7 +655,7 @@ def _transcribe_command_stt(
     model = model_override or config.get("model") or ""
 
     try:
-        with tempfile.TemporaryDirectory(prefix=f"hermes-cmd-stt-{provider_name}-") as tmpdir:
+        with tempfile.TemporaryDirectory(prefix=f"sonic-cmd-stt-{provider_name}-") as tmpdir:
             output_path = Path(tmpdir) / f"transcript.{output_format}"
             placeholders = {
                 "input_path": str(audio.resolve()),
@@ -904,7 +904,7 @@ def _dispatch_to_plugin_provider(
         return None
     try:
         from agent.transcription_registry import get_provider
-        from hermes_cli.plugins import _ensure_plugins_discovered
+        from sonic_cli.plugins import _ensure_plugins_discovered
 
         _ensure_plugins_discovered()
         plugin_provider = get_provider(key)

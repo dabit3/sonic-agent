@@ -215,13 +215,13 @@ def _check_s6_supervision(issues: list[str]) -> None:
     container so host runs aren't cluttered with irrelevant output.
 
     Reports:
-      - Whether the main-hermes and dashboard static services are up
+      - Whether the main-sonic and dashboard static services are up
       - How many per-profile gateway slots are registered (via
         ``S6ServiceManager.list_profile_gateways()``) and how many are
         currently supervised as ``up``
     """
     try:
-        from hermes_cli.service_manager import (
+        from sonic_cli.service_manager import (
             S6ServiceManager,
             detect_service_manager,
         )
@@ -237,7 +237,7 @@ def _check_s6_supervision(issues: list[str]) -> None:
 
     # Static services. They live under /run/service/ via s6-rc symlinks,
     # so the same s6-svstat probe works.
-    for static in ("main-hermes", "dashboard"):
+    for static in ("main-sonic", "dashboard"):
         if mgr.is_running(static):
             check_ok(f"{static}: up")
         else:
@@ -245,7 +245,7 @@ def _check_s6_supervision(issues: list[str]) -> None:
 
     profiles = mgr.list_profile_gateways()
     if not profiles:
-        check_info("No per-profile gateways registered yet — create one with `hermes profile create <name>`")
+        check_info("No per-profile gateways registered yet — create one with `sonic profile create <name>`")
         return
 
     up_count = sum(1 for p in profiles if mgr.is_running(f"gateway-{p}"))
@@ -269,7 +269,7 @@ def _check_gateway_service_linger(issues: list[str]) -> None:
             get_systemd_unit_path,
             is_linux,
         )
-        from hermes_cli.service_manager import detect_service_manager
+        from sonic_cli.service_manager import detect_service_manager
     except Exception as e:
         check_warn("Gateway service linger", f"(could not import gateway helpers: {e})")
         return
@@ -1146,7 +1146,7 @@ def run_doctor(args):
     # Docker (optional)
     terminal_env = os.getenv("TERMINAL_ENV", "local")
     try:
-        from hermes_constants import is_container as _is_container
+        from sonic_constants import is_container as _is_container
         running_in_container = _is_container()
     except Exception:
         running_in_container = False

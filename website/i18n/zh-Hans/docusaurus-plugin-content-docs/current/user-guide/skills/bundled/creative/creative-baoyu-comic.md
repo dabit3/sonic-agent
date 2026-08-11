@@ -25,12 +25,12 @@ description: "知识漫画：教育、传记、教程"
 ## 参考：完整 SKILL.md
 
 :::info
-以下是 Hermes 在触发此 skill 时加载的完整 skill 定义。这是 agent 在 skill 激活时所看到的指令内容。
+以下是 Sonic 在触发此 skill 时加载的完整 skill 定义。这是 agent 在 skill 激活时所看到的指令内容。
 :::
 
 # 知识漫画创作器
 
-改编自 [baoyu-comic](https://github.com/JimLiu/baoyu-skills)，适配 Hermes Agent 的工具生态系统。
+改编自 [baoyu-comic](https://github.com/JimLiu/baoyu-skills)，适配 Sonic Agent 的工具生态系统。
 
 创作具有灵活艺术风格 × 基调组合的原创知识漫画。
 
@@ -40,7 +40,7 @@ description: "知识漫画：教育、传记、教程"
 
 ## 参考图片
 
-Hermes 的 `image_generate` 工具**仅接受 prompt（提示词）**——它接受文本 prompt 和宽高比，并返回图片 URL。它**不**接受参考图片。当用户提供参考图片时，将其用于**以文字提取特征**，并嵌入每页 prompt 中：
+Sonic 的 `image_generate` 工具**仅接受 prompt（提示词）**——它接受文本 prompt 和宽高比，并返回图片 URL。它**不**接受参考图片。当用户提供参考图片时，将其用于**以文字提取特征**，并嵌入每页 prompt 中：
 
 **接收方式**：当用户提供文件路径时接受（或在对话中粘贴图片）。
 - 文件路径 → 复制到漫画输出目录下的 `refs/NN-ref-{slug}.{ext}`，用于溯源
@@ -195,7 +195,7 @@ Input → Analyze → [Check Existing?] → [Confirm: Style + Reviews] → Story
 
 ### 步骤 7：图片生成
 
-所有图片渲染均使用 Hermes 内置的 `image_generate` 工具。其 schema 仅接受 `prompt` 和 `aspect_ratio`（`landscape` | `portrait` | `square`）；它**返回 URL**，而非本地文件。因此，每张生成的页面或角色表都必须下载到输出目录。
+所有图片渲染均使用 Sonic 内置的 `image_generate` 工具。其 schema 仅接受 `prompt` 和 `aspect_ratio`（`landscape` | `portrait` | `square`）；它**返回 URL**，而非本地文件。因此，每张生成的页面或角色表都必须下载到输出目录。
 
 **Prompt 文件要求（硬性规定）**：在调用 `image_generate` 之前，必须将每张图片的完整最终 prompt 写入 `prompts/` 下的独立文件（命名规则：`NN-{type}-[slug].md`）。Prompt 文件是可复现性记录。
 

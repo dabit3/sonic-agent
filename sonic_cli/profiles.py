@@ -789,7 +789,7 @@ def create_profile(
 
     # Phase 4: when running inside a container under s6, register the
     # new profile's gateway as a runtime s6 service so
-    # `hermes -p <profile> gateway start` can supervise it via
+    # `sonic -p <profile> gateway start` can supervise it via
     # `s6-svc -u` instead of spawning a bare process. On host (systemd
     # / launchd / windows) this is a no-op — the existing per-profile
     # unit-generation paths handle gateway lifecycle.
@@ -1016,10 +1016,10 @@ def _maybe_register_gateway_service(profile_name: str) -> None:
     actually the S6 one.
     """
     try:
-        from hermes_cli.service_manager import detect_service_manager
+        from sonic_cli.service_manager import detect_service_manager
         if detect_service_manager() != "s6":
             return  # host path — silent, no registration needed
-        from hermes_cli.service_manager import get_service_manager
+        from sonic_cli.service_manager import get_service_manager
         mgr = get_service_manager()
     except RuntimeError:
         return  # no backend on this host — nothing to do
@@ -1051,10 +1051,10 @@ def _maybe_unregister_gateway_service(profile_name: str) -> None:
     — see that docstring.
     """
     try:
-        from hermes_cli.service_manager import detect_service_manager
+        from sonic_cli.service_manager import detect_service_manager
         if detect_service_manager() != "s6":
             return  # host path — silent
-        from hermes_cli.service_manager import get_service_manager
+        from sonic_cli.service_manager import get_service_manager
         mgr = get_service_manager()
     except RuntimeError:
         return

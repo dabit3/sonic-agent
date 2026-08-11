@@ -35,7 +35,7 @@ The Portal proxies a curated catalog of agentic models from across the ecosystem
 | **GLM / Zhipu** | GLM-4.6, GLM-4-Plus |
 | **MiniMax** | M2.7, M1 |
 | **xAI** | Grok-4, Grok-3 |
-| **Hermes** | Hermes-4-70B, Hermes-4-405B (chat, see [note below](#a-note-on-hermes-4)) |
+| **Sonic** | Sonic-4-70B, Sonic-4-405B (chat, see [note below](#a-note-on-sonic-4)) |
 | **+ everything else** | 240+ additional models — the full agentic frontier |
 
 Routing happens through OpenRouter under the hood, so model availability and failover behavior matches what you'd get with an OpenRouter key — just billed against your Nous subscription instead. Switch between Claude Sonnet 4.6 for code and Gemini 2.5 Pro for long context with `/model` mid-session — no new credentials, no top-ups, no surprise zero-balance errors.
@@ -68,11 +68,11 @@ Because everything routes through one OAuth-authenticated Portal session, you do
 
 [Native Windows](/user-guide/windows-native) is still early beta, and per-tool API key setup is its rough edge — installing a Firecrawl account, a FAL account, a Browser Use account, an OpenAI key from Windows is the highest-friction part of getting a useful agent. A Portal subscription smooths that out: one OAuth covers the model and every gateway tool, so Windows users get the same experience as macOS/Linux without manually configuring four backends.
 
-## A note on Hermes 4
+## A note on Sonic 4
 
-Nous Research's own **Hermes 4** family (Hermes-4-70B, Hermes-4-405B) is available through the Portal at heavily discounted rates. These are **frontier hybrid-reasoning chat models** — strong at math, science, instruction following, schema adherence, roleplay, and long-form writing.
+Nous Research's own **Sonic 4** family (Sonic-4-70B, Sonic-4-405B) is available through the Portal at heavily discounted rates. These are **frontier hybrid-reasoning chat models** — strong at math, science, instruction following, schema adherence, roleplay, and long-form writing.
 
-They are **not recommended for use inside Sonic**, however. Hermes 4 is tuned for chat and reasoning, not the rapid-fire tool-calling loop the agent relies on. Use them for [Nous Chat](https://chat.nousresearch.com), for research workflows, or via the [subscription proxy](/user-guide/features/subscription-proxy) from other tooling — but for agent work, pick a frontier agentic model from the catalog instead:
+They are **not recommended for use inside Sonic**, however. Sonic 4 is tuned for chat and reasoning, not the rapid-fire tool-calling loop the agent relies on. Use them for [Nous Chat](https://chat.nousresearch.com), for research workflows, or via the [subscription proxy](/user-guide/features/subscription-proxy) from other tooling — but for agent work, pick a frontier agentic model from the catalog instead:
 
 ```bash
 /model anthropic/claude-sonnet-4.6     # best general-purpose agentic model

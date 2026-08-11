@@ -92,8 +92,8 @@ jobs:
       #
       # Piggybacking here avoids a second image build: the smoke test
       # already proved the image loads + runs, so the daemon has it under
-      # `${IMAGE_NAME}:test` and we just point ``HERMES_TEST_IMAGE`` at
-      # that.  The fixture's ``HERMES_TEST_IMAGE`` branch (see
+      # `${IMAGE_NAME}:test` and we just point ``SONIC_TEST_IMAGE`` at
+      # that.  The fixture's ``SONIC_TEST_IMAGE`` branch (see
       # tests/docker/conftest.py:62-63) short-circuits the rebuild.
       #
       # Why this job and not a standalone one: the image is 5GB+; passing
@@ -114,13 +114,13 @@ jobs:
           # ``dev`` extra pulls in pytest, pytest-asyncio, pytest-timeout —
           # everything tests/docker/ needs.  We deliberately avoid ``all``
           # here because the docker tests only drive the container via
-          # subprocess and don't import hermes_agent's optional deps.
+          # subprocess and don't import sonic_agent's optional deps.
           uv pip install -e ".[dev]"
 
       - name: Run docker integration tests
         env:
           # Skip rebuild; use the image already loaded by the build step.
-          HERMES_TEST_IMAGE: ${{ env.IMAGE_NAME }}:test
+          SONIC_TEST_IMAGE: ${{ env.IMAGE_NAME }}:test
           # Match the policy in tests.yml :: test job — no accidental
           # real-API calls from inside the harness.
           OPENROUTER_API_KEY: ""

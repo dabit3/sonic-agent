@@ -289,29 +289,29 @@ The container ENTRYPOINT is now `/init` (s6-overlay), not `/usr/bin/tini`. All f
 :::
 
 :::warning Privilege model
-Do not override the image entrypoint unless you keep `/init` (or, equivalently, the legacy `docker/entrypoint.sh` shim that forwards to the stage2 hook) in the command chain. s6-overlay's `/init` runs as root so it can chown the volume on first boot, then drops to the `hermes` user via `s6-setuidgid` for every supervised service AND for the main program. Starting `hermes gateway run` as root inside the official image is refused by default because it can leave root-owned files in `/opt/data` and break later dashboard or gateway starts. Set `HERMES_ALLOW_ROOT_GATEWAY=1` only when you intentionally accept that risk.
+Do not override the image entrypoint unless you keep `/init` (or, equivalently, the legacy `docker/entrypoint.sh` shim that forwards to the stage2 hook) in the command chain. s6-overlay's `/init` runs as root so it can chown the volume on first boot, then drops to the `sonic` user via `s6-setuidgid` for every supervised service AND for the main program. Starting `sonic gateway run` as root inside the official image is refused by default because it can leave root-owned files in `/opt/data` and break later dashboard or gateway starts. Set `SONIC_ALLOW_ROOT_GATEWAY=1` only when you intentionally accept that risk.
 :::
 
 ### Per-profile gateway supervision
 
-Inside the container, each profile created with `hermes profile create <name>` automatically gets an s6-supervised gateway service registered at `/run/service/gateway-<name>/`. The lifecycle commands you'd run on the host work the same way:
+Inside the container, each profile created with `sonic profile create <name>` automatically gets an s6-supervised gateway service registered at `/run/service/gateway-<name>/`. The lifecycle commands you'd run on the host work the same way:
 
 ```sh
-hermes profile create coder            # registers gateway-coder s6 slot
-hermes -p coder gateway start          # s6-svc -u  → supervised gateway
-hermes -p coder gateway stop           # s6-svc -d  → service down
-hermes -p coder gateway restart        # s6-svc -t  → SIGTERM the supervisor
-hermes profile delete coder            # tears down the s6 slot
+sonic profile create coder            # registers gateway-coder s6 slot
+sonic -p coder gateway start          # s6-svc -u  → supervised gateway
+sonic -p coder gateway stop           # s6-svc -d  → service down
+sonic -p coder gateway restart        # s6-svc -t  → SIGTERM the supervisor
+sonic profile delete coder            # tears down the s6 slot
 ```
 
 **Supervision benefits over the pre-s6 image:**
 
 - Gateway crashes are auto-restarted by `s6-supervise` after a ~1s backoff.
-- Dashboard crashes are auto-restarted (set `HERMES_DASHBOARD=1` to start it).
-- `docker restart` preserves running gateways: the cont-init reconciler reads `$HERMES_HOME/profiles/<name>/gateway_state.json` and brings the slot back up if the last recorded state was `running`. Stopped gateways stay stopped.
-- Per-profile gateway logs persist under `$HERMES_HOME/logs/gateways/<profile>/current` (rotated by `s6-log`), and the reconciler's actions are appended to `$HERMES_HOME/logs/container-boot.log` per boot.
+- Dashboard crashes are auto-restarted (set `SONIC_DASHBOARD=1` to start it).
+- `docker restart` preserves running gateways: the cont-init reconciler reads `$SONIC_HOME/profiles/<name>/gateway_state.json` and brings the slot back up if the last recorded state was `running`. Stopped gateways stay stopped.
+- Per-profile gateway logs persist under `$SONIC_HOME/logs/gateways/<profile>/current` (rotated by `s6-log`), and the reconciler's actions are appended to `$SONIC_HOME/logs/container-boot.log` per boot.
 
-`hermes status` inside the container reports `Manager: s6 (container supervisor)`. Use `/command/s6-svstat /run/service/gateway-<name>` for the raw supervisor view (note `/command/` is on PATH for supervision-tree processes only; pass the absolute path when calling from `docker exec`).
+`sonic status` inside the container reports `Manager: s6 (container supervisor)`. Use `/command/s6-svstat /run/service/gateway-<name>` for the raw supervisor view (note `/command/` is on PATH for supervision-tree processes only; pass the absolute path when calling from `docker exec`).
 
 ## Upgrading
 
@@ -346,13 +346,13 @@ The official image ships with a curated set of utilities (see [What the Dockerfi
 
 ### npm or Python tools — use `npx` or `uvx`
 
-For any tool published to npm or PyPI, instruct Hermes to run it via `npx` (npm) or `uvx` (Python) and to remember that command in its persistent memory. If the tool needs a config file or credentials, instruct it to drop those under `/opt/data` (e.g. `/opt/data/<tool>/config.yaml`).
+For any tool published to npm or PyPI, instruct Sonic to run it via `npx` (npm) or `uvx` (Python) and to remember that command in its persistent memory. If the tool needs a config file or credentials, instruct it to drop those under `/opt/data` (e.g. `/opt/data/<tool>/config.yaml`).
 
 Dependencies are fetched on demand and cached for the life of the container. Configuration written under `/opt/data` survives container restarts because it lives on the bind-mounted host directory. The package cache itself is rebuilt after a `docker rm`, but `npx` and `uvx` re-fetch transparently the next time the tool runs.
 
 ### Other tools (apt packages, binaries) — install and remember
 
-For anything outside npm or PyPI — `apt` packages, prebuilt binaries, language runtimes not already in the image — instruct Hermes how to install it (e.g. `apt-get update && apt-get install -y <package>`) and tell it to remember the install command. The tool persists for the rest of the container's lifetime, and Hermes will re-run the install command after a container restart when it next needs the tool.
+For anything outside npm or PyPI — `apt` packages, prebuilt binaries, language runtimes not already in the image — instruct Sonic how to install it (e.g. `apt-get update && apt-get install -y <package>`) and tell it to remember the install command. The tool persists for the rest of the container's lifetime, and Sonic will re-run the install command after a container restart when it next needs the tool.
 
 This is a good fit for tools that are quick to install and used occasionally. For tools used constantly, prefer the next approach.
 
@@ -367,58 +367,58 @@ USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends <your-package> \
     && rm -rf /var/lib/apt/lists/*
-USER hermes
+USER sonic
 ```
 
 Build it and use it in place of the official image:
 
 ```sh
-docker build -t my-hermes:latest .
+docker build -t my-sonic:latest .
 docker run -d \
-  --name hermes \
+  --name sonic \
   --restart unless-stopped \
-  -v ~/.hermes:/opt/data \
+  -v ~/.sonic:/opt/data \
   -p 8642:8642 \
-  my-hermes:latest gateway run
+  my-sonic:latest gateway run
 ```
 
 The entrypoint script and `/opt/data` semantics are inherited unchanged, so the rest of this page still applies. Remember to rebuild the image when pulling a newer upstream `nousresearch/hermes-agent`.
 
 ### Complex tools or multi-service stacks — run a sidecar container
 
-For tools that bring their own service (a database, a web server, a queue, a headless browser farm) or that are too heavy to live inside the Hermes container, run them as a separate container on a shared Docker network. Hermes reaches the sidecar by container name, the same way it reaches a local inference server (see [Connecting to local inference servers](#connecting-to-local-inference-servers-vllm-ollama-etc)).
+For tools that bring their own service (a database, a web server, a queue, a headless browser farm) or that are too heavy to live inside the Sonic container, run them as a separate container on a shared Docker network. Sonic reaches the sidecar by container name, the same way it reaches a local inference server (see [Connecting to local inference servers](#connecting-to-local-inference-servers-vllm-ollama-etc)).
 
 ```yaml
 services:
-  hermes:
+  sonic:
     image: nousresearch/hermes-agent:latest
-    container_name: hermes
+    container_name: sonic
     restart: unless-stopped
     command: gateway run
     ports:
       - "8642:8642"
     volumes:
-      - ~/.hermes:/opt/data
+      - ~/.sonic:/opt/data
     networks:
-      - hermes-net
+      - sonic-net
 
   my-tool:
     image: example/my-tool:latest
     container_name: my-tool
     restart: unless-stopped
     networks:
-      - hermes-net
+      - sonic-net
 
 networks:
-  hermes-net:
+  sonic-net:
     driver: bridge
 ```
 
-From inside the Hermes container, the sidecar is reachable at `http://my-tool:<port>` (or whatever protocol it serves). This pattern keeps each service's lifecycle, resource limits, and upgrade cadence independent, and avoids bloating the Hermes image with dependencies that are only needed by one tool.
+From inside the Sonic container, the sidecar is reachable at `http://my-tool:<port>` (or whatever protocol it serves). This pattern keeps each service's lifecycle, resource limits, and upgrade cadence independent, and avoids bloating the Sonic image with dependencies that are only needed by one tool.
 
 ### Broadly useful tools — open an issue or pull request
 
-If a tool is likely to be useful to most Hermes Agent users, consider contributing it upstream rather than carrying it in a private derived image. Open an issue or pull request on the [hermes-agent repository](https://github.com/NousResearch/hermes-agent) describing the tool and its use case. Tools that get bundled into the official image benefit every user and avoid the maintenance overhead of a downstream fork.
+If a tool is likely to be useful to most Sonic Agent users, consider contributing it upstream rather than carrying it in a private derived image. Open an issue or pull request on the [sonic-agent repository](https://github.com/NousResearch/hermes-agent) describing the tool and its use case. Tools that get bundled into the official image benefit every user and avoid the maintenance overhead of a downstream fork.
 
 ## Connecting to local inference servers (vLLM, Ollama, etc.)
 

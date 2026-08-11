@@ -168,61 +168,61 @@ def _fake_psutil_with_parent_chain(
 def test_detect_concurrent_excludes_parent_chain(_winp, tmp_path):
     """The .exe launcher (parent of os.getpid()) must NOT be flagged.
 
-    Simulates the real Windows topology: hermes.exe launcher (PID L) spawns
+    Simulates the real Windows topology: sonic.exe launcher (PID L) spawns
     python.exe (PID os.getpid()). Both run from the same shim path. With the
     old single-PID exclusion, L would be reported as a concurrent instance.
     """
     scripts_dir = tmp_path
-    shim = scripts_dir / "hermes.exe"
+    shim = scripts_dir / "sonic.exe"
     shim.write_bytes(b"")
     me = os.getpid()
     launcher_pid = me + 100  # the .exe launcher — our parent
 
     rows = [
         _make_proc(me, str(shim), "python.exe"),
-        _make_proc(launcher_pid, str(shim), "hermes.exe"),
+        _make_proc(launcher_pid, str(shim), "sonic.exe"),
     ]
     fake_psutil = _fake_psutil_with_parent_chain(
         parent_chain=[launcher_pid],
         proc_iter_rows=rows,
     )
     with patch.dict(sys.modules, {"psutil": fake_psutil}):
-        result = cli_main._detect_concurrent_hermes_instances(scripts_dir)
+        result = cli_main._detect_concurrent_sonic_instances(scripts_dir)
 
     # Both self AND the launcher are excluded; no false positive.
     assert result == []
 
 
 @patch.object(cli_main, "_is_windows", return_value=True)
-def test_detect_concurrent_still_finds_unrelated_other_hermes(_winp, tmp_path):
-    """A sibling hermes.exe outside our ancestor chain must still be reported."""
+def test_detect_concurrent_still_finds_unrelated_other_sonic(_winp, tmp_path):
+    """A sibling sonic.exe outside our ancestor chain must still be reported."""
     scripts_dir = tmp_path
-    shim = scripts_dir / "hermes.exe"
+    shim = scripts_dir / "sonic.exe"
     shim.write_bytes(b"")
     me = os.getpid()
     launcher_pid = me + 100  # our .exe launcher (parent — must be excluded)
-    sibling_pid = me + 200  # an UNRELATED hermes.exe (must still be reported)
+    sibling_pid = me + 200  # an UNRELATED sonic.exe (must still be reported)
 
     rows = [
         _make_proc(me, str(shim), "python.exe"),
-        _make_proc(launcher_pid, str(shim), "hermes.exe"),
-        _make_proc(sibling_pid, str(shim), "hermes.exe"),
+        _make_proc(launcher_pid, str(shim), "sonic.exe"),
+        _make_proc(sibling_pid, str(shim), "sonic.exe"),
     ]
     fake_psutil = _fake_psutil_with_parent_chain(
         parent_chain=[launcher_pid],
         proc_iter_rows=rows,
     )
     with patch.dict(sys.modules, {"psutil": fake_psutil}):
-        result = cli_main._detect_concurrent_hermes_instances(scripts_dir)
+        result = cli_main._detect_concurrent_sonic_instances(scripts_dir)
 
-    assert result == [(sibling_pid, "hermes.exe")]
+    assert result == [(sibling_pid, "sonic.exe")]
 
 
 @patch.object(cli_main, "_is_windows", return_value=True)
 def test_detect_concurrent_parent_chain_walks_deep(_winp, tmp_path):
     """Multi-level ancestry (shell → launcher → python) is fully excluded."""
     scripts_dir = tmp_path
-    shim = scripts_dir / "hermes.exe"
+    shim = scripts_dir / "sonic.exe"
     shim.write_bytes(b"")
     me = os.getpid()
     parent_pid = me + 1
@@ -231,16 +231,16 @@ def test_detect_concurrent_parent_chain_walks_deep(_winp, tmp_path):
 
     rows = [
         _make_proc(me, str(shim), "python.exe"),
-        _make_proc(parent_pid, str(shim), "hermes.exe"),
-        _make_proc(grandparent_pid, str(shim), "hermes.exe"),
-        _make_proc(greatgrandparent_pid, str(shim), "hermes.exe"),
+        _make_proc(parent_pid, str(shim), "sonic.exe"),
+        _make_proc(grandparent_pid, str(shim), "sonic.exe"),
+        _make_proc(greatgrandparent_pid, str(shim), "sonic.exe"),
     ]
     fake_psutil = _fake_psutil_with_parent_chain(
         parent_chain=[parent_pid, grandparent_pid, greatgrandparent_pid],
         proc_iter_rows=rows,
     )
     with patch.dict(sys.modules, {"psutil": fake_psutil}):
-        result = cli_main._detect_concurrent_hermes_instances(scripts_dir)
+        result = cli_main._detect_concurrent_sonic_instances(scripts_dir)
 
     assert result == []
 
@@ -249,7 +249,7 @@ def test_detect_concurrent_parent_chain_walks_deep(_winp, tmp_path):
 def test_detect_concurrent_parent_walk_handles_cycle(_winp, tmp_path):
     """A PID cycle in the parent chain must not hang the walk."""
     scripts_dir = tmp_path
-    shim = scripts_dir / "hermes.exe"
+    shim = scripts_dir / "sonic.exe"
     shim.write_bytes(b"")
     me = os.getpid()
     bogus_loop_pid = me + 1
@@ -261,7 +261,7 @@ def test_detect_concurrent_parent_walk_handles_cycle(_winp, tmp_path):
         proc_iter_rows=rows,
     )
     with patch.dict(sys.modules, {"psutil": fake_psutil}):
-        result = cli_main._detect_concurrent_hermes_instances(scripts_dir)
+        result = cli_main._detect_concurrent_sonic_instances(scripts_dir)
 
     # No crash, no hang; self + bogus_loop_pid excluded; no others reported.
     assert result == []
@@ -276,22 +276,22 @@ def test_detect_concurrent_parent_walk_handles_stub_without_process(_winp, tmp_p
     result rather than escape ``AttributeError`` to the caller.
     """
     scripts_dir = tmp_path
-    shim = scripts_dir / "hermes.exe"
+    shim = scripts_dir / "sonic.exe"
     shim.write_bytes(b"")
     me = os.getpid()
     other_pid = me + 1
 
     rows = [
-        _make_proc(me, str(shim), "hermes.exe"),
-        _make_proc(other_pid, str(shim), "hermes.exe"),
+        _make_proc(me, str(shim), "sonic.exe"),
+        _make_proc(other_pid, str(shim), "sonic.exe"),
     ]
     # SimpleNamespace with ONLY process_iter — no Process / NoSuchProcess.
     fake_psutil = types.SimpleNamespace(process_iter=lambda attrs: iter(rows))
     with patch.dict(sys.modules, {"psutil": fake_psutil}):
-        result = cli_main._detect_concurrent_hermes_instances(scripts_dir)
+        result = cli_main._detect_concurrent_sonic_instances(scripts_dir)
 
     # Parent-walk silently failed; self still excluded; other still reported.
-    assert result == [(other_pid, "hermes.exe")]
+    assert result == [(other_pid, "sonic.exe")]
 
 
 # ---------------------------------------------------------------------------

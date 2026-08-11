@@ -310,7 +310,7 @@ class TestHandleResumeCommand:
         before lookup so ``/resume <abc123>`` works the same as
         ``/resume abc123``.
         """
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
         db = SessionDB(db_path=tmp_path / "state.db")
         db.create_session("abc123", "telegram")
         db.set_session_title("abc123", "Bracketed")
@@ -339,7 +339,7 @@ class TestHandleResumeCommand:
         ``resolve_session_by_title``, so ``/resume <session_id>`` always
         returned "Session not found" even for valid IDs.
         """
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
         db = SessionDB(db_path=tmp_path / "state.db")
         db.create_session("unnamed_session_xyz", "telegram")
         # Deliberately no title set — this session can ONLY be resolved by ID.

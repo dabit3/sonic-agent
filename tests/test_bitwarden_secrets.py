@@ -580,8 +580,8 @@ def test_env_loader_calls_bsm_when_enabled(tmp_path, monkeypatch):
 
 
 def test_disk_cache_written_after_first_fetch(monkeypatch, tmp_path):
-    """First fetch hits bws AND writes a 0600 file under hermes_home/cache/."""
-    home = tmp_path / ".hermes"
+    """First fetch hits bws AND writes a 0600 file under sonic_home/cache/."""
+    home = tmp_path / ".sonic"
     home.mkdir()
     fake_binary = tmp_path / "bws"
     fake_binary.write_text("")
@@ -617,7 +617,7 @@ def test_disk_cache_written_after_first_fetch(monkeypatch, tmp_path):
 
 def test_disk_cache_short_circuits_bws_when_fresh(monkeypatch, tmp_path):
     """Second fetch (different process simulation) skips bws entirely."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
     fake_binary = tmp_path / "bws"
     fake_binary.write_text("")
@@ -651,7 +651,7 @@ def test_disk_cache_short_circuits_bws_when_fresh(monkeypatch, tmp_path):
 
 def test_disk_cache_expires_with_ttl(monkeypatch, tmp_path):
     """Stale disk cache (older than ttl) triggers a refetch."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
     fake_binary = tmp_path / "bws"
     fake_binary.write_text("")
@@ -688,7 +688,7 @@ def test_disk_cache_expires_with_ttl(monkeypatch, tmp_path):
 
 def test_disk_cache_key_mismatch_triggers_refetch(monkeypatch, tmp_path):
     """Disk cache entry written by a different token/project is ignored."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
     fake_binary = tmp_path / "bws"
     fake_binary.write_text("")
@@ -722,7 +722,7 @@ def test_disk_cache_key_mismatch_triggers_refetch(monkeypatch, tmp_path):
 
 def test_disk_cache_use_cache_false_skips_disk(monkeypatch, tmp_path):
     """use_cache=False must skip BOTH in-process and disk caches."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
     fake_binary = tmp_path / "bws"
     fake_binary.write_text("")
@@ -753,7 +753,7 @@ def test_disk_cache_use_cache_false_skips_disk(monkeypatch, tmp_path):
 
 def test_disk_cache_corrupt_file_falls_through(monkeypatch, tmp_path):
     """A garbage cache file must NOT crash startup — we refetch."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
     fake_binary = tmp_path / "bws"
     fake_binary.write_text("")
@@ -782,7 +782,7 @@ def test_disk_cache_corrupt_file_falls_through(monkeypatch, tmp_path):
 
 def test_reset_cache_for_tests_deletes_disk_file(tmp_path):
     """_reset_cache_for_tests(home_path) must also clean disk."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
     cache_path = bw._disk_cache_path(home)
     cache_path.parent.mkdir(parents=True, exist_ok=True)

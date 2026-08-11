@@ -488,7 +488,7 @@ class TestOptionalEnvVarsRegistry:
 
 class TestConfigMigrationSecretPrompts:
     def test_required_secret_env_prompt_uses_masked_prompt(self, tmp_path, monkeypatch):
-        from hermes_cli import config as cfg_mod
+        from sonic_cli import config as cfg_mod
 
         saved = {}
 
@@ -521,7 +521,7 @@ class TestConfigMigrationSecretPrompts:
             lambda name, value: saved.update({name: value}),
         )
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             results = cfg_mod.migrate_config(interactive=True, quiet=True)
 
         assert saved["prompt"] == "  Test API key: "

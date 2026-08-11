@@ -161,7 +161,7 @@ from sonic_cli.cli_output import (  # noqa: E402
     print_success,
     print_warning,
 )
-from hermes_cli.secret_prompt import masked_secret_prompt  # noqa: E402
+from sonic_cli.secret_prompt import masked_secret_prompt  # noqa: E402
 
 
 def is_interactive_stdin() -> bool:

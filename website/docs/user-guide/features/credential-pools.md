@@ -179,7 +179,7 @@ Sonic automatically discovers credentials from multiple sources and seeds the po
 
 Auto-seeded entries are updated on each pool load — if you remove an env var, its pool entry is automatically pruned. Manual entries (added via `sonic auth add`) are never auto-pruned.
 
-Borrowed runtime secrets (for example env vars, Bitwarden/Vault/keyring/systemd references, and custom config values) are reference-only at the `auth.json` boundary. Hermes can use the resolved value in memory for the current run, but it persists only metadata such as the source ref, label, status, request counters, and a non-reversible fingerprint. Manual entries and Hermes-owned OAuth/device-code state keep the durable tokens they need to refresh.
+Borrowed runtime secrets (for example env vars, Bitwarden/Vault/keyring/systemd references, and custom config values) are reference-only at the `auth.json` boundary. Sonic can use the resolved value in memory for the current run, but it persists only metadata such as the source ref, label, status, request counters, and a non-reversible fingerprint. Manual entries and Sonic-owned OAuth/device-code state keep the durable tokens they need to refresh.
 
 ## Delegation & Subagent Sharing
 
@@ -241,7 +241,7 @@ Pool state is stored in `~/.sonic/auth.json` under the `credential_pool` key:
 }
 ```
 
-The OpenRouter entry above was borrowed from an external source, so the raw key is not stored in `auth.json`. The manual Anthropic entry was intentionally added to Hermes' credential store, so its token remains persistable.
+The OpenRouter entry above was borrowed from an external source, so the raw key is not stored in `auth.json`. The manual Anthropic entry was intentionally added to Sonic' credential store, so its token remains persistable.
 
 Strategies are stored in `config.yaml` (not `auth.json`):
 

@@ -73,27 +73,27 @@ _BWS_RUN_TIMEOUT = 30
 _CacheKey = Tuple[str, str, str]  # (access_token_fingerprint, project_id, server_url)
 _CACHE: Dict[_CacheKey, "_CachedFetch"] = {}
 
-# Disk-persisted cache so back-to-back CLI invocations (e.g. `hermes chat -q ...`
+# Disk-persisted cache so back-to-back CLI invocations (e.g. `sonic chat -q ...`
 # called from scripts, cron, the gateway forking new agents) don't each pay the
 # ~380ms `bws secret list` tax. The in-process _CACHE above only saves repeated
 # fetches WITHIN one process; this saves repeated fetches ACROSS processes.
 #
 # Layout: one JSON object per cache key, written atomically with mode 0600 in
-# <hermes_home>/cache/bws_cache.json. The file holds only the secret VALUES,
-# never the access token. It's plaintext-equivalent to ~/.hermes/.env (which
+# <sonic_home>/cache/bws_cache.json. The file holds only the secret VALUES,
+# never the access token. It's plaintext-equivalent to ~/.sonic/.env (which
 # we already accept) but kept out of the .env file so users editing it won't
 # accidentally commit BSM-sourced secrets.
 _DISK_CACHE_BASENAME = "bws_cache.json"
 
 
 def _disk_cache_path(home_path: Optional[Path] = None) -> Path:
-    """Return the disk cache path under hermes_home/cache/.
+    """Return the disk cache path under sonic_home/cache/.
 
-    `home_path` is what `load_hermes_dotenv()` already resolved; falling back
-    to `$HERMES_HOME` / `~/.hermes` keeps direct callers working too.
+    `home_path` is what `load_sonic_dotenv()` already resolved; falling back
+    to `$SONIC_HOME` / `~/.sonic` keeps direct callers working too.
     """
     if home_path is None:
-        home_path = Path(os.getenv("HERMES_HOME", Path.home() / ".hermes"))
+        home_path = Path(os.getenv("SONIC_HOME", Path.home() / ".sonic"))
     return home_path / "cache" / _DISK_CACHE_BASENAME
 
 
@@ -428,10 +428,10 @@ def fetch_bitwarden_secrets(
 
     Caching is a two-layer LRU: an in-process dict (for hot-reload paths
     inside one process) and a disk-persisted JSON file under
-    ``<hermes_home>/cache/bws_cache.json`` (for back-to-back CLI invocations).
+    ``<sonic_home>/cache/bws_cache.json`` (for back-to-back CLI invocations).
     Both share the same TTL.  Pass ``home_path`` so disk cache lookups find
     the right directory in tests / non-standard installs; otherwise we fall
-    back to ``$HERMES_HOME`` / ``~/.hermes``.
+    back to ``$SONIC_HOME`` / ``~/.sonic``.
 
     Raises :class:`RuntimeError` for fatal conditions (missing binary,
     auth failure, unparseable output).  Callers in the env_loader path

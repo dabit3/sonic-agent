@@ -29,7 +29,7 @@ from sonic_cli.config import (
     save_config,
     save_env_value,
 )
-from hermes_cli.secret_prompt import masked_secret_prompt
+from sonic_cli.secret_prompt import masked_secret_prompt
 
 
 # ---------------------------------------------------------------------------

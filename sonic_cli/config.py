@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 
-from hermes_cli.secret_prompt import masked_secret_prompt
+from sonic_cli.secret_prompt import masked_secret_prompt
 
 logger = logging.getLogger(__name__)
 
