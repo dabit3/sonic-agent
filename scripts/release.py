@@ -1305,6 +1305,12 @@ AUTHOR_MAP = {
     "490408354@qq.com": "daizhonggeng",  # PR #9020 (numbered /resume selection)
     "claw@openclaw.ai": "wanwan2qq",  # PR #10215 (strip brackets/quotes from /resume; gateway session-ID lookup)
     "simo.kiihamaki@gmail.com": "SimoKiihamaki",  # PR #30773 (Windows /reset+/new freeze; stdin fallback for modal)
+    "glen@workmanfirearms.com": "sgtworkman",
+    "hermes@marian.local": "Schrotti77",
+    "jiahuigu@sjtu.edu.cn": "Jiahui-Gu",
+    "jorge.fuenmayort@gmail.com": "jfuenmayor",
+    "rodrigoeq@hotmail.com": "rodrigoeqnit",
+    "roadhero@users.noreply.github.com": "roadhero",
 }
 
 
