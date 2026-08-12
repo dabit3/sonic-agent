@@ -752,15 +752,15 @@ def mcp_command(args):
     # Catalog subcommands live in mcp_picker / mcp_catalog. Import lazily so
     # the original `mcp_config` module stays import-cheap.
     if action == "picker":
-        from hermes_cli.mcp_picker import run_picker
+        from sonic_cli.mcp_picker import run_picker
         run_picker()
         return
     if action == "catalog":
-        from hermes_cli.mcp_picker import show_catalog
+        from sonic_cli.mcp_picker import show_catalog
         show_catalog()
         return
     if action == "install":
-        from hermes_cli.mcp_picker import install_by_name
+        from sonic_cli.mcp_picker import install_by_name
         import sys as _sys
         rc = install_by_name(getattr(args, "identifier", "") or "")
         if rc:
@@ -784,8 +784,8 @@ def mcp_command(args):
         handler(args)
     else:
         # No subcommand — drop the user into the catalog picker. This is the
-        # "try enabling and it flows you into setup" UX matching `hermes plugin`.
-        from hermes_cli.mcp_picker import run_picker
+        # "try enabling and it flows you into setup" UX matching `sonic plugin`.
+        from sonic_cli.mcp_picker import run_picker
         run_picker()
         print(color("  Commands:", Colors.CYAN))
         _info("sonic mcp                                    Open the catalog picker (default)")

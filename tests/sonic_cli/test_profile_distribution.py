@@ -493,7 +493,7 @@ class TestSecurity:
         with pytest.raises(DistributionError, match="symlink"):
             install_distribution(str(staged), name="clean")
 
-        from hermes_cli.profiles import get_profile_dir
+        from sonic_cli.profiles import get_profile_dir
         target = get_profile_dir("clean")
         assert not (target / "skills" / "demo" / "leak.txt").exists()
 

@@ -270,10 +270,10 @@ def interruptible_api_call(agent, api_kwargs: dict):
     # non-stream, anthropic and bedrock branches here have no first-event
     # signal). The marker advances on *any* event (see codex_runtime), so
     # reasoning-only / tool-call-only turns are not mistaken for a stall.
-    # Operators can tune via HERMES_CODEX_TTFB_TIMEOUT_SECONDS (0 disables).
+    # Operators can tune via SONIC_CODEX_TTFB_TIMEOUT_SECONDS (0 disables).
     _ttfb_enabled = agent.api_mode == "codex_responses"
     try:
-        _ttfb_timeout = float(os.getenv("HERMES_CODEX_TTFB_TIMEOUT_SECONDS", "45"))
+        _ttfb_timeout = float(os.getenv("SONIC_CODEX_TTFB_TIMEOUT_SECONDS", "45"))
     except (TypeError, ValueError):
         _ttfb_timeout = 45.0
     if _ttfb_timeout <= 0:

@@ -123,13 +123,13 @@ The `/opt/data` volume is the single source of truth for all Sonic state. It map
 | `sessions/` | Conversation history |
 | `memories/` | Persistent memory store |
 | `skills/` | Installed skills |
-| `home/` | Per-profile HOME for Hermes tool subprocesses (`git`, `ssh`, `gh`, `npm`, and skill CLIs) |
+| `home/` | Per-profile HOME for Sonic tool subprocesses (`git`, `ssh`, `gh`, `npm`, and skill CLIs) |
 | `cron/` | Scheduled job definitions |
 | `hooks/` | Event hooks |
 | `logs/` | Runtime logs |
 | `skins/` | Custom CLI skins |
 
-Skill CLIs that store credentials under `~` must be initialized against the subprocess HOME, not just the data-volume root. For example, the [xurl skill](./skills/bundled/social-media/social-media-xurl.md) stores OAuth state in `~/.xurl`; in the official Docker layout, Hermes tool calls read that as `/opt/data/home/.xurl`, so run manual xurl auth with `HOME=/opt/data/home` and verify with `HOME=/opt/data/home xurl auth status`.
+Skill CLIs that store credentials under `~` must be initialized against the subprocess HOME, not just the data-volume root. For example, the [xurl skill](./skills/bundled/social-media/social-media-xurl.md) stores OAuth state in `~/.xurl`; in the official Docker layout, Sonic tool calls read that as `/opt/data/home/.xurl`, so run manual xurl auth with `HOME=/opt/data/home` and verify with `HOME=/opt/data/home xurl auth status`.
 
 :::warning
 Never run two Sonic **gateway** containers against the same data directory simultaneously — session files and memory stores are not designed for concurrent write access.
@@ -243,10 +243,10 @@ Start with `docker compose up -d` and view logs with `docker compose logs -f`. D
 
 ## Optional: Linux desktop audio bridge
 
-Voice mode in Docker needs two separate things to work: Hermes must be allowed to probe audio devices inside the container, and the container must be able to reach your host audio server. The setup below covers the host audio plumbing for Linux desktops that expose a PulseAudio-compatible socket, including many PipeWire setups.
+Voice mode in Docker needs two separate things to work: Sonic must be allowed to probe audio devices inside the container, and the container must be able to reach your host audio server. The setup below covers the host audio plumbing for Linux desktops that expose a PulseAudio-compatible socket, including many PipeWire setups.
 
 :::caution
-This is a Linux desktop workaround, not a general Docker Desktop feature. It is useful when you already have host audio working and want CLI voice mode inside the Hermes container. If Hermes still reports `Running inside Docker container -- no audio devices`, use a build that includes Docker audio probing support for `PULSE_SERVER` / `PIPEWIRE_REMOTE`.
+This is a Linux desktop workaround, not a general Docker Desktop feature. It is useful when you already have host audio working and want CLI voice mode inside the Sonic container. If Sonic still reports `Running inside Docker container -- no audio devices`, use a build that includes Docker audio probing support for `PULSE_SERVER` / `PIPEWIRE_REMOTE`.
 :::
 
 First, create an ALSA config next to your Compose file:
@@ -284,39 +284,39 @@ Use that image in Compose and pass through the host user's PulseAudio socket and
 
 ```yaml
 services:
-  hermes:
+  sonic:
     build:
       context: .
       dockerfile: Dockerfile.audio
-    image: hermes-agent-audio
-    container_name: hermes
+    image: sonic-agent-audio
+    container_name: sonic
     restart: unless-stopped
     command: gateway run
     volumes:
-      - ~/.hermes:/opt/data
-      - /run/user/${HERMES_UID}/pulse:/run/user/${HERMES_UID}/pulse
+      - ~/.sonic:/opt/data
+      - /run/user/${SONIC_UID}/pulse:/run/user/${SONIC_UID}/pulse
       - ~/.config/pulse/cookie:/tmp/pulse-cookie:ro
       - ./asound.conf:/etc/asound.conf:ro
     environment:
-      - HERMES_UID=${HERMES_UID}
-      - HERMES_GID=${HERMES_GID}
-      - XDG_RUNTIME_DIR=/run/user/${HERMES_UID}
-      - PULSE_SERVER=unix:/run/user/${HERMES_UID}/pulse/native
+      - SONIC_UID=${SONIC_UID}
+      - SONIC_GID=${SONIC_GID}
+      - XDG_RUNTIME_DIR=/run/user/${SONIC_UID}
+      - PULSE_SERVER=unix:/run/user/${SONIC_UID}/pulse/native
       - PULSE_COOKIE=/tmp/pulse-cookie
 ```
 
 Start it with your host UID/GID so the container process can access the per-user audio socket:
 
 ```sh
-export HERMES_UID="$(id -u)"
-export HERMES_GID="$(id -g)"
+export SONIC_UID="$(id -u)"
+export SONIC_GID="$(id -g)"
 docker compose up -d --build
 ```
 
 To verify what PortAudio sees inside the container:
 
 ```sh
-docker exec hermes /opt/hermes/.venv/bin/python -c "import sounddevice as sd; print(sd.query_devices())"
+docker exec sonic /opt/sonic/.venv/bin/python -c "import sounddevice as sd; print(sd.query_devices())"
 ```
 
 ## Resource limits

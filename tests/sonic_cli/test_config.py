@@ -781,24 +781,24 @@ class TestUserMessagePreviewConfig:
 class TestEnvWriteDenylist:
     """``save_env_value`` refuses to persist env-var names that
     influence how subprocesses execute — ``LD_PRELOAD``, ``PYTHONPATH``,
-    ``PATH``, ``EDITOR``, etc. — or any ``HERMES_*`` runtime flag.
+    ``PATH``, ``EDITOR``, etc. — or any ``SONIC_*`` runtime flag.
 
     The dashboard exposes ``PUT /api/env`` to any authed caller (and
     the session token lives in the SPA's HTML where any future plugin
     XSS or local process could exfiltrate it). Without this gate, an
     attacker who steals the token could plant
-    ``LD_PRELOAD=/tmp/evil.so`` in ``.env`` and own the next Hermes
+    ``LD_PRELOAD=/tmp/evil.so`` in ``.env`` and own the next Sonic
     process on next startup via the dotenv → ``os.environ`` chain in
-    ``hermes_cli/env_loader.py``.
+    ``sonic_cli/env_loader.py``.
 
     Regression test for the dashboard pentest finding filed alongside
     the ``web-pentest`` skill (PR #32265 / issue #32267).
     """
 
     @pytest.fixture(autouse=True)
-    def _hermes_home(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
-        ensure_hermes_home()
+    def _sonic_home(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
+        ensure_sonic_home()
 
     @pytest.mark.parametrize(
         "denied_key",
@@ -821,10 +821,10 @@ class TestEnvWriteDenylist:
             "BROWSER",
             "GIT_SSH_COMMAND",
             "GIT_EXEC_PATH",
-            "HERMES_HOME",
-            "HERMES_PROFILE",
-            "HERMES_CONFIG",
-            "HERMES_ENV",
+            "SONIC_HOME",
+            "SONIC_PROFILE",
+            "SONIC_CONFIG",
+            "SONIC_ENV",
         ],
     )
     def test_denylisted_keys_rejected(self, denied_key):
@@ -840,17 +840,17 @@ class TestEnvWriteDenylist:
     @pytest.mark.parametrize(
         "allowed_key",
         [
-            "HERMES_GEMINI_CLIENT_ID",
-            "HERMES_LANGFUSE_PUBLIC_KEY",
-            "HERMES_SPOTIFY_CLIENT_ID",
-            "HERMES_QWEN_BASE_URL",
-            "HERMES_MAX_ITERATIONS",
+            "SONIC_GEMINI_CLIENT_ID",
+            "SONIC_LANGFUSE_PUBLIC_KEY",
+            "SONIC_SPOTIFY_CLIENT_ID",
+            "SONIC_QWEN_BASE_URL",
+            "SONIC_MAX_ITERATIONS",
         ],
     )
-    def test_hermes_integration_keys_still_writable(self, allowed_key):
-        """``HERMES_*`` overall is NOT blocked — only the four runtime
+    def test_sonic_integration_keys_still_writable(self, allowed_key):
+        """``SONIC_*`` overall is NOT blocked — only the four runtime
         location names (HOME/PROFILE/CONFIG/ENV) are. Integration
-        credentials following the ``HERMES_*`` convention must keep
+        credentials following the ``SONIC_*`` convention must keep
         working or we'd regress every provider setup wizard that
         currently writes one of these (auth.py, Spotify, Langfuse, …)."""
         save_env_value(allowed_key, "test-value-123")
@@ -865,7 +865,7 @@ class TestEnvWriteDenylist:
 
     def test_arbitrary_user_key_still_works(self):
         """Plugin / user-defined env vars (anything outside the
-        denylist and outside ``HERMES_*``) keep working. The denylist
+        denylist and outside ``SONIC_*``) keep working. The denylist
         is narrow on purpose."""
         save_env_value("MY_PLUGIN_TOKEN", "plugin-secret-123")
         env = load_env()

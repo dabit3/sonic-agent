@@ -356,7 +356,7 @@ def test_persist_dm_topic_thread_id_replaces_existing_when_requested(tmp_path):
         }
     }
 
-    config_file = tmp_path / ".hermes" / "config.yaml"
+    config_file = tmp_path / ".sonic" / "config.yaml"
     config_file.parent.mkdir(parents=True)
     with open(config_file, "w") as f:
         yaml.dump(config_data, f)
@@ -364,7 +364,7 @@ def test_persist_dm_topic_thread_id_replaces_existing_when_requested(tmp_path):
     adapter = _make_adapter()
 
     with patch.object(Path, "home", return_value=tmp_path), \
-         patch.dict(os.environ, {"HERMES_HOME": str(tmp_path / ".hermes")}):
+         patch.dict(os.environ, {"SONIC_HOME": str(tmp_path / ".sonic")}):
         adapter._persist_dm_topic_thread_id(111, "General", 999, replace_existing=True)
 
     with open(config_file) as f:

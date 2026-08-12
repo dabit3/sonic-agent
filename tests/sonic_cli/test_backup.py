@@ -265,21 +265,21 @@ class TestBackup:
         assert len(zips) == 1
 
     def test_skips_symlinked_files(self, tmp_path, monkeypatch):
-        """Backup must not dereference symlinks and leak files outside HERMES_HOME."""
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
-        _make_hermes_tree(hermes_home)
+        """Backup must not dereference symlinks and leak files outside SONIC_HOME."""
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        _make_sonic_tree(sonic_home)
         outside = tmp_path / "outside-secret.txt"
         outside.write_text("outside secret\n")
-        _symlink_file_or_skip(hermes_home / "skills" / "outside-link.txt", outside)
+        _symlink_file_or_skip(sonic_home / "skills" / "outside-link.txt", outside)
 
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
 
         out_zip = tmp_path / "backup.zip"
         args = Namespace(output=str(out_zip))
 
-        from hermes_cli.backup import run_backup
+        from sonic_cli.backup import run_backup
         run_backup(args)
 
         with zipfile.ZipFile(out_zip, "r") as zf:
@@ -1451,15 +1451,15 @@ class TestPreUpdateBackup:
             f"remaining={remaining}"
         )
 
-    def test_skips_symlinked_files(self, hermes_home, tmp_path):
-        """Pre-update backups must not dereference symlinks outside HERMES_HOME."""
-        from hermes_cli.backup import create_pre_update_backup
+    def test_skips_symlinked_files(self, sonic_home, tmp_path):
+        """Pre-update backups must not dereference symlinks outside SONIC_HOME."""
+        from sonic_cli.backup import create_pre_update_backup
 
         outside = tmp_path / "outside-secret.txt"
         outside.write_text("outside secret\n")
-        _symlink_file_or_skip(hermes_home / "skills" / "outside-link.txt", outside)
+        _symlink_file_or_skip(sonic_home / "skills" / "outside-link.txt", outside)
 
-        out = create_pre_update_backup(hermes_home=hermes_home)
+        out = create_pre_update_backup(sonic_home=sonic_home)
         assert out is not None
         with zipfile.ZipFile(out) as zf:
             names = zf.namelist()

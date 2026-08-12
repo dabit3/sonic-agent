@@ -204,7 +204,7 @@ class TestBuildJobPromptScansSkillContent:
         # inside skill bodies; that's what security docs look like.
         prompt = scheduler._build_job_prompt(job)
         assert prompt is not None
-        assert "cat ~/.hermes/.env" in prompt
+        assert "cat ~/.sonic/.env" in prompt
 
     def test_skill_with_invisible_unicode_raises(self, cron_env):
         sonic_home, scheduler = cron_env

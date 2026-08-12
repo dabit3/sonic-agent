@@ -381,7 +381,7 @@ class TestSendMessageTool:
         # This test exercises the strict-allowlist path; disable recency trust
         # so the freshly-written tmp_path file is not auto-accepted by the
         # trust window. (Recency trust is covered in test_platform_base.py.)
-        monkeypatch.setenv("HERMES_MEDIA_TRUST_RECENT_FILES", "0")
+        monkeypatch.setenv("SONIC_MEDIA_TRUST_RECENT_FILES", "0")
         config, telegram_cfg = _make_config()
         secret = tmp_path / "secret.pdf"
         secret.write_bytes(b"%PDF secret")

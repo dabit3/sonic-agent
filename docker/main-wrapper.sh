@@ -6,10 +6,10 @@
 # stderr from the container.
 #
 # Shebang note: /init scrubs env before invoking CMD, so a plain
-# `#!/bin/sh` wrapper sees an empty environ and `ENV HERMES_HOME=/opt/data`
-# from the Dockerfile never reaches `hermes`. with-contenv repopulates
+# `#!/bin/sh` wrapper sees an empty environ and `ENV SONIC_HOME=/opt/data`
+# from the Dockerfile never reaches `sonic`. with-contenv repopulates
 # the env from /run/s6/container_environment before exec'ing, which is
-# what s6-supervised services use too (see main-hermes/run).
+# what s6-supervised services use too (see main-sonic/run).
 #
 # Routing:
 #   no args                       → exec `sonic` (the default)
@@ -21,7 +21,7 @@
 set -e
 
 # HOME comes through with-contenv as /root (the /init context). Override
-# to the hermes user's home before dropping privileges so libraries that
+# to the sonic user's home before dropping privileges so libraries that
 # resolve paths via $HOME (e.g. discord lockfile under XDG_STATE_HOME)
 # don't try to write to /root.
 export HOME=/opt/data

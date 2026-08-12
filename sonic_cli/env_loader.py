@@ -29,9 +29,9 @@ _WARNED_KEYS: set[str] = set()
 # the .env case and they don't know Bitwarden is wired up).
 _SECRET_SOURCES: dict[str, str] = {}
 
-# HERMES_HOME paths we've already pulled external secrets for during this
-# process.  ``load_hermes_dotenv()`` is called at module-import time from
-# several hot modules (cli.py, hermes_cli/main.py, run_agent.py,
+# SONIC_HOME paths we've already pulled external secrets for during this
+# process.  ``load_sonic_dotenv()`` is called at module-import time from
+# several hot modules (cli.py, sonic_cli/main.py, run_agent.py,
 # trajectory_compressor.py, gateway/run.py, ...), so without this guard the
 # Bitwarden status line gets printed 3-5x per startup.  Bitwarden's own
 # in-process cache prevents redundant network calls, but the print, the
@@ -53,7 +53,7 @@ def get_secret_source(env_var: str) -> str | None:
 
 
 def reset_secret_source_cache() -> None:
-    """Forget which HERMES_HOME paths have already had external secrets applied.
+    """Forget which SONIC_HOME paths have already had external secrets applied.
 
     The first call to ``_apply_external_secret_sources(home_path)`` in a
     process pulls from Bitwarden (or other configured backend), records the
@@ -256,12 +256,12 @@ def _apply_external_secret_sources(home_path: Path) -> None:
     swallowed — external secret sources must never block startup.
 
     Idempotent within a process: subsequent calls for the same
-    ``home_path`` are no-ops.  ``load_hermes_dotenv()`` runs at import
-    time from several hot modules (cli.py, hermes_cli/main.py,
+    ``home_path`` are no-ops.  ``load_sonic_dotenv()`` runs at import
+    time from several hot modules (cli.py, sonic_cli/main.py,
     run_agent.py, trajectory_compressor.py, ...), so without this guard
     the Bitwarden status line would print 3-5x per CLI startup.  Use
     ``reset_secret_source_cache()`` if you need to force a re-pull
-    (tests, future ``hermes secrets bitwarden sync`` from a long-running
+    (tests, future ``sonic secrets bitwarden sync`` from a long-running
     process).
     """
     home_key = str(Path(home_path).resolve())
