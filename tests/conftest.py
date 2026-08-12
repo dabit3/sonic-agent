@@ -147,7 +147,6 @@ _CREDENTIAL_NAMES = frozenset({
     "TOOL_GATEWAY_USER_TOKEN",
     "TELEGRAM_WEBHOOK_SECRET",
     "WEBHOOK_SECRET",
-    "AI_GATEWAY_API_KEY",
     "VOICE_TOOLS_OPENAI_KEY",
     "BROWSER_USE_API_KEY",
     "CUSTOM_API_KEY",
@@ -158,7 +157,6 @@ _CREDENTIAL_NAMES = frozenset({
     "OLLAMA_BASE_URL",
     "GROQ_BASE_URL",
     "XAI_BASE_URL",
-    "AI_GATEWAY_BASE_URL",
     "ANTHROPIC_BASE_URL",
 })
 
@@ -217,7 +215,6 @@ _SONIC_BEHAVIORAL_VARS = frozenset({
     "SONIC_TENANT",
     "TERMINAL_CWD",
     "TERMINAL_ENV",
-    "TERMINAL_VERCEL_RUNTIME",
     "TERMINAL_CONTAINER_CPU",
     "TERMINAL_CONTAINER_DISK",
     "TERMINAL_CONTAINER_MEMORY",
@@ -290,6 +287,15 @@ _SONIC_BEHAVIORAL_VARS = frozenset({
     "WECOM_HOME_CHANNEL",
     "WECOM_HOME_CHANNEL_THREAD_ID",
     "WECOM_HOME_CHANNEL_NAME",
+    # API server bind/auth settings are common in local gateway profiles and
+    # change adapter defaults plus load_gateway_config() enablement. Tests that
+    # need them set opt in explicitly with monkeypatch.
+    "API_SERVER_ENABLED",
+    "API_SERVER_HOST",
+    "API_SERVER_PORT",
+    "API_SERVER_KEY",
+    "API_SERVER_CORS_ORIGINS",
+    "API_SERVER_MODEL_NAME",
     # Platform gating — set by load_gateway_config() as a side effect when
     # a config.yaml is present, so individual test bodies that call the
     # loader leak these values into later tests in the same process.

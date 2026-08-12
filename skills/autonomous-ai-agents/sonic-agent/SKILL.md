@@ -100,8 +100,10 @@ sonic config path          Print config.yaml path
 sonic config env-path      Print .env path
 sonic config check         Check for missing/outdated config
 sonic config migrate       Update config with new options
-sonic login [--provider P] OAuth login (nous, openai-codex)
-sonic logout               Clear stored auth
+sonic auth                 Interactive credential manager
+sonic auth add PROVIDER    Add OAuth or API-key credential (e.g. nous, openai-codex, qwen-oauth)
+sonic auth list            List stored credentials
+sonic auth remove PROVIDER Remove a stored credential
 sonic doctor [--fix]       Check dependencies and config
 sonic status [--all]       Show component status
 ```
@@ -387,10 +389,9 @@ Full config reference: https://lightning-agent.nousresearch.com/docs/user-guide/
 | Alibaba / DashScope | API key | `DASHSCOPE_API_KEY` |
 | Xiaomi MiMo | API key | `XIAOMI_API_KEY` |
 | Kilo Code | API key | `KILOCODE_API_KEY` |
-| AI Gateway (Vercel) | API key | `AI_GATEWAY_API_KEY` |
 | OpenCode Zen | API key | `OPENCODE_ZEN_API_KEY` |
 | OpenCode Go | API key | `OPENCODE_GO_API_KEY` |
-| Qwen OAuth | OAuth | `sonic login --provider qwen-oauth` |
+| Qwen OAuth | OAuth | `sonic auth add qwen-oauth` |
 | Custom endpoint | Config | `model.base_url` + `model.api_key` in config.yaml |
 | GitHub Copilot ACP | External | `COPILOT_CLI_PATH` or Copilot CLI |
 
@@ -812,7 +813,7 @@ and logs — avoids shell-escaping backslashes in bash.
 
 ### Model/provider issues
 1. `sonic doctor` — check config and dependencies
-2. `sonic login` — re-authenticate OAuth providers
+2. `sonic auth` — re-authenticate OAuth providers (or `sonic auth add <provider>`)
 3. Check `.env` has the right API key
 4. **Copilot 403**: `gh auth login` tokens do NOT work for Copilot API. You must use the Copilot-specific OAuth device code flow via `sonic model` → GitHub Copilot.
 
@@ -993,7 +994,7 @@ See `tests/agent/test_prompt_builder.py::TestEnvironmentHints` for a worked exam
 Factual guidance about the host OS, user home, cwd, terminal backend, and shell (bash vs. PowerShell on Windows) is emitted from `agent/prompt_builder.py::build_environment_hints()`. This is also where the WSL hint and per-backend probe logic live. The convention:
 
 - **Local terminal backend** → emit host info (OS, `$HOME`, cwd) + Windows-specific notes (hostname ≠ username, `terminal` uses bash not PowerShell).
-- **Remote terminal backend** (anything in `_REMOTE_TERMINAL_BACKENDS`: `docker, singularity, modal, daytona, ssh, vercel_sandbox, managed_modal`) → **suppress** host info entirely and describe only the backend. A live `uname`/`whoami`/`pwd` probe runs inside the backend via `tools.environments.get_environment(...).execute(...)`, cached per process in `_BACKEND_PROBE_CACHE`, with a static fallback if the probe times out.
+- **Remote terminal backend** (anything in `_REMOTE_TERMINAL_BACKENDS`: `docker, singularity, modal, daytona, ssh, managed_modal`) → **suppress** host info entirely and describe only the backend. A live `uname`/`whoami`/`pwd` probe runs inside the backend via `tools.environments.get_environment(...).execute(...)`, cached per process in `_BACKEND_PROBE_CACHE`, with a static fallback if the probe times out.
 - **Key fact for prompt authoring:** when `TERMINAL_ENV != "local"`, *every* file tool (`read_file`, `write_file`, `patch`, `search_files`) runs inside the backend container, not on the host. The system prompt must never describe the host in that case — the agent can't touch it.
 
 Full design notes, the exact emitted strings, and testing pitfalls:

@@ -47,7 +47,6 @@ Both `provider` and `model` are **required**. If either is missing, the fallback
 
 | Provider | Value | Requirements |
 |----------|-------|-------------|
-| AI Gateway | `ai-gateway` | `AI_GATEWAY_API_KEY` |
 | OpenRouter | `openrouter` | `OPENROUTER_API_KEY` |
 | Nous Portal | `nous` | `sonic setup --portal` (fresh) or `sonic auth add nous` (OAuth) |
 | OpenAI Codex | `openai-codex` | `sonic model` (ChatGPT OAuth) |

@@ -562,13 +562,12 @@ def load_cli_config() -> Dict[str, Any]:
         "singularity_image": "TERMINAL_SINGULARITY_IMAGE",
         "modal_image": "TERMINAL_MODAL_IMAGE",
         "daytona_image": "TERMINAL_DAYTONA_IMAGE",
-        "vercel_runtime": "TERMINAL_VERCEL_RUNTIME",
         # SSH config
         "ssh_host": "TERMINAL_SSH_HOST",
         "ssh_user": "TERMINAL_SSH_USER",
         "ssh_port": "TERMINAL_SSH_PORT",
         "ssh_key": "TERMINAL_SSH_KEY",
-        # Container resource config (docker, singularity, modal, daytona, vercel_sandbox -- ignored for local/ssh)
+        # Container resource config (docker, singularity, modal, daytona -- ignored for local/ssh)
         "container_cpu": "TERMINAL_CONTAINER_CPU",
         "container_memory": "TERMINAL_CONTAINER_MEMORY",
         "container_disk": "TERMINAL_CONTAINER_DISK",
@@ -2360,6 +2359,89 @@ def _strip_leaked_bracketed_paste_wrappers(text: str) -> str:
     return text
 
 
+def _apply_bracketed_paste_timeout_patch() -> None:
+    """Patch prompt_toolkit to recover from torn bracketed-paste sequences.
+
+    prompt_toolkit's ``Vt100Parser.feed()`` buffers all input while waiting
+    for the ESC[201~ end mark.  If a terminal drops that end mark (terminal
+    race, torn write, SSH glitch, macOS sleep/wake), input appears frozen
+    forever — the only recovery used to be killing the tab.
+
+    This patch wraps ``Vt100Parser.feed`` so that bracketed-paste mode
+    flushes buffered content as a normal ``BracketedPaste`` event after
+    ``_BP_TIMEOUT_S`` seconds without an end marker, then resumes normal
+    parsing.  See upstream issue #16263.
+
+    The patch is idempotent — repeated calls are no-ops via the
+    ``_sonic_bp_timeout_patched`` sentinel on the module.
+    """
+    try:
+        import prompt_toolkit.input.vt100_parser as _vt100_mod
+        from prompt_toolkit.keys import Keys as _PtKeys
+        from prompt_toolkit.key_binding.key_processor import KeyPress as _PtKeyPress
+
+        if getattr(_vt100_mod, "_sonic_bp_timeout_patched", False):
+            return
+
+        _BP_TIMEOUT_S = 2.0  # max time to wait for ESC[201~ before flushing
+
+        def _patched_vt100_feed(self_parser, data: str) -> None:
+            if self_parser._in_bracketed_paste:
+                self_parser._paste_buffer += data
+                end_mark = "\x1b[201~"
+
+                if end_mark in self_parser._paste_buffer:
+                    end_index = self_parser._paste_buffer.index(end_mark)
+                    paste_content = self_parser._paste_buffer[:end_index]
+                    self_parser.feed_key_callback(
+                        _PtKeyPress(_PtKeys.BracketedPaste, paste_content)
+                    )
+                    self_parser._in_bracketed_paste = False
+                    remaining = self_parser._paste_buffer[
+                        end_index + len(end_mark):
+                    ]
+                    self_parser._paste_buffer = ""
+                    self_parser._sonic_bp_start = None
+                    if remaining:
+                        _patched_vt100_feed(self_parser, remaining)
+                else:
+                    bp_start = getattr(self_parser, "_sonic_bp_start", None)
+                    now = time.monotonic()
+                    if bp_start is None:
+                        self_parser._sonic_bp_start = now
+                    elif now - bp_start > _BP_TIMEOUT_S:
+                        paste_content = self_parser._paste_buffer
+                        self_parser._in_bracketed_paste = False
+                        self_parser._paste_buffer = ""
+                        self_parser._sonic_bp_start = None
+                        if paste_content:
+                            self_parser.feed_key_callback(
+                                _PtKeyPress(_PtKeys.BracketedPaste, paste_content)
+                            )
+                            logger.warning(
+                                "Bracketed-paste timeout (%.1fs) — flushed %d bytes "
+                                "without end mark. Terminal may have dropped ESC[201~ "
+                                "(see #16263).",
+                                now - bp_start,
+                                len(paste_content),
+                            )
+            else:
+                # Normal mode — re-inline prompt_toolkit's normal feed path.
+                # Calling the original feed here would double-buffer after the
+                # bracketed-paste entry transition.
+                for i, c in enumerate(data):
+                    if self_parser._in_bracketed_paste:
+                        _patched_vt100_feed(self_parser, data[i:])
+                        break
+                    self_parser._input_parser.send(c)
+
+        _vt100_mod.Vt100Parser.feed = _patched_vt100_feed
+        _vt100_mod._sonic_bp_timeout_patched = True
+        logger.debug("Applied Vt100Parser bracketed-paste timeout patch (#16263)")
+    except Exception as exc:  # noqa: BLE001 — defensive: never break startup
+        logger.debug("Bracketed-paste timeout patch skipped: %s", exc)
+
+
 # Cursor Position Report (CPR / DSR) response, format ``ESC[<row>;<col>R``.
 # prompt_toolkit's _on_resize() + renderer send ``ESC[6n`` queries to the
 # terminal; under resize storms or tab switches the terminal's reply can
@@ -3418,6 +3500,7 @@ class SonicCLI:
             "session_api_calls": 0,
             "compressions": 0,
             "active_background_tasks": 0,
+            "active_background_processes": 0,
         }
 
         # Count live /background tasks. The dict entry is removed in the
@@ -3427,6 +3510,14 @@ class SonicCLI:
             bg_tasks = getattr(self, "_background_tasks", None)
             if bg_tasks:
                 snapshot["active_background_tasks"] = len(bg_tasks)
+        except Exception:
+            pass
+
+        # Count live background terminal processes (terminal tool background
+        # sessions tracked by tools.process_registry). Cheap O(1) read.
+        try:
+            from tools.process_registry import process_registry
+            snapshot["active_background_processes"] = process_registry.count_running()
         except Exception:
             pass
 
@@ -3668,6 +3759,9 @@ class SonicCLI:
                 bg_count = snapshot.get("active_background_tasks", 0)
                 if bg_count:
                     parts.append(f"▶ {bg_count}")
+                bg_proc_count = snapshot.get("active_background_processes", 0)
+                if bg_proc_count:
+                    parts.append(f"⚙ {bg_proc_count}")
                 parts.append(duration_label)
                 if yolo_active:
                     parts.append("⚠ YOLO")
@@ -3687,6 +3781,9 @@ class SonicCLI:
             bg_count = snapshot.get("active_background_tasks", 0)
             if bg_count:
                 parts.append(f"▶ {bg_count}")
+            bg_proc_count = snapshot.get("active_background_processes", 0)
+            if bg_proc_count:
+                parts.append(f"⚙ {bg_proc_count}")
             parts.append(duration_label)
             prompt_elapsed = snapshot.get("prompt_elapsed")
             if prompt_elapsed:
@@ -3728,6 +3825,7 @@ class SonicCLI:
                 if width < 76:
                     compressions = snapshot.get("compressions", 0)
                     bg_count = snapshot.get("active_background_tasks", 0)
+                    bg_proc_count = snapshot.get("active_background_processes", 0)
                     frags = [
                         ("class:status-bar", " ⚕ "),
                         ("class:status-bar-strong", snapshot["model_short"]),
@@ -3740,6 +3838,9 @@ class SonicCLI:
                     if bg_count:
                         frags.append(("class:status-bar-dim", " · "))
                         frags.append(("class:status-bar-strong", f"▶ {bg_count}"))
+                    if bg_proc_count:
+                        frags.append(("class:status-bar-dim", " · "))
+                        frags.append(("class:status-bar-strong", f"⚙ {bg_proc_count}"))
                     frags.extend([
                         ("class:status-bar-dim", " · "),
                         ("class:status-bar-dim", duration_label),
@@ -3759,6 +3860,7 @@ class SonicCLI:
                     bar_style = self._status_bar_context_style(percent)
                     compressions = snapshot.get("compressions", 0)
                     bg_count = snapshot.get("active_background_tasks", 0)
+                    bg_proc_count = snapshot.get("active_background_processes", 0)
                     frags = [
                         ("class:status-bar", " ⚕ "),
                         ("class:status-bar-strong", snapshot["model_short"]),
@@ -3775,6 +3877,9 @@ class SonicCLI:
                     if bg_count:
                         frags.append(("class:status-bar-dim", " │ "))
                         frags.append(("class:status-bar-strong", f"▶ {bg_count}"))
+                    if bg_proc_count:
+                        frags.append(("class:status-bar-dim", " │ "))
+                        frags.append(("class:status-bar-strong", f"⚙ {bg_proc_count}"))
                     frags.extend([
                         ("class:status-bar-dim", " │ "),
                         ("class:status-bar-dim", duration_label),
@@ -13243,7 +13348,11 @@ class SonicCLI:
                 pasted_text = _sanitize_surrogates(pasted_text)
                 line_count = pasted_text.count('\n')
                 buf = event.current_buffer
-                if line_count >= 5 and not buf.text.strip().startswith('/'):
+                threshold = self.config.get("paste_collapse_threshold", 5)
+                char_threshold = self.config.get("paste_collapse_char_threshold", 2000)
+                lines_hit = threshold > 0 and line_count >= threshold
+                chars_hit = char_threshold > 0 and len(pasted_text) >= char_threshold
+                if (lines_hit or chars_hit) and not buf.text.strip().startswith('/'):
                     _paste_counter[0] += 1
                     paste_dir = _sonic_home / "pastes"
                     paste_dir.mkdir(parents=True, exist_ok=True)
@@ -13412,7 +13521,11 @@ class SonicCLI:
             newlines_added = line_count - _prev_newline_count[0]
             _prev_newline_count[0] = line_count
             is_paste = chars_added > 1 or newlines_added >= 4
-            if line_count >= 5 and is_paste and not text.startswith('/'):
+            threshold = self.config.get("paste_collapse_threshold_fallback", 5)
+            char_threshold = self.config.get("paste_collapse_char_threshold", 2000)
+            lines_hit = threshold > 0 and line_count >= threshold
+            chars_hit = char_threshold > 0 and len(text) >= char_threshold
+            if (lines_hit or chars_hit) and is_paste and not text.startswith('/'):
                 _paste_counter[0] += 1
                 paste_dir = _sonic_home / "pastes"
                 paste_dir.mkdir(parents=True, exist_ok=True)
@@ -14148,6 +14261,10 @@ class SonicCLI:
                 _pt_renderer._sonic_osd_patched = True
         except Exception:
             pass
+
+        # Apply bracketed-paste timeout recovery so torn ESC[201~ end marks
+        # don't permanently freeze the input (issue #16263). Idempotent.
+        _apply_bracketed_paste_timeout_patch()
 
         _original_on_resize = app._on_resize
 
