@@ -569,10 +569,10 @@ def test_detect_crashed_workers_skips_freshly_claimed_tasks(
     kanban_home, monkeypatch,
 ):
     """Grace period prevents reclaim of freshly-started tasks."""
-    import hermes_cli.kanban_db as _kb
+    import sonic_cli.kanban_db as _kb
 
     monkeypatch.setattr(_kb, "_pid_alive", lambda _pid: False)
-    monkeypatch.delenv("HERMES_KANBAN_CRASH_GRACE_SECONDS", raising=False)
+    monkeypatch.delenv("SONIC_KANBAN_CRASH_GRACE_SECONDS", raising=False)
 
     now = 1_000_000.0
     monkeypatch.setattr(_kb.time, "time", lambda: now)
@@ -600,11 +600,11 @@ def test_detect_crashed_workers_skips_freshly_claimed_tasks(
 def test_detect_crashed_workers_grace_period_env_override(
     kanban_home, monkeypatch,
 ):
-    """HERMES_KANBAN_CRASH_GRACE_SECONDS env var adjusts the window."""
-    import hermes_cli.kanban_db as _kb
+    """SONIC_KANBAN_CRASH_GRACE_SECONDS env var adjusts the window."""
+    import sonic_cli.kanban_db as _kb
 
     monkeypatch.setattr(_kb, "_pid_alive", lambda _pid: False)
-    monkeypatch.setenv("HERMES_KANBAN_CRASH_GRACE_SECONDS", "5")
+    monkeypatch.setenv("SONIC_KANBAN_CRASH_GRACE_SECONDS", "5")
 
     now = 2_000_000.0
 
@@ -629,10 +629,10 @@ def test_detect_crashed_workers_grace_period_env_override(
 
 def test_resolve_crash_grace_seconds_handles_bad_env(monkeypatch):
     """Bad env values fall back to DEFAULT_CRASH_GRACE_SECONDS."""
-    import hermes_cli.kanban_db as _kb
+    import sonic_cli.kanban_db as _kb
 
     for bad_val in ("notanumber", "-5", ""):
-        monkeypatch.setenv("HERMES_KANBAN_CRASH_GRACE_SECONDS", bad_val)
+        monkeypatch.setenv("SONIC_KANBAN_CRASH_GRACE_SECONDS", bad_val)
         result = _kb._resolve_crash_grace_seconds()
         assert result == _kb.DEFAULT_CRASH_GRACE_SECONDS, (
             f"expected default for {bad_val!r}, got {result}"
@@ -1643,7 +1643,7 @@ def test_is_managed_scratch_path_rejects_kanban_metadata_subtrees(kanban_home):
     ``workspace_path`` was mis-set to the kanban home, the logs dir, or a
     board's metadata dir (i.e. the board root itself, not its ``workspaces/``
     child) must be refused. Without this, the containment check would happily
-    ``shutil.rmtree`` Hermes' DB/metadata/logs on task completion.
+    ``shutil.rmtree`` Sonic' DB/metadata/logs on task completion.
     """
     kanban_root = kanban_home / "kanban"
     kanban_root.mkdir(parents=True, exist_ok=True)
@@ -2192,9 +2192,9 @@ def test_connect_falls_back_to_delete_on_locking_protocol(tmp_path, monkeypatch,
     import sqlite3 as _sqlite3
     from unittest.mock import patch as _patch
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
-    monkeypatch.setenv("HERMES_HOME", str(home))
+    monkeypatch.setenv("SONIC_HOME", str(home))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
 
     # Clear module cache so a fresh connect() is attempted
@@ -3551,7 +3551,7 @@ def test_write_txn_preserves_original_exception_when_rollback_fails(kanban_home)
     )
 def test_write_txn_healthy_commit_no_exception(tmp_path):
     """Normal commit does not trigger the torn-extend check."""
-    from hermes_cli.kanban_db import connect, write_txn, create_task
+    from sonic_cli.kanban_db import connect, write_txn, create_task
     db = tmp_path / "test.db"
     conn = connect(db_path=db)
     # Should not raise
@@ -3567,8 +3567,8 @@ def test_write_txn_healthy_commit_no_exception(tmp_path):
 
 def test_write_txn_raises_on_truncated_file(tmp_path):
     """A mocked smaller file size triggers the torn-extend check."""
-    from hermes_cli.kanban_db import connect, write_txn
-    import hermes_cli.kanban_db as kanban_db_module
+    from sonic_cli.kanban_db import connect, write_txn
+    import sonic_cli.kanban_db as kanban_db_module
     db = tmp_path / "test.db"
     conn = connect(db_path=db)
     # Get actual page size so we can fake a smaller file
@@ -3581,7 +3581,7 @@ def test_write_txn_raises_on_truncated_file(tmp_path):
         return max(0, real_size - page_size)
 
     with pytest.raises(sqlite3.DatabaseError, match="torn-extend|page count mismatch"):
-        with unittest.mock.patch("hermes_cli.kanban_db.os.path.getsize", side_effect=fake_getsize):
+        with unittest.mock.patch("sonic_cli.kanban_db.os.path.getsize", side_effect=fake_getsize):
             with write_txn(conn) as c:
                 c.execute(
                     "INSERT INTO tasks (id, title, assignee, status, priority, created_at) "
@@ -3592,8 +3592,8 @@ def test_write_txn_raises_on_truncated_file(tmp_path):
 
 def test_write_txn_post_commit_check_fires_every_call(tmp_path):
     """The invariant check runs on every write_txn call."""
-    from hermes_cli.kanban_db import connect, write_txn
-    import hermes_cli.kanban_db as kanban_db_module
+    from sonic_cli.kanban_db import connect, write_txn
+    import sonic_cli.kanban_db as kanban_db_module
     db = tmp_path / "test.db"
     conn = connect(db_path=db)
     call_count = 0
@@ -3617,7 +3617,7 @@ def test_write_txn_post_commit_check_fires_every_call(tmp_path):
 
 def test_connect_sets_wal_autocheckpoint_100(tmp_path):
     """connect() sets wal_autocheckpoint to 100."""
-    from hermes_cli.kanban_db import connect
+    from sonic_cli.kanban_db import connect
     db = tmp_path / "test.db"
     conn = connect(db_path=db)
     val = conn.execute("PRAGMA wal_autocheckpoint").fetchone()[0]
@@ -3628,7 +3628,7 @@ def test_connect_sets_wal_autocheckpoint_100(tmp_path):
 def test_write_txn_check_reads_correct_header_fields(tmp_path):
     """Synthetic DB file with mismatched header page_count triggers the check."""
     import struct
-    from hermes_cli.kanban_db import connect, write_txn, _check_file_length_invariant
+    from sonic_cli.kanban_db import connect, write_txn, _check_file_length_invariant
     db = tmp_path / "synthetic.db"
     conn = connect(db_path=db)
     page_size = conn.execute("PRAGMA page_size").fetchone()[0]
@@ -3672,8 +3672,8 @@ def test_reap_worker_zombies_returns_count():
             return p, 0
         return 0, 0
 
-    with patch("hermes_cli.kanban_db.os.waitpid", side_effect=fake_waitpid):
-        with patch("hermes_cli.kanban_db._record_worker_exit"):
+    with patch("sonic_cli.kanban_db.os.waitpid", side_effect=fake_waitpid):
+        with patch("sonic_cli.kanban_db._record_worker_exit"):
             pids = kb.reap_worker_zombies()
     assert pids == [12345, 67890, 11111]
 
@@ -3682,8 +3682,8 @@ def test_reap_worker_zombies_noop_on_windows(monkeypatch):
     """reap_worker_zombies() returns 0 and never calls os.waitpid on Windows."""
     from unittest.mock import patch
 
-    monkeypatch.setattr("hermes_cli.kanban_db.os.name", "nt")
-    with patch("hermes_cli.kanban_db.os.waitpid") as mock_waitpid:
+    monkeypatch.setattr("sonic_cli.kanban_db.os.name", "nt")
+    with patch("sonic_cli.kanban_db.os.waitpid") as mock_waitpid:
         result = kb.reap_worker_zombies()
     mock_waitpid.assert_not_called()
     assert result == []
@@ -3693,7 +3693,7 @@ def test_reap_worker_zombies_noop_no_children():
     """reap_worker_zombies() returns 0 without error when there are no children."""
     from unittest.mock import patch
 
-    with patch("hermes_cli.kanban_db.os.waitpid", side_effect=ChildProcessError):
+    with patch("sonic_cli.kanban_db.os.waitpid", side_effect=ChildProcessError):
         result = kb.reap_worker_zombies()
     assert result == []
 
@@ -3711,9 +3711,9 @@ def test_reap_worker_zombies_records_exit_status():
             return 12345, 0
         return 0, 0
 
-    with patch("hermes_cli.kanban_db.os.waitpid", side_effect=fake_waitpid):
+    with patch("sonic_cli.kanban_db.os.waitpid", side_effect=fake_waitpid):
         with patch(
-            "hermes_cli.kanban_db._record_worker_exit",
+            "sonic_cli.kanban_db._record_worker_exit",
             side_effect=lambda p, s: calls.append((p, s)),
         ):
             kb.reap_worker_zombies()
@@ -3725,7 +3725,7 @@ def test_reap_worker_zombies_handles_waitpid_os_error():
     """reap_worker_zombies() does not propagate generic OSError from os.waitpid."""
     from unittest.mock import patch
 
-    with patch("hermes_cli.kanban_db.os.waitpid", side_effect=OSError("test error")):
+    with patch("sonic_cli.kanban_db.os.waitpid", side_effect=OSError("test error")):
         result = kb.reap_worker_zombies()
     assert result == []
 
@@ -3742,8 +3742,8 @@ def test_zombie_reaper_runs_despite_board_connect_failure():
             return [12345, 67890][call_count[0] - 1], 0
         return 0, 0
 
-    with patch("hermes_cli.kanban_db.os.waitpid", side_effect=fake_waitpid):
-        with patch("hermes_cli.kanban_db._record_worker_exit"):
+    with patch("sonic_cli.kanban_db.os.waitpid", side_effect=fake_waitpid):
+        with patch("sonic_cli.kanban_db._record_worker_exit"):
             # Simulate a board tick failure before reaping
             try:
                 raise sqlite3.OperationalError("disk I/O error")
@@ -3778,9 +3778,9 @@ def test_zombie_reaper_survives_all_boards_failing():
     for tick in range(5):
         pids = [tick * 100 + 1, tick * 100 + 2]
         with patch(
-            "hermes_cli.kanban_db.os.waitpid", side_effect=make_fake_waitpid(pids)
+            "sonic_cli.kanban_db.os.waitpid", side_effect=make_fake_waitpid(pids)
         ):
-            with patch("hermes_cli.kanban_db._record_worker_exit"):
+            with patch("sonic_cli.kanban_db._record_worker_exit"):
                 pids = kb.reap_worker_zombies()
         total_reaped += len(pids)
 
@@ -3799,9 +3799,9 @@ def test_dispatch_once_still_reaps_via_extracted_fn(kanban_home):
             return 99999, 0
         return 0, 0
 
-    with patch("hermes_cli.kanban_db.os.waitpid", side_effect=fake_waitpid):
-        with patch("hermes_cli.kanban_db._record_worker_exit"):
-            with patch("hermes_cli.kanban_db.os.name", "posix"):
+    with patch("sonic_cli.kanban_db.os.waitpid", side_effect=fake_waitpid):
+        with patch("sonic_cli.kanban_db._record_worker_exit"):
+            with patch("sonic_cli.kanban_db.os.name", "posix"):
                 pids = kb.reap_worker_zombies()
 
     assert pids == [99999]

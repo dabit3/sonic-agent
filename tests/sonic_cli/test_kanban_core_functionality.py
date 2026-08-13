@@ -46,8 +46,8 @@ def kanban_home(tmp_path, monkeypatch):
     # multi-dispatcher reap race in production; setting it to 0 here
     # restores the pre-fix instant-reclaim semantics these tests were
     # written against. The grace-period itself is covered by dedicated
-    # tests in tests/hermes_cli/test_kanban_db.py.
-    monkeypatch.setenv("HERMES_KANBAN_CRASH_GRACE_SECONDS", "0")
+    # tests in tests/sonic_cli/test_kanban_db.py.
+    monkeypatch.setenv("SONIC_KANBAN_CRASH_GRACE_SECONDS", "0")
     kb.init_db()
     return home
 
@@ -3718,8 +3718,8 @@ def test_gateway_dispatcher_retries_corrupt_board_after_quarantine(
     import sqlite3
 
     from gateway.run import GatewayRunner
-    import hermes_cli.config as _cfg_mod
-    import hermes_cli.kanban_db as _kb
+    import sonic_cli.config as _cfg_mod
+    import sonic_cli.kanban_db as _kb
 
     runner = object.__new__(GatewayRunner)
     runner._running = True

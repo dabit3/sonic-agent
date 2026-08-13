@@ -1332,7 +1332,7 @@ def test_worker_complete_rejects_stale_run_id(worker_env, monkeypatch):
     # creates the task moments before this assertion, so the grace
     # period (default 30s) would skip the liveness check. Zero it out
     # for this test — we WANT immediate reclamation here.
-    monkeypatch.setenv("HERMES_KANBAN_CRASH_GRACE_SECONDS", "0")
+    monkeypatch.setenv("SONIC_KANBAN_CRASH_GRACE_SECONDS", "0")
 
     conn = kb.connect()
     try:

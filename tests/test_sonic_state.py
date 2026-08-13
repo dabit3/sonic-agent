@@ -3033,7 +3033,7 @@ class TestApplyWalProbe:
     def test_skips_set_pragma_when_already_wal(self, tmp_path):
         """Already-WAL connection must not trigger the set-pragma."""
         import sqlite3
-        from hermes_state import apply_wal_with_fallback
+        from sonic_state import apply_wal_with_fallback
 
         class _TracingConn(sqlite3.Connection):
             def __init__(self, *a, **kw):
@@ -3067,7 +3067,7 @@ class TestApplyWalProbe:
     def test_sets_wal_on_fresh_connection(self, tmp_path):
         """Probe sees 'delete', then set-pragma runs and returns 'wal'."""
         import sqlite3
-        from hermes_state import apply_wal_with_fallback
+        from sonic_state import apply_wal_with_fallback
 
         class _TracingConn(sqlite3.Connection):
             def __init__(self, *a, **kw):
@@ -3095,7 +3095,7 @@ class TestApplyWalProbe:
         import sys
         import threading
         import sqlite3
-        from hermes_state import apply_wal_with_fallback
+        from sonic_state import apply_wal_with_fallback
 
         db_path = tmp_path / "concurrent.db"
         errors = []
@@ -3138,7 +3138,7 @@ class TestApplyWalProbe:
     def test_fallback_to_delete_still_works(self, tmp_path):
         """When set-pragma raises a WAL-incompat error, falls back to DELETE."""
         import sqlite3
-        from hermes_state import apply_wal_with_fallback
+        from sonic_state import apply_wal_with_fallback
 
         class _IncompatConn(sqlite3.Connection):
             def __init__(self, *a, **kw):
@@ -3165,7 +3165,7 @@ class TestApplyWalProbe:
     def test_probe_failure_falls_through_to_set_pragma(self, tmp_path):
         """When the read probe raises OperationalError, fall through to set-pragma."""
         import sqlite3
-        from hermes_state import apply_wal_with_fallback
+        from sonic_state import apply_wal_with_fallback
 
         class _ProbeFails(sqlite3.Connection):
             def __init__(self, *a, **kw):
@@ -3192,7 +3192,7 @@ class TestApplyWalProbe:
         """OperationalError NOT in _WAL_INCOMPAT_MARKERS must propagate, not downgrade."""
         import sqlite3
         import pytest
-        from hermes_state import apply_wal_with_fallback
+        from sonic_state import apply_wal_with_fallback
 
         class _EIOConn(sqlite3.Connection):
             def __init__(self, *a, **kw):
@@ -3218,7 +3218,7 @@ class TestApplyWalProbe:
     def test_returns_wal_not_delete_from_probe(self, tmp_path):
         """Early-return only on 'wal'; 'delete' or 'memory' must fall through to set-pragma."""
         import sqlite3
-        from hermes_state import apply_wal_with_fallback
+        from sonic_state import apply_wal_with_fallback
 
         class _TracingConn(sqlite3.Connection):
             def __init__(self, *a, **kw):

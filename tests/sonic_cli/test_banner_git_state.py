@@ -67,15 +67,15 @@ def test_get_git_banner_state_falls_back_to_build_sha_when_no_repo():
     """Docker image case: no .git checkout — baked build SHA fills the gap.
 
     ``_resolve_repo_dir`` returns None when neither the running code's
-    parent nor ``$HERMES_HOME/hermes-agent/`` is a git repo (the canonical
+    parent nor ``$SONIC_HOME/sonic-agent/`` is a git repo (the canonical
     case inside the published container, where .git is dockerignored).
     The banner should still report the build SHA so support bug reports
     can identify the running commit.
     """
-    from hermes_cli import banner
+    from sonic_cli import banner
 
     with patch.object(banner, "_resolve_repo_dir", return_value=None), \
-         patch("hermes_cli.build_info.get_build_sha", return_value="abcdef12"):
+         patch("sonic_cli.build_info.get_build_sha", return_value="abcdef12"):
         state = banner.get_git_banner_state()
 
     assert state == {"upstream": "abcdef12", "local": "abcdef12", "ahead": 0}
@@ -86,10 +86,10 @@ def test_get_git_banner_state_returns_none_when_no_repo_and_no_build_sha():
 
     Banner correctly omits the upstream/local suffix in this case.
     """
-    from hermes_cli import banner
+    from sonic_cli import banner
 
     with patch.object(banner, "_resolve_repo_dir", return_value=None), \
-         patch("hermes_cli.build_info.get_build_sha", return_value=None):
+         patch("sonic_cli.build_info.get_build_sha", return_value=None):
         state = banner.get_git_banner_state()
 
     assert state is None
@@ -102,15 +102,15 @@ def test_get_git_banner_state_falls_back_when_live_git_returns_nothing(tmp_path)
     a ``.git`` directory but ``git rev-parse origin/main`` fails.  When that
     happens AND a baked SHA exists, return the baked one instead of None.
     """
-    from hermes_cli import banner
+    from sonic_cli import banner
 
     repo_dir = tmp_path / "repo"
     (repo_dir / ".git").mkdir(parents=True)
 
     # All git invocations fail (returncode=1, empty stdout).
     failed = MagicMock(returncode=1, stdout="")
-    with patch("hermes_cli.banner.subprocess.run", return_value=failed), \
-         patch("hermes_cli.build_info.get_build_sha", return_value="cafef00d"):
+    with patch("sonic_cli.banner.subprocess.run", return_value=failed), \
+         patch("sonic_cli.build_info.get_build_sha", return_value="cafef00d"):
         state = banner.get_git_banner_state(repo_dir)
 
     assert state == {"upstream": "cafef00d", "local": "cafef00d", "ahead": 0}

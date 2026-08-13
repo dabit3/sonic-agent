@@ -261,7 +261,7 @@ async def host_header_middleware(request: Request, call_next):
 
 @app.middleware("http")
 async def _dashboard_auth_gate(request: Request, call_next):
-    from hermes_cli.dashboard_auth.middleware import gated_auth_middleware
+    from sonic_cli.dashboard_auth.middleware import gated_auth_middleware
     return await gated_auth_middleware(request, call_next)
 
 
@@ -654,13 +654,13 @@ async def get_status():
         pass
 
     # Dashboard auth gate (Phase 7): surface whether the gate is engaged
-    # and which providers are registered so ``hermes status`` and the
+    # and which providers are registered so ``sonic status`` and the
     # SPA's StatusPage can show "OAuth gate ON via Nous Research" or
     # "loopback only — no auth gate" with no extra round trips.
     auth_required = bool(getattr(app.state, "auth_required", False))
     auth_providers: list[str] = []
     try:
-        from hermes_cli.dashboard_auth import list_providers as _list_providers
+        from sonic_cli.dashboard_auth import list_providers as _list_providers
         auth_providers = [p.name for p in _list_providers()]
     except Exception:
         # Module not importable yet (early startup) — leave as [].
@@ -3451,8 +3451,8 @@ def _ws_auth_ok(ws: "WebSocket") -> bool:
             return False
         # Lazy import — keeps this function importable in test harnesses
         # that don't bring in the dashboard_auth layer.
-        from hermes_cli.dashboard_auth.audit import AuditEvent, audit_log
-        from hermes_cli.dashboard_auth.ws_tickets import (
+        from sonic_cli.dashboard_auth.audit import AuditEvent, audit_log
+        from sonic_cli.dashboard_auth.ws_tickets import (
             TicketInvalid,
             consume_ticket,
         )
@@ -3551,7 +3551,7 @@ def _build_sidecar_url(channel: str) -> Optional[str]:
 
     if getattr(app.state, "auth_required", False):
         # Gated mode — mint a ticket so the WS upgrade survives _ws_auth_ok.
-        from hermes_cli.dashboard_auth.ws_tickets import mint_ticket
+        from sonic_cli.dashboard_auth.ws_tickets import mint_ticket
 
         ticket = mint_ticket(user_id="pty-sidecar", provider="server-internal")
         qs = urllib.parse.urlencode({"ticket": ticket, "channel": channel})
@@ -3811,7 +3811,7 @@ def _normalise_prefix(raw: Optional[str]) -> str:
     the gate middleware, the OAuth routes, the cookie helpers, and the
     SPA mount all agree on validation rules.
     """
-    from hermes_cli.dashboard_auth.prefix import normalise_prefix
+    from sonic_cli.dashboard_auth.prefix import normalise_prefix
     return normalise_prefix(raw)
 
 
@@ -3849,7 +3849,7 @@ def mount_spa(application: FastAPI):
         When the OAuth auth gate is active (``app.state.auth_required``),
         the legacy ``_SESSION_TOKEN`` is NOT injected — the SPA reads
         identity from ``/api/auth/me`` over cookie auth instead.  The
-        ``__HERMES_AUTH_REQUIRED__`` flag lets the SPA pick the right
+        ``__SONIC_AUTH_REQUIRED__`` flag lets the SPA pick the right
         auth scheme for /api/pty and /api/ws (ticket vs token).
         """
         html = _index_path.read_text()
@@ -4819,7 +4819,7 @@ _mount_plugin_api_routes()
 # SPA catch-all so /{full_path:path} doesn't swallow them.  These are
 # always mounted — the gate middleware decides whether to enforce auth,
 # not whether the routes exist.
-from hermes_cli.dashboard_auth.routes import router as _dashboard_auth_router  # noqa: E402
+from sonic_cli.dashboard_auth.routes import router as _dashboard_auth_router  # noqa: E402
 app.include_router(_dashboard_auth_router)
 
 mount_spa(app)
@@ -4849,11 +4849,11 @@ def start_server(
         # Phase 3.5: the gate engages on non-loopback binds.  The legacy
         # "refusing to bind" guard is replaced by "require at least one
         # provider to be registered, else fail closed".
-        from hermes_cli.dashboard_auth import list_providers
+        from sonic_cli.dashboard_auth import list_providers
         if not list_providers():
             # Surface the *specific* reason any bundled provider declined
-            # to register (e.g. missing HERMES_DASHBOARD_OAUTH_CLIENT_ID).
-            # Each provider plugin that ships with Hermes Agent exposes a
+            # to register (e.g. missing SONIC_DASHBOARD_OAUTH_CLIENT_ID).
+            # Each provider plugin that ships with Sonic Agent exposes a
             # module-level ``LAST_SKIP_REASON`` string for this purpose;
             # without it the operator would only see "no providers" which
             # is misleading when the provider IS installed but unconfigured.

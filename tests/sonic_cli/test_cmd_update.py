@@ -116,7 +116,7 @@ class TestCmdUpdateBranchFallback:
         "Already up to date!" — otherwise a fork that's caught up to its own
         origin but behind NousResearch/hermes-agent silently misses updates.
         """
-        from hermes_cli import main as hm
+        from sonic_cli import main as hm
 
         mock_run.side_effect = _make_run_side_effect(
             branch="main", verify_ok=True, commit_count="0"
@@ -125,7 +125,7 @@ class TestCmdUpdateBranchFallback:
         with patch.object(
             hm,
             "_get_origin_url",
-            return_value="https://github.com/example/hermes-agent.git",
+            return_value="https://github.com/example/sonic-agent.git",
         ), patch.object(hm, "_sync_with_upstream_if_needed") as sync_mock:
             cmd_update(mock_args)
 

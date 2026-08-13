@@ -108,7 +108,7 @@ def test_ttfb_includes_silent_hang_hint_for_gpt_5_5(tmp_path, monkeypatch):
     from agent import chat_completion_helpers as h
 
     agent = _make_codex_agent(tmp_path, monkeypatch)
-    monkeypatch.setenv("HERMES_CODEX_TTFB_TIMEOUT_SECONDS", "1")
+    monkeypatch.setenv("SONIC_CODEX_TTFB_TIMEOUT_SECONDS", "1")
 
     closes: list = []
     statuses: list[str] = []
@@ -154,8 +154,8 @@ def test_ttfb_high_env_is_capped_for_openai_codex(tmp_path, monkeypatch):
     from agent import chat_completion_helpers as h
 
     agent = _make_codex_agent(tmp_path, monkeypatch)
-    monkeypatch.setenv("HERMES_CODEX_TTFB_TIMEOUT_SECONDS", "90")
-    monkeypatch.setenv("HERMES_CODEX_TTFB_MAX_SECONDS", "1")
+    monkeypatch.setenv("SONIC_CODEX_TTFB_TIMEOUT_SECONDS", "90")
+    monkeypatch.setenv("SONIC_CODEX_TTFB_MAX_SECONDS", "1")
 
     closes: list = []
     dummy_client = SimpleNamespace()
@@ -236,8 +236,8 @@ def test_event_idle_kills_after_first_event_then_silence(tmp_path, monkeypatch):
     from agent import chat_completion_helpers as h
 
     agent = _make_codex_agent(tmp_path, monkeypatch)
-    monkeypatch.setenv("HERMES_CODEX_TTFB_TIMEOUT_SECONDS", "10")
-    monkeypatch.setenv("HERMES_CODEX_EVENT_STALE_TIMEOUT_SECONDS", "1")
+    monkeypatch.setenv("SONIC_CODEX_TTFB_TIMEOUT_SECONDS", "10")
+    monkeypatch.setenv("SONIC_CODEX_EVENT_STALE_TIMEOUT_SECONDS", "1")
 
     closes: list = []
     dummy_client = SimpleNamespace()
@@ -316,7 +316,7 @@ def test_large_codex_request_waits_instead_of_ttfb_reconnect(tmp_path, monkeypat
     from agent import chat_completion_helpers as h
 
     agent = _make_codex_agent(tmp_path, monkeypatch)
-    monkeypatch.setenv("HERMES_CODEX_TTFB_TIMEOUT_SECONDS", "1")
+    monkeypatch.setenv("SONIC_CODEX_TTFB_TIMEOUT_SECONDS", "1")
 
     closes: list = []
     dummy_client = SimpleNamespace()
@@ -346,12 +346,12 @@ def test_large_codex_request_waits_instead_of_ttfb_reconnect(tmp_path, monkeypat
 
 def test_large_codex_request_strict_ttfb_env_still_reconnects(tmp_path, monkeypatch):
     """Operators can force the old early-reconnect behavior for large inputs
-    with HERMES_CODEX_TTFB_STRICT=1."""
+    with SONIC_CODEX_TTFB_STRICT=1."""
     from agent import chat_completion_helpers as h
 
     agent = _make_codex_agent(tmp_path, monkeypatch)
-    monkeypatch.setenv("HERMES_CODEX_TTFB_TIMEOUT_SECONDS", "1")
-    monkeypatch.setenv("HERMES_CODEX_TTFB_STRICT", "1")
+    monkeypatch.setenv("SONIC_CODEX_TTFB_TIMEOUT_SECONDS", "1")
+    monkeypatch.setenv("SONIC_CODEX_TTFB_STRICT", "1")
 
     closes: list = []
     dummy_client = SimpleNamespace()

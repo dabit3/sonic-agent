@@ -1,12 +1,12 @@
 """Helpers for X-Forwarded-Prefix support.
 
 Mission-control style deploys reverse-proxy the dashboard at a path
-prefix (e.g. ``mission-control.tilos.com/hermes/*`` -> dashboard on
-:9119), injecting ``X-Forwarded-Prefix: /hermes`` so the backend can
+prefix (e.g. ``mission-control.tilos.com/sonic/*`` -> dashboard on
+:9119), injecting ``X-Forwarded-Prefix: /sonic`` so the backend can
 reconstruct prefixed URLs (Location: headers, OAuth redirect_uri,
 cookie Path attributes, SPA asset URLs).
 
-This module is also the home of the ``HERMES_DASHBOARD_PUBLIC_URL`` /
+This module is also the home of the ``SONIC_DASHBOARD_PUBLIC_URL`` /
 ``dashboard.public_url`` resolution — when the operator declares a
 complete public URL (scheme + host + optional path prefix), we use
 that directly for the OAuth ``redirect_uri`` and skip the
@@ -35,7 +35,7 @@ _REJECT_CHARS = frozenset(('"', "'", "<", ">", " ", "\n", "\r", "\t"))
 def normalise_prefix(raw: Optional[str]) -> str:
     """Normalise an X-Forwarded-Prefix header value.
 
-    Returns a string like ``"/hermes"`` (no trailing slash) or ``""``
+    Returns a string like ``"/sonic"`` (no trailing slash) or ``""``
     when no prefix is set / the header is malformed. We deliberately
     reject anything containing ``..`` or non-printable bytes so a
     hostile proxy can't inject HTML or path-traversal sequences via the
@@ -68,7 +68,7 @@ def prefix_from_request(request) -> str:
 
 
 # ---------------------------------------------------------------------------
-# HERMES_DASHBOARD_PUBLIC_URL / dashboard.public_url
+# SONIC_DASHBOARD_PUBLIC_URL / dashboard.public_url
 # ---------------------------------------------------------------------------
 
 
@@ -116,7 +116,7 @@ def _load_dashboard_section() -> dict:
     ``.get(...)`` access.
     """
     try:
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
     except Exception:
         return {}
     try:
@@ -137,7 +137,7 @@ def resolve_public_url() -> str:
 
     Precedence (mirrors ``dashboard.oauth.client_id``):
 
-      1. ``HERMES_DASHBOARD_PUBLIC_URL`` env var (when non-empty after
+      1. ``SONIC_DASHBOARD_PUBLIC_URL`` env var (when non-empty after
          strip — empty values are treated as unset so a provisioned-but-
          not-populated Fly secret can't shadow a valid config.yaml entry).
       2. ``dashboard.public_url`` in ``config.yaml``.
@@ -149,7 +149,7 @@ def resolve_public_url() -> str:
     malformed config entry falls through to ``""``. This means a typo
     in one surface doesn't prevent the other from working.
     """
-    env_raw = os.environ.get("HERMES_DASHBOARD_PUBLIC_URL", "")
+    env_raw = os.environ.get("SONIC_DASHBOARD_PUBLIC_URL", "")
     env_clean = _normalise_public_url(env_raw)
     if env_clean:
         return env_clean

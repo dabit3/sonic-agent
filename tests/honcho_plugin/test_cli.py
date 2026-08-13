@@ -183,7 +183,7 @@ class TestCloneHonchoForProfile:
         cfg = {
             "apiKey": "***",
             "hosts": {
-                "hermes": {
+                "sonic": {
                     "userPeerAliases": {"86701400": "eri", "discord-491827364": "eri"},
                     "peerName": "eri",
                 },
@@ -192,14 +192,14 @@ class TestCloneHonchoForProfile:
         honcho_cli, written = self._setup_clone_env(monkeypatch, tmp_path, cfg)
         ok = honcho_cli.clone_honcho_for_profile("coder")
         assert ok is True
-        new_block = written["cfg"]["hosts"]["hermes.coder"]
+        new_block = written["cfg"]["hosts"]["sonic.coder"]
         assert new_block["userPeerAliases"] == {"86701400": "eri", "discord-491827364": "eri"}
 
     def test_runtime_peer_prefix_carries_into_cloned_profile(self, monkeypatch, tmp_path):
         cfg = {
             "apiKey": "***",
             "hosts": {
-                "hermes": {
+                "sonic": {
                     "runtimePeerPrefix": "telegram_",
                     "peerName": "eri",
                 },
@@ -208,14 +208,14 @@ class TestCloneHonchoForProfile:
         honcho_cli, written = self._setup_clone_env(monkeypatch, tmp_path, cfg)
         ok = honcho_cli.clone_honcho_for_profile("coder")
         assert ok is True
-        new_block = written["cfg"]["hosts"]["hermes.coder"]
+        new_block = written["cfg"]["hosts"]["sonic.coder"]
         assert new_block["runtimePeerPrefix"] == "telegram_"
 
     def test_pin_peer_name_carries_into_cloned_profile(self, monkeypatch, tmp_path):
         cfg = {
             "apiKey": "***",
             "hosts": {
-                "hermes": {
+                "sonic": {
                     "pinPeerName": True,
                     "peerName": "eri",
                 },
@@ -224,18 +224,18 @@ class TestCloneHonchoForProfile:
         honcho_cli, written = self._setup_clone_env(monkeypatch, tmp_path, cfg)
         ok = honcho_cli.clone_honcho_for_profile("coder")
         assert ok is True
-        new_block = written["cfg"]["hosts"]["hermes.coder"]
+        new_block = written["cfg"]["hosts"]["sonic.coder"]
         assert new_block["pinPeerName"] is True
 
     def test_unset_identity_keys_do_not_appear_in_cloned_profile(self, monkeypatch, tmp_path):
         cfg = {
             "apiKey": "***",
-            "hosts": {"hermes": {"peerName": "eri"}},
+            "hosts": {"sonic": {"peerName": "eri"}},
         }
         honcho_cli, written = self._setup_clone_env(monkeypatch, tmp_path, cfg)
         ok = honcho_cli.clone_honcho_for_profile("coder")
         assert ok is True
-        new_block = written["cfg"]["hosts"]["hermes.coder"]
+        new_block = written["cfg"]["hosts"]["sonic.coder"]
         assert "userPeerAliases" not in new_block
         assert "runtimePeerPrefix" not in new_block
         assert "pinPeerName" not in new_block
@@ -250,7 +250,7 @@ class TestSetupWizardDeploymentShape:
     Hybrid deployments alias the operator's own runtime IDs only.
 
     These tests script the interactive _prompt calls and assert the
-    resulting hermes_host block, so the wizard's deployment-shape
+    resulting sonic_host block, so the wizard's deployment-shape
     semantics stay locked even as adjacent prompts are added.
     """
 
@@ -264,22 +264,22 @@ class TestSetupWizardDeploymentShape:
         monkeypatch.setattr(honcho_cli, "_read_config", lambda: cfg)
         monkeypatch.setattr(honcho_cli, "_config_path", lambda: cfg_path)
         monkeypatch.setattr(honcho_cli, "_local_config_path", lambda: cfg_path)
-        monkeypatch.setattr(honcho_cli, "_host_key", lambda: "hermes")
+        monkeypatch.setattr(honcho_cli, "_host_key", lambda: "sonic")
         monkeypatch.setattr(honcho_cli, "_ensure_sdk_installed", lambda: True)
         monkeypatch.setattr(honcho_cli, "_write_config", lambda *a, **k: None)
 
         # Bypass config.yaml + connection test side effects.
         monkeypatch.setattr(
-            "hermes_cli.config.load_config", lambda: {"memory": {}}, raising=False,
+            "sonic_cli.config.load_config", lambda: {"memory": {}}, raising=False,
         )
         monkeypatch.setattr(
-            "hermes_cli.config.save_config", lambda c: None, raising=False,
+            "sonic_cli.config.save_config", lambda c: None, raising=False,
         )
 
         class _FakeClientCfg:
             def resolve_session_name(self):
-                return "hermes-test"
-            workspace_id = "hermes"
+                return "sonic-test"
+            workspace_id = "sonic"
             peer_name = "eri"
             ai_peer = "hermetika"
             observation_mode = "directional"
@@ -310,7 +310,7 @@ class TestSetupWizardDeploymentShape:
         monkeypatch.setattr(honcho_cli, "_prompt", _scripted_prompt)
 
         honcho_cli.cmd_setup(SimpleNamespace())
-        return cfg["hosts"]["hermes"]
+        return cfg["hosts"]["sonic"]
 
     def test_single_shape_sets_pin_peer_name_and_clears_aliases(self, monkeypatch, tmp_path):
         answers = [
@@ -318,13 +318,13 @@ class TestSetupWizardDeploymentShape:
             "",                # api key (keep)
             "eri",             # peer name
             "hermetika",       # ai peer
-            "hermes",          # workspace
+            "sonic",          # workspace
             "single",          # deployment shape ← key answer
             # remaining prompts fall through to defaults
         ]
         initial_cfg = {
             "apiKey": "***",
-            "hosts": {"hermes": {
+            "hosts": {"sonic": {
                 "userPeerAliases": {"old": "stale"},
                 "runtimePeerPrefix": "old_",
             }},
@@ -340,7 +340,7 @@ class TestSetupWizardDeploymentShape:
             "",                # api key (keep)
             "eri",             # peer name
             "hermetika",       # ai peer
-            "hermes",          # workspace
+            "sonic",          # workspace
             "multi",           # deployment shape
             "telegram_",       # runtime peer prefix
         ]
@@ -358,7 +358,7 @@ class TestSetupWizardDeploymentShape:
             "",                # api key (keep)
             "eri",             # peer name
             "hermetika",       # ai peer
-            "hermes",          # workspace
+            "sonic",          # workspace
             "hybrid",          # deployment shape
             "86701400",        # telegram uid
             "491827364",       # discord snowflake
@@ -377,14 +377,14 @@ class TestSetupWizardDeploymentShape:
     def test_skip_shape_preserves_existing_identity_config(self, monkeypatch, tmp_path):
         initial_cfg = {
             "apiKey": "***",
-            "hosts": {"hermes": {
+            "hosts": {"sonic": {
                 "pinPeerName": True,
                 "userPeerAliases": {"keep": "me"},
                 "runtimePeerPrefix": "keep_",
             }},
         }
         answers = [
-            "cloud", "", "eri", "hermetika", "hermes", "skip",
+            "cloud", "", "eri", "hermetika", "sonic", "skip",
         ]
         host = self._run_setup(monkeypatch, tmp_path, answers=answers, initial_cfg=initial_cfg)
         assert host["pinPeerName"] is True
@@ -398,14 +398,14 @@ class TestSetupWizardDeploymentShape:
         """
         initial_cfg = {
             "apiKey": "***",
-            "hosts": {"hermes": {"pinPeerName": True, "peerName": "eri"}},
+            "hosts": {"sonic": {"pinPeerName": True, "peerName": "eri"}},
         }
         answers = [
             "cloud",           # deployment
             "",                # api key (keep)
             "eri",             # peer name
             "hermetika",       # ai peer
-            "hermes",          # workspace
+            "sonic",          # workspace
             "multi",           # deployment shape — triggers the guard
             "hybrid",          # guard response: accept the steer
             "86701400",        # telegram uid
@@ -424,10 +424,10 @@ class TestSetupWizardDeploymentShape:
         """
         initial_cfg = {
             "apiKey": "***",
-            "hosts": {"hermes": {"pinPeerName": True, "peerName": "eri"}},
+            "hosts": {"sonic": {"pinPeerName": True, "peerName": "eri"}},
         }
         answers = [
-            "cloud", "", "eri", "hermetika", "hermes",
+            "cloud", "", "eri", "hermetika", "sonic",
             "multi",           # deployment shape — triggers the guard
             "yes",             # guard response: confirm multi
             "telegram_",       # runtime peer prefix
@@ -448,13 +448,13 @@ class TestSetupWizardDeploymentShape:
         """
         initial_cfg = {
             "apiKey": "***",
-            "hosts": {"hermes": {"pinUserPeer": True, "peerName": "eri"}},
+            "hosts": {"sonic": {"pinUserPeer": True, "peerName": "eri"}},
         }
         # Exhaust the iterator before the shape prompt so the scripted
         # mock falls through to the prompt's default (which is the
         # wizard-detected shape).  Scripting an explicit "" would NOT
         # exercise that fallthrough — the mock returns it literally.
-        answers = ["cloud", "", "eri", "hermetika", "hermes"]
+        answers = ["cloud", "", "eri", "hermetika", "sonic"]
         host = self._run_setup(monkeypatch, tmp_path, answers=answers, initial_cfg=initial_cfg)
         # Scrub-then-write normalises onto pinPeerName and drops the alias
         # so resolver precedence can't reintroduce ambiguity.
@@ -471,13 +471,13 @@ class TestSetupWizardDeploymentShape:
         """
         initial_cfg = {
             "apiKey": "***",
-            "hosts": {"hermes": {
+            "hosts": {"sonic": {
                 "pinUserPeer": False,
                 "pinPeerName": True,
                 "peerName": "eri",
             }},
         }
-        answers = ["cloud", "", "eri", "hermetika", "hermes"]
+        answers = ["cloud", "", "eri", "hermetika", "sonic"]
         host = self._run_setup(monkeypatch, tmp_path, answers=answers, initial_cfg=initial_cfg)
         assert host["pinPeerName"] is False
         assert "pinUserPeer" not in host
@@ -489,9 +489,9 @@ class TestSetupWizardDeploymentShape:
         initial_cfg = {
             "apiKey": "***",
             "userPeerAliases": {"86701400": "eri"},
-            "hosts": {"hermes": {"peerName": "eri"}},
+            "hosts": {"sonic": {"peerName": "eri"}},
         }
-        answers = ["cloud", "", "eri", "hermetika", "hermes"]
+        answers = ["cloud", "", "eri", "hermetika", "sonic"]
         host = self._run_setup(monkeypatch, tmp_path, answers=answers, initial_cfg=initial_cfg)
         assert host["pinPeerName"] is False
         # Hybrid materialises the root aliases into the host so subsequent
@@ -513,10 +513,10 @@ class TestSetupWizardDeploymentShape:
         initial_cfg = {
             "apiKey": "***",
             "userPeerAliases": {"baseline": "eri"},
-            "hosts": {"hermes": {"peerName": "eri"}},
+            "hosts": {"sonic": {"peerName": "eri"}},
         }
         answers = [
-            "cloud", "", "eri", "hermetika", "hermes",
+            "cloud", "", "eri", "hermetika", "sonic",
             "multi",           # explicit multi override of detected hybrid
         ]
         host = self._run_setup(monkeypatch, tmp_path, answers=answers, initial_cfg=initial_cfg)
@@ -531,13 +531,13 @@ class TestSetupWizardDeploymentShape:
         """
         initial_cfg = {
             "apiKey": "***",
-            "hosts": {"hermes": {
+            "hosts": {"sonic": {
                 "pinUserPeer": False,
                 "peerName": "eri",
             }},
         }
         answers = [
-            "cloud", "", "eri", "hermetika", "hermes",
+            "cloud", "", "eri", "hermetika", "sonic",
             "single",
         ]
         host = self._run_setup(monkeypatch, tmp_path, answers=answers, initial_cfg=initial_cfg)
@@ -557,7 +557,7 @@ class TestCloneCarriesPinUserPeer:
 
         cfg = {
             "apiKey": "***",
-            "hosts": {"hermes": {"pinUserPeer": True, "peerName": "eri"}},
+            "hosts": {"sonic": {"pinUserPeer": True, "peerName": "eri"}},
         }
         cfg_path = tmp_path / "config.json"
         cfg_path.write_text("{}")
@@ -572,5 +572,5 @@ class TestCloneCarriesPinUserPeer:
 
         ok = honcho_cli.clone_honcho_for_profile("partner")
         assert ok is True
-        new_block = written["cfg"]["hosts"]["hermes.partner"]
+        new_block = written["cfg"]["hosts"]["sonic.partner"]
         assert new_block["pinUserPeer"] is True

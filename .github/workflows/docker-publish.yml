@@ -72,7 +72,7 @@ jobs:
           platforms: linux/amd64
           tags: ${{ env.IMAGE_NAME }}:test
           build-args: |
-            HERMES_GIT_SHA=${{ github.sha }}
+            SONIC_GIT_SHA=${{ github.sha }}
           cache-from: type=gha,scope=docker-amd64
           cache-to: type=gha,mode=max,scope=docker-amd64
 
@@ -152,7 +152,7 @@ jobs:
           labels: |
             org.opencontainers.image.revision=${{ github.sha }}
           build-args: |
-            HERMES_GIT_SHA=${{ github.sha }}
+            SONIC_GIT_SHA=${{ github.sha }}
           outputs: type=image,name=${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha,scope=docker-amd64
           cache-to: type=gha,mode=max,scope=docker-amd64
@@ -208,7 +208,7 @@ jobs:
           platforms: linux/arm64
           tags: ${{ env.IMAGE_NAME }}:test
           build-args: |
-            HERMES_GIT_SHA=${{ github.sha }}
+            SONIC_GIT_SHA=${{ github.sha }}
           cache-from: type=gha,scope=docker-arm64
           cache-to: type=gha,mode=max,scope=docker-arm64
 
@@ -235,7 +235,7 @@ jobs:
           labels: |
             org.opencontainers.image.revision=${{ github.sha }}
           build-args: |
-            HERMES_GIT_SHA=${{ github.sha }}
+            SONIC_GIT_SHA=${{ github.sha }}
           outputs: type=image,name=${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha,scope=docker-arm64
           cache-to: type=gha,mode=max,scope=docker-arm64

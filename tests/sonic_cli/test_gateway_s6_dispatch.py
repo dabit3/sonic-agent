@@ -353,11 +353,11 @@ def _stub_s6(monkeypatch: pytest.MonkeyPatch, *, on_s6: bool) -> _CallRecorder:
     fire (on_s6=True) or return False (on_s6=False)."""
     rec = _CallRecorder()
     monkeypatch.setattr(
-        "hermes_cli.service_manager.detect_service_manager",
+        "sonic_cli.service_manager.detect_service_manager",
         lambda: "s6" if on_s6 else "systemd",
     )
     monkeypatch.setattr(
-        "hermes_cli.service_manager.get_service_manager", lambda: rec,
+        "sonic_cli.service_manager.get_service_manager", lambda: rec,
     )
     return rec
 
@@ -380,23 +380,23 @@ def _stub_execvp(monkeypatch: pytest.MonkeyPatch) -> list[list[str]]:
         calls.append([file, *args])
         raise _ExecvpCalled([file, *args])
 
-    monkeypatch.setattr("hermes_cli.gateway.os.execvp", fake_execvp)
+    monkeypatch.setattr("sonic_cli.gateway.os.execvp", fake_execvp)
     return calls
 
 
 def test_redirect_noop_on_host(monkeypatch: pytest.MonkeyPatch) -> None:
     """Host runs (non-s6) must not redirect. Returns False; caller
     continues to the foreground gateway code path unchanged."""
-    from hermes_cli import gateway as gw
+    from sonic_cli import gateway as gw
 
     _stub_s6(monkeypatch, on_s6=False)
     # If execvp got called we'd raise — keep it bound so test fails loudly.
     monkeypatch.setattr(
-        "hermes_cli.gateway.os.execvp",
+        "sonic_cli.gateway.os.execvp",
         lambda *a, **kw: pytest.fail("execvp should not be called on host"),
     )
-    monkeypatch.delenv("HERMES_S6_SUPERVISED_CHILD", raising=False)
-    monkeypatch.delenv("HERMES_GATEWAY_NO_SUPERVISE", raising=False)
+    monkeypatch.delenv("SONIC_S6_SUPERVISED_CHILD", raising=False)
+    monkeypatch.delenv("SONIC_GATEWAY_NO_SUPERVISE", raising=False)
 
     assert gw._maybe_redirect_run_to_s6_supervision(_Args()) is False
 
@@ -411,13 +411,13 @@ def test_redirect_fires_inside_s6_container(
     3. exec `sleep infinity` to keep the CMD alive without binding
        container lifetime to gateway PID lifetime.
     """
-    from hermes_cli import gateway as gw
+    from sonic_cli import gateway as gw
 
     rec = _stub_s6(monkeypatch, on_s6=True)
-    monkeypatch.setattr("hermes_cli.gateway._profile_suffix", lambda: "")
+    monkeypatch.setattr("sonic_cli.gateway._profile_suffix", lambda: "")
     execvp_calls = _stub_execvp(monkeypatch)
-    monkeypatch.delenv("HERMES_S6_SUPERVISED_CHILD", raising=False)
-    monkeypatch.delenv("HERMES_GATEWAY_NO_SUPERVISE", raising=False)
+    monkeypatch.delenv("SONIC_S6_SUPERVISED_CHILD", raising=False)
+    monkeypatch.delenv("SONIC_GATEWAY_NO_SUPERVISE", raising=False)
 
     with pytest.raises(_ExecvpCalled) as excinfo:
         gw._maybe_redirect_run_to_s6_supervision(_Args())
@@ -428,7 +428,7 @@ def test_redirect_fires_inside_s6_container(
     err = capsys.readouterr().err
     assert "s6 supervision" in err
     assert "--no-supervise" in err
-    assert "HERMES_GATEWAY_NO_SUPERVISE" in err
+    assert "SONIC_GATEWAY_NO_SUPERVISE" in err
     # 3. exec'd `sleep infinity`.
     assert execvp_calls == [["sleep", "sleep", "infinity"]]
     assert excinfo.value.argv == ["sleep", "sleep", "infinity"]
@@ -438,24 +438,24 @@ def test_redirect_short_circuits_supervised_child(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """The recursion guard: when the supervised gateway s6-supervise is
-    running execs `hermes gateway run --replace`, the
-    HERMES_S6_SUPERVISED_CHILD sentinel must short-circuit the redirect
+    running execs `sonic gateway run --replace`, the
+    SONIC_S6_SUPERVISED_CHILD sentinel must short-circuit the redirect
     so the gateway actually starts foreground. Without this guard the
     supervised process would re-dispatch `start` → re-exec `run` → ...
     in an infinite loop.
     """
-    from hermes_cli import gateway as gw
+    from sonic_cli import gateway as gw
 
     monkeypatch.setattr(
-        "hermes_cli.service_manager.detect_service_manager",
+        "sonic_cli.service_manager.detect_service_manager",
         lambda: pytest.fail("dispatcher should not run when sentinel is set"),
     )
     monkeypatch.setattr(
-        "hermes_cli.gateway.os.execvp",
+        "sonic_cli.gateway.os.execvp",
         lambda *a, **kw: pytest.fail("execvp should not run when sentinel is set"),
     )
-    monkeypatch.setenv("HERMES_S6_SUPERVISED_CHILD", "1")
-    monkeypatch.delenv("HERMES_GATEWAY_NO_SUPERVISE", raising=False)
+    monkeypatch.setenv("SONIC_S6_SUPERVISED_CHILD", "1")
+    monkeypatch.delenv("SONIC_GATEWAY_NO_SUPERVISE", raising=False)
 
     assert gw._maybe_redirect_run_to_s6_supervision(_Args()) is False
 
@@ -465,18 +465,18 @@ def test_redirect_respects_no_supervise_flag(
 ) -> None:
     """`--no-supervise` (CLI flag) must skip the redirect even inside
     an s6 container, restoring pre-s6 foreground semantics."""
-    from hermes_cli import gateway as gw
+    from sonic_cli import gateway as gw
 
     monkeypatch.setattr(
-        "hermes_cli.service_manager.detect_service_manager",
+        "sonic_cli.service_manager.detect_service_manager",
         lambda: pytest.fail("dispatcher should not run when --no-supervise is set"),
     )
     monkeypatch.setattr(
-        "hermes_cli.gateway.os.execvp",
+        "sonic_cli.gateway.os.execvp",
         lambda *a, **kw: pytest.fail("execvp should not run when --no-supervise is set"),
     )
-    monkeypatch.delenv("HERMES_S6_SUPERVISED_CHILD", raising=False)
-    monkeypatch.delenv("HERMES_GATEWAY_NO_SUPERVISE", raising=False)
+    monkeypatch.delenv("SONIC_S6_SUPERVISED_CHILD", raising=False)
+    monkeypatch.delenv("SONIC_GATEWAY_NO_SUPERVISE", raising=False)
 
     assert gw._maybe_redirect_run_to_s6_supervision(_Args(no_supervise=True)) is False
 
@@ -485,23 +485,23 @@ def test_redirect_respects_no_supervise_flag(
 def test_redirect_respects_no_supervise_env(
     monkeypatch: pytest.MonkeyPatch, value: str,
 ) -> None:
-    """`HERMES_GATEWAY_NO_SUPERVISE=1` (env var) must skip the redirect.
+    """`SONIC_GATEWAY_NO_SUPERVISE=1` (env var) must skip the redirect.
 
     Truthiness mirrors the dashboard service's own env var parsing —
     1/true/yes are all accepted, case-insensitively.
     """
-    from hermes_cli import gateway as gw
+    from sonic_cli import gateway as gw
 
     monkeypatch.setattr(
-        "hermes_cli.service_manager.detect_service_manager",
+        "sonic_cli.service_manager.detect_service_manager",
         lambda: pytest.fail("dispatcher should not run when env opt-out is set"),
     )
     monkeypatch.setattr(
-        "hermes_cli.gateway.os.execvp",
+        "sonic_cli.gateway.os.execvp",
         lambda *a, **kw: pytest.fail("execvp should not run when env opt-out is set"),
     )
-    monkeypatch.delenv("HERMES_S6_SUPERVISED_CHILD", raising=False)
-    monkeypatch.setenv("HERMES_GATEWAY_NO_SUPERVISE", value)
+    monkeypatch.delenv("SONIC_S6_SUPERVISED_CHILD", raising=False)
+    monkeypatch.setenv("SONIC_GATEWAY_NO_SUPERVISE", value)
 
     assert gw._maybe_redirect_run_to_s6_supervision(_Args()) is False
 
@@ -509,18 +509,18 @@ def test_redirect_respects_no_supervise_env(
 def test_redirect_no_supervise_env_falsy_values_dont_opt_out(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Falsy / unrecognized values of HERMES_GATEWAY_NO_SUPERVISE must
+    """Falsy / unrecognized values of SONIC_GATEWAY_NO_SUPERVISE must
     NOT opt out. We're strict about what counts as "yes" so a typo
-    like `HERMES_GATEWAY_NO_SUPERVISE=0` doesn't silently enable the
+    like `SONIC_GATEWAY_NO_SUPERVISE=0` doesn't silently enable the
     historical foreground behavior."""
-    from hermes_cli import gateway as gw
+    from sonic_cli import gateway as gw
 
     _stub_s6(monkeypatch, on_s6=True)
-    monkeypatch.setattr("hermes_cli.gateway._profile_suffix", lambda: "")
+    monkeypatch.setattr("sonic_cli.gateway._profile_suffix", lambda: "")
     _stub_execvp(monkeypatch)
-    monkeypatch.delenv("HERMES_S6_SUPERVISED_CHILD", raising=False)
+    monkeypatch.delenv("SONIC_S6_SUPERVISED_CHILD", raising=False)
 
     for falsy in ("", "0", "false", "no", "off", "garbage"):
-        monkeypatch.setenv("HERMES_GATEWAY_NO_SUPERVISE", falsy)
+        monkeypatch.setenv("SONIC_GATEWAY_NO_SUPERVISE", falsy)
         with pytest.raises(_ExecvpCalled):
             gw._maybe_redirect_run_to_s6_supervision(_Args())

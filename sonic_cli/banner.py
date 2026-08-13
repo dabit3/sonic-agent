@@ -304,7 +304,7 @@ def get_git_banner_state(repo_dir: Optional[Path] = None) -> Optional[dict]:
     the active checkout.  When no checkout is available — the canonical case
     is the published Docker image, which excludes ``.git`` from the build
     context — we fall back to the baked-in build SHA (see
-    ``hermes_cli/build_info.py``) and return it as a frozen
+    ``sonic_cli/build_info.py``) and return it as a frozen
     ``upstream == local`` state with ``ahead=0``.  A built image is by
     definition pinned to one commit, so "ahead" is always zero and the
     banner correctly shows ``· upstream <sha>`` with no carried-commits
@@ -314,7 +314,7 @@ def get_git_banner_state(repo_dir: Optional[Path] = None) -> Optional[dict]:
     if repo_dir is None:
         # No git checkout — try the baked build SHA (Docker image path).
         try:
-            from hermes_cli.build_info import get_build_sha
+            from sonic_cli.build_info import get_build_sha
             baked = get_build_sha(short=8)
             if baked:
                 return {"upstream": baked, "local": baked, "ahead": 0}
@@ -328,7 +328,7 @@ def get_git_banner_state(repo_dir: Optional[Path] = None) -> Optional[dict]:
         # Live-git lookup failed (e.g. shallow clone without origin/main).
         # Fall back to the baked build SHA if available.
         try:
-            from hermes_cli.build_info import get_build_sha
+            from sonic_cli.build_info import get_build_sha
             baked = get_build_sha(short=8)
             if baked:
                 return {"upstream": baked, "local": baked, "ahead": 0}

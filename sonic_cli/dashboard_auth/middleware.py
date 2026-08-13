@@ -22,10 +22,10 @@ from typing import Awaitable, Callable
 from fastapi import Request
 from fastapi.responses import JSONResponse, RedirectResponse, Response
 
-from hermes_cli.dashboard_auth import list_providers
-from hermes_cli.dashboard_auth.audit import AuditEvent, audit_log
-from hermes_cli.dashboard_auth.base import ProviderError
-from hermes_cli.dashboard_auth.cookies import read_session_cookies
+from sonic_cli.dashboard_auth import list_providers
+from sonic_cli.dashboard_auth.audit import AuditEvent, audit_log
+from sonic_cli.dashboard_auth.base import ProviderError
+from sonic_cli.dashboard_auth.cookies import read_session_cookies
 
 _log = logging.getLogger(__name__)
 
@@ -74,13 +74,13 @@ def _unauth_response(request: Request, *, reason: str) -> Response:
     navigation to ``/sessions`` (etc.) without a cookie comes back to
     ``/sessions`` after login.
 
-    Under a reverse proxy with ``X-Forwarded-Prefix: /hermes``, the
-    ``login_url`` is prefixed (``/hermes/login?next=...``) so the
+    Under a reverse proxy with ``X-Forwarded-Prefix: /sonic``, the
+    ``login_url`` is prefixed (``/sonic/login?next=...``) so the
     browser's window.location.assign / Location: follow lands on the
     proxied login page rather than the bare ``/login`` (which the
     proxy doesn't route to the dashboard).
     """
-    from hermes_cli.dashboard_auth.prefix import prefix_from_request
+    from sonic_cli.dashboard_auth.prefix import prefix_from_request
 
     path = request.url.path
     next_param = _safe_next_target(request)
@@ -198,8 +198,8 @@ async def gated_auth_middleware(
         # cycle with cookies → middleware at module load. Pass the active
         # prefix so the deletion's Path matches the set-Path (otherwise
         # the browser ignores it).
-        from hermes_cli.dashboard_auth.cookies import clear_session_cookies
-        from hermes_cli.dashboard_auth.prefix import prefix_from_request
+        from sonic_cli.dashboard_auth.cookies import clear_session_cookies
+        from sonic_cli.dashboard_auth.prefix import prefix_from_request
         clear_session_cookies(response, prefix=prefix_from_request(request))
         return response
 

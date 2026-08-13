@@ -1364,10 +1364,10 @@ class TestAgentConfigSignatureUserId:
         from gateway.run import GatewayRunner
         runtime = {"provider": "anthropic", "api_key": "k", "base_url": "", "api_mode": "chat_completions"}
         sig_a = GatewayRunner._agent_config_signature(
-            "claude-sonnet-4", runtime, ["hermes-telegram"], "", user_id="86701400"
+            "claude-sonnet-4", runtime, ["sonic-telegram"], "", user_id="86701400"
         )
         sig_b = GatewayRunner._agent_config_signature(
-            "claude-sonnet-4", runtime, ["hermes-telegram"], "", user_id="491827364"
+            "claude-sonnet-4", runtime, ["sonic-telegram"], "", user_id="491827364"
         )
         assert sig_a != sig_b
 
@@ -1375,10 +1375,10 @@ class TestAgentConfigSignatureUserId:
         from gateway.run import GatewayRunner
         runtime = {"provider": "anthropic", "api_key": "k", "base_url": "", "api_mode": "chat_completions"}
         sig_1 = GatewayRunner._agent_config_signature(
-            "claude-sonnet-4", runtime, ["hermes-telegram"], "", user_id="86701400"
+            "claude-sonnet-4", runtime, ["sonic-telegram"], "", user_id="86701400"
         )
         sig_2 = GatewayRunner._agent_config_signature(
-            "claude-sonnet-4", runtime, ["hermes-telegram"], "", user_id="86701400"
+            "claude-sonnet-4", runtime, ["sonic-telegram"], "", user_id="86701400"
         )
         assert sig_1 == sig_2
 
@@ -1386,11 +1386,11 @@ class TestAgentConfigSignatureUserId:
         from gateway.run import GatewayRunner
         runtime = {"provider": "anthropic", "api_key": "k", "base_url": "", "api_mode": "chat_completions"}
         sig_a = GatewayRunner._agent_config_signature(
-            "claude-sonnet-4", runtime, ["hermes-telegram"], "",
+            "claude-sonnet-4", runtime, ["sonic-telegram"], "",
             user_id="86701400", user_id_alt="@igor_tg",
         )
         sig_b = GatewayRunner._agent_config_signature(
-            "claude-sonnet-4", runtime, ["hermes-telegram"], "",
+            "claude-sonnet-4", runtime, ["sonic-telegram"], "",
             user_id="86701400", user_id_alt="@erosika_tg",
         )
         assert sig_a != sig_b
@@ -1405,10 +1405,10 @@ class TestAgentConfigSignatureUserId:
         from gateway.run import GatewayRunner
         runtime = {"provider": "anthropic", "api_key": "k", "base_url": "", "api_mode": "chat_completions"}
         sig_implicit = GatewayRunner._agent_config_signature(
-            "claude-sonnet-4", runtime, ["hermes-telegram"], "",
+            "claude-sonnet-4", runtime, ["sonic-telegram"], "",
         )
         sig_explicit_none = GatewayRunner._agent_config_signature(
-            "claude-sonnet-4", runtime, ["hermes-telegram"], "",
+            "claude-sonnet-4", runtime, ["sonic-telegram"], "",
             user_id=None, user_id_alt=None,
         )
         assert sig_implicit == sig_explicit_none

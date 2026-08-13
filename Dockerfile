@@ -189,14 +189,14 @@ RUN uv pip install --no-cache-dir --no-deps -e "."
 
 # ---------- Bake build-time git revision ----------
 # .dockerignore excludes .git, so `git rev-parse HEAD` from inside the
-# container always returns nothing — meaning `hermes dump` reports
+# container always returns nothing — meaning `sonic dump` reports
 # "(unknown)" and the startup banner drops its `· upstream <sha>` suffix.
 # That makes support triage from container bug reports impossible:
 # we can't tell which commit the user is actually running.
 #
-# Fix: write the commit SHA passed via the HERMES_GIT_SHA build-arg to
-# /opt/hermes/.hermes_build_sha at build time, and have
-# hermes_cli/build_info.py read it at runtime.  Both `hermes dump` and
+# Fix: write the commit SHA passed via the SONIC_GIT_SHA build-arg to
+# /opt/sonic/.sonic_build_sha at build time, and have
+# sonic_cli/build_info.py read it at runtime.  Both `sonic dump` and
 # banner.get_git_banner_state() try the baked SHA first, then fall back
 # to live `git rev-parse` for source installs (unchanged behaviour).
 #
@@ -204,10 +204,10 @@ RUN uv pip install --no-cache-dir --no-deps -e "."
 # omits the file, and the runtime falls back to live-git lookup.  CI
 # (.github/workflows/docker-publish.yml) passes ${{ github.sha }} so
 # every published image has it.
-ARG HERMES_GIT_SHA=
-RUN if [ -n "${HERMES_GIT_SHA}" ]; then \
-        printf '%s\n' "${HERMES_GIT_SHA}" > /opt/hermes/.hermes_build_sha && \
-        chown hermes:hermes /opt/hermes/.hermes_build_sha; \
+ARG SONIC_GIT_SHA=
+RUN if [ -n "${SONIC_GIT_SHA}" ]; then \
+        printf '%s\n' "${SONIC_GIT_SHA}" > /opt/sonic/.sonic_build_sha && \
+        chown sonic:sonic /opt/sonic/.sonic_build_sha; \
     fi
 
 # ---------- s6-overlay service wiring ----------

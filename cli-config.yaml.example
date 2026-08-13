@@ -1180,7 +1180,7 @@ display:
 #   # full proxy header chains).
 #   #
 #   # When set, the value is the complete authority: scheme + host +
-#   # optional path prefix (e.g. "https://example.com/hermes"). The OAuth
+#   # optional path prefix (e.g. "https://example.com/sonic"). The OAuth
 #   # callback URL becomes "<public_url>/auth/callback" — X-Forwarded-Prefix
 #   # is IGNORED on this code path because the operator has explicitly
 #   # declared the public URL and we no longer need to guess.
@@ -1188,4 +1188,4 @@ display:
 #   # Leave empty to use the existing proxy-header reconstruction (the
 #   # default — works on Fly.io out of the box).
 #   #
-#   #   public_url: "https://example.com/hermes"
+#   #   public_url: "https://example.com/sonic"

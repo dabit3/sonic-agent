@@ -741,13 +741,13 @@ class TestToolsetsEndpoint:
             ("web", "Web Tools", "Search and extract"),
         ]
         with patch(
-            "hermes_cli.tools_config._get_effective_configurable_toolsets",
+            "sonic_cli.tools_config._get_effective_configurable_toolsets",
             return_value=fake_toolsets,
         ), patch(
-            "hermes_cli.tools_config._get_platform_tools",
+            "sonic_cli.tools_config._get_platform_tools",
             return_value={"default"},
         ), patch(
-            "hermes_cli.tools_config._toolset_has_keys",
+            "sonic_cli.tools_config._toolset_has_keys",
             return_value=True,
         ), patch(
             "toolsets.resolve_toolset",
@@ -784,13 +784,13 @@ class TestToolsetsEndpoint:
             return ["some_tool"]
 
         with patch(
-            "hermes_cli.tools_config._get_effective_configurable_toolsets",
+            "sonic_cli.tools_config._get_effective_configurable_toolsets",
             return_value=fake_toolsets,
         ), patch(
-            "hermes_cli.tools_config._get_platform_tools",
+            "sonic_cli.tools_config._get_platform_tools",
             return_value=set(),
         ), patch(
-            "hermes_cli.tools_config._toolset_has_keys",
+            "sonic_cli.tools_config._toolset_has_keys",
             return_value=False,
         ), patch(
             "toolsets.resolve_toolset",
@@ -808,10 +808,10 @@ class TestToolsetsEndpoint:
     @pytest.mark.asyncio
     async def test_toolsets_requires_auth_when_key_configured(self, auth_adapter):
         with patch(
-            "hermes_cli.tools_config._get_effective_configurable_toolsets",
+            "sonic_cli.tools_config._get_effective_configurable_toolsets",
             return_value=[],
         ), patch(
-            "hermes_cli.tools_config._get_platform_tools",
+            "sonic_cli.tools_config._get_platform_tools",
             return_value=set(),
         ):
             app = _create_app(auth_adapter)

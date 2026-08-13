@@ -547,7 +547,7 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
       });
     });
 
-    // WebSocket. In gated mode (``window.__HERMES_AUTH_REQUIRED__``) this
+    // WebSocket. In gated mode (``window.__SONIC_AUTH_REQUIRED__``) this
     // awaits a single-use ticket via /api/auth/ws-ticket before opening;
     // in loopback mode it resolves synchronously against the injected
     // session token. The IIFE keeps the outer effect synchronous so its
