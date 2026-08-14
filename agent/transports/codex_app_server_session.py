@@ -50,7 +50,7 @@ _STDERR_TAIL_LINES = 12
 
 
 # Permission profile mapping mirrors the docstring in PR proposal:
-# Sonic' tools.terminal.security_mode → Codex's permissions profile id.
+# Sonic's tools.terminal.security_mode → Codex's permissions profile id.
 # Defaults if config is missing → workspace-write (matches Codex's own default).
 _SONIC_TO_CODEX_PERMISSION_PROFILE = {
     "auto": "workspace-write",
@@ -369,7 +369,7 @@ class CodexAppServerSession:
     ) -> TurnResult:
         """Send a user message and block until turn/completed, while
         forwarding server-initiated approval requests and projecting items
-        into Sonic' messages shape.
+        into Sonic's messages shape.
 
         post_tool_quiet_timeout: if codex emits a tool completion and then
         goes quiet for this many seconds without emitting another item or
@@ -402,7 +402,7 @@ class CodexAppServerSession:
         user_input_text = _coerce_turn_input_text(user_input)
 
         # Send turn/start with the user input. Text-only for now (codex
-        # supports rich content but Sonic' text path is the common case).
+        # supports rich content but Sonic's text path is the common case).
         try:
             ts = self._client.request(
                 "turn/start",
@@ -631,7 +631,7 @@ class CodexAppServerSession:
             logger.warning("turn/interrupt timed out")
 
     def _handle_server_request(self, req: dict) -> None:
-        """Translate a codex server request (approval) into Sonic' approval
+        """Translate a codex server request (approval) into Sonic's approval
         flow, then send the response.
 
         Method names verified live against codex 0.130.0 (Apr 2026):
@@ -664,7 +664,7 @@ class CodexAppServerSession:
             # Codex's MCP layer asks the user for structured input on
             # behalf of an MCP server (e.g. tool-call confirmation,
             # OAuth, form data). For our own sonic-tools callback we
-            # auto-accept — the user already approved Sonic' tools
+            # auto-accept — the user already approved Sonic's tools
             # by enabling the runtime, and we never expose anything
             # codex's built-in shell can't already do. For other MCP
             # servers we decline so the user explicitly opts in via

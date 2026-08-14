@@ -40,7 +40,7 @@ Gmail, Calendar, Drive, Contacts, Sheets, and Docs — through Sonic-managed OAu
 ## Scripts
 
 - `scripts/setup.py` — OAuth2 setup (run once to authorize)
-- `scripts/google_api.py` — compatibility wrapper CLI. It prefers `gws` for operations when available, while preserving Sonic' existing JSON output contract.
+- `scripts/google_api.py` — compatibility wrapper CLI. It prefers `gws` for operations when available, while preserving Sonic's existing JSON output contract.
 
 ## First-Time Setup
 

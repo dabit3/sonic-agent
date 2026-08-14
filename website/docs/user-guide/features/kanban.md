@@ -669,7 +669,7 @@ kanban:
 Set `scheduled_at` on a task to delay dispatch until a specific time. The dispatcher skips ready tasks whose `scheduled_at` is in the future and picks them up on the first tick after that timestamp.
 
 ```bash
-hermes kanban create "nightly backup audit" \
+sonic kanban create "nightly backup audit" \
   --assignee ops --scheduled-at "2026-06-01T03:00:00Z"
 ```
 
@@ -695,10 +695,10 @@ All three are gated by the same dashboard plugin auth as the rest of the kanban 
 
 ### Kanban Swarm topology helper
 
-`hermes kanban swarm` creates a durable **Kanban Swarm v1** graph in one shot: a completed root/blackboard card, N parallel worker cards, a verifier card gated on all workers, and a synthesizer card gated on the verifier. Shared swarm context (the "blackboard") is stored as structured JSON comments on the root card so any worker can read it.
+`sonic kanban swarm` creates a durable **Kanban Swarm v1** graph in one shot: a completed root/blackboard card, N parallel worker cards, a verifier card gated on all workers, and a synthesizer card gated on the verifier. Shared swarm context (the "blackboard") is stored as structured JSON comments on the root card so any worker can read it.
 
 ```bash
-hermes kanban swarm "Design a multi-region failover plan" \
+sonic kanban swarm "Design a multi-region failover plan" \
   --workers researcher,architect,sre \
   --verifier reviewer --synthesizer writer
 ```

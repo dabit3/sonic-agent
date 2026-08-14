@@ -523,7 +523,7 @@ class AIAgent:
             start_context = {
                 "old_session_id": old_session_id,
                 "carry_over_context": carry_over_context,
-                "platform": getattr(self, "platform", None) or os.environ.get("HERMES_SESSION_SOURCE", "cli"),
+                "platform": getattr(self, "platform", None) or os.environ.get("SONIC_SESSION_SOURCE", "cli"),
                 "model": getattr(self, "model", ""),
                 "context_length": getattr(engine, "context_length", None),
                 "conversation_id": getattr(self, "_gateway_session_key", None),
@@ -600,7 +600,7 @@ class AIAgent:
 
     def _ensure_lmstudio_runtime_loaded(self, config_context_length: Optional[int] = None) -> None:
         """
-        Preload the LM Studio model with at least Sonic' minimum context.
+        Preload the LM Studio model with at least Sonic's minimum context.
         """
         if (self.provider or "").strip().lower() != "lmstudio":
             return
@@ -1120,7 +1120,7 @@ class AIAgent:
             "Workaround: try `gpt-5.4` on the same OAuth profile, or `gpt-5.3-codex`, "
             "or switch to a different model/provider in your fallback chain. "
             "Some ChatGPT Codex accounts do not support `gpt-5.4-codex`. "
-            "See hermes-agent#21444 for symptom history."
+            "See sonic-agent#21444 for symptom history."
         )
 
     def _is_openrouter_url(self) -> bool:

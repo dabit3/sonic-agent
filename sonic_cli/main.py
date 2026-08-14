@@ -2119,7 +2119,7 @@ def cmd_model(args):
     _require_tty("model")
     if getattr(args, "refresh", False):
         try:
-            from hermes_cli.models import clear_provider_models_cache
+            from sonic_cli.models import clear_provider_models_cache
             clear_provider_models_cache()
             print("  Cleared model picker cache.")
         except Exception:
@@ -3139,7 +3139,7 @@ def _model_flow_nous(config, current_model="", args=None):
     unavailable_message = ""
     if free_tier:
         try:
-            from hermes_cli.nous_account import (
+            from sonic_cli.nous_account import (
                 format_nous_portal_entitlement_message,
                 get_nous_portal_account_info,
             )
@@ -6547,7 +6547,7 @@ def _run_with_idle_timeout(
     WSL2 with the default 4 GB cap) the build can stall or sit silent for
     minutes; users see a frozen terminal, assume the update is hung, and
     reboot — leaving the editable install in a half-state with the
-    ``hermes`` launcher present but ``hermes_cli`` not importable.
+    ``sonic`` launcher present but ``sonic_cli`` not importable.
 
     This helper fixes both halves: stdout is streamed (so the user sees
     progress), and if no bytes have appeared on stdout/stderr for
@@ -7248,7 +7248,7 @@ def _update_via_zip(args):
     _update_node_dependencies()
     # Core (Python deps + git pull / ZIP extract) is now complete; the CLI
     # is functional from this point onward. The web UI build below is
-    # optional — a failure here only affects ``hermes dashboard``. Make
+    # optional — a failure here only affects ``sonic dashboard``. Make
     # that visible so users don't panic and reboot mid-build (#33788).
     print("→ Core update complete. Building dashboard (optional)...")
     _build_web_ui(PROJECT_ROOT / "web")
@@ -8284,7 +8284,7 @@ def _install_psutil_android_compat(
     """
     import tempfile
     import urllib.request
-    from hermes_cli.psutil_android import PSUTIL_URL, prepare_patched_psutil_sdist
+    from sonic_cli.psutil_android import PSUTIL_URL, prepare_patched_psutil_sdist
 
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)

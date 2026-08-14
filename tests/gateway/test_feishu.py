@@ -4567,7 +4567,7 @@ class TestFeishuProcessInboundMessage(unittest.TestCase):
     def test_pure_self_mention_message_is_ignored(self):
         """A message containing only '@Bot' (no body, no media) must not dispatch.
 
-        Regression guard: the rendered '@Sonic' slips past the pre-strip empty
+        Regression guard: the rendered '@Sonic's slips past the pre-strip empty
         guard; the post-strip guard must catch it.
         """
         adapter = self._build_adapter()

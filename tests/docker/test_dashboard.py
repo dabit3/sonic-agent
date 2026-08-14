@@ -230,7 +230,7 @@ def test_dashboard_restarts_after_crash(
 # ---------------------------------------------------------------------------
 # OAuth auth-gate behaviour — regression guard for the dashboard-insecure
 # auto-injection bug. Pre-fix, the s6 run script appended `--insecure`
-# whenever `HERMES_DASHBOARD_HOST` was non-loopback, silently disabling
+# whenever `SONIC_DASHBOARD_HOST` was non-loopback, silently disabling
 # the OAuth gate on every container-deployed dashboard. The matching
 # static-text guard lives in tests/test_docker_home_override_scripts.py;
 # this is the behavioural end-to-end check.
@@ -277,7 +277,7 @@ except urllib.error.HTTPError as h:
     # single bash string stays clean. The 'PY' delimiter is quoted to
     # disable shell expansion inside the heredoc body.
     probe = (
-        "/opt/hermes/.venv/bin/python - <<'PY'\n"
+        "/opt/sonic/.venv/bin/python - <<'PY'\n"
         f"{py_program}"
         "PY"
     )
@@ -308,7 +308,7 @@ def test_dashboard_oauth_gate_engages_on_non_loopback_bind(
     """The s6 dashboard run script must NOT auto-add ``--insecure`` when the
     dashboard binds to ``0.0.0.0``. The OAuth auth gate engages on its own
     when a ``DashboardAuthProvider`` is registered (the bundled nous
-    provider activates whenever ``HERMES_DASHBOARD_OAUTH_CLIENT_ID`` is
+    provider activates whenever ``SONIC_DASHBOARD_OAUTH_CLIENT_ID`` is
     set).
 
     Regression guard for the wildcard-subdomain rollout where every
@@ -335,9 +335,9 @@ def test_dashboard_oauth_gate_engages_on_non_loopback_bind(
     """
     subprocess.run(
         ["docker", "run", "-d", "--name", container_name,
-         "-e", "HERMES_DASHBOARD=1",
-         "-e", "HERMES_DASHBOARD_HOST=0.0.0.0",
-         "-e", "HERMES_DASHBOARD_OAUTH_CLIENT_ID=agent:test-instance",
+         "-e", "SONIC_DASHBOARD=1",
+         "-e", "SONIC_DASHBOARD_HOST=0.0.0.0",
+         "-e", "SONIC_DASHBOARD_OAUTH_CLIENT_ID=agent:test-instance",
          built_image, "sleep", "120"],
         check=True, capture_output=True, timeout=30,
     )
@@ -352,7 +352,7 @@ def test_dashboard_oauth_gate_engages_on_non_loopback_bind(
     provider_names = [p.get("name") for p in payload.get("providers", [])]
     assert "nous" in provider_names, (
         "Bundled dashboard_auth/nous provider should register when "
-        f"HERMES_DASHBOARD_OAUTH_CLIENT_ID is set. Got: {payload!r}"
+        f"SONIC_DASHBOARD_OAUTH_CLIENT_ID is set. Got: {payload!r}"
     )
 
     # (2) A gated route (``/api/sessions``) returns 401 to an
@@ -360,7 +360,7 @@ def test_dashboard_oauth_gate_engages_on_non_loopback_bind(
     status_code, body = _http_probe(container_name, "/api/sessions")
     assert status_code == 401, (
         "OAuth gate must intercept gated /api/* routes on 0.0.0.0 bind "
-        "when a provider is registered and HERMES_DASHBOARD_INSECURE "
+        "when a provider is registered and SONIC_DASHBOARD_INSECURE "
         f"is unset. Got: status={status_code} body={body!r}"
     )
 
@@ -386,10 +386,10 @@ def test_dashboard_oauth_gate_engages_on_non_loopback_bind(
 def test_dashboard_insecure_env_var_opts_out_of_gate(
     built_image: str, container_name: str,
 ) -> None:
-    """``HERMES_DASHBOARD_INSECURE=1`` re-enables the legacy no-gate mode
+    """``SONIC_DASHBOARD_INSECURE=1`` re-enables the legacy no-gate mode
     for operators running on trusted LANs behind a reverse proxy without
     the OAuth contract. Same opt-out shape as the rest of the s6 boolean
-    envs (``HERMES_DASHBOARD``, ``HERMES_DASHBOARD_TUI``).
+    envs (``SONIC_DASHBOARD``, ``SONIC_DASHBOARD_TUI``).
 
     With the gate off, ``/api/status`` (a public endpoint under the
     legacy ``_SESSION_TOKEN`` middleware) returns 200 with the
@@ -397,9 +397,9 @@ def test_dashboard_insecure_env_var_opts_out_of_gate(
     """
     subprocess.run(
         ["docker", "run", "-d", "--name", container_name,
-         "-e", "HERMES_DASHBOARD=1",
-         "-e", "HERMES_DASHBOARD_HOST=0.0.0.0",
-         "-e", "HERMES_DASHBOARD_INSECURE=1",
+         "-e", "SONIC_DASHBOARD=1",
+         "-e", "SONIC_DASHBOARD_HOST=0.0.0.0",
+         "-e", "SONIC_DASHBOARD_INSECURE=1",
          built_image, "sleep", "120"],
         check=True, capture_output=True, timeout=30,
     )
@@ -410,6 +410,6 @@ def test_dashboard_insecure_env_var_opts_out_of_gate(
     )
     status = json.loads(body)
     assert status.get("auth_required") is False, (
-        "HERMES_DASHBOARD_INSECURE=1 must disable the auth gate (explicit "
+        "SONIC_DASHBOARD_INSECURE=1 must disable the auth gate (explicit "
         f"opt-in for trusted-LAN deployments). Got: {status!r}"
     )

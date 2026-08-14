@@ -541,7 +541,7 @@ Advanced per-platform knobs for throttling the outbound message batcher. Most us
 | `SONIC_HUMAN_DELAY_MIN_MS` | Custom delay range minimum (ms) |
 | `SONIC_HUMAN_DELAY_MAX_MS` | Custom delay range maximum (ms) |
 | `SONIC_QUIET` | Suppress non-essential output (`true`/`false`) |
-| `CODEX_HOME` | When [Codex app-server runtime](../user-guide/features/codex-app-server-runtime) is enabled, override the directory Codex CLI reads its config + auth from (default: `~/.codex`). Sonic' migration writes the managed block to `<CODEX_HOME>/config.toml`. |
+| `CODEX_HOME` | When [Codex app-server runtime](../user-guide/features/codex-app-server-runtime) is enabled, override the directory Codex CLI reads its config + auth from (default: `~/.codex`). Sonic's migration writes the managed block to `<CODEX_HOME>/config.toml`. |
 | `SONIC_KANBAN_TASK` | Set by the kanban dispatcher when spawning a worker (task UUID). Workers and the spawned `sonic-tools` MCP subprocess inherit it so kanban tools gate correctly. Don't set manually. |
 | `SONIC_API_TIMEOUT` | LLM API call timeout in seconds (default: `1800`) |
 | `SONIC_API_CALL_STALE_TIMEOUT` | Non-streaming stale-call timeout in seconds (default: `300`). Auto-disabled for local providers when left unset. Also configurable via `providers.<id>.stale_timeout_seconds` or `providers.<id>.models.<model>.stale_timeout_seconds` in `config.yaml`. |

@@ -539,7 +539,7 @@ async def test_auto_create_thread_strips_mention_syntax_from_name(adapter):
 @pytest.mark.asyncio
 async def test_auto_create_thread_falls_back_to_sonic_when_only_mentions(adapter):
     """If a message contains only mention syntax, the stripped content is
-    empty — fall back to the 'Sonic' default rather than ''."""
+    empty — fall back to the 'Sonic's default rather than ''."""
     thread = SimpleNamespace(id=999, name="Sonic")
     message = SimpleNamespace(
         content="<@&1490963422786093149>",

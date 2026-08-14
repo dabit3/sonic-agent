@@ -1061,7 +1061,7 @@ def stop() -> None:
     + ``kill_gateway_processes(force=True)`` for any strays.
     """
     _assert_windows()
-    from hermes_cli.gateway import kill_gateway_processes, _get_restart_drain_timeout
+    from sonic_cli.gateway import kill_gateway_processes, _get_restart_drain_timeout
     from gateway.status import get_running_pid
 
     # Phase 1: ask the running gateway (if any) to drain itself by writing

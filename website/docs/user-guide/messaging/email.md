@@ -16,7 +16,7 @@ This is separate from the bundled [Himalaya email skill](/docs/user-guide/skills
 
 | Use case | What to configure | External dependency |
 |---|---|---|
-| Let people email the Hermes agent and receive replies | Email gateway adapter on this page | None beyond an IMAP/SMTP email account |
+| Let people email the Sonic agent and receive replies | Email gateway adapter on this page | None beyond an IMAP/SMTP email account |
 | Let the agent inspect, compose, move, and manage mailbox messages from terminal tools | Himalaya email skill | `himalaya` CLI and `~/.config/himalaya/config.toml` |
 
 ---

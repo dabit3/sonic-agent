@@ -527,7 +527,7 @@ Structured long-term memory using Memori Cloud, with background completed-turn c
 | | |
 |---|---|
 | **Best for** | Agent-controlled recall with structured project and session attribution |
-| **Requires** | `pip install hermes-memori` + `hermes-memori install` + [Memori API key](https://app.memorilabs.ai/signup) |
+| **Requires** | `pip install sonic-memori` + `sonic-memori install` + [Memori API key](https://app.memorilabs.ai/signup) |
 | **Data storage** | Memori Cloud |
 | **Cost** | Memori pricing |
 
@@ -535,10 +535,10 @@ Structured long-term memory using Memori Cloud, with background completed-turn c
 
 **Setup:**
 ```bash
-pip install hermes-memori
-hermes-memori install
-hermes config set memory.provider memori
-hermes memory setup
+pip install sonic-memori
+sonic-memori install
+sonic config set memory.provider memori
+sonic memory setup
 ```
 
 ---
@@ -555,7 +555,7 @@ hermes memory setup
 | **RetainDB** | Cloud | $20/mo | 5 | `requests` | Delta compression |
 | **ByteRover** | Local/Cloud | Free/Paid | 3 | `brv` CLI | Pre-compression extraction |
 | **Supermemory** | Cloud | Paid | 4 | `supermemory` | Context fencing + session graph ingest + multi-container |
-| **Memori** | Cloud | Free/Paid | 5 | `hermes-memori` | Tool-aware memory + structured recall |
+| **Memori** | Cloud | Free/Paid | 5 | `sonic-memori` | Tool-aware memory + structured recall |
 
 ## Profile Isolation
 

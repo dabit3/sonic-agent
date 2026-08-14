@@ -245,7 +245,7 @@ Pool state is stored in `~/.sonic/auth.json` under the `credential_pool` key:
 }
 ```
 
-The OpenRouter entry above was borrowed from an external source, so the raw key is not stored in `auth.json`. The manual Anthropic entry was intentionally added to Sonic' credential store, so its token remains persistable.
+The OpenRouter entry above was borrowed from an external source, so the raw key is not stored in `auth.json`. The manual Anthropic entry was intentionally added to Sonic's credential store, so its token remains persistable.
 
 Strategies are stored in `config.yaml` (not `auth.json`):
 

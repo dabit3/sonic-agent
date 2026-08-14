@@ -30,10 +30,10 @@ cd /opt/data
 dash_host="${SONIC_DASHBOARD_HOST:-0.0.0.0}"
 dash_port="${SONIC_DASHBOARD_PORT:-9119}"
 
-# `--insecure` is opt-in via HERMES_DASHBOARD_INSECURE. The dashboard's
+# `--insecure` is opt-in via SONIC_DASHBOARD_INSECURE. The dashboard's
 # OAuth auth gate engages automatically on non-loopback binds when a
 # DashboardAuthProvider is registered (e.g. the bundled dashboard_auth/nous
-# provider, which auto-registers when HERMES_DASHBOARD_OAUTH_CLIENT_ID is
+# provider, which auto-registers when SONIC_DASHBOARD_OAUTH_CLIENT_ID is
 # set). If no provider is registered, start_server fails closed with a
 # specific operator-facing error.
 #
@@ -43,7 +43,7 @@ dash_port="${SONIC_DASHBOARD_PORT:-9119}"
 # authority; operators on trusted LANs / behind a reverse proxy without
 # the OAuth contract opt in explicitly.
 insecure=""
-case "${HERMES_DASHBOARD_INSECURE:-}" in
+case "${SONIC_DASHBOARD_INSECURE:-}" in
     1|true|TRUE|True|yes|YES|Yes) insecure="--insecure" ;;
 esac
 

@@ -150,7 +150,7 @@ class TestInitialize:
             {
                 "args": ["--setup"],
                 "description": (
-                    "Open Sonic' interactive model/provider setup in a terminal. "
+                    "Open Sonic's interactive model/provider setup in a terminal. "
                     "Use this when Sonic has not been configured on this machine yet."
                 ),
                 "id": TERMINAL_SETUP_AUTH_METHOD_ID,

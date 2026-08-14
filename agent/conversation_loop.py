@@ -119,7 +119,7 @@ def _ra():
 
 def _nous_entitlement_message(capability: str) -> str:
     try:
-        from hermes_cli.nous_account import (
+        from sonic_cli.nous_account import (
             format_nous_portal_entitlement_message,
             get_nous_portal_account_info,
         )
@@ -203,8 +203,8 @@ def _print_billing_or_entitlement_guidance(
 def _try_refresh_nous_paid_entitlement_credentials(agent) -> bool:
     """Refresh Nous runtime credentials after a fresh paid-entitlement check."""
     try:
-        from hermes_cli.auth import NOUS_INFERENCE_AUTH_MODE_LEGACY
-        from hermes_cli.nous_account import get_nous_portal_account_info
+        from sonic_cli.auth import NOUS_INFERENCE_AUTH_MODE_LEGACY
+        from sonic_cli.nous_account import get_nous_portal_account_info
 
         account_info = get_nous_portal_account_info(force_fresh=True)
         if account_info.paid_service_access is not True:
@@ -2773,7 +2773,7 @@ def run_conversation(
 
                 # Actionable hint for GitHub Models (Azure) 413 errors.
                 # The free tier enforces a hard 8K token cap per request,
-                # which Sonic' system prompt + tool schemas alone exceed.
+                # which Sonic's system prompt + tool schemas alone exceed.
                 # Compression can't help — the floor is the system prompt
                 # itself, not the conversation — so surface a clear "not
                 # compatible" message instead of looping into three futile
@@ -2788,7 +2788,7 @@ def run_conversation(
                         force=True,
                     )
                     agent._vprint(
-                        f"{agent.log_prefix}      request at ~8K tokens. Sonic' system prompt + tool schemas baseline",
+                        f"{agent.log_prefix}      request at ~8K tokens. Sonic's system prompt + tool schemas baseline",
                         force=True,
                     )
                     agent._vprint(
@@ -3178,7 +3178,7 @@ def run_conversation(
                             force=True,
                         )
                         agent._vprint(
-                            f"{agent.log_prefix}        hermes fallback add   (interactive picker — same as `hermes model`)",
+                            f"{agent.log_prefix}        sonic fallback add   (interactive picker — same as `sonic model`)",
                             force=True,
                         )
                     logger.error(f"{agent.log_prefix}Non-retryable client error: {api_error}")
@@ -3199,10 +3199,10 @@ def run_conversation(
                         _summary = agent._summarize_api_error(api_error)
                         _policy_response = (
                             f"⚠️  The model provider's safety filter blocked this request "
-                            f"(not a Hermes/gateway failure).\n\n"
+                            f"(not a Sonic/gateway failure).\n\n"
                             f"Provider message: {_summary}\n\n"
                             f"Try rephrasing the request, narrowing the context, or "
-                            f"adding a fallback provider with `hermes fallback add`."
+                            f"adding a fallback provider with `sonic fallback add`."
                         )
                         return {
                             "final_response": _policy_response,

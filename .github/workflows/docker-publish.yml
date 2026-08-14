@@ -210,7 +210,7 @@ jobs:
           platforms: linux/arm64
           tags: ${{ env.IMAGE_NAME }}:test
           build-args: |
-            HERMES_GIT_SHA=${{ github.sha }}
+            SONIC_GIT_SHA=${{ github.sha }}
 
       # Main/release builds still use the per-arch gha cache so the digest
       # push below can reuse layers from this smoke-test build.

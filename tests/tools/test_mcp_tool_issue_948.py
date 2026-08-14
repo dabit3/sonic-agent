@@ -33,11 +33,11 @@ def test_resolve_stdio_command_falls_back_to_sonic_node_bin(tmp_path):
 
 
 def test_resolve_stdio_command_falls_back_to_usr_local_bin():
-    """When ``npx`` isn't on the filtered PATH and isn't under ``$HERMES_HOME/node/bin``
+    """When ``npx`` isn't on the filtered PATH and isn't under ``$SONIC_HOME/node/bin``
     or ``~/.local/bin``, the resolver should still locate it at ``/usr/local/bin/npx``.
 
     This is the canonical install location for Node on Linux from-source builds,
-    the upstream ``node:bookworm-slim`` image (which the Hermes Docker image
+    the upstream ``node:bookworm-slim`` image (which the Sonic Docker image
     copies ``node + npm + corepack`` from since #4977), and macOS Homebrew on
     Intel. Without this candidate, MCP servers run with an ``env.PATH`` that
     omits ``/usr/local/bin`` (common when users hand-author PATH for sandboxing)
@@ -46,7 +46,7 @@ def test_resolve_stdio_command_falls_back_to_usr_local_bin():
     target = os.path.join(os.sep, "usr", "local", "bin", "npx")
 
     # Pretend ONLY the /usr/local/bin/npx candidate exists and is executable —
-    # the other candidates ($HERMES_HOME/node/bin/npx and ~/.local/bin/npx)
+    # the other candidates ($SONIC_HOME/node/bin/npx and ~/.local/bin/npx)
     # should fail isfile() and the resolver must fall through to /usr/local/bin.
     def _fake_isfile(path):
         return path == target

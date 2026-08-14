@@ -719,7 +719,7 @@ class TestCheckNousFreeTierCache:
         assert result1 is False
         assert result2 is False
 
-    @patch("hermes_cli.nous_account.get_nous_portal_account_info")
+    @patch("sonic_cli.nous_account.get_nous_portal_account_info")
     def test_force_fresh_bypasses_cache(self, mock_account):
         mock_account.return_value = NousPortalAccountInfo(
             logged_in=True,

@@ -787,8 +787,8 @@ class TestExternalRotationRecovery:
     instead of the file the operator expects to read.
     """
 
-    def _make_handler(self, log_path: Path) -> hermes_logging._ManagedRotatingFileHandler:
-        handler = hermes_logging._ManagedRotatingFileHandler(
+    def _make_handler(self, log_path: Path) -> sonic_logging._ManagedRotatingFileHandler:
+        handler = sonic_logging._ManagedRotatingFileHandler(
             str(log_path), maxBytes=10 * 1024 * 1024, backupCount=3,
             encoding="utf-8",
         )
@@ -801,7 +801,7 @@ class TestExternalRotationRecovery:
             name="gateway.run", level=logging.INFO, pathname="", lineno=0,
             msg=msg, args=(), exc_info=None,
         )
-        # Match the record factory that hermes_logging installs at import time.
+        # Match the record factory that sonic_logging installs at import time.
         record.session_tag = ""
         handler.emit(record)
         handler.flush()
@@ -886,7 +886,7 @@ class TestExternalRotationRecovery:
         rotated = tmp_path / "gateway.log.1"
 
         # Tiny maxBytes forces rollover after the first record.
-        handler = hermes_logging._ManagedRotatingFileHandler(
+        handler = sonic_logging._ManagedRotatingFileHandler(
             str(log_path), maxBytes=1, backupCount=1, encoding="utf-8",
         )
         handler.setLevel(logging.INFO)
@@ -905,7 +905,7 @@ class TestExternalRotationRecovery:
             handler.close()
 
     def test_gateway_log_attached_after_external_rotation_then_re_setup(
-        self, hermes_home,
+        self, sonic_home,
     ):
         """End-to-end Allen-reproduction: gateway.log gets externally rotated,
         ``setup_logging(mode='gateway')`` is re-called, the handler keeps
@@ -915,9 +915,9 @@ class TestExternalRotationRecovery:
         records leaking to agent.log) when something external rotates the
         file between setup_logging() calls.
         """
-        hermes_logging.setup_logging(hermes_home=hermes_home, mode="gateway")
-        gw_path = hermes_home / "logs" / "gateway.log"
-        rotated = hermes_home / "logs" / "gateway.log.1"
+        sonic_logging.setup_logging(sonic_home=sonic_home, mode="gateway")
+        gw_path = sonic_home / "logs" / "gateway.log"
+        rotated = sonic_home / "logs" / "gateway.log.1"
 
         logging.getLogger("gateway.run").info("line BEFORE rotation")
         for h in logging.getLogger().handlers:
@@ -932,7 +932,7 @@ class TestExternalRotationRecovery:
         # Caller (or some restart path) re-enters setup_logging.  This used
         # to silently no-op due to the per-path dedup check, leaving the
         # stale fd in place.
-        hermes_logging.setup_logging(hermes_home=hermes_home, mode="gateway")
+        sonic_logging.setup_logging(sonic_home=sonic_home, mode="gateway")
 
         logging.getLogger("gateway.run").info("line AFTER rotation")
         for h in logging.getLogger().handlers:

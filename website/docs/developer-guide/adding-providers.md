@@ -321,10 +321,10 @@ At minimum, touch the tests that guard provider wiring.
 
 Common places:
 
-- `tests/hermes_cli/test_runtime_provider_resolution.py`
+- `tests/sonic_cli/test_runtime_provider_resolution.py`
 - `tests/cli/test_cli_provider_resolution.py`
-- `tests/hermes_cli/test_model_switch_custom_providers.py` (and adjacent `tests/hermes_cli/test_model_switch_*.py`)
-- `tests/hermes_cli/test_setup_model_provider.py`
+- `tests/sonic_cli/test_model_switch_custom_providers.py` (and adjacent `tests/sonic_cli/test_model_switch_*.py`)
+- `tests/sonic_cli/test_setup_model_provider.py`
 - `tests/run_agent/test_provider_parity.py`
 - `tests/run_agent/test_run_agent.py`
 - `tests/test_<provider>_adapter.py` for a native provider
@@ -342,7 +342,7 @@ Run tests with xdist disabled:
 
 ```bash
 source venv/bin/activate
-python -m pytest tests/hermes_cli/test_runtime_provider_resolution.py tests/cli/test_cli_provider_resolution.py tests/hermes_cli/test_setup_model_provider.py tests/run_agent/test_provider_parity.py -n0 -q
+python -m pytest tests/sonic_cli/test_runtime_provider_resolution.py tests/cli/test_cli_provider_resolution.py tests/sonic_cli/test_setup_model_provider.py tests/run_agent/test_provider_parity.py -n0 -q
 ```
 
 For deeper changes, run the full suite before pushing:

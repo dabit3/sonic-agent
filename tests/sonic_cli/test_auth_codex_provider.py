@@ -304,7 +304,7 @@ def test_save_codex_tokens_syncs_manual_device_code_entries(tmp_path, monkeypatc
     """Re-auth must also refresh ``manual:device_code`` pool entries.
 
     Regression for #33538: a user who hit #33000 before the #33164 fix landed
-    would have run ``hermes auth add openai-codex`` as a workaround, leaving
+    would have run ``sonic auth add openai-codex`` as a workaround, leaving
     a pool entry with ``source="manual:device_code"``.  On every subsequent
     re-auth via setup/model picker, the singleton-seeded ``device_code`` entry
     got refreshed but the ``manual:device_code`` entry stayed stale, recreating
@@ -315,9 +315,9 @@ def test_save_codex_tokens_syncs_manual_device_code_entries(tmp_path, monkeypatc
     pool — but NOT independent ``manual:api_key`` entries (separate accounts /
     explicit API keys).
     """
-    hermes_home = tmp_path / "hermes"
-    hermes_home.mkdir(parents=True, exist_ok=True)
-    (hermes_home / "auth.json").write_text(json.dumps({
+    sonic_home = tmp_path / "sonic"
+    sonic_home.mkdir(parents=True, exist_ok=True)
+    (sonic_home / "auth.json").write_text(json.dumps({
         "version": 1,
         "providers": {
             "openai-codex": {
@@ -354,12 +354,12 @@ def test_save_codex_tokens_syncs_manual_device_code_entries(tmp_path, monkeypatc
             ],
         },
     }))
-    monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
     _save_codex_tokens({"access_token": "fresh-at", "refresh_token": "fresh-rt"},
                        last_refresh="2026-05-28T00:00:00Z")
 
-    auth = json.loads((hermes_home / "auth.json").read_text())
+    auth = json.loads((sonic_home / "auth.json").read_text())
     pool = auth["credential_pool"]["openai-codex"]
 
     # Singleton-seeded device_code entry: refreshed and error markers cleared.

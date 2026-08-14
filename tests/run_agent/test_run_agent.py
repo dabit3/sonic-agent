@@ -1343,7 +1343,7 @@ class TestTaskCompletionGuidance:
             patch("run_agent.check_toolset_requirements", return_value={}),
             patch("run_agent.OpenAI"),
             patch(
-                "hermes_cli.config.load_config",
+                "sonic_cli.config.load_config",
                 return_value={"agent": agent_cfg},
             ),
         ):
@@ -1400,7 +1400,7 @@ class TestTaskCompletionGuidance:
             patch("run_agent.check_toolset_requirements", return_value={}),
             patch("run_agent.OpenAI"),
             patch(
-                "hermes_cli.config.load_config",
+                "sonic_cli.config.load_config",
                 return_value={"agent": {"task_completion_guidance": True}},
             ),
         ):
@@ -1432,7 +1432,7 @@ class TestEnvironmentProbeIntegration:
             patch("run_agent.check_toolset_requirements", return_value={}),
             patch("run_agent.OpenAI"),
             patch(
-                "hermes_cli.config.load_config",
+                "sonic_cli.config.load_config",
                 return_value={"agent": {"environment_probe": environment_probe}},
             ),
         ):
@@ -4068,7 +4068,7 @@ class TestNousCredentialRefresh:
             }
 
         monkeypatch.setattr(
-            "hermes_cli.auth.resolve_nous_runtime_credentials", _fake_resolve
+            "sonic_cli.auth.resolve_nous_runtime_credentials", _fake_resolve
         )
 
         with patch("run_agent.OpenAI", return_value=MagicMock()):

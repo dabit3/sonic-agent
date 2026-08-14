@@ -6,11 +6,11 @@ do an `initialize` handshake, then drive `thread/start` + `turn/start` and
 consume streaming `item/*` notifications until `turn/completed`.
 
 This module is the wire-level speaker only. Higher-level concerns (event
-projection into Sonic' display, approval bridging, transcript projection into
+projection into Sonic's display, approval bridging, transcript projection into
 AIAgent.messages, plugin migration) live in sibling modules.
 
 Status: optional opt-in runtime gated behind `model.openai_runtime ==
-"codex_app_server"`. Sonic' default tool dispatch is unchanged when this
+"codex_app_server"`. Sonic's default tool dispatch is unchanged when this
 runtime is not selected.
 """
 

@@ -67,7 +67,7 @@ class TestEnvFileReadBlocking:
             assert error is None, f"{path} should be allowed"
 
     def test_allowed_sonic_env(self):
-        """Sonic' own .env inside SONIC_HOME is NOT blocked by this rule
+        """Sonic's own .env inside SONIC_HOME is NOT blocked by this rule
         (it's handled by other mechanisms). Only project-local .env is blocked."""
         # Note: sonic internal .env is in ~/.sonic/.env which is NOT a project-local
         # path, but the basename check applies to ANY .env. This is intentional —
