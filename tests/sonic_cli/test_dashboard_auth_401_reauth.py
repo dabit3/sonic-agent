@@ -409,13 +409,13 @@ class TestRenderLoginHtmlNext:
         clear_providers()
 
     def test_no_next_emits_plain_button(self):
-        from hermes_cli.dashboard_auth.login_page import render_login_html
+        from sonic_cli.dashboard_auth.login_page import render_login_html
         html_out = render_login_html()
         assert 'href="/auth/login?provider=stub"' in html_out
         assert "next=" not in html_out
 
     def test_next_threaded_url_encoded(self):
-        from hermes_cli.dashboard_auth.login_page import render_login_html
+        from sonic_cli.dashboard_auth.login_page import render_login_html
         html_out = render_login_html(next_path="/sessions?page=2")
         # next= is URL-encoded — quote(safe='') turns "/" into "%2F",
         # "?" into "%3F", "=" into "%3D". The encoded value never
@@ -428,7 +428,7 @@ class TestRenderLoginHtmlNext:
         """Defence in depth: even though the caller validates next_path,
         we still HTML-escape the rendered value so a regression in the
         caller can't trivially produce an HTML-injection sink."""
-        from hermes_cli.dashboard_auth.login_page import render_login_html
+        from sonic_cli.dashboard_auth.login_page import render_login_html
         # `"` in a path is already URL-encoded by quote() to %22, so it
         # never reaches the HTML escaper as a raw quote. This test pins
         # both layers: quote() does its job AND escape() does its.
@@ -456,7 +456,7 @@ class TestAuthLoginPkceCookieNext:
         )
         assert r.status_code == 302
         cookies = r.headers.get_list("set-cookie")
-        pkce = next(c for c in cookies if "hermes_session_pkce" in c)
+        pkce = next(c for c in cookies if "sonic_session_pkce" in c)
         assert "next=" not in pkce
 
     def test_safe_next_query_encoded_into_cookie(self, gated_app):
@@ -465,7 +465,7 @@ class TestAuthLoginPkceCookieNext:
             follow_redirects=False,
         )
         cookies = r.headers.get_list("set-cookie")
-        pkce = next(c for c in cookies if "hermes_session_pkce" in c)
+        pkce = next(c for c in cookies if "sonic_session_pkce" in c)
         # ``next=`` segment present, URL-encoded.
         assert "next=%2Fsessions" in pkce
 
@@ -479,5 +479,5 @@ class TestAuthLoginPkceCookieNext:
             follow_redirects=False,
         )
         cookies = r.headers.get_list("set-cookie")
-        pkce = next(c for c in cookies if "hermes_session_pkce" in c)
+        pkce = next(c for c in cookies if "sonic_session_pkce" in c)
         assert "next=" not in pkce

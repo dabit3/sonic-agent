@@ -39,7 +39,7 @@ DEFAULT_CODEX_MODELS: List[str] = [
     # crashes on selection. The Codex CLI public catalog still references
     # these slugs, which is why they survived previously — but those entries
     # describe the public OpenAI API, not the OAuth-backed Codex backend
-    # Hermes uses. Removed here. If OpenAI re-enables them on Codex backend,
+    # Sonic uses. Removed here. If OpenAI re-enables them on Codex backend,
     # live discovery will pick them up automatically via _fetch_models_from_api.
 ]
 

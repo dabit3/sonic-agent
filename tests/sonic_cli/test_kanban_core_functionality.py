@@ -3699,8 +3699,8 @@ def test_gateway_dispatcher_retries_corrupt_board_after_quarantine(
     import sqlite3
 
     from gateway.run import GatewayRunner
-    import hermes_cli.config as _cfg_mod
-    import hermes_cli.kanban_db as _kb
+    import sonic_cli.config as _cfg_mod
+    import sonic_cli.kanban_db as _kb
 
     runner = object.__new__(GatewayRunner)
     runner._running = True
