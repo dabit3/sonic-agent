@@ -50,13 +50,13 @@ After `nix profile install`, `sonic`, `sonic-agent`, and `sonic-acp` are on your
 The default package doesn't include messaging platform libraries — they were moved to on-demand installation, which can't work in Nix's read-only environment. If you plan to connect the agent to Discord, Telegram, or Slack, install the `messaging` variant:
 
 ```bash
-nix profile install github:NousResearch/hermes-agent#messaging
+nix profile install github:dabit3/sonic-agent#messaging
 ```
 
 For all optional extras (voice, all providers, all platforms):
 
 ```bash
-nix profile install github:NousResearch/hermes-agent#full
+nix profile install github:dabit3/sonic-agent#full
 ```
 
 The `full` variant adds ~700 MB to the closure. If you only need messaging platforms, `#messaging` adds just ~33 MB.
