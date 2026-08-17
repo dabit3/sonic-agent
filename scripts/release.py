@@ -1388,6 +1388,8 @@ AUTHOR_MAP = {
     "kdkcfp@gmail.com": "slowtokki0409",  # PR #29025 (ignore local Sonic runtime files)
     "peter.yuqin@gmail.com": "WuKongAI-CMU",  # PR #10082 (reject symlinked audio inputs)
     "sunil.nitie@gmail.com": "Sunil123135",  # PR #31031 (Windows Docker Desktop compose)
+    "batosk2@gmail.com": "Sarbai",  # git email for PR #33438 author (display: Брагарник Дмитро)
+    "sohyuanchin@gmail.com": "wysie",
     "weichangyuwcy@gmail.com": "ChyuWei",  # PR #30987 (TUI TTS env var on voice off)
 }
 
