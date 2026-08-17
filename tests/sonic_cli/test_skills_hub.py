@@ -654,7 +654,7 @@ def test_browse_skills_dedup_uses_identifier_not_name(monkeypatch):
 
 
 # ---------------------------------------------------------------------------
-# Regression: full identifier must be recoverable from `hermes skills search`
+# Regression: full identifier must be recoverable from `sonic skills search`
 # even when the slug is too long to fit the terminal width (issue #33674).
 # ---------------------------------------------------------------------------
 
@@ -677,7 +677,7 @@ def test_do_search_identifier_column_does_not_truncate_long_slug():
     trailing -1uezib hash) must still appear in the output. Before the fix,
     Rich would render `browse-sh/weather…` and lose the hash.
     """
-    from hermes_cli.skills_hub import do_search
+    from sonic_cli.skills_hub import do_search
 
     sink = StringIO()
     # Narrow width forces Rich to apply overflow rules — exactly the scenario
@@ -722,7 +722,7 @@ def test_do_search_identifier_column_does_not_truncate_long_slug():
 
 def test_do_search_json_flag_emits_full_identifiers(capsys):
     """`--json` must print a parseable array with full identifiers and skip the table."""
-    from hermes_cli.skills_hub import do_search
+    from sonic_cli.skills_hub import do_search
 
     sink = StringIO()
     console = Console(file=sink, force_terminal=False, color_system=None, width=40)

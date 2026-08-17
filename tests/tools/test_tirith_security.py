@@ -763,14 +763,14 @@ class TestInstallArchiveMemberValidation:
         member.size = len(payload)
         archive, checksums = self._write_archive(tmp_path, member, payload)
 
-        hermes_home = tmp_path / "hermes-home"
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        sonic_home = tmp_path / "sonic-home"
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
         with patch("tools.tirith_security._download_file",
                    side_effect=self._download_side_effect(archive, checksums)):
             path, reason = _install_tirith(log_failures=False)
 
         assert reason == ""
-        assert path == str(hermes_home / "bin" / "tirith")
+        assert path == str(sonic_home / "bin" / "tirith")
         assert os.path.isfile(path)
         assert not os.path.islink(path)
         with open(path, "rb") as f:
@@ -790,15 +790,15 @@ class TestInstallArchiveMemberValidation:
         member.linkname = "/bin/sh"
         archive, checksums = self._write_archive(tmp_path, member)
 
-        hermes_home = tmp_path / "hermes-home"
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        sonic_home = tmp_path / "sonic-home"
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
         with patch("tools.tirith_security._download_file",
                    side_effect=self._download_side_effect(archive, checksums)):
             path, reason = _install_tirith(log_failures=False)
 
         assert path is None
         assert reason == "binary_not_regular_file"
-        assert not os.path.lexists(hermes_home / "bin" / "tirith")
+        assert not os.path.lexists(sonic_home / "bin" / "tirith")
 
 
 # ---------------------------------------------------------------------------

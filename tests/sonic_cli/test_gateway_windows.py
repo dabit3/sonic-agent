@@ -489,7 +489,7 @@ def test_uninstall_access_denied_declined_keeps_task_and_cleans_files(monkeypatc
 #
 # Background: on Windows, asyncio.add_signal_handler raises NotImplementedError,
 # so the gateway's SIGTERM handler (which drains in-flight agents and writes
-# resume_pending=True) never fires when `hermes gateway stop` kills the
+# resume_pending=True) never fires when `sonic gateway stop` kills the
 # process. The fix: stop() writes the planned_stop_marker first, waits for
 # the gateway's marker-watcher thread to drain + exit cleanly, then escalates
 # to taskkill if drain times out.
@@ -527,8 +527,8 @@ def test_stop_writes_planned_stop_marker_before_killing(monkeypatch):
         events.append(("kill", kwargs.get("force", False)))
         return 0
 
-    monkeypatch.setattr("hermes_cli.gateway.kill_gateway_processes", fake_kill)
-    monkeypatch.setattr("hermes_cli.gateway._get_restart_drain_timeout", lambda: 5.0)
+    monkeypatch.setattr("sonic_cli.gateway.kill_gateway_processes", fake_kill)
+    monkeypatch.setattr("sonic_cli.gateway._get_restart_drain_timeout", lambda: 5.0)
 
     gateway_windows.stop()
 
@@ -569,8 +569,8 @@ def test_stop_waits_for_graceful_drain_before_force_kill(monkeypatch):
     def fake_kill(**kwargs):
         events.append(("kill", kwargs.get("force", False)))
         return 0
-    monkeypatch.setattr("hermes_cli.gateway.kill_gateway_processes", fake_kill)
-    monkeypatch.setattr("hermes_cli.gateway._get_restart_drain_timeout", lambda: 5.0)
+    monkeypatch.setattr("sonic_cli.gateway.kill_gateway_processes", fake_kill)
+    monkeypatch.setattr("sonic_cli.gateway._get_restart_drain_timeout", lambda: 5.0)
 
     gateway_windows.stop()
 
@@ -586,7 +586,7 @@ def test_stop_escalates_to_force_kill_when_drain_times_out(monkeypatch):
 
     Drain timeout = gateway is stuck or unresponsive. Without the
     taskkill /T /F escalation, the gateway stays alive and the next
-    `hermes gateway start` fails with "another instance is running".
+    `sonic gateway start` fails with "another instance is running".
     """
     pid = 77777
     events = []
@@ -603,9 +603,9 @@ def test_stop_escalates_to_force_kill_when_drain_times_out(monkeypatch):
     def fake_kill(**kwargs):
         events.append(("kill", kwargs.get("force", False)))
         return 1
-    monkeypatch.setattr("hermes_cli.gateway.kill_gateway_processes", fake_kill)
+    monkeypatch.setattr("sonic_cli.gateway.kill_gateway_processes", fake_kill)
     # Tiny drain timeout to keep the test fast.
-    monkeypatch.setattr("hermes_cli.gateway._get_restart_drain_timeout", lambda: 1.0)
+    monkeypatch.setattr("sonic_cli.gateway._get_restart_drain_timeout", lambda: 1.0)
 
     gateway_windows.stop()
 
@@ -635,8 +635,8 @@ def test_stop_no_running_gateway_skips_drain(monkeypatch):
     def fake_kill(**kwargs):
         events.append(("kill", kwargs.get("force", False)))
         return 0
-    monkeypatch.setattr("hermes_cli.gateway.kill_gateway_processes", fake_kill)
-    monkeypatch.setattr("hermes_cli.gateway._get_restart_drain_timeout", lambda: 5.0)
+    monkeypatch.setattr("sonic_cli.gateway.kill_gateway_processes", fake_kill)
+    monkeypatch.setattr("sonic_cli.gateway._get_restart_drain_timeout", lambda: 5.0)
 
     gateway_windows.stop()
 

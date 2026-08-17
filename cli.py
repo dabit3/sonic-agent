@@ -7593,7 +7593,7 @@ class SonicCLI:
         # /v1/models endpoint on this open.
         if force_refresh:
             try:
-                from hermes_cli.models import clear_provider_models_cache
+                from sonic_cli.models import clear_provider_models_cache
                 clear_provider_models_cache()
                 _cprint("  Cleared model picker cache. Refreshing...")
             except Exception:
@@ -15090,7 +15090,7 @@ def main(
         # first so the final debug trace isn't lost; SIGALRM deadman guards
         # the flush against any rare blocking-I/O case (the reporter measured
         # flush in <1ms; the alarm is a failsafe, not the common path).
-        if os.environ.get("HERMES_KANBAN_TASK"):
+        if os.environ.get("SONIC_KANBAN_TASK"):
             try:
                 import signal as _sig_mod
                 if hasattr(_sig_mod, "SIGALRM"):
@@ -15123,7 +15123,7 @@ def main(
     # Handle single query mode
     if query or image:
         query, single_query_images = _collect_query_images(query, image)
-        # Kanban workers spawn with ``hermes chat -q "work kanban task <id>"``;
+        # Kanban workers spawn with ``sonic chat -q "work kanban task <id>"``;
         # the actual task description lives in the task body. Mirror the
         # gateway/CLI behaviour for inbound images by scanning the body for
         # local image paths and http(s) image URLs and attaching them to the
@@ -15131,10 +15131,10 @@ def main(
         # path or URL into a kanban task body never get it routed to the
         # model's vision input.
         single_query_image_urls: list[str] = []
-        _kanban_task_id = os.environ.get("HERMES_KANBAN_TASK", "").strip()
+        _kanban_task_id = os.environ.get("SONIC_KANBAN_TASK", "").strip()
         if _kanban_task_id:
             try:
-                from hermes_cli import kanban_db as _kb
+                from sonic_cli import kanban_db as _kb
                 from agent.image_routing import extract_image_refs as _extract_refs
 
                 _conn = _kb.connect()

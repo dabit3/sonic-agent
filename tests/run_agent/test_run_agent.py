@@ -3896,7 +3896,7 @@ class TestNousCredentialRefresh:
             }
 
         monkeypatch.setattr(
-            "hermes_cli.auth.resolve_nous_runtime_credentials", _fake_resolve
+            "sonic_cli.auth.resolve_nous_runtime_credentials", _fake_resolve
         )
 
         with patch("run_agent.OpenAI", return_value=MagicMock()):

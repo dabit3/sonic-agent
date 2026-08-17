@@ -103,7 +103,7 @@ Or as an env var:
 MSGRAPH_WEBHOOK_ALLOWED_SOURCE_CIDRS="52.96.0.0/14,52.104.0.0/14"
 ```
 
-Binding a non-loopback host such as `0.0.0.0`, `::`, or a LAN IP without `allowed_source_cidrs` is refused at startup. If you're using a dev tunnel or reverse proxy on the same machine, bind Hermes to `127.0.0.1` or `::1` and leave the allowlist empty there. Invalid CIDR strings log a warning and are ignored. **Review the Microsoft IP list quarterly** — it changes.
+Binding a non-loopback host such as `0.0.0.0`, `::`, or a LAN IP without `allowed_source_cidrs` is refused at startup. If you're using a dev tunnel or reverse proxy on the same machine, bind Sonic to `127.0.0.1` or `::1` and leave the allowlist empty there. Invalid CIDR strings log a warning and are ignored. **Review the Microsoft IP list quarterly** — it changes.
 
 ### HTTPS termination
 
@@ -133,7 +133,7 @@ Status code table:
 | Every notification 403s | `clientState` mismatch (forged, or subscription registered with a different value). Re-create the subscription with `sonic teams-pipeline subscribe --client-state "$MSGRAPH_WEBHOOK_CLIENT_STATE" ...` (ships with the pipeline runtime PR). |
 | Listener refuses to start on `0.0.0.0` | Set `allowed_source_cidrs` to Microsoft's current webhook egress ranges, or bind Sonic to `127.0.0.1` / `::1` behind your tunnel or reverse proxy. |
 | Listener starts but `curl http://localhost:8646/health` hangs | Port binding collision. Check `ss -tlnp \| grep 8646` and change `port:` if needed. |
-| Real Graph requests from Microsoft get 403'd | Source IP allowlist is too narrow. Widen the list to include the current Microsoft egress ranges. If you're still validating the tunnel path, bind Hermes to loopback and let the tunnel handle public exposure. |
+| Real Graph requests from Microsoft get 403'd | Source IP allowlist is too narrow. Widen the list to include the current Microsoft egress ranges. If you're still validating the tunnel path, bind Sonic to loopback and let the tunnel handle public exposure. |
 
 ## Related Docs
 

@@ -588,12 +588,12 @@ def test_s6_register_extra_env_is_quoted(s6_scandir, fake_subprocess_run) -> Non
 
 
 def test_render_run_script_resets_home_before_exec() -> None:
-    from hermes_cli.service_manager import S6ServiceManager
+    from sonic_cli.service_manager import S6ServiceManager
 
     run_text = S6ServiceManager._render_run_script("coder", {})
 
     assert "export HOME=/opt/data" in run_text
-    assert "exec s6-setuidgid hermes hermes -p coder gateway run" in run_text
+    assert "exec s6-setuidgid sonic sonic -p coder gateway run" in run_text
 
 
 def test_s6_register_rejects_invalid_profile_name(s6_scandir) -> None:

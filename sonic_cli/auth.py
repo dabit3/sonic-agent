@@ -823,7 +823,7 @@ def format_auth_error(error: Exception) -> str:
 
 def _format_nous_entitlement_auth_error(error: AuthError) -> str:
     try:
-        from hermes_cli.nous_account import (
+        from sonic_cli.nous_account import (
             format_nous_portal_entitlement_message,
             get_nous_portal_account_info,
         )
@@ -3326,13 +3326,13 @@ def _sync_codex_pool_entries(
     What gets refreshed:
 
     * ``device_code`` — the singleton-seeded entry written by the device-code
-      OAuth flow when the user logged in via ``hermes setup`` / the model
+      OAuth flow when the user logged in via ``sonic setup`` / the model
       picker.  Always synced with the fresh tokens.
-    * ``manual:device_code`` — entries created by ``hermes auth add openai-codex``
+    * ``manual:device_code`` — entries created by ``sonic auth add openai-codex``
       that use the same device-code OAuth mechanism.  An interactive re-auth
       proves the user owns the ChatGPT account, so it is safe (and expected)
       to refresh these entries too.  Without this, a user who once ran the
-      ``hermes auth add`` workaround for #33000 would silently leave that
+      ``sonic auth add`` workaround for #33000 would silently leave that
       manual entry stale on every subsequent re-auth, recreating the issue
       reported in #33538.
 
@@ -7854,7 +7854,7 @@ def _login_nous(args, pconfig: ProviderConfig) -> None:
                 _portal_for_recs = auth_state.get("portal_base_url", "")
                 if free_tier:
                     try:
-                        from hermes_cli.nous_account import (
+                        from sonic_cli.nous_account import (
                             format_nous_portal_entitlement_message,
                             get_nous_portal_account_info,
                         )

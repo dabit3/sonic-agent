@@ -170,7 +170,7 @@ def sync_turn(self, user_content, assistant_content, *, session_id="", messages=
 `messages` is optional OpenAI-style conversation context as of the completed
 turn. When present, it includes user/assistant messages, assistant tool calls,
 and tool result messages. Providers that do not need raw turn context can omit
-the `messages` parameter; Hermes will continue calling them with the legacy
+the `messages` parameter; Sonic will continue calling them with the legacy
 signature.
 
 Cloud providers should document what parts of `messages` are sent off-device.

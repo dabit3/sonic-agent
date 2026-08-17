@@ -84,13 +84,13 @@ def test_show_status_reports_nous_auth_error(monkeypatch, capsys, tmp_path):
 
 
 def test_show_status_reports_nous_inference_key_without_portal_login(monkeypatch, capsys, tmp_path):
-    from hermes_cli import status as status_mod
-    from hermes_cli.nous_account import NousPortalAccountInfo
-    import hermes_cli.auth as auth_mod
-    import hermes_cli.gateway as gateway_mod
+    from sonic_cli import status as status_mod
+    from sonic_cli.nous_account import NousPortalAccountInfo
+    import sonic_cli.auth as auth_mod
+    import sonic_cli.gateway as gateway_mod
 
     monkeypatch.setattr(status_mod, "get_env_path", lambda: tmp_path / ".env", raising=False)
-    monkeypatch.setattr(status_mod, "get_hermes_home", lambda: tmp_path, raising=False)
+    monkeypatch.setattr(status_mod, "get_sonic_home", lambda: tmp_path, raising=False)
     monkeypatch.setattr(status_mod, "load_config", lambda: {"model": "gpt-5.4"}, raising=False)
     monkeypatch.setattr(status_mod, "resolve_requested_provider", lambda requested=None: "openai-codex", raising=False)
     monkeypatch.setattr(status_mod, "resolve_provider", lambda requested=None, **kwargs: "openai-codex", raising=False)

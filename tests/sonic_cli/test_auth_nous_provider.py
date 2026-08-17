@@ -668,14 +668,14 @@ def test_get_nous_auth_status_checks_credential_pool(tmp_path, monkeypatch):
 
 
 def test_get_nous_auth_status_pool_opaque_key_is_not_portal_login(tmp_path, monkeypatch):
-    from hermes_cli.auth import get_nous_auth_status, invalidate_nous_auth_status_cache
+    from sonic_cli.auth import get_nous_auth_status, invalidate_nous_auth_status_cache
 
-    hermes_home = tmp_path / "hermes"
-    hermes_home.mkdir(parents=True, exist_ok=True)
-    (hermes_home / "auth.json").write_text(json.dumps({
+    sonic_home = tmp_path / "sonic"
+    sonic_home.mkdir(parents=True, exist_ok=True)
+    (sonic_home / "auth.json").write_text(json.dumps({
         "version": 1, "providers": {},
     }))
-    monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
     invalidate_nous_auth_status_cache()
 
     from agent.credential_pool import PooledCredential, load_pool

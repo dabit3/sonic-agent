@@ -16,7 +16,7 @@ from unittest.mock import patch
 
 import pytest
 
-from hermes_cli.nous_account import NousPaidServiceAccessInfo, NousPortalAccountInfo
+from sonic_cli.nous_account import NousPaidServiceAccessInfo, NousPortalAccountInfo
 from tools.tool_backend_helpers import (
     coerce_modal_mode,
     has_direct_modal_credentials,
@@ -84,7 +84,7 @@ class TestManagedNousToolsEnabled:
             )
 
         monkeypatch.setattr(
-            "hermes_cli.nous_account.get_nous_portal_account_info",
+            "sonic_cli.nous_account.get_nous_portal_account_info",
             fake_account_info,
         )
 
@@ -103,7 +103,7 @@ class TestManagedNousToolsEnabled:
 class TestNousToolGatewayUnavailableMessage:
     def test_uses_entitlement_reason_for_logged_in_user(self, monkeypatch):
         monkeypatch.setattr(
-            "hermes_cli.nous_account.get_nous_portal_account_info",
+            "sonic_cli.nous_account.get_nous_portal_account_info",
             lambda force_fresh=False: NousPortalAccountInfo(
                 logged_in=True,
                 source="account_api",

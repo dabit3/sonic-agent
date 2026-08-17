@@ -68,7 +68,7 @@ def test_plugin_engine_gets_context_length_on_init():
 
 
 def test_active_context_engine_tools_survive_explicit_platform_toolsets():
-    """LCM-style recovery tools must survive saved `hermes tools` lists."""
+    """LCM-style recovery tools must survive saved `sonic tools` lists."""
     engine = _ToolEngine()
     cfg = {
         "context": {"engine": "stub"},
@@ -76,13 +76,13 @@ def test_active_context_engine_tools_survive_explicit_platform_toolsets():
         "agent": {},
     }
 
-    from hermes_cli.tools_config import _get_platform_tools
+    from sonic_cli.tools_config import _get_platform_tools
 
     enabled_toolsets = _get_platform_tools(cfg, "cli", include_default_mcp_servers=False)
     assert "context_engine" in enabled_toolsets
 
     with (
-        patch("hermes_cli.config.load_config", return_value=cfg),
+        patch("sonic_cli.config.load_config", return_value=cfg),
         patch("plugins.context_engine.load_context_engine", return_value=engine),
         patch("agent.model_metadata.get_model_context_length", return_value=204_800),
         patch("run_agent.get_tool_definitions", return_value=[]),
