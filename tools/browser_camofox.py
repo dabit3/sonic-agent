@@ -167,7 +167,7 @@ def _loopback_rewrite_enabled(camofox_cfg: Dict[str, Any]) -> bool:
     """Return whether loopback navigation URLs should be rewritten for Docker.
 
     ``CAMOFOX_URL`` itself often points at a host-published Docker port such as
-    ``http://127.0.0.1:9377``.  That is correct for Hermes talking to the
+    ``http://127.0.0.1:9377``.  That is correct for Sonic talking to the
     Camofox control API, but a page URL like ``http://127.0.0.1:3000`` is opened
     by the browser *inside* the Docker container.  In that context loopback
     points at the container, not the host running the web app.

@@ -180,14 +180,14 @@ class TestFallbackChain:
     releases (opus 4.8, etc.) never reach the picker.
     """
 
-    PRIMARY = "https://hermes-agent.nousresearch.com/docs/api/model-catalog.json"
+    PRIMARY = "https://sonic-agent.nousresearch.com/docs/api/model-catalog.json"
     FALLBACK = (
         "https://raw.githubusercontent.com/NousResearch/hermes-agent"
         "/main/website/static/api/model-catalog.json"
     )
 
     def test_uses_primary_when_it_succeeds(self, isolated_home):
-        from hermes_cli import model_catalog
+        from sonic_cli import model_catalog
         calls: list[str] = []
 
         def fake_fetch(url, timeout):
@@ -201,7 +201,7 @@ class TestFallbackChain:
         assert calls == [self.PRIMARY], "fallback URLs must not be touched on primary success"
 
     def test_falls_through_to_raw_github_on_primary_failure(self, isolated_home):
-        from hermes_cli import model_catalog
+        from sonic_cli import model_catalog
         calls: list[str] = []
 
         def fake_fetch(url, timeout):
@@ -217,7 +217,7 @@ class TestFallbackChain:
         assert calls == [self.PRIMARY, self.FALLBACK]
 
     def test_returns_none_when_all_urls_fail(self, isolated_home):
-        from hermes_cli import model_catalog
+        from sonic_cli import model_catalog
 
         with patch.object(model_catalog, "_fetch_manifest", return_value=None) as fetch:
             result = model_catalog._fetch_manifest_with_fallback(self.PRIMARY, 5.0)
@@ -229,7 +229,7 @@ class TestFallbackChain:
     def test_dedupes_when_primary_equals_fallback(self, isolated_home):
         """Operator who configured ``model_catalog.url`` to the raw GitHub URL
         should not get a duplicate fetch from the fallback list."""
-        from hermes_cli import model_catalog
+        from sonic_cli import model_catalog
 
         with patch.object(model_catalog, "_fetch_manifest", return_value=None) as fetch:
             model_catalog._fetch_manifest_with_fallback(self.FALLBACK, 5.0)
@@ -239,7 +239,7 @@ class TestFallbackChain:
     def test_get_catalog_uses_fallback_chain(self, isolated_home):
         """End-to-end: ``get_catalog`` routes through the fallback helper so
         a primary URL failure transparently produces a working catalog."""
-        from hermes_cli import model_catalog
+        from sonic_cli import model_catalog
         manifest = _valid_manifest()
         calls: list[str] = []
 

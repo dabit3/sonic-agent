@@ -388,7 +388,7 @@ def test_token_invalidated_marks_credential_dead(tmp_path, monkeypatch):
     summary" on context compression.  Terminal OAuth failures should never
     auto-recover.
     """
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
     _write_auth_store(
         tmp_path,
         {
@@ -437,7 +437,7 @@ def test_token_invalidated_marks_credential_dead(tmp_path, monkeypatch):
     assert next_entry.id == "cred-ok"
 
     # The revoked credential is now permanently marked DEAD.
-    auth_payload = json.loads((tmp_path / "hermes" / "auth.json").read_text())
+    auth_payload = json.loads((tmp_path / "sonic" / "auth.json").read_text())
     persisted = auth_payload["credential_pool"]["openai-codex"][0]
     assert persisted["last_status"] == STATUS_DEAD
     assert persisted["last_error_code"] == 401
@@ -453,7 +453,7 @@ def test_dead_credential_never_re_enters_rotation_after_ttl(tmp_path, monkeypatc
     (b) the manual-prune TTL elapses (covered by separate tests below).
     This test verifies the core invariant in the recent-entry window.
     """
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
     # DEAD entry from 2 hours ago — well past the exhausted TTLs (5min/1h)
     # but well within the 24h manual-prune window.
     two_hours_ago = time.time() - (2 * 3600)
@@ -501,7 +501,7 @@ def test_dead_credential_never_re_enters_rotation_after_ttl(tmp_path, monkeypatc
     assert selected.id == "cred-ok"
 
     # The DEAD entry is still marked dead on disk — not cleared by TTL.
-    auth_payload = json.loads((tmp_path / "hermes" / "auth.json").read_text())
+    auth_payload = json.loads((tmp_path / "sonic" / "auth.json").read_text())
     dead_entry = next(e for e in auth_payload["credential_pool"]["openai-codex"]
                        if e["id"] == "cred-dead")
     assert dead_entry["last_status"] == STATUS_DEAD
@@ -513,7 +513,7 @@ def test_429_rate_limit_still_uses_exhausted_not_dead(tmp_path, monkeypatch):
     They should keep the existing 1-hour TTL cooldown semantics so the
     credential re-enters rotation once the rate window resets.
     """
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
     _write_auth_store(
         tmp_path,
         {
@@ -555,7 +555,7 @@ def test_429_rate_limit_still_uses_exhausted_not_dead(tmp_path, monkeypatch):
     assert next_entry is not None
     assert next_entry.id == "cred-2"
 
-    auth_payload = json.loads((tmp_path / "hermes" / "auth.json").read_text())
+    auth_payload = json.loads((tmp_path / "sonic" / "auth.json").read_text())
     persisted = auth_payload["credential_pool"]["openai-codex"][0]
     # 429 stays exhausted (transient) — NOT dead.
     assert persisted["last_status"] == STATUS_EXHAUSTED
@@ -569,7 +569,7 @@ def test_generic_401_without_terminal_reason_still_uses_exhausted(tmp_path, monk
     transition to DEAD.  A generic 401 might be a transient server-side
     issue worth retrying after the 5-min TTL.
     """
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
     _write_auth_store(
         tmp_path,
         {
@@ -610,7 +610,7 @@ def test_generic_401_without_terminal_reason_still_uses_exhausted(tmp_path, monk
         error_context={"message": "Unauthorized"},
     )
 
-    auth_payload = json.loads((tmp_path / "hermes" / "auth.json").read_text())
+    auth_payload = json.loads((tmp_path / "sonic" / "auth.json").read_text())
     persisted = auth_payload["credential_pool"]["openai-codex"][0]
     assert persisted["last_status"] == STATUS_EXHAUSTED
     assert persisted["last_error_code"] == 401
@@ -622,9 +622,9 @@ def test_dead_manual_entry_pruned_after_24h(tmp_path, monkeypatch):
     Manual entries (``manual:*``) are independent credentials with no
     singleton to re-seed from, so we can clean them up after a quiet
     window without losing recoverability — the user can always re-add
-    via ``hermes auth add``.
+    via ``sonic auth add``.
     """
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
     # DEAD entry from > 24h ago
     long_ago = time.time() - (25 * 3600)
     _write_auth_store(
@@ -669,7 +669,7 @@ def test_dead_manual_entry_pruned_after_24h(tmp_path, monkeypatch):
     assert selected.id == "cred-ok"
 
     # On-disk pool should have the dead entry removed.
-    auth_payload = json.loads((tmp_path / "hermes" / "auth.json").read_text())
+    auth_payload = json.loads((tmp_path / "sonic" / "auth.json").read_text())
     persisted = auth_payload["credential_pool"]["openai-codex"]
     assert len(persisted) == 1
     assert persisted[0]["id"] == "cred-ok"
@@ -682,7 +682,7 @@ def test_dead_manual_entry_kept_within_24h(tmp_path, monkeypatch):
     timestamps) remains visible while the user investigates.  They simply
     don't participate in rotation (covered by the DEAD-skip test above).
     """
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
     # DEAD entry from only an hour ago — well within the 24h window
     recent = time.time() - 3600
     _write_auth_store(
@@ -726,7 +726,7 @@ def test_dead_manual_entry_kept_within_24h(tmp_path, monkeypatch):
     assert selected.id == "cred-ok"
 
     # On-disk pool should still have BOTH entries — recent dead is preserved.
-    auth_payload = json.loads((tmp_path / "hermes" / "auth.json").read_text())
+    auth_payload = json.loads((tmp_path / "sonic" / "auth.json").read_text())
     persisted = auth_payload["credential_pool"]["openai-codex"]
     assert len(persisted) == 2
     dead_entry = next(e for e in persisted if e["id"] == "cred-recent-dead")
@@ -741,7 +741,7 @@ def test_dead_singleton_seeded_entry_not_pruned(tmp_path, monkeypatch):
     immediately with the same stale singleton tokens.  Keep them visible
     with the DEAD marker so the user knows what's broken.
     """
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
     long_ago = time.time() - (48 * 3600)
     _write_auth_store(
         tmp_path,
@@ -781,7 +781,7 @@ def test_dead_singleton_seeded_entry_not_pruned(tmp_path, monkeypatch):
     assert pool.select() is None
 
     # On-disk: the singleton-seeded DEAD entry is preserved.
-    auth_payload = json.loads((tmp_path / "hermes" / "auth.json").read_text())
+    auth_payload = json.loads((tmp_path / "sonic" / "auth.json").read_text())
     persisted = auth_payload["credential_pool"]["openai-codex"]
     assert len(persisted) == 1
     assert persisted[0]["id"] == "cred-seeded-dead"

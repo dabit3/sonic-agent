@@ -871,9 +871,9 @@ _docker_orphan_reaper_lock = threading.Lock()
 def _maybe_reap_docker_orphans(container_config: Dict[str, Any]) -> None:
     """Run the docker orphan reaper once per process, if enabled.
 
-    Sweeps long-Exited containers labeled ``hermes-agent=1`` for the current
+    Sweeps long-Exited containers labeled ``sonic-agent=1`` for the current
     profile that match the issue #20561 leak class — containers left behind
-    by Hermes processes that exited without firing ``atexit`` (SIGKILL,
+    by Sonic processes that exited without firing ``atexit`` (SIGKILL,
     OOM, terminal-window-close). The reaper is conservative by default:
     only Exited containers older than ``2 × lifetime_seconds`` and scoped to
     the current profile.
@@ -882,7 +882,7 @@ def _maybe_reap_docker_orphans(container_config: Dict[str, Any]) -> None:
 
     * ``terminal.docker_orphan_reaper: false`` disables it entirely (the
       operator opted out — usually because they're running multiple
-      Hermes processes in the same profile and don't trust the
+      Sonic processes in the same profile and don't trust the
       conservative defaults).
     * ``_docker_orphan_reaper_ran`` flag — sweep runs once per Python
       interpreter, not on every subagent / RL-rollout / parallel
@@ -900,7 +900,7 @@ def _maybe_reap_docker_orphans(container_config: Dict[str, Any]) -> None:
             return
         _docker_orphan_reaper_ran = True
 
-    # 2 × lifetime_seconds gives sibling Hermes processes a generous grace
+    # 2 × lifetime_seconds gives sibling Sonic processes a generous grace
     # window. Floor at 60s so an operator with TERMINAL_LIFETIME_SECONDS=0
     # doesn't get an instant-reap that races their own setup.
     # ``container_config`` only carries container_* keys, so read
@@ -1105,7 +1105,7 @@ def _get_env_config() -> Dict[str, Any]:
         "docker_persist_across_processes": os.getenv(
             "TERMINAL_DOCKER_PERSIST_ACROSS_PROCESSES", "true"
         ).lower() in {"true", "1", "yes"},
-        # Startup orphan reaper for hermes-tagged containers left behind by
+        # Startup orphan reaper for sonic-tagged containers left behind by
         # crashed / SIGKILL'd previous processes that bypassed atexit.
         # Conservative: only sweeps Exited containers older than 2× the
         # idle-reap window AND scoped to the current profile. Issue #20561.
@@ -1161,7 +1161,7 @@ def _create_environment(env_type: str, image: str, cwd: str, timeout: int,
     
     elif env_type == "docker":
         # One-shot orphan reaper: clean up labeled containers left behind by
-        # prior Hermes processes that hit SIGKILL / OOM / a closed terminal
+        # prior Sonic processes that hit SIGKILL / OOM / a closed terminal
         # before the atexit cleanup hook could run.  Gated to once per
         # process so concurrent _create_environment calls (parallel
         # subagents, RL benchmarks) don't run the reaper N times.

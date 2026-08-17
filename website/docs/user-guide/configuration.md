@@ -158,7 +158,7 @@ terminal:
 
   # Cross-process container reuse (defaults match the "one long-lived
   # container shared across sessions" contract — see Container lifecycle).
-  docker_persist_across_processes: true   # Reuse container across Hermes restarts
+  docker_persist_across_processes: true   # Reuse container across Sonic restarts
   docker_orphan_reaper: true              # Sweep abandoned Exited containers at startup
 
   # Cross-backend lifecycle settings (apply to docker as well)
@@ -229,7 +229,7 @@ Every key under `terminal:` has an env-var override of the form `TERMINAL_<KEY_U
 | `TERMINAL_CONTAINER_PERSISTENT` | `container_persistent` | `true` / `false` — controls the bind-mount workspace dirs, distinct from `docker_persist_across_processes` |
 | `TERMINAL_LIFETIME_SECONDS` | `lifetime_seconds` | Idle reaper window |
 | `TERMINAL_TIMEOUT` | `timeout` | Per-command timeout |
-| `HERMES_DOCKER_BINARY` | _none_ | Force a specific docker/podman binary path |
+| `SONIC_DOCKER_BINARY` | _none_ | Force a specific docker/podman binary path |
 
 ### SSH Backend
 

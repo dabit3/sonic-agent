@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "300140e006bd1e356db69772b5ba35914b9d4008",
-  "synced_at": "2026-08-17T06:00:00Z",
-  "notes": "Partial sync. 2026-08-17 batch (continued on the still-open 2026-08-15 sync PR): 0537e260..300140e0 (100 first-parent commits, none skipped). Upstream release-note files (RELEASE_v0.15.0.md, RELEASE_v0.15.1.md) were dropped because Sonic does not carry upstream release notes; the version bumps to 0.15.1 were kept. Backlog remains large (~10.9k first-parent commits beyond 300140e0); each daily run advances the baseline by a reviewable batch. The original bootstrap baseline was inferred in an earlier run and still warrants a human double-check."
+  "last_synced_upstream_sha": "2765b02021c1e6eb743e2ce2eb359fc66a5aa89e",
+  "synced_at": "2026-08-17T16:00:00Z",
+  "notes": "Partial sync. 2026-08-17 batch 3 (continued on the still-open 2026-08-15 sync PR): 300140e0..2765b020 (60 first-parent commits, none skipped). Backlog remains large (~11k first-parent commits beyond 2765b020); each daily run advances the baseline by a reviewable batch. The original bootstrap baseline was inferred in an earlier run and still warrants a human double-check."
 }

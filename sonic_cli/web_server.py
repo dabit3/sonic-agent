@@ -112,7 +112,7 @@ app.add_middleware(
 # Endpoints that do NOT require the session token.  Everything else under
 # /api/ is gated by the auth middleware below.
 #
-# This list is defined in ``hermes_cli.dashboard_auth.public_paths`` so the
+# This list is defined in ``sonic_cli.dashboard_auth.public_paths`` so the
 # OAuth gate middleware can honour the same allowlist — keeping the two
 # gates in lockstep avoids drift like the wildcard-subdomain regression
 # where ``/api/status`` was public under the legacy gate but 401'd under
@@ -121,7 +121,7 @@ app.add_middleware(
 # Keep the upstream list minimal — only truly non-sensitive, read-only
 # endpoints belong there.
 # ---------------------------------------------------------------------------
-from hermes_cli.dashboard_auth.public_paths import (
+from sonic_cli.dashboard_auth.public_paths import (
     PUBLIC_API_PATHS as _PUBLIC_API_PATHS,
 )
 

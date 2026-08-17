@@ -2313,7 +2313,7 @@ class GatewayRunner:
         """Update the topic binding to point at ``session_entry.session_id``.
 
         Telegram topic lanes persist a (chat_id, thread_id) -> session_id row
-        so reopening a topic in a fresh process resumes the right Hermes
+        so reopening a topic in a fresh process resumes the right Sonic
         session. When compression rotates ``session_entry.session_id`` mid-turn,
         the binding goes stale and the next inbound message in that topic
         reloads the oversized parent transcript instead of the compressed

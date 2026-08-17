@@ -272,7 +272,7 @@ class TestDetectAudioEnvironment:
         monkeypatch.delenv("SSH_CONNECTION", raising=False)
         monkeypatch.delenv("PULSE_SERVER", raising=False)
         monkeypatch.setenv("PIPEWIRE_REMOTE", "/run/user/1000/pipewire-0")
-        monkeypatch.setattr("hermes_constants.is_container", lambda: True)
+        monkeypatch.setattr("sonic_constants.is_container", lambda: True)
 
         sd = MagicMock()
         sd.query_devices.return_value = []
@@ -292,7 +292,7 @@ class TestDetectAudioEnvironment:
         monkeypatch.delenv("SSH_CONNECTION", raising=False)
         monkeypatch.delenv("PULSE_SERVER", raising=False)
         monkeypatch.setenv("PIPEWIRE_REMOTE", "/run/user/1000/pipewire-0")
-        monkeypatch.setattr("hermes_constants.is_container", lambda: True)
+        monkeypatch.setattr("sonic_constants.is_container", lambda: True)
 
         sd = MagicMock()
         sd.query_devices.side_effect = RuntimeError("boom")

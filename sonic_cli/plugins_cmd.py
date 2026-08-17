@@ -821,7 +821,7 @@ def _plugin_status(name: str, enabled: set, disabled: set) -> str:
 
 
 def _filter_plugin_entries(entries: list, args: Any, enabled: set, disabled: set) -> list:
-    """Apply ``hermes plugins list`` CLI filters."""
+    """Apply ``sonic plugins list`` CLI filters."""
     filtered = entries
     if getattr(args, "no_bundled", False) or getattr(args, "user", False):
         filtered = [entry for entry in filtered if entry[3] != "bundled"]

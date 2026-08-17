@@ -79,7 +79,7 @@ _TERMINAL_AUTH_REASONS = frozenset({
 # Manual entries (``manual:*``) are independent credentials with no singleton
 # to re-seed from, so pruning them after a quiet window cleans up dead state
 # without losing recoverability — the user always has the option to re-add
-# via ``hermes auth add``.
+# via ``sonic auth add``.
 #
 # Singleton-seeded entries (``device_code``, ``loopback_pkce``, ``claude_code``)
 # are NOT pruned because ``_seed_from_singletons`` would just re-create them
@@ -1273,7 +1273,7 @@ class CredentialPool:
             if entry.last_status == STATUS_DEAD:
                 # Manual DEAD credentials get pruned after a 24h quiet window
                 # so the pool doesn't accumulate dead entries forever.  The
-                # user can always re-add via ``hermes auth add``.  Singleton-
+                # user can always re-add via ``sonic auth add``.  Singleton-
                 # seeded DEAD entries are kept so the audit trail (label,
                 # last_error_reason, timestamps) stays visible — pruning them
                 # would just be undone by ``_seed_from_singletons`` on the
@@ -1284,7 +1284,7 @@ class CredentialPool:
                         _label = entry.label or entry.id[:8]
                         logger.warning(
                             "credential pool: pruning DEAD manual entry %s "
-                            "(reason=%s, age=%.1fh) — re-add via `hermes auth add %s`",
+                            "(reason=%s, age=%.1fh) — re-add via `sonic auth add %s`",
                             _label,
                             entry.last_error_reason or "unknown",
                             (now - dead_at) / 3600.0,

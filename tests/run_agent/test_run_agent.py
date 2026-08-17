@@ -1343,7 +1343,7 @@ class TestTaskCompletionGuidance:
             patch("run_agent.check_toolset_requirements", return_value={}),
             patch("run_agent.OpenAI"),
             patch(
-                "hermes_cli.config.load_config",
+                "sonic_cli.config.load_config",
                 return_value={"agent": agent_cfg},
             ),
         ):
@@ -1400,7 +1400,7 @@ class TestTaskCompletionGuidance:
             patch("run_agent.check_toolset_requirements", return_value={}),
             patch("run_agent.OpenAI"),
             patch(
-                "hermes_cli.config.load_config",
+                "sonic_cli.config.load_config",
                 return_value={"agent": {"task_completion_guidance": True}},
             ),
         ):
@@ -1432,7 +1432,7 @@ class TestEnvironmentProbeIntegration:
             patch("run_agent.check_toolset_requirements", return_value={}),
             patch("run_agent.OpenAI"),
             patch(
-                "hermes_cli.config.load_config",
+                "sonic_cli.config.load_config",
                 return_value={"agent": {"environment_probe": environment_probe}},
             ),
         ):
@@ -3814,9 +3814,9 @@ class TestRunConversation:
 
         with (
             patch("run_agent.handle_function_call", return_value="ok"),
-            patch("hermes_cli.kanban_db._record_task_failure",
+            patch("sonic_cli.kanban_db._record_task_failure",
                   mock_record_failure),
-            patch("hermes_cli.kanban_db.connect", mock_connect),
+            patch("sonic_cli.kanban_db.connect", mock_connect),
             patch.object(agent, "_persist_session"),
             patch.object(agent, "_save_trajectory"),
             patch.object(agent, "_cleanup_task_resources"),
@@ -3864,7 +3864,7 @@ class TestRunConversation:
 
         with (
             patch("run_agent.handle_function_call", return_value="ok"),
-            patch("hermes_cli.kanban_db._record_task_failure",
+            patch("sonic_cli.kanban_db._record_task_failure",
                   mock_record_failure),
             patch.object(agent, "_persist_session"),
             patch.object(agent, "_save_trajectory"),

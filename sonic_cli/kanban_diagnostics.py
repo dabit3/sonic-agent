@@ -842,8 +842,8 @@ def _rule_block_unblock_cycling(task, events, runs, now, cfg) -> list[Diagnostic
     if task_id:
         actions.append(DiagnosticAction(
             kind="cli_hint",
-            label=f"Check block reasons: hermes kanban events {task_id}",
-            payload={"command": f"hermes kanban events {task_id}"},
+            label=f"Check block reasons: sonic kanban events {task_id}",
+            payload={"command": f"sonic kanban events {task_id}"},
             suggested=True,
         ))
     return [Diagnostic(

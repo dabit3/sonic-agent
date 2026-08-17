@@ -2761,7 +2761,7 @@ def _refresh_provider_credentials(provider: str) -> bool:
                 if refreshed is not None and str(getattr(refreshed, "runtime_api_key", "") or "").strip():
                     _evict_cached_clients(normalized)
                     return True
-            from hermes_cli.auth import resolve_xai_oauth_runtime_credentials
+            from sonic_cli.auth import resolve_xai_oauth_runtime_credentials
 
             creds = resolve_xai_oauth_runtime_credentials(force_refresh=True)
             if not str(creds.get("api_key", "") or "").strip():
