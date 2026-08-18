@@ -10,6 +10,8 @@ Run Sonic Agent as a [LINE](https://line.me/) bot via the official LINE Messagin
 
 LINE is the dominant messaging app in Japan, Taiwan, and Thailand. If your users live there, this is how they reach you.
 
+> Run `sonic gateway setup` and pick **LINE** for a guided walk-through.
+
 ## How the bot responds
 
 | Context | Behavior |

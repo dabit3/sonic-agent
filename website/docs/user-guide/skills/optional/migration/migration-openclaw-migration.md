@@ -21,7 +21,7 @@ Migrate a user's OpenClaw customization footprint into Sonic Agent. Imports Soni
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `Migration`, `OpenClaw`, `Sonic`, `Memory`, `Persona`, `Import` |
-| Related skills | [`sonic-agent`](/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-sonic-agent) |
+| Related skills | [`sonic-agent`](/docs/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-sonic-agent) |
 
 ## Reference: full SKILL.md
 
@@ -56,7 +56,7 @@ It uses `scripts/openclaw_to_sonic.py` to:
 - import `SOUL.md` into the Sonic home directory as `SOUL.md`
 - transform OpenClaw `MEMORY.md` and `USER.md` into Sonic memory entries
 - merge OpenClaw command approval patterns into Sonic `command_allowlist`
-- migrate Sonic-compatible messaging settings such as `TELEGRAM_ALLOWED_USERS` and `MESSAGING_CWD`
+- migrate Sonic-compatible messaging settings such as `TELEGRAM_ALLOWED_USERS`, and map OpenClaw workspace settings to Sonic working-directory configuration
 - copy OpenClaw skills into `~/.sonic/skills/openclaw-imports/`
 - optionally copy the OpenClaw workspace instructions file into a chosen Sonic workspace
 - mirror compatible workspace assets such as `workspace/tts/` into `~/.sonic/tts/`

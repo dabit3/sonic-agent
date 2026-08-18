@@ -1,6 +1,5 @@
 """Tests for sonic_cli/tips.py — random tip display at session start."""
 
-import pytest
 from sonic_cli.tips import TIPS, get_random_tip
 
 

@@ -1,8 +1,6 @@
 """Tests for sonic_cli/bundles.py — the `sonic bundles` CLI subcommand."""
 
 import argparse
-import sys
-from pathlib import Path
 
 import pytest
 

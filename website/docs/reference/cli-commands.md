@@ -47,6 +47,9 @@ sonic [global-options] <command> [subcommand/options]
 | `sonic slack` | Slack helpers (currently: generate the app manifest with every command as a native slash). |
 | `sonic auth` | Manage credentials — add, list, remove, reset, set strategy. Handles OAuth flows for Codex/Nous/Anthropic. |
 | `sonic login` / `logout` | **Deprecated** — use `sonic auth` instead. |
+| `sonic send` | Send a one-shot message to a configured messaging platform (Telegram, Discord, Slack, Signal, SMS, …). Useful from shell scripts, cron jobs, CI hooks, and monitoring daemons — no agent loop, no LLM. |
+| `sonic secrets` | Manage external secret sources (currently Bitwarden Secrets Manager) for pulling API keys at process startup instead of from `~/.sonic/.env`. |
+| `sonic migrate` | Diagnose and (optionally) rewrite `config.yaml` to replace references to retired models or deprecated settings (e.g. `migrate xai`). |
 | `sonic status` | Show agent, auth, and platform status. |
 | `sonic cron` | Inspect and tick the cron scheduler. |
 | `sonic kanban` | Multi-profile collaboration board (tasks, links, dispatcher). |
@@ -224,6 +227,7 @@ Options:
 | Option | Description |
 |--------|-------------|
 | `--all` | On `start` / `restart` / `stop`: act on **every profile's** gateway, not just the active `SONIC_HOME`. Useful if you run multiple profiles side-by-side and want to restart them all after `sonic update`. |
+| `--no-supervise` | On `run`: inside the s6-overlay Docker image, opt out of auto-supervision and use pre-s6 foreground semantics — gateway runs as the container's main process with no auto-restart. No-op outside the s6 image. Equivalent to setting `SONIC_GATEWAY_NO_SUPERVISE=1`. |
 
 :::tip WSL users
 Use `sonic gateway run` instead of `sonic gateway start` — WSL's systemd support is unreliable. Wrap it in tmux for persistence: `tmux new -s sonic 'sonic gateway run'`. See [WSL FAQ](/reference/faq#wsl-gateway-keeps-disconnecting-or-sonic-gateway-start-fails) for details.
@@ -261,6 +265,8 @@ the full guide, supported languages, and configuration knobs.
 ```bash
 sonic setup [model|tts|terminal|gateway|tools|agent] [--non-interactive] [--reset] [--quick] [--reconfigure] [--portal]
 ```
+
+**Easiest path:** `sonic setup --portal` — OAuth into Nous Portal and opt into the [Tool Gateway](../user-guide/features/tool-gateway.md) in one shot.
 
 **First run:** launches the first-time wizard.
 
@@ -335,6 +341,122 @@ reinstall if scopes or slash commands changed.
 
 Run `sonic slack manifest --write` again after `sonic update` to pick
 up any new commands.
+
+
+## `sonic send`
+
+```bash
+sonic send --to <target> "message text"
+sonic send --to <target> --file <path>
+echo "message" | sonic send --to <target>
+sonic send --list [platform]
+```
+
+Send a one-shot message to a configured messaging platform without spinning up an agent or gateway loop. Reuses the gateway's already-configured credentials (`~/.sonic/.env` + `~/.sonic/config.yaml`) so ops scripts, cron jobs, CI hooks, and monitoring daemons can post status updates without reimplementing each platform's REST client.
+
+For bot-token platforms (Telegram, Discord, Slack, Signal, SMS, WhatsApp-CloudAPI) no running gateway is required — `sonic send` talks directly to the platform's REST endpoint. Plugin platforms that need a persistent adapter still require a live gateway.
+
+| Option | Description |
+|--------|-------------|
+| `-t`, `--to <TARGET>` | Delivery target. Formats: `platform` (uses home channel), `platform:chat_id`, `platform:chat_id:thread_id`, or `platform:#channel-name`. Examples: `telegram`, `telegram:-1001234567890`, `discord:#ops`, `slack:C0123ABCD`, `signal:+15551234567`. |
+| `-f`, `--file <PATH>` | Read the message body from `PATH`. Pass `-` to force reading from stdin. |
+| `-s`, `--subject <LINE>` | Prepend a subject/header line before the message body. |
+| `-l`, `--list [platform]` | List configured targets across all platforms (or only the given platform). |
+| `-q`, `--quiet` | Suppress stdout on success — useful in scripts (rely on exit code only). |
+| `--json` | Emit raw JSON result instead of human-readable output. |
+
+If neither a positional `message` argument nor `--file` is provided, `sonic send` reads from stdin when it is not a TTY. Exit codes: `0` on success, `1` on delivery/backend failure, `2` on usage errors.
+
+Examples:
+
+```bash
+sonic send --to telegram "deploy finished"
+echo "RAM 92%" | sonic send --to telegram:-1001234567890
+sonic send --to discord:#ops --file /tmp/report.md
+sonic send --to slack:#eng --subject "[CI]" --file build.log
+sonic send --list                  # all platforms
+sonic send --list telegram         # filter by platform
+```
+
+
+## `sonic secrets`
+
+```bash
+sonic secrets bitwarden <subcommand>
+sonic secrets bw <subcommand>          # short alias
+```
+
+Pull API keys from an external secret manager at process startup instead of storing them in `~/.sonic/.env`. Currently supports **Bitwarden Secrets Manager**. See the full guide: [Bitwarden integration](../user-guide/secrets/bitwarden.md).
+
+`bitwarden` (alias `bw`) subcommands:
+
+| Subcommand | Description |
+|------------|-------------|
+| `setup` | Interactive wizard: install the pinned `bws` binary, store an access token, and pick a project. Accepts `--project-id`, `--access-token`, and `--server-url` for non-interactive use. |
+| `status` | Show current config, binary path/version, and last fetch info. |
+| `sync` | Fetch secrets now and report what changed. Add `--apply` to actually export the secrets into the current shell's environment (default is dry-run). |
+| `install` | Download and verify the pinned `bws` binary. `--force` re-downloads even if a managed copy already exists. |
+| `disable` | Turn off the Bitwarden integration. |
+
+
+## `sonic migrate`
+
+```bash
+sonic migrate <type>
+```
+
+Diagnose and (optionally) rewrite the active `config.yaml` to replace references to retired models or deprecated settings. A timestamped backup of the original `config.yaml` is taken before any rewrite (skip with `--no-backup`).
+
+| Subcommand | Description |
+|------------|-------------|
+| `xai` | Scan `config.yaml` for references to xAI models scheduled for retirement on May 15, 2026 and (with `--apply`) rewrite them in-place to the official replacements per the xAI migration guide. Defaults to dry-run. |
+
+Common flags for migration subcommands:
+
+| Flag | Description |
+|------|-------------|
+| `--apply` | Rewrite `config.yaml` in-place (default: dry-run, no writes). |
+| `--no-backup` | Skip the timestamped backup of `config.yaml` when applying. |
+
+> Not to be confused with `sonic claw migrate` (one-shot import of OpenClaw configuration into Sonic) — `sonic migrate` is the top-level config-rewrite command.
+
+
+## `sonic proxy`
+
+```bash
+sonic proxy <subcommand>
+```
+
+Run a local OpenAI-compatible HTTP server that forwards requests to an OAuth-authenticated upstream provider (e.g. Nous Portal, xAI). External apps can point at the proxy with any bearer token; the proxy attaches your real OAuth credentials on the way out. See [Subscription Proxy](../user-guide/features/subscription-proxy.md) for the full guide.
+
+| Subcommand | Description |
+|------------|-------------|
+| `start` | Run the proxy in the foreground. Flags: `--provider <nous\|xai>` (default `nous`), `--host <addr>` (default `127.0.0.1`; use `0.0.0.0` to expose on LAN), `--port <int>` (default `8645`). |
+| `status` | Show which proxy upstreams are ready (credentials present, OAuth valid). |
+| `providers` | List available proxy upstream providers. |
+
+
+## `sonic security`
+
+```bash
+sonic security <subcommand>
+```
+
+On-demand vulnerability scan against [OSV.dev](https://osv.dev). Covers the Sonic venv (installed PyPI distributions), Python dependencies declared by plugins under `~/.sonic/plugins/`, and pinned `npx`/`uvx` MCP servers in `config.yaml`. Does NOT scan globally-installed packages or editor/browser extensions.
+
+| Subcommand | Description |
+|------------|-------------|
+| `audit` | Run a one-shot supply-chain audit. |
+
+`audit` flags:
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--json` | off | Emit machine-readable JSON instead of human-readable text. |
+| `--fail-on <level>` | `critical` | Exit non-zero when any finding meets this severity (`low`, `moderate`, `high`, `critical`). |
+| `--skip-venv` | off | Skip scanning the Sonic Python venv. |
+| `--skip-plugins` | off | Skip scanning plugin requirements files. |
+| `--skip-mcp` | off | Skip scanning pinned MCP servers in `config.yaml`. |
 
 
 ## `sonic login` / `sonic logout` *(Deprecated)*
@@ -1251,7 +1373,7 @@ sonic completion fish > ~/.config/fish/completions/sonic.fish
 ## `sonic update`
 
 ```bash
-sonic update [--check] [--backup] [--restart-gateway]
+sonic update [--gateway] [--check] [--no-backup] [--backup] [--yes]
 ```
 
 Pulls the latest `sonic-agent` code and reinstalls dependencies in your venv, then re-runs the post-install hooks (MCP servers, skills sync, completion install). Safe to run on a live install.
@@ -1260,12 +1382,15 @@ Pulls the latest `sonic-agent` code and reinstalls dependencies in your venv, th
 
 | Option | Description |
 |--------|-------------|
-| `--check` | Print the current commit and the latest `origin/main` commit side by side, and exit 0 if in sync or 1 if behind. Does not pull, install, or restart anything. |
-| `--backup` | Create a labeled pre-update snapshot of `SONIC_HOME` (config, auth, sessions, skills, pairing data) before pulling. Default is **off** — the previous always-backup behavior was adding minutes to every update on large homes. Flip it on permanently via `update.backup: true` in `config.yaml`. |
-| `--restart-gateway` | After a successful update, restart the running gateway service. Implies `--all` semantics if multiple profiles are installed. |
+| `--gateway` | Internal mode used by the messaging `/update` command. Uses file-based IPC for prompts and progress streaming instead of reading from terminal stdin. Not a gateway restart flag. |
+| `--check` | Check whether an update is available without pulling, installing dependencies, or restarting anything. |
+| `--no-backup` | Skip the pre-update backup for this run, even if `updates.pre_update_backup` is enabled in `config.yaml`. |
+| `--backup` | Create a labeled pre-update snapshot of `SONIC_HOME` (config, auth, sessions, skills, pairing data) before pulling. Default is **off** — the previous always-backup behavior was adding minutes to every update on large homes. Flip it on permanently via `updates.pre_update_backup: true` in `config.yaml`. |
+| `--yes`, `-y` | Assume yes for interactive prompts such as config migration and stash restore. API-key entry is skipped; run `sonic config migrate` separately for those. |
 
 Additional behavior:
 
+- **Gateway restart.** After a successful update, Sonic attempts to restart all running gateway profiles automatically so they pick up the new code. Use `sonic gateway restart` when you want to restart a gateway without applying an update.
 - **Pairing data snapshot.** Even when `--backup` is off, `sonic update` takes a lightweight snapshot of `~/.sonic/pairing/` and the Feishu comment rules before `git pull`. You can roll it back with `sonic backup restore --state pre-update` if a pull rewrites a file you were editing.
 - **Legacy `sonic.service` warning.** If Sonic detects a pre-rename `sonic.service` systemd unit (instead of the current `sonic-gateway.service`), it prints a one-time migration hint so you can avoid flap-loop issues.
 - **Exit codes.** `0` on success, `1` on pull/install/post-install errors, `2` on unexpected working-tree changes that block `git pull`.
@@ -1276,6 +1401,7 @@ Additional behavior:
 |---------|-------------|
 | `sonic version` | Print version information. |
 | `sonic update` | Pull latest changes and reinstall dependencies. |
+| `sonic postinstall` | Internal bootstrap. Runs once after `pip install sonic-agent` (or `sonic update` on pip installs) to install non-Python dependencies that pip cannot provide — Node.js runtime, headless browser, ripgrep, ffmpeg — and then trigger `sonic setup` if the profile has not been configured yet. Safe to re-run idempotently. |
 | `sonic uninstall [--full] [--yes]` | Remove Sonic, optionally deleting all config/data. |
 
 ## See also

@@ -4,6 +4,8 @@
 
 ntfy makes a great lightweight push channel for Sonic: subscribe to a topic from the [ntfy mobile app](https://ntfy.sh/docs/subscribe/phone/), send messages to the topic to talk to the agent, get the response back on your phone.
 
+> Run `sonic gateway setup` and pick **ntfy** for a guided walk-through.
+
 ## Prerequisites
 
 - A topic name (any unique string — `sonic-myname-2026` works fine)

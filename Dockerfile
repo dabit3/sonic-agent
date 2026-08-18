@@ -25,7 +25,7 @@ ENV PLAYWRIGHT_BROWSERS_PATH=/opt/sonic/.playwright
 # sonic process, the dashboard, and per-profile gateways.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    ca-certificates curl python3 ripgrep ffmpeg gcc python3-dev libffi-dev procps git openssh-client docker-cli xz-utils && \
+    ca-certificates curl iputils-ping python3 python-is-python3 ripgrep ffmpeg gcc python3-dev libffi-dev procps git openssh-client docker-cli xz-utils && \
     rm -rf /var/lib/apt/lists/*
 
 # ---------- s6-overlay install ----------
@@ -145,10 +145,14 @@ RUN npm install --prefer-offline --no-audit && \
 # git), `[yc-bench]` (another git dep), and `[termux-all]` (Android
 # redundancy), none of which belong in the published container.
 #
+# Provider packages (anthropic, bedrock, azure-identity) are included
+# so Docker users can use these providers without requiring runtime
+# lazy-install access to PyPI (often blocked in containerized envs).
+#
 # The editable link is created after the source copy below.
 COPY pyproject.toml uv.lock ./
 RUN touch ./README.md
-RUN uv sync --frozen --no-install-project --extra all --extra messaging
+RUN uv sync --frozen --no-install-project --extra all --extra messaging --extra anthropic --extra bedrock --extra azure-identity
 
 # ---------- Source code ----------
 # .dockerignore excludes node_modules, so the installs above survive.
@@ -183,6 +187,29 @@ RUN chmod -R a+rX /opt/sonic && \
 # this a fast (~1s) egg-link creation with no resolution or downloads.
 RUN uv pip install --no-cache-dir --no-deps -e "."
 
+# ---------- Bake build-time git revision ----------
+# .dockerignore excludes .git, so `git rev-parse HEAD` from inside the
+# container always returns nothing — meaning `sonic dump` reports
+# "(unknown)" and the startup banner drops its `· upstream <sha>` suffix.
+# That makes support triage from container bug reports impossible:
+# we can't tell which commit the user is actually running.
+#
+# Fix: write the commit SHA passed via the SONIC_GIT_SHA build-arg to
+# /opt/sonic/.sonic_build_sha at build time, and have
+# sonic_cli/build_info.py read it at runtime.  Both `sonic dump` and
+# banner.get_git_banner_state() try the baked SHA first, then fall back
+# to live `git rev-parse` for source installs (unchanged behaviour).
+#
+# The arg is optional — local `docker build` without --build-arg simply
+# omits the file, and the runtime falls back to live-git lookup.  CI
+# (.github/workflows/docker-publish.yml) passes ${{ github.sha }} so
+# every published image has it.
+ARG SONIC_GIT_SHA=
+RUN if [ -n "${SONIC_GIT_SHA}" ]; then \
+        printf '%s\n' "${SONIC_GIT_SHA}" > /opt/sonic/.sonic_build_sha && \
+        chown sonic:sonic /opt/sonic/.sonic_build_sha; \
+    fi
+
 # ---------- s6-overlay service wiring ----------
 # Static services declared at build time: main-sonic + dashboard.
 # Per-profile gateway services are registered dynamically at runtime by
@@ -209,13 +236,32 @@ COPY --chmod=0755 docker/cont-init.d/02-reconcile-profiles /etc/cont-init.d/02-r
 # ---------- Runtime ----------
 ENV SONIC_WEB_DIST=/opt/sonic/sonic_cli/web_dist
 ENV SONIC_HOME=/opt/data
+
+# `docker exec` privilege-drop shim. When operators run
+# `docker exec <c> sonic ...` they default to root, and any file the
+# command writes under $SONIC_HOME (auth.json, .env, config.yaml) ends
+# up root-owned and unreadable to the supervised gateway (UID 10000).
+# The shim lives at /opt/sonic/bin/sonic, sits earliest on PATH, and
+# transparently re-exec's the real venv binary via `s6-setuidgid sonic`
+# when invoked as root. Non-root callers (supervised processes,
+# `--user sonic`, etc.) hit the short-circuit path with no overhead.
+# Recursion is impossible because the shim exec's the venv binary by
+# absolute path (/opt/sonic/.venv/bin/sonic). See the shim source for
+# the opt-out env var (SONIC_DOCKER_EXEC_AS_ROOT=1).
+COPY --chmod=0755 docker/sonic-exec-shim.sh /opt/sonic/bin/sonic
+
 # Pre-s6 entrypoint.sh did `source .venv/bin/activate` which exported
 # the venv bin onto PATH; Architecture B's main-wrapper.sh does the
 # same for the container's main process, but `docker exec` and our
 # cont-init.d scripts don't pass through the wrapper. Expose the venv
 # bin globally so `docker exec <container> sonic ...` and any
 # subprocess that doesn't activate the venv first still find sonic.
-ENV PATH="/opt/sonic/.venv/bin:/opt/data/.local/bin:${PATH}"
+#
+# /opt/sonic/bin is prepended ahead of the venv so the privilege-drop
+# shim wins PATH resolution. The shim's last act is to exec the venv
+# binary by absolute path, so this PATH ordering is transparent to
+# every other consumer.
+ENV PATH="/opt/sonic/bin:/opt/sonic/.venv/bin:/opt/data/.local/bin:${PATH}"
 RUN mkdir -p /opt/data
 VOLUME [ "/opt/data" ]
 

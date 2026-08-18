@@ -1,9 +1,5 @@
-import pytest
 from unittest.mock import MagicMock, patch
 from sonic_cli.plugins import VALID_HOOKS, PluginManager
-import os
-import shutil
-import tempfile
 from cli import SonicCLI
 
 

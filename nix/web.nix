@@ -4,7 +4,7 @@ let
   src = ../web;
   npmDeps = pkgs.fetchNpmDeps {
     inherit src;
-    hash = "sha256-RPPWPM0nEkwsaQHrkdEP+UMTZ2aF7JHUNfsIEnKt1l8=";
+    hash = "sha256-RZ/zU8EkKAIz3h0g/nBUG7Kzd/B+7RnrXAPlbwIr/C4=";
   };
 
   npm = sonicNpmLib.mkNpmPassthru { folder = "web"; attr = "web"; pname = "sonic-web"; };
