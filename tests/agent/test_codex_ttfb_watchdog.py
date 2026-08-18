@@ -111,8 +111,8 @@ def test_ttfb_default_tolerates_slow_first_event(tmp_path, monkeypatch):
 
     agent = _make_codex_agent(tmp_path, monkeypatch)
     # Default behavior: no explicit TTFB override.
-    monkeypatch.delenv("HERMES_CODEX_TTFB_TIMEOUT_SECONDS", raising=False)
-    monkeypatch.delenv("HERMES_CODEX_TTFB_MAX_SECONDS", raising=False)
+    monkeypatch.delenv("SONIC_CODEX_TTFB_TIMEOUT_SECONDS", raising=False)
+    monkeypatch.delenv("SONIC_CODEX_TTFB_MAX_SECONDS", raising=False)
 
     closes: list = []
     dummy_client = SimpleNamespace()

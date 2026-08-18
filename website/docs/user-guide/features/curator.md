@@ -131,7 +131,7 @@ The same subcommands are available as the `/curator` slash command inside a runn
 ## What "agent-created" means
 
 The curator only manages skills explicitly marked as **agent-created** in
-`~/.hermes/skills/.usage.json`. A skill qualifies when ALL of the following
+`~/.sonic/skills/.usage.json`. A skill qualifies when ALL of the following
 are true:
 
 1. Its name is **not** in `~/.sonic/skills/.bundled_manifest` (bundled skills shipped with the repo).
@@ -149,7 +149,7 @@ conversation are **not** marked as agent-created — they are considered
 user-directed and the curator intentionally leaves them alone.
 
 :::warning Your hand-written skills are NOT curated
-If you manually created a `SKILL.md` or pointed Hermes at an external skill
+If you manually created a `SKILL.md` or pointed Sonic at an external skill
 directory, that skill will have a `.usage.json` entry with `created_by: null`
 (or the field absent). The curator will not touch it. The same applies to
 skills the foreground agent created at your request.

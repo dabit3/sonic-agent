@@ -401,7 +401,7 @@ class TestDispatchersTriggerPluginDiscovery:
 
             mock_hook = MagicMock(wraps=_register_fake)
             # Patch the helper on ``tools.web_tools`` directly rather than the
-            # underlying ``hermes_cli.plugins._ensure_plugins_discovered`` so
+            # underlying ``sonic_cli.plugins._ensure_plugins_discovered`` so
             # the test stays valid even if the import inside the helper is
             # later moved to module scope or renamed.
             monkeypatch.setattr(

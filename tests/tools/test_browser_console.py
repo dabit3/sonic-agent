@@ -260,7 +260,7 @@ class TestBrowserVisionConfig:
         set_runtime_main("brand-new-provider", "llava-v1.6")
         try:
             with (
-                patch("hermes_constants.get_hermes_dir", return_value=shots_dir),
+                patch("sonic_constants.get_sonic_dir", return_value=shots_dir),
                 patch("tools.browser_tool._cleanup_old_screenshots"),
                 patch(
                     "tools.browser_tool._run_browser_command",
@@ -270,7 +270,7 @@ class TestBrowserVisionConfig:
                     },
                 ),
                 patch(
-                    "hermes_cli.config.load_config",
+                    "sonic_cli.config.load_config",
                     return_value={"model": {"supports_vision": True}},
                 ),
                 patch("tools.browser_tool._get_vision_model") as mock_get_vision_model,
@@ -303,14 +303,14 @@ class TestBrowserVisionConfig:
         set_runtime_main("brand-new-provider", "llava-v1.6")
         try:
             with (
-                patch("hermes_constants.get_hermes_dir", return_value=shots_dir),
+                patch("sonic_constants.get_sonic_dir", return_value=shots_dir),
                 patch("tools.browser_tool._cleanup_old_screenshots"),
                 patch(
                     "tools.browser_tool._run_browser_command",
                     return_value={"success": True, "data": {"path": str(screenshot)}},
                 ),
                 patch(
-                    "hermes_cli.config.load_config",
+                    "sonic_cli.config.load_config",
                     return_value={
                         "agent": {"image_input_mode": "text"},
                         "model": {"supports_vision": True},

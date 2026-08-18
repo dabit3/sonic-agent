@@ -490,7 +490,7 @@ def _should_use_native_vision_fast_path() -> bool:
     try:
         from agent.auxiliary_client import _read_main_provider, _read_main_model
         from agent.image_routing import decide_image_input_mode, _lookup_supports_vision
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
 
         provider = _read_main_provider()
         model = _read_main_model()

@@ -283,7 +283,7 @@ def interruptible_api_call(agent, api_kwargs: dict):
     # had a chance to emit its first SSE event. Default to 120s — long enough to
     # clear normal backend admission / prompt prefill, short enough to still
     # reconnect promptly when the socket is genuinely wedged. Set
-    # HERMES_CODEX_TTFB_TIMEOUT_SECONDS=0 to disable this watchdog entirely.
+    # SONIC_CODEX_TTFB_TIMEOUT_SECONDS=0 to disable this watchdog entirely.
     _ttfb_enabled = _codex_watchdog_enabled
     _ttfb_timeout = _env_float("SONIC_CODEX_TTFB_TIMEOUT_SECONDS", 120.0)
     if _ttfb_timeout <= 0:

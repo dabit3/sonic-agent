@@ -257,7 +257,7 @@ def _legacy_posix_scrubber(source_env, is_passthrough):
     _scrub_child_env's POSIX behavior, used to prove the production helper does
     what we think it does.
 
-    Deliberately updated for #27303 (the broad ``HERMES_`` prefix was dropped
+    Deliberately updated for #27303 (the broad ``SONIC_`` prefix was dropped
     in favor of an explicit operational allowlist, and DSN/WEBHOOK were added
     to the secret substrings).  The original docstring said: if POSIX behavior
     legitimately needs to evolve, adjust this oracle on purpose so the churn is
@@ -268,8 +268,8 @@ def _legacy_posix_scrubber(source_env, is_passthrough):
                           "XDG_", "PYTHONPATH", "VIRTUAL_ENV", "CONDA")
     _SECRET_SUBSTRINGS = ("KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL",
                           "PASSWD", "AUTH", "DSN", "WEBHOOK")
-    _HERMES_CHILD_ALLOWED = frozenset({
-        "HERMES_HOME", "HERMES_PROFILE", "HERMES_CONFIG", "HERMES_ENV",
+    _SONIC_CHILD_ALLOWED = frozenset({
+        "SONIC_HOME", "SONIC_PROFILE", "SONIC_CONFIG", "SONIC_ENV",
     })
     out = {}
     for k, v in source_env.items():
@@ -281,7 +281,7 @@ def _legacy_posix_scrubber(source_env, is_passthrough):
         if any(k.startswith(p) for p in _SAFE_ENV_PREFIXES):
             out[k] = v
             continue
-        if k in _HERMES_CHILD_ALLOWED:
+        if k in _SONIC_CHILD_ALLOWED:
             out[k] = v
     return out
 

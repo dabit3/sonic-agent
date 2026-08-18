@@ -143,20 +143,20 @@ WEIXIN_ALLOWED_USERS=user_id_1,user_id_2
 ```
 
 `WEIXIN_ALLOWED_USERS` is an **inbound filter**, not an invitation system. QR
-login connects one iLink bot identity to Hermes. Other people do not scan the
-Hermes QR code with their own accounts; they must message the connected iLink
-bot/contact through WeChat, and Hermes will process the DM only if the sender's
+login connects one iLink bot identity to Sonic. Other people do not scan the
+Sonic QR code with their own accounts; they must message the connected iLink
+bot/contact through WeChat, and Sonic will process the DM only if the sender's
 Weixin user ID is present in `WEIXIN_ALLOWED_USERS`.
 
 A practical setup flow is:
 
-1. Pair Hermes once with `hermes gateway setup` and note the connected iLink bot
+1. Pair Sonic once with `sonic gateway setup` and note the connected iLink bot
    account.
 2. Have each allowed user send a direct message to that bot/contact.
 3. Read the sender/user ID from the gateway logs or the inbound event payload.
 4. Add those IDs to `WEIXIN_ALLOWED_USERS`, then restart the gateway.
 
-If only the account that scanned the QR code can talk to Hermes, verify that the
+If only the account that scanned the QR code can talk to Sonic, verify that the
 other users are messaging the iLink bot identity itself, not the personal WeChat
 account that performed the QR login. The iLink bot is a separate identity, and
 ordinary WeChat contact/group routing can be limited by Tencent's iLink behavior.

@@ -176,7 +176,7 @@ def test_skipped_compression_returns_messages_unchanged(tmp_path: Path) -> None:
 class _NoLockSubsystemDB:
     """Wraps a real SessionDB but simulates a pre-#34351 version skew.
 
-    A long-lived process can hold ``hermes_state.SessionDB`` bound to the
+    A long-lived process can hold ``sonic_state.SessionDB`` bound to the
     OLD class in memory (no compression-lock methods) while a lazily
     re-imported ``conversation_compression.py`` calls the NEW lock code.
     ``try_acquire_compression_lock`` then raises ``AttributeError`` — which

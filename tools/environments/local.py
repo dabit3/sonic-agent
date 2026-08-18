@@ -75,9 +75,9 @@ def _resolve_safe_cwd(cwd: str) -> str:
 # Sonic-internal env vars that should NOT leak into terminal subprocesses.
 _SONIC_PROVIDER_ENV_FORCE_PREFIX = "_SONIC_FORCE_"
 
-# Hermes-managed AWS *inference* credentials for ``auth_type="aws_sdk"``
+# Sonic-managed AWS *inference* credentials for ``auth_type="aws_sdk"``
 # providers (Bedrock).  Scoped DELIBERATELY NARROW: this lists only the
-# Bedrock-specific bearer token, which is a Hermes inference secret exactly
+# Bedrock-specific bearer token, which is a Sonic inference secret exactly
 # analogous to ``OPENAI_API_KEY`` — nobody drives the ``aws``/``terraform``/
 # ``boto3`` toolchain off it, so stripping it from terminal/execute_code
 # subprocesses costs no user capability.
