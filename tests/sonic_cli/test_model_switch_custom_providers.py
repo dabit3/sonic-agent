@@ -406,7 +406,7 @@ def test_list_authenticated_providers_same_url_different_keys_disambiguated(monk
 def test_list_authenticated_providers_same_url_different_key_env_and_api_mode_stay_separate(monkeypatch):
     """Same gateway host but different key_env/api_mode entries are distinct providers."""
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
-    monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr(providers_mod, "SONIC_OVERLAYS", {})
 
     providers = list_authenticated_providers(
         current_provider="custom:gpt",

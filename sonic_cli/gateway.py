@@ -2165,23 +2165,23 @@ def _stable_service_working_dir() -> str:
     """Return a WorkingDirectory that will not disappear out from under systemd.
 
     The gateway does NOT need its cwd to be the source checkout — ``ExecStart``
-    uses an absolute python interpreter and ``-m hermes_cli.main``, so module
+    uses an absolute python interpreter and ``-m sonic_cli.main``, so module
     resolution does not depend on cwd. Pinning ``WorkingDirectory`` to
     ``PROJECT_ROOT`` (``Path(__file__).parent.parent``) is actively harmful:
     when the unit is generated from a transient checkout — a ``.worktrees/``
-    dir, or a clone that ``hermes update`` later relocates/removes — the path
+    dir, or a clone that ``sonic update`` later relocates/removes — the path
     rots. systemd then fails the start at the CHDIR step (``status=200/CHDIR``,
     "Changing to the requested working directory failed") *before* Python
     loads, so the on-boot ``refresh_systemd_unit_if_needed()`` self-heal never
     runs and ``Restart=always`` crash-loops forever on a dead directory.
 
-    ``HERMES_HOME`` is the stable anchor: it is where config/state/logs live,
+    ``SONIC_HOME`` is the stable anchor: it is where config/state/logs live,
     it never moves, and it is guaranteed to exist whenever the gateway is
-    meaningfully installed. Fall back to ``PROJECT_ROOT`` only if HERMES_HOME
+    meaningfully installed. Fall back to ``PROJECT_ROOT`` only if SONIC_HOME
     cannot be resolved (it always can in practice).
     """
     try:
-        home = get_hermes_home()
+        home = get_sonic_home()
         if home and Path(home).is_dir():
             return str(Path(home).resolve())
     except Exception:
@@ -2220,10 +2220,10 @@ def generate_systemd_unit(system: bool = False, run_as_user: str | None = None) 
         # (e.g. /root/) to the target user's home so the service can
         # actually access them.
         python_path = _remap_path_for_user(python_path, home_dir)
-        # Anchor cwd to the target user's HERMES_HOME (stable, always exists)
+        # Anchor cwd to the target user's SONIC_HOME (stable, always exists)
         # rather than a remapped source-checkout path that can rot. See
         # _stable_service_working_dir() for the full rationale.
-        working_dir = str(hermes_home) if hermes_home else _remap_path_for_user(working_dir, home_dir)
+        working_dir = str(sonic_home) if sonic_home else _remap_path_for_user(working_dir, home_dir)
         venv_dir = _remap_path_for_user(venv_dir, home_dir)
         path_entries = [_remap_path_for_user(p, home_dir) for p in path_entries]
         path_entries.extend(_build_user_local_paths(Path(home_dir), path_entries))

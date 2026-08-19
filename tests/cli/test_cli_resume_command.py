@@ -169,7 +169,7 @@ class TestPendingResumeNumberedSelection:
         cli_obj._session_db.resolve_resume_session_id.return_value = "sess_001"
 
         with (
-            patch("hermes_cli.main._resolve_session_by_name_or_id", return_value=None),
+            patch("sonic_cli.main._resolve_session_by_name_or_id", return_value=None),
             patch("cli._cprint"),
         ):
             consumed = cli_obj._consume_pending_resume_selection("2")

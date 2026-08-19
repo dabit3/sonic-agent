@@ -696,12 +696,12 @@ def build_welcome_banner(console: Console, model: str, cwd: str,
     except Exception:
         pass  # Never break the banner over an update check
 
-    # Pip-install warning — `pip install hermes-agent` is not the supported
+    # Pip-install warning — `pip install sonic-agent` is not the supported
     # install path (it exists on PyPI for internal/CI reasons, not end users).
     # Such installs miss the git checkout + installer-managed deps, so updates,
     # self-update, and issue triage don't behave correctly. Warn, don't block.
     try:
-        from hermes_cli.config import detect_install_method
+        from sonic_cli.config import detect_install_method
         if detect_install_method() == "pip":
             right_lines.append(
                 "[bold yellow]⚠ pip install not officially supported[/]"

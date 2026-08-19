@@ -1509,7 +1509,7 @@ def _migrate_honcho_profile_host(old_name: str, new_name: str, new_dir: Path) ->
 
         block = hosts[source_host]
         if isinstance(block, dict) and "aiPeer" not in block:
-            if source_host.startswith("hermes_"):
+            if source_host.startswith("sonic_"):
                 bare = source_host.split("_", 1)[1]
             else:
                 bare = source_host.split(".", 1)[1] if "." in source_host else source_host

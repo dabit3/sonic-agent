@@ -2859,11 +2859,11 @@ class TelegramAdapter(BasePlatformAdapter):
         a single ``mpg:<gid>`` button; tapping it drills into a member
         sub-keyboard. Single providers (and groups with only one authenticated
         member) render as direct ``mp:<slug>`` buttons. Grouping mirrors the
-        CLI ``hermes model`` picker via the shared ``group_providers`` fold,
+        CLI ``sonic model`` picker via the shared ``group_providers`` fold,
         so all surfaces stay consistent.
         """
         try:
-            from hermes_cli.models import group_providers
+            from sonic_cli.models import group_providers
         except Exception:
             group_providers = None
 
@@ -3084,7 +3084,7 @@ class TelegramAdapter(BasePlatformAdapter):
             # --- Provider group selected: show member providers ---
             group_id = data[4:]
             try:
-                from hermes_cli.models import PROVIDER_GROUPS
+                from sonic_cli.models import PROVIDER_GROUPS
                 _label, member_slugs = PROVIDER_GROUPS.get(group_id, ("", []))
             except Exception:
                 _label, member_slugs = "", []

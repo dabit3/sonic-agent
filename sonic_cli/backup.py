@@ -670,7 +670,7 @@ def restore_quick_snapshot(
     return restored > 0
 
 
-# Relative path of the cron job database inside HERMES_HOME. Kept in sync with
+# Relative path of the cron job database inside SONIC_HOME. Kept in sync with
 # the entry in ``_QUICK_STATE_FILES`` and with ``cron/jobs.py``'s ``JOBS_FILE``.
 _CRON_JOBS_REL = "cron/jobs.json"
 
@@ -704,9 +704,9 @@ def _count_cron_jobs(path: Path) -> Optional[int]:
 
 def restore_cron_jobs_if_emptied(
     snapshot_id: str,
-    hermes_home: Optional[Path] = None,
+    sonic_home: Optional[Path] = None,
 ) -> Optional[Dict[str, Any]]:
-    """Safety net for silent cron-job loss across ``hermes update``.
+    """Safety net for silent cron-job loss across ``sonic update``.
 
     Config-version migrations have been observed to leave ``cron/jobs.json``
     valid-but-empty after an update, silently dropping every scheduled job
@@ -726,7 +726,7 @@ def restore_cron_jobs_if_emptied(
     Args:
         snapshot_id: The pre-update quick-snapshot id (from
             :func:`create_quick_snapshot`).
-        hermes_home: Override for the Hermes home directory (tests).
+        sonic_home: Override for the Sonic home directory (tests).
 
     Returns:
         ``None`` when no action was taken (the common, healthy path). On a
@@ -736,7 +736,7 @@ def restore_cron_jobs_if_emptied(
     if not snapshot_id:
         return None
 
-    home = hermes_home or get_hermes_home()
+    home = sonic_home or get_sonic_home()
     live_path = home / _CRON_JOBS_REL
 
     live_count = _count_cron_jobs(live_path)

@@ -40,7 +40,7 @@ class TestIsUvToolInstall:
              patch.object(
                  config.sys,
                  "executable",
-                 "/home/user/.local/share/uv/tools/hermes-agent/bin/python",
+                 "/home/user/.local/share/uv/tools/sonic-agent/bin/python",
              ):
             assert config.is_uv_tool_install() is True
 
@@ -67,18 +67,18 @@ class TestIsUvToolInstall:
 
     def test_case_insensitive_match(self):
         """Match must be case-insensitive — Windows paths preserve case
-        (e.g. ``...AppData\\Local\\UV\\Tools\\hermes-agent``) and a case-sensitive
+        (e.g. ``...AppData\\Local\\UV\\Tools\\sonic-agent``) and a case-sensitive
         check would miss them. We exercise the lower-cased compare path here
         without monkey-patching ``os.sep``, which would break the whole suite."""
-        from hermes_cli import config
+        from sonic_cli import config
 
         with patch.object(
-            config.sys, "prefix", "/HOME/USER/.local/share/UV/Tools/hermes-agent"
+            config.sys, "prefix", "/HOME/USER/.local/share/UV/Tools/sonic-agent"
         ):
             assert config.is_uv_tool_install() is True
 
     def test_handles_empty_executable(self):
-        from hermes_cli import config
+        from sonic_cli import config
 
         with patch.object(config.sys, "prefix", "/some/unrelated/venv"), \
              patch.object(config.sys, "executable", ""):
@@ -102,12 +102,12 @@ class TestRecommendedUpdateCommandForUvTool:
     def test_uv_tool_install_recommends_uv_tool_upgrade_even_without_uv_on_path(self):
         """Recommendation reflects the *install method*, not whether ``uv`` is
         currently on PATH — the user needs to know the right command to run."""
-        from hermes_cli import config
+        from sonic_cli import config
 
         with patch("shutil.which", return_value=None), \
              patch.object(config, "is_uv_tool_install", return_value=True):
             cmd = config.recommended_update_command_for_method("pip")
-            assert cmd == "uv tool upgrade hermes-agent"
+            assert cmd == "uv tool upgrade sonic-agent"
 
     def test_uv_pip_install_keeps_legacy_recommendation(self):
         """Existing behavior: uv is on PATH but Sonic is a regular pip install."""
@@ -131,7 +131,7 @@ class TestRecommendedUpdateCommandForUvTool:
         spawn. Copilot review on PR #29703 flagged the prior subprocess hop
         as adding overhead and a multi-second timeout window for what is
         purely a display string."""
-        from hermes_cli import config
+        from sonic_cli import config
 
         with patch.object(config.sys, "prefix", "/some/unrelated/venv"), \
              patch.object(config.sys, "executable", "/usr/bin/python3"), \
@@ -139,7 +139,7 @@ class TestRecommendedUpdateCommandForUvTool:
              patch("subprocess.run") as mock_run:
             cmd = config.recommended_update_command_for_method("pip")
             mock_run.assert_not_called()
-            assert cmd == "uv pip install --upgrade hermes-agent"
+            assert cmd == "uv pip install --upgrade sonic-agent"
 
 
 # ---------------------------------------------------------------------------
@@ -184,7 +184,7 @@ class TestCmdUpdatePipUsesUvTool:
 
         mock_run.return_value = subprocess.CompletedProcess(["pip"], 0, stdout="", stderr="")
         with patch("shutil.which", return_value=None), \
-             patch("hermes_cli.config.is_uv_tool_install", return_value=False):
+             patch("sonic_cli.config.is_uv_tool_install", return_value=False):
             _cmd_update_pip(SimpleNamespace())
 
         cmd = mock_run.call_args[0][0]
@@ -207,10 +207,10 @@ class TestCmdUpdatePipUsesUvTool:
         somehow missing from PATH, surface a clear hint instead of silently
         falling back to ``python -m pip``, which would either fail (no venv)
         or upgrade the wrong copy."""
-        from hermes_cli.main import _cmd_update_pip
+        from sonic_cli.main import _cmd_update_pip
 
         with patch("shutil.which", return_value=None), \
-             patch("hermes_cli.config.is_uv_tool_install", return_value=True):
+             patch("sonic_cli.config.is_uv_tool_install", return_value=True):
             with pytest.raises(SystemExit) as exc_info:
                 _cmd_update_pip(SimpleNamespace())
         assert exc_info.value.code == 1
@@ -233,20 +233,20 @@ class TestCmdUpdatePipInstallLayouts:
 
     @patch("subprocess.run")
     def test_pipx_managed_uses_pipx_upgrade(self, mock_run, monkeypatch):
-        from hermes_cli import main as hm
+        from sonic_cli import main as hm
 
         mock_run.return_value = subprocess.CompletedProcess([], 0, stdout="", stderr="")
-        monkeypatch.setattr(hm.sys, "prefix", "/home/u/.local/pipx/venvs/hermes-agent")
+        monkeypatch.setattr(hm.sys, "prefix", "/home/u/.local/pipx/venvs/sonic-agent")
         monkeypatch.setattr(hm.sys, "base_prefix", "/usr")
 
         def _which(name):
             return {"uv": "/usr/bin/uv", "pipx": "/usr/bin/pipx"}.get(name)
 
         with patch("shutil.which", side_effect=_which), \
-             patch("hermes_cli.config.is_uv_tool_install", return_value=False):
+             patch("sonic_cli.config.is_uv_tool_install", return_value=False):
             hm._cmd_update_pip(SimpleNamespace())
 
-        assert mock_run.call_args[0][0] == ["/usr/bin/pipx", "upgrade", "hermes-agent"]
+        assert mock_run.call_args[0][0] == ["/usr/bin/pipx", "upgrade", "sonic-agent"]
         # pipx upgrade ignores VIRTUAL_ENV; we must not set it.
         assert "env" not in mock_run.call_args.kwargs
 
@@ -254,10 +254,10 @@ class TestCmdUpdatePipInstallLayouts:
     def test_pipx_layout_without_pipx_binary_treated_as_venv(
         self, mock_run, monkeypatch
     ):
-        from hermes_cli import main as hm
+        from sonic_cli import main as hm
 
         mock_run.return_value = subprocess.CompletedProcess([], 0, stdout="", stderr="")
-        monkeypatch.setattr(hm.sys, "prefix", "/home/u/.local/pipx/venvs/hermes-agent")
+        monkeypatch.setattr(hm.sys, "prefix", "/home/u/.local/pipx/venvs/sonic-agent")
         monkeypatch.setattr(hm.sys, "base_prefix", "/usr")
 
         # pipx layout detected via prefix, but pipx binary missing on PATH.
@@ -265,18 +265,18 @@ class TestCmdUpdatePipInstallLayouts:
             return "/usr/bin/uv" if name == "uv" else None
 
         with patch("shutil.which", side_effect=_which), \
-             patch("hermes_cli.config.is_uv_tool_install", return_value=False):
+             patch("sonic_cli.config.is_uv_tool_install", return_value=False):
             hm._cmd_update_pip(SimpleNamespace())
 
         # prefix != base_prefix, so this is treated as a venv -> overlay, no --system.
         assert mock_run.call_args[0][0] == [
-            "/usr/bin/uv", "pip", "install", "--upgrade", "hermes-agent",
+            "/usr/bin/uv", "pip", "install", "--upgrade", "sonic-agent",
         ]
-        assert mock_run.call_args.kwargs["env"]["VIRTUAL_ENV"].endswith("hermes-agent")
+        assert mock_run.call_args.kwargs["env"]["VIRTUAL_ENV"].endswith("sonic-agent")
 
     @patch("subprocess.run")
     def test_bare_pip_outside_venv_adds_system(self, mock_run, monkeypatch):
-        from hermes_cli import main as hm
+        from sonic_cli import main as hm
 
         mock_run.return_value = subprocess.CompletedProcess([], 0, stdout="", stderr="")
         # No venv: prefix == base_prefix.
@@ -284,28 +284,28 @@ class TestCmdUpdatePipInstallLayouts:
         monkeypatch.setattr(hm.sys, "base_prefix", "/usr")
 
         with patch("shutil.which", return_value="/usr/bin/uv"), \
-             patch("hermes_cli.config.is_uv_tool_install", return_value=False):
+             patch("sonic_cli.config.is_uv_tool_install", return_value=False):
             hm._cmd_update_pip(SimpleNamespace())
 
         assert mock_run.call_args[0][0] == [
-            "/usr/bin/uv", "pip", "install", "--system", "--upgrade", "hermes-agent",
+            "/usr/bin/uv", "pip", "install", "--system", "--upgrade", "sonic-agent",
         ]
         assert "env" not in mock_run.call_args.kwargs
 
     @patch("subprocess.run")
     def test_venv_exports_virtualenv_and_omits_system(self, mock_run, monkeypatch):
-        from hermes_cli import main as hm
+        from sonic_cli import main as hm
 
         mock_run.return_value = subprocess.CompletedProcess([], 0, stdout="", stderr="")
         monkeypatch.delenv("VIRTUAL_ENV", raising=False)
-        monkeypatch.setattr(hm.sys, "prefix", "/home/u/.hermes/hermes-agent/venv")
+        monkeypatch.setattr(hm.sys, "prefix", "/home/u/.sonic/sonic-agent/venv")
         monkeypatch.setattr(hm.sys, "base_prefix", "/usr")
 
         with patch("shutil.which", return_value="/usr/bin/uv"), \
-             patch("hermes_cli.config.is_uv_tool_install", return_value=False):
+             patch("sonic_cli.config.is_uv_tool_install", return_value=False):
             hm._cmd_update_pip(SimpleNamespace())
 
         cmd = mock_run.call_args[0][0]
         assert "--system" not in cmd
-        assert cmd == ["/usr/bin/uv", "pip", "install", "--upgrade", "hermes-agent"]
-        assert mock_run.call_args.kwargs["env"]["VIRTUAL_ENV"] == "/home/u/.hermes/hermes-agent/venv"
+        assert cmd == ["/usr/bin/uv", "pip", "install", "--upgrade", "sonic-agent"]
+        assert mock_run.call_args.kwargs["env"]["VIRTUAL_ENV"] == "/home/u/.sonic/sonic-agent/venv"

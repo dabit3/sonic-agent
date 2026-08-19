@@ -621,7 +621,7 @@ class TestAliasCollision:
         wrapper_dir = profile_env / ".local" / "bin"
         wrapper_dir.mkdir(parents=True, exist_ok=True)
         bat_path = wrapper_dir / "mybot.bat"
-        bat_path.write_text("@echo off\r\nhermes -p mybot %*\r\n")
+        bat_path.write_text("@echo off\r\nsonic -p mybot %*\r\n")
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
                 returncode=0, stdout=str(bat_path),
@@ -639,28 +639,28 @@ class TestWrapperScript:
 
     def test_creates_sh_on_posix(self, profile_env, monkeypatch):
         monkeypatch.setattr("sys.platform", "darwin")
-        from hermes_cli.profiles import create_wrapper_script
+        from sonic_cli.profiles import create_wrapper_script
         wrapper = create_wrapper_script("mybot")
         assert wrapper is not None
         assert wrapper.name == "mybot"
         content = wrapper.read_text()
         assert content.startswith("#!/bin/sh")
-        assert "hermes -p mybot" in content
+        assert "sonic -p mybot" in content
 
     def test_creates_bat_on_windows(self, profile_env, monkeypatch):
         monkeypatch.setattr("sys.platform", "win32")
-        from hermes_cli.profiles import create_wrapper_script
+        from sonic_cli.profiles import create_wrapper_script
         wrapper = create_wrapper_script("mybot")
         assert wrapper is not None
         assert wrapper.name == "mybot.bat"
         content = wrapper.read_text()
         assert "@echo off" in content
-        assert "hermes -p mybot" in content
+        assert "sonic -p mybot" in content
         assert "%*" in content
 
     def test_remove_finds_bat_on_windows(self, profile_env, monkeypatch):
         monkeypatch.setattr("sys.platform", "win32")
-        from hermes_cli.profiles import create_wrapper_script, remove_wrapper_script
+        from sonic_cli.profiles import create_wrapper_script, remove_wrapper_script
         wrapper = create_wrapper_script("mybot")
         assert wrapper is not None
         assert wrapper.exists()
@@ -670,7 +670,7 @@ class TestWrapperScript:
 
     def test_remove_finds_sh_on_posix(self, profile_env, monkeypatch):
         monkeypatch.setattr("sys.platform", "darwin")
-        from hermes_cli.profiles import create_wrapper_script, remove_wrapper_script
+        from sonic_cli.profiles import create_wrapper_script, remove_wrapper_script
         wrapper = create_wrapper_script("mybot")
         assert wrapper is not None
         assert wrapper.exists()
@@ -679,32 +679,32 @@ class TestWrapperScript:
         assert not wrapper.exists()
 
     def test_remove_returns_false_when_absent(self, profile_env):
-        from hermes_cli.profiles import remove_wrapper_script
+        from sonic_cli.profiles import remove_wrapper_script
         assert remove_wrapper_script("nonexistent") is False
 
     def test_custom_alias_target_on_posix(self, profile_env, monkeypatch):
         # Custom alias name pointing at a differently-named profile: the file
         # is named after the alias, the -p content references the profile.
         monkeypatch.setattr("sys.platform", "darwin")
-        from hermes_cli.profiles import create_wrapper_script
+        from sonic_cli.profiles import create_wrapper_script
         wrapper = create_wrapper_script("rq", target="redqueen")
         assert wrapper is not None
         assert wrapper.name == "rq"
         content = wrapper.read_text()
         assert content.startswith("#!/bin/sh")
-        assert "hermes -p redqueen" in content
+        assert "sonic -p redqueen" in content
 
     def test_custom_alias_target_on_windows(self, profile_env, monkeypatch):
         # Regression: custom-name aliases must still produce an executable
         # .bat (not a clobbered #!/bin/sh) on Windows.
         monkeypatch.setattr("sys.platform", "win32")
-        from hermes_cli.profiles import create_wrapper_script
+        from sonic_cli.profiles import create_wrapper_script
         wrapper = create_wrapper_script("rq", target="redqueen")
         assert wrapper is not None
         assert wrapper.name == "rq.bat"
         content = wrapper.read_text()
         assert "@echo off" in content
-        assert "hermes -p redqueen" in content
+        assert "sonic -p redqueen" in content
         assert "%*" in content
         assert "#!/bin/sh" not in content
 

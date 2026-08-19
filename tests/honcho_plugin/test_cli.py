@@ -112,7 +112,7 @@ class TestCmdSetupLocalJwt:
         monkeypatch.setattr(honcho_cli, "_read_config", lambda: dict(initial_cfg))
         monkeypatch.setattr(honcho_cli, "_local_config_path", lambda: cfg_path)
         monkeypatch.setattr(honcho_cli, "_config_path", lambda: cfg_path)
-        monkeypatch.setattr(honcho_cli, "_host_key", lambda: "hermes")
+        monkeypatch.setattr(honcho_cli, "_host_key", lambda: "sonic")
         monkeypatch.setattr(honcho_cli, "_ensure_sdk_installed", lambda: True)
 
         written = {}
@@ -156,7 +156,7 @@ class TestCmdSetupLocalJwt:
         # Top-level apiKey must remain unset (cloud field).
         assert not cfg.get("apiKey")
         # The new local JWT belongs under the host block.
-        host_block = (cfg.get("hosts") or {}).get("hermes") or {}
+        host_block = (cfg.get("hosts") or {}).get("sonic") or {}
         assert host_block.get("apiKey") == "my-local-jwt-token"
 
     def test_local_setup_blank_jwt_keeps_local_no_auth(self, monkeypatch, tmp_path):
@@ -175,7 +175,7 @@ class TestCmdSetupLocalJwt:
         assert cfg is not None
         assert cfg.get("baseUrl") == "http://localhost:8000"
         assert not cfg.get("apiKey")
-        host_block = (cfg.get("hosts") or {}).get("hermes") or {}
+        host_block = (cfg.get("hosts") or {}).get("sonic") or {}
         assert not host_block.get("apiKey")
 
 

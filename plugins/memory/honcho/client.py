@@ -33,7 +33,7 @@ HOST = "sonic"
 
 
 def profile_host_key(profile: str | None) -> str:
-    """Return the safe Honcho host key for a Hermes profile."""
+    """Return the safe Honcho host key for a Sonic profile."""
     if not profile or profile in {"default", "custom"}:
         return HOST
     sanitized = "".join(c if c.isalnum() or c in "_-" else "_" for c in profile).strip("_")

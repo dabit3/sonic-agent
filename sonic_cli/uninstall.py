@@ -117,23 +117,23 @@ def remove_wrapper_script():
     return removed
 
 
-def remove_node_symlinks(hermes_home: Path) -> list:
+def remove_node_symlinks(sonic_home: Path) -> list:
     """Remove the node/npm/npx symlinks the installer drops in ~/.local/bin.
 
     The POSIX installer (``scripts/install.sh`` / ``scripts/lib/node-bootstrap.sh``)
     creates::
 
-        ~/.local/bin/node -> $HERMES_HOME/node/bin/node
-        ~/.local/bin/npm  -> $HERMES_HOME/node/bin/npm
-        ~/.local/bin/npx  -> $HERMES_HOME/node/bin/npx
+        ~/.local/bin/node -> $SONIC_HOME/node/bin/node
+        ~/.local/bin/npm  -> $SONIC_HOME/node/bin/npm
+        ~/.local/bin/npx  -> $SONIC_HOME/node/bin/npx
 
     and prepends ``~/.local/bin`` to PATH, so these shadow an existing Node
     manager such as nvm.  Symmetrically remove them on uninstall, but *only*
-    when the link still resolves into this Hermes home's ``node`` directory.
+    when the link still resolves into this Sonic home's ``node`` directory.
     A link the user has since repointed at nvm (or anything else outside
-    Hermes) is left untouched so we never break unrelated tooling.
+    Sonic) is left untouched so we never break unrelated tooling.
     """
-    node_dir = (hermes_home / "node").resolve()
+    node_dir = (sonic_home / "node").resolve()
     removed = []
 
     for name in ("node", "npm", "npx"):
@@ -639,15 +639,15 @@ def run_uninstall(args):
         log_info("No wrapper script found")
 
     # 3b. Remove node/npm/npx symlinks the installer left in ~/.local/bin
-    #     (only when they still point into this Hermes home's node dir, so we
+    #     (only when they still point into this Sonic home's node dir, so we
     #     never clobber an existing nvm / user-managed Node).
-    log_info("Removing Hermes-managed node/npm/npx symlinks...")
-    removed_node_links = remove_node_symlinks(hermes_home)
+    log_info("Removing Sonic-managed node/npm/npx symlinks...")
+    removed_node_links = remove_node_symlinks(sonic_home)
     if removed_node_links:
         for link in removed_node_links:
             log_success(f"Removed {link}")
     else:
-        log_info("No Hermes-managed node/npm/npx symlinks found")
+        log_info("No Sonic-managed node/npm/npx symlinks found")
     
     # 4. Remove installation directory (code)
     log_info("Removing installation directory...")

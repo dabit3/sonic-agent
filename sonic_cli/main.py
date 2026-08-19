@@ -66,24 +66,24 @@ import sys
 
 
 def _set_process_title() -> None:
-    """Set the process title to 'hermes' so tools like 'ps', 'top', and
+    """Set the process title to 'sonic' so tools like 'ps', 'top', and
     'htop' show the app name instead of 'python3.xx'.
 
     Purely cosmetic — non-fatal on any platform.
 
     Strategy (try in order):
-      1. ``setproctitle`` (opt-in dep — installed via ``hermes tools`` or
+      1. ``setproctitle`` (opt-in dep — installed via ``sonic tools`` or
          ``pip install setproctitle``, or bundled in a future release).
       2. ctypes ``prctl(PR_SET_NAME)`` (Linux only, 15-char limit).
       3. ctypes ``pthread_setname_np`` (macOS only, kernel thread name —
          changes lldb/top but not ``ps aux``).
-      4. No-op on Windows (the .exe name is already ``hermes.exe``).
+      4. No-op on Windows (the .exe name is already ``sonic.exe``).
     """
     # Strategy 1: setproctitle (best — works on macOS, Linux, BSD)
     try:
         import setproctitle  # type: ignore[import-untyped]
 
-        setproctitle.setproctitle("hermes")
+        setproctitle.setproctitle("sonic")
         return
     except ImportError:
         pass
@@ -96,11 +96,11 @@ def _set_process_title() -> None:
         system = platform.system()
         if system == "Linux":
             libc = ctypes.CDLL("libc.so.6", use_errno=True)
-            libc.prctl(15, b"hermes", 0, 0, 0)  # PR_SET_NAME = 15
+            libc.prctl(15, b"sonic", 0, 0, 0)  # PR_SET_NAME = 15
         elif system == "Darwin":
             libc = ctypes.CDLL("libc.dylib", use_errno=True)
-            libc.pthread_setname_np(b"hermes")
-        # Windows: the .exe name is already ``hermes.exe`` — nothing to do.
+            libc.pthread_setname_np(b"sonic")
+        # Windows: the .exe name is already ``sonic.exe`` — nothing to do.
     except Exception:
         pass
 
@@ -2415,7 +2415,7 @@ def select_provider_and_model(args=None):
     # Step 1: Provider selection.
     #
     # Canonical providers are folded into top-level groups (display only — see
-    # PROVIDER_GROUPS in hermes_cli/models.py). A multi-member group shows one
+    # PROVIDER_GROUPS in sonic_cli/models.py). A multi-member group shows one
     # row ("Kimi / Moonshot ▸"); picking it opens a member sub-picker that
     # resolves back to a concrete slug, so the dispatch chain below is
     # unchanged. Custom providers and the trailing actions stay flat.
@@ -9617,7 +9617,7 @@ def _cmd_update_impl(args, gateway_mode: bool):
         # job (issue #34600). If the live file is now empty while the
         # pre-update snapshot held jobs, restore it and warn loudly.
         try:
-            from hermes_cli.backup import restore_cron_jobs_if_emptied
+            from sonic_cli.backup import restore_cron_jobs_if_emptied
 
             cron_restore = restore_cron_jobs_if_emptied(pre_update_snapshot_id)
             if cron_restore:

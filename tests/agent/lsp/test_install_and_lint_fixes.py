@@ -96,11 +96,11 @@ def test_install_npm_works_without_extras(tmp_path, monkeypatch):
 
 def test_existing_binary_finds_windows_wrapper_in_staging(tmp_path, monkeypatch):
     """Installed Windows shims should satisfy later status/probe calls."""
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
 
     from agent.lsp import install as install_mod
 
-    wrapper = install_mod.hermes_lsp_bin_dir() / "pyright-langserver.cmd"
+    wrapper = install_mod.sonic_lsp_bin_dir() / "pyright-langserver.cmd"
     wrapper.write_text("@echo off\n")
     wrapper.chmod(0o755)
 
@@ -113,12 +113,12 @@ def test_existing_binary_finds_windows_wrapper_in_staging(tmp_path, monkeypatch)
 
 def test_install_pip_finds_windows_scripts_launcher(tmp_path, monkeypatch):
     """pip console scripts can land in Scripts/ on native Windows."""
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
 
     from agent.lsp import install as install_mod
 
     def fake_run(cmd, **kwargs):
-        scripts_dir = install_mod.hermes_lsp_bin_dir().parent / "python-packages" / "Scripts"
+        scripts_dir = install_mod.sonic_lsp_bin_dir().parent / "python-packages" / "Scripts"
         scripts_dir.mkdir(parents=True, exist_ok=True)
         launcher = scripts_dir / "fake-language-server.exe"
         launcher.write_text("launcher\n")
@@ -132,7 +132,7 @@ def test_install_pip_finds_windows_scripts_launcher(tmp_path, monkeypatch):
 
     assert resolved is not None
     assert resolved.endswith("fake-language-server.exe")
-    assert (install_mod.hermes_lsp_bin_dir() / "fake-language-server.exe").exists()
+    assert (install_mod.sonic_lsp_bin_dir() / "fake-language-server.exe").exists()
 
 
 # ---------------------------------------------------------------------------

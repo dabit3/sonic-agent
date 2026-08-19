@@ -9972,7 +9972,7 @@ class SonicCLI:
             print("(._.) Compression is disabled in config.")
             return
 
-        from hermes_cli.partial_compress import (
+        from sonic_cli.partial_compress import (
             parse_partial_compress_args,
             rejoin_compressed_head_and_tail,
             split_history_for_partial_compress,

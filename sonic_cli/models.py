@@ -995,9 +995,9 @@ _PROVIDER_LABELS["custom"] = "Custom endpoint"  # special case: not a named prov
 # ---------------------------------------------------------------------------
 # Provider groups — DISPLAY ONLY
 #
-# Some vendors expose several Hermes provider slugs (one per endpoint /
+# Some vendors expose several Sonic provider slugs (one per endpoint /
 # auth method: global API, China API, OAuth coding plan, ...). Listing every
-# slug as a top-level row in the interactive `hermes model` / setup wizard /
+# slug as a top-level row in the interactive `sonic model` / setup wizard /
 # Telegram `/model` pickers makes that list long and noisy.
 #
 # These groups fold related slugs under one top-level row in INTERACTIVE
@@ -1035,7 +1035,7 @@ def provider_group_for_slug(slug: str) -> str:
 def group_providers(slugs):
     """Fold a flat ordered slug iterable into picker rows by provider group.
 
-    DISPLAY ONLY. Used by every interactive picker (``hermes model``, the
+    DISPLAY ONLY. Used by every interactive picker (``sonic model``, the
     setup wizard, the Telegram ``/model`` keyboard) so grouping is identical
     across surfaces.
 

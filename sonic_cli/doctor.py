@@ -231,15 +231,15 @@ def _read_pyproject_version() -> str | None:
 
 
 def _check_version_consistency(issues: list[str]) -> None:
-    """Verify pyproject.toml version matches hermes_cli.__version__.
+    """Verify pyproject.toml version matches sonic_cli.__version__.
 
     A git conflict resolution (reset/merge) can revert one file without the
-    other, leaving ``hermes --version`` reporting a stale version while
+    other, leaving ``sonic --version`` reporting a stale version while
     ``pyproject.toml`` is current. Detect that drift so users can re-sync.
     Silent no-op for installed wheels where pyproject.toml isn't present.
     """
     try:
-        from hermes_cli import __version__ as init_version
+        from sonic_cli import __version__ as init_version
     except Exception:
         return
     pyproject_version = _read_pyproject_version()
@@ -251,9 +251,9 @@ def _check_version_consistency(issues: list[str]) -> None:
     else:
         _fail_and_issue(
             "Version mismatch between source files",
-            f"(pyproject.toml {pyproject_version} != hermes_cli/__init__.py {init_version})",
-            "Re-sync version files (e.g. run 'hermes update', or set "
-            "hermes_cli/__init__.py __version__ to match pyproject.toml)",
+            f"(pyproject.toml {pyproject_version} != sonic_cli/__init__.py {init_version})",
+            "Re-sync version files (e.g. run 'sonic update', or set "
+            "sonic_cli/__init__.py __version__ to match pyproject.toml)",
             issues,
         )
 
@@ -564,7 +564,7 @@ def run_doctor(args):
     else:
         check_warn("Not in virtual environment", "(recommended)")
 
-    # Detect drift between pyproject.toml and hermes_cli/__init__.py versions
+    # Detect drift between pyproject.toml and sonic_cli/__init__.py versions
     # (a git conflict resolution can silently revert one but not the other).
     _check_version_consistency(issues)
     

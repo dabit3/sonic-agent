@@ -482,9 +482,9 @@ sonic skills tap add myorg/skills-repo
 [skills.sh schema](https://skills.sh/schemas/skills.sh.schema.json). Its
 `groupings` (each with a `title` and a list of skill names) are read at index
 time and become the category labels shown in the
-[Skills Hub](https://hermes-agent.nousresearch.com/docs) page — instead of a
+[Skills Hub](https://lightning-agent.nousresearch.com/docs) page — instead of a
 tag-derived guess. This is generic: any tap that ships the file gets real
-categorization, no Hermes-side changes required.
+categorization, no Sonic-side changes required.
 
 ```json
 {

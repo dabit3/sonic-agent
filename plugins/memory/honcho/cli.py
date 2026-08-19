@@ -476,7 +476,7 @@ def cmd_setup(args) -> None:
         # apiKey) so ``get_honcho_client`` recognises it as an explicit
         # local auth opt-in (see ``_host_has_key`` in client.py) and
         # cloud/hybrid switching is unaffected.
-        current_host_key = hermes_host.get("apiKey", "")
+        current_host_key = sonic_host.get("apiKey", "")
         masked = (
             f"...{current_host_key[-8:]}"
             if len(current_host_key) > 8
@@ -495,7 +495,7 @@ def cmd_setup(args) -> None:
             secret=True,
         )
         if new_local_key:
-            hermes_host["apiKey"] = new_local_key
+            sonic_host["apiKey"] = new_local_key
         elif current_host_key:
             print("  Keeping existing local JWT.")
         else:

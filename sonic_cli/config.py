@@ -330,10 +330,10 @@ def stamp_install_method(method: str) -> None:
 
 
 def is_uv_tool_install() -> bool:
-    """Return True when the *running* Hermes lives in a ``uv tool`` layout.
+    """Return True when the *running* Sonic lives in a ``uv tool`` layout.
 
-    ``uv tool install hermes-agent`` places the install at
-    ``.../uv/tools/hermes-agent/...`` (default ``~/.local/share/uv/tools``,
+    ``uv tool install sonic-agent`` places the install at
+    ``.../uv/tools/sonic-agent/...`` (default ``~/.local/share/uv/tools``,
     or ``$UV_TOOL_DIR/...``). Such installs live outside any virtualenv, so
     ``uv pip install`` fails with ``No virtual environment found`` and the
     update path must use ``uv tool upgrade`` instead.
@@ -341,14 +341,14 @@ def is_uv_tool_install() -> bool:
     Detection is intentionally restricted to properties of the running
     interpreter (``sys.prefix`` / ``sys.executable``). We deliberately do
     NOT consult ``uv tool list``: it would also return True when
-    ``hermes-agent`` happens to be uv-tool-installed on the machine while
-    the *active* Hermes is a regular pip/venv install, causing
-    ``hermes update`` to upgrade the wrong copy. It would also block on a
+    ``sonic-agent`` happens to be uv-tool-installed on the machine while
+    the *active* Sonic is a regular pip/venv install, causing
+    ``sonic update`` to upgrade the wrong copy. It would also block on a
     subprocess call (~seconds) just to compute a recommendation string.
     """
     def _has_uv_tool_marker(path: str) -> bool:
         norm = os.path.normpath(path).replace(os.sep, "/").lower()
-        return "/uv/tools/hermes-agent/" in norm + "/"
+        return "/uv/tools/sonic-agent/" in norm + "/"
 
     if _has_uv_tool_marker(sys.prefix):
         return True
@@ -367,7 +367,7 @@ def recommended_update_command_for_method(method: str) -> str:
         return "docker pull nousresearch/sonic-agent:latest"
     if method == "pip":
         if is_uv_tool_install():
-            return "uv tool upgrade hermes-agent"
+            return "uv tool upgrade sonic-agent"
         import shutil
         if shutil.which("uv"):
             return "uv pip install --upgrade sonic-agent"
@@ -1222,7 +1222,7 @@ DEFAULT_CONFIG = {
         # Mirrors `sonic -c` muscle memory.  Default off so existing
         # users aren't surprised.  SONIC_TUI_RESUME=<id> always wins.
         "tui_auto_resume_recent": False,
-        # When true (default), `hermes --tui` drops a one-time hint
+        # When true (default), `sonic --tui` drops a one-time hint
         # ("subagents working · /agents to watch live") the first time a turn
         # starts delegating, nudging the user toward the live spawn-tree
         # dashboard. Set false to suppress the hint.

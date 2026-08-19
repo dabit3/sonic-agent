@@ -490,7 +490,7 @@ class TestSend:
         """Outgoing messages carry the echo-prevention tag so the adapter
         can recognise and skip its own replies when subscribe topic ==
         publish topic (the default config that causes the loop)."""
-        adapter = self._make_adapter(topic="hermes-in")
+        adapter = self._make_adapter(topic="sonic-in")
         mock_resp = MagicMock()
         mock_resp.status_code = 200
         mock_resp.json.return_value = {"id": "abc123"}
@@ -498,7 +498,7 @@ class TestSend:
         mock_client.post = AsyncMock(return_value=mock_resp)
         adapter._http_client = mock_client
 
-        _run(adapter.send("hermes-in", "Hello!"))
+        _run(adapter.send("sonic-in", "Hello!"))
         call_headers = mock_client.post.call_args[1]["headers"]
         assert call_headers.get("X-Tags") == _ntfy._ECHO_TAG
 
@@ -573,7 +573,7 @@ class TestOnMessage:
         _run(adapter._on_message({
             "id": "echo-1",
             "event": "message",
-            "topic": "hermes-in",
+            "topic": "sonic-in",
             "message": "my own reply",
             "tags": [_ntfy._ECHO_TAG],
             "time": None,
@@ -593,7 +593,7 @@ class TestOnMessage:
         _run(adapter._on_message({
             "id": "user-1",
             "event": "message",
-            "topic": "hermes-in",
+            "topic": "sonic-in",
             "message": "hello",
             "tags": ["warning", "skull"],
             "time": None,
@@ -802,9 +802,9 @@ class TestStandaloneSend:
     def test_emits_echo_tag_header(self, monkeypatch):
         """Out-of-process cron / send_message deliveries also carry the echo
         tag, so a gateway subscribed to the same topic skips them too."""
-        monkeypatch.setenv("NTFY_TOPIC", "hermes-in")
+        monkeypatch.setenv("NTFY_TOPIC", "sonic-in")
         pconfig = MagicMock()
-        pconfig.extra = {"topic": "hermes-in"}
+        pconfig.extra = {"topic": "sonic-in"}
 
         mock_resp = MagicMock()
         mock_resp.status_code = 200
@@ -816,7 +816,7 @@ class TestStandaloneSend:
 
         with patch.object(_ntfy, "httpx") as mock_httpx:
             mock_httpx.AsyncClient.return_value = mock_client
-            _run(_standalone_send(pconfig, "hermes-in", "hi"))
+            _run(_standalone_send(pconfig, "sonic-in", "hi"))
 
         headers = mock_client.post.call_args[1]["headers"]
         assert headers.get("X-Tags") == _ntfy._ECHO_TAG

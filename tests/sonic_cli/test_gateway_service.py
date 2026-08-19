@@ -2540,26 +2540,26 @@ class TestGatewayCommandCatchesSystemScopeError:
 
 class TestServiceWorkingDirIsStable:
     """The gateway service must anchor WorkingDirectory at a stable path
-    (HERMES_HOME), never the source checkout / worktree, so a relocated or
+    (SONIC_HOME), never the source checkout / worktree, so a relocated or
     deleted checkout can't crash-loop the unit on CHDIR (status=200).
     """
 
-    def test_stable_working_dir_uses_hermes_home(self, tmp_path, monkeypatch):
-        home = tmp_path / ".hermes"
+    def test_stable_working_dir_uses_sonic_home(self, tmp_path, monkeypatch):
+        home = tmp_path / ".sonic"
         home.mkdir()
-        monkeypatch.setattr(gateway_cli, "get_hermes_home", lambda: home)
+        monkeypatch.setattr(gateway_cli, "get_sonic_home", lambda: home)
         assert Path(gateway_cli._stable_service_working_dir()) == home.resolve()
 
     def test_stable_working_dir_falls_back_to_project_root(self, tmp_path, monkeypatch):
-        # HERMES_HOME points somewhere that does not exist -> fall back.
-        missing = tmp_path / "does-not-exist" / ".hermes"
-        monkeypatch.setattr(gateway_cli, "get_hermes_home", lambda: missing)
+        # SONIC_HOME points somewhere that does not exist -> fall back.
+        missing = tmp_path / "does-not-exist" / ".sonic"
+        monkeypatch.setattr(gateway_cli, "get_sonic_home", lambda: missing)
         assert gateway_cli._stable_service_working_dir() == str(gateway_cli.PROJECT_ROOT)
 
-    def test_user_unit_workingdirectory_is_hermes_home_not_checkout(self, tmp_path, monkeypatch):
-        home = tmp_path / ".hermes"
+    def test_user_unit_workingdirectory_is_sonic_home_not_checkout(self, tmp_path, monkeypatch):
+        home = tmp_path / ".sonic"
         home.mkdir()
-        monkeypatch.setattr(gateway_cli, "get_hermes_home", lambda: home)
+        monkeypatch.setattr(gateway_cli, "get_sonic_home", lambda: home)
         unit = gateway_cli.generate_systemd_unit(system=False)
         wd = [l for l in unit.splitlines() if l.startswith("WorkingDirectory=")]
         assert wd, "unit has no WorkingDirectory line"
@@ -2568,12 +2568,12 @@ class TestServiceWorkingDirIsStable:
         # The bug class: never pin cwd inside a transient worktree checkout.
         assert "/.worktrees/" not in value
 
-    def test_launchd_workingdirectory_is_hermes_home(self, tmp_path, monkeypatch):
+    def test_launchd_workingdirectory_is_sonic_home(self, tmp_path, monkeypatch):
         import re
 
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".sonic"
         home.mkdir()
-        monkeypatch.setattr(gateway_cli, "get_hermes_home", lambda: home)
+        monkeypatch.setattr(gateway_cli, "get_sonic_home", lambda: home)
         plist = gateway_cli.generate_launchd_plist()
         m = re.search(r"<key>WorkingDirectory</key>\s*<string>(.*?)</string>", plist)
         assert m, "plist has no WorkingDirectory entry"

@@ -22,9 +22,9 @@ sonic config set memory.provider honcho
 echo "HONCHO_API_KEY=***" >> ~/.sonic/.env
 ```
 
-> `hermes honcho setup` also works, but only **after** Honcho is the active
+> `sonic honcho setup` also works, but only **after** Honcho is the active
 > memory provider — the `honcho` subcommand is registered for the active
-> provider only. On a fresh install, use `hermes memory setup honcho`.
+> provider only. On a fresh install, use `sonic memory setup honcho`.
 
 ## Architecture Overview
 

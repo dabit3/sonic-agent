@@ -208,13 +208,13 @@ def _probe_single_server(
 def _oauth_tokens_present(name: str) -> bool:
     """Return True if an OAuth token file exists on disk for ``name``.
 
-    Used after ``hermes mcp login`` to distinguish a genuine authentication
+    Used after ``sonic mcp login`` to distinguish a genuine authentication
     from a probe that succeeded only because the server allowed
     initialize/tools-list without auth (so no token was ever acquired).
     """
     try:
-        from tools.mcp_oauth import HermesTokenStorage
-        return HermesTokenStorage(name).has_cached_tokens()
+        from tools.mcp_oauth import SonicTokenStorage
+        return SonicTokenStorage(name).has_cached_tokens()
     except Exception as exc:  # pragma: no cover — defensive
         logger.debug("Could not check OAuth tokens for '%s': %s", name, exc)
         # Be permissive on unexpected errors: don't block a real success.
@@ -675,7 +675,7 @@ def cmd_mcp_login(args):
             print(color(f"          client_id: \"<your-oauth-client-id>\"", Colors.DIM))
             print(color(f"          client_secret: \"<your-oauth-client-secret>\"", Colors.DIM))
             print()
-            _info("Then re-run `hermes mcp login " + name + "`.")
+            _info("Then re-run `sonic mcp login " + name + "`.")
             return
         if tools:
             _success(f"Authenticated — {len(tools)} tool(s) available")

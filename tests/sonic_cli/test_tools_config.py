@@ -767,7 +767,7 @@ def test_first_install_nous_auto_configures_video_gen(monkeypatch):
     video_gen.use_gateway so the FAL plugin can route through the gateway
     at runtime.  Regression test for the bug where video_gen was marked as
     auto-configured but no config was actually written."""
-    monkeypatch.setattr("hermes_cli.nous_subscription.managed_nous_tools_enabled", lambda: True)
+    monkeypatch.setattr("sonic_cli.nous_subscription.managed_nous_tools_enabled", lambda: True)
     config = {
         "model": {"provider": "nous"},
         "platform_toolsets": {"cli": []},
@@ -788,16 +788,16 @@ def test_first_install_nous_auto_configures_video_gen(monkeypatch):
         monkeypatch.delenv(env_var, raising=False)
 
     monkeypatch.setattr(
-        "hermes_cli.tools_config._prompt_toolset_checklist",
+        "sonic_cli.tools_config._prompt_toolset_checklist",
         lambda *args, **kwargs: {"video_gen"},
     )
-    monkeypatch.setattr("hermes_cli.tools_config.save_config", lambda config: None)
+    monkeypatch.setattr("sonic_cli.tools_config.save_config", lambda config: None)
     monkeypatch.setattr(
-        "hermes_cli.tools_config._get_enabled_platforms",
+        "sonic_cli.tools_config._get_enabled_platforms",
         lambda: ["cli"],
     )
     monkeypatch.setattr(
-        "hermes_cli.nous_subscription.get_nous_portal_account_info",
+        "sonic_cli.nous_subscription.get_nous_portal_account_info",
         lambda *args, **kwargs: NousPortalAccountInfo(
             logged_in=True,
             source="jwt",
@@ -808,7 +808,7 @@ def test_first_install_nous_auto_configures_video_gen(monkeypatch):
 
     configured = []
     monkeypatch.setattr(
-        "hermes_cli.tools_config._configure_toolset",
+        "sonic_cli.tools_config._configure_toolset",
         lambda ts_key, config: configured.append(ts_key),
     )
 

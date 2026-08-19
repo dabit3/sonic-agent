@@ -2147,19 +2147,19 @@ class AIAgent:
         """Check whether the end-of-turn completion explainer footer is on.
 
         Config path: ``display.turn_completion_explainer`` (bool, default
-        True).  ``HERMES_TURN_COMPLETION_EXPLAINER`` env var overrides
+        True).  ``SONIC_TURN_COMPLETION_EXPLAINER`` env var overrides
         config.  Exposed as a method so tests can patch a single seam,
         mirroring ``_file_mutation_verifier_enabled``.
         """
         try:
             import os as _os
-            env = _os.environ.get("HERMES_TURN_COMPLETION_EXPLAINER")
+            env = _os.environ.get("SONIC_TURN_COMPLETION_EXPLAINER")
             if env is not None:
                 return env.strip().lower() not in {"0", "false", "no", "off"}
             # Read from the persisted config.yaml so gateway and CLI share
             # the same setting.  Import lazily to avoid a startup-time cycle.
             try:
-                from hermes_cli.config import load_config as _load_config
+                from sonic_cli.config import load_config as _load_config
                 _cfg = _load_config() or {}
             except Exception:
                 _cfg = {}

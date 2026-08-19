@@ -47,25 +47,25 @@ class TestCmdUpdatePip:
     def test_update_pip_exports_virtualenv_from_sys_prefix(
         self, mock_run, _mock_which, mock_args, monkeypatch
     ):
-        from hermes_cli import main as hm
+        from sonic_cli import main as hm
 
         mock_run.return_value = subprocess.CompletedProcess([], 0, stdout="", stderr="")
         monkeypatch.delenv("VIRTUAL_ENV", raising=False)
-        monkeypatch.setattr(hm.sys, "prefix", "/tmp/hermes-launcher-venv")
+        monkeypatch.setattr(hm.sys, "prefix", "/tmp/sonic-launcher-venv")
         monkeypatch.setattr(hm.sys, "base_prefix", "/usr")
 
         hm._cmd_update_pip(mock_args)
 
         assert mock_run.call_count == 1
-        assert mock_run.call_args.args[0] == ["/usr/bin/uv", "pip", "install", "--upgrade", "hermes-agent"]
-        assert mock_run.call_args.kwargs["env"]["VIRTUAL_ENV"] == "/tmp/hermes-launcher-venv"
+        assert mock_run.call_args.args[0] == ["/usr/bin/uv", "pip", "install", "--upgrade", "sonic-agent"]
+        assert mock_run.call_args.kwargs["env"]["VIRTUAL_ENV"] == "/tmp/sonic-launcher-venv"
 
     @patch("shutil.which", return_value="/usr/bin/uv")
     @patch("subprocess.run")
     def test_update_pip_does_not_export_virtualenv_for_system_python(
         self, mock_run, _mock_which, mock_args, monkeypatch
     ):
-        from hermes_cli import main as hm
+        from sonic_cli import main as hm
 
         mock_run.return_value = subprocess.CompletedProcess([], 0, stdout="", stderr="")
         monkeypatch.delenv("VIRTUAL_ENV", raising=False)

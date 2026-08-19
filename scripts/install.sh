@@ -492,7 +492,7 @@ check_python() {
 }
 
 # Probe whether $1 (a python executable) links a SQLite with the FTS5
-# module compiled in. Hermes' session store (hermes_state.py) creates FTS5
+# module compiled in. Sonic' session store (sonic_state.py) creates FTS5
 # virtual tables for full-text session search; a SQLite without FTS5 makes
 # the bundled-python path unusable for that feature. Returns 0 if FTS5 works.
 _python_has_fts5() {
@@ -529,9 +529,9 @@ ensure_fts5() {
         log_success "FTS5 available ($PYTHON_FOUND_VERSION)"
     else
         # Could not obtain an FTS5-capable interpreter (offline, pinned env,
-        # etc.). Install proceeds — Hermes degrades gracefully and disables
+        # etc.). Install proceeds — Sonic degrades gracefully and disables
         # only full-text session search — but warn so it isn't a silent gap.
-        log_warn "Could not obtain an FTS5-capable Python. Hermes will run, but"
+        log_warn "Could not obtain an FTS5-capable Python. Sonic will run, but"
         log_warn "full-text session search will be disabled until FTS5 is present."
     fi
 }

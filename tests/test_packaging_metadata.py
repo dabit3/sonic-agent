@@ -23,12 +23,12 @@ def test_every_on_disk_subpackage_is_covered_by_packages_find():
     """Regression test for #34701 (and the bug class behind #34034 / #28149).
 
     ``[tool.setuptools.packages.find]`` ``include`` is hand-maintained. Every
-    top-level package is listed twice — bare (``hermes_cli``) for the package
-    itself and ``hermes_cli.*`` for its subpackages — EXCEPT when someone
-    forgets the wildcard. v0.15.x listed ``hermes_cli`` without ``hermes_cli.*``,
-    so the wheel shipped ``hermes_cli/*.py`` but dropped the ``dashboard_auth``
+    top-level package is listed twice — bare (``sonic_cli``) for the package
+    itself and ``sonic_cli.*`` for its subpackages — EXCEPT when someone
+    forgets the wildcard. v0.15.x listed ``sonic_cli`` without ``sonic_cli.*``,
+    so the wheel shipped ``sonic_cli/*.py`` but dropped the ``dashboard_auth``
     and ``proxy`` subpackages. The dashboard then died on every install with
-    ``ModuleNotFoundError: No module named 'hermes_cli.dashboard_auth'``.
+    ``ModuleNotFoundError: No module named 'sonic_cli.dashboard_auth'``.
 
     This drives setuptools' own discovery against the live tree: every package
     that exists on disk and would be found by a permissive ``<name>.*`` scan

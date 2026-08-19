@@ -541,7 +541,7 @@ class TestProfileScopedConfig:
         )
         assert config.host == "sonic_dreamer"
         assert config.peer_name == "dreamer-user"
-        assert config.workspace_id == "hermes_dreamer"
+        assert config.workspace_id == "sonic_dreamer"
 
 
 class TestObservationModeMigration:
@@ -931,12 +931,12 @@ class TestGetHonchoClientBaseUrlDoublePrefixFix:
         cfg = HonchoClientConfig(
             api_key=None,
             base_url="http://localhost:38000/v3",
-            workspace_id="hermes",
+            workspace_id="sonic",
             environment="production",
         )
 
         with patch("honcho.Honcho", return_value=fake_honcho) as mock_honcho, \
-             patch("hermes_cli.config.load_config", return_value={}):
+             patch("sonic_cli.config.load_config", return_value={}):
             get_honcho_client(cfg)
 
         mock_honcho.assert_called_once()
@@ -955,12 +955,12 @@ class TestGetHonchoClientBaseUrlDoublePrefixFix:
         cfg = HonchoClientConfig(
             api_key=None,
             base_url="http://localhost:38000",
-            workspace_id="hermes",
+            workspace_id="sonic",
             environment="production",
         )
 
         with patch("honcho.Honcho", return_value=fake_honcho) as mock_honcho, \
-             patch("hermes_cli.config.load_config", return_value={}):
+             patch("sonic_cli.config.load_config", return_value={}):
             get_honcho_client(cfg)
 
         mock_honcho.assert_called_once()
@@ -979,12 +979,12 @@ class TestGetHonchoClientBaseUrlDoublePrefixFix:
         cfg = HonchoClientConfig(
             api_key="cloud-key",
             base_url="https://api.honcho.dev",
-            workspace_id="hermes",
+            workspace_id="sonic",
             environment="production",
         )
 
         with patch("honcho.Honcho", return_value=fake_honcho) as mock_honcho, \
-             patch("hermes_cli.config.load_config", return_value={}):
+             patch("sonic_cli.config.load_config", return_value={}):
             get_honcho_client(cfg)
 
         mock_honcho.assert_called_once()
@@ -1004,12 +1004,12 @@ class TestGetHonchoClientBaseUrlDoublePrefixFix:
         cfg = HonchoClientConfig(
             api_key="cloud-key",
             base_url="https://api.honcho.dev/v3",
-            workspace_id="hermes",
+            workspace_id="sonic",
             environment="production",
         )
 
         with patch("honcho.Honcho", return_value=fake_honcho) as mock_honcho, \
-             patch("hermes_cli.config.load_config", return_value={}):
+             patch("sonic_cli.config.load_config", return_value={}):
             get_honcho_client(cfg)
 
         mock_honcho.assert_called_once()
@@ -1047,12 +1047,12 @@ class TestGetHonchoClientBaseUrlDoublePrefixFix:
         cfg = HonchoClientConfig(
             api_key="self-host-key",
             base_url=raw_url,
-            workspace_id="hermes",
+            workspace_id="sonic",
             environment="production",
         )
 
         with patch("honcho.Honcho", return_value=fake_honcho) as mock_honcho, \
-             patch("hermes_cli.config.load_config", return_value={}):
+             patch("sonic_cli.config.load_config", return_value={}):
             get_honcho_client(cfg)
 
         mock_honcho.assert_called_once()
@@ -1071,12 +1071,12 @@ class TestGetHonchoClientBaseUrlDoublePrefixFix:
         cfg = HonchoClientConfig(
             api_key=None,
             base_url="http://127.0.0.1:38000/v3/",
-            workspace_id="hermes",
+            workspace_id="sonic",
             environment="production",
         )
 
         with patch("honcho.Honcho", return_value=fake_honcho) as mock_honcho, \
-             patch("hermes_cli.config.load_config", return_value={}):
+             patch("sonic_cli.config.load_config", return_value={}):
             get_honcho_client(cfg)
 
         mock_honcho.assert_called_once()

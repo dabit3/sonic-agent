@@ -166,7 +166,7 @@ class TestSessionLifecycle:
             kwargs["factory"] = _NoFtsConnection
             return real_connect(*args, **kwargs)
 
-        monkeypatch.setattr("hermes_state.sqlite3.connect", connect_without_fts)
+        monkeypatch.setattr("sonic_state.sqlite3.connect", connect_without_fts)
 
         db = SessionDB(db_path=tmp_path / "state.db")
         try:

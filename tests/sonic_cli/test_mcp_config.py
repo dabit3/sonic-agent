@@ -610,11 +610,11 @@ class TestMcpLogin:
         })
         # Probe returns tools even though auth never completed.
         monkeypatch.setattr(
-            "hermes_cli.mcp_config._probe_single_server",
+            "sonic_cli.mcp_config._probe_single_server",
             lambda name, cfg: [("search_files", "d"), ("read_file_content", "d")],
         )
         # No token file is created → _oauth_tokens_present() returns False.
-        from hermes_cli.mcp_config import cmd_mcp_login
+        from sonic_cli.mcp_config import cmd_mcp_login
 
         cmd_mcp_login(_make_args(name="googledrive"))
         out = capsys.readouterr().out
@@ -639,10 +639,10 @@ class TestMcpLogin:
             return [("a", "d"), ("b", "d"), ("c", "d")]
 
         monkeypatch.setattr(
-            "hermes_cli.mcp_config._probe_single_server", mock_probe
+            "sonic_cli.mcp_config._probe_single_server", mock_probe
         )
 
-        from hermes_cli.mcp_config import cmd_mcp_login
+        from sonic_cli.mcp_config import cmd_mcp_login
 
         cmd_mcp_login(_make_args(name="realserver"))
         out = capsys.readouterr().out
