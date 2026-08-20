@@ -1,8 +1,17 @@
+import sys
+
 from sonic_cli.main import _prompt_reasoning_effort_selection
+
+
+class _TtyStdin:
+    def isatty(self):
+        return True
 
 
 def test_reasoning_menu_orders_minimal_before_low(monkeypatch):
     captured = {}
+
+    monkeypatch.setattr(sys, "stdin", _TtyStdin())
 
     def _fake_radiolist(title, items, *, selected=0, cancel_returns=None, description=None):
         captured["items"] = items
