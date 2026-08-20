@@ -889,15 +889,15 @@ def prompt_enable_tool_gateway(
 
 
 # ---------------------------------------------------------------------------
-# Inline Nous Portal login for the Tool Gateway picker (`hermes tools`)
+# Inline Nous Portal login for the Tool Gateway picker (`sonic tools`)
 # ---------------------------------------------------------------------------
 
 
 def ensure_nous_portal_access(*, capability: str = "the Nous Tool Gateway") -> bool:
     """Make sure the user has paid Nous Portal access, logging in if needed.
 
-    Used by ``hermes tools`` when a user selects a Nous-managed Tool Gateway
-    backend (e.g. "Firecrawl (Nous Portal)").  Unlike ``hermes model``'s Nous
+    Used by ``sonic tools`` when a user selects a Nous-managed Tool Gateway
+    backend (e.g. "Firecrawl (Nous Portal)").  Unlike ``sonic model``'s Nous
     login, this:
 
     - does NOT change the inference provider (``model.provider`` is untouched),
@@ -947,7 +947,7 @@ def _run_nous_portal_login_only(*, capability: str) -> bool:
     the flow failed.
     """
     try:
-        from hermes_cli.auth import (
+        from sonic_cli.auth import (
             _auth_store_lock,
             _load_auth_store,
             _nous_device_code_login,

@@ -273,7 +273,7 @@ def test_detect_concurrent_parents_call_robust_to_one_bad_hop(_winp, tmp_path):
 
     rows = [
         _make_proc(me, str(shim), "python.exe"),
-        _make_proc(launcher_pid, str(shim), "hermes.exe"),
+        _make_proc(launcher_pid, str(shim), "sonic.exe"),
     ]
     # ancestor_exe=None → every ancestor's .exe() raises OSError. The helper
     # must swallow it per-ancestor and not crash; the launcher won't be
@@ -287,7 +287,7 @@ def test_detect_concurrent_parents_call_robust_to_one_bad_hop(_winp, tmp_path):
         result = cli_main._detect_concurrent_sonic_instances(scripts_dir)
 
     # No crash; helper completes. (Degenerate stub: launcher exe unreadable.)
-    assert result == [(launcher_pid, "hermes.exe")]
+    assert result == [(launcher_pid, "sonic.exe")]
 
 
 @patch.object(cli_main, "_is_windows", return_value=True)

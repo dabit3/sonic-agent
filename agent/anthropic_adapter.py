@@ -1794,7 +1794,7 @@ def _strip_orphaned_tool_blocks(result: List[Dict[str, Any]]) -> None:
             # Anthropic rejects the replayed turn with HTTP 400 "thinking blocks in
             # the latest assistant message cannot be modified".  Flag the turn so
             # _manage_thinking_signatures can demote the dead signature instead of
-            # replaying it verbatim.  See hermes-agent: extended-thinking + parallel
+            # replaying it verbatim.  See sonic-agent: extended-thinking + parallel
             # tool batch interrupted mid-flight → non-retryable 400 crash-loop.
             if len(kept) != len(m["content"]) and any(
                 isinstance(b, dict) and b.get("type") in {"thinking", "redacted_thinking"}

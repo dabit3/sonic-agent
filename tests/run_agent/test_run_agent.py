@@ -2555,7 +2555,7 @@ class TestConcurrentToolExecution:
         messages = []
 
         monkeypatch.setattr(
-            "hermes_cli.plugins.get_pre_tool_call_block_message",
+            "sonic_cli.plugins.get_pre_tool_call_block_message",
             lambda *args, **kwargs: "Blocked" if args[0] == "write_file" else None,
         )
 
@@ -2582,7 +2582,7 @@ class TestConcurrentToolExecution:
         messages = []
 
         monkeypatch.setattr(
-            "hermes_cli.plugins.get_pre_tool_call_block_message",
+            "sonic_cli.plugins.get_pre_tool_call_block_message",
             lambda *args, **kwargs: "Blocked" if args[0] == "patch" else None,
         )
 
@@ -2609,7 +2609,7 @@ class TestConcurrentToolExecution:
         messages = []
 
         monkeypatch.setattr(
-            "hermes_cli.plugins.get_pre_tool_call_block_message",
+            "sonic_cli.plugins.get_pre_tool_call_block_message",
             lambda *args, **kwargs: "Blocked" if args[0] == "terminal" else None,
         )
 
@@ -2643,7 +2643,7 @@ class TestConcurrentToolExecution:
             return "Blocked" if call_count["n"] == 1 else None
 
         monkeypatch.setattr(
-            "hermes_cli.plugins.get_pre_tool_call_block_message",
+            "sonic_cli.plugins.get_pre_tool_call_block_message",
             block_first_only,
         )
 

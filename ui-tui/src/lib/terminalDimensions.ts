@@ -69,7 +69,7 @@ interface ClampableStream {
   rows?: number
 }
 
-const PATCHED = Symbol.for('hermes.tui.clampedDimensions')
+const PATCHED = Symbol.for('sonic.tui.clampedDimensions')
 
 /**
  * Install clamping getters on `process.stdout` (or a provided stream) so every

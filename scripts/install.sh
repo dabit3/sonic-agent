@@ -517,9 +517,9 @@ _reinstall_python_with_fts5() {
 
 _warn_no_fts5() {
     # Could not obtain an FTS5-capable interpreter (offline, pinned env, etc.).
-    # Install proceeds — Hermes degrades gracefully and disables only full-text
+    # Install proceeds — Sonic degrades gracefully and disables only full-text
     # session search — but warn so it isn't a silent gap.
-    log_warn "Could not obtain an FTS5-capable Python. Hermes will run, but"
+    log_warn "Could not obtain an FTS5-capable Python. Sonic will run, but"
     log_warn "full-text session search will be disabled until FTS5 is present."
 }
 
@@ -573,7 +573,7 @@ ensure_fts5() {
     # a fresh standalone uv into a temp dir and use it just for the reinstall.
     log_info "Installing an up-to-date standalone uv to obtain an FTS5 Python..."
     local _tmp_uv_dir _fresh_uv
-    _tmp_uv_dir="$(mktemp -d 2>/dev/null || echo "/tmp/hermes-fresh-uv.$$")"
+    _tmp_uv_dir="$(mktemp -d 2>/dev/null || echo "/tmp/sonic-fresh-uv.$$")"
     mkdir -p "$_tmp_uv_dir"
     if curl -LsSf https://astral.sh/uv/install.sh 2>/dev/null \
             | env UV_INSTALL_DIR="$_tmp_uv_dir" UV_UNMANAGED_INSTALL="$_tmp_uv_dir" sh >/dev/null 2>&1; then

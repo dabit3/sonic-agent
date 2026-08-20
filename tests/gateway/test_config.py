@@ -345,9 +345,9 @@ class TestLoadGatewayConfig:
 
     def test_bridges_discord_allow_from_from_config_yaml(self, tmp_path, monkeypatch):
         """discord.allow_from should populate DISCORD_ALLOWED_USERS for auth."""
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
-        config_path = hermes_home / "config.yaml"
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        config_path = sonic_home / "config.yaml"
         config_path.write_text(
             "discord:\n"
             "  allow_from:\n"
@@ -356,7 +356,7 @@ class TestLoadGatewayConfig:
             encoding="utf-8",
         )
 
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
         monkeypatch.delenv("DISCORD_ALLOWED_USERS", raising=False)
 
         config = load_gateway_config()
@@ -371,9 +371,9 @@ class TestLoadGatewayConfig:
 
     def test_bridges_discord_platform_extra_allow_from_to_env(self, tmp_path, monkeypatch):
         """platforms.discord.extra.allow_from should reach DISCORD_ALLOWED_USERS too."""
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
-        config_path = hermes_home / "config.yaml"
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        config_path = sonic_home / "config.yaml"
         config_path.write_text(
             "platforms:\n"
             "  discord:\n"
@@ -383,7 +383,7 @@ class TestLoadGatewayConfig:
             encoding="utf-8",
         )
 
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
         monkeypatch.delenv("DISCORD_ALLOWED_USERS", raising=False)
 
         config = load_gateway_config()
@@ -412,9 +412,9 @@ class TestLoadGatewayConfig:
         assert Platform.API_SERVER not in config.get_connected_platforms()
 
     def test_bridges_nested_gateway_platforms_from_config_yaml(self, tmp_path, monkeypatch):
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
-        config_path = hermes_home / "config.yaml"
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        config_path = sonic_home / "config.yaml"
         config_path.write_text(
             "gateway:\n"
             "  platforms:\n"
@@ -430,7 +430,7 @@ class TestLoadGatewayConfig:
             encoding="utf-8",
         )
 
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         config = load_gateway_config()
 
@@ -445,9 +445,9 @@ class TestLoadGatewayConfig:
         assert telegram.extra["reply_prefix"] == "nested"
 
     def test_top_level_platforms_override_nested_gateway_platforms(self, tmp_path, monkeypatch):
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
-        config_path = hermes_home / "config.yaml"
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        config_path = sonic_home / "config.yaml"
         config_path.write_text(
             "gateway:\n"
             "  platforms:\n"
@@ -465,7 +465,7 @@ class TestLoadGatewayConfig:
             encoding="utf-8",
         )
 
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         config = load_gateway_config()
 

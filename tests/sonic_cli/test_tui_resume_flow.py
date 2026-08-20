@@ -640,7 +640,7 @@ def test_oneshot_rejects_invalid_only_toolsets(monkeypatch, capsys):
 
 def test_oneshot_fails_closed_on_empty_final_response(monkeypatch, capsys):
     _stub_plugin_discovery(monkeypatch)
-    import hermes_cli.oneshot as oneshot_mod
+    import sonic_cli.oneshot as oneshot_mod
 
     monkeypatch.setattr(oneshot_mod, "_run_agent", lambda *_args, **_kwargs: "")
 
@@ -652,7 +652,7 @@ def test_oneshot_fails_closed_on_empty_final_response(monkeypatch, capsys):
 
 def test_oneshot_prints_nonempty_final_response(monkeypatch, capsys):
     _stub_plugin_discovery(monkeypatch)
-    import hermes_cli.oneshot as oneshot_mod
+    import sonic_cli.oneshot as oneshot_mod
 
     monkeypatch.setattr(oneshot_mod, "_run_agent", lambda *_args, **_kwargs: "done")
 
@@ -664,7 +664,7 @@ def test_oneshot_prints_nonempty_final_response(monkeypatch, capsys):
 
 def test_oneshot_fails_closed_on_agent_exception(monkeypatch, capsys):
     _stub_plugin_discovery(monkeypatch)
-    import hermes_cli.oneshot as oneshot_mod
+    import sonic_cli.oneshot as oneshot_mod
 
     def _boom(*_args, **_kwargs):
         raise OSError("not a TTY")
@@ -680,7 +680,7 @@ def test_oneshot_fails_closed_on_agent_exception(monkeypatch, capsys):
 
 def test_oneshot_reraises_keyboard_interrupt(monkeypatch):
     _stub_plugin_discovery(monkeypatch)
-    import hermes_cli.oneshot as oneshot_mod
+    import sonic_cli.oneshot as oneshot_mod
     import pytest as _pytest
 
     def _interrupt(*_args, **_kwargs):

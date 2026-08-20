@@ -209,12 +209,12 @@ def run_oneshot(
         # (Ctrl-C / explicit sys.exit() inside the agent).
         if isinstance(failure, (KeyboardInterrupt, SystemExit)):
             raise failure
-        real_stderr.write(f"hermes -z: agent failed: {failure}\n")
+        real_stderr.write(f"sonic -z: agent failed: {failure}\n")
         real_stderr.flush()
         return 1
 
     if not (response or "").strip():
-        real_stderr.write("hermes -z: no final response was produced; treating the run as failed.\n")
+        real_stderr.write("sonic -z: no final response was produced; treating the run as failed.\n")
         real_stderr.flush()
         return 1
 

@@ -250,14 +250,14 @@ def test_browser_use_availability_skips_refresh_for_expired_cached_gateway_token
         return "fresh-token"
 
     monkeypatch.setattr(
-        "hermes_cli.auth.resolve_nous_access_token",
+        "sonic_cli.auth.resolve_nous_access_token",
         _record_refresh,
     )
 
     env = os.environ.copy()
     env.pop("BROWSER_USE_API_KEY", None)
     env.update({
-        "HERMES_HOME": str(tmp_path),
+        "SONIC_HOME": str(tmp_path),
         "BROWSER_USE_GATEWAY_URL": "http://127.0.0.1:3009",
     })
 

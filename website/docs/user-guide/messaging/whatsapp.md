@@ -206,7 +206,7 @@ When the agent calls tools (web search, file operations, etc.), WhatsApp display
 WhatsApp delivers each message individually, so a rapid burst (forwarded batches, paste-splits, multi-line text) would otherwise trigger a separate agent invocation per fragment — wasting tokens and producing several disjointed replies. The adapter buffers successive text messages from the same chat and dispatches them as one combined request after a short quiet period (default **5s**, extended to **10s** for very long fragments). Tune via `config.yaml`:
 
 ```yaml
-# ~/.hermes/config.yaml
+# ~/.sonic/config.yaml
 gateway:
   platforms:
     whatsapp:

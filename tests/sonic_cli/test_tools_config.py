@@ -621,7 +621,7 @@ def test_visible_providers_show_nous_subscription_when_logged_out(monkeypatch):
     config = {"model": {"provider": "openrouter"}}
 
     monkeypatch.setattr(
-        "hermes_cli.nous_subscription.get_nous_portal_account_info",
+        "sonic_cli.nous_subscription.get_nous_portal_account_info",
         lambda: NousPortalAccountInfo(
             logged_in=False,
             source="none",
@@ -644,7 +644,7 @@ def test_visible_providers_show_nous_subscription_when_paid_access_is_false(monk
     config = {"model": {"provider": "nous"}}
 
     monkeypatch.setattr(
-        "hermes_cli.nous_subscription.get_nous_portal_account_info",
+        "sonic_cli.nous_subscription.get_nous_portal_account_info",
         lambda: NousPortalAccountInfo(
                 logged_in=True,
                 source="jwt",
@@ -1296,7 +1296,7 @@ def test_reconfigure_provider_syncs_use_gateway(monkeypatch, provider, config_ke
     # Managed providers run the inline Portal entitlement gate; treat the user
     # as already entitled so the test exercises the use_gateway sync.
     monkeypatch.setattr(
-        "hermes_cli.nous_subscription.ensure_nous_portal_access",
+        "sonic_cli.nous_subscription.ensure_nous_portal_access",
         lambda **kwargs: True,
     )
     config = {}
@@ -1344,7 +1344,7 @@ def test_reconfigure_provider_runs_post_setup_for_env_var_providers(
 def test_configure_managed_provider_blocks_when_not_entitled(monkeypatch):
     """Selecting a Nous-managed backend without paid access writes no config."""
     monkeypatch.setattr(
-        "hermes_cli.nous_subscription.ensure_nous_portal_access",
+        "sonic_cli.nous_subscription.ensure_nous_portal_access",
         lambda **kwargs: False,
     )
     provider = {
@@ -1364,7 +1364,7 @@ def test_configure_managed_provider_blocks_when_not_entitled(monkeypatch):
 def test_configure_managed_provider_enables_when_entitled(monkeypatch):
     """Once entitled, selecting the managed backend sets use_gateway=True."""
     monkeypatch.setattr(
-        "hermes_cli.nous_subscription.ensure_nous_portal_access",
+        "sonic_cli.nous_subscription.ensure_nous_portal_access",
         lambda **kwargs: True,
     )
     provider = {
@@ -1390,7 +1390,7 @@ def test_configure_non_managed_provider_skips_portal_gate(monkeypatch):
         return False
 
     monkeypatch.setattr(
-        "hermes_cli.nous_subscription.ensure_nous_portal_access", _boom
+        "sonic_cli.nous_subscription.ensure_nous_portal_access", _boom
     )
     provider = {"name": "Tavily", "web_backend": "tavily", "env_vars": []}
     config = {}

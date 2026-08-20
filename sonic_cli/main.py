@@ -7949,10 +7949,10 @@ def _detect_concurrent_sonic_instances(
 
     # Build a set of PIDs to exclude: the Python process itself plus every
     # ancestor whose executable is one of our shims. On Windows the
-    # setuptools-generated hermes.exe launcher is a separate native process
+    # setuptools-generated sonic.exe launcher is a separate native process
     # that spawns python.exe (the interpreter that runs our code).
     # os.getpid() returns the Python PID, but the launcher (which holds the
-    # file lock) is the parent. Without excluding it, every ``hermes update``
+    # file lock) is the parent. Without excluding it, every ``sonic update``
     # reports its own launcher as a concurrent instance — a false positive
     # (issues #29341, #34795).
     #
@@ -7963,7 +7963,7 @@ def _detect_concurrent_sonic_instances(
     #      across session/elevation boundaries), leaving the launcher shim in
     #      the candidate set and re-triggering the false positive.
     #   2. Only exclude ancestors whose exe is itself a shim. A genuine second
-    #      hermes.exe sitting *under* a non-Hermes parent (e.g. a Hermes
+    #      sonic.exe sitting *under* a non-Sonic parent (e.g. a Sonic
     #      Desktop backend child) must still be flagged, so we don't blanket-
     #      exclude unrelated ancestors like the shell or terminal.
     # Broad ``except Exception`` guards against partially-stubbed psutil in
@@ -9582,7 +9582,7 @@ def _cmd_update_impl(args, gateway_mode: bool):
                 print("  ✓ Config format updated (no new settings to configure)")
             except Exception as _mig_err:
                 print(f"  ⚠️  Config format update failed: {_mig_err}")
-                print("     Run 'hermes config migrate' to retry.")
+                print("     Run 'sonic config migrate' to retry.")
         elif needs_migration:
             print()
             # Show WHAT changed, not just a count, so the user can make an
@@ -11169,7 +11169,7 @@ def cmd_completion(args, parser=None):
 
 def cmd_prompt_size(args):
     """Show a byte/char breakdown of the system prompt + tool schemas."""
-    from hermes_cli.prompt_size import cmd_prompt_size as _impl
+    from sonic_cli.prompt_size import cmd_prompt_size as _impl
 
     _impl(args)
 
@@ -11312,7 +11312,7 @@ _AGENT_SUBCOMMANDS = {
 
 
 def _is_tui_chat_launch(args) -> bool:
-    return bool(getattr(args, "tui", False) or os.environ.get("HERMES_TUI") == "1")
+    return bool(getattr(args, "tui", False) or os.environ.get("SONIC_TUI") == "1")
 
 
 def _command_has_dedicated_mcp_startup(args) -> bool:
@@ -11362,7 +11362,7 @@ def _prepare_agent_startup(args) -> None:
         _run_inline_mcp_discovery = False
     elif _should_background_mcp_startup(args):
         try:
-            from hermes_cli.mcp_startup import start_background_mcp_discovery
+            from sonic_cli.mcp_startup import start_background_mcp_discovery
 
             start_background_mcp_discovery(
                 logger=logger,

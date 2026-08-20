@@ -23,10 +23,10 @@ from sonic_cli.colors import Colors, color
 # the API gateway logs and report restart events").
 _GATEWAY_LIFECYCLE_PATTERNS = re.compile(
     r"(?i)"
-    r"(hermes\s+gateway\s+(restart|stop|start))"
-    r"|(launchctl\s+(kickstart|unload|load|stop|restart)\s+.*hermes)"
-    r"|(systemctl\s+(restart|stop|start)\s+.*hermes)"
-    r"|(p?kill\s+.*hermes.*gateway)"
+    r"(sonic\s+gateway\s+(restart|stop|start))"
+    r"|(launchctl\s+(kickstart|unload|load|stop|restart)\s+.*sonic)"
+    r"|(systemctl\s+(restart|stop|start)\s+.*sonic)"
+    r"|(p?kill\s+.*sonic.*gateway)"
 )
 
 
@@ -202,7 +202,7 @@ def cron_create(args):
             "Blocked: cron job contains a gateway lifecycle command "
             "(restart/stop/kill).\n"
             "This is blocked to prevent restart loops (#30719).\n"
-            "Use `hermes gateway restart` from a shell outside the gateway.",
+            "Use `sonic gateway restart` from a shell outside the gateway.",
             Colors.RED,
         ))
         return 1

@@ -2567,9 +2567,9 @@ def _configure_provider(
     # _visible_providers), but only *activate* once the user has paid Nous
     # Portal access. Selecting one runs an inline Portal login when needed —
     # auth + entitlement only, no inference-provider switch and no bulk
-    # "enable all tools" prompt (that lives in `hermes model`).
+    # "enable all tools" prompt (that lives in `sonic model`).
     if managed_feature:
-        from hermes_cli.nous_subscription import ensure_nous_portal_access
+        from sonic_cli.nous_subscription import ensure_nous_portal_access
 
         if not ensure_nous_portal_access(
             capability=f"{provider.get('name', 'the Nous Tool Gateway')}"
@@ -2949,7 +2949,7 @@ def _reconfigure_provider(
     # Same inline Nous Portal login + entitlement gate as _configure_provider:
     # managed Tool Gateway backends only activate with paid Portal access.
     if managed_feature:
-        from hermes_cli.nous_subscription import ensure_nous_portal_access
+        from sonic_cli.nous_subscription import ensure_nous_portal_access
 
         if not ensure_nous_portal_access(
             capability=f"{provider.get('name', 'the Nous Tool Gateway')}"

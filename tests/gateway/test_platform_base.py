@@ -728,41 +728,41 @@ class TestMediaDeliveryDefaultMode:
 
         assert BasePlatformAdapter.validate_media_delivery_path(str(env_file)) is None
 
-    def test_denylist_blocks_hermes_config_in_active_profile(self, tmp_path, monkeypatch):
+    def test_denylist_blocks_sonic_config_in_active_profile(self, tmp_path, monkeypatch):
         """The active profile config stays blocked in default mode."""
         self._patch_roots(monkeypatch)
 
         fake_home = tmp_path / "home"
-        hermes_dir = fake_home / ".hermes"
-        hermes_dir.mkdir(parents=True)
-        config_file = hermes_dir / "config.yaml"
+        sonic_dir = fake_home / ".sonic"
+        sonic_dir.mkdir(parents=True)
+        config_file = sonic_dir / "config.yaml"
         config_file.write_text("model:\n  provider: openai\n")
         monkeypatch.setenv("HOME", str(fake_home))
         monkeypatch.setattr(
-            "gateway.platforms.base._HERMES_HOME",
-            hermes_dir,
+            "gateway.platforms.base._SONIC_HOME",
+            sonic_dir,
         )
 
         assert BasePlatformAdapter.validate_media_delivery_path(str(config_file)) is None
 
-    def test_denylist_blocks_shared_hermes_root_config_for_profiles(self, tmp_path, monkeypatch):
-        """Profile-mode gateways must still block the shared Hermes root config."""
+    def test_denylist_blocks_shared_sonic_root_config_for_profiles(self, tmp_path, monkeypatch):
+        """Profile-mode gateways must still block the shared Sonic root config."""
         self._patch_roots(monkeypatch)
 
         fake_home = tmp_path / "home"
-        profile_home = fake_home / ".hermes" / "profiles" / "work"
+        profile_home = fake_home / ".sonic" / "profiles" / "work"
         profile_home.mkdir(parents=True)
-        hermes_root = fake_home / ".hermes"
-        config_file = hermes_root / "config.yaml"
+        sonic_root = fake_home / ".sonic"
+        config_file = sonic_root / "config.yaml"
         config_file.write_text("profiles:\n  active: work\n")
         monkeypatch.setenv("HOME", str(fake_home))
         monkeypatch.setattr(
-            "gateway.platforms.base._HERMES_HOME",
+            "gateway.platforms.base._SONIC_HOME",
             profile_home,
         )
         monkeypatch.setattr(
-            "gateway.platforms.base._HERMES_ROOT",
-            hermes_root,
+            "gateway.platforms.base._SONIC_ROOT",
+            sonic_root,
         )
 
         assert BasePlatformAdapter.validate_media_delivery_path(str(config_file)) is None

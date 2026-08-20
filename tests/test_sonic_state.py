@@ -247,7 +247,7 @@ class TestSessionLifecycle:
             kwargs["factory"] = _NoFtsExistingTableConnection
             return real_connect(*args, **kwargs)
 
-        monkeypatch.setattr("hermes_state.sqlite3.connect", connect_without_fts)
+        monkeypatch.setattr("sonic_state.sqlite3.connect", connect_without_fts)
 
         db = SessionDB(db_path=db_path)
         try:
@@ -279,7 +279,7 @@ class TestSessionLifecycle:
             kwargs["factory"] = _NoFtsConnection
             return real_connect(*args, **kwargs)
 
-        monkeypatch.setattr("hermes_state.sqlite3.connect", connect_without_fts)
+        monkeypatch.setattr("sonic_state.sqlite3.connect", connect_without_fts)
 
         db = SessionDB(db_path=db_path)
         try:
@@ -313,14 +313,14 @@ class TestSessionLifecycle:
             kwargs["factory"] = _NoFtsExistingTableConnection
             return real_connect(*args, **kwargs)
 
-        monkeypatch.setattr("hermes_state.sqlite3.connect", connect_without_fts)
+        monkeypatch.setattr("sonic_state.sqlite3.connect", connect_without_fts)
         no_fts = SessionDB(db_path=db_path)
         try:
             no_fts.append_message("s1", role="assistant", content="not indexed yet")
         finally:
             no_fts.close()
 
-        monkeypatch.setattr("hermes_state.sqlite3.connect", real_connect)
+        monkeypatch.setattr("sonic_state.sqlite3.connect", real_connect)
         restored = SessionDB(db_path=db_path)
         try:
             assert restored._fts_enabled is True

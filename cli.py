@@ -787,7 +787,7 @@ def AIAgent(*args, **kwargs):
 
 
 def get_tool_definitions(*args, **kwargs):
-    from hermes_cli.mcp_startup import wait_for_mcp_discovery
+    from sonic_cli.mcp_startup import wait_for_mcp_discovery
     from model_tools import get_tool_definitions as _get_tool_definitions
 
     wait_for_mcp_discovery()
@@ -898,7 +898,7 @@ def _prepare_deferred_agent_startup() -> None:
             exc_info=True,
         )
     try:
-        from hermes_cli.mcp_startup import start_background_mcp_discovery
+        from sonic_cli.mcp_startup import start_background_mcp_discovery
 
         start_background_mcp_discovery(
             logger=logger,
@@ -4894,7 +4894,7 @@ class SonicCLI:
         if not self._ensure_runtime_credentials():
             return False
 
-        from hermes_cli.mcp_startup import wait_for_mcp_discovery
+        from sonic_cli.mcp_startup import wait_for_mcp_discovery
 
         wait_for_mcp_discovery()
 
@@ -15081,11 +15081,11 @@ class SonicCLI:
 # Main Entry Point
 # ============================================================================
 
-def _run_kanban_goal_loop_q(cli: "HermesCLI", first_response: str) -> None:
+def _run_kanban_goal_loop_q(cli: "SonicCLI", first_response: str) -> None:
     """Drive a kanban goal_mode worker through the Ralph-style goal loop.
 
     Called from the quiet single-query path AFTER the worker's first turn,
-    only when ``HERMES_KANBAN_GOAL_MODE`` is set (dispatcher-spawned
+    only when ``SONIC_KANBAN_GOAL_MODE`` is set (dispatcher-spawned
     goal_mode card). Wires the worker's ``run_conversation`` and the kanban
     DB into ``goals.run_kanban_goal_loop``. All errors are swallowed by the
     caller — a broken goal loop must never wedge a worker, the dispatcher's
@@ -15093,12 +15093,12 @@ def _run_kanban_goal_loop_q(cli: "HermesCLI", first_response: str) -> None:
     """
     import os as _os
 
-    task_id = (_os.environ.get("HERMES_KANBAN_TASK") or "").strip()
+    task_id = (_os.environ.get("SONIC_KANBAN_TASK") or "").strip()
     if not task_id:
         return
 
-    from hermes_cli import kanban_db as _kb
-    from hermes_cli.goals import run_kanban_goal_loop as _run_loop, DEFAULT_MAX_TURNS as _DEF_TURNS
+    from sonic_cli import kanban_db as _kb
+    from sonic_cli.goals import run_kanban_goal_loop as _run_loop, DEFAULT_MAX_TURNS as _DEF_TURNS
 
     # Resolve goal text from the card (title + body = the acceptance
     # criteria the judge evaluates against).
@@ -15576,7 +15576,7 @@ def main(
                     # out (→ sticky block). Gated on the env vars the
                     # dispatcher sets in `_default_spawn`; a no-op for every
                     # normal worker and every non-kanban `-q` run.
-                    if os.environ.get("HERMES_KANBAN_GOAL_MODE") == "1":
+                    if os.environ.get("SONIC_KANBAN_GOAL_MODE") == "1":
                         try:
                             _run_kanban_goal_loop_q(cli, response)
                         except Exception as _goal_exc:

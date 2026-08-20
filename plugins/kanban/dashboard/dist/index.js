@@ -2837,7 +2837,7 @@
       if (!files.length) return;
       setUploadBusy(true);
       setUploadErr(null);
-      const token = window.__HERMES_SESSION_TOKEN__ || "";
+      const token = window.__SONIC_SESSION_TOKEN__ || "";
       const headers = token ? { Authorization: "Bearer " + token } : {};
       const url = withBoard(`${API}/tasks/${encodeURIComponent(props.taskId)}/attachments`, boardSlug);
       // Upload sequentially so a partial failure leaves a clear state.
@@ -3077,7 +3077,7 @@
     // auth middleware requires in loopback mode, so fetch with the token
     // and hand the browser a blob URL instead.
     function downloadAttachment(a) {
-      const token = window.__HERMES_SESSION_TOKEN__ || "";
+      const token = window.__SONIC_SESSION_TOKEN__ || "";
       const headers = token ? { Authorization: "Bearer " + token } : {};
       const url = withBoard(`${API}/attachments/${a.id}`, props.boardSlug);
       setDlErr(null);
@@ -3102,8 +3102,8 @@
         })
         .catch(function (e) { setDlErr(String(e.message || e)); });
     }
-    return h("div", { className: "hermes-kanban-section" },
-      h("div", { className: "hermes-kanban-section-head" },
+    return h("div", { className: "sonic-kanban-section" },
+      h("div", { className: "sonic-kanban-section-head" },
         `${tx(i18n, "attachments", "Attachments")} (${atts.length})`),
       h("input", {
         ref: fileRef,
@@ -3139,7 +3139,7 @@
             },
               h("button", {
                 type: "button",
-                className: "hermes-kanban-attachment-link truncate",
+                className: "sonic-kanban-attachment-link truncate",
                 title: a.filename,
                 onClick: function () { downloadAttachment(a); },
               }, a.filename),
@@ -3147,7 +3147,7 @@
                 _fmtBytes(a.size)),
               h("button", {
                 type: "button",
-                className: "hermes-kanban-drawer-close",
+                className: "sonic-kanban-drawer-close",
                 title: tx(i18n, "removeAttachment", "Remove attachment"),
                 onClick: function () {
                   if (window.confirm(tx(i18n, "confirmRemoveAttachment",

@@ -165,9 +165,9 @@ body and hoping it finds them.
   **Attachments** section's *Upload file* button (multiple files at once
   are fine). Each upload is capped at 25 MB.
 - **Storage** — files land under
-  `<hermes-home>/kanban/attachments/<task_id>/` for the default board, or
-  `<hermes-home>/kanban/boards/<slug>/attachments/<task_id>/` for a named
-  board. Set `HERMES_KANBAN_ATTACHMENTS_ROOT` to pin a custom location.
+  `<sonic-home>/kanban/attachments/<task_id>/` for the default board, or
+  `<sonic-home>/kanban/boards/<slug>/attachments/<task_id>/` for a named
+  board. Set `SONIC_KANBAN_ATTACHMENTS_ROOT` to pin a custom location.
 - **What the worker sees** — when the dispatcher hands a task to a worker,
   the worker's context includes an **Attachments** section listing each
   file's name and its **absolute path**. The worker has full file/terminal
@@ -433,7 +433,7 @@ These skills are **additive** to the built-in `kanban-worker` — the dispatcher
 By default each worker gets **one shot** at its card — do the work, call `kanban_complete`/`kanban_block`, exit. Pass `--goal` (CLI) or `goal_mode=True` (the `kanban_create` tool / dashboard) to instead run that worker in a **goal loop**, the same Ralph-style engine behind the `/goal` slash command: after every turn an auxiliary judge checks the worker's output against the card's title + body (treated as the acceptance criteria), and if the work isn't done — and the turn budget remains — the worker keeps going **in the same session** until the judge agrees, the worker terminates the task itself, or the budget runs out (which **blocks** the card for human review rather than exiting silently).
 
 ```bash
-hermes kanban create "Translate the docs site to French" \
+sonic kanban create "Translate the docs site to French" \
     --body "Acceptance: every page translated, no English left, links intact." \
     --assignee linguist \
     --goal \
