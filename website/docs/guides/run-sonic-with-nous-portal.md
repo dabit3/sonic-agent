@@ -136,6 +136,8 @@ sonic tools
 # → TTS              → "Nous Subscription"     (recommended)
 ```
 
+These rows appear in `sonic tools` even before you've logged into Nous Portal — if you pick "Nous Subscription" without an active session, Sonic runs the Portal login inline (without changing your inference provider or your other tools).
+
 Verify your mix with:
 
 ```bash

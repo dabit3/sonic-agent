@@ -1,24 +1,24 @@
 import sys
-import types
-
 
 from sonic_cli.main import _prompt_reasoning_effort_selection
 
 
-class _FakeTerminalMenu:
-    last_choices = None
-
-    def __init__(self, choices, **kwargs):
-        _FakeTerminalMenu.last_choices = choices
-        self._cursor_index = kwargs.get("cursor_index")
-
-    def show(self):
-        return self._cursor_index
+class _TtyStdin:
+    def isatty(self):
+        return True
 
 
 def test_reasoning_menu_orders_minimal_before_low(monkeypatch):
-    fake_module = types.SimpleNamespace(TerminalMenu=_FakeTerminalMenu)
-    monkeypatch.setitem(sys.modules, "simple_term_menu", fake_module)
+    captured = {}
+
+    monkeypatch.setattr(sys, "stdin", _TtyStdin())
+
+    def _fake_radiolist(title, items, *, selected=0, cancel_returns=None, description=None):
+        captured["items"] = items
+        captured["selected"] = selected
+        return selected  # pick the pre-selected (current) entry
+
+    monkeypatch.setattr("sonic_cli.curses_ui.curses_radiolist", _fake_radiolist)
 
     selected = _prompt_reasoning_effort_selection(
         ["low", "minimal", "medium", "high"],
@@ -26,9 +26,9 @@ def test_reasoning_menu_orders_minimal_before_low(monkeypatch):
     )
 
     assert selected == "medium"
-    assert _FakeTerminalMenu.last_choices[:4] == [
-        "  minimal",
-        "  low",
-        "  medium  ← currently in use",
-        "  high",
+    assert captured["items"][:4] == [
+        "minimal",
+        "low",
+        "medium  ← currently in use",
+        "high",
     ]

@@ -361,6 +361,45 @@ class TestExtractMedia:
         assert "[[audio_as_voice]]" not in cleaned
         assert "[[as_document]]" not in cleaned
 
+    # Windows path support — regression coverage for #34632
+
+    def test_media_tag_windows_backslash_path(self):
+        """extract_media should recognise Windows backslash paths."""
+        media, cleaned = BasePlatformAdapter.extract_media(
+            r"MEDIA:C:\Users\kotsu\file.pdf"
+        )
+        assert len(media) == 1
+        assert media[0][0].endswith("file.pdf")
+
+    def test_media_tag_windows_forward_slash_path(self):
+        """extract_media should recognise Windows forward-slash paths."""
+        media, cleaned = BasePlatformAdapter.extract_media(
+            "MEDIA:C:/Users/kotsu/file.pdf"
+        )
+        assert len(media) == 1
+        assert media[0][0].endswith("file.pdf")
+
+    def test_media_tag_windows_drive_root(self):
+        """extract_media should recognise a path at the drive root."""
+        media, cleaned = BasePlatformAdapter.extract_media(
+            r"MEDIA:D:\report.md"
+        )
+        assert len(media) == 1
+        assert media[0][0].endswith("report.md")
+
+    def test_media_tag_unix_paths_still_work(self):
+        """Unix absolute and tilde paths must still extract after Windows change."""
+        for content in ["MEDIA:/tmp/audio.ogg", r"MEDIA:~/docs/notes.md"]:
+            media, _ = BasePlatformAdapter.extract_media(content)
+            assert len(media) == 1, f"Failed for: {content}"
+
+    def test_relative_path_still_ignored(self):
+        """Relative Windows-style paths (no drive letter) must not match."""
+        media, _ = BasePlatformAdapter.extract_media(
+            r"MEDIA:Users\kotsu\file.pdf"
+        )
+        assert media == []
+
 
 class TestMediaExtensionAllowlistParity:
     """Regression coverage for issue #34517 — the MEDIA: extension black hole.
@@ -688,6 +727,45 @@ class TestMediaDeliveryDefaultMode:
         )
 
         assert BasePlatformAdapter.validate_media_delivery_path(str(env_file)) is None
+
+    def test_denylist_blocks_sonic_config_in_active_profile(self, tmp_path, monkeypatch):
+        """The active profile config stays blocked in default mode."""
+        self._patch_roots(monkeypatch)
+
+        fake_home = tmp_path / "home"
+        sonic_dir = fake_home / ".sonic"
+        sonic_dir.mkdir(parents=True)
+        config_file = sonic_dir / "config.yaml"
+        config_file.write_text("model:\n  provider: openai\n")
+        monkeypatch.setenv("HOME", str(fake_home))
+        monkeypatch.setattr(
+            "gateway.platforms.base._SONIC_HOME",
+            sonic_dir,
+        )
+
+        assert BasePlatformAdapter.validate_media_delivery_path(str(config_file)) is None
+
+    def test_denylist_blocks_shared_sonic_root_config_for_profiles(self, tmp_path, monkeypatch):
+        """Profile-mode gateways must still block the shared Sonic root config."""
+        self._patch_roots(monkeypatch)
+
+        fake_home = tmp_path / "home"
+        profile_home = fake_home / ".sonic" / "profiles" / "work"
+        profile_home.mkdir(parents=True)
+        sonic_root = fake_home / ".sonic"
+        config_file = sonic_root / "config.yaml"
+        config_file.write_text("profiles:\n  active: work\n")
+        monkeypatch.setenv("HOME", str(fake_home))
+        monkeypatch.setattr(
+            "gateway.platforms.base._SONIC_HOME",
+            profile_home,
+        )
+        monkeypatch.setattr(
+            "gateway.platforms.base._SONIC_ROOT",
+            sonic_root,
+        )
+
+        assert BasePlatformAdapter.validate_media_delivery_path(str(config_file)) is None
 
     def test_strict_mode_envvar_restores_legacy_behavior(self, tmp_path, monkeypatch):
         """Setting SONIC_MEDIA_DELIVERY_STRICT=1 reactivates the older
