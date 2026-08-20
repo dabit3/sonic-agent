@@ -4464,19 +4464,26 @@ def _remove_custom_provider(config):
             choices.append(str(entry))
     choices.append("Cancel")
 
-    try:
-        from sonic_cli.curses_ui import curses_radiolist
+    used_curses = False
+    idx = None
+    if sys.stdin.isatty():
+        try:
+            from sonic_cli.curses_ui import curses_radiolist
 
-        idx = curses_radiolist(
-            "Select provider to remove:",
-            list(choices),
-            selected=0,
-            cancel_returns=-1,
-        )
-        print()
-        if idx < 0:
-            idx = None
-    except (ImportError, NotImplementedError, OSError, subprocess.SubprocessError):
+            idx = curses_radiolist(
+                "Select provider to remove:",
+                list(choices),
+                selected=0,
+                cancel_returns=-1,
+            )
+            print()
+            if idx < 0:
+                idx = None
+            used_curses = True
+        except (ImportError, NotImplementedError, OSError, subprocess.SubprocessError):
+            used_curses = False
+
+    if not used_curses:
         for i, c in enumerate(choices, 1):
             print(f"  {i}. {c}")
         print()
@@ -4735,28 +4742,29 @@ def _prompt_reasoning_effort_selection(efforts, current_effort=""):
     else:
         default_idx = 0
 
-    try:
-        from sonic_cli.curses_ui import curses_radiolist
+    if sys.stdin.isatty():
+        try:
+            from sonic_cli.curses_ui import curses_radiolist
 
-        choices = [_label(effort) for effort in ordered]
-        choices.append(disable_label)
-        choices.append(skip_label)
-        idx = curses_radiolist(
-            "Select reasoning effort:",
-            choices,
-            selected=default_idx,
-            cancel_returns=-1,
-        )
-        if idx < 0:
+            choices = [_label(effort) for effort in ordered]
+            choices.append(disable_label)
+            choices.append(skip_label)
+            idx = curses_radiolist(
+                "Select reasoning effort:",
+                choices,
+                selected=default_idx,
+                cancel_returns=-1,
+            )
+            if idx < 0:
+                return None
+            print()
+            if idx < len(ordered):
+                return ordered[idx]
+            if idx == len(ordered):
+                return "none"
             return None
-        print()
-        if idx < len(ordered):
-            return ordered[idx]
-        if idx == len(ordered):
-            return "none"
-        return None
-    except (ImportError, NotImplementedError, OSError, subprocess.SubprocessError):
-        pass
+        except (ImportError, NotImplementedError, OSError, subprocess.SubprocessError):
+            pass
 
     print("Select reasoning effort:")
     for i, effort in enumerate(ordered, 1):

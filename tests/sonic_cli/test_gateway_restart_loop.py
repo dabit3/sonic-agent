@@ -29,7 +29,7 @@ class TestGatewayLifecyclePattern:
         "sonic gateway stop",
         "sonic gateway start",
         "sonic  gateway  restart",         # double spaces
-        "Hermez Gateway Restart".lower().replace("z", "s"),  # case handled
+        "Sonic Gateway Restart".lower(),    # mixed case handled
         "SONIC GATEWAY RESTART",           # uppercase
     ])
     def test_sonic_gateway_commands(self, text):

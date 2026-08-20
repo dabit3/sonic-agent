@@ -1,15 +1,15 @@
 """Regression tests for numbered fallbacks when arrow-key menus cannot initialize."""
 
-import subprocess
 import sys
-import types
 
 from sonic_cli.config import load_config, save_config
 
 
-class _BrokenTerminalMenu:
-    def __init__(self, *args, **kwargs):
-        raise subprocess.CalledProcessError(2, ["tput", "clear"])
+class _NonTtyStdin:
+    """Stand-in for piped/redirected stdin, where curses menus can't run."""
+
+    def isatty(self):
+        return False
 
 
 def test_prompt_model_selection_falls_back_on_non_tty(monkeypatch):
@@ -67,14 +67,10 @@ def test_prompt_model_selection_curses_cancel(monkeypatch):
     assert selected is None
 
 
-def test_prompt_reasoning_effort_falls_back_on_terminalmenu_runtime_error(monkeypatch):
+def test_prompt_reasoning_effort_falls_back_on_non_tty(monkeypatch):
     from sonic_cli.main import _prompt_reasoning_effort_selection
 
-    monkeypatch.setitem(
-        sys.modules,
-        "simple_term_menu",
-        types.SimpleNamespace(TerminalMenu=_BrokenTerminalMenu),
-    )
+    monkeypatch.setattr(sys, "stdin", _NonTtyStdin())
     responses = iter(["3"])
     monkeypatch.setattr("builtins.input", lambda _prompt="": next(responses))
 
@@ -83,15 +79,11 @@ def test_prompt_reasoning_effort_falls_back_on_terminalmenu_runtime_error(monkey
     assert selected == "high"
 
 
-def test_remove_custom_provider_falls_back_on_terminalmenu_runtime_error(tmp_path, monkeypatch):
+def test_remove_custom_provider_falls_back_on_non_tty(tmp_path, monkeypatch):
     from sonic_cli.main import _remove_custom_provider
 
     monkeypatch.setenv("SONIC_HOME", str(tmp_path))
-    monkeypatch.setitem(
-        sys.modules,
-        "simple_term_menu",
-        types.SimpleNamespace(TerminalMenu=_BrokenTerminalMenu),
-    )
+    monkeypatch.setattr(sys, "stdin", _NonTtyStdin())
 
     cfg = load_config()
     cfg["custom_providers"] = [

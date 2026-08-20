@@ -19,6 +19,7 @@ def test_prompt_model_selection_uses_curses_radiolist():
         return 1  # pick second model
 
     with patch("sonic_cli.curses_ui.curses_radiolist", side_effect=_fake), \
+         patch("sys.stdin.isatty", return_value=True), \
          patch("builtins.print"):
         result = _prompt_model_selection(["model-a", "model-b"])
 
@@ -34,6 +35,7 @@ def test_prompt_model_selection_esc_cancels():
 
     # curses_radiolist returns the cancel sentinel (-1) on ESC.
     with patch("sonic_cli.curses_ui.curses_radiolist", return_value=-1), \
+         patch("sys.stdin.isatty", return_value=True), \
          patch("builtins.print"):
         result = _prompt_model_selection(["model-a", "model-b"])
 
@@ -44,6 +46,7 @@ def test_reasoning_effort_uses_curses_radiolist():
     from sonic_cli.main import _prompt_reasoning_effort_selection
 
     with patch("sonic_cli.curses_ui.curses_radiolist", return_value=2), \
+         patch("sys.stdin.isatty", return_value=True), \
          patch("builtins.print"):
         result = _prompt_reasoning_effort_selection(["low", "medium", "high"], current_effort="")
 
@@ -54,6 +57,7 @@ def test_reasoning_effort_esc_cancels():
     from sonic_cli.main import _prompt_reasoning_effort_selection
 
     with patch("sonic_cli.curses_ui.curses_radiolist", return_value=-1), \
+         patch("sys.stdin.isatty", return_value=True), \
          patch("builtins.print"):
         result = _prompt_reasoning_effort_selection(["low", "medium", "high"], current_effort="")
 
@@ -76,6 +80,7 @@ def test_model_selection_with_pricing_passes_description():
         "model-b": {"prompt": "0.000003", "completion": "0.000004"},
     }
     with patch("sonic_cli.curses_ui.curses_radiolist", side_effect=_fake), \
+         patch("sys.stdin.isatty", return_value=True), \
          patch("builtins.print"):
         _prompt_model_selection(["model-a", "model-b"], pricing=pricing)
 
