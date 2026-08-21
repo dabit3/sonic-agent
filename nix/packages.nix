@@ -49,9 +49,10 @@
 
         tui = sonicAgent.sonicTui;
         web = sonicAgent.sonicWeb;
+        desktop = sonicAgent.sonicDesktop;
 
         fix-lockfiles = sonicAgent.sonicNpmLib.mkFixLockfiles {
-          packages = [ sonicAgent.sonicTui sonicAgent.sonicWeb ];
+          packages = [ sonicAgent.sonicTui sonicAgent.sonicWeb sonicAgent.sonicDesktop ];
         };
       };
     };

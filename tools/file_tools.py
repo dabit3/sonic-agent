@@ -238,6 +238,26 @@ _SENSITIVE_PATH_PREFIXES = (
 )
 _SENSITIVE_EXACT_PATHS = {"/var/run/docker.sock", "/run/docker.sock"}
 
+_sonic_config_resolved: str | None = None
+_sonic_config_resolved_loaded = False
+
+
+def _get_sonic_config_resolved() -> str | None:
+    """Return the resolved absolute path of the Sonic config file (cached)."""
+    global _sonic_config_resolved, _sonic_config_resolved_loaded
+    if _sonic_config_resolved_loaded:
+        return _sonic_config_resolved
+    _sonic_config_resolved_loaded = True
+    try:
+        from sonic_cli.config import get_config_path
+        _sonic_config_resolved = str(get_config_path().resolve())
+    except Exception:
+        try:
+            _sonic_config_resolved = str(Path("~/.sonic/config.yaml").expanduser().resolve())
+        except Exception:
+            _sonic_config_resolved = None
+    return _sonic_config_resolved
+
 
 def _check_sensitive_path(filepath: str, task_id: str = "default") -> str | None:
     """Return an error message if the path targets a sensitive system location."""
@@ -255,6 +275,17 @@ def _check_sensitive_path(filepath: str, task_id: str = "default") -> str | None
             return _err
     if resolved in _SENSITIVE_EXACT_PATHS or normalized in _SENSITIVE_EXACT_PATHS:
         return _err
+    # Prevent agents from modifying the Sonic config file directly.
+    # approvals.mode and other security settings live here; a malicious or
+    # prompt-injected agent could silently disable exec approval by writing to
+    # this file.
+    sonic_config = _get_sonic_config_resolved()
+    if sonic_config and (resolved == sonic_config or normalized == sonic_config):
+        return (
+            f"Refusing to write to Sonic config file: {filepath}\n"
+            "Agent cannot modify security-sensitive configuration. "
+            "Edit ~/.sonic/config.yaml directly or use 'sonic config' instead."
+        )
     return None
 
 

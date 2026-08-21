@@ -42,5 +42,6 @@ if [ -d /run/service/.s6-svscan ]; then
     done
 fi
 
+# Skip the drop when already non-root.
+[ "$(id -u)" = 0 ] || exec /opt/sonic/.venv/bin/python -m sonic_cli.container_boot
 exec s6-setuidgid sonic /opt/sonic/.venv/bin/python -m sonic_cli.container_boot
-

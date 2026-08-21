@@ -389,6 +389,57 @@ class TestTeePattern:
         assert key is None
 
 
+class TestSonicConfigWriteProtection:
+    """Terminal-side pairing for the file_tools write_file/patch deny on
+    ~/.sonic/config.yaml (#14639). config.yaml IS the security policy
+    (approvals.mode/yolo live there, mtime-keyed cache reloads mid-session),
+    so a write_file deny without terminal-side coverage is unpaired theater.
+    These pin every terminal write idiom against the config file."""
+
+    def test_redirect_overwrite(self):
+        dangerous, key, desc = detect_dangerous_command("echo 'approvals:' > ~/.sonic/config.yaml")
+        assert dangerous is True
+        assert key is not None
+
+    def test_append(self):
+        dangerous, key, desc = detect_dangerous_command("echo '  mode: off' >> ~/.sonic/config.yaml")
+        assert dangerous is True
+
+    def test_tee(self):
+        dangerous, key, desc = detect_dangerous_command("echo x | tee ~/.sonic/config.yaml")
+        assert dangerous is True
+
+    def test_cp_over_config(self):
+        dangerous, key, desc = detect_dangerous_command("cp /tmp/evil.yaml ~/.sonic/config.yaml")
+        assert dangerous is True
+
+    def test_sed_in_place(self):
+        # The gap the pairing closes: sed -i mutates the file directly,
+        # bypassing the redirection/tee patterns.
+        dangerous, key, desc = detect_dangerous_command("sed -i 's/manual/off/' ~/.sonic/config.yaml")
+        assert dangerous is True
+        assert "sonic config" in desc.lower() or "in-place" in desc.lower()
+
+    def test_sed_in_place_long_flag(self):
+        dangerous, key, desc = detect_dangerous_command("sed --in-place 's/manual/off/' ~/.sonic/config.yaml")
+        assert dangerous is True
+
+    def test_custom_sonic_home(self):
+        dangerous, key, desc = detect_dangerous_command("echo x | tee $SONIC_HOME/config.yaml")
+        assert dangerous is True
+
+    def test_read_is_safe(self):
+        # Reading config is not a write — must not trip.
+        dangerous, key, desc = detect_dangerous_command("cat ~/.sonic/config.yaml")
+        assert dangerous is False
+
+    def test_normal_yaml_write_safe(self):
+        # A non-Sonic config.yaml in a project dir is handled by the project
+        # patterns, but a plain temp write must not false-positive.
+        dangerous, key, desc = detect_dangerous_command("echo data > /tmp/scratch.txt")
+        assert dangerous is False
+
+
 class TestFindExecFullPathRm:
     """Detect find -exec with full-path rm bypasses."""
 
