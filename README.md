@@ -2,11 +2,11 @@
 
 <p align="center">
   <a href="https://github.com/dabit3/sonic-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
-  <a href="https://github.com/NousResearch/hermes-agent"><img src="https://img.shields.io/badge/Fork%20of-Hermes%20Agent-blueviolet?style=for-the-badge" alt="Fork of Hermes Agent"></a>
+  <a href="https://github.com/NousResearch/hermes-agent"><img src="https://img.shields.io/badge/Fork%20of-Sonic%20Agent-blueviolet?style=for-the-badge" alt="Fork of Hermes Agent"></a>
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/Lang-中文-red?style=for-the-badge" alt="中文"></a>
 </p>
 
-> Sonic Agent is a fork of [Hermes Agent](https://github.com/NousResearch/hermes-agent) from [Nous Research](https://nousresearch.com). This fork is tuned for one property: speed. It optimizes startup time, time to first token, and streaming speed. In some cases it removes features to get this speed. The upstream documentation is at [lightning-agent.nousresearch.com/docs](https://lightning-agent.nousresearch.com/docs/).
+> Sonic Agent is a fork of [Sonic Agent](https://github.com/NousResearch/hermes-agent) from [Nous Research](https://nousresearch.com). This fork is tuned for one property: speed. It optimizes startup time, time to first token, and streaming speed. In some cases it removes features to get this speed. The upstream documentation is at [lightning-agent.nousresearch.com/docs](https://lightning-agent.nousresearch.com/docs/).
 
 Sonic keeps the full agent toolkit: terminal, skills, memory, messaging gateway, and cron. It treats each millisecond between your Enter key and the first token on the screen as a defect.
 

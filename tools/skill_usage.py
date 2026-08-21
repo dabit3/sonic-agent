@@ -227,7 +227,7 @@ def _prune_builtins_enabled() -> bool:
     flag — built-ins only archive after a fresh inactivity window.
     """
     try:
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
 
         cfg = load_config()
         cur = cfg.get("curator") if isinstance(cfg, dict) else None
@@ -245,8 +245,8 @@ def _suppressed_file() -> Path:
 def read_suppressed_names() -> Set[str]:
     """Built-in skills the curator pruned — the re-seeder must leave archived.
 
-    One skill name per line in ``~/.hermes/skills/.curator_suppressed``. This is
-    what makes pruning a built-in durable: without it, ``hermes update`` would
+    One skill name per line in ``~/.sonic/skills/.curator_suppressed``. This is
+    what makes pruning a built-in durable: without it, ``sonic update`` would
     re-copy the bundled skill on the next sync.
     """
     path = _suppressed_file()

@@ -10,7 +10,7 @@ import { Pane, PaneMain } from '@/components/pane-shell'
 import { useSkinCommand } from '@/themes/use-skin-command'
 
 import { formatRefValue } from '../components/assistant-ui/directive-text'
-import { getSessionMessages, listSessions } from '../hermes'
+import { getSessionMessages, listSessions } from '../sonic'
 import { preserveLocalAssistantErrors, toChatMessages } from '../lib/chat-messages'
 import {
   $pinnedSessionIds,
@@ -60,7 +60,7 @@ import { PersistentTerminal, TerminalSlot } from './right-sidebar/terminal/persi
 import { NEW_CHAT_ROUTE, routeSessionId, sessionRoute } from './routes'
 import { useContextSuggestions } from './session/hooks/use-context-suggestions'
 import { useCwdActions } from './session/hooks/use-cwd-actions'
-import { useHermesConfig } from './session/hooks/use-hermes-config'
+import { useSonicConfig } from './session/hooks/use-sonic-config'
 import { useMessageStream } from './session/hooks/use-message-stream'
 import { useModelControls } from './session/hooks/use-model-controls'
 import { usePreviewRouting } from './session/hooks/use-preview-routing'
@@ -149,12 +149,12 @@ export function DesktopController() {
   const { connectionRef, gatewayRef, requestGateway } = useGatewayRequest()
 
   useEffect(() => {
-    window.hermesDesktop?.setPreviewShortcutActive?.(Boolean(chatOpen && (filePreviewTarget || previewTarget)))
+    window.sonicDesktop?.setPreviewShortcutActive?.(Boolean(chatOpen && (filePreviewTarget || previewTarget)))
   }, [chatOpen, filePreviewTarget, previewTarget])
 
   useEffect(() => {
     startUpdatePoller()
-    const unsubscribe = window.hermesDesktop?.onOpenUpdatesRequested?.(() => openUpdatesWindow())
+    const unsubscribe = window.sonicDesktop?.onOpenUpdatesRequested?.(() => openUpdatesWindow())
 
     return () => {
       unsubscribe?.()
@@ -175,7 +175,7 @@ export function DesktopController() {
       }
     }
 
-    const unsubscribe = window.hermesDesktop?.onClosePreviewRequested?.(closeActiveRightRailTab)
+    const unsubscribe = window.sonicDesktop?.onClosePreviewRequested?.(closeActiveRightRailTab)
 
     window.addEventListener('keydown', onKeyDown, { capture: true })
 
@@ -250,7 +250,7 @@ export function DesktopController() {
     requestGateway
   })
 
-  const { refreshHermesConfig, sttEnabled, voiceMaxRecordingSeconds } = useHermesConfig({
+  const { refreshSonicConfig, sttEnabled, voiceMaxRecordingSeconds } = useSonicConfig({
     activeSessionIdRef,
     refreshProjectBranch
   })
@@ -308,7 +308,7 @@ export function DesktopController() {
     activeSessionIdRef,
     hydrateFromStoredSession,
     queryClient,
-    refreshHermesConfig,
+    refreshSonicConfig,
     refreshSessions,
     updateSessionState
   })
@@ -417,7 +417,7 @@ export function DesktopController() {
     onGatewayReady: g => {
       gatewayRef.current = g
     },
-    refreshHermesConfig,
+    refreshSonicConfig,
     refreshSessions
   })
 
@@ -477,7 +477,7 @@ export function DesktopController() {
       <DesktopOnboardingOverlay
         enabled={gatewayState === 'open'}
         onCompleted={() => {
-          void refreshHermesConfig()
+          void refreshSonicConfig()
           void refreshCurrentModel()
           void queryClient.invalidateQueries({ queryKey: ['model-options'] })
         }}
@@ -493,7 +493,7 @@ export function DesktopController() {
             gateway={gatewayRef.current}
             onClose={closeOverlayToPreviousRoute}
             onConfigSaved={() => {
-              void refreshHermesConfig()
+              void refreshSonicConfig()
               void refreshCurrentModel()
               void queryClient.invalidateQueries({ queryKey: ['model-options'] })
             }}

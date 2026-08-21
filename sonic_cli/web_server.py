@@ -89,7 +89,7 @@ app = FastAPI(title="Sonic Agent", version=__version__)
 # ---------------------------------------------------------------------------
 # Session token for protecting sensitive endpoints (reveal).
 # The desktop shell mints the token and injects it via
-# HERMES_DASHBOARD_SESSION_TOKEN so its main process can authenticate the
+# SONIC_DASHBOARD_SESSION_TOKEN so its main process can authenticate the
 # /api calls it makes on the user's behalf; otherwise we generate one fresh
 # on every server start. Either way it dies when the process exits and is
 # injected into the SPA HTML so only the legitimate web UI can use it.
@@ -938,7 +938,7 @@ async def transcribe_audio_upload(payload: AudioTranscriptionRequest):
     try:
         suffix = _audio_extension_for_mime(mime_type)
         with tempfile.NamedTemporaryFile(
-            prefix="hermes-desktop-voice-",
+            prefix="sonic-desktop-voice-",
             suffix=suffix,
             delete=False,
         ) as tmp:
@@ -1042,7 +1042,7 @@ async def speak_text(payload: TTSSpeakRequest):
     Used by the desktop voice-conversation mode to play back assistant
     responses without exposing the on-disk file path. Reuses the
     existing TTS provider chain (Edge / OpenAI / ElevenLabs / etc.)
-    configured in ``~/.hermes/config.yaml`` under ``tts.``.
+    configured in ``~/.sonic/config.yaml`` under ``tts.``.
     """
     text = (payload.text or "").strip()
     if not text:
@@ -1369,7 +1369,7 @@ def get_model_options():
 def get_recommended_default_model(provider: str = ""):
     """Return the recommended default model for a freshly-authenticated provider.
 
-    Mirrors the model-curation `hermes model` does so GUI onboarding lands on a
+    Mirrors the model-curation `sonic model` does so GUI onboarding lands on a
     sensible default instead of blindly taking the first curated entry. For
     Nous this honors the user's free/paid tier: free users get a free model,
     paid users get the full curated default. For any other provider it falls
@@ -1383,7 +1383,7 @@ def get_recommended_default_model(provider: str = ""):
 
     if slug == "nous":
         try:
-            from hermes_cli.models import (
+            from sonic_cli.models import (
                 get_curated_nous_model_ids,
                 get_pricing_for_provider,
                 check_nous_free_tier,
@@ -1391,7 +1391,7 @@ def get_recommended_default_model(provider: str = ""):
                 union_with_portal_free_recommendations,
                 union_with_portal_paid_recommendations,
             )
-            from hermes_cli.auth import get_provider_auth_state
+            from sonic_cli.auth import get_provider_auth_state
 
             model_ids = get_curated_nous_model_ids()
             pricing = get_pricing_for_provider("nous") or {}
@@ -1424,7 +1424,7 @@ def get_recommended_default_model(provider: str = ""):
 
     # Non-Nous: first curated model for the provider, matching prior behaviour.
     try:
-        from hermes_cli.inventory import build_models_payload, load_picker_context
+        from sonic_cli.inventory import build_models_payload, load_picker_context
 
         payload = build_models_payload(load_picker_context(), max_models=50)
         for row in payload.get("providers", []):
@@ -1518,7 +1518,7 @@ async def set_model_assignment(body: ModelAssignment):
             cfg["model"] = model_cfg
 
             # When switching the main provider to Nous, mirror the CLI's
-            # post-model-selection behaviour (hermes_cli/main.py
+            # post-model-selection behaviour (sonic_cli/main.py
             # prompt_enable_tool_gateway / tools_config apply_nous_managed_defaults):
             # auto-route any *unconfigured* tools through the Nous Tool Gateway.
             # This is purely additive — apply_nous_managed_defaults skips every
@@ -1529,8 +1529,8 @@ async def set_model_assignment(body: ModelAssignment):
             gateway_tools: list[str] = []
             if provider.strip().lower() == "nous":
                 try:
-                    from hermes_cli.nous_subscription import apply_nous_managed_defaults
-                    from hermes_cli.tools_config import _get_platform_tools
+                    from sonic_cli.nous_subscription import apply_nous_managed_defaults
+                    from sonic_cli.tools_config import _get_platform_tools
 
                     enabled = _get_platform_tools(
                         cfg, "cli", include_default_mcp_servers=False
@@ -1820,14 +1820,14 @@ async def reveal_env_var(body: EnvVarReveal, request: Request):
 _PLATFORM_OVERRIDES: dict[str, dict[str, Any]] = {
     "telegram": {
         "name": "Telegram",
-        "description": "Run Hermes from Telegram DMs, groups, and topics.",
+        "description": "Run Sonic from Telegram DMs, groups, and topics.",
         "docs_url": "https://core.telegram.org/bots/features#botfather",
         "env_vars": ("TELEGRAM_BOT_TOKEN", "TELEGRAM_ALLOWED_USERS", "TELEGRAM_PROXY"),
         "required_env": ("TELEGRAM_BOT_TOKEN",),
     },
     "discord": {
         "name": "Discord",
-        "description": "Connect Hermes to Discord DMs, channels, and threads.",
+        "description": "Connect Sonic to Discord DMs, channels, and threads.",
         "docs_url": "https://discord.com/developers/applications",
         "env_vars": (
             "DISCORD_BOT_TOKEN",
@@ -1838,21 +1838,21 @@ _PLATFORM_OVERRIDES: dict[str, dict[str, Any]] = {
     },
     "slack": {
         "name": "Slack",
-        "description": "Use Hermes from Slack via Socket Mode.",
+        "description": "Use Sonic from Slack via Socket Mode.",
         "docs_url": "https://api.slack.com/apps",
         "env_vars": ("SLACK_BOT_TOKEN", "SLACK_APP_TOKEN"),
         "required_env": ("SLACK_BOT_TOKEN", "SLACK_APP_TOKEN"),
     },
     "mattermost": {
         "name": "Mattermost",
-        "description": "Connect Hermes to Mattermost channels and direct messages.",
+        "description": "Connect Sonic to Mattermost channels and direct messages.",
         "docs_url": "https://mattermost.com/deploy/",
         "env_vars": ("MATTERMOST_URL", "MATTERMOST_TOKEN", "MATTERMOST_ALLOWED_USERS"),
         "required_env": ("MATTERMOST_URL", "MATTERMOST_TOKEN"),
     },
     "matrix": {
         "name": "Matrix",
-        "description": "Use Hermes in Matrix rooms and direct messages.",
+        "description": "Use Sonic in Matrix rooms and direct messages.",
         "docs_url": "https://matrix.org/ecosystem/servers/",
         "env_vars": (
             "MATRIX_HOMESERVER",
@@ -1871,22 +1871,22 @@ _PLATFORM_OVERRIDES: dict[str, dict[str, Any]] = {
     },
     "whatsapp": {
         "name": "WhatsApp",
-        "description": "Use Hermes through the bundled WhatsApp bridge with QR-based auth.",
+        "description": "Use Sonic through the bundled WhatsApp bridge with QR-based auth.",
         "docs_url": "https://github.com/tulir/whatsmeow",
         "env_vars": ("WHATSAPP_ENABLED", "WHATSAPP_MODE", "WHATSAPP_ALLOWED_USERS"),
         "required_env": (),
     },
     "homeassistant": {
         "name": "Home Assistant",
-        "description": "Control your smart home from Hermes via Home Assistant.",
+        "description": "Control your smart home from Sonic via Home Assistant.",
         "docs_url": "https://www.home-assistant.io/docs/authentication/",
         "env_vars": ("HASS_URL", "HASS_TOKEN"),
         "required_env": ("HASS_URL", "HASS_TOKEN"),
     },
     "email": {
         "name": "Email",
-        "description": "Talk to Hermes through an IMAP/SMTP mailbox.",
-        "docs_url": "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/",
+        "description": "Talk to Sonic through an IMAP/SMTP mailbox.",
+        "docs_url": "https://lightning-agent.nousresearch.com/docs/user-guide/messaging/",
         "env_vars": (
             "EMAIL_ADDRESS",
             "EMAIL_PASSWORD",
@@ -1909,14 +1909,14 @@ _PLATFORM_OVERRIDES: dict[str, dict[str, Any]] = {
     },
     "dingtalk": {
         "name": "DingTalk",
-        "description": "Connect Hermes to DingTalk groups (钉钉).",
+        "description": "Connect Sonic to DingTalk groups (钉钉).",
         "docs_url": "https://open.dingtalk.com/document/orgapp/the-robot-development-process",
         "env_vars": ("DINGTALK_CLIENT_ID", "DINGTALK_CLIENT_SECRET"),
         "required_env": ("DINGTALK_CLIENT_ID", "DINGTALK_CLIENT_SECRET"),
     },
     "feishu": {
         "name": "Feishu / Lark",
-        "description": "Use Hermes inside Feishu / Lark.",
+        "description": "Use Sonic inside Feishu / Lark.",
         "docs_url": "https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/reference/im-v1/intro",
         "env_vars": (
             "FEISHU_APP_ID",
@@ -1959,7 +1959,7 @@ _PLATFORM_OVERRIDES: dict[str, dict[str, Any]] = {
     },
     "bluebubbles": {
         "name": "BlueBubbles (iMessage)",
-        "description": "Use Hermes through iMessage via a BlueBubbles server.",
+        "description": "Use Sonic through iMessage via a BlueBubbles server.",
         "docs_url": "https://bluebubbles.app/",
         "env_vars": (
             "BLUEBUBBLES_SERVER_URL",
@@ -1970,21 +1970,21 @@ _PLATFORM_OVERRIDES: dict[str, dict[str, Any]] = {
     },
     "qqbot": {
         "name": "QQ Bot",
-        "description": "Connect Hermes to a QQ Bot from the QQ Open Platform.",
+        "description": "Connect Sonic to a QQ Bot from the QQ Open Platform.",
         "docs_url": "https://q.qq.com",
         "env_vars": ("QQ_APP_ID", "QQ_CLIENT_SECRET", "QQ_ALLOWED_USERS"),
         "required_env": ("QQ_APP_ID", "QQ_CLIENT_SECRET"),
     },
     "yuanbao": {
         "name": "Yuanbao (元宝)",
-        "description": "Connect Hermes to Tencent Yuanbao.",
+        "description": "Connect Sonic to Tencent Yuanbao.",
         "docs_url": "",
         "required_env": (),
     },
     "api_server": {
         "name": "API server",
-        "description": "Expose Hermes as an OpenAI-compatible HTTP API for tools like Open WebUI.",
-        "docs_url": "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/",
+        "description": "Expose Sonic as an OpenAI-compatible HTTP API for tools like Open WebUI.",
+        "docs_url": "https://lightning-agent.nousresearch.com/docs/user-guide/messaging/",
         "env_vars": (
             "API_SERVER_ENABLED",
             "API_SERVER_KEY",
@@ -1997,7 +1997,7 @@ _PLATFORM_OVERRIDES: dict[str, dict[str, Any]] = {
     "webhook": {
         "name": "Webhooks",
         "description": "Receive events from GitHub, GitLab, and other webhook sources.",
-        "docs_url": "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/webhooks/",
+        "docs_url": "https://lightning-agent.nousresearch.com/docs/user-guide/messaging/webhooks/",
         "env_vars": ("WEBHOOK_ENABLED", "WEBHOOK_PORT", "WEBHOOK_SECRET"),
         "required_env": (),
     },
@@ -3712,7 +3712,7 @@ class SessionRename(BaseModel):
 @app.patch("/api/sessions/{session_id}")
 async def rename_session_endpoint(session_id: str, body: SessionRename):
     """Rename a session (or clear its title when ``title`` is empty/null)."""
-    from hermes_state import SessionDB
+    from sonic_state import SessionDB
     db = SessionDB()
     try:
         sid = db.resolve_session_id(session_id)
@@ -3993,8 +3993,8 @@ async def delete_cron_job(job_id: str, profile: Optional[str] = None):
 # ---------------------------------------------------------------------------
 # MCP server endpoints — list / add / remove / test.
 #
-# Wraps the same config data layer the CLI uses (hermes_cli.mcp_config), so
-# servers managed here show up under `hermes mcp list` and vice versa.  Secrets
+# Wraps the same config data layer the CLI uses (sonic_cli.mcp_config), so
+# servers managed here show up under `sonic mcp list` and vice versa.  Secrets
 # in stdio `env` blocks are redacted on read; the agent picks them up from
 # config.yaml at session start exactly as with CLI-added servers.
 # ---------------------------------------------------------------------------
@@ -4040,7 +4040,7 @@ def _mcp_server_summary(name: str, cfg: Dict[str, Any]) -> Dict[str, Any]:
 
 @app.get("/api/mcp/servers")
 async def list_mcp_servers():
-    from hermes_cli.mcp_config import _get_mcp_servers
+    from sonic_cli.mcp_config import _get_mcp_servers
 
     servers = _get_mcp_servers()
     return {
@@ -4052,7 +4052,7 @@ async def list_mcp_servers():
 
 @app.post("/api/mcp/servers")
 async def add_mcp_server(body: MCPServerCreate):
-    from hermes_cli.mcp_config import _get_mcp_servers, _save_mcp_server
+    from sonic_cli.mcp_config import _get_mcp_servers, _save_mcp_server
 
     name = (body.name or "").strip()
     if not name:
@@ -4088,7 +4088,7 @@ async def add_mcp_server(body: MCPServerCreate):
 
 @app.delete("/api/mcp/servers/{name}")
 async def remove_mcp_server(name: str):
-    from hermes_cli.mcp_config import _remove_mcp_server
+    from sonic_cli.mcp_config import _remove_mcp_server
 
     if not _remove_mcp_server(name):
         raise HTTPException(status_code=404, detail=f"Server '{name}' not found")
@@ -4098,7 +4098,7 @@ async def remove_mcp_server(name: str):
 @app.post("/api/mcp/servers/{name}/test")
 async def test_mcp_server(name: str):
     """Connect to the server, list its tools, disconnect.  Returns tool list."""
-    from hermes_cli.mcp_config import _get_mcp_servers, _probe_single_server
+    from sonic_cli.mcp_config import _get_mcp_servers, _probe_single_server
 
     servers = _get_mcp_servers()
     if name not in servers:
@@ -4199,7 +4199,7 @@ async def clear_pending_pairing():
 # ---------------------------------------------------------------------------
 # Webhook subscription endpoints — list / subscribe / remove.
 #
-# Wraps the same JSON store the CLI uses (hermes_cli.webhook); the webhook
+# Wraps the same JSON store the CLI uses (sonic_cli.webhook); the webhook
 # adapter hot-reloads it without a gateway restart.  Per-route HMAC secrets
 # are redacted on read and surfaced once on create.
 # ---------------------------------------------------------------------------
@@ -4236,7 +4236,7 @@ def _webhook_route_summary(name: str, route: Dict[str, Any], base_url: str) -> D
 
 @app.get("/api/webhooks")
 async def list_webhooks():
-    import hermes_cli.webhook as wh
+    import sonic_cli.webhook as wh
 
     base_url = wh._get_webhook_base_url()
     subs = wh._load_subscriptions()
@@ -4255,7 +4255,7 @@ async def create_webhook(body: WebhookCreate):
     import re as _re
     import secrets as _secrets
     import time as _time
-    import hermes_cli.webhook as wh
+    import sonic_cli.webhook as wh
 
     if not wh._is_webhook_enabled():
         raise HTTPException(
@@ -4304,7 +4304,7 @@ async def create_webhook(body: WebhookCreate):
 
 @app.delete("/api/webhooks/{name}")
 async def delete_webhook(name: str):
-    import hermes_cli.webhook as wh
+    import sonic_cli.webhook as wh
 
     key = (name or "").strip().lower()
     subs = wh._load_subscriptions()
@@ -4320,7 +4320,7 @@ async def delete_webhook(name: str):
 #
 # restart + update already exist above; these complete the lifecycle so a
 # remote admin can bring the gateway up or down without shell access.  Both
-# spawn the real `hermes gateway <verb>` so behaviour matches the CLI exactly.
+# spawn the real `sonic gateway <verb>` so behaviour matches the CLI exactly.
 # Status is already surfaced by /api/status (gateway_running/state/platforms).
 # ---------------------------------------------------------------------------
 
@@ -4328,7 +4328,7 @@ async def delete_webhook(name: str):
 @app.post("/api/gateway/start")
 async def start_gateway():
     try:
-        proc = _spawn_hermes_action(["gateway", "start"], "gateway-start")
+        proc = _spawn_sonic_action(["gateway", "start"], "gateway-start")
     except Exception as exc:
         _log.exception("Failed to spawn gateway start")
         raise HTTPException(status_code=500, detail=f"Failed to start gateway: {exc}")
@@ -4338,7 +4338,7 @@ async def start_gateway():
 @app.post("/api/gateway/stop")
 async def stop_gateway():
     try:
-        proc = _spawn_hermes_action(["gateway", "stop"], "gateway-stop")
+        proc = _spawn_sonic_action(["gateway", "stop"], "gateway-stop")
     except Exception as exc:
         _log.exception("Failed to spawn gateway stop")
         raise HTTPException(status_code=500, detail=f"Failed to stop gateway: {exc}")
@@ -4385,7 +4385,7 @@ def _pool_entry_summary(entry: Any, index: int) -> Dict[str, Any]:
 @app.get("/api/credentials/pool")
 async def list_credential_pool():
     from agent.credential_pool import load_pool
-    from hermes_cli.auth import read_credential_pool
+    from sonic_cli.auth import read_credential_pool
 
     providers = []
     # read_credential_pool(None) lists every provider that has pooled entries;
@@ -4465,7 +4465,7 @@ async def remove_credential_pool_entry(provider: str, index: int):
 #
 # Selecting a provider only writes config.memory.provider (full interactive
 # provider setup, with its API-key prompts, stays on the CLI via
-# `hermes memory setup`).  The dashboard covers the common admin actions:
+# `sonic memory setup`).  The dashboard covers the common admin actions:
 # see which provider is active, switch the built-in store on/off, and wipe
 # built-in memory files.
 # ---------------------------------------------------------------------------
@@ -4503,7 +4503,7 @@ async def get_memory_status():
         _log.exception("discover_memory_providers failed")
 
     # Built-in memory file sizes (so the UI can show what a reset would erase).
-    mem_dir = get_hermes_home() / "memories"
+    mem_dir = get_sonic_home() / "memories"
     files = {}
     for fname, key in (("MEMORY.md", "memory"), ("USER.md", "user")):
         path = mem_dir / fname
@@ -4529,7 +4529,7 @@ async def set_memory_provider(body: MemoryProviderSelect):
         if provider not in valid:
             raise HTTPException(
                 status_code=400,
-                detail=f"Unknown memory provider '{provider}'. Run `hermes memory setup` to configure a new one.",
+                detail=f"Unknown memory provider '{provider}'. Run `sonic memory setup` to configure a new one.",
             )
 
     cfg = load_config()
@@ -4546,7 +4546,7 @@ async def reset_memory(body: MemoryReset):
     if target not in {"all", "memory", "user"}:
         raise HTTPException(status_code=400, detail="target must be all, memory, or user")
 
-    mem_dir = get_hermes_home() / "memories"
+    mem_dir = get_sonic_home() / "memories"
     deleted = []
     targets = []
     if target in {"all", "memory"}:
@@ -4580,7 +4580,7 @@ async def reset_memory(body: MemoryReset):
 @app.post("/api/ops/doctor")
 async def run_doctor():
     try:
-        proc = _spawn_hermes_action(["doctor"], "doctor")
+        proc = _spawn_sonic_action(["doctor"], "doctor")
     except Exception as exc:
         _log.exception("Failed to spawn doctor")
         raise HTTPException(status_code=500, detail=f"Failed to run doctor: {exc}")
@@ -4590,7 +4590,7 @@ async def run_doctor():
 @app.post("/api/ops/security-audit")
 async def run_security_audit():
     try:
-        proc = _spawn_hermes_action(["security", "audit"], "security-audit")
+        proc = _spawn_sonic_action(["security", "audit"], "security-audit")
     except Exception as exc:
         _log.exception("Failed to spawn security audit")
         raise HTTPException(status_code=500, detail=f"Failed to run security audit: {exc}")
@@ -4608,7 +4608,7 @@ async def run_backup(body: BackupRequest):
     if body.output:
         args.append(body.output.strip())
     try:
-        proc = _spawn_hermes_action(args, "backup")
+        proc = _spawn_sonic_action(args, "backup")
     except Exception as exc:
         _log.exception("Failed to spawn backup")
         raise HTTPException(status_code=500, detail=f"Failed to run backup: {exc}")
@@ -4627,7 +4627,7 @@ async def run_import(body: ImportRequest):
     if not os.path.isfile(archive):
         raise HTTPException(status_code=404, detail=f"Archive not found: {archive}")
     try:
-        proc = _spawn_hermes_action(["import", archive], "import")
+        proc = _spawn_sonic_action(["import", archive], "import")
     except Exception as exc:
         _log.exception("Failed to spawn import")
         raise HTTPException(status_code=500, detail=f"Failed to run import: {exc}")
@@ -4656,7 +4656,7 @@ async def list_hooks():
     # Consent allowlist status (which commands have been approved for run).
     allowlist: List[str] = []
     try:
-        allow_path = get_hermes_home() / "shell-hooks-allowlist.json"
+        allow_path = get_sonic_home() / "shell-hooks-allowlist.json"
         if allow_path.exists():
             data = json.loads(allow_path.read_text(encoding="utf-8"))
             if isinstance(data, dict):
@@ -4673,11 +4673,11 @@ async def list_hooks():
 @app.get("/api/ops/checkpoints")
 async def list_checkpoints():
     """List the /rollback shadow store checkpoints (read-only)."""
-    # Checkpoints live under <hermes_home>/checkpoints/.  Surface a count +
+    # Checkpoints live under <sonic_home>/checkpoints/.  Surface a count +
     # total size so the dashboard can show what a prune would reclaim; the
     # actual prune is a spawned action so confirmation/pruning logic stays
     # in one place (the CLI).
-    cp_dir = get_hermes_home() / "checkpoints"
+    cp_dir = get_sonic_home() / "checkpoints"
     sessions = []
     total_bytes = 0
     if cp_dir.is_dir():
@@ -4705,7 +4705,7 @@ async def list_checkpoints():
 @app.post("/api/ops/checkpoints/prune")
 async def prune_checkpoints():
     try:
-        proc = _spawn_hermes_action(["checkpoints", "prune"], "checkpoints-prune")
+        proc = _spawn_sonic_action(["checkpoints", "prune"], "checkpoints-prune")
     except Exception as exc:
         _log.exception("Failed to spawn checkpoints prune")
         raise HTTPException(status_code=500, detail=f"Failed to prune checkpoints: {exc}")
@@ -4732,7 +4732,7 @@ async def install_skill_hub(body: SkillInstallRequest):
     if not identifier:
         raise HTTPException(status_code=400, detail="identifier is required")
     try:
-        proc = _spawn_hermes_action(["skills", "install", identifier], "skills-install")
+        proc = _spawn_sonic_action(["skills", "install", identifier], "skills-install")
     except Exception as exc:
         _log.exception("Failed to spawn skills install")
         raise HTTPException(status_code=500, detail=f"Failed to install skill: {exc}")
@@ -4749,7 +4749,7 @@ async def uninstall_skill_hub(body: SkillUninstallRequest):
     if not name:
         raise HTTPException(status_code=400, detail="name is required")
     try:
-        proc = _spawn_hermes_action(["skills", "uninstall", name, "--yes"], "skills-uninstall")
+        proc = _spawn_sonic_action(["skills", "uninstall", name, "--yes"], "skills-uninstall")
     except Exception as exc:
         _log.exception("Failed to spawn skills uninstall")
         raise HTTPException(status_code=500, detail=f"Failed to uninstall skill: {exc}")
@@ -4759,7 +4759,7 @@ async def uninstall_skill_hub(body: SkillUninstallRequest):
 @app.post("/api/skills/hub/update")
 async def update_skills_hub():
     try:
-        proc = _spawn_hermes_action(["skills", "update"], "skills-update")
+        proc = _spawn_sonic_action(["skills", "update"], "skills-update")
     except Exception as exc:
         _log.exception("Failed to spawn skills update")
         raise HTTPException(status_code=500, detail=f"Failed to update skills: {exc}")
@@ -5093,10 +5093,10 @@ async def toggle_toolset(name: str, body: ToolsetToggle):
     """Enable/disable a configurable toolset for the desktop (cli) platform.
 
     Persists to ``platform_toolsets.cli`` via the same ``_save_platform_tools``
-    helper the CLI ``hermes tools`` picker uses, so the GUI and CLI stay in
+    helper the CLI ``sonic tools`` picker uses, so the GUI and CLI stay in
     lockstep. Returns 400 for unknown toolset keys.
     """
-    from hermes_cli.tools_config import (
+    from sonic_cli.tools_config import (
         _get_effective_configurable_toolsets,
         _get_platform_tools,
         _save_platform_tools,
@@ -5122,18 +5122,18 @@ async def toggle_toolset(name: str, body: ToolsetToggle):
 async def get_toolset_config(name: str):
     """Return the provider matrix + key status for a toolset's config panel.
 
-    Surfaces the same provider rows the CLI ``hermes tools`` picker shows
+    Surfaces the same provider rows the CLI ``sonic tools`` picker shows
     (via ``_visible_providers``), each with its ``env_vars`` annotated with
     current ``is_set`` state so the GUI can render provider selection + key
     entry. Toolsets without a ``TOOL_CATEGORIES`` entry return an empty
     provider list and ``has_category: false``. Returns 400 for unknown keys.
     """
-    from hermes_cli.tools_config import (
+    from sonic_cli.tools_config import (
         TOOL_CATEGORIES,
         _get_effective_configurable_toolsets,
         _visible_providers,
     )
-    from hermes_cli.config import get_env_value
+    from sonic_cli.config import get_env_value
 
     valid = {ts_key for ts_key, _, _ in _get_effective_configurable_toolsets()}
     if name not in valid:
@@ -5178,12 +5178,12 @@ async def select_toolset_provider(name: str, body: ToolsetProviderSelect):
     """Persist a provider selection for a toolset (no key prompting).
 
     Delegates to ``apply_provider_selection`` — the shared, non-interactive
-    core extracted from the CLI configurator — so the GUI and ``hermes tools``
+    core extracted from the CLI configurator — so the GUI and ``sonic tools``
     write identical config keys (``web.backend``, ``tts.provider``, etc.).
     API keys and post-setup flows are handled by separate endpoints. Returns
     400 for unknown toolset or provider names.
     """
-    from hermes_cli.tools_config import (
+    from sonic_cli.tools_config import (
         apply_provider_selection,
         _get_effective_configurable_toolsets,
     )
@@ -5616,7 +5616,7 @@ def _resolve_chat_argv(
         env["SONIC_TUI_SIDECAR_URL"] = sidecar_url
 
     if gateway_ws_url := _build_gateway_ws_url():
-        env["HERMES_TUI_GATEWAY_URL"] = gateway_ws_url
+        env["SONIC_TUI_GATEWAY_URL"] = gateway_ws_url
 
     return list(argv), str(cwd) if cwd else None, env
 

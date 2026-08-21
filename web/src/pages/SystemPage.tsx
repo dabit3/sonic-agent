@@ -399,7 +399,7 @@ export default function SystemPage() {
               </Select>
               <p className="text-xs text-muted-foreground">
                 Set up a new provider's credentials with{" "}
-                <span className="font-mono">hermes memory setup</span>.
+                <span className="font-mono">sonic memory setup</span>.
               </p>
             </div>
 
@@ -584,7 +584,7 @@ export default function SystemPage() {
                 id="import-path"
                 value={importPath}
                 onChange={(e) => setImportPath(e.target.value)}
-                placeholder="/path/to/hermes-backup.zip"
+                placeholder="/path/to/sonic-backup.zip"
               />
             </div>
             <Button

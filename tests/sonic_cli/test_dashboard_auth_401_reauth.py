@@ -170,7 +170,7 @@ class TestApi401Envelope:
         /api/analytics/models?days=30`` from ModelsPage round-tripped
         through the OAuth dance and landed the user on the raw JSON
         endpoint instead of the dashboard. The gate now drops API paths
-        from ``next=`` entirely; the SPA's own ``hermes.lastLocation``
+        from ``next=`` entirely; the SPA's own ``sonic.lastLocation``
         fallback in ``web/src/lib/api.ts`` covers the deep-link case.
         """
         r = gated_app.get("/api/sessions?page=2")
@@ -281,7 +281,7 @@ class TestNextSameOriginValidation:
         OAuth shows raw JSON instead of the dashboard. This is the bug
         fix that closes the analytics-page redirect mishap.
         """
-        from hermes_cli.dashboard_auth.middleware import _safe_next_target
+        from sonic_cli.dashboard_auth.middleware import _safe_next_target
 
         class FakeRequest:
             def __init__(self, path, query=""):
@@ -303,7 +303,7 @@ class TestNextSameOriginValidation:
     def test_safe_next_validator_does_not_reject_api_prefix_lookalikes(self):
         """Negative guard: ``/api-docs`` or ``/apis`` aren't ``/api/*``
         and must remain valid landing targets."""
-        from hermes_cli.dashboard_auth.middleware import _safe_next_target
+        from sonic_cli.dashboard_auth.middleware import _safe_next_target
 
         class FakeRequest:
             def __init__(self, path):
@@ -498,7 +498,7 @@ class TestValidatePostLoginTarget:
     """
 
     def test_accepts_same_origin_paths(self):
-        from hermes_cli.dashboard_auth.routes import _validate_post_login_target
+        from sonic_cli.dashboard_auth.routes import _validate_post_login_target
         assert _validate_post_login_target("/sessions") == "/sessions"
         # URL-encoded form (as the cookie carries it) round-trips through
         # the validator's unquote step.
@@ -508,12 +508,12 @@ class TestValidatePostLoginTarget:
         )
 
     def test_rejects_protocol_relative(self):
-        from hermes_cli.dashboard_auth.routes import _validate_post_login_target
+        from sonic_cli.dashboard_auth.routes import _validate_post_login_target
         assert _validate_post_login_target("//evil.com") == ""
         assert _validate_post_login_target("%2F%2Fevil.com") == ""
 
     def test_rejects_login_loop(self):
-        from hermes_cli.dashboard_auth.routes import _validate_post_login_target
+        from sonic_cli.dashboard_auth.routes import _validate_post_login_target
         assert _validate_post_login_target("/login") == ""
         assert _validate_post_login_target("/auth/login") == ""
         assert _validate_post_login_target("/api/auth/me") == ""
@@ -522,7 +522,7 @@ class TestValidatePostLoginTarget:
         """Bug fix: any ``/api/*`` target is dropped at the callback
         boundary. Pin both the exact match and the trailing-slash forms
         plus a few realistic SPA-API endpoints."""
-        from hermes_cli.dashboard_auth.routes import _validate_post_login_target
+        from sonic_cli.dashboard_auth.routes import _validate_post_login_target
         assert _validate_post_login_target("/api") == ""
         assert _validate_post_login_target("/api/analytics/models") == ""
         assert _validate_post_login_target("/api/analytics/models?days=30") == ""
@@ -536,7 +536,7 @@ class TestValidatePostLoginTarget:
         )
 
     def test_does_not_reject_api_prefix_lookalikes(self):
-        from hermes_cli.dashboard_auth.routes import _validate_post_login_target
+        from sonic_cli.dashboard_auth.routes import _validate_post_login_target
         # SPA route lookalikes — must NOT be dropped.
         assert _validate_post_login_target("/apidocs") == "/apidocs"
         assert _validate_post_login_target("/api-keys") == "/api-keys"

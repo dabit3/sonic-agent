@@ -2,7 +2,7 @@ import type * as React from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Codicon } from '@/components/ui/codicon'
-import type { SessionInfo } from '@/hermes'
+import type { SessionInfo } from '@/sonic'
 import { sessionTitle } from '@/lib/chat-runtime'
 import { triggerHaptic } from '@/lib/haptics'
 import { cn } from '@/lib/utils'

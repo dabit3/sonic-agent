@@ -3,11 +3,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Codicon } from '@/components/ui/codicon'
 import { Input } from '@/components/ui/input'
-import { deleteEnvVar, getEnvVars, revealEnvVar, setEnvVar } from '@/hermes'
+import { deleteEnvVar, getEnvVars, revealEnvVar, setEnvVar } from '@/sonic'
 import { Check, Eye, EyeOff, Save, Settings2, Trash2, Zap } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { notify, notifyError } from '@/store/notifications'
-import type { EnvVarInfo } from '@/types/hermes'
+import type { EnvVarInfo } from '@/types/sonic'
 
 import { CONTROL_TEXT } from './constants'
 import {

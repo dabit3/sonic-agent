@@ -818,7 +818,7 @@ def _restart_notification_pending() -> bool:
 
 
 def _planned_restart_notification_path() -> Path:
-    return _hermes_home / ".restart_pending.json"
+    return _sonic_home / ".restart_pending.json"
 
 
 def _planned_restart_notification_pending() -> bool:
@@ -4018,11 +4018,11 @@ class GatewayRunner:
                 return
 
             try:
-                from hermes_cli.gateway import get_service_name
+                from sonic_cli.gateway import get_service_name
 
                 service_name = get_service_name()
             except Exception:
-                service_name = "hermes-gateway"
+                service_name = "sonic-gateway"
 
             current_pid = os.getpid()
             show = subprocess.run(

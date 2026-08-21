@@ -153,7 +153,7 @@ export interface GatewayReadyPayload {
   skin?: unknown
 }
 
-export interface HermesConfig {
+export interface SonicConfig {
   agent?: {
     reasoning_effort?: string
     personalities?: Record<string, unknown>
@@ -174,7 +174,7 @@ export interface HermesConfig {
   }
 }
 
-export type HermesConfigRecord = Record<string, unknown>
+export type SonicConfigRecord = Record<string, unknown>
 
 export interface ModelInfoResponse {
   auto_context_length?: number
@@ -515,7 +515,7 @@ export interface StatusResponse {
   gateway_running: boolean
   gateway_state: string | null
   gateway_updated_at: string | null
-  hermes_home: string
+  sonic_home: string
   latest_config_version: number
   release_date: string
   version: string

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ModelPickerDialog } from '@/components/model-picker'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { getGlobalModelOptions } from '@/hermes'
+import { getGlobalModelOptions } from '@/sonic'
 import {
   Check,
   ChevronDown,
@@ -38,7 +38,7 @@ import {
   startProviderOAuth,
   submitOnboardingCode
 } from '@/store/onboarding'
-import type { OAuthProvider } from '@/types/hermes'
+import type { OAuthProvider } from '@/types/sonic'
 
 interface DesktopOnboardingOverlayProps {
   enabled: boolean
@@ -96,7 +96,7 @@ const API_KEY_OPTIONS: ApiKeyOption[] = [
     name: 'Local / custom endpoint',
     short: 'self-hosted',
     envKey: 'OPENAI_BASE_URL',
-    description: 'Point Hermes at a local or self-hosted OpenAI-compatible endpoint (vLLM, llama.cpp, Ollama, etc).',
+    description: 'Point Sonic at a local or self-hosted OpenAI-compatible endpoint (vLLM, llama.cpp, Ollama, etc).',
     docsUrl: 'https://github.com/NousResearch/hermes-agent#bring-your-own-endpoint',
     placeholder: 'http://127.0.0.1:8000/v1'
   }
@@ -115,7 +115,7 @@ const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/
 
 const FLOW_SUBTITLES: Record<OAuthProvider['flow'], string> = {
   pkce: 'Opens your browser to sign in, then continues here',
-  device_code: 'Opens a verification page in your browser — Hermes connects automatically',
+  device_code: 'Opens a verification page in your browser — Sonic connects automatically',
   external: 'Sign in once in your terminal, then come back to chat'
 }
 
@@ -204,8 +204,8 @@ function Preparing({ boot }: { boot: DesktopBootState }) {
     <div className="grid gap-3" role="status">
       <p className="text-sm text-muted-foreground">
         {installing
-          ? 'Hermes is finishing install. This usually takes under a minute on first run.'
-          : 'Starting Hermes…'}
+          ? 'Sonic is finishing install. This usually takes under a minute on first run.'
+          : 'Starting Sonic…'}
       </p>
       <div className="h-2 overflow-hidden rounded-full bg-muted">
         <div
@@ -233,7 +233,7 @@ function Header() {
           <Sparkles className="size-5" />
         </div>
         <div>
-          <h2 className="text-[0.9375rem] font-semibold tracking-tight">Let's get you setup with Hermes Agent</h2>
+          <h2 className="text-[0.9375rem] font-semibold tracking-tight">Let's get you setup with Sonic Agent</h2>
           <p className="mt-1 max-w-xl text-[0.8125rem] leading-5 text-(--ui-text-tertiary)">
             Connect a model provider to start chatting. Most options take one click.
           </p>
@@ -244,8 +244,8 @@ function Header() {
 }
 
 const FEATURED_ID = 'nous'
-const FEATURED_PITCH = 'One subscription, 300+ frontier models — the recommended way to run Hermes'
-const SHOW_ALL_KEY = 'hermes-onboarding-show-all-v1'
+const FEATURED_PITCH = 'One subscription, 300+ frontier models — the recommended way to run Sonic'
+const SHOW_ALL_KEY = 'sonic-onboarding-show-all-v1'
 
 const readShowAll = () => {
   try {
@@ -545,7 +545,7 @@ function FlowPanel({ ctx, flow }: { ctx: OnboardingContext; flow: OnboardingFlow
       <Step title={`Sign in with ${title}`}>
         <ol className="list-decimal space-y-1 pl-5 text-sm text-muted-foreground">
           <li>We opened {title} in your browser.</li>
-          <li>Authorize Hermes there.</li>
+          <li>Authorize Sonic there.</li>
           <li>Copy the authorization code and paste it below.</li>
         </ol>
         <Input

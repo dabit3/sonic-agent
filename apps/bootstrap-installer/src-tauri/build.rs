@@ -9,7 +9,7 @@ fn main() {
     // Precedence (matches install.ps1's own arg precedence): commit > branch.
     //
     // Resolution order:
-    //   1. Env var override at build time (HERMES_BUILD_PIN_COMMIT, etc.).
+    //   1. Env var override at build time (SONIC_BUILD_PIN_COMMIT, etc.).
     //      Useful for CI builds that want to pin to a tagged release SHA
     //      rather than whatever the checkout's HEAD happens to be.
     //   2. `git rev-parse HEAD` + `git rev-parse --abbrev-ref HEAD` against
@@ -30,11 +30,11 @@ fn main() {
 
     if let Some(c) = &commit {
         println!("cargo:rustc-env=BUILD_PIN_COMMIT={c}");
-        println!("cargo:warning=hermes-bootstrap: pinning to commit {}", short(c));
+        println!("cargo:warning=sonic-bootstrap: pinning to commit {}", short(c));
     }
     if let Some(b) = &branch {
         println!("cargo:rustc-env=BUILD_PIN_BRANCH={b}");
-        println!("cargo:warning=hermes-bootstrap: pinning to branch {b}");
+        println!("cargo:warning=sonic-bootstrap: pinning to branch {b}");
     }
     if commit.is_none() && branch.is_none() {
         // Fail loudly rather than silently produce a binary that errors
@@ -42,7 +42,7 @@ fn main() {
         // can't resolve a pin almost certainly indicates a misconfigured
         // build environment.
         println!(
-            "cargo:warning=hermes-bootstrap: no pin resolved at build time; binary will fail at runtime without HERMES_SETUP_DEV_REPO_ROOT or runtime args"
+            "cargo:warning=sonic-bootstrap: no pin resolved at build time; binary will fail at runtime without SONIC_SETUP_DEV_REPO_ROOT or runtime args"
         );
     }
 
@@ -61,17 +61,17 @@ fn main() {
             }
         }
     }
-    println!("cargo:rerun-if-env-changed=HERMES_BUILD_PIN_COMMIT");
-    println!("cargo:rerun-if-env-changed=HERMES_BUILD_PIN_BRANCH");
+    println!("cargo:rerun-if-env-changed=SONIC_BUILD_PIN_COMMIT");
+    println!("cargo:rerun-if-env-changed=SONIC_BUILD_PIN_BRANCH");
 
     // -----------------------------------------------------------------
-    // Tauri windows manifest. See hermes-setup.manifest for rationale —
+    // Tauri windows manifest. See sonic-setup.manifest for rationale —
     // declares level="asInvoker" so Windows's installer-detection
     // heuristic doesn't refuse to launch us without UAC elevation.
     // -----------------------------------------------------------------
     #[cfg(target_os = "windows")]
     let attrs = {
-        let manifest = include_str!("hermes-setup.manifest");
+        let manifest = include_str!("sonic-setup.manifest");
         let win = tauri_build::WindowsAttributes::new().app_manifest(manifest);
         tauri_build::Attributes::new().windows_attributes(win)
     };
@@ -83,7 +83,7 @@ fn main() {
 }
 
 fn resolve_commit_pin() -> Option<String> {
-    if let Ok(v) = std::env::var("HERMES_BUILD_PIN_COMMIT") {
+    if let Ok(v) = std::env::var("SONIC_BUILD_PIN_COMMIT") {
         if !v.trim().is_empty() {
             return Some(v.trim().to_string());
         }
@@ -104,7 +104,7 @@ fn resolve_commit_pin() -> Option<String> {
 }
 
 fn resolve_branch_pin() -> Option<String> {
-    if let Ok(v) = std::env::var("HERMES_BUILD_PIN_BRANCH") {
+    if let Ok(v) = std::env::var("SONIC_BUILD_PIN_BRANCH") {
         if !v.trim().is_empty() {
             return Some(v.trim().to_string());
         }

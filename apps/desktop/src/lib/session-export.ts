@@ -1,5 +1,5 @@
-import type { SessionInfo } from '@/hermes'
-import { getSessionMessages } from '@/hermes'
+import type { SessionInfo } from '@/sonic'
+import { getSessionMessages } from '@/sonic'
 import { notify, notifyError } from '@/store/notifications'
 
 interface ExportSessionParams {

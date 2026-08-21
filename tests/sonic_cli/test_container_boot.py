@@ -488,7 +488,7 @@ def test_default_slot_autostarts_when_root_state_running(tmp_path: Path) -> None
     "container_argv",
     [
         ("gateway", "run"),
-        ("/init", "/opt/hermes/docker/main-wrapper.sh", "gateway", "run"),
+        ("/init", "/opt/sonic/docker/main-wrapper.sh", "gateway", "run"),
     ],
 )
 def test_legacy_gateway_run_cmd_seeds_default_running_state(
@@ -501,7 +501,7 @@ def test_legacy_gateway_run_cmd_seeds_default_running_state(
     scandir = tmp_path / "run-service"; scandir.mkdir()
 
     actions = reconcile_profile_gateways(
-        hermes_home=tmp_path,
+        sonic_home=tmp_path,
         scandir=scandir,
         dry_run=False,
         container_argv=container_argv,
@@ -520,7 +520,7 @@ def test_legacy_gateway_run_cmd_seeds_default_running_state(
     "container_argv",
     [
         ("gateway", "run", "--no-supervise"),
-        ("/init", "/opt/hermes/docker/main-wrapper.sh", "gateway", "run", "--no-supervise"),
+        ("/init", "/opt/sonic/docker/main-wrapper.sh", "gateway", "run", "--no-supervise"),
     ],
 )
 def test_legacy_gateway_run_no_supervise_does_not_seed_s6_state(
@@ -531,7 +531,7 @@ def test_legacy_gateway_run_no_supervise_does_not_seed_s6_state(
     scandir = tmp_path / "run-service"; scandir.mkdir()
 
     actions = reconcile_profile_gateways(
-        hermes_home=tmp_path,
+        sonic_home=tmp_path,
         scandir=scandir,
         dry_run=False,
         container_argv=container_argv,
@@ -550,10 +550,10 @@ def test_legacy_gateway_run_env_no_supervise_does_not_seed_s6_state(
 ) -> None:
     """Env opt-out matches the CLI `--no-supervise` flag."""
     scandir = tmp_path / "run-service"; scandir.mkdir()
-    monkeypatch.setenv("HERMES_GATEWAY_NO_SUPERVISE", "1")
+    monkeypatch.setenv("SONIC_GATEWAY_NO_SUPERVISE", "1")
 
     actions = reconcile_profile_gateways(
-        hermes_home=tmp_path,
+        sonic_home=tmp_path,
         scandir=scandir,
         dry_run=False,
         container_argv=("gateway", "run"),

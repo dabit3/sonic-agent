@@ -1,7 +1,7 @@
 import type { Unstable_TriggerAdapter, Unstable_TriggerItem } from '@assistant-ui/core'
 import { useCallback } from 'react'
 
-import type { HermesGateway } from '@/hermes'
+import type { SonicGateway } from '@/sonic'
 import {
   type CommandsCatalogLike,
   desktopSlashDescription,
@@ -38,7 +38,7 @@ function commandText(value: string): string {
 }
 
 /** Live `/` completions backed by the gateway's `complete.slash` RPC. */
-export function useSlashCompletions(options: { gateway: HermesGateway | null }): {
+export function useSlashCompletions(options: { gateway: SonicGateway | null }): {
   adapter: Unstable_TriggerAdapter
   loading: boolean
 } {

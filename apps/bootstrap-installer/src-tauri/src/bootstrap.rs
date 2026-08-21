@@ -3,7 +3,7 @@
 //! Direct port of `runBootstrap` from `apps/desktop/electron/bootstrap-runner.cjs`.
 //! Drives install.ps1 / install.sh stage-by-stage, emits progress events
 //! over the Tauri `bootstrap` channel, writes a forensic log to
-//! HERMES_HOME/logs/bootstrap-<timestamp>.log.
+//! SONIC_HOME/logs/bootstrap-<timestamp>.log.
 //!
 //! Lifecycle:
 //!   1. `start_bootstrap` (Tauri command) → spawns the worker task.
@@ -43,9 +43,9 @@ pub struct StartBootstrapArgs {
     /// bootstrap-runner passes false to avoid building-while-running.
     #[serde(default = "default_true")]
     pub include_desktop: bool,
-    /// Optional override for HERMES_HOME. Tests use this; production
+    /// Optional override for SONIC_HOME. Tests use this; production
     /// almost always falls back to the OS default.
-    pub hermes_home: Option<String>,
+    pub sonic_home: Option<String>,
 }
 
 fn default_true() -> bool {
@@ -156,28 +156,28 @@ pub async fn get_bootstrap_status(
     })
 }
 
-/// Spawn the locally-built Hermes desktop binary, then close the installer
+/// Spawn the locally-built Sonic desktop binary, then close the installer
 /// window. Caller resolves the binary path from `install_root`.
 ///
 /// Returns Err with a human-readable message if the binary doesn't exist
 /// (e.g. when Stage-Desktop was skipped) so the frontend can present
 /// actionable failure UI rather than silently doing nothing.
 #[tauri::command]
-pub async fn launch_hermes_desktop(
+pub async fn launch_sonic_desktop(
     app: AppHandle,
     install_root: String,
 ) -> Result<(), String> {
     let install_root = PathBuf::from(install_root);
-    let exe_path = resolve_hermes_desktop_exe(&install_root).ok_or_else(|| {
+    let exe_path = resolve_sonic_desktop_exe(&install_root).ok_or_else(|| {
         format!(
-            "Couldn't find a built Hermes desktop at {}. The desktop build step \
-             may have been skipped or failed. Run `hermes desktop` from a \
+            "Couldn't find a built Sonic desktop at {}. The desktop build step \
+             may have been skipped or failed. Run `sonic desktop` from a \
              terminal to build and launch it.",
             install_root.join("apps").join("desktop").join("release").display()
         )
     })?;
 
-    tracing::info!(?exe_path, "launching Hermes desktop");
+    tracing::info!(?exe_path, "launching Sonic desktop");
 
     // Detach from us — the installer is about to exit.
     let mut cmd = tokio::process::Command::new(&exe_path);
@@ -208,20 +208,20 @@ pub async fn launch_hermes_desktop(
 /// Walks the well-known electron-builder unpacked-app paths under
 /// `install_root`. Mirrors the resolver in `cmd_gui` (apps/desktop/release/
 /// <os>-unpacked/<exe>).
-fn resolve_hermes_desktop_exe(install_root: &std::path::Path) -> Option<PathBuf> {
+fn resolve_sonic_desktop_exe(install_root: &std::path::Path) -> Option<PathBuf> {
     let release_dir = install_root.join("apps").join("desktop").join("release");
     let candidates: &[(&str, &str)] = if cfg!(target_os = "windows") {
         &[
-            ("win-unpacked", "Hermes.exe"),
-            ("win-arm64-unpacked", "Hermes.exe"),
+            ("win-unpacked", "Sonic.exe"),
+            ("win-arm64-unpacked", "Sonic.exe"),
         ]
     } else if cfg!(target_os = "macos") {
         &[
-            ("mac/Hermes.app/Contents/MacOS", "Hermes"),
-            ("mac-arm64/Hermes.app/Contents/MacOS", "Hermes"),
+            ("mac/Sonic.app/Contents/MacOS", "Sonic"),
+            ("mac-arm64/Sonic.app/Contents/MacOS", "Sonic"),
         ]
     } else {
-        &[("linux-unpacked", "hermes")]
+        &[("linux-unpacked", "sonic")]
     };
     for (subdir, exe) in candidates {
         let p = release_dir.join(subdir).join(exe);
@@ -316,7 +316,7 @@ async fn run_bootstrap(
         &app,
         &script.path,
         &manifest_args_full,
-        args.hermes_home.as_deref(),
+        args.sonic_home.as_deref(),
         None,
         Some("__manifest__".to_string()),
     )
@@ -423,7 +423,7 @@ async fn run_bootstrap(
             &app,
             &script.path,
             &stage_args,
-            args.hermes_home.as_deref(),
+            args.sonic_home.as_deref(),
             local_cancel_rx,
             Some(stage.name.clone()),
         )
@@ -531,21 +531,21 @@ async fn run_bootstrap(
     }
 
     // 4. Resolve install_root. install.ps1 doesn't (yet) report this back
-    // explicitly; we infer it from $HermesHome which Stage-Repository clones
-    // the repo INTO at $HermesHome\hermes-agent. Mirrors hermes_constants.
-    let hermes_home = args
-        .hermes_home
+    // explicitly; we infer it from $SonicHome which Stage-Repository clones
+    // the repo INTO at $SonicHome\sonic-agent. Mirrors sonic_constants.
+    let sonic_home = args
+        .sonic_home
         .clone()
-        .unwrap_or_else(|| crate::paths::hermes_home().to_string_lossy().into_owned());
-    let install_root = PathBuf::from(&hermes_home).join("hermes-agent");
+        .unwrap_or_else(|| crate::paths::sonic_home().to_string_lossy().into_owned());
+    let install_root = PathBuf::from(&sonic_home).join("sonic-agent");
 
-    // Copy ourselves to HERMES_HOME/hermes-setup.exe so the desktop app can
+    // Copy ourselves to SONIC_HOME/sonic-setup.exe so the desktop app can
     // re-invoke us with `--update` and shortcuts have a stable target. This is
     // a one-shot install concern; an `--update` re-invocation no-ops because
     // we're already running from that path. Best-effort — a failure here must
     // not fail an otherwise-successful install.
-    if let Err(err) = crate::paths::copy_self_to_hermes_home() {
-        tracing::warn!(?err, "failed to copy installer into HERMES_HOME (non-fatal)");
+    if let Err(err) = crate::paths::copy_self_to_sonic_home() {
+        tracing::warn!(?err, "failed to copy installer into SONIC_HOME (non-fatal)");
         emit_log(&format!(
             "[bootstrap] warning: could not stage updater binary: {err}"
         ));
@@ -578,7 +578,7 @@ async fn run_install_script(
     app: &AppHandle,
     script_path: &std::path::Path,
     args: &[String],
-    hermes_home_override: Option<&str>,
+    sonic_home_override: Option<&str>,
     cancel_rx: Option<mpsc::Receiver<()>>,
     stage_name: Option<String>,
 ) -> Result<powershell::ScriptResult> {
@@ -628,7 +628,7 @@ async fn run_install_script(
         }),
     };
 
-    powershell::run_script(script_path, args, sink, hermes_home_override, cancel_rx)
+    powershell::run_script(script_path, args, sink, sonic_home_override, cancel_rx)
         .await
         .map_err(|e| {
             tracing::error!(?e, "install script invocation failed");

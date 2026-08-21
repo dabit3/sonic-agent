@@ -26,7 +26,7 @@ const STAGE_LABELS: Record<DesktopUpdateStage, string> = {
   fetch: 'Downloading…',
   pull: 'Almost there…',
   pydeps: 'Finishing up…',
-  restart: 'Restarting Hermes…',
+  restart: 'Restarting Sonic…',
   manual: 'Update from your terminal',
   error: 'Update paused'
 }
@@ -83,7 +83,7 @@ export function UpdatesOverlay() {
         {phase === 'applying' && <ApplyingView apply={apply} />}
 
         {phase === 'manual' && (
-          <ManualView command={apply.command ?? 'hermes update'} onDone={() => handleClose(false)} />
+          <ManualView command={apply.command ?? 'sonic update'} onDone={() => handleClose(false)} />
         )}
 
         {phase === 'error' && (
@@ -151,7 +151,7 @@ function IdleView({
             Close
           </Button>
         }
-        body={status.message ?? 'This version of Hermes can’t update itself from inside the app.'}
+        body={status.message ?? 'This version of Sonic can’t update itself from inside the app.'}
         icon={<AlertCircle className="size-6 text-muted-foreground" />}
         title="Update not available"
       />
@@ -201,7 +201,7 @@ function IdleView({
 
         <DialogTitle className="text-center text-xl">New update available</DialogTitle>
         <DialogDescription className="text-center text-sm">
-          A new version of Hermes is ready to install.
+          A new version of Sonic is ready to install.
         </DialogDescription>
       </div>
 
@@ -262,7 +262,7 @@ function ManualView({ command, onDone }: { command: string; onDone: () => void }
 
         <DialogTitle className="text-center text-xl">Update from your terminal</DialogTitle>
         <DialogDescription className="text-center text-sm">
-          You installed Hermes from the command line, so updates run there too. Paste this into your terminal:
+          You installed Sonic from the command line, so updates run there too. Paste this into your terminal:
         </DialogDescription>
       </div>
 
@@ -291,7 +291,7 @@ function ManualView({ command, onDone }: { command: string; onDone: () => void }
       </button>
 
       <p className="text-center text-xs text-muted-foreground">
-        Hermes will pick up the new version next time you launch it.
+        Sonic will pick up the new version next time you launch it.
       </p>
 
       <Button className="h-10 text-sm font-semibold" onClick={onDone} variant="outline">
@@ -302,7 +302,7 @@ function ManualView({ command, onDone }: { command: string; onDone: () => void }
 }
 
 function ApplyingView({ apply }: { apply: UpdateApplyState }) {
-  const label = STAGE_LABELS[apply.stage] ?? 'Updating Hermes…'
+  const label = STAGE_LABELS[apply.stage] ?? 'Updating Sonic…'
 
   const percent =
     typeof apply.percent === 'number' && Number.isFinite(apply.percent)
@@ -318,7 +318,7 @@ function ApplyingView({ apply }: { apply: UpdateApplyState }) {
 
         <DialogTitle className="text-center text-xl">{label}</DialogTitle>
         <DialogDescription className="text-center text-sm">
-          The Hermes updater will take over in its own window and reopen Hermes when it&rsquo;s done.
+          The Sonic updater will take over in its own window and reopen Sonic when it&rsquo;s done.
         </DialogDescription>
       </div>
 
@@ -332,7 +332,7 @@ function ApplyingView({ apply }: { apply: UpdateApplyState }) {
         />
       </div>
 
-      <p className="text-center text-xs text-muted-foreground">Hermes will close to apply the update.</p>
+      <p className="text-center text-xs text-muted-foreground">Sonic will close to apply the update.</p>
     </div>
   )
 }

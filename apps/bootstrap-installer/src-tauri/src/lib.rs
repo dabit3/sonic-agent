@@ -1,4 +1,4 @@
-//! Hermes Setup — Tauri entrypoint.
+//! Sonic Setup — Tauri entrypoint.
 //!
 //! Spawns a single window pointed at the React frontend (apps/bootstrap-installer/src/).
 //! All install-time work lives in `bootstrap.rs` and is invoked through the Tauri
@@ -21,7 +21,7 @@ use tokio::sync::Mutex;
 /// How the installer was invoked. Resolved once from the process args in
 /// `run()` and exposed to the frontend via `get_mode` so it can route to the
 /// install flow (first-run onboarding) or the update flow (driven by the
-/// desktop app handing off via `Hermes-Setup.exe --update`).
+/// desktop app handing off via `Sonic-Setup.exe --update`).
 ///
 /// Bare launch (double-click, first-run) => Install.
 /// `--update` (spawned by the desktop's "Update" button) => Update.
@@ -79,13 +79,13 @@ fn get_mode(state: tauri::State<'_, Arc<AppState>>) -> AppMode {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // Tracing → bootstrap-installer.log under HERMES_HOME/logs/ so install
+    // Tracing → bootstrap-installer.log under SONIC_HOME/logs/ so install
     // failures leave a trail for support. Console output also goes here in
     // debug builds.
     let _guard = paths::init_logging();
 
     let mode = AppMode::from_args(std::env::args().skip(1));
-    tracing::info!(?mode, "Hermes Setup starting");
+    tracing::info!(?mode, "Sonic Setup starting");
 
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -103,14 +103,14 @@ pub fn run() {
             // Update lifecycle
             update::start_update,
             // Hand-off
-            bootstrap::launch_hermes_desktop,
+            bootstrap::launch_sonic_desktop,
             // Diagnostics
             paths::get_log_path,
-            paths::get_hermes_home,
+            paths::get_sonic_home,
             paths::open_log_dir,
         ])
         .run(tauri::generate_context!())
-        .expect("error while running Hermes Setup");
+        .expect("error while running Sonic Setup");
 }
 
 #[cfg(test)]

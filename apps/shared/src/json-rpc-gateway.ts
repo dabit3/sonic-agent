@@ -217,7 +217,7 @@ export class JsonRpcGatewayClient {
       this.clearPending(frame.id)
 
       if (frame.error) {
-        call.reject(new Error(frame.error.message || 'Hermes RPC failed'))
+        call.reject(new Error(frame.error.message || 'Sonic RPC failed'))
       } else {
         call.resolve(frame.result)
       }

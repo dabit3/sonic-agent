@@ -744,7 +744,7 @@ def _discover_all_plugins() -> list:
     seen: dict = {}  # name -> (name, version, description, source, path)
 
     # Bundled (<repo>/plugins/<name>/), excluding memory/ and context_engine/
-    from hermes_cli.plugins import get_bundled_plugins_dir
+    from sonic_cli.plugins import get_bundled_plugins_dir
     repo_plugins = get_bundled_plugins_dir()
     for base, source in ((repo_plugins, "bundled"), (_plugins_dir(), "user")):
         if not base.is_dir():

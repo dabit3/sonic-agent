@@ -46,10 +46,10 @@ import {
 } from '@/app/chat/composer/rich-editor'
 import { detectTrigger, textBeforeCaret, type TriggerState } from '@/app/chat/composer/text-utils'
 import { ComposerTriggerPopover } from '@/app/chat/composer/trigger-popover'
-import { extractDroppedFiles, HERMES_PATHS_MIME } from '@/app/chat/hooks/use-composer-actions'
+import { extractDroppedFiles, SONIC_PATHS_MIME } from '@/app/chat/hooks/use-composer-actions'
 import { ClarifyTool } from '@/components/assistant-ui/clarify-tool'
 import { DirectiveContent, DirectiveText } from '@/components/assistant-ui/directive-text'
-import { hermesDirectiveFormatter } from '@/components/assistant-ui/directive-text'
+import { sonicDirectiveFormatter } from '@/components/assistant-ui/directive-text'
 import { MarkdownText } from '@/components/assistant-ui/markdown-text'
 import { VirtualizedThread } from '@/components/assistant-ui/thread-virtualizer'
 import { HoistedTodoPanel, todosFromMessageContent } from '@/components/assistant-ui/todo-tool'
@@ -72,7 +72,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Loader } from '@/components/ui/loader'
-import type { HermesGateway } from '@/hermes'
+import type { SonicGateway } from '@/sonic'
 import { DATA_IMAGE_URL_RE } from '@/lib/embedded-images'
 import { triggerHaptic } from '@/lib/haptics'
 import { GitBranchIcon, Loader2Icon, Volume2Icon, VolumeXIcon } from '@/lib/icons'
@@ -122,7 +122,7 @@ const isInterruptedOnlyMessage = (text: string) => INTERRUPTED_ONLY_RE.test(text
 export const Thread: FC<{
   clampToComposer?: boolean
   cwd?: string | null
-  gateway?: HermesGateway | null
+  gateway?: SonicGateway | null
   intro?: IntroProps
   loading?: ThreadLoadingState
   onBranchInNewChat?: (messageId: string) => void
@@ -283,7 +283,7 @@ const ResponseLoadingIndicator: FC = () => {
   const elapsed = useElapsedSeconds()
 
   return (
-    <StatusRow data-slot="aui_response-loading" label="Hermes is loading a response">
+    <StatusRow data-slot="aui_response-loading" label="Sonic is loading a response">
       <span aria-hidden="true" className="dither inline-block size-3 rounded-[2px] text-midground/80 animate-pulse" />
       <ActivityTimerText seconds={elapsed} />
     </StatusRow>
@@ -825,7 +825,7 @@ const SystemMessage: FC = () => {
 
 interface UserEditComposerProps {
   cwd: string | null
-  gateway: HermesGateway | null
+  gateway: SonicGateway | null
   sessionId: string | null
 }
 
@@ -1000,7 +1000,7 @@ const UserEditComposer: FC<UserEditComposerProps> = ({ cwd, gateway, sessionId }
         return
       }
 
-      const serialized = hermesDirectiveFormatter.serialize(item)
+      const serialized = sonicDirectiveFormatter.serialize(item)
       const starter = serialized.endsWith(':')
       const text = starter || serialized.endsWith(' ') ? serialized : `${serialized} `
       const directive = !starter && serialized.match(/^@([^:]+):(.+)$/)
@@ -1085,7 +1085,7 @@ const UserEditComposer: FC<UserEditComposerProps> = ({ cwd, gateway, sessionId }
   }, [])
 
   const handleDragEnter = (event: ReactDragEvent<HTMLElement>) => {
-    if (!dragHasAttachments(event.dataTransfer, HERMES_PATHS_MIME)) {
+    if (!dragHasAttachments(event.dataTransfer, SONIC_PATHS_MIME)) {
       return
     }
 
@@ -1098,7 +1098,7 @@ const UserEditComposer: FC<UserEditComposerProps> = ({ cwd, gateway, sessionId }
   }
 
   const handleDragOver = (event: ReactDragEvent<HTMLElement>) => {
-    if (!dragHasAttachments(event.dataTransfer, HERMES_PATHS_MIME)) {
+    if (!dragHasAttachments(event.dataTransfer, SONIC_PATHS_MIME)) {
       return
     }
 
@@ -1116,7 +1116,7 @@ const UserEditComposer: FC<UserEditComposerProps> = ({ cwd, gateway, sessionId }
   }
 
   const handleDrop = (event: ReactDragEvent<HTMLElement>) => {
-    if (!dragHasAttachments(event.dataTransfer, HERMES_PATHS_MIME)) {
+    if (!dragHasAttachments(event.dataTransfer, SONIC_PATHS_MIME)) {
       return
     }
 

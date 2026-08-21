@@ -299,11 +299,11 @@ def _capture_checklist(monkeypatch, *, selected_idx):
         captured["pre_selected"] = list(pre_selected or [])
         return list(selected_idx)
 
-    import hermes_cli.setup as setup_mod
+    import sonic_cli.setup as setup_mod
 
     monkeypatch.setattr(setup_mod, "prompt_checklist", _fake_checklist, raising=False)
     monkeypatch.setattr(
-        "hermes_cli.config.save_config", lambda cfg: None, raising=False
+        "sonic_cli.config.save_config", lambda cfg: None, raising=False
     )
     return captured
 

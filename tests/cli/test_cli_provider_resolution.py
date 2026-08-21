@@ -309,7 +309,7 @@ def test_model_flow_nous_prints_subscription_guidance_without_mutating_explicit_
 
 
 def test_model_flow_nous_offers_tool_gateway_prompt_when_unconfigured(monkeypatch, capsys):
-    from hermes_cli.nous_account import NousPortalAccountInfo
+    from sonic_cli.nous_account import NousPortalAccountInfo
 
     # Entitled account (paid → all tools eligible) drives the offer; the prompt
     # is a per-tool checklist now, so capture the call rather than scrape stdout.
@@ -329,7 +329,7 @@ def test_model_flow_nous_offers_tool_gateway_prompt_when_unconfigured(monkeypatc
         captured["items"] = list(items)
         return []  # decline; we only assert the prompt was offered
 
-    monkeypatch.setattr("hermes_cli.setup.prompt_checklist", _fake_checklist, raising=False)
+    monkeypatch.setattr("sonic_cli.setup.prompt_checklist", _fake_checklist, raising=False)
 
     config = {
         "model": {"provider": "nous", "default": "claude-opus-4-6"},

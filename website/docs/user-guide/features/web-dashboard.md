@@ -188,7 +188,7 @@ Browse, search, and toggle skills and toolsets. Skills are loaded from `~/.sonic
 ### MCP
 
 Manage [MCP](/integrations/mcp) servers without the CLI. The same `mcp_servers`
-block in `config.yaml` that `hermes mcp` reads from.
+block in `config.yaml` that `sonic mcp` reads from.
 
 - **Add** — register an HTTP/SSE server (URL) or a stdio server (command + args), with optional `KEY=VALUE` environment variables for stdio servers
 - **Test** — connect to a server, list its tools, and disconnect — verifies the connection before the agent depends on it

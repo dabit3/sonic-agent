@@ -14,7 +14,7 @@ import type {
 /**
  * DesktopInstallOverlay
  *
- * Renders the first-launch install progress for Hermes Agent. Mounted always;
+ * Renders the first-launch install progress for Sonic Agent. Mounted always;
  * shows itself only when main.cjs reports an in-flight bootstrap (state.active)
  * OR an error from a completed-failed bootstrap (state.error). When the
  * bootstrap finishes successfully the overlay fades out and the rest of the
@@ -231,7 +231,7 @@ export function DesktopInstallOverlay({ enabled = true }: DesktopInstallOverlayP
   // Subscribe to bootstrap events + load initial snapshot
   useEffect(() => {
     if (!enabled) return
-    const desktop = window.hermesDesktop
+    const desktop = window.sonicDesktop
     if (!desktop || typeof desktop.onBootstrapEvent !== 'function') return
 
     let cancelled = false
@@ -282,7 +282,7 @@ export function DesktopInstallOverlay({ enabled = true }: DesktopInstallOverlayP
   if (!shouldShow) return null
 
   // Unsupported-platform branch: macOS/Linux packaged builds hit this when
-  // there's no Hermes Agent installed yet and we can't drive install.sh
+  // there's no Sonic Agent installed yet and we can't drive install.sh
   // (no stage protocol equivalent yet). Show a copy-paste install command
   // and the docs URL; user runs it from Terminal and relaunches the app.
   if (state.unsupportedPlatform) {
@@ -291,7 +291,7 @@ export function DesktopInstallOverlay({ enabled = true }: DesktopInstallOverlayP
     return (
       <div className="fixed inset-0 z-[1400] flex items-center justify-center bg-background/90 backdrop-blur-md">
         <div className="w-full max-w-xl rounded-xl border bg-card p-8 shadow-xl">
-          <h2 className="text-2xl font-semibold tracking-tight">Hermes needs a one-time install</h2>
+          <h2 className="text-2xl font-semibold tracking-tight">Sonic needs a one-time install</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Automated first-launch install isn{'\u2019'}t available on {platformLabel} yet. Open Terminal and
             run the command below, then relaunch this app. Subsequent launches will skip this step.
@@ -316,7 +316,7 @@ export function DesktopInstallOverlay({ enabled = true }: DesktopInstallOverlayP
                 variant="ghost"
                 size="sm"
                 onClick={() => {
-                  window.hermesDesktop?.openExternal?.(ups.docsUrl)
+                  window.sonicDesktop?.openExternal?.(ups.docsUrl)
                 }}
               >
                 View install docs
@@ -358,12 +358,12 @@ export function DesktopInstallOverlay({ enabled = true }: DesktopInstallOverlayP
         {/* Header -- always visible, never scrolls */}
         <div className="flex-shrink-0 p-8 pb-4">
           <h2 className="text-2xl font-semibold tracking-tight">
-            {failed ? 'Installation failed' : state.active ? 'Setting up Hermes Agent' : 'Finishing up'}
+            {failed ? 'Installation failed' : state.active ? 'Setting up Sonic Agent' : 'Finishing up'}
           </h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
             {failed
               ? 'One of the install steps failed. Check the details below or the desktop log for the full transcript.'
-              : 'This is a one-time setup. The Hermes installer is downloading dependencies and configuring your machine. ' +
+              : 'This is a one-time setup. The Sonic installer is downloading dependencies and configuring your machine. ' +
                 'Subsequent launches will skip this step.'}
           </p>
         </div>
@@ -462,7 +462,7 @@ export function DesktopInstallOverlay({ enabled = true }: DesktopInstallOverlayP
           <div className="flex-shrink-0 border-t bg-card p-4">
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs text-muted-foreground">
-                Full transcript saved to <code className="rounded bg-muted/50 px-1 py-0.5 font-mono">%LOCALAPPDATA%\hermes\logs\</code>
+                Full transcript saved to <code className="rounded bg-muted/50 px-1 py-0.5 font-mono">%LOCALAPPDATA%\sonic\logs\</code>
               </span>
               <div className="flex gap-2">
                 <Button
@@ -493,7 +493,7 @@ export function DesktopInstallOverlay({ enabled = true }: DesktopInstallOverlayP
                     // and main short-circuits to the latched error without
                     // re-running install.ps1.
                     try {
-                      await window.hermesDesktop?.resetBootstrap?.()
+                      await window.sonicDesktop?.resetBootstrap?.()
                     } catch {
                       // best-effort -- continue with reload regardless
                     }

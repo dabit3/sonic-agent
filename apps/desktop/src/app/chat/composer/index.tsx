@@ -13,7 +13,7 @@ import {
   useState
 } from 'react'
 
-import { hermesDirectiveFormatter } from '@/components/assistant-ui/directive-text'
+import { sonicDirectiveFormatter } from '@/components/assistant-ui/directive-text'
 import { Button } from '@/components/ui/button'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import { useResizeObserver } from '@/hooks/use-resize-observer'
@@ -36,7 +36,7 @@ import {
 import { $messages } from '@/store/session'
 import { $threadScrolledUp } from '@/store/thread-scroll'
 
-import { extractDroppedFiles, HERMES_PATHS_MIME } from '../hooks/use-composer-actions'
+import { extractDroppedFiles, SONIC_PATHS_MIME } from '../hooks/use-composer-actions'
 
 import { AttachmentList } from './attachments'
 import { ContextMenu } from './context-menu'
@@ -149,7 +149,7 @@ export function ChatBar({
   const busyAction = busy && hasComposerPayload ? 'queue' : 'stop'
   const showHelpHint = draft === '?'
 
-  const placeholder = disabled ? 'Starting Hermes...' : 'Send follow-up'
+  const placeholder = disabled ? 'Starting Sonic...' : 'Send follow-up'
 
   const focusInput = useCallback(() => {
     focusComposerInput(editorRef.current)
@@ -494,7 +494,7 @@ export function ChatBar({
       return
     }
 
-    const serialized = hermesDirectiveFormatter.serialize(item)
+    const serialized = sonicDirectiveFormatter.serialize(item)
     const starter = serialized.endsWith(':')
     const text = starter || serialized.endsWith(' ') ? serialized : `${serialized} `
     const directive = !starter && serialized.match(/^@([^:]+):(.+)$/)
@@ -612,7 +612,7 @@ export function ChatBar({
   }
 
   const handleDragEnter = (event: ReactDragEvent<HTMLFormElement>) => {
-    if (!onAttachDroppedItems || !dragHasAttachments(event.dataTransfer, HERMES_PATHS_MIME)) {
+    if (!onAttachDroppedItems || !dragHasAttachments(event.dataTransfer, SONIC_PATHS_MIME)) {
       return
     }
 
@@ -625,7 +625,7 @@ export function ChatBar({
   }
 
   const handleDragOver = (event: ReactDragEvent<HTMLFormElement>) => {
-    if (!onAttachDroppedItems || !dragHasAttachments(event.dataTransfer, HERMES_PATHS_MIME)) {
+    if (!onAttachDroppedItems || !dragHasAttachments(event.dataTransfer, SONIC_PATHS_MIME)) {
       return
     }
 
@@ -660,7 +660,7 @@ export function ChatBar({
       return
     }
 
-    if (Array.from(event.dataTransfer.types || []).includes(HERMES_PATHS_MIME)) {
+    if (Array.from(event.dataTransfer.types || []).includes(SONIC_PATHS_MIME)) {
       const refs = candidates
         .map(candidate => droppedFileInlineRef(candidate, cwd))
         .filter((ref): ref is string => Boolean(ref))
@@ -681,7 +681,7 @@ export function ChatBar({
   }
 
   const handleInputDragOver = (event: ReactDragEvent<HTMLDivElement>) => {
-    if (!dragHasAttachments(event.dataTransfer, HERMES_PATHS_MIME)) {
+    if (!dragHasAttachments(event.dataTransfer, SONIC_PATHS_MIME)) {
       return
     }
 
@@ -691,7 +691,7 @@ export function ChatBar({
   }
 
   const handleInputDrop = (event: ReactDragEvent<HTMLDivElement>) => {
-    if (!dragHasAttachments(event.dataTransfer, HERMES_PATHS_MIME)) {
+    if (!dragHasAttachments(event.dataTransfer, SONIC_PATHS_MIME)) {
       return
     }
 

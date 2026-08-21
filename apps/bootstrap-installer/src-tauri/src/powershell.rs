@@ -34,19 +34,19 @@ pub type CancelRx = mpsc::Receiver<()>;
 
 /// Spawns install.ps1 / install.sh with the given args and streams output.
 ///
-/// `hermes_home_override` propagates to the child as $HERMES_HOME so the
+/// `sonic_home_override` propagates to the child as $SONIC_HOME so the
 /// install script writes to the same directory the installer is reading from.
 pub async fn run_script(
     script_path: &Path,
     args: &[String],
     sink: StreamSink,
-    hermes_home_override: Option<&str>,
+    sonic_home_override: Option<&str>,
     mut cancel_rx: Option<CancelRx>,
 ) -> Result<ScriptResult> {
     let mut cmd = build_command(script_path, args);
 
-    if let Some(home) = hermes_home_override {
-        cmd.env("HERMES_HOME", home);
+    if let Some(home) = sonic_home_override {
+        cmd.env("SONIC_HOME", home);
     }
 
     cmd.stdin(Stdio::null())

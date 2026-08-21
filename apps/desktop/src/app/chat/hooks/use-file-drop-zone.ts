@@ -2,9 +2,9 @@ import { type DragEvent as ReactDragEvent, useCallback, useRef, useState } from 
 
 import { dragHasAttachments } from '@/app/chat/composer/inline-refs'
 
-import { type DroppedFile, extractDroppedFiles, HERMES_PATHS_MIME } from './use-composer-actions'
+import { type DroppedFile, extractDroppedFiles, SONIC_PATHS_MIME } from './use-composer-actions'
 
-const hasFiles = (event: ReactDragEvent) => dragHasAttachments(event.dataTransfer, HERMES_PATHS_MIME)
+const hasFiles = (event: ReactDragEvent) => dragHasAttachments(event.dataTransfer, SONIC_PATHS_MIME)
 
 interface FileDropZoneOptions {
   /** When false the zone ignores drags entirely. */

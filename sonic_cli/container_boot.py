@@ -158,7 +158,7 @@ def reconcile_profile_gateways(
 
 
 def _maybe_migrate_legacy_gateway_run_state(
-    hermes_home: Path,
+    sonic_home: Path,
     *,
     container_argv: Sequence[str] | None,
     dry_run: bool,
@@ -173,11 +173,11 @@ def _maybe_migrate_legacy_gateway_run_state(
     root gateway_state.json exists so explicit stopped/failed states keep
     winning across restarts.
     """
-    state_file = hermes_home / "gateway_state.json"
+    state_file = sonic_home / "gateway_state.json"
     if state_file.exists():
         return None
 
-    if os.environ.get("HERMES_GATEWAY_NO_SUPERVISE", "").lower() in ("1", "true", "yes"):
+    if os.environ.get("SONIC_GATEWAY_NO_SUPERVISE", "").lower() in ("1", "true", "yes"):
         return None
 
     argv = tuple(container_argv) if container_argv is not None else _read_container_argv()
@@ -210,7 +210,7 @@ def _is_legacy_gateway_run_request(argv: Sequence[str]) -> bool:
         args = args[1:]
     if args and args[0].endswith("main-wrapper.sh"):
         args = args[1:]
-    if args and Path(args[0]).name == "hermes":
+    if args and Path(args[0]).name == "sonic":
         args = args[1:]
     if "--no-supervise" in args:
         return False

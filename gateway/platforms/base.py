@@ -2628,7 +2628,7 @@ class BasePlatformAdapter(ABC):
 
         Serialized tool results frequently embed a previous reply's text, e.g.::
 
-            {"result": "MEDIA:/Users/x/.hermes/media/generated/stale.png"}
+            {"result": "MEDIA:/Users/x/.sonic/media/generated/stale.png"}
 
         Here the ``MEDIA:`` is part of stored text, not an outbound directive,
         but the bare-path branch of ``MEDIA_TAG_CLEANUP_RE`` would still match it

@@ -1,12 +1,12 @@
-# nix/desktop.nix — Hermes Desktop (Electron) app build + wrapper
+# nix/desktop.nix — Sonic Desktop (Electron) app build + wrapper
 #
-# `hermesAgent` is the fully-built `.#default` package — it ships the
-# `hermes` binary with the venv, runtime PATH, bundled skills/plugins, etc.
+# `sonicAgent` is the fully-built `.#default` package — it ships the
+# `sonic` binary with the venv, runtime PATH, bundled skills/plugins, etc.
 # already wired up.  We point the desktop at it via the existing
-# `HERMES_DESKTOP_HERMES` override env var, so the desktop's resolver
-# uses our fully wrapped binary at step 4 ("existing Hermes CLI").
+# `SONIC_DESKTOP_SONIC` override env var, so the desktop's resolver
+# uses our fully wrapped binary at step 4 ("existing Sonic CLI").
 # No reimplementation of the agent resolution in this wrapper.
-{ pkgs, lib, stdenv, makeWrapper, hermesNpmLib, electron, hermesAgent, ... }:
+{ pkgs, lib, stdenv, makeWrapper, sonicNpmLib, electron, sonicAgent, ... }:
 let
   src = ../apps;
   npmDeps = pkgs.fetchNpmDeps {
@@ -18,14 +18,14 @@ let
     hash = "sha256-7W9ObYz08yDMtybY8+RkUXkKVsJXINLl0qBUB91hpao=";
   };
 
-  npm = hermesNpmLib.mkNpmPassthru { folder = "apps/desktop"; attr = "desktop"; pname = "hermes-desktop"; };
+  npm = sonicNpmLib.mkNpmPassthru { folder = "apps/desktop"; attr = "desktop"; pname = "sonic-desktop"; };
 
   packageJson = builtins.fromJSON (builtins.readFile (src + "/desktop/package.json"));
   version = packageJson.version;
 
   # Build the renderer (dist/ + electron/ + package.json).
   renderer = pkgs.buildNpmPackage (npm // {
-    pname = "hermes-desktop-renderer";
+    pname = "sonic-desktop-renderer";
     inherit src npmDeps version;
     sourceRoot = "apps/desktop";
 
@@ -78,7 +78,7 @@ in
 
 # Electron wrapper: nixpkgs' electron binary pointed at the renderer dir.
 stdenv.mkDerivation {
-  pname = "hermes-desktop";
+  pname = "sonic-desktop";
   inherit version;
 
   dontUnpack = true;
@@ -89,28 +89,28 @@ stdenv.mkDerivation {
   installPhase = ''
     runHook preInstall
 
-    mkdir -p $out/share/hermes-desktop $out/bin
-    cp -r ${renderer}/* $out/share/hermes-desktop/
+    mkdir -p $out/share/sonic-desktop $out/bin
+    cp -r ${renderer}/* $out/share/sonic-desktop/
 
     # Wrap the nixpkgs electron binary to launch our app.  Set
-    # HERMES_DESKTOP_HERMES to the absolute path of the nix-built `hermes`
-    # binary so the desktop's resolver step 4 ("existing Hermes CLI on
+    # SONIC_DESKTOP_SONIC to the absolute path of the nix-built `sonic`
+    # binary so the desktop's resolver step 4 ("existing Sonic CLI on
     # PATH") uses our fully wrapped binary — venv with all deps,
     # bundled skills/plugins, runtime PATH (ripgrep/git/ffmpeg/etc).
     # No reimplementation of the agent resolver in the wrapper.
-    makeWrapper ${lib.getExe electron} $out/bin/hermes-desktop \
-      --add-flags "$out/share/hermes-desktop" \
-      --set HERMES_DESKTOP_HERMES "${lib.getExe hermesAgent}" \
+    makeWrapper ${lib.getExe electron} $out/bin/sonic-desktop \
+      --add-flags "$out/share/sonic-desktop" \
+      --set SONIC_DESKTOP_SONIC "${lib.getExe sonicAgent}" \
       --set ELECTRON_IS_DEV 0
 
     runHook postInstall
   '';
 
   meta = with lib; {
-    description = "Native Electron desktop shell for Hermes Agent";
+    description = "Native Electron desktop shell for Sonic Agent";
     homepage = "https://github.com/NousResearch/hermes-agent";
     license = licenses.mit;
     platforms = platforms.unix;
-    mainProgram = "hermes-desktop";
+    mainProgram = "sonic-desktop";
   };
 }

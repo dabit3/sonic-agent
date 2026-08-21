@@ -539,13 +539,13 @@ def get_project_root() -> Path:
     """Get the project installation directory."""
     return Path(__file__).parent.parent.resolve()
 
-def _resolve_hermes_uid_gid() -> tuple[Optional[int], Optional[int]]:
-    """Read the HERMES_UID / HERMES_GID env vars set by Docker deployments.
+def _resolve_sonic_uid_gid() -> tuple[Optional[int], Optional[int]]:
+    """Read the SONIC_UID / SONIC_GID env vars set by Docker deployments.
 
-    Docker containers running Hermes commonly set these to map the in-container
+    Docker containers running Sonic commonly set these to map the in-container
     user to a host user so volume-mounted state files end up with the right
-    ownership. The entrypoint chowns the top-level HERMES_HOME once, but
-    subdirectories created at runtime by ``ensure_hermes_home()`` (especially
+    ownership. The entrypoint chowns the top-level SONIC_HOME once, but
+    subdirectories created at runtime by ``ensure_sonic_home()`` (especially
     for profile namespaces under ``profiles/<name>/``) need the same chown
     or they land as ``root:root`` and block subsequent uid-mapped workers
     with ``PermissionError [Errno 13]``. See #34107.
@@ -556,8 +556,8 @@ def _resolve_hermes_uid_gid() -> tuple[Optional[int], Optional[int]]:
     """
     if sys.platform == "win32":
         return None, None
-    uid_str = os.environ.get("HERMES_UID", "").strip()
-    gid_str = os.environ.get("HERMES_GID", "").strip()
+    uid_str = os.environ.get("SONIC_UID", "").strip()
+    gid_str = os.environ.get("SONIC_GID", "").strip()
     try:
         uid = int(uid_str) if uid_str else None
     except ValueError:
@@ -569,8 +569,8 @@ def _resolve_hermes_uid_gid() -> tuple[Optional[int], Optional[int]]:
     return uid, gid
 
 
-def _chown_to_hermes_uid(path) -> None:
-    """Chown ``path`` to ``HERMES_UID:HERMES_GID`` if those env vars are set.
+def _chown_to_sonic_uid(path) -> None:
+    """Chown ``path`` to ``SONIC_UID:SONIC_GID`` if those env vars are set.
 
     No-op when:
       - Either env var is unset/invalid
@@ -578,10 +578,10 @@ def _chown_to_hermes_uid(path) -> None:
       - On Windows (chown semantics don't apply)
 
     Used by :func:`_secure_dir` to keep ownership consistent across all
-    directories created by :func:`ensure_hermes_home` on Docker deployments.
+    directories created by :func:`ensure_sonic_home` on Docker deployments.
     See #34107.
     """
-    uid, gid = _resolve_hermes_uid_gid()
+    uid, gid = _resolve_sonic_uid_gid()
     if uid is None and gid is None:
         return
     try:
@@ -611,7 +611,7 @@ def _secure_dir(path):
     The execute-only bit on a directory permits cd-through without exposing
     directory listings.
 
-    Also applies ``HERMES_UID``/``HERMES_GID``-based ownership when those env
+    Also applies ``SONIC_UID``/``SONIC_GID``-based ownership when those env
     vars are set (#34107 — Docker deployments need this so profile subdirs
     created at runtime by kanban workers don't land as root:root and block
     subsequent uid-mapped workers).
@@ -627,7 +627,7 @@ def _secure_dir(path):
         os.chmod(path, mode)
     except (OSError, NotImplementedError):
         pass
-    _chown_to_hermes_uid(path)
+    _chown_to_sonic_uid(path)
 
 
 def _is_container() -> bool:
@@ -1650,7 +1650,7 @@ DEFAULT_CONFIG = {
         "archive_after_days": 90,
         # Also prune (archive) bundled built-in skills after the inactivity
         # period, not just agent-created ones. ON by default. Built-ins are
-        # normally restored on every `hermes update`, so pruning them only
+        # normally restored on every `sonic update`, so pruning them only
         # sticks because a suppression list tells the re-seeder to leave them
         # archived. Hub-installed skills are NEVER pruned here — they have an
         # external upstream owner. Built-ins accrue usage telemetry and their

@@ -1148,7 +1148,7 @@ def do_opt_in(sync: bool = False,
     """Remove the opt-out marker so bundled-skill seeding resumes.
 
     With ``sync``, immediately re-seed bundled skills instead of waiting for
-    the next ``hermes update``.
+    the next ``sonic update``.
     """
     from tools.skills_sync import set_bundled_skills_opt_out, sync_skills
 

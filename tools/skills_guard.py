@@ -953,7 +953,7 @@ def _unicode_char_name(char: str) -> str:
 # ---------------------------------------------------------------------------
 
 # Ignore-file names a skill may ship to exclude dev/docs artifacts from the
-# scan. `.skillignore` is the Hermes-native name; `.clawhubignore` is honored
+# scan. `.skillignore` is the Sonic-native name; `.clawhubignore` is honored
 # for compatibility with skills published through ClawHub.
 _SKILL_IGNORE_FILENAMES = (".skillignore", ".clawhubignore")
 

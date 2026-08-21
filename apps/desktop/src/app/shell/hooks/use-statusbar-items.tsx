@@ -21,7 +21,7 @@ import {
 } from '@/store/session'
 import { $subagentsBySession, activeSubagentCount } from '@/store/subagents'
 import { $desktopVersion, $updateApply, $updateStatus, setUpdateOverlayOpen } from '@/store/updates'
-import type { StatusResponse } from '@/types/hermes'
+import type { StatusResponse } from '@/types/sonic'
 
 import { CRON_ROUTE } from '../../routes'
 import type { StatusbarItem } from '../statusbar-controls'
@@ -140,7 +140,7 @@ export function useStatusbarItems({
     const tooltip = [
       applying ? updateApply.message || 'Update in progress' : null,
       !applying && behind > 0 && `${behind} commit${behind === 1 ? '' : 's'} behind ${updateStatus?.branch ?? '…'}`,
-      appVersion && `Hermes Desktop v${appVersion}`,
+      appVersion && `Sonic Desktop v${appVersion}`,
       sha && `commit ${sha}`,
       updateStatus?.branch && `branch ${updateStatus.branch}`
     ]
@@ -186,7 +186,7 @@ export function useStatusbarItems({
         label: 'Gateway',
         menuClassName: 'w-72',
         menuContent: gatewayMenuContent,
-        title: inferenceStatus?.reason || 'Hermes inference gateway status',
+        title: inferenceStatus?.reason || 'Sonic inference gateway status',
         variant: 'menu'
       },
       {

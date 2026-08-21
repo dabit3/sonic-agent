@@ -355,7 +355,7 @@ export function ModelPicker({ allowPersistGlobal = true, gw, onCancel, onSelect,
     }
 
     // Persist-global toggle moved to Ctrl+G so 'g' can be typed into the
-    // filter. With Ctrl held, @hermes/ink reports `ch` as the key name ('g'),
+    // filter. With Ctrl held, @sonic/ink reports `ch` as the key name ('g'),
     // not the raw control byte (see input-event.ts: input = ctrl ? name : seq).
     if (allowPersistGlobal && key.ctrl && ch === 'g') {
       setPersistGlobal(v => !v)

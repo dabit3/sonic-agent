@@ -187,30 +187,30 @@ if [ -d "$SONIC_HOME/profiles" ]; then
     chown -R sonic:sonic "$SONIC_HOME/profiles" 2>/dev/null || true
 fi
 
-# Reset ownership of hermes-owned top-level state files on every boot.
-# The targeted data-volume chown above only covers hermes-owned
-# *subdirectories*; loose state files living directly under $HERMES_HOME
+# Reset ownership of sonic-owned top-level state files on every boot.
+# The targeted data-volume chown above only covers sonic-owned
+# *subdirectories*; loose state files living directly under $SONIC_HOME
 # are missed. When those files are created or rewritten by
-# `docker exec <container> hermes …` (root unless `-u` is passed) they
-# land root-owned, and the unprivileged hermes runtime then hits
+# `docker exec <container> sonic …` (root unless `-u` is passed) they
+# land root-owned, and the unprivileged sonic runtime then hits
 # PermissionError on next startup (e.g. gateway.lock / state.db /
 # auth.json), producing a gateway restart loop.
 #
 # We use an explicit allowlist rather than a blanket `find -user root`
-# sweep so host-owned files in a bind-mounted $HERMES_HOME are never
+# sweep so host-owned files in a bind-mounted $SONIC_HOME are never
 # touched — same targeted-ownership contract as the subdir chown above
 # (issue #19788, PR #19795). The list mirrors the top-level *file*
-# entries of hermes_cli.profile_distribution.USER_OWNED_EXCLUDE plus the
+# entries of sonic_cli.profile_distribution.USER_OWNED_EXCLUDE plus the
 # runtime lock files; keep them in sync if that set changes.
 for f in \
     auth.json auth.lock .env \
     state.db state.db-shm state.db-wal \
-    hermes_state.db \
+    sonic_state.db \
     response_store.db response_store.db-shm response_store.db-wal \
     gateway.pid gateway.lock gateway_state.json processes.json \
     active_profile; do
-    if [ -e "$HERMES_HOME/$f" ]; then
-        chown hermes:hermes "$HERMES_HOME/$f" 2>/dev/null || true
+    if [ -e "$SONIC_HOME/$f" ]; then
+        chown sonic:sonic "$SONIC_HOME/$f" 2>/dev/null || true
     fi
 done
 

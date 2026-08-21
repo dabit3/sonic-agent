@@ -30,7 +30,7 @@ export function BootFailureOverlay() {
       return
     }
 
-    void window.hermesDesktop
+    void window.sonicDesktop
       ?.getRecentLogs()
       .then(res => setLogs(res.lines ?? []))
       .catch(() => undefined)
@@ -42,24 +42,24 @@ export function BootFailureOverlay() {
 
   const retry = async () => {
     setBusy('retry')
-    await window.hermesDesktop?.resetBootstrap().catch(() => undefined)
+    await window.sonicDesktop?.resetBootstrap().catch(() => undefined)
     window.location.reload()
   }
 
   const repair = async () => {
     setBusy('repair')
-    await window.hermesDesktop?.repairBootstrap().catch(() => undefined)
+    await window.sonicDesktop?.repairBootstrap().catch(() => undefined)
     window.location.reload()
   }
 
   const switchToLocalGateway = async () => {
     setBusy('local')
     // applyConnectionConfig reloads the window from the main process.
-    await window.hermesDesktop?.applyConnectionConfig({ mode: 'local' }).catch(() => undefined)
+    await window.sonicDesktop?.applyConnectionConfig({ mode: 'local' }).catch(() => undefined)
     setBusy(null)
   }
 
-  const openLogs = () => void window.hermesDesktop?.revealLogs().catch(() => undefined)
+  const openLogs = () => void window.sonicDesktop?.revealLogs().catch(() => undefined)
 
   return (
     <div className="fixed inset-0 z-[1400] flex items-center justify-center bg-(--ui-chat-surface-background) p-6">
@@ -69,7 +69,7 @@ export function BootFailureOverlay() {
             <AlertTriangle className="size-5" />
           </div>
           <div>
-            <h2 className="text-[0.9375rem] font-semibold tracking-tight">Hermes couldn't start</h2>
+            <h2 className="text-[0.9375rem] font-semibold tracking-tight">Sonic couldn't start</h2>
             <p className="mt-1 text-[0.8125rem] leading-5 text-(--ui-text-tertiary)">
               The background gateway didn't come up. Try one of the recovery steps below — nothing here deletes your
               chats or settings.

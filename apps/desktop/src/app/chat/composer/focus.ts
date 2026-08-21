@@ -23,8 +23,8 @@ interface InsertDetail {
   text: string
 }
 
-const FOCUS_EVENT = 'hermes:composer-focus'
-const INSERT_EVENT = 'hermes:composer-insert'
+const FOCUS_EVENT = 'sonic:composer-focus'
+const INSERT_EVENT = 'sonic:composer-insert'
 
 let activeTarget: ComposerTarget = 'main'
 

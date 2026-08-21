@@ -405,11 +405,11 @@ class TestIntegrationWithModelsModule:
             # stays an invariant — it can't rot as the curated/manifest list grows.
             with patch.object(
                 model_catalog, "_fetch_manifest", return_value=_valid_manifest()
-            ), patch("hermes_cli.models.check_nous_free_tier", return_value=False), patch(
-                "hermes_cli.models.union_with_portal_free_recommendations",
+            ), patch("sonic_cli.models.check_nous_free_tier", return_value=False), patch(
+                "sonic_cli.models.union_with_portal_free_recommendations",
                 side_effect=lambda ids, *a, **k: (ids, {}),
             ), patch(
-                "hermes_cli.models.union_with_portal_paid_recommendations",
+                "sonic_cli.models.union_with_portal_paid_recommendations",
                 side_effect=lambda ids, *a, **k: (ids, {}),
             ):
                 expected = get_curated_nous_model_ids()

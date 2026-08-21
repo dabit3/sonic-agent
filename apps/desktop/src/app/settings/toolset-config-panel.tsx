@@ -2,11 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { deleteEnvVar, getToolsetConfig, revealEnvVar, selectToolsetProvider, setEnvVar } from '@/hermes'
+import { deleteEnvVar, getToolsetConfig, revealEnvVar, selectToolsetProvider, setEnvVar } from '@/sonic'
 import { Check, ExternalLink, Eye, EyeOff, Loader2, Save, Trash2 } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { notify, notifyError } from '@/store/notifications'
-import type { ToolEnvVar, ToolProvider, ToolsetConfig } from '@/types/hermes'
+import type { ToolEnvVar, ToolProvider, ToolsetConfig } from '@/types/sonic'
 
 import { Pill } from './primitives'
 
@@ -309,7 +309,7 @@ export function ToolsetConfigPanel({ toolset, onConfiguredChange }: ToolsetConfi
                 {provider.post_setup && (
                   <p className="text-[0.72rem] text-muted-foreground">
                     This provider needs an extra setup step ({provider.post_setup}). Run it from the CLI with{' '}
-                    <code className="font-mono">hermes tools</code> for now.
+                    <code className="font-mono">sonic tools</code> for now.
                   </p>
                 )}
               </div>

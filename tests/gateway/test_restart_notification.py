@@ -33,7 +33,7 @@ def test_restart_notification_pending_true_with_marker(tmp_path, monkeypatch):
 
 
 def test_planned_restart_notification_pending_roundtrip(tmp_path, monkeypatch):
-    monkeypatch.setattr(gateway_run, "_hermes_home", tmp_path)
+    monkeypatch.setattr(gateway_run, "_sonic_home", tmp_path)
     marker = tmp_path / ".restart_pending.json"
 
     assert gateway_run._planned_restart_notification_pending() is False

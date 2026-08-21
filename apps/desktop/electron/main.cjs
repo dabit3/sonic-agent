@@ -23,7 +23,7 @@ const { fileURLToPath, pathToFileURL } = require('node:url')
 const { execFileSync, spawn } = require('node:child_process')
 const { isWindowsBinaryPathInWsl, isWslEnvironment } = require('./bootstrap-platform.cjs')
 const { runBootstrap } = require('./bootstrap-runner.cjs')
-const { canImportHermesCli, verifyHermesCli } = require('./backend-probes.cjs')
+const { canImportSonicCli, verifySonicCli } = require('./backend-probes.cjs')
 const {
   DATA_URL_READ_MAX_BYTES,
   DEFAULT_FETCH_TIMEOUT_MS,
@@ -56,7 +56,7 @@ try {
   }
 }
 
-const USER_DATA_OVERRIDE = process.env.HERMES_DESKTOP_USER_DATA_DIR
+const USER_DATA_OVERRIDE = process.env.SONIC_DESKTOP_USER_DATA_DIR
 if (USER_DATA_OVERRIDE) {
   const resolvedUserData = path.resolve(USER_DATA_OVERRIDE)
   fs.mkdirSync(resolvedUserData, { recursive: true })
@@ -65,7 +65,7 @@ if (USER_DATA_OVERRIDE) {
 
 const PORT_FLOOR = 9120
 const PORT_CEILING = 9199
-const DEV_SERVER = process.env.HERMES_DESKTOP_DEV_SERVER
+const DEV_SERVER = process.env.SONIC_DESKTOP_DEV_SERVER
 const IS_PACKAGED = app.isPackaged
 const IS_MAC = process.platform === 'darwin'
 const IS_WINDOWS = process.platform === 'win32'
@@ -103,7 +103,7 @@ function loadInstallStamp() {
       if (parsed && typeof parsed === 'object' && typeof parsed.commit === 'string' && parsed.commit.length >= 7) {
         if (parsed.schemaVersion !== INSTALL_STAMP_SCHEMA_VERSION) {
           console.warn(
-            `[hermes] install-stamp.json schemaVersion ${parsed.schemaVersion} != expected ${INSTALL_STAMP_SCHEMA_VERSION}; ignoring`
+            `[sonic] install-stamp.json schemaVersion ${parsed.schemaVersion} != expected ${INSTALL_STAMP_SCHEMA_VERSION}; ignoring`
           )
           continue
         }
@@ -126,85 +126,85 @@ function loadInstallStamp() {
 const INSTALL_STAMP = loadInstallStamp()
 if (INSTALL_STAMP) {
   console.log(
-    `[hermes] install stamp: ${INSTALL_STAMP.commit.slice(0, 12)}${INSTALL_STAMP.branch ? ` (${INSTALL_STAMP.branch})` : ''}${INSTALL_STAMP.dirty ? ' [DIRTY]' : ''} from ${INSTALL_STAMP.source || 'unknown'}`
+    `[sonic] install stamp: ${INSTALL_STAMP.commit.slice(0, 12)}${INSTALL_STAMP.branch ? ` (${INSTALL_STAMP.branch})` : ''}${INSTALL_STAMP.dirty ? ' [DIRTY]' : ''} from ${INSTALL_STAMP.source || 'unknown'}`
   )
 } else if (IS_PACKAGED) {
   // Dev builds without a stamp are normal; packaged builds without one
   // mean the bootstrap won't know what to clone. Surface clearly.
   console.error(
-    '[hermes] WARNING: no install-stamp.json found in packaged build. First-launch bootstrap will not have a pinned ref to install.'
+    '[sonic] WARNING: no install-stamp.json found in packaged build. First-launch bootstrap will not have a pinned ref to install.'
   )
 }
 
-// HERMES_HOME — the user-facing root for everything Hermes-related. Mirrors
-// scripts/install.ps1's $HermesHome and scripts/install.sh's $HERMES_HOME.
+// SONIC_HOME — the user-facing root for everything Sonic-related. Mirrors
+// scripts/install.ps1's $SonicHome and scripts/install.sh's $SONIC_HOME.
 //
 // Defaults:
-//   Windows: %LOCALAPPDATA%\hermes (matches install.ps1)
-//   macOS / Linux: ~/.hermes (matches install.sh)
+//   Windows: %LOCALAPPDATA%\sonic (matches install.ps1)
+//   macOS / Linux: ~/.sonic (matches install.sh)
 //
-// Special case for Windows: if the user has a legacy ~/.hermes directory
+// Special case for Windows: if the user has a legacy ~/.sonic directory
 // (e.g., from a prior pip install or a manual setup) AND no
-// %LOCALAPPDATA%\hermes yet, prefer the legacy path so we don't orphan their
+// %LOCALAPPDATA%\sonic yet, prefer the legacy path so we don't orphan their
 // existing config / sessions / .env. New installs go to %LOCALAPPDATA%.
 //
-// HERMES_DESKTOP_USER_DATA_DIR (used by test:desktop:fresh) puts the sandbox
-// HERMES_HOME beneath the throwaway userData dir so a fresh-install run never
-// touches the user's real ~/.hermes / %LOCALAPPDATA%\hermes.
-function resolveHermesHome() {
-  if (process.env.HERMES_HOME) return path.resolve(process.env.HERMES_HOME)
-  if (USER_DATA_OVERRIDE) return path.join(path.resolve(USER_DATA_OVERRIDE), 'hermes-home')
+// SONIC_DESKTOP_USER_DATA_DIR (used by test:desktop:fresh) puts the sandbox
+// SONIC_HOME beneath the throwaway userData dir so a fresh-install run never
+// touches the user's real ~/.sonic / %LOCALAPPDATA%\sonic.
+function resolveSonicHome() {
+  if (process.env.SONIC_HOME) return path.resolve(process.env.SONIC_HOME)
+  if (USER_DATA_OVERRIDE) return path.join(path.resolve(USER_DATA_OVERRIDE), 'sonic-home')
   if (IS_WINDOWS && process.env.LOCALAPPDATA) {
-    const localappdata = path.join(process.env.LOCALAPPDATA, 'hermes')
-    const legacy = path.join(app.getPath('home'), '.hermes')
+    const localappdata = path.join(process.env.LOCALAPPDATA, 'sonic')
+    const legacy = path.join(app.getPath('home'), '.sonic')
     // Migrate transparently to LOCALAPPDATA, but honour an existing legacy
-    // ~/.hermes setup (no LOCALAPPDATA install yet) so users don't lose state.
+    // ~/.sonic setup (no LOCALAPPDATA install yet) so users don't lose state.
     if (!directoryExists(localappdata) && directoryExists(legacy)) return legacy
     return localappdata
   }
-  return path.join(app.getPath('home'), '.hermes')
+  return path.join(app.getPath('home'), '.sonic')
 }
 
-const HERMES_HOME = resolveHermesHome()
-// ACTIVE_HERMES_ROOT — the canonical mutable Hermes install. Same path
+const SONIC_HOME = resolveSonicHome()
+// ACTIVE_SONIC_ROOT — the canonical mutable Sonic install. Same path
 // install.ps1 / install.sh use, so a desktop-only user and a CLI-only user end
 // up with identical layouts and can share one install.
-const ACTIVE_HERMES_ROOT = path.join(HERMES_HOME, 'hermes-agent')
+const ACTIVE_SONIC_ROOT = path.join(SONIC_HOME, 'sonic-agent')
 // VENV_ROOT — venv lives inside the repo, exactly like install.ps1 does it.
-const VENV_ROOT = path.join(ACTIVE_HERMES_ROOT, 'venv')
+const VENV_ROOT = path.join(ACTIVE_SONIC_ROOT, 'venv')
 // BOOTSTRAP_COMPLETE_MARKER — written by the first-launch bootstrap runner
 // (Phase 1D) after install.ps1 has completed all stages and the user has
 // finished initial configuration. Presence of this marker means the install
 // is in a known-good state and we can skip the bootstrap flow on subsequent
-// boots, going straight to `resolveHermesBackend()`. Missing or stale marker
+// boots, going straight to `resolveSonicBackend()`. Missing or stale marker
 // means we re-run the bootstrap; install.ps1's stages are idempotent so a
 // re-run on an already-good install just discovers everything in place.
 //
-// We deliberately put the marker INSIDE ACTIVE_HERMES_ROOT (not alongside)
+// We deliberately put the marker INSIDE ACTIVE_SONIC_ROOT (not alongside)
 // so that deleting the checkout to start fresh also deletes the marker --
 // avoids the confusing "marker exists but checkout is gone" state.
-const BOOTSTRAP_COMPLETE_MARKER = path.join(ACTIVE_HERMES_ROOT, '.hermes-bootstrap-complete')
+const BOOTSTRAP_COMPLETE_MARKER = path.join(ACTIVE_SONIC_ROOT, '.sonic-bootstrap-complete')
 const BOOTSTRAP_MARKER_SCHEMA_VERSION = 1
 
 const DESKTOP_CONNECTION_CONFIG_PATH = path.join(app.getPath('userData'), 'connection.json')
 const DESKTOP_UPDATE_CONFIG_PATH = path.join(app.getPath('userData'), 'updates.json')
 // Branch we track for self-update. The GUI work has merged to main, so this
 // tracks main. User can also override at runtime via
-// hermesDesktop.updates.setBranch().
+// sonicDesktop.updates.setBranch().
 const DEFAULT_UPDATE_BRANCH = 'main'
-// desktop.log lives under HERMES_HOME/logs/ so it sits next to agent.log,
-// errors.log, gateway.log produced by hermes_logging.setup_logging — one log
+// desktop.log lives under SONIC_HOME/logs/ so it sits next to agent.log,
+// errors.log, gateway.log produced by sonic_logging.setup_logging — one log
 // directory per user, regardless of which UI surface produced the line.
-const DESKTOP_LOG_PATH = path.join(HERMES_HOME, 'logs', 'desktop.log')
+const DESKTOP_LOG_PATH = path.join(SONIC_HOME, 'logs', 'desktop.log')
 const DESKTOP_LOG_FLUSH_MS = 120
 const DESKTOP_LOG_BUFFER_MAX_CHARS = 64 * 1024
-const BOOT_FAKE_MODE = process.env.HERMES_DESKTOP_BOOT_FAKE === '1'
+const BOOT_FAKE_MODE = process.env.SONIC_DESKTOP_BOOT_FAKE === '1'
 const BOOT_FAKE_STEP_MS = (() => {
-  const raw = Number.parseInt(String(process.env.HERMES_DESKTOP_BOOT_FAKE_STEP_MS || ''), 10)
+  const raw = Number.parseInt(String(process.env.SONIC_DESKTOP_BOOT_FAKE_STEP_MS || ''), 10)
   if (!Number.isFinite(raw) || raw <= 0) return 650
   return Math.max(120, raw)
 })()
-const APP_NAME = 'Hermes'
+const APP_NAME = 'Sonic'
 const TITLEBAR_HEIGHT = 34
 const MACOS_TRAFFIC_LIGHTS_HEIGHT = 14
 const WINDOW_BUTTON_POSITION = {
@@ -365,16 +365,16 @@ app.setAboutPanelOptions({
 })
 
 let mainWindow = null
-let hermesProcess = null
+let sonicProcess = null
 let connectionPromise = null
 // Latched bootstrap failure: when the first-launch install fails, we hold
-// onto the error so subsequent startHermes() calls (e.g. the renderer's
+// onto the error so subsequent startSonic() calls (e.g. the renderer's
 // ensureGatewayOpen retrying after the WS won't open) return the same error
 // instead of re-running install.ps1 in a hot loop. Cleared explicitly by
 // the renderer's "Reload and retry" path or by quitting the app.
 let bootstrapFailure = null
 let connectionConfigCache = null
-const hermesLog = []
+const sonicLog = []
 const previewWatchers = new Map()
 let previewShortcutActive = false
 let desktopLogBuffer = ''
@@ -383,7 +383,7 @@ let desktopLogFlushPromise = Promise.resolve()
 let bootProgressState = {
   error: null,
   fakeMode: BOOT_FAKE_MODE,
-  message: 'Waiting to start Hermes backend',
+  message: 'Waiting to start Sonic backend',
   phase: 'idle',
   progress: 0,
   running: false,
@@ -431,10 +431,10 @@ function scheduleDesktopLogFlush() {
 function rememberLog(chunk) {
   const text = String(chunk || '').trim()
   if (!text) return
-  const lines = text.split(/\r?\n/).map(line => `[hermes] ${line}`)
-  hermesLog.push(...lines)
-  if (hermesLog.length > 300) {
-    hermesLog.splice(0, hermesLog.length - 300)
+  const lines = text.split(/\r?\n/).map(line => `[sonic] ${line}`)
+  sonicLog.push(...lines)
+  if (sonicLog.length > 300) {
+    sonicLog.splice(0, sonicLog.length - 300)
   }
 
   desktopLogBuffer += `${lines.join('\n')}\n`
@@ -504,7 +504,7 @@ function ensureWslWindowsFonts() {
 
   try {
     const confDir = path.join(app.getPath('home'), '.config', 'fontconfig', 'conf.d')
-    const confPath = path.join(confDir, '99-hermes-wsl-windows-fonts.conf')
+    const confPath = path.join(confDir, '99-sonic-wsl-windows-fonts.conf')
     let existing = ''
     try {
       existing = fs.readFileSync(confPath, 'utf8')
@@ -542,7 +542,7 @@ function broadcastBootProgress() {
   if (!mainWindow || mainWindow.isDestroyed()) return
   const { webContents } = mainWindow
   if (!webContents || webContents.isDestroyed()) return
-  webContents.send('hermes:boot-progress', bootProgressState)
+  webContents.send('sonic:boot-progress', bootProgressState)
 }
 
 // Bootstrap-event broadcast channel + state. The bootstrap runner emits a
@@ -556,7 +556,7 @@ function broadcastBootProgress() {
 //   - log:      bounded ring buffer of the last 200 log lines for the
 //               "Show details" affordance in the overlay
 //
-// The snapshot is queryable via the hermes:bootstrap:get IPC handler so a
+// The snapshot is queryable via the sonic:bootstrap:get IPC handler so a
 // reloaded renderer (e.g. devtools reload during dev) recovers state.
 // Bootstrap log ring: bounded buffer so a long install (npm + playwright
 // downloads can emit thousands of lines) doesn't grow unbounded in memory
@@ -618,7 +618,7 @@ function broadcastBootstrapEvent(ev) {
   if (!mainWindow || mainWindow.isDestroyed()) return
   const { webContents } = mainWindow
   if (!webContents || webContents.isDestroyed()) return
-  webContents.send('hermes:bootstrap:event', ev)
+  webContents.send('sonic:bootstrap:event', ev)
 }
 
 function getBootstrapState() {
@@ -745,12 +745,12 @@ function looksLikeDesktopAppBinary(commandPath) {
   )
 }
 
-function isHermesSourceRoot(root) {
-  return directoryExists(root) && fileExists(path.join(root, 'hermes_cli', 'main.py'))
+function isSonicSourceRoot(root) {
+  return directoryExists(root) && fileExists(path.join(root, 'sonic_cli', 'main.py'))
 }
 
 function findPythonForRoot(root) {
-  const override = process.env.HERMES_DESKTOP_PYTHON
+  const override = process.env.SONIC_DESKTOP_PYTHON
   if (override && fileExists(override)) return override
 
   const relativePaths = IS_WINDOWS
@@ -788,7 +788,7 @@ function findSystemPython() {
   //      miss real Python 3.13 installs (user-reported case).
   //
   // We also restrict ourselves to Python 3.11–3.13. 3.14 is the latest
-  // CPython but several Hermes deps (notably pywinpty's Rust-built
+  // CPython but several Sonic deps (notably pywinpty's Rust-built
   // windows_x86_64_msvc crate) don't yet publish 3.14 wheels, and
   // `pip install -e .` falls back to source-build, which fails without
   // a Rust toolchain. install.ps1 sidesteps this by pinning to 3.11
@@ -882,7 +882,7 @@ function findSystemPython() {
   return null
 }
 
-// findGitBash — locate bash.exe on Windows. Hermes' terminal tool requires
+// findGitBash — locate bash.exe on Windows. Sonic' terminal tool requires
 // bash (POSIX shell), and on Windows that's almost always Git for Windows'
 // bundled Git Bash. We check the same set of locations tools/environments/
 // local.py:_find_bash() checks at runtime, so a positive result here means
@@ -895,14 +895,14 @@ function findGitBash() {
     return findOnPath('bash')
   }
 
-  // install.ps1 drops PortableGit at %LOCALAPPDATA%\hermes\git\... — checked
+  // install.ps1 drops PortableGit at %LOCALAPPDATA%\sonic\git\... — checked
   // first so users who installed via install.ps1 are detected before we
   // start probing system-wide locations.
   const localAppData = process.env.LOCALAPPDATA || ''
   const candidates = []
   if (localAppData) {
-    candidates.push(path.join(localAppData, 'hermes', 'git', 'bin', 'bash.exe'))
-    candidates.push(path.join(localAppData, 'hermes', 'git', 'usr', 'bin', 'bash.exe'))
+    candidates.push(path.join(localAppData, 'sonic', 'git', 'bin', 'bash.exe'))
+    candidates.push(path.join(localAppData, 'sonic', 'git', 'usr', 'bin', 'bash.exe'))
   }
 
   // Standard Git for Windows install locations.
@@ -927,7 +927,7 @@ function getVenvPython(venvRoot) {
 }
 
 // resolveGitBinary — locate git.exe on Windows. A fresh installer-driven
-// install only has PortableGit under %LOCALAPPDATA%\hermes\git (never on
+// install only has PortableGit under %LOCALAPPDATA%\sonic\git (never on
 // PATH), so a bare spawn('git') ENOENTs and self-update checks fail with
 // "Couldn't check for updates". Mirror findGitBash: PortableGit first, then
 // standard Git-for-Windows locations, then PATH. Cached after first probe.
@@ -942,8 +942,8 @@ function resolveGitBinary() {
   const localAppData = process.env.LOCALAPPDATA || ''
   const candidates = []
   if (localAppData) {
-    candidates.push(path.join(localAppData, 'hermes', 'git', 'cmd', 'git.exe'))
-    candidates.push(path.join(localAppData, 'hermes', 'git', 'bin', 'git.exe'))
+    candidates.push(path.join(localAppData, 'sonic', 'git', 'cmd', 'git.exe'))
+    candidates.push(path.join(localAppData, 'sonic', 'git', 'bin', 'git.exe'))
   }
   candidates.push(path.join(process.env['ProgramFiles'] || 'C:\\Program Files', 'Git', 'cmd', 'git.exe'))
   candidates.push(path.join(process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)', 'Git', 'cmd', 'git.exe'))
@@ -955,11 +955,11 @@ function resolveGitBinary() {
   return _gitBinaryCache
 }
 
-function recentHermesLog() {
-  return hermesLog.slice(-20).join('\n')
+function recentSonicLog() {
+  return sonicLog.slice(-20).join('\n')
 }
 
-// ─── Self-update (git-pull against the running backend's hermes root) ──────
+// ─── Self-update (git-pull against the running backend's sonic root) ──────
 
 function readDesktopUpdateConfig() {
   try {
@@ -977,16 +977,16 @@ function writeDesktopUpdateConfig(config) {
 }
 
 // Match the backend's source resolution but bias toward a real git checkout.
-// Dev → SOURCE_REPO_ROOT. Packaged/CLI install → ACTIVE_HERMES_ROOT.
-// HERMES_DESKTOP_HERMES_ROOT always wins so devs can pin a worktree.
+// Dev → SOURCE_REPO_ROOT. Packaged/CLI install → ACTIVE_SONIC_ROOT.
+// SONIC_DESKTOP_SONIC_ROOT always wins so devs can pin a worktree.
 function resolveUpdateRoot() {
   const candidates = [
-    process.env.HERMES_DESKTOP_HERMES_ROOT && path.resolve(process.env.HERMES_DESKTOP_HERMES_ROOT),
-    !IS_PACKAGED && isHermesSourceRoot(SOURCE_REPO_ROOT) ? SOURCE_REPO_ROOT : null,
-    isHermesSourceRoot(ACTIVE_HERMES_ROOT) ? ACTIVE_HERMES_ROOT : null
+    process.env.SONIC_DESKTOP_SONIC_ROOT && path.resolve(process.env.SONIC_DESKTOP_SONIC_ROOT),
+    !IS_PACKAGED && isSonicSourceRoot(SOURCE_REPO_ROOT) ? SOURCE_REPO_ROOT : null,
+    isSonicSourceRoot(ACTIVE_SONIC_ROOT) ? ACTIVE_SONIC_ROOT : null
   ].filter(Boolean)
 
-  return candidates.find(c => directoryExists(path.join(c, '.git'))) || candidates[0] || ACTIVE_HERMES_ROOT
+  return candidates.find(c => directoryExists(path.join(c, '.git'))) || candidates[0] || ACTIVE_SONIC_ROOT
 }
 
 function runGit(args, options = {}) {
@@ -1020,7 +1020,7 @@ function emitUpdateProgress(payload) {
   const merged = { stage: 'idle', message: '', percent: null, error: null, ...payload, at: Date.now() }
   rememberLog(`[updates] ${merged.stage}: ${merged.message || merged.error || ''}`)
   for (const window of BrowserWindow.getAllWindows()) {
-    window.webContents.send('hermes:updates:progress', merged)
+    window.webContents.send('sonic:updates:progress', merged)
   }
 }
 
@@ -1057,7 +1057,7 @@ async function checkUpdates() {
       supported: false,
       reason: 'not-a-git-checkout',
       message: `${updateRoot} isn't a git checkout — desktop self-update only runs against a source install.`,
-      hermesRoot: updateRoot,
+      sonicRoot: updateRoot,
       branch
     }
   }
@@ -1070,7 +1070,7 @@ async function checkUpdates() {
       branch,
       error: 'fetch-failed',
       message: firstLine(fetched.stderr) || 'git fetch failed.',
-      hermesRoot: updateRoot,
+      sonicRoot: updateRoot,
       fetchedAt: Date.now()
     }
   }
@@ -1096,7 +1096,7 @@ async function checkUpdates() {
     targetSha,
     commits,
     dirty: dirtyStr.length > 0,
-    hermesRoot: updateRoot,
+    sonicRoot: updateRoot,
     fetchedAt: Date.now()
   }
 }
@@ -1122,15 +1122,15 @@ async function readCommitLog(cwd, branch) {
 let updateInFlight = false
 
 // Resolve the staged updater binary. The Tauri installer copies itself to
-// HERMES_HOME/hermes-setup.exe on a successful install (see
-// apps/bootstrap-installer paths::copy_self_to_hermes_home). That binary owns
-// ALL repo mutation — running `hermes update` + rebuilding the desktop — so
+// SONIC_HOME/sonic-setup.exe on a successful install (see
+// apps/bootstrap-installer paths::copy_self_to_sonic_home). That binary owns
+// ALL repo mutation — running `sonic update` + rebuilding the desktop — so
 // the desktop never touches its own bits while running. Returns null when the
 // updater isn't staged (e.g. a dev/source run that never went through the
 // installer); callers degrade gracefully.
 function resolveUpdaterBinary() {
-  const name = IS_WINDOWS ? 'hermes-setup.exe' : 'hermes-setup'
-  const candidate = path.join(HERMES_HOME, name)
+  const name = IS_WINDOWS ? 'sonic-setup.exe' : 'sonic-setup'
+  const candidate = path.join(SONIC_HOME, name)
   return fileExists(candidate) ? candidate : null
 }
 
@@ -1138,8 +1138,8 @@ function resolveUpdaterBinary() {
 //
 // The desktop is a pure consumer: it does NOT git pull / pip install / rebuild
 // itself (the old open-coded git dance lived here and drifted from
-// `hermes update`). Instead we spawn the staged Hermes-Setup binary with
-// --update and quit, so it can run `hermes update` (which refuses while we
+// `sonic update`). Instead we spawn the staged Sonic-Setup binary with
+// --update and quit, so it can run `sonic update` (which refuses while we
 // hold the venv shim) and rebuild the desktop with our exe already gone.
 //
 // Detection (checkUpdates / commit changelog / "N behind") stays in the UI;
@@ -1153,45 +1153,45 @@ async function applyUpdates(opts = {}) {
   try {
     const updater = resolveUpdaterBinary()
     if (!updater && !IS_WINDOWS) {
-      // macOS/Linux drag-install: no staged Tauri hermes-setup. Unlike Windows
+      // macOS/Linux drag-install: no staged Tauri sonic-setup. Unlike Windows
       // (where a venv-shim file lock forces the quit→hand-off→rebuild dance),
       // there's no mandatory file locking here, so the desktop can drive the
-      // whole update itself: `hermes update` (backend) + `hermes desktop
+      // whole update itself: `sonic update` (backend) + `sonic desktop
       // --build-only` (OS-aware GUI rebuild), then swap the running .app bundle
       // with the freshly built one and relaunch.
       return await applyUpdatesPosixInApp(opts)
     }
     if (!updater) {
       // No staged updater binary — this is a CLI-installed user (they ran
-      // `hermes desktop`, never the Tauri installer that self-copies
-      // hermes-setup.exe into HERMES_HOME). They DO have a working `hermes`
+      // `sonic desktop`, never the Tauri installer that self-copies
+      // sonic-setup.exe into SONIC_HOME). They DO have a working `sonic`
       // on PATH / in the venv, so the correct path is the one-liner in their
       // native medium. We show the EXACT command, branch-pinned to the
-      // checkout they're on — bare `hermes update` defaults to main and would
+      // checkout they're on — bare `sonic update` defaults to main and would
       // silently switch a bb/gui (or any non-main) install off-branch. Mirror
       // the GUI button's contract: append --branch <current> for non-main
       // checkouts, keep it bare for main so the card stays clean.
       const updateRoot = resolveUpdateRoot()
-      let command = 'hermes update'
+      let command = 'sonic update'
       try {
         const head = await runGit(['rev-parse', '--abbrev-ref', 'HEAD'], { cwd: updateRoot })
         const current = (head.stdout || '').trim()
         if (head.code === 0 && current && current !== 'HEAD') {
           const branch = await resolveHealedBranch(updateRoot, current)
-          if (branch !== 'main') command = `hermes update --branch ${branch}`
+          if (branch !== 'main') command = `sonic update --branch ${branch}`
         }
       } catch {
-        // Best-effort: fall back to bare `hermes update` if branch detection fails.
+        // Best-effort: fall back to bare `sonic update` if branch detection fails.
       }
       rememberLog(`[updates] no staged updater; surfacing manual \`${command}\` for CLI install at ${updateRoot}`)
       emitUpdateProgress({ stage: 'manual', message: command, percent: null })
-      return { ok: true, manual: true, command, hermesRoot: updateRoot }
+      return { ok: true, manual: true, command, sonicRoot: updateRoot }
     }
 
-    emitUpdateProgress({ stage: 'restart', message: 'Handing off to the Hermes updater…', percent: 100 })
+    emitUpdateProgress({ stage: 'restart', message: 'Handing off to the Sonic updater…', percent: 100 })
 
     // Detached so the updater outlives this process — it needs us GONE before
-    // `hermes update` will run (the venv shim is locked while we live).
+    // `sonic update` will run (the venv shim is locked while we live).
     const child = spawn(updater, ['--update'], {
       detached: true,
       stdio: 'ignore',
@@ -1213,12 +1213,12 @@ async function applyUpdates(opts = {}) {
   }
 }
 
-// Resolve the hermes CLI to drive an in-app update: prefer the venv shim in
-// the install we're updating, fall back to `hermes` on PATH.
-function resolveHermesCliBinary(updateRoot) {
-  const venvHermes = path.join(updateRoot, 'venv', 'bin', 'hermes')
-  if (fileExists(venvHermes)) return venvHermes
-  return findOnPath('hermes') || null
+// Resolve the sonic CLI to drive an in-app update: prefer the venv shim in
+// the install we're updating, fall back to `sonic` on PATH.
+function resolveSonicCliBinary(updateRoot) {
+  const venvSonic = path.join(updateRoot, 'venv', 'bin', 'sonic')
+  if (fileExists(venvSonic)) return venvSonic
+  return findOnPath('sonic') || null
 }
 
 // Spawn a command and stream each output line to the update progress channel.
@@ -1261,25 +1261,25 @@ function shellQuote(value) {
   return `'${String(value).replace(/'/g, `'\\''`)}'`
 }
 
-// macOS/Linux in-app update: backend (`hermes update`) + OS-aware GUI rebuild
-// (`hermes desktop --build-only`), then atomically swap the running .app bundle
+// macOS/Linux in-app update: backend (`sonic update`) + OS-aware GUI rebuild
+// (`sonic desktop --build-only`), then atomically swap the running .app bundle
 // with the freshly built one and relaunch. Degrades to "backend updated,
 // restart to load the new GUI" if the swap can't be performed.
 async function applyUpdatesPosixInApp(opts = {}) {
   const updateRoot = resolveUpdateRoot()
-  const hermes = resolveHermesCliBinary(updateRoot)
-  if (!hermes) {
-    emitUpdateProgress({ stage: 'manual', message: 'hermes update', percent: null })
-    return { ok: true, manual: true, command: 'hermes update', hermesRoot: updateRoot }
+  const sonic = resolveSonicCliBinary(updateRoot)
+  if (!sonic) {
+    emitUpdateProgress({ stage: 'manual', message: 'sonic update', percent: null })
+    return { ok: true, manual: true, command: 'sonic update', sonicRoot: updateRoot }
   }
 
-  // Put the Hermes-managed Node and the venv on PATH so `hermes desktop`'s
+  // Put the Sonic-managed Node and the venv on PATH so `sonic desktop`'s
   // npm build can find them on a machine with no system Node.
-  const extraPath = [path.join(HERMES_HOME, 'node', 'bin'), path.join(updateRoot, 'venv', 'bin')]
+  const extraPath = [path.join(SONIC_HOME, 'node', 'bin'), path.join(updateRoot, 'venv', 'bin')]
     .filter(Boolean)
     .join(path.delimiter)
   const env = {
-    HERMES_HOME,
+    SONIC_HOME,
     PATH: [extraPath, process.env.PATH].filter(Boolean).join(path.delimiter)
   }
 
@@ -1296,19 +1296,19 @@ async function applyUpdatesPosixInApp(opts = {}) {
     // best effort
   }
 
-  emitUpdateProgress({ stage: 'update', message: 'Updating Hermes (git + dependencies)…', percent: 10 })
-  const updated = await runStreamedUpdate(hermes, ['update', '--yes', ...branchArgs], {
+  emitUpdateProgress({ stage: 'update', message: 'Updating Sonic (git + dependencies)…', percent: 10 })
+  const updated = await runStreamedUpdate(sonic, ['update', '--yes', ...branchArgs], {
     cwd: updateRoot,
     env,
     stage: 'update'
   })
   if (updated.code !== 0) {
-    emitUpdateProgress({ stage: 'error', message: 'hermes update failed.', error: updated.error || 'update-failed' })
-    return { ok: false, error: 'hermes update failed' }
+    emitUpdateProgress({ stage: 'error', message: 'sonic update failed.', error: updated.error || 'update-failed' })
+    return { ok: false, error: 'sonic update failed' }
   }
 
   emitUpdateProgress({ stage: 'rebuild', message: 'Rebuilding the desktop app…', percent: 60 })
-  const rebuilt = await runStreamedUpdate(hermes, ['desktop', '--build-only'], {
+  const rebuilt = await runStreamedUpdate(sonic, ['desktop', '--build-only'], {
     cwd: updateRoot,
     env,
     stage: 'rebuild'
@@ -1316,15 +1316,15 @@ async function applyUpdatesPosixInApp(opts = {}) {
   if (rebuilt.code !== 0) {
     emitUpdateProgress({
       stage: 'error',
-      message: 'Backend updated, but the desktop rebuild failed. Restart Hermes to retry.',
+      message: 'Backend updated, but the desktop rebuild failed. Restart Sonic to retry.',
       error: rebuilt.error || 'rebuild-failed'
     })
     return { ok: false, backendUpdated: true, error: 'desktop rebuild failed' }
   }
 
   const rebuiltApp = [
-    path.join(updateRoot, 'apps', 'desktop', 'release', 'mac-arm64', 'Hermes.app'),
-    path.join(updateRoot, 'apps', 'desktop', 'release', 'mac', 'Hermes.app')
+    path.join(updateRoot, 'apps', 'desktop', 'release', 'mac-arm64', 'Sonic.app'),
+    path.join(updateRoot, 'apps', 'desktop', 'release', 'mac', 'Sonic.app')
   ].find(directoryExists)
   const targetApp = runningAppBundle()
 
@@ -1333,7 +1333,7 @@ async function applyUpdatesPosixInApp(opts = {}) {
   if (!rebuiltApp || !targetApp) {
     emitUpdateProgress({
       stage: 'done',
-      message: 'Backend updated. Restart Hermes to load the new version.',
+      message: 'Backend updated. Restart Sonic to load the new version.',
       percent: 100
     })
     return { ok: true, backendUpdated: true, rebuiltApp: rebuiltApp || null }
@@ -1353,23 +1353,23 @@ for _ in $(seq 1 240); do
   sleep 0.5
 done
 if [ "$SRC" != "$DST" ]; then
-  if /usr/bin/ditto "$SRC" "$DST.hermes-update-new"; then
-    rm -rf "$DST.hermes-update-old" 2>/dev/null || true
-    mv "$DST" "$DST.hermes-update-old" 2>/dev/null || rm -rf "$DST"
-    mv "$DST.hermes-update-new" "$DST"
-    rm -rf "$DST.hermes-update-old" 2>/dev/null || true
+  if /usr/bin/ditto "$SRC" "$DST.sonic-update-new"; then
+    rm -rf "$DST.sonic-update-old" 2>/dev/null || true
+    mv "$DST" "$DST.sonic-update-old" 2>/dev/null || rm -rf "$DST"
+    mv "$DST.sonic-update-new" "$DST"
+    rm -rf "$DST.sonic-update-old" 2>/dev/null || true
   fi
 fi
 /usr/bin/xattr -dr com.apple.quarantine "$DST" 2>/dev/null || true
 /usr/bin/open "$DST"
 `
-  const scriptPath = path.join(app.getPath('temp'), `hermes-desktop-update-${Date.now()}.sh`)
+  const scriptPath = path.join(app.getPath('temp'), `sonic-desktop-update-${Date.now()}.sh`)
   try {
     fs.writeFileSync(scriptPath, swapScript, { mode: 0o755 })
   } catch (err) {
     emitUpdateProgress({
       stage: 'done',
-      message: 'Backend + app updated. Restart Hermes to load the new version.',
+      message: 'Backend + app updated. Restart Sonic to load the new version.',
       percent: 100
     })
     rememberLog(`[updates] could not write swap script: ${err.message}; rebuilt app at ${rebuiltApp}`)
@@ -1416,13 +1416,13 @@ function isBootstrapComplete() {
   if (marker.schemaVersion !== BOOTSTRAP_MARKER_SCHEMA_VERSION) return false
   if (typeof marker.pinnedCommit !== 'string' || marker.pinnedCommit.length < 7) return false
   // We DELIBERATELY do NOT verify that the checkout is currently at the
-  // pinned commit -- users update via the in-app update path or `hermes
+  // pinned commit -- users update via the in-app update path or `sonic
   // update`, which moves HEAD legitimately. The marker just attests "we
   // ran the bootstrap successfully at least once." We DO additionally require
   // a runnable venv: an interrupted or split-home install can leave the marker
   // + checkout without a venv, and trusting that spawns a dead backend
   // ("gateway offline") instead of re-running bootstrap to repair it.
-  return isHermesSourceRoot(ACTIVE_HERMES_ROOT) && fileExists(getVenvPython(VENV_ROOT))
+  return isSonicSourceRoot(ACTIVE_SONIC_ROOT) && fileExists(getVenvPython(VENV_ROOT))
 }
 
 function writeBootstrapMarker(payload) {
@@ -1439,7 +1439,7 @@ function writeBootstrapMarker(payload) {
 }
 
 function resolveWebDist() {
-  const override = process.env.HERMES_DESKTOP_WEB_DIST
+  const override = process.env.SONIC_DESKTOP_WEB_DIST
   if (override && directoryExists(path.resolve(override))) return path.resolve(override)
 
   const unpackedDist = path.join(unpackedPathFor(APP_ROOT), 'dist')
@@ -1453,9 +1453,9 @@ function resolveRendererIndex() {
   return candidates.find(fileExists) || candidates[0]
 }
 
-function resolveHermesCwd() {
+function resolveSonicCwd() {
   const candidates = [
-    process.env.HERMES_DESKTOP_CWD,
+    process.env.SONIC_DESKTOP_CWD,
     process.env.INIT_CWD,
     process.cwd(),
     !IS_PACKAGED ? SOURCE_REPO_ROOT : null,
@@ -1479,7 +1479,7 @@ function createPythonBackend(root, label, dashboardArgs, options = {}) {
     kind: 'python',
     label,
     command: python,
-    args: ['-m', 'hermes_cli.main', ...dashboardArgs],
+    args: ['-m', 'sonic_cli.main', ...dashboardArgs],
     env: {
       PYTHONPATH: [root, process.env.PYTHONPATH].filter(Boolean).join(path.delimiter)
     },
@@ -1489,7 +1489,7 @@ function createPythonBackend(root, label, dashboardArgs, options = {}) {
   }
 }
 
-// createActiveBackend — build a backend pointing at ACTIVE_HERMES_ROOT, the
+// createActiveBackend — build a backend pointing at ACTIVE_SONIC_ROOT, the
 // canonical install location shared with the CLI installer. The venv at
 // VENV_ROOT may not exist yet on first run; bootstrap=true tells
 // ensureRuntime() to create / refresh it before launch.
@@ -1498,88 +1498,88 @@ function createActiveBackend(dashboardArgs) {
 
   return {
     kind: 'python',
-    label: `Hermes at ${ACTIVE_HERMES_ROOT}`,
+    label: `Sonic at ${ACTIVE_SONIC_ROOT}`,
     command: fileExists(venvPython) ? venvPython : findSystemPython(),
-    args: ['-m', 'hermes_cli.main', ...dashboardArgs],
+    args: ['-m', 'sonic_cli.main', ...dashboardArgs],
     env: {
-      PYTHONPATH: [ACTIVE_HERMES_ROOT, process.env.PYTHONPATH].filter(Boolean).join(path.delimiter)
+      PYTHONPATH: [ACTIVE_SONIC_ROOT, process.env.PYTHONPATH].filter(Boolean).join(path.delimiter)
     },
-    root: ACTIVE_HERMES_ROOT,
+    root: ACTIVE_SONIC_ROOT,
     bootstrap: true,
     shell: false
   }
 }
 
-function resolveHermesBackend(dashboardArgs) {
-  // 1. Explicit override -- HERMES_DESKTOP_HERMES_ROOT points at a developer
+function resolveSonicBackend(dashboardArgs) {
+  // 1. Explicit override -- SONIC_DESKTOP_SONIC_ROOT points at a developer
   //    checkout. Honour it as-is (no bootstrap; the user is driving).
-  const overrideRoot = process.env.HERMES_DESKTOP_HERMES_ROOT && path.resolve(process.env.HERMES_DESKTOP_HERMES_ROOT)
-  if (overrideRoot && isHermesSourceRoot(overrideRoot)) {
-    const backend = createPythonBackend(overrideRoot, `Hermes source at ${overrideRoot}`, dashboardArgs)
+  const overrideRoot = process.env.SONIC_DESKTOP_SONIC_ROOT && path.resolve(process.env.SONIC_DESKTOP_SONIC_ROOT)
+  if (overrideRoot && isSonicSourceRoot(overrideRoot)) {
+    const backend = createPythonBackend(overrideRoot, `Sonic source at ${overrideRoot}`, dashboardArgs)
     if (backend) return backend
   }
 
   // 2. Development source -- when running `npm run dev` from a checkout, the
   //    cloned repo at SOURCE_REPO_ROOT takes precedence over ACTIVE and any
-  //    installed `hermes` on PATH so local Python edits are actually exercised.
-  //    (In dev with no checkout, SOURCE_REPO_ROOT won't pass isHermesSourceRoot.)
-  if (!IS_PACKAGED && isHermesSourceRoot(SOURCE_REPO_ROOT)) {
-    const backend = createPythonBackend(SOURCE_REPO_ROOT, `Hermes source at ${SOURCE_REPO_ROOT}`, dashboardArgs)
+  //    installed `sonic` on PATH so local Python edits are actually exercised.
+  //    (In dev with no checkout, SOURCE_REPO_ROOT won't pass isSonicSourceRoot.)
+  if (!IS_PACKAGED && isSonicSourceRoot(SOURCE_REPO_ROOT)) {
+    const backend = createPythonBackend(SOURCE_REPO_ROOT, `Sonic source at ${SOURCE_REPO_ROOT}`, dashboardArgs)
     if (backend) return backend
   }
 
-  // 3. Bootstrap-complete ACTIVE_HERMES_ROOT -- the canonical install at
-  //    %LOCALAPPDATA%\hermes\hermes-agent (Windows) or ~/.hermes/hermes-agent.
+  // 3. Bootstrap-complete ACTIVE_SONIC_ROOT -- the canonical install at
+  //    %LOCALAPPDATA%\sonic\sonic-agent (Windows) or ~/.sonic/sonic-agent.
   //    The bootstrap marker means install.ps1 stages finished and the user
   //    completed initial configuration; we trust the install and go straight
-  //    to spawning hermes. Updates flow through the in-app update path
-  //    (applyUpdates -> git pull) or `hermes update` from the CLI.
+  //    to spawning sonic. Updates flow through the in-app update path
+  //    (applyUpdates -> git pull) or `sonic update` from the CLI.
   if (isBootstrapComplete()) {
     return createActiveBackend(dashboardArgs)
   }
 
-  // 4. Existing `hermes` on PATH -- installed via install.ps1 / install.sh from
+  // 4. Existing `sonic` on PATH -- installed via install.ps1 / install.sh from
   //    a previous tool-only setup, or pip-installed system-wide. Use it but
   //    do NOT write a bootstrap marker; the user did this themselves and we
   //    don't want to take ownership of an install we didn't perform.
-  //    HERMES_DESKTOP_IGNORE_EXISTING=1 forces the bootstrap path for testing.
-  if (process.env.HERMES_DESKTOP_IGNORE_EXISTING !== '1') {
-    let hermesCommand = null
-    const hermesOverride = process.env.HERMES_DESKTOP_HERMES
+  //    SONIC_DESKTOP_IGNORE_EXISTING=1 forces the bootstrap path for testing.
+  if (process.env.SONIC_DESKTOP_IGNORE_EXISTING !== '1') {
+    let sonicCommand = null
+    const sonicOverride = process.env.SONIC_DESKTOP_SONIC
 
-    if (hermesOverride) {
-      const resolvedOverride = findOnPath(hermesOverride)
+    if (sonicOverride) {
+      const resolvedOverride = findOnPath(sonicOverride)
       if (resolvedOverride) {
-        hermesCommand = resolvedOverride
-      } else if (!isWindowsBinaryPathInWsl(hermesOverride, { isWsl: IS_WSL })) {
-        hermesCommand = hermesOverride
+        sonicCommand = resolvedOverride
+      } else if (!isWindowsBinaryPathInWsl(sonicOverride, { isWsl: IS_WSL })) {
+        sonicCommand = sonicOverride
       } else {
-        rememberLog(`Ignoring Windows Hermes override under WSL: ${hermesOverride}`)
+        rememberLog(`Ignoring Windows Sonic override under WSL: ${sonicOverride}`)
       }
     } else {
-      hermesCommand = findOnPath('hermes')
+      sonicCommand = findOnPath('sonic')
     }
 
-    if (hermesCommand) {
-      if (looksLikeDesktopAppBinary(hermesCommand)) {
-        rememberLog(`Ignoring desktop app executable on PATH while resolving Hermes CLI: ${hermesCommand}`)
-        hermesCommand = null
+    if (sonicCommand) {
+      if (looksLikeDesktopAppBinary(sonicCommand)) {
+        rememberLog(`Ignoring desktop app executable on PATH while resolving Sonic CLI: ${sonicCommand}`)
+        sonicCommand = null
       }
     }
 
-    if (hermesCommand) {
-      // Smoke-test the candidate before trusting it. A `hermes` shim
+    if (sonicCommand) {
+      // Smoke-test the candidate before trusting it. A `sonic` shim
       // left behind by a half-uninstalled pip install (or a venv
       // entry-point pointing at a deleted interpreter) still resolves
       // via findOnPath but explodes on spawn -- the user then sees a
       // dead backend instead of the first-launch installer. The cheap
       // `--version` probe (see backend-probes.cjs) catches that case
       // and lets the resolver fall through to step 6 / bootstrap.
-      const shellForProbe = isCommandScript(hermesCommand)
-      if (verifyHermesCli(hermesCommand, { shell: shellForProbe })) {
+      const shellForProbe = isCommandScript(sonicCommand)
+      if (verifySonicCli(sonicCommand, { shell: shellForProbe })) {
         return {
-          label: `existing Hermes CLI at ${hermesCommand}`,
-          command: hermesCommand,
+          label: `existing Sonic CLI at ${sonicCommand}`,
+          command: sonicCommand,
           args: dashboardArgs,
           bootstrap: false,
           env: {},
@@ -1588,36 +1588,36 @@ function resolveHermesBackend(dashboardArgs) {
         }
       }
       rememberLog(
-        `Ignoring existing Hermes CLI at ${hermesCommand}: --version probe failed; falling through to bootstrap.`
+        `Ignoring existing Sonic CLI at ${sonicCommand}: --version probe failed; falling through to bootstrap.`
       )
     }
   }
 
-  // 5. Last-ditch: pip-installed hermes_cli module via system Python.
+  // 5. Last-ditch: pip-installed sonic_cli module via system Python.
   //    Same rationale as #4 -- the user installed this; we use it but don't
   //    take ownership.
   const python = findSystemPython()
   if (python) {
     // Same smoke-test rationale as step 4: a system Python in the
     // SUPPORTED_VERSIONS range can be registered (PEP 514) without
-    // having hermes_cli installed -- common on dev boxes that have
+    // having sonic_cli installed -- common on dev boxes that have
     // a python.org install from prior unrelated work. Returning that
     // backend hands the spawn step a guaranteed ModuleNotFoundError.
     // Verify the import works before trusting the candidate; on
     // failure, fall through to step 6 so the bootstrap runner pulls
-    // a uv-managed 3.11 into %LOCALAPPDATA%\hermes\hermes-agent\venv.
-    if (canImportHermesCli(python)) {
+    // a uv-managed 3.11 into %LOCALAPPDATA%\sonic\sonic-agent\venv.
+    if (canImportSonicCli(python)) {
       return {
         kind: 'python',
-        label: `installed hermes_cli module via ${python}`,
+        label: `installed sonic_cli module via ${python}`,
         command: python,
-        args: ['-m', 'hermes_cli.main', ...dashboardArgs],
+        args: ['-m', 'sonic_cli.main', ...dashboardArgs],
         bootstrap: false,
         env: {},
         shell: false
       }
     }
-    rememberLog(`Ignoring system Python ${python}: hermes_cli is not importable; falling through to bootstrap.`)
+    rememberLog(`Ignoring system Python ${python}: sonic_cli is not importable; falling through to bootstrap.`)
   }
 
   // 6. Nothing usable yet -- signal the bootstrap runner that we need to
@@ -1627,19 +1627,19 @@ function resolveHermesBackend(dashboardArgs) {
   //    explaining what's missing.
   //
   //    We deliberately do NOT throw here -- throwing inside
-  //    resolveHermesBackend was the old "no payload" path and forced the
+  //    resolveSonicBackend was the old "no payload" path and forced the
   //    user into a dead end. With the bootstrap protocol, "no install yet"
   //    is a recoverable state the GUI can drive through.
   return {
     kind: 'bootstrap-needed',
-    label: 'Hermes Agent not installed yet; bootstrap required',
+    label: 'Sonic Agent not installed yet; bootstrap required',
     command: null,
     args: dashboardArgs,
     bootstrap: true,
     env: {},
     shell: false,
     // Hints for the bootstrap runner / UI layer:
-    activeRoot: ACTIVE_HERMES_ROOT,
+    activeRoot: ACTIVE_SONIC_ROOT,
     installStamp: INSTALL_STAMP, // may be null in dev
     isPackaged: IS_PACKAGED,
     platform: process.platform
@@ -1652,7 +1652,7 @@ async function ensureRuntime(backend) {
     return backend
   }
 
-  // backend.kind === 'bootstrap-needed' means resolveHermesBackend couldn't
+  // backend.kind === 'bootstrap-needed' means resolveSonicBackend couldn't
   // find anything to spawn. Hand off to the bootstrap runner which drives the
   // platform installer, writes the bootstrap-complete marker on success, then
   // we re-resolve to get the now-installed backend.
@@ -1662,7 +1662,7 @@ async function ensureRuntime(backend) {
   // will rewire startup to spawn the window first and route bootstrap events
   // to a renderer-side install overlay.
   if (backend.kind === 'bootstrap-needed') {
-    rememberLog('[bootstrap] no Hermes install found; starting first-launch bootstrap')
+    rememberLog('[bootstrap] no Sonic install found; starting first-launch bootstrap')
 
     // Eagerly flip the bootstrap UI state to 'active' so the renderer
     // shows the install overlay BEFORE the runner finishes fetching the
@@ -1682,8 +1682,8 @@ async function ensureRuntime(backend) {
       installStamp: backend.installStamp,
       activeRoot: backend.activeRoot,
       sourceRepoRoot: SOURCE_REPO_ROOT,
-      hermesHome: HERMES_HOME,
-      logRoot: path.join(HERMES_HOME, 'logs'),
+      sonicHome: SONIC_HOME,
+      logRoot: path.join(SONIC_HOME, 'logs'),
       onEvent: ev => {
         // Tee every bootstrap event to (a) the desktop log for forensics
         // and (b) the renderer for live progress UI. Either may be absent;
@@ -1701,15 +1701,15 @@ async function ensureRuntime(backend) {
 
     if (!bootstrapResult.ok) {
       const bootstrapError = new Error(
-        `Hermes bootstrap failed${bootstrapResult.failedStage ? ` at stage '${bootstrapResult.failedStage}'` : ''}: ` +
+        `Sonic bootstrap failed${bootstrapResult.failedStage ? ` at stage '${bootstrapResult.failedStage}'` : ''}: ` +
           `${bootstrapResult.error || 'unknown error'}. ` +
-          `Check ${path.join(HERMES_HOME, 'logs', 'desktop.log')} for the full transcript.`
+          `Check ${path.join(SONIC_HOME, 'logs', 'desktop.log')} for the full transcript.`
       )
       bootstrapError.isBootstrapFailure = true
       bootstrapError.failedStage = bootstrapResult.failedStage || null
-      // Latch the failure so subsequent startHermes() calls return this
+      // Latch the failure so subsequent startSonic() calls return this
       // same error without re-running install.ps1.  Cleared by the
-      // hermes:bootstrap:reset IPC (renderer's "Reload and retry").
+      // sonic:bootstrap:reset IPC (renderer's "Reload and retry").
       bootstrapFailure = bootstrapError
       throw bootstrapError
     }
@@ -1717,7 +1717,7 @@ async function ensureRuntime(backend) {
     rememberLog('[bootstrap] bootstrap complete; marker written. Re-resolving backend.')
     // Re-resolve now that the install exists. The new resolution lands in
     // step 3 (bootstrap-complete marker) and we recurse to wire venvPython.
-    return ensureRuntime(resolveHermesBackend(backend.args))
+    return ensureRuntime(resolveSonicBackend(backend.args))
   }
 
   // bootstrap=true with a real backend (createActiveBackend path) means we
@@ -1726,25 +1726,25 @@ async function ensureRuntime(backend) {
   // sync flow exited through, minus all the factory/pip/marker machinery
   // (install.ps1 owns those concerns now and the bootstrap-complete marker
   // attests they ran successfully).
-  if (!isHermesSourceRoot(ACTIVE_HERMES_ROOT)) {
+  if (!isSonicSourceRoot(ACTIVE_SONIC_ROOT)) {
     throw new Error(
-      `Hermes install at ${ACTIVE_HERMES_ROOT} is missing or incomplete. ` +
+      `Sonic install at ${ACTIVE_SONIC_ROOT} is missing or incomplete. ` +
         'Reinstall via the desktop installer or scripts/install.ps1.'
     )
   }
 
-  // On Windows, preflight Git Bash. Hermes' terminal tool calls bash.exe
+  // On Windows, preflight Git Bash. Sonic' terminal tool calls bash.exe
   // directly (tools/environments/local.py); without it the agent can't run
   // terminal commands. install.ps1's Stage-Git puts PortableGit at
-  // %LOCALAPPDATA%\hermes\git\, which findGitBash() picks up, so for any
+  // %LOCALAPPDATA%\sonic\git\, which findGitBash() picks up, so for any
   // user who completed the bootstrap this is a no-op. For users who got
-  // here via an external `hermes` on PATH, this check still helps.
+  // here via an external `sonic` on PATH, this check still helps.
   if (IS_WINDOWS && !findGitBash()) {
     throw new Error(
-      'Git for Windows is required for Hermes on Windows (provides Git Bash, ' +
+      'Git for Windows is required for Sonic on Windows (provides Git Bash, ' +
         "which the agent's terminal tool uses). Install it from " +
         'https://git-scm.com/download/win or run `winget install -e --id Git.Git`, ' +
-        'then relaunch Hermes.'
+        'then relaunch Sonic.'
     )
   }
 
@@ -1754,19 +1754,19 @@ async function ensureRuntime(backend) {
     // means we have a half-installed checkout: .git exists, source files
     // exist, but venv is missing or broken. This shouldn't happen in
     // normal flow because isBootstrapComplete() requires
-    // isHermesSourceRoot() and the bootstrap writes the marker only after
+    // isSonicSourceRoot() and the bootstrap writes the marker only after
     // install.ps1 succeeds. If we hit this, the user (or a deleted venv)
     // broke the invariant; tell them to re-run the install.
     throw new Error(
-      `Hermes venv missing at ${VENV_ROOT}. Re-run the desktop installer or ` + '`scripts/install.ps1` to rebuild it.'
+      `Sonic venv missing at ${VENV_ROOT}. Re-run the desktop installer or ` + '`scripts/install.ps1` to rebuild it.'
     )
   }
 
   backend.command = venvPython
-  backend.label = `Hermes at ${ACTIVE_HERMES_ROOT} (venv: ${VENV_ROOT})`
+  backend.label = `Sonic at ${ACTIVE_SONIC_ROOT} (venv: ${VENV_ROOT})`
   updateBootProgress({
     phase: 'runtime.ready',
-    message: 'Hermes runtime is ready',
+    message: 'Sonic runtime is ready',
     progress: 82,
     running: true,
     error: null
@@ -1800,7 +1800,7 @@ function fetchJson(url, token, options = {}) {
     const timeoutMs = resolveTimeoutMs(options.timeoutMs, DEFAULT_FETCH_TIMEOUT_MS)
 
     if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-      reject(new Error(`Unsupported Hermes backend URL protocol: ${parsed.protocol}`))
+      reject(new Error(`Unsupported Sonic backend URL protocol: ${parsed.protocol}`))
       return
     }
 
@@ -1810,7 +1810,7 @@ function fetchJson(url, token, options = {}) {
         method: options.method || 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'X-Hermes-Session-Token': token,
+          'X-Sonic-Session-Token': token,
           ...(body ? { 'Content-Length': String(body.length) } : {})
         }
       },
@@ -1837,7 +1837,7 @@ function fetchJson(url, token, options = {}) {
             reject(
               new Error(
                 `Expected JSON from ${url} but got HTML (status ${res.statusCode}). ` +
-                  'The endpoint is likely missing on the Hermes backend.'
+                  'The endpoint is likely missing on the Sonic backend.'
               )
             )
             return
@@ -1853,7 +1853,7 @@ function fetchJson(url, token, options = {}) {
 
     req.on('error', reject)
     req.setTimeout(timeoutMs, () => {
-      req.destroy(new Error(`Timed out connecting to Hermes backend after ${timeoutMs}ms`))
+      req.destroy(new Error(`Timed out connecting to Sonic backend after ${timeoutMs}ms`))
     })
     if (body) req.write(body)
     req.end()
@@ -2007,7 +2007,7 @@ function fetchHtmlTitleWithCurl(rawUrl) {
 
 function getLinkTitleSession() {
   if (linkTitleSession || !app.isReady()) return linkTitleSession
-  linkTitleSession = session.fromPartition('hermes:link-titles', { cache: false })
+  linkTitleSession = session.fromPartition('sonic:link-titles', { cache: false })
   linkTitleSession.webRequest.onBeforeRequest((details, callback) => {
     callback({ cancel: RENDER_TITLE_BLOCKED_RESOURCES.has(details.resourceType) })
   })
@@ -2221,7 +2221,7 @@ function expandUserPath(filePath) {
 
 function previewFileTarget(rawTarget, baseDir) {
   const raw = String(rawTarget || '').trim()
-  const base = baseDir ? path.resolve(expandUserPath(baseDir)) : resolveHermesCwd()
+  const base = baseDir ? path.resolve(expandUserPath(baseDir)) : resolveSonicCwd()
   const filePath = raw.startsWith('file:') ? fileURLToPath(raw) : path.resolve(base, expandUserPath(raw))
   let resolved = filePath
 
@@ -2311,7 +2311,7 @@ function sendPreviewFileChanged(payload) {
   if (!mainWindow || mainWindow.isDestroyed()) return
   const { webContents } = mainWindow
   if (!webContents || webContents.isDestroyed()) return
-  webContents.send('hermes:preview-file-changed', payload)
+  webContents.send('sonic:preview-file-changed', payload)
 }
 
 function watchPreviewFile(rawUrl) {
@@ -2364,7 +2364,7 @@ function closePreviewWatchers() {
   }
 }
 
-async function waitForHermes(baseUrl, token) {
+async function waitForSonic(baseUrl, token) {
   const deadline = Date.now() + 45_000
   let lastError = null
 
@@ -2378,7 +2378,7 @@ async function waitForHermes(baseUrl, token) {
     }
   }
 
-  throw new Error(`Hermes backend did not become ready: ${lastError?.message || 'timeout'}`)
+  throw new Error(`Sonic backend did not become ready: ${lastError?.message || 'timeout'}`)
 }
 
 function getWindowButtonPosition() {
@@ -2406,14 +2406,14 @@ function sendBackendExit(payload) {
   if (!mainWindow || mainWindow.isDestroyed()) return
   const { webContents } = mainWindow
   if (!webContents || webContents.isDestroyed()) return
-  webContents.send('hermes:backend-exit', payload)
+  webContents.send('sonic:backend-exit', payload)
 }
 
 function sendClosePreviewRequested() {
   if (!mainWindow || mainWindow.isDestroyed()) return
   const { webContents } = mainWindow
   if (!webContents || webContents.isDestroyed()) return
-  webContents.send('hermes:close-preview-requested')
+  webContents.send('sonic:close-preview-requested')
 }
 
 function getAppIconPath() {
@@ -2424,7 +2424,7 @@ function sendOpenUpdatesRequested() {
   if (!mainWindow || mainWindow.isDestroyed()) return
   const { webContents } = mainWindow
   if (!webContents || webContents.isDestroyed()) return
-  webContents.send('hermes:open-updates')
+  webContents.send('sonic:open-updates')
   if (!mainWindow.isVisible()) mainWindow.show()
   mainWindow.focus()
 }
@@ -2439,7 +2439,7 @@ function sendWindowStateChanged(nextIsFullscreen) {
     state.isFullscreen = nextIsFullscreen
   }
 
-  webContents.send('hermes:window-state-changed', state)
+  webContents.send('sonic:window-state-changed', state)
 }
 
 function buildApplicationMenu() {
@@ -2800,7 +2800,7 @@ function sanitizeDesktopConnectionConfig(config = readDesktopConnectionConfig())
     remoteUrl: String(config.remote?.url || ''),
     remoteTokenPreview: tokenPreview(remoteToken),
     remoteTokenSet: Boolean(remoteToken),
-    envOverride: Boolean(process.env.HERMES_DESKTOP_REMOTE_URL)
+    envOverride: Boolean(process.env.SONIC_DESKTOP_REMOTE_URL)
   }
 }
 
@@ -2833,14 +2833,14 @@ function coerceDesktopConnectionConfig(input = {}, existing = readDesktopConnect
 }
 
 function resolveRemoteBackend() {
-  const rawEnvUrl = process.env.HERMES_DESKTOP_REMOTE_URL
-  const rawEnvToken = process.env.HERMES_DESKTOP_REMOTE_TOKEN
+  const rawEnvUrl = process.env.SONIC_DESKTOP_REMOTE_URL
+  const rawEnvToken = process.env.SONIC_DESKTOP_REMOTE_TOKEN
 
   if (rawEnvUrl) {
     if (!rawEnvToken) {
       throw new Error(
-        'HERMES_DESKTOP_REMOTE_URL is set but HERMES_DESKTOP_REMOTE_TOKEN is not. ' +
-          'Both must be provided to connect to a remote Hermes backend.'
+        'SONIC_DESKTOP_REMOTE_URL is set but SONIC_DESKTOP_REMOTE_TOKEN is not. ' +
+          'Both must be provided to connect to a remote Sonic backend.'
       )
     }
 
@@ -2865,7 +2865,7 @@ function resolveRemoteBackend() {
 
   if (!token) {
     throw new Error(
-      'Remote Hermes gateway is selected, but no session token is saved. ' +
+      'Remote Sonic gateway is selected, but no session token is saved. ' +
         'Open Settings → Gateway and save a token, or switch back to Local.'
     )
   }
@@ -2889,7 +2889,7 @@ async function testDesktopConnectionConfig(input = {}) {
           baseUrl: normalizeRemoteBaseUrl(config.remote.url),
           token: decryptDesktopSecret(config.remote.token)
         }
-      : resolveRemoteBackend() || (await startHermes())
+      : resolveRemoteBackend() || (await startSonic())
   const status = await fetchJson(`${remote.baseUrl}/api/status`, remote.token, { timeoutMs: 8_000 })
 
   return {
@@ -2912,20 +2912,20 @@ function resetBootProgressForReconnect() {
   )
 }
 
-function resetHermesConnection() {
+function resetSonicConnection() {
   connectionPromise = null
 
-  if (hermesProcess && !hermesProcess.killed) {
-    hermesProcess.kill('SIGTERM')
+  if (sonicProcess && !sonicProcess.killed) {
+    sonicProcess.kill('SIGTERM')
   }
 
-  hermesProcess = null
+  sonicProcess = null
   resetBootProgressForReconnect()
 }
 
-async function startHermes() {
+async function startSonic() {
   // Latched-failure short-circuit: once bootstrap has failed in this
-  // process, every subsequent startHermes() call re-throws the same error
+  // process, every subsequent startSonic() call re-throws the same error
   // without re-running install.ps1. This prevents the renderer's
   // ensureGatewayOpen retries (and any other getConnection callers) from
   // restarting a 5-10 minute install loop while the user is still reading
@@ -2936,14 +2936,14 @@ async function startHermes() {
   if (connectionPromise) return connectionPromise
 
   connectionPromise = (async () => {
-    await advanceBootProgress('backend.resolve', 'Resolving Hermes backend', 8)
+    await advanceBootProgress('backend.resolve', 'Resolving Sonic backend', 8)
     const remote = resolveRemoteBackend()
     if (remote) {
-      await advanceBootProgress('backend.remote', `Connecting to remote Hermes backend at ${remote.baseUrl}`, 24)
-      await waitForHermes(remote.baseUrl, remote.token)
+      await advanceBootProgress('backend.remote', `Connecting to remote Sonic backend at ${remote.baseUrl}`, 24)
+      await waitForSonic(remote.baseUrl, remote.token)
       updateBootProgress({
         phase: 'backend.ready',
-        message: 'Remote Hermes backend is ready',
+        message: 'Remote Sonic backend is ready',
         progress: 94,
         running: true,
         error: null
@@ -2954,7 +2954,7 @@ async function startHermes() {
         source: remote.source,
         token: remote.token,
         wsUrl: remote.wsUrl,
-        logs: hermesLog.slice(-80),
+        logs: sonicLog.slice(-80),
         ...getWindowState()
       }
     }
@@ -2963,66 +2963,66 @@ async function startHermes() {
     const port = await pickPort()
     const token = crypto.randomBytes(32).toString('base64url')
     const dashboardArgs = ['dashboard', '--no-open', '--tui', '--host', '127.0.0.1', '--port', String(port)]
-    await advanceBootProgress('backend.runtime', 'Resolving Hermes runtime', 28)
-    const backend = await ensureRuntime(resolveHermesBackend(dashboardArgs))
-    const hermesCwd = resolveHermesCwd()
+    await advanceBootProgress('backend.runtime', 'Resolving Sonic runtime', 28)
+    const backend = await ensureRuntime(resolveSonicBackend(dashboardArgs))
+    const sonicCwd = resolveSonicCwd()
     const webDist = resolveWebDist()
 
-    await advanceBootProgress('backend.spawn', `Starting Hermes backend via ${backend.label}`, 84)
-    rememberLog(`Starting Hermes backend via ${backend.label}`)
+    await advanceBootProgress('backend.spawn', `Starting Sonic backend via ${backend.label}`, 84)
+    rememberLog(`Starting Sonic backend via ${backend.label}`)
 
-    hermesProcess = spawn(backend.command, backend.args, {
-      cwd: hermesCwd,
+    sonicProcess = spawn(backend.command, backend.args, {
+      cwd: sonicCwd,
       env: {
         ...process.env,
-        // Explicitly pin HERMES_HOME for the child so Python's get_hermes_home()
-        // resolves to the SAME location our resolveHermesHome() picked. Without
-        // this pin, Python falls back to ~/.hermes on every platform — fine on
+        // Explicitly pin SONIC_HOME for the child so Python's get_sonic_home()
+        // resolves to the SAME location our resolveSonicHome() picked. Without
+        // this pin, Python falls back to ~/.sonic on every platform — fine on
         // mac/linux (where our default matches), but on Windows our default is
-        // %LOCALAPPDATA%\hermes, which differs from C:\Users\<u>\.hermes.
+        // %LOCALAPPDATA%\sonic, which differs from C:\Users\<u>\.sonic.
         // Mismatch would split config / sessions / .env / logs across two
-        // directories. install.ps1 sets HERMES_HOME via setx; the desktop
+        // directories. install.ps1 sets SONIC_HOME via setx; the desktop
         // can't reliably do that, so we set it inline for every spawn.
-        HERMES_HOME,
+        SONIC_HOME,
         ...backend.env,
-        HERMES_DASHBOARD_SESSION_TOKEN: token,
-        HERMES_DASHBOARD_TUI: '1',
-        HERMES_WEB_DIST: webDist
+        SONIC_DASHBOARD_SESSION_TOKEN: token,
+        SONIC_DASHBOARD_TUI: '1',
+        SONIC_WEB_DIST: webDist
       },
       shell: backend.shell,
       stdio: ['ignore', 'pipe', 'pipe']
     })
 
-    hermesProcess.stdout.on('data', rememberLog)
-    hermesProcess.stderr.on('data', rememberLog)
+    sonicProcess.stdout.on('data', rememberLog)
+    sonicProcess.stderr.on('data', rememberLog)
     let backendReady = false
     let rejectBackendStart = null
     const backendStartFailed = new Promise((_resolve, reject) => {
       rejectBackendStart = reject
     })
-    hermesProcess.once('error', error => {
-      rememberLog(`Hermes backend failed to start: ${error.message}`)
+    sonicProcess.once('error', error => {
+      rememberLog(`Sonic backend failed to start: ${error.message}`)
       updateBootProgress(
         {
           error: error.message,
-          message: `Hermes backend failed to start: ${error.message}`,
+          message: `Sonic backend failed to start: ${error.message}`,
           phase: 'backend.error',
           running: false
         },
         { allowDecrease: true }
       )
-      hermesProcess = null
+      sonicProcess = null
       connectionPromise = null
       sendBackendExit({ code: null, signal: null, error: error.message })
       rejectBackendStart?.(error)
     })
-    hermesProcess.once('exit', (code, signal) => {
-      rememberLog(`Hermes backend exited (${signal || code})`)
-      hermesProcess = null
+    sonicProcess.once('exit', (code, signal) => {
+      rememberLog(`Sonic backend exited (${signal || code})`)
+      sonicProcess = null
       connectionPromise = null
       sendBackendExit({ code, signal })
       if (!backendReady) {
-        const message = `Hermes backend exited before it became ready (${signal || code}).`
+        const message = `Sonic backend exited before it became ready (${signal || code}).`
         updateBootProgress(
           {
             error: message,
@@ -3034,19 +3034,19 @@ async function startHermes() {
         )
         rejectBackendStart?.(
           new Error(
-            `Hermes backend exited before it became ready (${signal || code}). Log: ${DESKTOP_LOG_PATH}\n${recentHermesLog()}`
+            `Sonic backend exited before it became ready (${signal || code}). Log: ${DESKTOP_LOG_PATH}\n${recentSonicLog()}`
           )
         )
       }
     })
 
     const baseUrl = `http://127.0.0.1:${port}`
-    await advanceBootProgress('backend.wait', 'Waiting for Hermes backend to become ready', 90)
-    await Promise.race([waitForHermes(baseUrl, token), backendStartFailed])
+    await advanceBootProgress('backend.wait', 'Waiting for Sonic backend to become ready', 90)
+    await Promise.race([waitForSonic(baseUrl, token), backendStartFailed])
     backendReady = true
     updateBootProgress({
       phase: 'backend.ready',
-      message: 'Hermes backend is ready. Finalizing desktop startup',
+      message: 'Sonic backend is ready. Finalizing desktop startup',
       progress: 94,
       running: true,
       error: null
@@ -3058,7 +3058,7 @@ async function startHermes() {
       source: 'local',
       token,
       wsUrl: `ws://127.0.0.1:${port}/api/ws?token=${encodeURIComponent(token)}`,
-      logs: hermesLog.slice(-80),
+      logs: sonicLog.slice(-80),
       ...getWindowState()
     }
   })().catch(error => {
@@ -3086,7 +3086,7 @@ function createWindow() {
     height: 800,
     minWidth: 900,
     minHeight: 620,
-    title: 'Hermes',
+    title: 'Sonic',
     // Frameless title bar on every platform so the renderer can paint the
     // "hide sidebar" button (and other left-side titlebar tools) flush with
     // the top edge — matching the macOS layout where the traffic lights sit
@@ -3153,14 +3153,14 @@ function createWindow() {
   mainWindow.webContents.once('did-finish-load', () => {
     broadcastBootProgress()
     sendWindowStateChanged()
-    startHermes().catch(error => rememberLog(error.stack || error.message))
+    startSonic().catch(error => rememberLog(error.stack || error.message))
   })
 }
 
-ipcMain.handle('hermes:connection', async () => startHermes())
-ipcMain.handle('hermes:bootstrap:reset', async () => {
+ipcMain.handle('sonic:connection', async () => startSonic())
+ipcMain.handle('sonic:bootstrap:reset', async () => {
   // Renderer's "Reload and retry" path. Clear the latched failure and
-  // reset connection state so the next startHermes() call restarts the
+  // reset connection state so the next startSonic() call restarts the
   // full backend flow (including a fresh runBootstrap pass).
   rememberLog('[bootstrap] reset requested by renderer; clearing latched failure')
   bootstrapFailure = null
@@ -3177,9 +3177,9 @@ ipcMain.handle('hermes:bootstrap:reset', async () => {
   }
   return { ok: true }
 })
-ipcMain.handle('hermes:bootstrap:repair', async () => {
+ipcMain.handle('sonic:bootstrap:repair', async () => {
   // Forceful repair: drop the bootstrap-complete marker so the next
-  // startHermes() re-runs the full installer (refreshing a broken/partial
+  // startSonic() re-runs the full installer (refreshing a broken/partial
   // venv), and clear any latched failure + live connection. The renderer
   // reloads afterwards to re-drive the boot flow from scratch.
   rememberLog('[bootstrap] repair requested by renderer; clearing marker + latched failure')
@@ -3191,33 +3191,33 @@ ipcMain.handle('hermes:bootstrap:repair', async () => {
     rememberLog(`[bootstrap] failed to remove marker during repair: ${error.message}`)
   }
   bootstrapFailure = null
-  resetHermesConnection()
+  resetSonicConnection()
   return { ok: true }
 })
-ipcMain.handle('hermes:boot-progress:get', async () => bootProgressState)
-ipcMain.handle('hermes:bootstrap:get', async () => getBootstrapState())
-ipcMain.handle('hermes:connection-config:get', async () => sanitizeDesktopConnectionConfig())
-ipcMain.handle('hermes:connection-config:test', async (_event, payload) => testDesktopConnectionConfig(payload))
-ipcMain.handle('hermes:connection-config:save', async (_event, payload) => {
+ipcMain.handle('sonic:boot-progress:get', async () => bootProgressState)
+ipcMain.handle('sonic:bootstrap:get', async () => getBootstrapState())
+ipcMain.handle('sonic:connection-config:get', async () => sanitizeDesktopConnectionConfig())
+ipcMain.handle('sonic:connection-config:test', async (_event, payload) => testDesktopConnectionConfig(payload))
+ipcMain.handle('sonic:connection-config:save', async (_event, payload) => {
   const config = coerceDesktopConnectionConfig(payload)
   writeDesktopConnectionConfig(config)
 
   return sanitizeDesktopConnectionConfig(config)
 })
-ipcMain.handle('hermes:connection-config:apply', async (_event, payload) => {
+ipcMain.handle('sonic:connection-config:apply', async (_event, payload) => {
   const config = coerceDesktopConnectionConfig(payload)
   writeDesktopConnectionConfig(config)
-  resetHermesConnection()
+  resetSonicConnection()
   setTimeout(() => mainWindow?.reload(), 150)
 
   return sanitizeDesktopConnectionConfig(config)
 })
 
-ipcMain.on('hermes:previewShortcutActive', (_event, active) => {
+ipcMain.on('sonic:previewShortcutActive', (_event, active) => {
   previewShortcutActive = Boolean(active)
 })
 
-ipcMain.handle('hermes:requestMicrophoneAccess', async () => {
+ipcMain.handle('sonic:requestMicrophoneAccess', async () => {
   if (!IS_MAC || typeof systemPreferences.askForMediaAccess !== 'function') {
     return true
   }
@@ -3225,8 +3225,8 @@ ipcMain.handle('hermes:requestMicrophoneAccess', async () => {
   return systemPreferences.askForMediaAccess('microphone')
 })
 
-ipcMain.handle('hermes:api', async (_event, request) => {
-  const connection = await startHermes()
+ipcMain.handle('sonic:api', async (_event, request) => {
+  const connection = await startSonic()
   const timeoutMs = resolveTimeoutMs(request?.timeoutMs, DEFAULT_FETCH_TIMEOUT_MS)
   return fetchJson(`${connection.baseUrl}${request.path}`, connection.token, {
     method: request?.method,
@@ -3235,17 +3235,17 @@ ipcMain.handle('hermes:api', async (_event, request) => {
   })
 })
 
-ipcMain.handle('hermes:notify', (_event, payload) => {
+ipcMain.handle('sonic:notify', (_event, payload) => {
   if (!Notification.isSupported()) return false
   new Notification({
-    title: payload?.title || 'Hermes',
+    title: payload?.title || 'Sonic',
     body: payload?.body || '',
     silent: Boolean(payload?.silent)
   }).show()
   return true
 })
 
-ipcMain.handle('hermes:readFileDataUrl', async (_event, filePath) => {
+ipcMain.handle('sonic:readFileDataUrl', async (_event, filePath) => {
   const { resolvedPath } = await resolveReadableFileForIpc(filePath, {
     maxBytes: DATA_URL_READ_MAX_BYTES,
     purpose: 'File preview'
@@ -3254,7 +3254,7 @@ ipcMain.handle('hermes:readFileDataUrl', async (_event, filePath) => {
   return `data:${mimeTypeForPath(resolvedPath)};base64,${data.toString('base64')}`
 })
 
-ipcMain.handle('hermes:readFileText', async (_event, filePath) => {
+ipcMain.handle('sonic:readFileText', async (_event, filePath) => {
   const { resolvedPath, stat } = await resolveReadableFileForIpc(filePath, {
     maxBytes: TEXT_PREVIEW_SOURCE_MAX_BYTES,
     purpose: 'Text preview'
@@ -3281,7 +3281,7 @@ ipcMain.handle('hermes:readFileText', async (_event, filePath) => {
   }
 })
 
-ipcMain.handle('hermes:selectPaths', async (_event, options = {}) => {
+ipcMain.handle('sonic:selectPaths', async (_event, options = {}) => {
   const properties = ['openFile']
   if (options?.directories) properties.push('openDirectory')
   if (options?.multiple !== false) properties.push('multiSelections')
@@ -3297,14 +3297,14 @@ ipcMain.handle('hermes:selectPaths', async (_event, options = {}) => {
   return result.filePaths
 })
 
-ipcMain.handle('hermes:writeClipboard', (_event, text) => {
+ipcMain.handle('sonic:writeClipboard', (_event, text) => {
   clipboard.writeText(String(text || ''))
   return true
 })
 
-ipcMain.handle('hermes:saveImageFromUrl', (_event, url) => saveImageFromUrl(String(url || '')))
+ipcMain.handle('sonic:saveImageFromUrl', (_event, url) => saveImageFromUrl(String(url || '')))
 
-ipcMain.handle('hermes:saveImageBuffer', async (_event, payload) => {
+ipcMain.handle('sonic:saveImageBuffer', async (_event, payload) => {
   const data = payload?.data
   if (!data) throw new Error('saveImageBuffer: missing data')
 
@@ -3312,7 +3312,7 @@ ipcMain.handle('hermes:saveImageBuffer', async (_event, payload) => {
   return writeComposerImage(buffer, payload?.ext || '.png')
 })
 
-ipcMain.handle('hermes:saveClipboardImage', async () => {
+ipcMain.handle('sonic:saveClipboardImage', async () => {
   const image = clipboard.readImage()
   if (!image || image.isEmpty()) {
     return ''
@@ -3321,15 +3321,15 @@ ipcMain.handle('hermes:saveClipboardImage', async () => {
   return writeComposerImage(image.toPNG(), '.png')
 })
 
-ipcMain.handle('hermes:normalizePreviewTarget', (_event, target, baseDir) =>
+ipcMain.handle('sonic:normalizePreviewTarget', (_event, target, baseDir) =>
   normalizePreviewTarget(String(target || ''), baseDir ? String(baseDir) : '')
 )
 
-ipcMain.handle('hermes:watchPreviewFile', (_event, url) => watchPreviewFile(String(url || '')))
+ipcMain.handle('sonic:watchPreviewFile', (_event, url) => watchPreviewFile(String(url || '')))
 
-ipcMain.handle('hermes:stopPreviewFileWatch', (_event, id) => stopPreviewFileWatch(String(id || '')))
+ipcMain.handle('sonic:stopPreviewFileWatch', (_event, id) => stopPreviewFileWatch(String(id || '')))
 
-ipcMain.on('hermes:titlebar-theme', (_event, payload) => {
+ipcMain.on('sonic:titlebar-theme', (_event, payload) => {
   if (!payload || !isHexColor(payload.background) || !isHexColor(payload.foreground)) {
     return
   }
@@ -3341,15 +3341,15 @@ ipcMain.on('hermes:titlebar-theme', (_event, payload) => {
   mainWindow?.setTitleBarOverlay?.(getTitleBarOverlayOptions())
 })
 
-ipcMain.handle('hermes:openExternal', (_event, url) => {
+ipcMain.handle('sonic:openExternal', (_event, url) => {
   if (!openExternalUrl(url)) {
     throw new Error('Invalid external URL')
   }
 })
 
-ipcMain.handle('hermes:fetchLinkTitle', (_event, url) => fetchLinkTitle(url))
+ipcMain.handle('sonic:fetchLinkTitle', (_event, url) => fetchLinkTitle(url))
 
-ipcMain.handle('hermes:logs:reveal', async () => {
+ipcMain.handle('sonic:logs:reveal', async () => {
   try {
     await fs.promises.mkdir(path.dirname(DESKTOP_LOG_PATH), { recursive: true })
     if (!fileExists(DESKTOP_LOG_PATH)) {
@@ -3362,7 +3362,7 @@ ipcMain.handle('hermes:logs:reveal', async () => {
   }
 })
 
-ipcMain.handle('hermes:logs:recent', async () => ({ path: DESKTOP_LOG_PATH, lines: hermesLog.slice(-200) }))
+ipcMain.handle('sonic:logs:recent', async () => ({ path: DESKTOP_LOG_PATH, lines: sonicLog.slice(-200) }))
 
 // Always-hidden noise (covers non-git projects too — gitignore would catch
 // these anyway when present, but we want the same hygiene without one).
@@ -3447,7 +3447,7 @@ function terminalShellEnv() {
 
   // Strip color/theme-detection vars that ride along when Electron is launched
   // from a non-tty agent shell (Cursor's runner sets NO_COLOR/FORCE_COLOR=0
-  // /TERM=dumb; some terminals set COLORFGBG which would flip Hermes' TUI into
+  // /TERM=dumb; some terminals set COLORFGBG which would flip Sonic' TUI into
   // light-mode). Our PTY is a real xterm-compat terminal — force truecolor.
   delete env.NO_COLOR
   delete env.FORCE_COLOR
@@ -3456,14 +3456,14 @@ function terminalShellEnv() {
   env.COLORTERM = 'truecolor'
   env.LC_CTYPE = env.LC_CTYPE || 'UTF-8'
   env.TERM = 'xterm-256color'
-  env.TERM_PROGRAM = 'Hermes'
+  env.TERM_PROGRAM = 'Sonic'
   env.TERM_PROGRAM_VERSION = app.getVersion()
 
   return env
 }
 
 function terminalChannel(id, suffix) {
-  return `hermes:terminal:${id}:${suffix}`
+  return `sonic:terminal:${id}:${suffix}`
 }
 
 function disposeTerminalSession(id) {
@@ -3484,7 +3484,7 @@ function disposeTerminalSession(id) {
   return true
 }
 
-ipcMain.handle('hermes:fs:readDir', async (_event, dirPath) => {
+ipcMain.handle('sonic:fs:readDir', async (_event, dirPath) => {
   const resolved = path.resolve(String(dirPath || ''))
 
   if (!resolved) {
@@ -3511,7 +3511,7 @@ ipcMain.handle('hermes:fs:readDir', async (_event, dirPath) => {
   }
 })
 
-ipcMain.handle('hermes:fs:gitRoot', async (_event, startPath) => {
+ipcMain.handle('sonic:fs:gitRoot', async (_event, startPath) => {
   const input = String(startPath || '')
   const resolved = input.startsWith('file:') ? fileURLToPath(input) : path.resolve(input)
 
@@ -3525,9 +3525,9 @@ ipcMain.handle('hermes:fs:gitRoot', async (_event, startPath) => {
   }
 })
 
-ipcMain.handle('hermes:terminal:start', async (event, payload = {}) => {
+ipcMain.handle('sonic:terminal:start', async (event, payload = {}) => {
   if (!nodePty) {
-    throw new Error('PTY support is unavailable. Reinstall desktop dependencies and restart Hermes.')
+    throw new Error('PTY support is unavailable. Reinstall desktop dependencies and restart Sonic.')
   }
 
   const id = crypto.randomUUID()
@@ -3563,7 +3563,7 @@ ipcMain.handle('hermes:terminal:start', async (event, payload = {}) => {
   return { cwd, id, shell: name }
 })
 
-ipcMain.handle('hermes:terminal:write', (_event, id, data) => {
+ipcMain.handle('sonic:terminal:write', (_event, id, data) => {
   const sessionInfo = terminalSessions.get(String(id || ''))
 
   if (!sessionInfo) {
@@ -3575,7 +3575,7 @@ ipcMain.handle('hermes:terminal:write', (_event, id, data) => {
   return true
 })
 
-ipcMain.handle('hermes:terminal:resize', (_event, id, size = {}) => {
+ipcMain.handle('sonic:terminal:resize', (_event, id, size = {}) => {
   const sessionInfo = terminalSessions.get(String(id || ''))
 
   if (!sessionInfo) {
@@ -3589,9 +3589,9 @@ ipcMain.handle('hermes:terminal:resize', (_event, id, size = {}) => {
 
   return true
 })
-ipcMain.handle('hermes:terminal:dispose', (_event, id) => disposeTerminalSession(String(id || '')))
+ipcMain.handle('sonic:terminal:dispose', (_event, id) => disposeTerminalSession(String(id || '')))
 
-ipcMain.handle('hermes:updates:check', async () =>
+ipcMain.handle('sonic:updates:check', async () =>
   checkUpdates().catch(error => ({
     supported: true,
     branch: readDesktopUpdateConfig().branch,
@@ -3601,7 +3601,7 @@ ipcMain.handle('hermes:updates:check', async () =>
   }))
 )
 
-ipcMain.handle('hermes:updates:apply', async (_event, payload) =>
+ipcMain.handle('sonic:updates:apply', async (_event, payload) =>
   applyUpdates(payload || {}).catch(error => ({
     ok: false,
     error: 'apply-failed',
@@ -3609,23 +3609,23 @@ ipcMain.handle('hermes:updates:apply', async (_event, payload) =>
   }))
 )
 
-ipcMain.handle('hermes:updates:branch:get', async () => readDesktopUpdateConfig())
+ipcMain.handle('sonic:updates:branch:get', async () => readDesktopUpdateConfig())
 
-ipcMain.handle('hermes:updates:branch:set', async (_event, name) => {
+ipcMain.handle('sonic:updates:branch:set', async (_event, name) => {
   const branch = typeof name === 'string' && name.trim() ? name.trim() : DEFAULT_UPDATE_BRANCH
   writeDesktopUpdateConfig({ branch })
   return { branch }
 })
 
-// Resolve the canonical Hermes version (the one `release.py` bumps in
-// hermes_cli/__init__.py + pyproject.toml) so the desktop About panel shows the
-// real Hermes version instead of the Electron app's own package.json version,
+// Resolve the canonical Sonic version (the one `release.py` bumps in
+// sonic_cli/__init__.py + pyproject.toml) so the desktop About panel shows the
+// real Sonic version instead of the Electron app's own package.json version,
 // which historically drifted (stuck at 0.0.2). Falls back to app.getVersion()
 // when the source tree can't be read (e.g. a packaged build without the repo).
-function resolveHermesVersion() {
+function resolveSonicVersion() {
   try {
     const root = resolveUpdateRoot()
-    const initPath = path.join(root, 'hermes_cli', '__init__.py')
+    const initPath = path.join(root, 'sonic_cli', '__init__.py')
     if (fileExists(initPath)) {
       const raw = fs.readFileSync(initPath, 'utf8')
       const match = raw.match(/__version__\s*=\s*["']([^"']+)["']/)
@@ -3639,12 +3639,12 @@ function resolveHermesVersion() {
   return app.getVersion()
 }
 
-ipcMain.handle('hermes:version', async () => ({
-  appVersion: resolveHermesVersion(),
+ipcMain.handle('sonic:version', async () => ({
+  appVersion: resolveSonicVersion(),
   electronVersion: process.versions.electron,
   nodeVersion: process.versions.node,
   platform: process.platform,
-  hermesRoot: resolveUpdateRoot()
+  sonicRoot: resolveUpdateRoot()
 }))
 
 app.whenReady().then(() => {
@@ -3670,8 +3670,8 @@ app.on('before-quit', () => {
   flushDesktopLogBufferSync()
   closePreviewWatchers()
 
-  if (hermesProcess && !hermesProcess.killed) {
-    hermesProcess.kill('SIGTERM')
+  if (sonicProcess && !sonicProcess.killed) {
+    sonicProcess.kill('SIGTERM')
   }
 })
 

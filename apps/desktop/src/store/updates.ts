@@ -48,7 +48,7 @@ export const setUpdateOverlayOpen = (open: boolean) => $updateOverlayOpen.set(op
 export const resetUpdateApplyState = () => $updateApply.set(IDLE)
 
 const UPDATE_TOAST_ID = 'desktop-update-available'
-const UPDATE_TOAST_DISMISSED_KEY = 'hermes:update-toast-dismissed-sha'
+const UPDATE_TOAST_DISMISSED_KEY = 'sonic:update-toast-dismissed-sha'
 
 // Must match tui_gateway's DESKTOP_BACKEND_CONTRACT that this build was written
 // against. The backend reports its own value in session runtime info; a lower
@@ -70,12 +70,12 @@ export function reportBackendContract(contract: number | undefined): void {
   }
 
   notify({
-    action: { label: 'Update Hermes', onClick: () => void applyUpdates() },
+    action: { label: 'Update Sonic', onClick: () => void applyUpdates() },
     durationMs: 0,
     id: SKEW_TOAST_ID,
     kind: 'warning',
     message:
-      'Your Hermes backend is older than this desktop build and may not work correctly. Update to align them.',
+      'Your Sonic backend is older than this desktop build and may not work correctly. Update to align them.',
     title: 'Backend out of date'
   })
 }
@@ -139,7 +139,7 @@ export function openUpdatesWindow(): void {
 }
 
 export async function checkUpdates(): Promise<DesktopUpdateStatus | null> {
-  const bridge = window.hermesDesktop?.updates
+  const bridge = window.sonicDesktop?.updates
 
   if (!bridge || $updateChecking.get()) {
     return $updateStatus.get()
@@ -173,7 +173,7 @@ export async function checkUpdates(): Promise<DesktopUpdateStatus | null> {
 }
 
 export async function applyUpdates(opts: DesktopUpdateApplyOptions = {}): Promise<DesktopUpdateApplyResult> {
-  const bridge = window.hermesDesktop?.updates
+  const bridge = window.sonicDesktop?.updates
 
   if (!bridge) {
     return { ok: false, error: 'unavailable', message: 'Desktop bridge unavailable.' }
@@ -186,15 +186,15 @@ export async function applyUpdates(opts: DesktopUpdateApplyOptions = {}): Promis
     const result = await bridge.apply(opts)
 
     // CLI install with no staged updater: not an error — the user just runs
-    // `hermes update` themselves. Land on a dedicated manual state so the
+    // `sonic update` themselves. Land on a dedicated manual state so the
     // overlay shows the command + copy button instead of a dead retry loop.
     if (result?.manual) {
       $updateApply.set({
         ...IDLE,
         applying: false,
         stage: 'manual',
-        message: result.command ?? 'hermes update',
-        command: result.command ?? 'hermes update'
+        message: result.command ?? 'sonic update',
+        command: result.command ?? 'sonic update'
       })
     }
 
@@ -234,7 +234,7 @@ export function startUpdatePoller(): void {
     return
   }
 
-  const bridge = window.hermesDesktop?.updates
+  const bridge = window.sonicDesktop?.updates
 
   if (!bridge) {
     return
@@ -242,7 +242,7 @@ export function startUpdatePoller(): void {
 
   pollerStarted = true
   void checkUpdates()
-  void window.hermesDesktop?.getVersion?.().then(info => $desktopVersion.set(info))
+  void window.sonicDesktop?.getVersion?.().then(info => $desktopVersion.set(info))
   bridge.onProgress(ingestProgress)
 
   window.addEventListener('focus', onFocus)

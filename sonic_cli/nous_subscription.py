@@ -30,8 +30,8 @@ _DEFAULT_PLATFORM_TOOLSETS = {
 }
 
 # Maps a tools_config provider's ``managed_nous_feature`` to the tool-pool
-# coverage category (hermes_cli.nous_account.TOOL_COVERAGE_CATEGORIES). Lets the
-# `hermes tools` picker scope its entitlement gate to the selected backend, so a
+# coverage category (sonic_cli.nous_account.TOOL_COVERAGE_CATEGORIES). Lets the
+# `sonic tools` picker scope its entitlement gate to the selected backend, so a
 # free-tool-pool user is allowed image gen but denied video gen at select time —
 # consistent with the per-category feature gates in get_nous_subscription_features.
 MANAGED_FEATURE_COVERAGE_CATEGORY: Dict[str, str] = {

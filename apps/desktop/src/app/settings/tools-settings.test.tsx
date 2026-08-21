@@ -6,7 +6,7 @@ const getToolsets = vi.fn()
 const toggleSkill = vi.fn()
 const toggleToolset = vi.fn()
 
-vi.mock('@/hermes', () => ({
+vi.mock('@/sonic', () => ({
   getSkills: () => getSkills(),
   getToolsets: () => getToolsets(),
   toggleSkill: (name: string, enabled: boolean) => toggleSkill(name, enabled),

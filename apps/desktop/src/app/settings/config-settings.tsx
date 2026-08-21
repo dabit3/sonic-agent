@@ -7,14 +7,14 @@ import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import {
   getElevenLabsVoices,
-  getHermesConfigDefaults,
-  getHermesConfigRecord,
-  getHermesConfigSchema,
-  saveHermesConfig
-} from '@/hermes'
+  getSonicConfigDefaults,
+  getSonicConfigRecord,
+  getSonicConfigSchema,
+  saveSonicConfig
+} from '@/sonic'
 import { cn } from '@/lib/utils'
 import { notify, notifyError } from '@/store/notifications'
-import type { ConfigFieldSchema, HermesConfigRecord } from '@/types/hermes'
+import type { ConfigFieldSchema, SonicConfigRecord } from '@/types/sonic'
 
 import { CONTROL_TEXT, EMPTY_SELECT_VALUE, FIELD_DESCRIPTIONS, FIELD_LABELS, SECTIONS } from './constants'
 import { enumOptionsFor, getNested, includesQuery, prettyName, setNested } from './helpers'
@@ -173,8 +173,8 @@ export function ConfigSettings({
   onConfigSaved?: () => void
   importInputRef: React.RefObject<HTMLInputElement | null>
 }) {
-  const [config, setConfig] = useState<HermesConfigRecord | null>(null)
-  const [_defaults, setDefaults] = useState<HermesConfigRecord | null>(null)
+  const [config, setConfig] = useState<SonicConfigRecord | null>(null)
+  const [_defaults, setDefaults] = useState<SonicConfigRecord | null>(null)
   const [schema, setSchema] = useState<Record<string, ConfigFieldSchema> | null>(null)
   const [elevenLabsVoiceOptions, setElevenLabsVoiceOptions] = useState<string[] | null>(null)
   const [elevenLabsVoiceLabels, setElevenLabsVoiceLabels] = useState<Record<string, string>>({})
@@ -183,7 +183,7 @@ export function ConfigSettings({
 
   useEffect(() => {
     let cancelled = false
-    Promise.all([getHermesConfigRecord(), getHermesConfigDefaults(), getHermesConfigSchema()])
+    Promise.all([getSonicConfigRecord(), getSonicConfigDefaults(), getSonicConfigSchema()])
       .then(([c, d, s]) => {
         if (cancelled) {
           return
@@ -230,7 +230,7 @@ export function ConfigSettings({
     const t = window.setTimeout(() => {
       void (async () => {
         try {
-          await saveHermesConfig(config)
+          await saveSonicConfig(config)
 
           if (saveVersionRef.current === v) {
             onConfigSaved?.()
@@ -246,7 +246,7 @@ export function ConfigSettings({
     return () => window.clearTimeout(t)
   }, [config, onConfigSaved, saveVersion])
 
-  const updateConfig = (next: HermesConfigRecord) => {
+  const updateConfig = (next: SonicConfigRecord) => {
     saveVersionRef.current += 1
     setConfig(next)
     setSaveVersion(saveVersionRef.current)
@@ -317,7 +317,7 @@ export function ConfigSettings({
   }
 
   if (!config || !schema) {
-    return <LoadingState label="Loading Hermes configuration..." />
+    return <LoadingState label="Loading Sonic configuration..." />
   }
 
   return (

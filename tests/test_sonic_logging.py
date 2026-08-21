@@ -361,8 +361,8 @@ class TestGatewayMode:
 class TestGuiMode:
     """setup_logging(mode='gui') creates a filtered gui.log."""
 
-    def test_gui_log_created(self, hermes_home):
-        hermes_logging.setup_logging(hermes_home=hermes_home, mode="gui")
+    def test_gui_log_created(self, sonic_home):
+        sonic_logging.setup_logging(sonic_home=sonic_home, mode="gui")
         root = logging.getLogger()
 
         gui_handlers = [
@@ -372,9 +372,9 @@ class TestGuiMode:
         ]
         assert len(gui_handlers) == 1
 
-    def test_gui_log_created_after_cli_init(self, hermes_home):
-        hermes_logging.setup_logging(hermes_home=hermes_home, mode="cli")
-        hermes_logging.setup_logging(hermes_home=hermes_home, mode="gui")
+    def test_gui_log_created_after_cli_init(self, sonic_home):
+        sonic_logging.setup_logging(sonic_home=sonic_home, mode="cli")
+        sonic_logging.setup_logging(sonic_home=sonic_home, mode="gui")
 
         root = logging.getLogger()
         gui_handlers = [
@@ -384,17 +384,17 @@ class TestGuiMode:
         ]
         assert len(gui_handlers) == 1
 
-    def test_gui_log_receives_only_gui_components(self, hermes_home):
-        hermes_logging.setup_logging(hermes_home=hermes_home, mode="gui")
+    def test_gui_log_receives_only_gui_components(self, sonic_home):
+        sonic_logging.setup_logging(sonic_home=sonic_home, mode="gui")
 
-        logging.getLogger("hermes_cli.web_server").info("dashboard online")
+        logging.getLogger("sonic_cli.web_server").info("dashboard online")
         logging.getLogger("tui_gateway.ws").info("ws connected")
         logging.getLogger("gateway.run").info("gateway event")
 
         for h in logging.getLogger().handlers:
             h.flush()
 
-        gui_log = hermes_home / "logs" / "gui.log"
+        gui_log = sonic_home / "logs" / "gui.log"
         assert gui_log.exists()
         content = gui_log.read_text()
         assert "dashboard online" in content
@@ -608,8 +608,8 @@ class TestComponentPrefixes:
         assert ("cron",) == sonic_logging.COMPONENT_PREFIXES["cron"]
 
     def test_gui_prefix(self):
-        prefixes = hermes_logging.COMPONENT_PREFIXES["gui"]
-        assert "hermes_cli.web_server" in prefixes
+        prefixes = sonic_logging.COMPONENT_PREFIXES["gui"]
+        assert "sonic_cli.web_server" in prefixes
         assert "tui_gateway" in prefixes
 
 

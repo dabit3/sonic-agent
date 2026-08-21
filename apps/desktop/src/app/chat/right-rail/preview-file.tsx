@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from 'react'
 import ShikiHighlighter from 'react-shiki'
 import { Streamdown } from 'streamdown'
 
-import { HERMES_PATHS_MIME } from '@/app/chat/hooks/use-composer-actions'
+import { SONIC_PATHS_MIME } from '@/app/chat/hooks/use-composer-actions'
 import { cn } from '@/lib/utils'
 import type { PreviewTarget } from '@/store/preview'
 
@@ -178,13 +178,13 @@ function looksBinaryBytes(bytes: Uint8Array) {
 }
 
 async function readTextPreview(filePath: string) {
-  if (window.hermesDesktop.readFileText) {
+  if (window.sonicDesktop.readFileText) {
     try {
-      return await window.hermesDesktop.readFileText(filePath)
+      return await window.sonicDesktop.readFileText(filePath)
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
 
-      if (!message.includes("No handler registered for 'hermes:readFileText'")) {
+      if (!message.includes("No handler registered for 'sonic:readFileText'")) {
         throw error
       }
     }
@@ -192,7 +192,7 @@ async function readTextPreview(filePath: string) {
 
   // Back-compat for a running Electron process whose preload hasn't been
   // restarted since readFileText was added. readFileDataUrl already existed.
-  const dataUrl = await window.hermesDesktop.readFileDataUrl(filePath)
+  const dataUrl = await window.sonicDesktop.readFileDataUrl(filePath)
   const [, metadata = '', data = ''] = dataUrl.match(/^data:([^,]*),(.*)$/) || []
   const base64 = metadata.includes(';base64')
   const mimeType = metadata.replace(/;base64$/, '') || undefined
@@ -323,7 +323,7 @@ function startLineDrag(event: ReactDragEvent<HTMLElement>, filePath: string, { e
   const lineEnd = end > start ? end : undefined
   const label = lineEnd ? `${filePath}:${start}-${end}` : `${filePath}:${start}`
 
-  event.dataTransfer.setData(HERMES_PATHS_MIME, JSON.stringify([{ line: start, lineEnd, path: filePath }]))
+  event.dataTransfer.setData(SONIC_PATHS_MIME, JSON.stringify([{ line: start, lineEnd, path: filePath }]))
   event.dataTransfer.setData('text/plain', label)
   event.dataTransfer.effectAllowed = 'copy'
 }
@@ -440,7 +440,7 @@ export function LocalFilePreview({ reloadKey, target }: { reloadKey: number; tar
 
       try {
         if (isImage) {
-          const dataUrl = await window.hermesDesktop.readFileDataUrl(filePath)
+          const dataUrl = await window.sonicDesktop.readFileDataUrl(filePath)
 
           if (active) {
             setState({ dataUrl, loading: false })
@@ -501,7 +501,7 @@ export function LocalFilePreview({ reloadKey, target }: { reloadKey: number; tar
         body={
           binary
             ? `Previewing ${target.label} may show unreadable text.`
-            : `${target.label} is ${formatBytes(size)}. Hermes will only show the first 512 KB.`
+            : `${target.label} is ${formatBytes(size)}. Sonic will only show the first 512 KB.`
         }
         primaryAction={{ label: 'Preview anyway', onClick: () => setForcePreview(true) }}
         title={binary ? 'This looks like a binary file' : 'This file is large'}

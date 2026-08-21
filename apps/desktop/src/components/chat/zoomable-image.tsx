@@ -24,7 +24,7 @@ function imageFilename(src?: string): string {
 function isMissingIpcHandler(error: unknown): boolean {
   const message = error instanceof Error ? error.message : typeof error === 'string' ? error : ''
 
-  return message.includes("No handler registered for 'hermes:saveImageFromUrl'")
+  return message.includes("No handler registered for 'sonic:saveImageFromUrl'")
 }
 
 async function startBrowserDownload(src: string) {
@@ -63,8 +63,8 @@ export function ZoomableImage({ className, containerClassName, src, alt, slot, .
     setSaving(true)
 
     try {
-      if (window.hermesDesktop?.saveImageFromUrl) {
-        const saved = await window.hermesDesktop.saveImageFromUrl(src)
+      if (window.sonicDesktop?.saveImageFromUrl) {
+        const saved = await window.sonicDesktop.saveImageFromUrl(src)
 
         if (saved) {
           notify({ kind: 'success', title: 'Image saved', message: imageFilename(src) })
@@ -81,10 +81,10 @@ export function ZoomableImage({ className, containerClassName, src, alt, slot, .
           notify({
             kind: 'info',
             title: 'Download started',
-            message: 'Restart Hermes Desktop to use Save Image.'
+            message: 'Restart Sonic Desktop to use Save Image.'
           })
         } catch (fallbackError) {
-          notifyError(fallbackError, 'Restart Hermes Desktop to save images')
+          notifyError(fallbackError, 'Restart Sonic Desktop to save images')
         }
 
         return

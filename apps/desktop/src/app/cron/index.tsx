@@ -24,7 +24,7 @@ import {
   resumeCronJob,
   triggerCronJob,
   updateCronJob
-} from '@/hermes'
+} from '@/sonic'
 import { AlertTriangle, Clock, Pause, Pencil, Play, Trash2, Zap } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { notify, notifyError } from '@/store/notifications'
@@ -461,7 +461,7 @@ export function CronView({ setStatusbarItemGroup: _setStatusbarItemGroup, ...pro
           actionLabel={totalCount === 0 ? 'Create first cron' : undefined}
           description={
             totalCount === 0
-              ? 'Schedule a prompt to run on a cron expression. Hermes will run it and deliver results to the destination you pick.'
+              ? 'Schedule a prompt to run on a cron expression. Sonic will run it and deliver results to the destination you pick.'
               : 'Try a broader search query.'
           }
           onAction={totalCount === 0 ? () => setEditor({ mode: 'create' }) : undefined}

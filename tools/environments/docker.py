@@ -368,7 +368,7 @@ def _image_uses_init_entrypoint(docker_exe: str, image: str) -> bool:
     """Return True if ``image``'s entrypoint is the s6-overlay ``/init``.
 
     Such images (e.g. anything built on ``s6-overlay``, including
-    ``hermes-agent:latest``) already provide their own PID-1 init and execute
+    ``sonic-agent:latest``) already provide their own PID-1 init and execute
     ``/run/s6/basedir/bin/init`` during stage0 startup. They are incompatible
     with Docker's ``--init`` (two competing PID-1 inits) and with a ``noexec``
     ``/run`` mount. Detection is best-effort: on any inspection failure we
@@ -736,7 +736,7 @@ class DockerEnvironment(BaseEnvironment):
         # /usr/local/bin is not in PATH (common on macOS gateway/service).
         self._docker_exe = find_docker() or "docker"
 
-        # s6-overlay images (e.g. hermes-agent:latest) already use /init as PID 1
+        # s6-overlay images (e.g. sonic-agent:latest) already use /init as PID 1
         # and exec /run/s6/basedir/bin/init during startup. For those images we
         # must (a) skip Docker's --init (two competing PID-1 inits) and (b) mount
         # /run with exec instead of noexec, or s6 stage0 dies with exit 126

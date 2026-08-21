@@ -1404,7 +1404,7 @@ def test_configure_non_managed_provider_skips_portal_gate(monkeypatch):
 
 def test_apply_provider_selection_web_sets_backend():
     """Selecting a web provider persists the backend without prompting for keys."""
-    from hermes_cli.tools_config import apply_provider_selection
+    from sonic_cli.tools_config import apply_provider_selection
 
     config = {}
     apply_provider_selection("web", "Firecrawl Self-Hosted", config)
@@ -1415,7 +1415,7 @@ def test_apply_provider_selection_web_sets_backend():
 
 def test_apply_provider_selection_tts_sets_provider():
     """Selecting a TTS provider persists tts.provider."""
-    from hermes_cli.tools_config import apply_provider_selection
+    from sonic_cli.tools_config import apply_provider_selection
 
     config = {}
     apply_provider_selection("tts", "Microsoft Edge TTS", config)
@@ -1425,14 +1425,14 @@ def test_apply_provider_selection_tts_sets_provider():
 
 
 def test_apply_provider_selection_unknown_provider_raises_keyerror():
-    from hermes_cli.tools_config import apply_provider_selection
+    from sonic_cli.tools_config import apply_provider_selection
 
     with pytest.raises(KeyError):
         apply_provider_selection("web", "No Such Provider", {})
 
 
 def test_apply_provider_selection_unknown_toolset_raises_keyerror():
-    from hermes_cli.tools_config import apply_provider_selection
+    from sonic_cli.tools_config import apply_provider_selection
 
     with pytest.raises(KeyError):
         apply_provider_selection("not_a_toolset", "whatever", {})
@@ -1440,7 +1440,7 @@ def test_apply_provider_selection_unknown_toolset_raises_keyerror():
 
 def test_apply_provider_selection_does_not_prompt_or_post_setup(monkeypatch):
     """The non-interactive selection must not invoke prompts or post-setup hooks."""
-    from hermes_cli import tools_config
+    from sonic_cli import tools_config
 
     monkeypatch.setattr(
         tools_config, "_run_post_setup",

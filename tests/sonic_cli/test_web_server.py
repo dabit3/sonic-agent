@@ -90,7 +90,7 @@ class TestRedactKey:
 
 
 class TestSessionTokenInjection:
-    """The desktop shell mints HERMES_DASHBOARD_SESSION_TOKEN and signs its
+    """The desktop shell mints SONIC_DASHBOARD_SESSION_TOKEN and signs its
     /api + /api/ws calls with it. The backend must adopt that token, else every
     desktop request 401s ("gateway is offline"). A main-merge once silently
     dropped this read — this guards the contract, not a literal value.
@@ -98,21 +98,21 @@ class TestSessionTokenInjection:
 
     def test_honors_injected_token(self, monkeypatch):
         import importlib
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
-        monkeypatch.setenv("HERMES_DASHBOARD_SESSION_TOKEN", "desktop-seeded-token")
+        monkeypatch.setenv("SONIC_DASHBOARD_SESSION_TOKEN", "desktop-seeded-token")
         try:
             importlib.reload(ws)
             assert ws._SESSION_TOKEN == "desktop-seeded-token"
         finally:
-            monkeypatch.delenv("HERMES_DASHBOARD_SESSION_TOKEN", raising=False)
+            monkeypatch.delenv("SONIC_DASHBOARD_SESSION_TOKEN", raising=False)
             importlib.reload(ws)
 
     def test_falls_back_to_random_token(self, monkeypatch):
         import importlib
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
-        monkeypatch.delenv("HERMES_DASHBOARD_SESSION_TOKEN", raising=False)
+        monkeypatch.delenv("SONIC_DASHBOARD_SESSION_TOKEN", raising=False)
         importlib.reload(ws)
 
         assert ws._SESSION_TOKEN and len(ws._SESSION_TOKEN) >= 32
@@ -157,7 +157,7 @@ class TestWebServerEndpoints:
         /api/sessions should reflect per-session DB state, not process/global
         cwd settings, so workspace grouping stays stable and deterministic.
         """
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         monkeypatch.setenv("TERMINAL_CWD", "/tmp/global-default")
 
@@ -198,7 +198,7 @@ class TestWebServerEndpoints:
             def close(self):
                 pass
 
-        monkeypatch.setattr("hermes_state.SessionDB", _FakeDB)
+        monkeypatch.setattr("sonic_state.SessionDB", _FakeDB)
 
         resp = self.client.get("/api/sessions?limit=5&offset=0&min_messages=3")
         assert resp.status_code == 200
@@ -208,7 +208,7 @@ class TestWebServerEndpoints:
     def test_rename_session_updates_title(self):
         """PATCH /api/sessions/{id} renames a session (regression: the route
         was missing entirely, so the desktop rename dialog got a 405)."""
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         db = SessionDB()
         try:
@@ -227,7 +227,7 @@ class TestWebServerEndpoints:
             db.close()
 
     def test_rename_session_clears_title_when_empty(self):
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         db = SessionDB()
         try:
@@ -302,7 +302,7 @@ class TestWebServerEndpoints:
         once; this guards the contract so a future merge can't lose them
         without failing CI.
         """
-        from hermes_cli.web_server import app
+        from sonic_cli.web_server import app
 
         paths = {getattr(r, "path", None) for r in app.routes}
         assert "/api/audio/transcribe" in paths
@@ -310,7 +310,7 @@ class TestWebServerEndpoints:
         assert "/api/audio/elevenlabs/voices" in paths
 
     def test_elevenlabs_voices_unavailable_without_key(self, monkeypatch):
-        import hermes_cli.web_server as web_server
+        import sonic_cli.web_server as web_server
 
         monkeypatch.setattr(web_server, "load_env", lambda: {})
         monkeypatch.delenv("ELEVENLABS_API_KEY", raising=False)
@@ -348,42 +348,42 @@ class TestWebServerEndpoints:
         resp = self.client.post("/api/audio/speak", json={"text": "   "})
         assert resp.status_code == 400
 
-    def test_update_hermes_returns_docker_guidance_without_spawning(self, monkeypatch):
-        import hermes_cli.web_server as web_server
+    def test_update_sonic_returns_docker_guidance_without_spawning(self, monkeypatch):
+        import sonic_cli.web_server as web_server
 
         spawned = False
 
         def fail_spawn(*_args, **_kwargs):
             nonlocal spawned
             spawned = True
-            raise AssertionError("docker update guard should not spawn hermes update")
+            raise AssertionError("docker update guard should not spawn sonic update")
 
         monkeypatch.setattr(web_server, "detect_install_method", lambda _root: "docker")
-        monkeypatch.setattr(web_server, "_spawn_hermes_action", fail_spawn)
-        web_server._ACTION_PROCS.pop("hermes-update", None)
-        web_server._ACTION_RESULTS.pop("hermes-update", None)
+        monkeypatch.setattr(web_server, "_spawn_sonic_action", fail_spawn)
+        web_server._ACTION_PROCS.pop("sonic-update", None)
+        web_server._ACTION_RESULTS.pop("sonic-update", None)
 
-        resp = self.client.post("/api/hermes/update")
+        resp = self.client.post("/api/sonic/update")
 
         assert resp.status_code == 200
         data = resp.json()
         assert data["ok"] is False
-        assert data["name"] == "hermes-update"
+        assert data["name"] == "sonic-update"
         assert data["pid"] is None
         assert data["error"] == "docker_update_unsupported"
-        assert "docker pull nousresearch/hermes-agent:latest" in data["message"]
+        assert "docker pull nousresearch/sonic-agent:latest" in data["message"]
         assert spawned is False
 
-        status = self.client.get("/api/actions/hermes-update/status")
+        status = self.client.get("/api/actions/sonic-update/status")
         assert status.status_code == 200
         status_data = status.json()
         assert status_data["running"] is False
         assert status_data["exit_code"] == 1
         assert status_data["pid"] is None
-        assert any("docker pull nousresearch/hermes-agent:latest" in line for line in status_data["lines"])
+        assert any("docker pull nousresearch/sonic-agent:latest" in line for line in status_data["lines"])
 
-    def test_update_hermes_spawns_on_non_docker_install(self, monkeypatch):
-        import hermes_cli.web_server as web_server
+    def test_update_sonic_spawns_on_non_docker_install(self, monkeypatch):
+        import sonic_cli.web_server as web_server
 
         class Proc:
             pid = 12345
@@ -398,15 +398,15 @@ class TestWebServerEndpoints:
             return Proc()
 
         monkeypatch.setattr(web_server, "detect_install_method", lambda _root: "git")
-        monkeypatch.setattr(web_server, "_spawn_hermes_action", fake_spawn)
-        web_server._ACTION_PROCS.pop("hermes-update", None)
-        web_server._ACTION_RESULTS.pop("hermes-update", None)
+        monkeypatch.setattr(web_server, "_spawn_sonic_action", fake_spawn)
+        web_server._ACTION_PROCS.pop("sonic-update", None)
+        web_server._ACTION_RESULTS.pop("sonic-update", None)
 
-        resp = self.client.post("/api/hermes/update")
+        resp = self.client.post("/api/sonic/update")
 
         assert resp.status_code == 200
-        assert resp.json() == {"ok": True, "pid": 12345, "name": "hermes-update"}
-        assert calls == [(["update"], "hermes-update")]
+        assert resp.json() == {"ok": True, "pid": 12345, "name": "sonic-update"}
+        assert calls == [(["update"], "sonic-update")]
 
     def test_get_status_filters_unconfigured_gateway_platforms(self, monkeypatch):
         import gateway.config as gateway_config
@@ -630,7 +630,7 @@ class TestWebServerEndpoints:
             platform_registry.unregister("ircfake")
 
     def test_update_messaging_platform_saves_env_and_enablement(self):
-        from hermes_cli.config import load_config, load_env
+        from sonic_cli.config import load_config, load_env
 
         resp = self.client.put(
             "/api/messaging/platforms/telegram",
@@ -714,7 +714,7 @@ class TestWebServerEndpoints:
         """Switching the main provider to Nous calls apply_nous_managed_defaults
         (mirroring the CLI's post-model-selection Tool Gateway routing) and
         surfaces the routed tools in the response."""
-        import hermes_cli.nous_subscription as ns
+        import sonic_cli.nous_subscription as ns
 
         called = {}
 
@@ -730,7 +730,7 @@ class TestWebServerEndpoints:
 
         resp = self.client.post(
             "/api/model/set",
-            json={"scope": "main", "provider": "nous", "model": "hermes-4"},
+            json={"scope": "main", "provider": "nous", "model": "sonic-4"},
         )
         assert resp.status_code == 200
         data = resp.json()
@@ -741,7 +741,7 @@ class TestWebServerEndpoints:
 
     def test_set_model_main_non_nous_skips_gateway_defaults(self, monkeypatch):
         """Non-Nous providers must NOT trigger Tool Gateway auto-routing."""
-        import hermes_cli.nous_subscription as ns
+        import sonic_cli.nous_subscription as ns
 
         def boom(*args, **kwargs):  # pragma: no cover - must not be called
             raise AssertionError("apply_nous_managed_defaults called for non-nous provider")
@@ -759,7 +759,7 @@ class TestWebServerEndpoints:
 
     def test_set_model_main_gateway_failure_does_not_block_save(self, monkeypatch):
         """A Portal/gateway hiccup must never prevent saving the model."""
-        import hermes_cli.nous_subscription as ns
+        import sonic_cli.nous_subscription as ns
 
         def boom(*args, **kwargs):
             raise RuntimeError("portal unreachable")
@@ -768,7 +768,7 @@ class TestWebServerEndpoints:
 
         resp = self.client.post(
             "/api/model/set",
-            json={"scope": "main", "provider": "nous", "model": "hermes-4"},
+            json={"scope": "main", "provider": "nous", "model": "sonic-4"},
         )
         assert resp.status_code == 200
         data = resp.json()
@@ -777,8 +777,8 @@ class TestWebServerEndpoints:
 
     def test_recommended_default_nous_honors_free_tier(self, monkeypatch):
         """For a free-tier Nous user, the recommended default must be a free
-        model (mirroring `hermes model`), not the first curated paid entry."""
-        import hermes_cli.models as models_mod
+        model (mirroring `sonic model`), not the first curated paid entry."""
+        import sonic_cli.models as models_mod
 
         monkeypatch.setattr(models_mod, "get_curated_nous_model_ids", lambda: ["paid/expensive", "free/cheap"])
         monkeypatch.setattr(
@@ -805,7 +805,7 @@ class TestWebServerEndpoints:
 
     def test_recommended_default_nous_paid_uses_curated_default(self, monkeypatch):
         """A paid Nous user gets the first curated/paid-augmented model."""
-        import hermes_cli.models as models_mod
+        import sonic_cli.models as models_mod
 
         monkeypatch.setattr(models_mod, "get_curated_nous_model_ids", lambda: ["top/model", "other/model"])
         monkeypatch.setattr(models_mod, "get_pricing_for_provider", lambda provider: {})
@@ -824,7 +824,7 @@ class TestWebServerEndpoints:
 
     def test_recommended_default_handles_failure_gracefully(self, monkeypatch):
         """Endpoint never 500s — returns empty model on internal error."""
-        import hermes_cli.models as models_mod
+        import sonic_cli.models as models_mod
 
         def boom():
             raise RuntimeError("portal down")
@@ -1486,7 +1486,7 @@ class TestNewEndpoints:
         assert body["name"] == "web"
         assert body["provider"] == "Firecrawl Self-Hosted"
 
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
         cfg = load_config()
         assert cfg["web"]["backend"] == "firecrawl"
 
@@ -2951,8 +2951,8 @@ class TestPtyWebSocket:
 
 
 def test_resolve_chat_argv_injects_gateway_ws_url(monkeypatch):
-    import hermes_cli.main as cli_main
-    import hermes_cli.web_server as ws
+    import sonic_cli.main as cli_main
+    import sonic_cli.web_server as ws
 
     monkeypatch.setattr(
         cli_main,
@@ -2965,7 +2965,7 @@ def test_resolve_chat_argv_injects_gateway_ws_url(monkeypatch):
     _argv, _cwd, env = ws._resolve_chat_argv()
 
     assert env is not None
-    gateway_url = env.get("HERMES_TUI_GATEWAY_URL", "")
+    gateway_url = env.get("SONIC_TUI_GATEWAY_URL", "")
     assert gateway_url.startswith("ws://127.0.0.1:9119/api/ws?")
     assert "token=" in gateway_url
 
@@ -3078,13 +3078,13 @@ class TestValidateProviderCredential:
     """Live-probe credential validation (/api/providers/validate)."""
 
     @pytest.fixture(autouse=True)
-    def _setup_test_client(self, monkeypatch, _isolate_hermes_home):
+    def _setup_test_client(self, monkeypatch, _isolate_sonic_home):
         try:
             from starlette.testclient import TestClient
         except ImportError:
             pytest.skip("fastapi/starlette not installed")
 
-        from hermes_cli.web_server import app, _SESSION_HEADER_NAME, _SESSION_TOKEN
+        from sonic_cli.web_server import app, _SESSION_HEADER_NAME, _SESSION_TOKEN
 
         self.client = TestClient(app)
         self.client.headers[_SESSION_HEADER_NAME] = _SESSION_TOKEN

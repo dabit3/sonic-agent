@@ -2,47 +2,47 @@ export {}
 
 declare global {
   interface Window {
-    hermesDesktop: {
-      getConnection: () => Promise<HermesConnection>
+    sonicDesktop: {
+      getConnection: () => Promise<SonicConnection>
       getBootProgress: () => Promise<DesktopBootProgress>
       getConnectionConfig: () => Promise<DesktopConnectionConfig>
       saveConnectionConfig: (payload: DesktopConnectionConfigInput) => Promise<DesktopConnectionConfig>
       applyConnectionConfig: (payload: DesktopConnectionConfigInput) => Promise<DesktopConnectionConfig>
       testConnectionConfig: (payload: DesktopConnectionConfigInput) => Promise<DesktopConnectionTestResult>
-      api: <T>(request: HermesApiRequest) => Promise<T>
-      notify: (payload: HermesNotification) => Promise<boolean>
+      api: <T>(request: SonicApiRequest) => Promise<T>
+      notify: (payload: SonicNotification) => Promise<boolean>
       requestMicrophoneAccess: () => Promise<boolean>
       readFileDataUrl: (filePath: string) => Promise<string>
-      readFileText: (filePath: string) => Promise<HermesReadFileTextResult>
-      selectPaths: (options?: HermesSelectPathsOptions) => Promise<string[]>
+      readFileText: (filePath: string) => Promise<SonicReadFileTextResult>
+      selectPaths: (options?: SonicSelectPathsOptions) => Promise<string[]>
       writeClipboard: (text: string) => Promise<boolean>
       saveImageFromUrl: (url: string) => Promise<boolean>
       saveImageBuffer: (data: ArrayBuffer | Uint8Array, ext: string) => Promise<string>
       saveClipboardImage: () => Promise<string>
       getPathForFile: (file: File) => string
-      normalizePreviewTarget: (target: string, baseDir?: string) => Promise<HermesPreviewTarget | null>
-      watchPreviewFile: (url: string) => Promise<HermesPreviewWatch>
+      normalizePreviewTarget: (target: string, baseDir?: string) => Promise<SonicPreviewTarget | null>
+      watchPreviewFile: (url: string) => Promise<SonicPreviewWatch>
       stopPreviewFileWatch: (id: string) => Promise<boolean>
-      setTitleBarTheme?: (payload: HermesTitleBarTheme) => void
+      setTitleBarTheme?: (payload: SonicTitleBarTheme) => void
       setPreviewShortcutActive?: (active: boolean) => void
       openExternal: (url: string) => Promise<void>
       fetchLinkTitle: (url: string) => Promise<string>
       revealLogs: () => Promise<{ ok: boolean; path: string; error?: string }>
       getRecentLogs: () => Promise<{ path: string; lines: string[] }>
-      readDir: (path: string) => Promise<HermesReadDirResult>
+      readDir: (path: string) => Promise<SonicReadDirResult>
       gitRoot?: (path: string) => Promise<string | null>
       terminal: {
         dispose: (id: string) => Promise<boolean>
         onData: (id: string, callback: (payload: string) => void) => () => void
-        onExit: (id: string, callback: (payload: HermesTerminalExit) => void) => () => void
+        onExit: (id: string, callback: (payload: SonicTerminalExit) => void) => () => void
         resize: (id: string, size: { cols: number; rows: number }) => Promise<boolean>
-        start: (options?: { cols?: number; cwd?: string; rows?: number }) => Promise<HermesTerminalSession>
+        start: (options?: { cols?: number; cwd?: string; rows?: number }) => Promise<SonicTerminalSession>
         write: (id: string, data: string) => Promise<boolean>
       }
       onClosePreviewRequested?: (callback: () => void) => () => void
       onOpenUpdatesRequested?: (callback: () => void) => () => void
-      onWindowStateChanged?: (callback: (payload: HermesWindowState) => void) => () => void
-      onPreviewFileChanged: (callback: (payload: HermesPreviewFileChanged) => void) => () => void
+      onWindowStateChanged?: (callback: (payload: SonicWindowState) => void) => () => void
+      onPreviewFileChanged: (callback: (payload: SonicPreviewFileChanged) => void) => () => void
       onBackendExit: (callback: (payload: BackendExit) => void) => () => void
       onBootProgress: (callback: (payload: DesktopBootProgress) => void) => () => void
       getBootstrapState: () => Promise<DesktopBootstrapState>
@@ -61,13 +61,13 @@ declare global {
   }
 }
 
-export interface HermesTerminalSession {
+export interface SonicTerminalSession {
   cwd: string
   id: string
   shell: string
 }
 
-export interface HermesTerminalExit {
+export interface SonicTerminalExit {
   code: number | null
   signal: string | null
 }
@@ -77,7 +77,7 @@ export interface DesktopVersionInfo {
   electronVersion: string
   nodeVersion: string
   platform: string
-  hermesRoot: string
+  sonicRoot: string
 }
 
 export interface DesktopUpdateCommit {
@@ -114,10 +114,10 @@ export interface DesktopUpdateApplyResult {
   error?: string
   message?: string
   /** True when no staged updater exists (CLI install) and the user should run
-   *  `hermes update` themselves. `command` is the exact line to run. */
+   *  `sonic update` themselves. `command` is the exact line to run. */
   manual?: boolean
   command?: string
-  hermesRoot?: string
+  sonicRoot?: string
 }
 
 export type DesktopUpdateStage = 'idle' | 'prepare' | 'fetch' | 'pull' | 'pydeps' | 'restart' | 'manual' | 'error'
@@ -130,7 +130,7 @@ export interface DesktopUpdateProgress {
   at: number
 }
 
-export interface HermesConnection {
+export interface SonicConnection {
   baseUrl: string
   isFullscreen: boolean
   mode?: 'local' | 'remote'
@@ -142,12 +142,12 @@ export interface HermesConnection {
   windowButtonPosition: { x: number; y: number } | null
 }
 
-export interface HermesTitleBarTheme {
+export interface SonicTitleBarTheme {
   background: string
   foreground: string
 }
 
-export interface HermesWindowState {
+export interface SonicWindowState {
   isFullscreen: boolean
   nativeOverlayWidth: number
   windowButtonPosition: { x: number; y: number } | null
@@ -249,20 +249,20 @@ export type DesktopBootstrapEvent =
     }
 
 
-export interface HermesApiRequest {
+export interface SonicApiRequest {
   path: string
   method?: string
   body?: unknown
   timeoutMs?: number
 }
 
-export interface HermesNotification {
+export interface SonicNotification {
   title?: string
   body?: string
   silent?: boolean
 }
 
-export interface HermesPreviewTarget {
+export interface SonicPreviewTarget {
   binary?: boolean
   byteSize?: number
   kind: 'file' | 'url'
@@ -277,7 +277,7 @@ export interface HermesPreviewTarget {
   url: string
 }
 
-export interface HermesReadFileTextResult {
+export interface SonicReadFileTextResult {
   binary?: boolean
   byteSize?: number
   language?: string
@@ -287,29 +287,29 @@ export interface HermesReadFileTextResult {
   truncated?: boolean
 }
 
-export interface HermesPreviewWatch {
+export interface SonicPreviewWatch {
   id: string
   path: string
 }
 
-export interface HermesReadDirEntry {
+export interface SonicReadDirEntry {
   name: string
   path: string
   isDirectory: boolean
 }
 
-export interface HermesReadDirResult {
-  entries: HermesReadDirEntry[]
+export interface SonicReadDirResult {
+  entries: SonicReadDirEntry[]
   error?: string
 }
 
-export interface HermesPreviewFileChanged {
+export interface SonicPreviewFileChanged {
   id: string
   path: string
   url: string
 }
 
-export interface HermesSelectPathsOptions {
+export interface SonicSelectPathsOptions {
   title?: string
   defaultPath?: string
   directories?: boolean

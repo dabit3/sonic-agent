@@ -33,7 +33,7 @@ import {
   SidebarMenuItem
 } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { SessionInfo } from '@/hermes'
+import type { SessionInfo } from '@/sonic'
 import { cn } from '@/lib/utils'
 import {
   $pinnedSessionIds,

@@ -12,7 +12,7 @@ import { isAddSelectionShortcut, terminalSelectionAnchor, terminalSelectionLabel
 
 type TerminalStatus = 'closed' | 'open' | 'starting'
 
-const HERMES_PATHS_MIME = 'application/x-hermes-paths'
+const SONIC_PATHS_MIME = 'application/x-sonic-paths'
 
 function readEscapeSequence(data: string, index: number) {
   if (data.charCodeAt(index) !== 0x1b || index + 1 >= data.length) {
@@ -96,7 +96,7 @@ interface UseTerminalSessionOptions {
 }
 
 function transferHasDropCandidates(t: DataTransfer): boolean {
-  if (t.types?.includes(HERMES_PATHS_MIME)) return true
+  if (t.types?.includes(SONIC_PATHS_MIME)) return true
   if ((t.files?.length ?? 0) > 0) return true
 
   for (let i = 0; i < (t.items?.length ?? 0); i += 1) {
@@ -115,13 +115,13 @@ function collectDroppedPaths(t: DataTransfer): string[] {
   }
 
   try {
-    const raw = t.getData(HERMES_PATHS_MIME)
+    const raw = t.getData(SONIC_PATHS_MIME)
     if (raw) for (const entry of JSON.parse(raw) as { path?: unknown }[]) push(entry?.path)
   } catch {
     // Malformed in-app drag payload — fall through to OS files.
   }
 
-  const getPath = window.hermesDesktop?.getPathForFile
+  const getPath = window.sonicDesktop?.getPathForFile
   const addFile = (file: File | null) => {
     if (!file || !getPath) return
     try {
@@ -208,7 +208,7 @@ export function useTerminalSession({ cwd, onAddSelectionToChat }: UseTerminalSes
 
   useEffect(() => {
     const host = hostRef.current
-    const terminalApi = window.hermesDesktop?.terminal
+    const terminalApi = window.sonicDesktop?.terminal
 
     if (!host || !terminalApi) {
       setStatus('closed')
@@ -251,7 +251,7 @@ export function useTerminalSession({ cwd, onAddSelectionToChat }: UseTerminalSes
       term.loadAddon(webgl)
     } catch (err) {
       // eslint-disable-next-line no-console
-      console.warn('[hermes-terminal] WebGL unavailable; falling back to DOM', err)
+      console.warn('[sonic-terminal] WebGL unavailable; falling back to DOM', err)
     }
 
     const onDragOver = (e: DragEvent) => {

@@ -84,7 +84,7 @@ export function AboutSettings() {
           <Sparkles className="size-8" />
         </span>
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Hermes Desktop</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Sonic Desktop</h2>
           <p className="mt-1 text-xs text-muted-foreground">
             {version?.appVersion ? `Version ${version.appVersion}` : 'Version unavailable'}
           </p>
@@ -144,7 +144,7 @@ export function AboutSettings() {
                 href={RELEASE_NOTES_URL}
                 onClick={event => {
                   event.preventDefault()
-                  void window.hermesDesktop?.openExternal?.(RELEASE_NOTES_URL)
+                  void window.sonicDesktop?.openExternal?.(RELEASE_NOTES_URL)
                 }}
                 rel="noreferrer"
                 target="_blank"
@@ -157,7 +157,7 @@ export function AboutSettings() {
         </div>
 
         <ListRow
-          description="Hermes checks for updates automatically in the background and lets you know when one is ready."
+          description="Sonic checks for updates automatically in the background and lets you know when one is ready."
           hint={`Branch ${status?.branch ?? 'unknown'} · Commit ${status?.currentSha?.slice(0, 7) ?? 'unknown'}`}
           title="Automatic updates"
         />

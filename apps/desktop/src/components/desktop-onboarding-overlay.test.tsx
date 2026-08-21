@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import type { OAuthProvider } from '@/types/hermes'
+import type { OAuthProvider } from '@/types/sonic'
 
 import { $desktopOnboarding, type DesktopOnboardingState, type OnboardingContext } from '@/store/onboarding'
 
@@ -9,7 +9,7 @@ import { Picker } from './desktop-onboarding-overlay'
 
 function provider(id: string, name = id): OAuthProvider {
   return {
-    cli_command: `hermes login ${id}`,
+    cli_command: `sonic login ${id}`,
     docs_url: `https://example.com/${id}`,
     flow: 'pkce',
     id,

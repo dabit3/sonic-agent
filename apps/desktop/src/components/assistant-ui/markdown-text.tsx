@@ -51,11 +51,11 @@ async function mediaSrc(path: string): Promise<string> {
     return path
   }
 
-  if (!window.hermesDesktop?.readFileDataUrl) {
+  if (!window.sonicDesktop?.readFileDataUrl) {
     return mediaExternalUrl(path)
   }
 
-  const dataUrl = await window.hermesDesktop.readFileDataUrl(filePathFromMediaPath(path))
+  const dataUrl = await window.sonicDesktop.readFileDataUrl(filePathFromMediaPath(path))
 
   return ['audio', 'video'].includes(mediaKind(path)) ? typedBlobUrl(dataUrl, mediaMime(path)) : dataUrl
 }
@@ -64,7 +64,7 @@ function OpenMediaButton({ kind, path }: { kind: 'audio' | 'video'; path: string
   return (
     <button
       className="mt-2 bg-transparent text-xs font-medium text-muted-foreground underline underline-offset-4 decoration-current/20 hover:text-foreground"
-      onClick={() => void window.hermesDesktop?.openExternal(mediaExternalUrl(path))}
+      onClick={() => void window.sonicDesktop?.openExternal(mediaExternalUrl(path))}
       type="button"
     >
       Open {kind} file

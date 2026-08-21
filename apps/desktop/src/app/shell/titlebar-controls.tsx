@@ -195,7 +195,7 @@ function ProfilesMenuButton({ navigate }: { navigate: ReturnType<typeof useNavig
         <DropdownMenuLabel>
           <div className="text-sm font-medium text-foreground">Profiles</div>
           <div className="mt-1 text-xs font-normal leading-4 text-muted-foreground">
-            Advanced Hermes environments for separate personas, config, skills, and SOUL.md.
+            Advanced Sonic environments for separate personas, config, skills, and SOUL.md.
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

@@ -3,7 +3,7 @@
 /**
  * bootstrap-runner.cjs
  *
- * Drives apps/desktop's first-launch install of Hermes Agent by spawning
+ * Drives apps/desktop's first-launch install of Sonic Agent by spawning
  * scripts/install.ps1 stage-by-stage and streaming progress events back to
  * the renderer.
  *
@@ -11,10 +11,10 @@
  *   const { runBootstrap } = require('./bootstrap-runner.cjs')
  *   const result = await runBootstrap({
  *     installStamp,        // INSTALL_STAMP from main.cjs (may be null in dev)
- *     activeRoot,          // ACTIVE_HERMES_ROOT
+ *     activeRoot,          // ACTIVE_SONIC_ROOT
  *     sourceRepoRoot,      // SOURCE_REPO_ROOT (for dev install.ps1 lookup)
- *     hermesHome,          // HERMES_HOME
- *     logRoot,             // HERMES_HOME/logs
+ *     sonicHome,          // SONIC_HOME
+ *     logRoot,             // SONIC_HOME/logs
  *     emit: ev => {...}    // event sink (sender.send or similar)
  *   })
  *
@@ -72,12 +72,12 @@ function resolveLocalInstallScript(sourceRepoRoot) {
   }
 }
 
-function bootstrapCacheDir(hermesHome) {
-  return path.join(hermesHome, 'bootstrap-cache')
+function bootstrapCacheDir(sonicHome) {
+  return path.join(sonicHome, 'bootstrap-cache')
 }
 
-function cachedScriptPath(hermesHome, commit) {
-  return path.join(bootstrapCacheDir(hermesHome), `install-${commit}.${process.platform === 'win32' ? 'ps1' : 'sh'}`)
+function cachedScriptPath(sonicHome, commit) {
+  return path.join(bootstrapCacheDir(sonicHome), `install-${commit}.${process.platform === 'win32' ? 'ps1' : 'sh'}`)
 }
 
 function downloadInstallScript(commit, destPath) {
@@ -147,7 +147,7 @@ function downloadInstallScript(commit, destPath) {
   })
 }
 
-async function resolveInstallScript({ installStamp, sourceRepoRoot, hermesHome, emit }) {
+async function resolveInstallScript({ installStamp, sourceRepoRoot, sonicHome, emit }) {
   // 1. Dev shortcut: prefer a local checkout's installer so we can iterate
   //    without pushing. SOURCE_REPO_ROOT comes from main.cjs (path.resolve
   //    of APP_ROOT/../..).
@@ -165,7 +165,7 @@ async function resolveInstallScript({ installStamp, sourceRepoRoot, hermesHome, 
     )
   }
 
-  const cached = cachedScriptPath(hermesHome, installStamp.commit)
+  const cached = cachedScriptPath(sonicHome, installStamp.commit)
   try {
     await fsp.access(cached, fs.constants.R_OK)
     emit({ type: 'log', line: `[bootstrap] using cached ${installScriptName()} for ${installStamp.commit.slice(0, 12)}` })
@@ -184,7 +184,7 @@ async function resolveInstallScript({ installStamp, sourceRepoRoot, hermesHome, 
 // powershell wrapper
 // ---------------------------------------------------------------------------
 
-function spawnPowerShell(scriptPath, args, { emit, stageName, abortSignal, hermesHome } = {}) {
+function spawnPowerShell(scriptPath, args, { emit, stageName, abortSignal, sonicHome } = {}) {
   return new Promise((resolve, reject) => {
     const ps = process.platform === 'win32' ? 'powershell.exe' : 'pwsh'
     const fullArgs = ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', scriptPath, ...args]
@@ -193,9 +193,9 @@ function spawnPowerShell(scriptPath, args, { emit, stageName, abortSignal, herme
       stdio: ['ignore', 'pipe', 'pipe'],
       env: {
         ...process.env,
-        // Pass HERMES_HOME through so install.ps1 respects the caller's
+        // Pass SONIC_HOME through so install.ps1 respects the caller's
         // choice rather than re-computing the default.
-        HERMES_HOME: hermesHome || process.env.HERMES_HOME || ''
+        SONIC_HOME: sonicHome || process.env.SONIC_HOME || ''
       }
     })
 
@@ -260,13 +260,13 @@ function spawnPowerShell(scriptPath, args, { emit, stageName, abortSignal, herme
   })
 }
 
-function spawnBash(scriptPath, args, { emit, stageName, abortSignal, hermesHome } = {}) {
+function spawnBash(scriptPath, args, { emit, stageName, abortSignal, sonicHome } = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn('bash', [scriptPath, ...args], {
       stdio: ['ignore', 'pipe', 'pipe'],
       env: {
         ...process.env,
-        HERMES_HOME: hermesHome || process.env.HERMES_HOME || ''
+        SONIC_HOME: sonicHome || process.env.SONIC_HOME || ''
       }
     })
 
@@ -347,8 +347,8 @@ function buildPinArgs(installStamp) {
   return args
 }
 
-function buildPosixPinArgs({ installStamp, activeRoot, hermesHome }) {
-  const args = ['--dir', activeRoot, '--hermes-home', hermesHome]
+function buildPosixPinArgs({ installStamp, activeRoot, sonicHome }) {
+  const args = ['--dir', activeRoot, '--sonic-home', sonicHome]
   if (installStamp && installStamp.branch) {
     args.push('--branch', installStamp.branch)
   }
@@ -358,15 +358,15 @@ function buildPosixPinArgs({ installStamp, activeRoot, hermesHome }) {
   return args
 }
 
-async function fetchManifest({ scriptPath, installerKind, emit, hermesHome, activeRoot, installStamp }) {
+async function fetchManifest({ scriptPath, installerKind, emit, sonicHome, activeRoot, installStamp }) {
   const isPosix = installerKind === 'posix'
   const args = isPosix
-    ? ['--manifest', ...buildPosixPinArgs({ installStamp, activeRoot, hermesHome })]
+    ? ['--manifest', ...buildPosixPinArgs({ installStamp, activeRoot, sonicHome })]
     : ['-Manifest', ...buildPinArgs(installStamp)]
   const result = await (isPosix ? spawnBash : spawnPowerShell)(scriptPath, args, {
     emit,
     stageName: '__manifest__',
-    hermesHome
+    sonicHome
   })
   if (result.code !== 0) {
     throw new Error(`${isPosix ? 'install.sh --manifest' : 'install.ps1 -Manifest'} failed: exit ${result.code}\n${result.stderr || result.stdout}`)
@@ -402,18 +402,18 @@ function parseStageResult(stdout) {
   return null
 }
 
-async function runStage({ scriptPath, installerKind, stage, emit, hermesHome, activeRoot, abortSignal, installStamp }) {
+async function runStage({ scriptPath, installerKind, stage, emit, sonicHome, activeRoot, abortSignal, installStamp }) {
   const startedAt = Date.now()
   emit({ type: 'stage', name: stage.name, state: 'running' })
 
   const isPosix = installerKind === 'posix'
   const args = isPosix
-    ? ['--stage', stage.name, '--non-interactive', '--json', ...buildPosixPinArgs({ installStamp, activeRoot, hermesHome })]
+    ? ['--stage', stage.name, '--non-interactive', '--json', ...buildPosixPinArgs({ installStamp, activeRoot, sonicHome })]
     : ['-Stage', stage.name, '-NonInteractive', '-Json', ...buildPinArgs(installStamp)]
   const result = await (isPosix ? spawnBash : spawnPowerShell)(
     scriptPath,
     args,
-    { emit, stageName: stage.name, abortSignal, hermesHome }
+    { emit, stageName: stage.name, abortSignal, sonicHome }
   )
 
   const durationMs = Date.now() - startedAt
@@ -475,14 +475,14 @@ async function runBootstrap(opts) {
     installStamp,
     activeRoot,
     sourceRepoRoot,
-    hermesHome,
+    sonicHome,
     logRoot,
     onEvent,
     abortSignal,
     writeMarker // callback to write the bootstrap-complete marker; main.cjs provides
   } = opts
 
-  const runLog = openRunLog(logRoot || path.join(hermesHome, 'logs'))
+  const runLog = openRunLog(logRoot || path.join(sonicHome, 'logs'))
 
   // Tee every event to the runLog AND the caller's onEvent. This gives us a
   // forensic trail per bootstrap run AND lets the renderer subscribe live.
@@ -509,7 +509,7 @@ async function runBootstrap(opts) {
 
   try {
     // 1. Resolve the platform installer.
-    const scriptInfo = await resolveInstallScript({ installStamp, sourceRepoRoot, hermesHome, emit })
+    const scriptInfo = await resolveInstallScript({ installStamp, sourceRepoRoot, sonicHome, emit })
     const installerKind = scriptInfo.kind || 'powershell'
 
     // 2. Fetch manifest
@@ -517,7 +517,7 @@ async function runBootstrap(opts) {
       scriptPath: scriptInfo.path,
       installerKind,
       emit,
-      hermesHome,
+      sonicHome,
       activeRoot,
       installStamp
     })
@@ -541,7 +541,7 @@ async function runBootstrap(opts) {
         installerKind,
         stage,
         emit,
-        hermesHome,
+        sonicHome,
         activeRoot,
         abortSignal,
         installStamp

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 
-import type { HermesConnection } from '@/global'
-import { HermesGateway } from '@/hermes'
+import type { SonicConnection } from '@/global'
+import { SonicGateway } from '@/sonic'
 import {
   $desktopBoot,
   applyDesktopBootProgress,
@@ -12,15 +12,15 @@ import {
 import { setGateway } from '@/store/gateway'
 import { notify, notifyError } from '@/store/notifications'
 import { $connection, setConnection, setGatewayState, setSessionsLoading } from '@/store/session'
-import type { RpcEvent } from '@/types/hermes'
+import type { RpcEvent } from '@/types/sonic'
 
 interface GatewayBootOptions {
   handleGatewayEvent: (event: RpcEvent) => void
   onConnectionReady: (
-    connection: Awaited<ReturnType<NonNullable<typeof window.hermesDesktop>['getConnection']>> | null
+    connection: Awaited<ReturnType<NonNullable<typeof window.sonicDesktop>['getConnection']>> | null
   ) => void
-  onGatewayReady: (gateway: HermesGateway | null) => void
-  refreshHermesConfig: () => Promise<void>
+  onGatewayReady: (gateway: SonicGateway | null) => void
+  refreshSonicConfig: () => Promise<void>
   refreshSessions: () => Promise<void>
 }
 
@@ -28,14 +28,14 @@ export function useGatewayBoot({
   handleGatewayEvent,
   onConnectionReady,
   onGatewayReady,
-  refreshHermesConfig,
+  refreshSonicConfig,
   refreshSessions
 }: GatewayBootOptions) {
   const callbacksRef = useRef({
     handleGatewayEvent,
     onConnectionReady,
     onGatewayReady,
-    refreshHermesConfig,
+    refreshSonicConfig,
     refreshSessions
   })
 
@@ -43,15 +43,15 @@ export function useGatewayBoot({
     handleGatewayEvent,
     onConnectionReady,
     onGatewayReady,
-    refreshHermesConfig,
+    refreshSonicConfig,
     refreshSessions
   }
 
   useEffect(() => {
     let cancelled = false
-    const desktop = window.hermesDesktop
+    const desktop = window.sonicDesktop
 
-    const publish = (next: HermesConnection | null) => {
+    const publish = (next: SonicConnection | null) => {
       callbacksRef.current.onConnectionReady(next)
       setConnection(next)
     }
@@ -75,7 +75,7 @@ export function useGatewayBoot({
       progress: 6
     })
 
-    const gateway = new HermesGateway()
+    const gateway = new SonicGateway()
     callbacksRef.current.onGatewayReady(gateway)
     setGateway(gateway)
 
@@ -92,13 +92,13 @@ export function useGatewayBoot({
 
     const offExit = desktop.onBackendExit(() => {
       if ($desktopBoot.get().running || $desktopBoot.get().visible) {
-        failDesktopBoot('Hermes background process exited during startup.')
+        failDesktopBoot('Sonic background process exited during startup.')
       }
 
       notify({
         kind: 'error',
         title: 'Backend stopped',
-        message: 'Hermes background process exited.',
+        message: 'Sonic background process exited.',
         durationMs: 0
       })
     })
@@ -125,10 +125,10 @@ export function useGatewayBoot({
 
         setDesktopBootStep({
           phase: 'renderer.config',
-          message: 'Loading Hermes settings',
+          message: 'Loading Sonic settings',
           progress: 97
         })
-        await callbacksRef.current.refreshHermesConfig()
+        await callbacksRef.current.refreshSonicConfig()
 
         if (cancelled) {
           return

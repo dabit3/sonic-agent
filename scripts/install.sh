@@ -164,15 +164,15 @@ while [[ $# -gt 0 ]]; do
             echo "  --skip-setup   Skip interactive setup wizard"
             echo "  --skip-browser Skip Playwright/Chromium install (browser tools won't work)"
             echo "  --no-skills    Start with a blank slate — seed no bundled skills, and"
-            echo "                   write \$HERMES_HOME/.no-bundled-skills so future"
-            echo "                   'hermes update' runs never inject bundled skills either"
+            echo "                   write \$SONIC_HOME/.no-bundled-skills so future"
+            echo "                   'sonic update' runs never inject bundled skills either"
             echo "  --branch NAME  Git branch to install (default: main)"
             echo "  --commit SHA   Pin checkout to a specific commit after clone/update"
             echo "  --manifest     Print desktop bootstrap stage manifest as JSON"
             echo "  --stage NAME   Run one desktop bootstrap stage"
             echo "  --json         Print a JSON result frame for --stage"
             echo "  --non-interactive  Skip stages that require user input"
-            echo "  --include-desktop  Also build the desktop app (apps/desktop -> Hermes.app)"
+            echo "  --include-desktop  Also build the desktop app (apps/desktop -> Sonic.app)"
             echo "  --dir PATH     Installation directory"
             echo "                   default (non-root):  ~/.sonic/sonic-agent"
             echo "                   default (root, Linux): /usr/local/lib/sonic-agent"
@@ -243,7 +243,7 @@ json_escape() {
 
 # npm rewrites tracked package-lock.json files non-deterministically during
 # `npm install` / `npm run pack`. On a managed install those diffs are never
-# intentional, but they leave the checkout dirty — which forces `hermes update`
+# intentional, but they leave the checkout dirty — which forces `sonic update`
 # to autostash on every run and makes branch switches fragile. Restore them so
 # a fresh install ends with a clean tree. Best-effort; only touches lockfiles.
 restore_dirty_lockfiles() {
@@ -260,7 +260,7 @@ restore_dirty_lockfiles() {
 
 emit_manifest() {
     # Stage-Desktop is included only with --include-desktop, mirroring
-    # install.ps1: the signed bootstrap installer (Hermes-Setup) passes it so
+    # install.ps1: the signed bootstrap installer (Sonic-Setup) passes it so
     # a GUI install ends up with a launchable app; the Electron app's own
     # first-launch bootstrap and the CLI one-liner omit it (building the
     # desktop from inside the already-running app would clobber it).
@@ -268,7 +268,7 @@ emit_manifest() {
     if [ "$INCLUDE_DESKTOP" = true ]; then
         desktop_stage='{"name":"desktop","title":"Build desktop app","category":"runtime","needs_user_input":false},'
     fi
-    printf '%s' '{"protocol_version":1,"stages":[{"name":"prerequisites","title":"System prerequisites","category":"runtime","needs_user_input":false},{"name":"repository","title":"Download Hermes Agent","category":"runtime","needs_user_input":false},{"name":"venv","title":"Create Python virtual environment","category":"runtime","needs_user_input":false},{"name":"python-deps","title":"Install Python dependencies","category":"runtime","needs_user_input":false},{"name":"node-deps","title":"Install browser-tool dependencies","category":"runtime","needs_user_input":false},{"name":"path","title":"Install hermes command","category":"runtime","needs_user_input":false},{"name":"config","title":"Prepare config and skills","category":"configuration","needs_user_input":false},{"name":"setup","title":"Configure API keys and settings","category":"configuration","needs_user_input":true},{"name":"gateway","title":"Configure gateway service","category":"configuration","needs_user_input":true},'"$desktop_stage"'{"name":"complete","title":"Finish install","category":"runtime","needs_user_input":false}]}'
+    printf '%s' '{"protocol_version":1,"stages":[{"name":"prerequisites","title":"System prerequisites","category":"runtime","needs_user_input":false},{"name":"repository","title":"Download Sonic Agent","category":"runtime","needs_user_input":false},{"name":"venv","title":"Create Python virtual environment","category":"runtime","needs_user_input":false},{"name":"python-deps","title":"Install Python dependencies","category":"runtime","needs_user_input":false},{"name":"node-deps","title":"Install browser-tool dependencies","category":"runtime","needs_user_input":false},{"name":"path","title":"Install sonic command","category":"runtime","needs_user_input":false},{"name":"config","title":"Prepare config and skills","category":"configuration","needs_user_input":false},{"name":"setup","title":"Configure API keys and settings","category":"configuration","needs_user_input":true},{"name":"gateway","title":"Configure gateway service","category":"configuration","needs_user_input":true},'"$desktop_stage"'{"name":"complete","title":"Finish install","category":"runtime","needs_user_input":false}]}'
     printf '\n'
 }
 
@@ -1999,7 +1999,7 @@ install_node_deps() {
         log_success "TUI dependencies installed"
     fi
 
-    # Keep the checkout clean so `hermes update` doesn't autostash every run.
+    # Keep the checkout clean so `sonic update` doesn't autostash every run.
     restore_dirty_lockfiles "$INSTALL_DIR"
 }
 
@@ -2343,10 +2343,10 @@ postinstall_mode() {
     fi
 }
 
-# Build apps/desktop into a launchable Hermes.app. Mirrors install.ps1's
+# Build apps/desktop into a launchable Sonic.app. Mirrors install.ps1's
 # Install-Desktop: a root-level npm install so the apps/* workspace resolves
 # the desktop's own deps (Electron ~150MB), then `npm run pack`
-# (electron-builder --dir) which emits release/mac*/Hermes.app. Only invoked
+# (electron-builder --dir) which emits release/mac*/Sonic.app. Only invoked
 # via the 'desktop' stage / --include-desktop, which the Electron app's own
 # first-launch bootstrap never requests (it must not rebuild itself).
 install_desktop() {
@@ -2356,7 +2356,7 @@ install_desktop() {
     # (--include-desktop / 'desktop' stage), so a missing toolchain is a hard
     # failure, not a silent skip — a silent skip yields a "complete" install
     # with no app and a confusing "couldn't find a built desktop" at launch.
-    # Try the Hermes-managed Node first (check_node adds $HERMES_HOME/node/bin
+    # Try the Sonic-managed Node first (check_node adds $SONIC_HOME/node/bin
     # to PATH or installs it) before giving up.
     if ! command -v npm >/dev/null 2>&1; then
         check_node
@@ -2382,7 +2382,7 @@ install_desktop() {
     log_success "Desktop workspace dependencies installed"
 
     # 2. Build. `npm run pack` = tsc + vite build + electron-builder --dir,
-    #    producing an unpacked release/mac*/Hermes.app. We disable signing
+    #    producing an unpacked release/mac*/Sonic.app. We disable signing
     #    auto-discovery so electron-builder falls back to an ad-hoc signature
     #    instead of grabbing an unrelated Developer ID from the keychain; a
     #    real signed/notarized .dmg needs Apple credentials and is a separate
@@ -2397,15 +2397,15 @@ install_desktop() {
     local app=""
     local cand
     for cand in \
-        "$desktop_dir/release/mac-arm64/Hermes.app" \
-        "$desktop_dir/release/mac/Hermes.app"; do
+        "$desktop_dir/release/mac-arm64/Sonic.app" \
+        "$desktop_dir/release/mac/Sonic.app"; do
         if [ -d "$cand" ]; then
             app="$cand"
             break
         fi
     done
     if [ -z "$app" ]; then
-        log_error "Desktop build completed but no Hermes.app was found under $desktop_dir/release/"
+        log_error "Desktop build completed but no Sonic.app was found under $desktop_dir/release/"
         return 1
     fi
     log_success "Desktop app built: $app"
@@ -2413,7 +2413,7 @@ install_desktop() {
     # macOS: make the locally-built (ad-hoc) app relaunchable after an in-place
     # self-update. An ad-hoc bundle has no stable Designated Requirement, so a
     # later in-place rebuild (new cdhash) plus the inherited quarantine flag
-    # trips Gatekeeper's tamper check ("Hermes is damaged and can't be opened").
+    # trips Gatekeeper's tamper check ("Sonic is damaged and can't be opened").
     # Strip quarantine + re-apply a clean deep ad-hoc signature (no
     # hardened-runtime flag, which an ad-hoc build can't satisfy). Skipped when a
     # real signing identity is configured so a signed build isn't clobbered.
@@ -2423,7 +2423,7 @@ install_desktop() {
     fi
 
     # `npm install` + `npm run pack` rewrite lockfiles; restore them so the
-    # checkout stays clean for the next `hermes update`.
+    # checkout stays clean for the next `sonic update`.
     restore_dirty_lockfiles "$INSTALL_DIR"
 }
 
@@ -2514,8 +2514,8 @@ run_stage_body() {
             detect_os
             resolve_install_layout
             require_install_dir
-            # Each stage runs in its own process, so the Hermes-managed Node
-            # provisioned during prerequisites/node-deps (at $HERMES_HOME/node/bin)
+            # Each stage runs in its own process, so the Sonic-managed Node
+            # provisioned during prerequisites/node-deps (at $SONIC_HOME/node/bin)
             # isn't on PATH here. check_node re-adds it (or installs if missing)
             # so install_desktop can find npm instead of silently skipping.
             check_node
@@ -2525,7 +2525,7 @@ run_stage_body() {
             detect_os
             resolve_install_layout
             print_success
-            echo "git" > "$HERMES_HOME/.install_method"
+            echo "git" > "$SONIC_HOME/.install_method"
             ;;
         *)
             log_error "Unknown stage: $stage"

@@ -77,7 +77,7 @@ export function GatewaySettings() {
 
   useEffect(() => {
     let cancelled = false
-    const desktop = window.hermesDesktop
+    const desktop = window.sonicDesktop
 
     if (!desktop?.getConnectionConfig) {
       setLoading(false)
@@ -130,15 +130,15 @@ export function GatewaySettings() {
 
     try {
       const next = apply
-        ? await window.hermesDesktop.applyConnectionConfig(payload())
-        : await window.hermesDesktop.saveConnectionConfig(payload())
+        ? await window.sonicDesktop.applyConnectionConfig(payload())
+        : await window.sonicDesktop.saveConnectionConfig(payload())
 
       setState(next)
       setRemoteToken('')
       notify({
         kind: 'success',
         title: apply ? 'Gateway connection restarting' : 'Gateway settings saved',
-        message: apply ? 'Hermes Desktop will reconnect using the saved settings.' : 'Saved for the next restart.'
+        message: apply ? 'Sonic Desktop will reconnect using the saved settings.' : 'Saved for the next restart.'
       })
     } catch (err) {
       notifyError(err, apply ? 'Could not apply gateway settings' : 'Could not save gateway settings')
@@ -162,13 +162,13 @@ export function GatewaySettings() {
     setLastTest(null)
 
     try {
-      const result = await window.hermesDesktop.testConnectionConfig({
+      const result = await window.sonicDesktop.testConnectionConfig({
         mode: 'remote',
         remoteToken: remoteToken.trim() || undefined,
         remoteUrl: state.remoteUrl.trim()
       })
 
-      const message = `Connected to ${result.baseUrl}${result.version ? ` · Hermes ${result.version}` : ''}`
+      const message = `Connected to ${result.baseUrl}${result.version ? ` · Sonic ${result.version}` : ''}`
       setLastTest(message)
       notify({ kind: 'success', title: 'Remote gateway reachable', message })
     } catch (err) {
@@ -182,7 +182,7 @@ export function GatewaySettings() {
     return <LoadingState label="Loading gateway settings..." />
   }
 
-  if (!window.hermesDesktop?.getConnectionConfig) {
+  if (!window.sonicDesktop?.getConnectionConfig) {
     return (
       <EmptyState
         description="The desktop IPC bridge does not expose gateway settings."
@@ -200,8 +200,8 @@ export function GatewaySettings() {
           {state.envOverride ? <Pill tone="primary">env override</Pill> : null}
         </div>
         <p className="mt-2 max-w-2xl text-[length:var(--conversation-caption-font-size)] leading-(--conversation-caption-line-height) text-(--ui-text-tertiary)">
-          Hermes Desktop starts its own local gateway by default. Use a remote gateway when you want this app to control
-          an already-running Hermes backend on another machine or behind a trusted proxy.
+          Sonic Desktop starts its own local gateway by default. Use a remote gateway when you want this app to control
+          an already-running Sonic backend on another machine or behind a trusted proxy.
         </p>
       </div>
 
@@ -211,7 +211,7 @@ export function GatewaySettings() {
           <div>
             <div className="font-medium">Environment variables are controlling this desktop session.</div>
             <div className="mt-1 leading-5">
-              Unset <code>HERMES_DESKTOP_REMOTE_URL</code> and <code>HERMES_DESKTOP_REMOTE_TOKEN</code> to use the saved
+              Unset <code>SONIC_DESKTOP_REMOTE_URL</code> and <code>SONIC_DESKTOP_REMOTE_TOKEN</code> to use the saved
               setting below.
             </div>
           </div>
@@ -221,7 +221,7 @@ export function GatewaySettings() {
       <div className="grid gap-3 sm:grid-cols-2">
         <ModeCard
           active={state.mode === 'local'}
-          description="Start a private Hermes backend on localhost. This is the default and works offline."
+          description="Start a private Sonic backend on localhost. This is the default and works offline."
           disabled={state.envOverride}
           icon={Monitor}
           onSelect={() => setState(current => ({ ...current, mode: 'local' }))}
@@ -229,7 +229,7 @@ export function GatewaySettings() {
         />
         <ModeCard
           active={state.mode === 'remote'}
-          description="Connect this desktop shell to a remote Hermes backend using its session token."
+          description="Connect this desktop shell to a remote Sonic backend using its session token."
           disabled={state.envOverride}
           icon={Globe}
           onSelect={() => setState(current => ({ ...current, mode: 'remote' }))}
@@ -244,11 +244,11 @@ export function GatewaySettings() {
               className={cn('h-8', CONTROL_TEXT)}
               disabled={state.envOverride}
               onChange={event => setState(current => ({ ...current, remoteUrl: event.target.value }))}
-              placeholder="https://gateway.example.com/hermes"
+              placeholder="https://gateway.example.com/sonic"
               value={state.remoteUrl}
             />
           }
-          description="Base URL for the remote dashboard backend. Path prefixes are supported, for example /hermes."
+          description="Base URL for the remote dashboard backend. Path prefixes are supported, for example /sonic."
           title="Remote URL"
         />
         <ListRow
@@ -293,7 +293,7 @@ export function GatewaySettings() {
       <div className="mt-6 divide-y divide-border/40">
         <ListRow
           action={
-            <Button onClick={() => void window.hermesDesktop?.revealLogs()} variant="outline">
+            <Button onClick={() => void window.sonicDesktop?.revealLogs()} variant="outline">
               <FileText className="size-4" />
               Open logs
             </Button>

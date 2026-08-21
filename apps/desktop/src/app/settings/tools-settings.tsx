@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Switch } from '@/components/ui/switch'
-import { getSkills, getToolsets, toggleSkill, toggleToolset } from '@/hermes'
+import { getSkills, getToolsets, toggleSkill, toggleToolset } from '@/sonic'
 import { Brain, Wrench } from '@/lib/icons'
 import { notify, notifyError } from '@/store/notifications'
-import type { SkillInfo, ToolsetInfo } from '@/types/hermes'
+import type { SkillInfo, ToolsetInfo } from '@/types/sonic'
 
 import { asText, includesQuery, prettyName, toolNames } from './helpers'
 import { ListRow, LoadingState, Pill, SectionHeading, SettingsContent } from './primitives'

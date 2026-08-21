@@ -1,7 +1,7 @@
 import { IconDownload, IconRefresh, IconUpload } from '@tabler/icons-react'
 import { useEffect, useRef, useState } from 'react'
 
-import { getHermesConfigDefaults, getHermesConfigRecord, saveHermesConfig } from '@/hermes'
+import { getSonicConfigDefaults, getSonicConfigRecord, saveSonicConfig } from '@/sonic'
 import { triggerHaptic } from '@/lib/haptics'
 import { Globe, Info, KeyRound, Package, Wrench } from '@/lib/icons'
 import { notifyError } from '@/store/notifications'
@@ -52,12 +52,12 @@ export function SettingsView({ gateway, onClose, onConfigSaved }: SettingsPagePr
 
   const exportConfig = async () => {
     try {
-      const cfg = await getHermesConfigRecord()
+      const cfg = await getSonicConfigRecord()
       const blob = new Blob([JSON.stringify(cfg, null, 2)], { type: 'application/json' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = 'hermes-config.json'
+      a.download = 'sonic-config.json'
       a.click()
       URL.revokeObjectURL(url)
       triggerHaptic('success')
@@ -67,12 +67,12 @@ export function SettingsView({ gateway, onClose, onConfigSaved }: SettingsPagePr
   }
 
   const resetConfig = async () => {
-    if (!window.confirm('Reset all settings to Hermes defaults?')) {
+    if (!window.confirm('Reset all settings to Sonic defaults?')) {
       return
     }
 
     try {
-      await saveHermesConfig(await getHermesConfigDefaults())
+      await saveSonicConfig(await getSonicConfigDefaults())
       triggerHaptic('success')
       onConfigSaved?.()
     } catch (err) {

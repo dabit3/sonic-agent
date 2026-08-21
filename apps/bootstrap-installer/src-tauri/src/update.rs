@@ -1,21 +1,21 @@
 //! Update orchestration.
 //!
-//! Driven when the installer is launched as `Hermes-Setup.exe --update` (see
+//! Driven when the installer is launched as `Sonic-Setup.exe --update` (see
 //! `AppMode` in lib.rs). The desktop app hands off to us — it exits, then we:
 //!
-//!   1. wait for the old Hermes desktop process to fully exit (so the venv
-//!      shim is free; otherwise `hermes update` aborts with exit code 2),
-//!   2. run `hermes update --yes --gateway` (Python/repo update; this does NOT
-//!      rebuild apps/desktop by design — see cmd_update in hermes_cli/main.py),
-//!   3. run `hermes desktop --build-only` (the rebuild step update skips),
+//!   1. wait for the old Sonic desktop process to fully exit (so the venv
+//!      shim is free; otherwise `sonic update` aborts with exit code 2),
+//!   2. run `sonic update --yes --gateway` (Python/repo update; this does NOT
+//!      rebuild apps/desktop by design — see cmd_update in sonic_cli/main.py),
+//!   3. run `sonic desktop --build-only` (the rebuild step update skips),
 //!   4. launch the freshly-built desktop (reuses bootstrap::launch logic).
 //!
 //! We reuse the `BootstrapEvent` channel + the existing progress UI by
 //! emitting a synthetic two-stage manifest ("update", "rebuild"). To the
 //! frontend an update looks like a short bootstrap.
 //!
-//! Cross-platform note: `hermes update` already handles macOS/Linux (git/pip).
-//! The only OS-specific bits here are the venv shim path (resolve_hermes) and
+//! Cross-platform note: `sonic update` already handles macOS/Linux (git/pip).
+//! The only OS-specific bits here are the venv shim path (resolve_sonic) and
 //! the no-window creation flag — both already cfg-gated. Keep new logic
 //! OS-agnostic so the mac/linux port stays "fill in the paths".
 
@@ -30,13 +30,13 @@ use tokio::process::Command;
 
 use crate::events::{BootstrapEvent, StageInfo, StageState};
 
-/// `hermes update` exit code meaning "another hermes process is holding the
+/// `sonic update` exit code meaning "another sonic process is holding the
 /// venv shim open / dirty precondition" — see _cmd_update_impl in
-/// hermes_cli/main.py (sys.exit(2)). We surface a targeted message for this.
+/// sonic_cli/main.py (sys.exit(2)). We surface a targeted message for this.
 const UPDATE_EXIT_CONCURRENT: i32 = 2;
 
 /// How long to wait for the old desktop process to release the venv shim
-/// before giving up and letting `hermes update`'s own guard decide.
+/// before giving up and letting `sonic update`'s own guard decide.
 const DESKTOP_EXIT_WAIT: Duration = Duration::from_secs(20);
 const DESKTOP_EXIT_POLL: Duration = Duration::from_millis(500);
 
@@ -61,12 +61,12 @@ pub async fn start_update(app: AppHandle) -> Result<(), String> {
 }
 
 async fn run_update(app: AppHandle) -> Result<()> {
-    let hermes_home = crate::paths::hermes_home();
-    let install_root = hermes_home.join("hermes-agent");
+    let sonic_home = crate::paths::sonic_home();
+    let install_root = sonic_home.join("sonic-agent");
 
-    let hermes = resolve_hermes(&install_root).ok_or_else(|| {
+    let sonic = resolve_sonic(&install_root).ok_or_else(|| {
         let msg = format!(
-            "Could not find the hermes CLI under {}. Is Hermes installed? \
+            "Could not find the sonic CLI under {}. Is Sonic installed? \
              Re-run the installer to repair the install.",
             install_root.display()
         );
@@ -85,7 +85,7 @@ async fn run_update(app: AppHandle) -> Result<()> {
         &app,
         BootstrapEvent::Manifest {
             stages: vec![
-                stage_info("update", "Updating Hermes"),
+                stage_info("update", "Updating Sonic"),
                 stage_info("rebuild", "Rebuilding the desktop app"),
             ],
             protocol_version: None,
@@ -94,15 +94,15 @@ async fn run_update(app: AppHandle) -> Result<()> {
 
     // ---- pre-step: wait for the old desktop to die -----------------------
     // The desktop exec'd us then called app.exit(), but process teardown is
-    // async on Windows. If it still holds the venv shim, `hermes update`
+    // async on Windows. If it still holds the venv shim, `sonic update`
     // aborts with exit 2. Give it a bounded window to clear.
     wait_for_venv_free(&install_root, &app).await;
 
-    // ---- stage 1: hermes update -----------------------------------------
-    // Pass --branch so `hermes update` targets the branch this installer was
+    // ---- stage 1: sonic update -----------------------------------------
+    // Pass --branch so `sonic update` targets the branch this installer was
     // built/pinned against (BUILD_PIN_BRANCH), NOT its built-in default of
     // `main`. The install was a detached-HEAD checkout of a specific commit;
-    // without --branch, `hermes update` switches the checkout to `main` (a
+    // without --branch, `sonic update` switches the checkout to `main` (a
     // divergent branch that may not even have the desktop CLI command), then
     // reports "already up to date" against the wrong branch. The desktop
     // detected the update against this same branch, so we must update against
@@ -118,7 +118,7 @@ async fn run_update(app: AppHandle) -> Result<()> {
     let started = Instant::now();
     let update = run_streamed(
         &app,
-        &hermes,
+        &sonic,
         &update_args,
         &install_root,
         Some("update"),
@@ -131,7 +131,7 @@ async fn run_update(app: AppHandle) -> Result<()> {
             emit_stage(&app, "update", StageState::Succeeded, Some(update_ms), None);
         }
         Some(code) if code == UPDATE_EXIT_CONCURRENT => {
-            let msg = "Hermes is still running. Close all Hermes windows and try \
+            let msg = "Sonic is still running. Close all Sonic windows and try \
                        the update again."
                 .to_string();
             emit_stage(
@@ -152,9 +152,9 @@ async fn run_update(app: AppHandle) -> Result<()> {
         }
         other => {
             let msg = format!(
-                "hermes update failed (exit {:?}). See {} for details.",
+                "sonic update failed (exit {:?}). See {} for details.",
                 other,
-                crate::paths::hermes_home()
+                crate::paths::sonic_home()
                     .join("logs")
                     .join("update.log")
                     .display()
@@ -177,14 +177,14 @@ async fn run_update(app: AppHandle) -> Result<()> {
         }
     }
 
-    // ---- stage 2: hermes desktop --build-only ----------------------------
-    // `hermes update` deliberately does NOT build apps/desktop (it installs
+    // ---- stage 2: sonic desktop --build-only ----------------------------
+    // `sonic update` deliberately does NOT build apps/desktop (it installs
     // repo-root deps with --workspaces=false). This is the rebuild it skips.
     emit_stage(&app, "rebuild", StageState::Running, None, None);
     let started = Instant::now();
     let rebuild = run_streamed(
         &app,
-        &hermes,
+        &sonic,
         &["desktop", "--build-only"],
         &install_root,
         Some("rebuild"),
@@ -195,7 +195,7 @@ async fn run_update(app: AppHandle) -> Result<()> {
     if rebuild.exit_code != Some(0) {
         let msg = format!(
             "Rebuilding the desktop app failed (exit {:?}). The update was \
-             applied but the app could not be rebuilt; run `hermes desktop` \
+             applied but the app could not be rebuilt; run `sonic desktop` \
              from a terminal to see the error.",
             rebuild.exit_code
         );
@@ -228,7 +228,7 @@ async fn run_update(app: AppHandle) -> Result<()> {
 
     // Reuse the same detached-launch + app.exit(0) used post-install.
     if let Err(err) =
-        crate::bootstrap::launch_hermes_desktop(app.clone(), install_root.to_string_lossy().into_owned())
+        crate::bootstrap::launch_sonic_desktop(app.clone(), install_root.to_string_lossy().into_owned())
             .await
     {
         // Launch failed: don't hard-fail the update (it succeeded); surface a
@@ -237,7 +237,7 @@ async fn run_update(app: AppHandle) -> Result<()> {
         emit_log(
             &app,
             None,
-            &format!("[update] could not auto-launch desktop: {err}. Launch Hermes manually."),
+            &format!("[update] could not auto-launch desktop: {err}. Launch Sonic manually."),
         );
     }
 
@@ -248,10 +248,10 @@ async fn run_update(app: AppHandle) -> Result<()> {
 /// elapses. On non-Windows this is a short fixed grace since file locking
 /// isn't the failure mode there.
 async fn wait_for_venv_free(install_root: &Path, app: &AppHandle) {
-    let shim = venv_hermes(install_root);
+    let shim = venv_sonic(install_root);
     let deadline = Instant::now() + DESKTOP_EXIT_WAIT;
 
-    emit_log(app, Some("update"), "[update] waiting for Hermes to exit…");
+    emit_log(app, Some("update"), "[update] waiting for Sonic to exit…");
 
     loop {
         if !is_locked(&shim) {
@@ -261,7 +261,7 @@ async fn wait_for_venv_free(install_root: &Path, app: &AppHandle) {
             emit_log(
                 app,
                 Some("update"),
-                "[update] timed out waiting for Hermes to exit; proceeding anyway",
+                "[update] timed out waiting for Sonic to exit; proceeding anyway",
             );
             return;
         }
@@ -283,7 +283,7 @@ fn is_locked(path: &Path) -> bool {
     }
 }
 
-/// Spawn `hermes <args>` from `cwd`, stream stdout/stderr as Log events on the
+/// Spawn `sonic <args>` from `cwd`, stream stdout/stderr as Log events on the
 /// bootstrap channel, and return the exit code. Mirrors powershell::run_script
 /// but for an arbitrary command (no install.ps1 -File wrapping).
 async fn run_streamed(
@@ -348,24 +348,24 @@ struct CmdResult {
     exit_code: Option<i32>,
 }
 
-/// Path to the venv hermes shim under an install root, regardless of existence.
-fn venv_hermes(install_root: &Path) -> PathBuf {
+/// Path to the venv sonic shim under an install root, regardless of existence.
+fn venv_sonic(install_root: &Path) -> PathBuf {
     if cfg!(target_os = "windows") {
-        install_root.join("venv").join("Scripts").join("hermes.exe")
+        install_root.join("venv").join("Scripts").join("sonic.exe")
     } else {
-        install_root.join("venv").join("bin").join("hermes")
+        install_root.join("venv").join("bin").join("sonic")
     }
 }
 
-/// Resolve the hermes CLI to drive. Prefer the venv shim in the install we
-/// just updated; fall back to `hermes` on PATH.
-fn resolve_hermes(install_root: &Path) -> Option<PathBuf> {
-    let shim = venv_hermes(install_root);
+/// Resolve the sonic CLI to drive. Prefer the venv shim in the install we
+/// just updated; fall back to `sonic` on PATH.
+fn resolve_sonic(install_root: &Path) -> Option<PathBuf> {
+    let shim = venv_sonic(install_root);
     if shim.exists() {
         return Some(shim);
     }
     // PATH fallback. which-style probe via env, kept dependency-free.
-    let exe = if cfg!(target_os = "windows") { "hermes.exe" } else { "hermes" };
+    let exe = if cfg!(target_os = "windows") { "sonic.exe" } else { "sonic" };
     if let Ok(path) = std::env::var("PATH") {
         let sep = if cfg!(target_os = "windows") { ';' } else { ':' };
         for dir in path.split(sep) {
@@ -448,9 +448,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn venv_hermes_is_under_install_root() {
-        let root = Path::new("/x/hermes-agent");
-        let shim = venv_hermes(root);
+    fn venv_sonic_is_under_install_root() {
+        let root = Path::new("/x/sonic-agent");
+        let shim = venv_sonic(root);
         assert!(shim.starts_with(root));
         assert!(shim.to_string_lossy().contains("venv"));
     }

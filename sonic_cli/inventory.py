@@ -132,7 +132,7 @@ def build_models_payload(
     - ``pricing``: enrich each row with formatted per-model pricing and,
       for Nous, ``free_tier``/``unavailable_models`` so the GUI picker can
       show $/Mtok columns and gate paid models on free accounts —
-      mirroring the ``hermes model`` CLI picker. Adds network calls
+      mirroring the ``sonic model`` CLI picker. Adds network calls
       (pricing fetch + Nous tier check); only set for interactive pickers.
     """
     from sonic_cli.model_switch import list_authenticated_providers
@@ -266,7 +266,7 @@ def _apply_pricing(rows: list[dict]) -> None:
     renders strings — identical formatting to the CLI picker. All failures
     are swallowed (best-effort): a row simply gets no ``pricing`` key.
     """
-    from hermes_cli.models import (
+    from sonic_cli.models import (
         _format_price_per_mtok,
         check_nous_free_tier,
         get_pricing_for_provider,

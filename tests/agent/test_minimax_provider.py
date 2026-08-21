@@ -47,7 +47,7 @@ class TestMinimaxM3StaleCacheGuard:
         assert not _model_name_suggests_minimax_m3("MiniMax-M2.5")
 
     def test_stale_m3_cache_dropped_and_reresolves_to_1m(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
         import importlib
         import agent.model_metadata as mm
         importlib.reload(mm)
@@ -59,7 +59,7 @@ class TestMinimaxM3StaleCacheGuard:
         assert ctx == 1_000_000
 
     def test_correct_m3_cache_preserved(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
         import importlib
         import agent.model_metadata as mm
         importlib.reload(mm)
@@ -71,7 +71,7 @@ class TestMinimaxM3StaleCacheGuard:
         assert ctx == 1_000_000
 
     def test_m2_cache_not_clobbered(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
         import importlib
         import agent.model_metadata as mm
         importlib.reload(mm)

@@ -1,22 +1,22 @@
 const { contextBridge, ipcRenderer, webUtils } = require('electron')
 
-contextBridge.exposeInMainWorld('hermesDesktop', {
-  getConnection: () => ipcRenderer.invoke('hermes:connection'),
-  getBootProgress: () => ipcRenderer.invoke('hermes:boot-progress:get'),
-  getConnectionConfig: () => ipcRenderer.invoke('hermes:connection-config:get'),
-  saveConnectionConfig: payload => ipcRenderer.invoke('hermes:connection-config:save', payload),
-  applyConnectionConfig: payload => ipcRenderer.invoke('hermes:connection-config:apply', payload),
-  testConnectionConfig: payload => ipcRenderer.invoke('hermes:connection-config:test', payload),
-  api: request => ipcRenderer.invoke('hermes:api', request),
-  notify: payload => ipcRenderer.invoke('hermes:notify', payload),
-  requestMicrophoneAccess: () => ipcRenderer.invoke('hermes:requestMicrophoneAccess'),
-  readFileDataUrl: filePath => ipcRenderer.invoke('hermes:readFileDataUrl', filePath),
-  readFileText: filePath => ipcRenderer.invoke('hermes:readFileText', filePath),
-  selectPaths: options => ipcRenderer.invoke('hermes:selectPaths', options),
-  writeClipboard: text => ipcRenderer.invoke('hermes:writeClipboard', text),
-  saveImageFromUrl: url => ipcRenderer.invoke('hermes:saveImageFromUrl', url),
-  saveImageBuffer: (data, ext) => ipcRenderer.invoke('hermes:saveImageBuffer', { data, ext }),
-  saveClipboardImage: () => ipcRenderer.invoke('hermes:saveClipboardImage'),
+contextBridge.exposeInMainWorld('sonicDesktop', {
+  getConnection: () => ipcRenderer.invoke('sonic:connection'),
+  getBootProgress: () => ipcRenderer.invoke('sonic:boot-progress:get'),
+  getConnectionConfig: () => ipcRenderer.invoke('sonic:connection-config:get'),
+  saveConnectionConfig: payload => ipcRenderer.invoke('sonic:connection-config:save', payload),
+  applyConnectionConfig: payload => ipcRenderer.invoke('sonic:connection-config:apply', payload),
+  testConnectionConfig: payload => ipcRenderer.invoke('sonic:connection-config:test', payload),
+  api: request => ipcRenderer.invoke('sonic:api', request),
+  notify: payload => ipcRenderer.invoke('sonic:notify', payload),
+  requestMicrophoneAccess: () => ipcRenderer.invoke('sonic:requestMicrophoneAccess'),
+  readFileDataUrl: filePath => ipcRenderer.invoke('sonic:readFileDataUrl', filePath),
+  readFileText: filePath => ipcRenderer.invoke('sonic:readFileText', filePath),
+  selectPaths: options => ipcRenderer.invoke('sonic:selectPaths', options),
+  writeClipboard: text => ipcRenderer.invoke('sonic:writeClipboard', text),
+  saveImageFromUrl: url => ipcRenderer.invoke('sonic:saveImageFromUrl', url),
+  saveImageBuffer: (data, ext) => ipcRenderer.invoke('sonic:saveImageBuffer', { data, ext }),
+  saveClipboardImage: () => ipcRenderer.invoke('sonic:saveClipboardImage'),
   getPathForFile: file => {
     try {
       return webUtils.getPathForFile(file) || ''
@@ -24,30 +24,30 @@ contextBridge.exposeInMainWorld('hermesDesktop', {
       return ''
     }
   },
-  normalizePreviewTarget: (target, baseDir) => ipcRenderer.invoke('hermes:normalizePreviewTarget', target, baseDir),
-  watchPreviewFile: url => ipcRenderer.invoke('hermes:watchPreviewFile', url),
-  stopPreviewFileWatch: id => ipcRenderer.invoke('hermes:stopPreviewFileWatch', id),
-  setTitleBarTheme: payload => ipcRenderer.send('hermes:titlebar-theme', payload),
-  setPreviewShortcutActive: active => ipcRenderer.send('hermes:previewShortcutActive', Boolean(active)),
-  openExternal: url => ipcRenderer.invoke('hermes:openExternal', url),
-  fetchLinkTitle: url => ipcRenderer.invoke('hermes:fetchLinkTitle', url),
-  revealLogs: () => ipcRenderer.invoke('hermes:logs:reveal'),
-  getRecentLogs: () => ipcRenderer.invoke('hermes:logs:recent'),
-  readDir: dirPath => ipcRenderer.invoke('hermes:fs:readDir', dirPath),
-  gitRoot: startPath => ipcRenderer.invoke('hermes:fs:gitRoot', startPath),
+  normalizePreviewTarget: (target, baseDir) => ipcRenderer.invoke('sonic:normalizePreviewTarget', target, baseDir),
+  watchPreviewFile: url => ipcRenderer.invoke('sonic:watchPreviewFile', url),
+  stopPreviewFileWatch: id => ipcRenderer.invoke('sonic:stopPreviewFileWatch', id),
+  setTitleBarTheme: payload => ipcRenderer.send('sonic:titlebar-theme', payload),
+  setPreviewShortcutActive: active => ipcRenderer.send('sonic:previewShortcutActive', Boolean(active)),
+  openExternal: url => ipcRenderer.invoke('sonic:openExternal', url),
+  fetchLinkTitle: url => ipcRenderer.invoke('sonic:fetchLinkTitle', url),
+  revealLogs: () => ipcRenderer.invoke('sonic:logs:reveal'),
+  getRecentLogs: () => ipcRenderer.invoke('sonic:logs:recent'),
+  readDir: dirPath => ipcRenderer.invoke('sonic:fs:readDir', dirPath),
+  gitRoot: startPath => ipcRenderer.invoke('sonic:fs:gitRoot', startPath),
   terminal: {
-    dispose: id => ipcRenderer.invoke('hermes:terminal:dispose', id),
-    resize: (id, size) => ipcRenderer.invoke('hermes:terminal:resize', id, size),
-    start: options => ipcRenderer.invoke('hermes:terminal:start', options),
-    write: (id, data) => ipcRenderer.invoke('hermes:terminal:write', id, data),
+    dispose: id => ipcRenderer.invoke('sonic:terminal:dispose', id),
+    resize: (id, size) => ipcRenderer.invoke('sonic:terminal:resize', id, size),
+    start: options => ipcRenderer.invoke('sonic:terminal:start', options),
+    write: (id, data) => ipcRenderer.invoke('sonic:terminal:write', id, data),
     onData: (id, callback) => {
-      const channel = `hermes:terminal:${id}:data`
+      const channel = `sonic:terminal:${id}:data`
       const listener = (_event, payload) => callback(payload)
       ipcRenderer.on(channel, listener)
       return () => ipcRenderer.removeListener(channel, listener)
     },
     onExit: (id, callback) => {
-      const channel = `hermes:terminal:${id}:exit`
+      const channel = `sonic:terminal:${id}:exit`
       const listener = (_event, payload) => callback(payload)
       ipcRenderer.on(channel, listener)
       return () => ipcRenderer.removeListener(channel, listener)
@@ -55,57 +55,57 @@ contextBridge.exposeInMainWorld('hermesDesktop', {
   },
   onClosePreviewRequested: callback => {
     const listener = () => callback()
-    ipcRenderer.on('hermes:close-preview-requested', listener)
-    return () => ipcRenderer.removeListener('hermes:close-preview-requested', listener)
+    ipcRenderer.on('sonic:close-preview-requested', listener)
+    return () => ipcRenderer.removeListener('sonic:close-preview-requested', listener)
   },
   onOpenUpdatesRequested: callback => {
     const listener = () => callback()
-    ipcRenderer.on('hermes:open-updates', listener)
-    return () => ipcRenderer.removeListener('hermes:open-updates', listener)
+    ipcRenderer.on('sonic:open-updates', listener)
+    return () => ipcRenderer.removeListener('sonic:open-updates', listener)
   },
   onWindowStateChanged: callback => {
     const listener = (_event, payload) => callback(payload)
-    ipcRenderer.on('hermes:window-state-changed', listener)
-    return () => ipcRenderer.removeListener('hermes:window-state-changed', listener)
+    ipcRenderer.on('sonic:window-state-changed', listener)
+    return () => ipcRenderer.removeListener('sonic:window-state-changed', listener)
   },
   onPreviewFileChanged: callback => {
     const listener = (_event, payload) => callback(payload)
-    ipcRenderer.on('hermes:preview-file-changed', listener)
-    return () => ipcRenderer.removeListener('hermes:preview-file-changed', listener)
+    ipcRenderer.on('sonic:preview-file-changed', listener)
+    return () => ipcRenderer.removeListener('sonic:preview-file-changed', listener)
   },
   onBackendExit: callback => {
     const listener = (_event, payload) => callback(payload)
-    ipcRenderer.on('hermes:backend-exit', listener)
-    return () => ipcRenderer.removeListener('hermes:backend-exit', listener)
+    ipcRenderer.on('sonic:backend-exit', listener)
+    return () => ipcRenderer.removeListener('sonic:backend-exit', listener)
   },
   onBootProgress: callback => {
     const listener = (_event, payload) => callback(payload)
-    ipcRenderer.on('hermes:boot-progress', listener)
-    return () => ipcRenderer.removeListener('hermes:boot-progress', listener)
+    ipcRenderer.on('sonic:boot-progress', listener)
+    return () => ipcRenderer.removeListener('sonic:boot-progress', listener)
   },
   // First-launch bootstrap progress -- emitted by the install.ps1 stage
   // runner in main.cjs (apps/desktop/electron/bootstrap-runner.cjs).
   // Renderer's install overlay subscribes to live events and queries the
   // current snapshot via getBootstrapState() to recover after a devtools
   // reload mid-bootstrap.
-  getBootstrapState: () => ipcRenderer.invoke('hermes:bootstrap:get'),
-  resetBootstrap: () => ipcRenderer.invoke('hermes:bootstrap:reset'),
-  repairBootstrap: () => ipcRenderer.invoke('hermes:bootstrap:repair'),
+  getBootstrapState: () => ipcRenderer.invoke('sonic:bootstrap:get'),
+  resetBootstrap: () => ipcRenderer.invoke('sonic:bootstrap:reset'),
+  repairBootstrap: () => ipcRenderer.invoke('sonic:bootstrap:repair'),
   onBootstrapEvent: callback => {
     const listener = (_event, payload) => callback(payload)
-    ipcRenderer.on('hermes:bootstrap:event', listener)
-    return () => ipcRenderer.removeListener('hermes:bootstrap:event', listener)
+    ipcRenderer.on('sonic:bootstrap:event', listener)
+    return () => ipcRenderer.removeListener('sonic:bootstrap:event', listener)
   },
-  getVersion: () => ipcRenderer.invoke('hermes:version'),
+  getVersion: () => ipcRenderer.invoke('sonic:version'),
   updates: {
-    check: () => ipcRenderer.invoke('hermes:updates:check'),
-    apply: opts => ipcRenderer.invoke('hermes:updates:apply', opts),
-    getBranch: () => ipcRenderer.invoke('hermes:updates:branch:get'),
-    setBranch: name => ipcRenderer.invoke('hermes:updates:branch:set', name),
+    check: () => ipcRenderer.invoke('sonic:updates:check'),
+    apply: opts => ipcRenderer.invoke('sonic:updates:apply', opts),
+    getBranch: () => ipcRenderer.invoke('sonic:updates:branch:get'),
+    setBranch: name => ipcRenderer.invoke('sonic:updates:branch:set', name),
     onProgress: callback => {
       const listener = (_event, payload) => callback(payload)
-      ipcRenderer.on('hermes:updates:progress', listener)
-      return () => ipcRenderer.removeListener('hermes:updates:progress', listener)
+      ipcRenderer.on('sonic:updates:progress', listener)
+      return () => ipcRenderer.removeListener('sonic:updates:progress', listener)
     }
   }
 })

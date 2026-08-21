@@ -17,13 +17,13 @@ import {
   PaginationPrevious
 } from '@/components/ui/pagination'
 import { TextTab, TextTabMeta } from '@/components/ui/text-tab'
-import { getSessionMessages, listSessions } from '@/hermes'
+import { getSessionMessages, listSessions } from '@/sonic'
 import { sessionTitle } from '@/lib/chat-runtime'
 import { ExternalLink, ExternalLinkIcon, hostPathLabel, urlSlugTitleLabel, useLinkTitle } from '@/lib/external-link'
 import { FileImage, FileText, FolderOpen, Link2 } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { notifyError } from '@/store/notifications'
-import type { SessionInfo, SessionMessage } from '@/types/hermes'
+import type { SessionInfo, SessionMessage } from '@/types/sonic'
 
 import { useRouteEnumParam } from '../hooks/use-route-enum-param'
 import { PageSearchShell } from '../page-search-shell'
@@ -474,8 +474,8 @@ export function ArtifactsView({ setStatusbarItemGroup: _setStatusbarItemGroup, .
 
   const openArtifact = useCallback(async (href: string) => {
     try {
-      if (window.hermesDesktop?.openExternal) {
-        await window.hermesDesktop.openExternal(href)
+      if (window.sonicDesktop?.openExternal) {
+        await window.sonicDesktop.openExternal(href)
       } else {
         window.open(href, '_blank', 'noopener,noreferrer')
       }

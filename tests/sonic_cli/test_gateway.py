@@ -579,7 +579,7 @@ def test_find_gateway_pids_falls_back_to_pid_file_when_process_scan_fails(monkey
     assert gateway.find_gateway_pids() == [321]
 
 
-def test_scan_gateway_pids_detects_windows_hermes_exe_case_variants(monkeypatch):
+def test_scan_gateway_pids_detects_windows_sonic_exe_case_variants(monkeypatch):
     monkeypatch.setattr(gateway, "is_windows", lambda: True)
     monkeypatch.setattr(gateway, "_get_ancestor_pids", lambda: set())
     monkeypatch.setattr(gateway.shutil, "which", lambda name: "wmic.exe" if name == "wmic" else None)
@@ -589,7 +589,7 @@ def test_scan_gateway_pids_detects_windows_hermes_exe_case_variants(monkeypatch)
             return SimpleNamespace(
                 returncode=0,
                 stdout=(
-                    "CommandLine=C:\\Program Files\\Hermes\\Hermes.EXE gateway run --replace\n"
+                    "CommandLine=C:\\Program Files\\Sonic\\Sonic.EXE gateway run --replace\n"
                     "ProcessId=2468\n\n"
                 ),
                 stderr="",

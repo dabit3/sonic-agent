@@ -489,7 +489,7 @@ class TestMediaInsideSerializedJson:
     def test_media_in_embedded_serialized_reply_not_extracted(self):
         """A serialized tool result that embeds a prior reply's MEDIA: tag."""
         content = (
-            '{"content":"previous reply MEDIA:/Users/ex/.hermes/media/'
+            '{"content":"previous reply MEDIA:/Users/ex/.sonic/media/'
             'generated/stale.png and more text"}'
         )
         media, _ = BasePlatformAdapter.extract_media(content)

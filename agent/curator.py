@@ -188,7 +188,7 @@ def get_prune_builtins() -> bool:
 
     ON by default. When on, built-ins become curation candidates and are
     archived after the same inactivity period as agent-created skills, with a
-    suppression list keeping them archived across `hermes update` re-seeds.
+    suppression list keeping them archived across `sonic update` re-seeds.
     Hub-installed skills are never pruned regardless of this flag.
     """
     cfg = _load_config()
@@ -1524,7 +1524,7 @@ def run_curator_review(
                         "rule #1 for bundled skills ONLY. Hub-installed skills "
                         "remain strictly off-limits. Treat a stale built-in the "
                         "same as a stale agent-created skill: archive it (never "
-                        "delete). It will be restored on `hermes update` only if "
+                        "delete). It will be restored on `sonic update` only if "
                         "the user explicitly restores it."
                     )
                 if dry_run:

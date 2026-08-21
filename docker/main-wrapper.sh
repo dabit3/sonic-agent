@@ -19,7 +19,7 @@
 # Drop to sonic via s6-setuidgid, but skip it when already non-root.
 set -e
 
-drop() { [ "$(id -u)" = 0 ] && set -- s6-setuidgid hermes "$@"; exec "$@"; }
+drop() { [ "$(id -u)" = 0 ] && set -- s6-setuidgid sonic "$@"; exec "$@"; }
 
 # HOME comes through with-contenv as /root (the /init context). Override
 # to the sonic user's home before dropping privileges so libraries that

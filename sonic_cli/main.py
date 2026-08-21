@@ -1711,15 +1711,15 @@ def _pin_kanban_board_env() -> None:
 
 
 def _sync_bundled_skills_quietly() -> None:
-    """Seed ``~/.hermes/skills/`` with the bundled skill library on first launch.
+    """Seed ``~/.sonic/skills/`` with the bundled skill library on first launch.
 
     Called from any CLI entrypoint that the user might use as their first
-    interaction with Hermes — chat, dashboard (the desktop GUI's backend),
+    interaction with Sonic — chat, dashboard (the desktop GUI's backend),
     and gateway. The skills_sync module is manifest-based and idempotent:
     skipped skills cost ~milliseconds, so calling this repeatedly is fine.
 
     Failures are swallowed because skills are an enhancement, not a hard
-    dependency. Hermes still functions without them; the user just sees an
+    dependency. Sonic still functions without them; the user just sees an
     empty skills library.
     """
     try:
@@ -6907,17 +6907,17 @@ def _desktop_packaged_executable(desktop_dir: Path) -> Optional[Path]:
     """Return the current platform's unpacked Electron app executable."""
     release_dir = desktop_dir / "release"
     if sys.platform == "darwin":
-        candidates = list(release_dir.glob("mac*/Hermes.app/Contents/MacOS/Hermes"))
+        candidates = list(release_dir.glob("mac*/Sonic.app/Contents/MacOS/Sonic"))
     elif sys.platform == "win32":
         candidates = [
-            release_dir / "win-unpacked" / "Hermes.exe",
-            release_dir / "win-ia32-unpacked" / "Hermes.exe",
-            release_dir / "win-arm64-unpacked" / "Hermes.exe",
+            release_dir / "win-unpacked" / "Sonic.exe",
+            release_dir / "win-ia32-unpacked" / "Sonic.exe",
+            release_dir / "win-arm64-unpacked" / "Sonic.exe",
         ]
     else:
         candidates = [
-            release_dir / "linux-unpacked" / "hermes",
-            release_dir / "linux-unpacked" / "Hermes",
+            release_dir / "linux-unpacked" / "sonic",
+            release_dir / "linux-unpacked" / "Sonic",
         ]
 
     existing = [p for p in candidates if p.exists()]
@@ -6932,7 +6932,7 @@ def _desktop_macos_relaunchable_fixup(desktop_dir: Path) -> None:
     An ad-hoc-signed .app has no stable Designated Requirement (no Team ID), so
     when the self-updater rebuilds the bundle in place with a fresh build (a new,
     different cdhash) Gatekeeper/LaunchServices treats the changed code as
-    tampering and macOS reports "Hermes is damaged and can't be opened." The
+    tampering and macOS reports "Sonic is damaged and can't be opened." The
     bundle also inherits the com.apple.quarantine flag from the downloaded
     installer process chain. Both make the relaunch fail.
 
@@ -6949,7 +6949,7 @@ def _desktop_macos_relaunchable_fixup(desktop_dir: Path) -> None:
     exe = _desktop_packaged_executable(desktop_dir)
     if exe is None:
         return
-    # exe = .../Hermes.app/Contents/MacOS/Hermes  ->  app bundle = .../Hermes.app
+    # exe = .../Sonic.app/Contents/MacOS/Sonic  ->  app bundle = .../Sonic.app
     app = exe.parents[2]
     if not str(app).endswith(".app") or not app.is_dir():
         return
@@ -6971,20 +6971,20 @@ def cmd_gui(args):
         sys.exit(1)
 
     try:
-        from hermes_logging import setup_logging as _setup_logging_gui
+        from sonic_logging import setup_logging as _setup_logging_gui
         _setup_logging_gui(mode="gui")
     except Exception:
         pass
 
     env = os.environ.copy()
     if getattr(args, "fake_boot", False):
-        env["HERMES_DESKTOP_BOOT_FAKE"] = "1"
+        env["SONIC_DESKTOP_BOOT_FAKE"] = "1"
     if getattr(args, "ignore_existing", False):
-        env["HERMES_DESKTOP_IGNORE_EXISTING"] = "1"
-    if getattr(args, "hermes_root", None):
-        env["HERMES_DESKTOP_HERMES_ROOT"] = str(Path(args.hermes_root).expanduser().resolve())
+        env["SONIC_DESKTOP_IGNORE_EXISTING"] = "1"
+    if getattr(args, "sonic_root", None):
+        env["SONIC_DESKTOP_SONIC_ROOT"] = str(Path(args.sonic_root).expanduser().resolve())
     if getattr(args, "cwd", None):
-        env["HERMES_DESKTOP_CWD"] = str(Path(args.cwd).expanduser().resolve())
+        env["SONIC_DESKTOP_CWD"] = str(Path(args.cwd).expanduser().resolve())
 
     source_mode = getattr(args, "source", False)
     skip_build = getattr(args, "skip_build", False)
@@ -6994,7 +6994,7 @@ def cmd_gui(args):
         npm = shutil.which("npm")
         if not npm:
             print("Desktop GUI requires Node.js/npm, but npm was not found on PATH.")
-            print("Install Node.js, then run:  hermes gui")
+            print("Install Node.js, then run:  sonic gui")
             sys.exit(1)
     else:
         npm = None
@@ -7038,7 +7038,7 @@ def cmd_gui(args):
         packaged_executable = _desktop_packaged_executable(desktop_dir)
         if not source_mode:
             # Locally-built apps are ad-hoc signed; make them relaunchable after
-            # an in-place self-update (otherwise macOS reports "Hermes is
+            # an in-place self-update (otherwise macOS reports "Sonic is
             # damaged"). No-op on non-macOS and on real-identity builds.
             _desktop_macos_relaunchable_fixup(desktop_dir)
 
@@ -7063,7 +7063,7 @@ def cmd_gui(args):
         return
 
     if source_mode:
-        print("→ Launching Hermes Desktop from source build...")
+        print("→ Launching Sonic Desktop from source build...")
         launch_result = subprocess.run([npm, "exec", "--", "electron", "."], cwd=desktop_dir, env=env, check=False)
         sys.exit(launch_result.returncode)
 
@@ -7072,7 +7072,7 @@ def cmd_gui(args):
         print("  Expected an unpacked Electron app for the current OS.")
         sys.exit(1)
 
-    print(f"→ Launching packaged Hermes Desktop: {packaged_executable}")
+    print(f"→ Launching packaged Sonic Desktop: {packaged_executable}")
     launch_result = subprocess.run([str(packaged_executable)], cwd=desktop_dir, env=env, check=False)
     sys.exit(launch_result.returncode)
 
@@ -9181,7 +9181,7 @@ def _discard_lockfile_churn(git_cmd, repo_root):
 
     npm rewrites lockfiles non-deterministically at install/build time. On a
     managed install those diffs are never intentional, so we discard them so
-    ``hermes update`` sees a clean tree instead of autostashing every run.
+    ``sonic update`` sees a clean tree instead of autostashing every run.
     Best-effort; only ever touches files named ``package-lock.json``.
     """
     try:
@@ -11367,9 +11367,9 @@ def cmd_dashboard(args):
         sys.exit(1 if remaining else 0)
 
     # Attach gui.log early so dashboard startup/build failures are captured in
-    # the same logs directory as every other Hermes surface.
+    # the same logs directory as every other Sonic surface.
     try:
-        from hermes_logging import setup_logging as _setup_logging_gui
+        from sonic_logging import setup_logging as _setup_logging_gui
         _setup_logging_gui(mode="gui")
     except Exception:
         pass
@@ -13307,7 +13307,7 @@ Examples:
         help="Stop bundled skills from being seeded into this profile",
         description=(
             "Write the .no-bundled-skills marker so the installer, "
-            "`hermes update`, and any direct sync stop seeding bundled skills "
+            "`sonic update`, and any direct sync stop seeding bundled skills "
             "into the active profile. By default nothing already on disk is "
             "touched. Pass --remove to ALSO delete bundled skills that are "
             "unmodified (user-edited and hub/local skills are never removed)."
@@ -13330,7 +13330,7 @@ Examples:
         help="Re-enable bundled-skill seeding (undo opt-out)",
         description=(
             "Remove the .no-bundled-skills marker so bundled skills are seeded "
-            "again on the next `hermes update`. Pass --sync to re-seed now."
+            "again on the next `sonic update`. Pass --sync to re-seed now."
         ),
     )
     skills_opt_in.add_argument(
@@ -14752,8 +14752,8 @@ Examples:
     # desktop (a.k.a. gui) command
     #
     # The canonical name is "desktop"; "gui" is kept as a deprecated alias
-    # for one release. The Hermes-Setup.exe success screen tells users to
-    # run `hermes desktop` from a terminal, so the canonical name needs
+    # for one release. The Sonic-Setup.exe success screen tells users to
+    # run `sonic desktop` from a terminal, so the canonical name needs
     # to be the one that appears in --help (argparse promotes the primary
     # name; aliases stay hidden).
     # =========================================================================
@@ -14762,7 +14762,7 @@ Examples:
         aliases=["gui"],
         help="Build and launch the native desktop app",
         description=(
-            "Launch the Hermes Electron desktop app. By default this installs "
+            "Launch the Sonic Electron desktop app. By default this installs "
             "workspace Node dependencies, builds the current OS's unpacked "
             "Electron app, then launches that packaged artifact."
         ),
@@ -14790,15 +14790,15 @@ Examples:
     gui_parser.add_argument(
         "--ignore-existing",
         action="store_true",
-        help="Force Desktop to ignore any hermes CLI already on PATH during backend resolution",
+        help="Force Desktop to ignore any sonic CLI already on PATH during backend resolution",
     )
     gui_parser.add_argument(
-        "--hermes-root",
-        help="Override the Hermes source root used by Desktop (sets HERMES_DESKTOP_HERMES_ROOT)",
+        "--sonic-root",
+        help="Override the Sonic source root used by Desktop (sets SONIC_DESKTOP_SONIC_ROOT)",
     )
     gui_parser.add_argument(
         "--cwd",
-        help="Initial project directory for Desktop chat sessions (sets HERMES_DESKTOP_CWD)",
+        help="Initial project directory for Desktop chat sessions (sets SONIC_DESKTOP_CWD)",
     )
     gui_parser.set_defaults(func=cmd_gui)
 

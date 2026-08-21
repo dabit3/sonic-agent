@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Hermes Setup",
+  "productName": "Sonic Setup",
   "version": "0.0.1",
-  "identifier": "com.nousresearch.hermes.setup",
+  "identifier": "com.nousresearch.sonic.setup",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://127.0.0.1:5175",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Hermes Setup",
+        "title": "Sonic Setup",
         "width": 880,
         "height": 620,
         "minWidth": 720,
@@ -33,8 +33,8 @@
   "bundle": {
     "active": true,
     "category": "DeveloperTool",
-    "shortDescription": "Hermes Setup",
-    "longDescription": "Installs Hermes Agent on your machine. Drives scripts/install.ps1 (Windows) and scripts/install.sh (macOS/Linux).",
+    "shortDescription": "Sonic Setup",
+    "longDescription": "Installs Sonic Agent on your machine. Drives scripts/install.ps1 (Windows) and scripts/install.sh (macOS/Linux).",
     "publisher": "Nous Research",
     "copyright": "Copyright © 2026 Nous Research",
     "targets": [

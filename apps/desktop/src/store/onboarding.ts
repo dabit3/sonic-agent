@@ -11,10 +11,10 @@ import {
   startOAuthLogin,
   submitOAuthCode,
   validateProviderCredential
-} from '@/hermes'
+} from '@/sonic'
 import { evaluateRuntimeReadiness, type RuntimeReadinessResult } from '@/lib/runtime-readiness'
 import { notify, notifyError } from '@/store/notifications'
-import type { ModelOptionProvider, OAuthProvider, OAuthStartResponse } from '@/types/hermes'
+import type { ModelOptionProvider, OAuthProvider, OAuthStartResponse } from '@/types/sonic'
 
 type PkceStart = Extract<OAuthStartResponse, { flow: 'pkce' }>
 type DeviceStart = Extract<OAuthStartResponse, { flow: 'device_code' }>
@@ -67,7 +67,7 @@ export interface OnboardingContext {
   requestGateway: <T = unknown>(method: string, params?: Record<string, unknown>) => Promise<T>
 }
 
-const CONFIGURED_CACHE_KEY = 'hermes-desktop-onboarded-v1'
+const CONFIGURED_CACHE_KEY = 'sonic-desktop-onboarded-v1'
 const POLL_MS = 2000
 const COPY_FLASH_MS = 1500
 const DEFAULT_ONBOARDING_REASON = 'No inference provider is configured.'
@@ -139,11 +139,11 @@ async function checkRuntime(ctx: OnboardingContext): Promise<RuntimeReadinessRes
 }
 
 function notifyReady(provider: string) {
-  notify({ kind: 'success', title: 'Hermes is ready', message: `${provider} connected.` })
+  notify({ kind: 'success', title: 'Sonic is ready', message: `${provider} connected.` })
 }
 
 // Human-friendly labels for tools auto-routed through the Nous Tool Gateway,
-// mirroring hermes_cli/nous_subscription._GATEWAY_TOOL_LABELS so the GUI and
+// mirroring sonic_cli/nous_subscription._GATEWAY_TOOL_LABELS so the GUI and
 // CLI describe the same thing.
 const GATEWAY_TOOL_LABELS: Record<string, string> = {
   browser: 'browser automation',
@@ -213,7 +213,7 @@ async function fetchProviderDefaultModel(
   }
 
   // Prefer the backend's recommended default — it mirrors the curation
-  // `hermes model` does (for Nous it honors the user's free/paid tier, so a
+  // `sonic model` does (for Nous it honors the user's free/paid tier, so a
   // free user gets a free model rather than a paid default like opus). Fall
   // back to the first curated model if the endpoint can't resolve one.
   let defaultModel = String(models[0])
@@ -303,8 +303,8 @@ function providerResolutionFailure(reason: null | string) {
   const detail = reason?.trim()
 
   return detail
-    ? `Connected, but Hermes still cannot resolve a usable provider. ${detail}`
-    : 'Connected, but Hermes still cannot resolve a usable provider.'
+    ? `Connected, but Sonic still cannot resolve a usable provider. ${detail}`
+    : 'Connected, but Sonic still cannot resolve a usable provider.'
 }
 
 async function refreshProviders() {
@@ -419,7 +419,7 @@ export async function startProviderOAuth(provider: OAuthProvider, ctx: Onboardin
 
   try {
     const start = await startOAuthLogin(provider.id)
-    await window.hermesDesktop?.openExternal(start.flow === 'pkce' ? start.auth_url : start.verification_url)
+    await window.sonicDesktop?.openExternal(start.flow === 'pkce' ? start.auth_url : start.verification_url)
 
     if (start.flow === 'pkce') {
       setFlow({ status: 'awaiting_user', provider, start, code: '' })
@@ -566,7 +566,7 @@ export async function recheckExternalSignin(ctx: OnboardingContext) {
       provider,
       message:
         reason?.trim() ||
-        `Hermes still cannot reach ${provider.name}. Run \`${provider.cli_command}\` in a terminal first.`
+        `Sonic still cannot reach ${provider.name}. Run \`${provider.cli_command}\` in a terminal first.`
     })
   )
 }
@@ -612,7 +612,7 @@ export async function saveOnboardingApiKey(envKey: string, value: string, label:
 
       return {
         ok: false,
-        message: failureDetail || `Saved, but Hermes still cannot reach ${label}. Double-check the value.`
+        message: failureDetail || `Saved, but Sonic still cannot reach ${label}. Double-check the value.`
       }
     }
 

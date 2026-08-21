@@ -23,7 +23,7 @@ import {
   type ProfileInfo,
   renameProfile,
   updateProfileSoul
-} from '@/hermes'
+} from '@/sonic'
 import { AlertTriangle, Pencil, Save, Terminal, Trash2, Users } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { notify, notifyError } from '@/store/notifications'
@@ -543,7 +543,7 @@ function CreateProfileDialog({
         <DialogHeader>
           <DialogTitle>New profile</DialogTitle>
           <DialogDescription>
-            Profiles are independent Hermes environments: separate config, skills, and SOUL.md.
+            Profiles are independent Sonic environments: separate config, skills, and SOUL.md.
           </DialogDescription>
         </DialogHeader>
 

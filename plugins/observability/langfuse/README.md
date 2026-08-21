@@ -9,7 +9,7 @@ Pick one:
 
 ```bash
 # Interactive: walks you through credentials + SDK install + enable
-hermes tools  # → Langfuse Observability
+sonic tools  # → Langfuse Observability
 
 # Manual
 pip install langfuse

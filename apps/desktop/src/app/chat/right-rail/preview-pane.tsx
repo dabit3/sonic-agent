@@ -87,7 +87,7 @@ function PreviewLoadError({
             href={error.url}
             onClick={event => {
               event.preventDefault()
-              void window.hermesDesktop?.openExternal(error.url)
+              void window.sonicDesktop?.openExternal(error.url)
             }}
           >
             {compactUrl(error.url)}
@@ -102,7 +102,7 @@ function PreviewLoadError({
         onRestartServer
           ? {
               disabled: restarting,
-              label: restarting ? 'Hermes is restarting...' : 'Ask Hermes to restart the server',
+              label: restarting ? 'Sonic is restarting...' : 'Ask Sonic to restart the server',
               onClick: onRestartServer
             }
           : undefined
@@ -228,7 +228,7 @@ export function PreviewPane({
 
     // Auto-open the preview console so the user can see progress events
     // streaming back from the background agent. Without this, clicking
-    // "Ask Hermes to restart the server" looked like it did nothing —
+    // "Ask Sonic to restart the server" looked like it did nothing —
     // the work was happening, but in a collapsed pane.
     consoleState.setOpen(true)
 
@@ -238,13 +238,13 @@ export function PreviewPane({
 
       appendConsoleEntry({
         level: 1,
-        message: `Hermes is looking for a preview server to restart (${taskId})`
+        message: `Sonic is looking for a preview server to restart (${taskId})`
       })
 
       notify({
         kind: 'info',
         title: 'Restarting preview server',
-        message: 'Hermes is working in the background. Watch the preview console for progress.',
+        message: 'Sonic is working in the background. Watch the preview console for progress.',
         durationMs: 4000
       })
     } catch (error) {
@@ -342,7 +342,7 @@ export function PreviewPane({
         previewServerRestart.status === 'running'
           ? previewServerRestart.message
           : previewServerRestart.status === 'complete'
-            ? `Hermes finished restarting the preview server${
+            ? `Sonic finished restarting the preview server${
                 previewServerRestart.message ? `: ${previewServerRestart.message}` : ''
               }`
             : `Server restart failed: ${previewServerRestart.message || 'unknown error'}`
@@ -360,7 +360,7 @@ export function PreviewPane({
       notify({
         kind: 'warning',
         title: 'Preview restart failed',
-        message: previewServerRestart.message?.slice(0, 200) || 'Hermes could not restart the server.',
+        message: previewServerRestart.message?.slice(0, 200) || 'Sonic could not restart the server.',
         durationMs: 6000
       })
     }
@@ -376,7 +376,7 @@ export function PreviewPane({
     const timer = window.setTimeout(() => {
       failPreviewServerRestart(
         taskId,
-        'Hermes is still working, but no restart result has arrived yet. The server command may be running in the foreground.'
+        'Sonic is still working, but no restart result has arrived yet. The server command may be running in the foreground.'
       )
     }, SERVER_RESTART_TIMEOUT_MS)
 
@@ -404,8 +404,8 @@ export function PreviewPane({
   useEffect(() => {
     if (
       target.kind !== 'file' ||
-      !window.hermesDesktop?.watchPreviewFile ||
-      !window.hermesDesktop?.onPreviewFileChanged
+      !window.sonicDesktop?.watchPreviewFile ||
+      !window.sonicDesktop?.onPreviewFileChanged
     ) {
       return
     }
@@ -438,7 +438,7 @@ export function PreviewPane({
       reloadPreview()
     }
 
-    const unsubscribe = window.hermesDesktop.onPreviewFileChanged(payload => {
+    const unsubscribe = window.sonicDesktop.onPreviewFileChanged(payload => {
       if (!active || payload.id !== watchId) {
         return
       }
@@ -456,11 +456,11 @@ export function PreviewPane({
       }, FILE_RELOAD_DEBOUNCE_MS)
     })
 
-    void window.hermesDesktop
+    void window.sonicDesktop
       .watchPreviewFile(target.url)
       .then(watch => {
         if (!active) {
-          void window.hermesDesktop?.stopPreviewFileWatch?.(watch.id)
+          void window.sonicDesktop?.stopPreviewFileWatch?.(watch.id)
 
           return
         }
@@ -483,7 +483,7 @@ export function PreviewPane({
       }
 
       if (watchId) {
-        void window.hermesDesktop?.stopPreviewFileWatch?.(watchId)
+        void window.sonicDesktop?.stopPreviewFileWatch?.(watchId)
       }
     }
   }, [appendConsoleEntry, reloadPreview, target.kind, target.url])
@@ -511,7 +511,7 @@ export function PreviewPane({
 
     const webview = document.createElement('webview') as PreviewWebview
     webview.className = 'flex h-full w-full flex-1 bg-transparent'
-    webview.setAttribute('partition', 'persist:hermes-preview')
+    webview.setAttribute('partition', 'persist:sonic-preview')
     webview.setAttribute('src', target.url)
     webview.setAttribute('webpreferences', 'contextIsolation=yes,nodeIntegration=no,sandbox=yes')
 

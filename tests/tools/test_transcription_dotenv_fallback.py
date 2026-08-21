@@ -124,7 +124,7 @@ class TestProviderSelectionGate:
 
         with patch.object(tt, "_HAS_FASTER_WHISPER", False), \
              patch.object(tt, "_has_local_command", return_value=False), \
-             patch("hermes_cli.config.load_env",
+             patch("sonic_cli.config.load_env",
                    return_value={"ELEVENLABS_API_KEY": "dotenv-secret"}):
             assert tt._get_provider({"enabled": True, "provider": "elevenlabs"}) == "elevenlabs"
 

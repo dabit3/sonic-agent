@@ -21,8 +21,8 @@ import {
   restartGateway,
   searchSessions,
   setModelAssignment,
-  updateHermes
-} from '@/hermes'
+  updateSonic
+} from '@/sonic'
 import type {
   ActionStatusResponse,
   AnalyticsResponse,
@@ -31,7 +31,7 @@ import type {
   SessionInfo,
   SessionSearchResult as SessionSearchApiResult,
   StatusResponse
-} from '@/hermes'
+} from '@/sonic'
 import { sessionTitle } from '@/lib/chat-runtime'
 import { Activity, AlertCircle, BarChart3, Cpu, Pin } from '@/lib/icons'
 import { exportSession } from '@/lib/session-export'
@@ -51,7 +51,7 @@ export type CommandCenterSection = 'models' | 'sessions' | 'system' | 'usage'
 
 const SECTIONS = ['sessions', 'system', 'models', 'usage'] as const satisfies readonly CommandCenterSection[]
 
-// Mirrors `_AUX_TASK_SLOTS` in hermes_cli/web_server.py. Friendly labels and
+// Mirrors `_AUX_TASK_SLOTS` in sonic_cli/web_server.py. Friendly labels and
 // hints make the assignments panel readable; raw task keys (vision, mcp, …)
 // are opaque to most users.
 interface AuxTaskMeta {
@@ -114,7 +114,7 @@ interface SectionSearchEntry {
 
 const NAVIGATION_SEARCH_ENTRIES: readonly NavigationSearchEntry[] = [
   { id: 'nav-new-chat', route: NEW_CHAT_ROUTE, title: 'New agent', detail: 'Start a fresh session' },
-  { id: 'nav-settings', route: SETTINGS_ROUTE, title: 'Settings', detail: 'Configure Hermes desktop' },
+  { id: 'nav-settings', route: SETTINGS_ROUTE, title: 'Settings', detail: 'Configure Sonic desktop' },
   { id: 'nav-skills', route: SKILLS_ROUTE, title: 'Skills', detail: 'Enable and inspect skills' },
   {
     id: 'nav-messaging',
@@ -461,7 +461,7 @@ export function CommandCenterView({
       setSystemError('')
 
       try {
-        const started = kind === 'restart' ? await restartGateway() : await updateHermes()
+        const started = kind === 'restart' ? await restartGateway() : await updateSonic()
         let nextStatus: ActionStatusResponse | null = null
 
         for (let attempt = 0; attempt < 18; attempt += 1) {
@@ -863,7 +863,7 @@ export function CommandCenterView({
                           </span>
                         </div>
                         <div className="mt-1 text-xs text-muted-foreground">
-                          Hermes {status.version} · Active sessions {status.active_sessions}
+                          Sonic {status.version} · Active sessions {status.active_sessions}
                         </div>
                       </div>
                       <div className="flex shrink-0 items-center gap-1.5 whitespace-nowrap">
@@ -871,7 +871,7 @@ export function CommandCenterView({
                           Restart messaging
                         </OverlayActionButton>
                         <OverlayActionButton className="h-7 px-2.5" onClick={() => void runSystemAction('update')}>
-                          Update Hermes
+                          Update Sonic
                         </OverlayActionButton>
                       </div>
                     </div>

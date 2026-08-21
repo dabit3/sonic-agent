@@ -302,17 +302,17 @@ def test_init_env_args_prefers_shell_env_over_sonic_dotenv(monkeypatch):
     assert "value_from_dotenv" not in args_str
 
 
-def test_init_env_args_uses_hermes_dotenv_for_empty_shell_env(monkeypatch):
+def test_init_env_args_uses_sonic_dotenv_for_empty_shell_env(monkeypatch):
     """A transient empty-string in the live env must fall back to .env, not win.
 
     Regression: the disk fallback used to fire only on `value is None`, so a
     present-but-empty `MY_SECRET=""` skipped it and was forwarded as `-e
-    MY_SECRET=`, clobbering the correct value sitting in ~/.hermes/.env.
+    MY_SECRET=`, clobbering the correct value sitting in ~/.sonic/.env.
     """
     env = _make_execute_only_env(["MY_SECRET"])
 
     monkeypatch.setenv("MY_SECRET", "")
-    monkeypatch.setattr(docker_env, "_load_hermes_env_vars", lambda: {"MY_SECRET": "value_from_dotenv"})
+    monkeypatch.setattr(docker_env, "_load_sonic_env_vars", lambda: {"MY_SECRET": "value_from_dotenv"})
 
     args = env._build_init_env_args()
 
@@ -327,7 +327,7 @@ def test_init_env_args_never_forwards_blank_secret(monkeypatch):
     env = _make_execute_only_env(["MY_SECRET"])
 
     monkeypatch.setenv("MY_SECRET", "")
-    monkeypatch.setattr(docker_env, "_load_hermes_env_vars", lambda: {})
+    monkeypatch.setattr(docker_env, "_load_sonic_env_vars", lambda: {})
 
     args = env._build_init_env_args()
 
@@ -1549,7 +1549,7 @@ def test_image_uses_init_entrypoint_detects_s6_init(monkeypatch):
         return subprocess.CompletedProcess(cmd, 0, stdout='["/init"]', stderr="")
 
     monkeypatch.setattr(docker_env.subprocess, "run", _run)
-    assert docker_env._image_uses_init_entrypoint("/usr/bin/docker", "hermes-agent:latest") is True
+    assert docker_env._image_uses_init_entrypoint("/usr/bin/docker", "sonic-agent:latest") is True
 
 
 def test_image_uses_init_entrypoint_false_for_plain_image(monkeypatch):
@@ -1594,7 +1594,7 @@ def test_s6_image_skips_docker_init_and_mounts_run_exec(monkeypatch):
     monkeypatch.setattr(docker_env, "find_docker", lambda: "/usr/bin/docker")
     calls = _mock_subprocess_run_with_entrypoint(monkeypatch, '["/init"]')
 
-    _make_dummy_env(image="hermes-agent:latest")
+    _make_dummy_env(image="sonic-agent:latest")
 
     run_calls = [c for c in calls if isinstance(c[0], list) and len(c[0]) >= 2 and c[0][1] == "run"]
     assert run_calls, "docker run should have been called"

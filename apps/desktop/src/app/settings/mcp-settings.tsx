@@ -4,18 +4,18 @@ import { useEffect, useMemo, useState } from 'react'
 import { OverlayActionButton, OverlayCard } from '@/app/overlays/overlay-chrome'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { getHermesConfigRecord, type HermesGateway, saveHermesConfig } from '@/hermes'
+import { getSonicConfigRecord, type SonicGateway, saveSonicConfig } from '@/sonic'
 import { Package, Wrench } from '@/lib/icons'
 import { notify, notifyError } from '@/store/notifications'
 import { $activeSessionId } from '@/store/session'
-import type { HermesConfigRecord } from '@/types/hermes'
+import type { SonicConfigRecord } from '@/types/sonic'
 
 import { includesQuery } from './helpers'
 import { EmptyState, LoadingState, Pill, SectionHeading, SettingsContent } from './primitives'
 import type { SearchProps } from './types'
 
 interface McpSettingsProps extends SearchProps {
-  gateway?: HermesGateway | null
+  gateway?: SonicGateway | null
   onConfigSaved?: () => void
 }
 
@@ -27,7 +27,7 @@ const EMPTY_SERVER = {
   env: {}
 }
 
-function getServers(config: HermesConfigRecord | null): McpServers {
+function getServers(config: SonicConfigRecord | null): McpServers {
   const raw = config?.mcp_servers
 
   return raw && typeof raw === 'object' && !Array.isArray(raw) ? (raw as McpServers) : {}
@@ -52,7 +52,7 @@ function serverMatches(name: string, server: Record<string, unknown>, query: str
 
 export function McpSettings({ gateway, onConfigSaved, query }: McpSettingsProps) {
   const activeSessionId = useStore($activeSessionId)
-  const [config, setConfig] = useState<HermesConfigRecord | null>(null)
+  const [config, setConfig] = useState<SonicConfigRecord | null>(null)
   const [selected, setSelected] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [body, setBody] = useState('')
@@ -62,7 +62,7 @@ export function McpSettings({ gateway, onConfigSaved, query }: McpSettingsProps)
   useEffect(() => {
     let cancelled = false
 
-    getHermesConfigRecord()
+    getSonicConfigRecord()
       .then(next => {
         if (cancelled) {
           return
@@ -133,7 +133,7 @@ export function McpSettings({ gateway, onConfigSaved, query }: McpSettingsProps)
       nextServers[nextName] = parsed
 
       const nextConfig = { ...config, mcp_servers: nextServers }
-      await saveHermesConfig(nextConfig)
+      await saveSonicConfig(nextConfig)
       setConfig(nextConfig)
       setSelected(nextName)
       onConfigSaved?.()
@@ -153,7 +153,7 @@ export function McpSettings({ gateway, onConfigSaved, query }: McpSettingsProps)
       delete nextServers[serverName]
 
       const nextConfig = { ...config, mcp_servers: nextServers }
-      await saveHermesConfig(nextConfig)
+      await saveSonicConfig(nextConfig)
       setConfig(nextConfig)
       setSelected(Object.keys(nextServers).sort()[0] ?? null)
       onConfigSaved?.()

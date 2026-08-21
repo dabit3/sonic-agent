@@ -1,19 +1,19 @@
 import { useStore } from '@nanostores/react'
 import { useCallback, useEffect, useRef } from 'react'
 
-import type { HermesGateway } from '@/hermes'
+import type { SonicGateway } from '@/sonic'
 import { $gatewayState, setConnection } from '@/store/session'
 
 export function useGatewayRequest() {
   const gatewayState = useStore($gatewayState)
-  const gatewayRef = useRef<HermesGateway | null>(null)
+  const gatewayRef = useRef<SonicGateway | null>(null)
 
-  const connectionRef = useRef<Awaited<ReturnType<NonNullable<typeof window.hermesDesktop>['getConnection']>> | null>(
+  const connectionRef = useRef<Awaited<ReturnType<NonNullable<typeof window.sonicDesktop>['getConnection']>> | null>(
     null
   )
 
   const gatewayStateRef = useRef(gatewayState)
-  const reconnectingRef = useRef<Promise<HermesGateway | null> | null>(null)
+  const reconnectingRef = useRef<Promise<SonicGateway | null> | null>(null)
 
   useEffect(() => {
     gatewayStateRef.current = gatewayState
@@ -35,7 +35,7 @@ export function useGatewayRequest() {
     }
 
     reconnectingRef.current = (async () => {
-      const desktop = window.hermesDesktop
+      const desktop = window.sonicDesktop
 
       if (!desktop) {
         return null
@@ -66,7 +66,7 @@ export function useGatewayRequest() {
       const gateway = gatewayRef.current
 
       if (!gateway) {
-        throw new Error('Hermes gateway unavailable')
+        throw new Error('Sonic gateway unavailable')
       }
 
       try {
