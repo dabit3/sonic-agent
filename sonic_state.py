@@ -452,25 +452,9 @@ class SessionDB:
         self._fts_unavailable_warned = True
         logger.warning(
             "SQLite FTS5 unavailable for %s; full-text session search "
-<<<<<<< HEAD:sonic_state.py
-            "disabled. This usually means Sonic is running on an "
-            "unsupported install (e.g. a pip-installed or pip-managed "
-            "Python whose bundled SQLite lacks FTS5) rather than a "
-            "mainline install. Some features may be missing or behave "
-            "differently. Install the supported way: "
-            "https://lightning-agent.nousresearch.com (underlying error: %s)",
-||||||| parent of 4df280d51 (refactor(uv): single managed-uv path, delete fts5 installer escalation):hermes_state.py
-            "disabled. This usually means Hermes is running on an "
-            "unsupported install (e.g. a pip-installed or pip-managed "
-            "Python whose bundled SQLite lacks FTS5) rather than a "
-            "mainline install. Some features may be missing or behave "
-            "differently. Install the supported way: "
-            "https://hermes-agent.nousresearch.com (underlying error: %s)",
-=======
-            "disabled. Run `hermes update` to rebuild the venv with a "
+            "disabled. Run `sonic update` to rebuild the venv with a "
             "current Python (managed uv guarantees FTS5). "
             "(underlying error: %s)",
->>>>>>> 4df280d51 (refactor(uv): single managed-uv path, delete fts5 installer escalation):hermes_state.py
             self.db_path,
             exc,
         )
