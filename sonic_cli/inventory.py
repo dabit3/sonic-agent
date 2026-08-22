@@ -178,7 +178,7 @@ def _apply_capabilities(rows: list[dict]) -> None:
     no-op on models that ignore it, whereas hiding it from a capable-but-
     uncatalogued model is the worse failure.
     """
-    from hermes_cli.models import model_supports_fast_mode
+    from sonic_cli.models import model_supports_fast_mode
 
     try:
         from agent.models_dev import get_model_capabilities

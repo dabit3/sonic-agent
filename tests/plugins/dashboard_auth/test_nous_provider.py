@@ -579,7 +579,7 @@ class TestCompleteLogin:
                 code="abc",
                 state="state-val",
                 code_verifier="vfy",
-                redirect_uri="https://hermes.fly.dev/auth/callback",
+                redirect_uri="https://sonic.fly.dev/auth/callback",
             )
         assert session.refresh_token == ""
 

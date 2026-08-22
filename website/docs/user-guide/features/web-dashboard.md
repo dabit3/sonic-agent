@@ -191,7 +191,7 @@ Browse, search, and toggle installed skills and toolsets, and install new ones f
 - **Category filter** — click category pills to narrow the list (e.g. MLOps, MCP, Red Teaming, AI)
 - **Toggle** — enable or disable individual skills with a switch. Changes take effect on the next session.
 - **Toolsets** — a separate view shows built-in toolsets (file operations, web browsing, etc.) with their active/inactive status, setup requirements, and list of included tools
-- **Browse hub** — a third view searches the skill hub across all sources (the same as `hermes skills search`), installs any result by identifier with a live install log, and offers an "Update all" button to refresh installed skills.
+- **Browse hub** — a third view searches the skill hub across all sources (the same as `sonic skills search`), installs any result by identifier with a live install log, and offers an "Update all" button to refresh installed skills.
 
 ![Skills admin page — the Browse hub view: search, install, and update](/img/dashboard/admin-skills-hub.png)
 
@@ -211,7 +211,7 @@ block in `config.yaml` that `sonic mcp` reads from.
 **Catalog:** browse the Nous-approved MCP servers (the bundled `optional-mcps/`
 catalog) and install any of them with one click. Entries that need API keys
 prompt for them inline; the values go to `.env`. This is the same catalog
-`hermes mcp catalog` / `hermes mcp install` use.
+`sonic mcp catalog` / `sonic mcp install` use.
 
 ![MCP admin page — your servers with enable/disable toggles, plus the install catalog](/img/dashboard/admin-mcp.png)
 
@@ -232,7 +232,7 @@ hint when it isn't.
 
 Approve and revoke messaging users without the CLI — how a remote admin
 onboards Telegram/Discord/etc. users to a paired gateway. Full parity with
-`hermes pairing`.
+`sonic pairing`.
 
 - **Pending requests** — each shows platform, code, user, and age, with an Approve button
 - **Approved users** — each shows platform and user, with a Revoke button
@@ -242,8 +242,8 @@ onboards Telegram/Discord/etc. users to a paired gateway. Full parity with
 
 ### Channels
 
-Connect Hermes to any messaging platform from the browser — full parity with
-`hermes setup gateway`. The page lists every supported channel (Telegram,
+Connect Sonic to any messaging platform from the browser — full parity with
+`sonic setup gateway`. The page lists every supported channel (Telegram,
 Discord, Slack, Matrix, Mattermost, WhatsApp, Signal, BlueBubbles/iMessage,
 Email, SMS/Twilio, DingTalk, Feishu/Lark, WeCom, WeChat, QQ Bot, Yuanbao, plus
 the API server and webhook endpoints) with its live connection status.
@@ -251,7 +251,7 @@ the API server and webhook endpoints) with its live connection status.
 - **Configure** — open a per-platform form with exactly the fields that channel needs (bot token, app token, server URL, allowlist, etc.). Secrets render as password inputs and are stored redacted; leaving a field blank keeps the existing value. Required fields are marked and validated. A "Setup guide" link points to the platform's credential docs.
 - **Enable / disable** — toggle a channel on or off. The credential stays on disk; only the active state changes.
 - **Test** — check whether the channel is configured, enabled, and reporting a live connection from the gateway.
-- **Restart gateway** — credentials are written to `~/.hermes/.env` and the enabled flag to `config.yaml`; the gateway connects each enabled channel on its next restart, which you can trigger right from the page.
+- **Restart gateway** — credentials are written to `~/.sonic/.env` and the enabled flag to `config.yaml`; the gateway connects each enabled channel on its next restart, which you can trigger right from the page.
 
 ![Channels admin page — every messaging platform with status, enable toggles, and per-platform setup forms](/img/dashboard/admin-channels.png)
 
@@ -259,9 +259,9 @@ the API server and webhook endpoints) with its live connection status.
 
 A consolidated administration panel for installation-wide operations:
 
-- **Host** — live system stats: OS / kernel, architecture, hostname, Python and Hermes versions, CPU core count + utilization, memory, disk usage of the Hermes home, uptime, and load average. (CPU/memory/disk come from `psutil` when installed; identity fields are always shown.)
-- **Nous Portal** — login status, the active inference provider, and the Tool Gateway routing table (which tools run via the Portal vs. locally), with a link to manage your subscription. Read-only mirror of `hermes portal`.
-- **Skill curator** — the background skill-maintenance status (active / paused, interval, last run) with pause/resume and a run-now button. Mirrors `hermes curator`.
+- **Host** — live system stats: OS / kernel, architecture, hostname, Python and Sonic versions, CPU core count + utilization, memory, disk usage of the Sonic home, uptime, and load average. (CPU/memory/disk come from `psutil` when installed; identity fields are always shown.)
+- **Nous Portal** — login status, the active inference provider, and the Tool Gateway routing table (which tools run via the Portal vs. locally), with a link to manage your subscription. Read-only mirror of `sonic portal`.
+- **Skill curator** — the background skill-maintenance status (active / paused, interval, last run) with pause/resume and a run-now button. Mirrors `sonic curator`.
 - **Gateway** — start, stop, and restart the messaging gateway, with live status (running/stopped, PID, state)
 - **Memory** — pick the external memory provider (or built-in only), and reset the built-in `MEMORY.md` / `USER.md` stores
 - **Credential pool** — add and remove the rotating API keys the agent round-robins through (per provider). Keys are redacted in the list; the raw value only ever reaches the agent.

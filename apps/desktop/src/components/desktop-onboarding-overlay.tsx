@@ -571,7 +571,7 @@ function FlowPanel({ ctx, flow }: { ctx: OnboardingContext; flow: OnboardingFlow
     return (
       <Step title={`Sign in with ${title}`}>
         <p className="text-sm text-muted-foreground">
-          We opened {title} in your browser. Authorize Hermes there and you'll be connected
+          We opened {title} in your browser. Authorize Sonic there and you'll be connected
           automatically — nothing to copy or paste.
         </p>
         <FlowFooter left={<DocsLink href={flow.start.auth_url}>Re-open sign-in page</DocsLink>}>

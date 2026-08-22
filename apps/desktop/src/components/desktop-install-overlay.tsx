@@ -454,7 +454,7 @@ export function DesktopInstallOverlay({ enabled = true }: DesktopInstallOverlayP
                   setCancelling(true)
 
                   try {
-                    await window.hermesDesktop?.cancelBootstrap?.()
+                    await window.sonicDesktop?.cancelBootstrap?.()
                   } catch {
                     // ignore -- the failed/cancelled event will surface the result
                   }

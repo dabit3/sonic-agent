@@ -31,8 +31,8 @@ _EXAMPLE_PLUGIN_FIXTURE = (
 
 
 @pytest.fixture
-def _install_example_plugin(_isolate_hermes_home):
-    """Drop the example-dashboard fixture into the per-test HERMES_HOME
+def _install_example_plugin(_isolate_sonic_home):
+    """Drop the example-dashboard fixture into the per-test SONIC_HOME
     user-plugins directory and force the web_server's dashboard plugin
     cache + API mount to rediscover it.
 
@@ -41,20 +41,20 @@ def _install_example_plugin(_isolate_hermes_home):
     user's sidebar. It is now a tests-only fixture: any test that needs
     ``/api/plugins/example/hello`` or ``/dashboard-plugins/example/...``
     requests this fixture so the plugin appears only for that test's
-    isolated ``HERMES_HOME``.
+    isolated ``SONIC_HOME``.
 
     The user-plugin source is preferred over a transient
-    ``HERMES_BUNDLED_PLUGINS`` override because the bundled dir is
+    ``SONIC_BUNDLED_PLUGINS`` override because the bundled dir is
     resolved per-call (other tests in the suite implicitly rely on the
-    real bundled plugins — kanban, hermes-achievements, model providers
+    real bundled plugins — kanban, sonic-achievements, model providers
     — being available, and globally swapping that root would yank them
     all). User plugins are first in the discovery search order, so
     laying down the fixture here is enough.
     """
-    from hermes_constants import get_hermes_home
-    from hermes_cli import web_server
+    from sonic_constants import get_sonic_home
+    from sonic_cli import web_server
 
-    user_plugins_dir = get_hermes_home() / "plugins"
+    user_plugins_dir = get_sonic_home() / "plugins"
     user_plugins_dir.mkdir(parents=True, exist_ok=True)
     dst = user_plugins_dir / "example-dashboard"
     if dst.exists():
@@ -65,7 +65,7 @@ def _install_example_plugin(_isolate_hermes_home):
     #   1. Identify the routes the mount call appends.
     #   2. Restore the original list on teardown — otherwise leftover
     #      ``/api/plugins/example/*`` routes leak into subsequent tests
-    #      and start serving requests against a torn-down HERMES_HOME.
+    #      and start serving requests against a torn-down SONIC_HOME.
     app = web_server.app
     original_routes = list(app.router.routes)
 
@@ -344,7 +344,7 @@ class TestWebServerEndpoints:
 
     def test_archive_session_via_patch(self):
         """PATCH archived=true soft-hides a session; archived=false restores it."""
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         db = SessionDB()
         try:
@@ -370,7 +370,7 @@ class TestWebServerEndpoints:
 
     def test_patch_session_without_fields_is_400(self):
         """An existing session + empty body is a bad request, not a 404."""
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         db = SessionDB()
         try:
@@ -394,7 +394,7 @@ class TestWebServerEndpoints:
         first page by recency, listed under its live continuation id."""
         import time as _time
 
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         db = SessionDB()
         try:
@@ -429,7 +429,7 @@ class TestWebServerEndpoints:
         assert tip.get("_lineage_root_id") == "root-old"
 
     def test_get_sessions_archived_is_boolean(self):
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         db = SessionDB()
         try:
@@ -443,7 +443,7 @@ class TestWebServerEndpoints:
 
     def test_rename_response_omits_archived_when_not_set(self):
         """Title-only PATCH keeps its legacy {ok, title} response shape."""
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         db = SessionDB()
         try:
@@ -2651,7 +2651,7 @@ class TestBulkDeleteSessionsEndpoint:
 
     1. Route-ordering: ``/api/sessions/bulk-delete`` must shadow the
        templated ``/api/sessions/{session_id}`` route below it (see
-       the block comment in ``hermes_cli/web_server.py``).
+       the block comment in ``sonic_cli/web_server.py``).
     2. Behaviour parity with :meth:`SessionDB.delete_sessions` — real
        deleted count, archive/active sessions deleted on explicit
        selection.
@@ -2660,18 +2660,18 @@ class TestBulkDeleteSessionsEndpoint:
     """
 
     @pytest.fixture(autouse=True)
-    def _setup_test_client(self, monkeypatch, _isolate_hermes_home):
+    def _setup_test_client(self, monkeypatch, _isolate_sonic_home):
         try:
             from starlette.testclient import TestClient
         except ImportError:
             pytest.skip("fastapi/starlette not installed")
 
-        import hermes_state
-        from hermes_constants import get_hermes_home
-        from hermes_cli.web_server import app, _SESSION_HEADER_NAME, _SESSION_TOKEN
+        import sonic_state
+        from sonic_constants import get_sonic_home
+        from sonic_cli.web_server import app, _SESSION_HEADER_NAME, _SESSION_TOKEN
 
         monkeypatch.setattr(
-            hermes_state, "DEFAULT_DB_PATH", get_hermes_home() / "state.db"
+            sonic_state, "DEFAULT_DB_PATH", get_sonic_home() / "state.db"
         )
 
         self.client = TestClient(app)
@@ -2679,7 +2679,7 @@ class TestBulkDeleteSessionsEndpoint:
         self.auth_client.headers[_SESSION_HEADER_NAME] = _SESSION_TOKEN
 
     def _seed(self, ids):
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         db = SessionDB()
         try:
@@ -2693,7 +2693,7 @@ class TestBulkDeleteSessionsEndpoint:
         assert resp.status_code == 401
 
     def test_deletes_listed_sessions_only(self):
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         self._seed(["a", "b", "c"])
         resp = self.auth_client.post(
@@ -2761,7 +2761,7 @@ class TestBulkDeleteSessionsEndpoint:
         assert "deleted" in body, (
             "If this assertion fails, /api/sessions/bulk-delete is "
             "being shadowed by /api/sessions/{session_id} — check "
-            "registration order in hermes_cli/web_server.py."
+            "registration order in sonic_cli/web_server.py."
         )
 
 
@@ -2784,20 +2784,20 @@ class TestDeleteEmptySessionsEndpoint:
     """
 
     @pytest.fixture(autouse=True)
-    def _setup_test_client(self, monkeypatch, _isolate_hermes_home):
+    def _setup_test_client(self, monkeypatch, _isolate_sonic_home):
         try:
             from starlette.testclient import TestClient
         except ImportError:
             pytest.skip("fastapi/starlette not installed")
 
-        import hermes_state
-        from hermes_constants import get_hermes_home
-        from hermes_cli.web_server import app, _SESSION_HEADER_NAME, _SESSION_TOKEN
+        import sonic_state
+        from sonic_constants import get_sonic_home
+        from sonic_cli.web_server import app, _SESSION_HEADER_NAME, _SESSION_TOKEN
 
-        # Pin the SessionDB to the isolated HERMES_HOME so each test
+        # Pin the SessionDB to the isolated SONIC_HOME so each test
         # starts with a clean state.db.
         monkeypatch.setattr(
-            hermes_state, "DEFAULT_DB_PATH", get_hermes_home() / "state.db"
+            sonic_state, "DEFAULT_DB_PATH", get_sonic_home() / "state.db"
         )
 
         self.client = TestClient(app)
@@ -2812,7 +2812,7 @@ class TestDeleteEmptySessionsEndpoint:
         * ``live``    — un-ended, empty → must survive (active)
         * ``archived``— ended, empty, archived → must survive
         """
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         db = SessionDB()
         try:
@@ -2860,7 +2860,7 @@ class TestDeleteEmptySessionsEndpoint:
         """DELETE returns the deleted count and removes only the
         empty-ended-unarchived rows — same shape contract as the
         DB-level method's unit tests."""
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         self._seed()
         resp = self.auth_client.delete("/api/sessions/empty")
@@ -2905,7 +2905,7 @@ class TestDeleteEmptySessionsEndpoint:
             "If this assertion fails, the literal /api/sessions/empty "
             "route is being shadowed by the templated /api/sessions/"
             "{session_id} route — check registration order in "
-            "hermes_cli/web_server.py."
+            "sonic_cli/web_server.py."
         )
 
 
@@ -2946,7 +2946,7 @@ class TestPluginAPIAuth:
         """Plugin API routes should work with a valid session token.
 
         Uses ``/api/plugins/example/hello`` from the example-dashboard
-        test fixture (installed into HERMES_HOME by the class-level
+        test fixture (installed into SONIC_HOME by the class-level
         ``_install_example_plugin`` fixture) — a stable, side-effect-free
         GET that's only loaded for tests. With a valid token the handler
         should run (200); without one the middleware should 401 before

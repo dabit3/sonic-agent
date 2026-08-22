@@ -62,14 +62,14 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
         # Verify the default package builds successfully (cross-platform).
         # On Linux the runtime checks below already depend on the package,
         # but this ensures darwin builders also build it during flake check.
-        build-package = pkgs.runCommand "hermes-build-package" { } ''
-          echo "PASS: package built at ${hermes-agent}"
+        build-package = pkgs.runCommand "sonic-build-package" { } ''
+          echo "PASS: package built at ${sonic-agent}"
           mkdir -p $out
           echo "ok" > $out/result
         '';
 
         # Verify the devShell builds successfully (cross-platform).
-        build-devshell = pkgs.runCommand "hermes-build-devshell" { } ''
+        build-devshell = pkgs.runCommand "sonic-build-devshell" { } ''
           echo "PASS: devShell built at ${self'.devShells.default}"
           mkdir -p $out
           echo "ok" > $out/result

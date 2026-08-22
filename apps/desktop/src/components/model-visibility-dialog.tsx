@@ -4,8 +4,8 @@ import { useMemo, useState } from 'react'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Switch } from '@/components/ui/switch'
-import type { HermesGateway } from '@/hermes'
-import { getGlobalModelOptions } from '@/hermes'
+import type { SonicGateway } from '@/sonic'
+import { getGlobalModelOptions } from '@/sonic'
 import { displayModelName, modelDisplayParts } from '@/lib/model-status-label'
 import {
   $visibleModels,
@@ -14,10 +14,10 @@ import {
   modelVisibilityKey,
   setVisibleModels
 } from '@/store/model-visibility'
-import type { ModelOptionProvider, ModelOptionsResponse } from '@/types/hermes'
+import type { ModelOptionProvider, ModelOptionsResponse } from '@/types/sonic'
 
 interface ModelVisibilityDialogProps {
-  gw?: HermesGateway
+  gw?: SonicGateway
   onOpenChange: (open: boolean) => void
   onOpenProviders: () => void
   open: boolean

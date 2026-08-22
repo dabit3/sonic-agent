@@ -129,7 +129,7 @@ export async function listSessions(
 }
 
 export function setSessionArchived(id: string, archived: boolean): Promise<{ ok: boolean }> {
-  return window.hermesDesktop.api<{ ok: boolean }>({
+  return window.sonicDesktop.api<{ ok: boolean }>({
     path: `/api/sessions/${encodeURIComponent(id)}`,
     method: 'PATCH',
     body: { archived }

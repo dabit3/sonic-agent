@@ -201,7 +201,7 @@ async def gated_auth_middleware(
     # cookie is set with ``Max-Age = access_token_expires_in`` (~15 min), so
     # the browser EVICTS it the moment the token lapses, while the
     # refresh-token cookie lives for 30 days. From that point the browser
-    # sends only ``hermes_session_rt``. If we bailed on ``not at`` here we'd
+    # sends only ``sonic_session_rt``. If we bailed on ``not at`` here we'd
     # bounce the user to /login on every expiry despite holding a perfectly
     # good refresh token — defeating the whole transparent-refresh feature.
     session = None
@@ -243,11 +243,11 @@ async def gated_auth_middleware(
             # back is mandatory: a stale RT cookie would replay a rotated
             # token on the next refresh and (outside Portal's grace) revoke
             # the whole session. Bind cookie Secure/Path to the request shape.
-            from hermes_cli.dashboard_auth.cookies import (
+            from sonic_cli.dashboard_auth.cookies import (
                 detect_https,
                 set_session_cookies,
             )
-            from hermes_cli.dashboard_auth.prefix import prefix_from_request
+            from sonic_cli.dashboard_auth.prefix import prefix_from_request
 
             set_session_cookies(
                 response,

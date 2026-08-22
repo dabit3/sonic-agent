@@ -2182,7 +2182,7 @@ def provider_model_ids(provider: Optional[str], *, force_refresh: bool = False) 
             # is 120+ entries of embeddings, whisper, tts, dall-e, moderation and
             # legacy chat models — none of which belong in the agent model picker.
             # For the default endpoint, intersect the live list with our curated
-            # agentic catalog so ``/model`` matches what ``hermes model`` shows.
+            # agentic catalog so ``/model`` matches what ``sonic model`` shows.
             is_default_openai = base.rstrip("/") in (
                 "https://api.openai.com/v1",
                 "https://api.openai.com",

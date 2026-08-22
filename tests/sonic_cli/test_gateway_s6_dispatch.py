@@ -437,22 +437,22 @@ def test_redirect_falls_back_when_sleep_missing(
     back to the in-process ``_block_until_terminated`` heartbeat so the
     container keeps running.
     """
-    from hermes_cli import gateway as gw
+    from sonic_cli import gateway as gw
 
     rec = _stub_s6(monkeypatch, on_s6=True)
-    monkeypatch.setattr("hermes_cli.gateway._profile_suffix", lambda: "")
+    monkeypatch.setattr("sonic_cli.gateway._profile_suffix", lambda: "")
 
     def missing_sleep(file: str, args: list[str]) -> None:
         raise FileNotFoundError(2, "No such file or directory", file)
 
-    monkeypatch.setattr("hermes_cli.gateway.os.execvp", missing_sleep)
+    monkeypatch.setattr("sonic_cli.gateway.os.execvp", missing_sleep)
     block_calls: list[bool] = []
     monkeypatch.setattr(
-        "hermes_cli.gateway._block_until_terminated",
+        "sonic_cli.gateway._block_until_terminated",
         lambda: block_calls.append(True),
     )
-    monkeypatch.delenv("HERMES_S6_SUPERVISED_CHILD", raising=False)
-    monkeypatch.delenv("HERMES_GATEWAY_NO_SUPERVISE", raising=False)
+    monkeypatch.delenv("SONIC_S6_SUPERVISED_CHILD", raising=False)
+    monkeypatch.delenv("SONIC_GATEWAY_NO_SUPERVISE", raising=False)
 
     # Must not raise FileNotFoundError — that was the #36208 crash.
     result = gw._maybe_redirect_run_to_s6_supervision(_Args())
@@ -475,11 +475,11 @@ def test_block_until_terminated_installs_sigterm_handler_and_blocks(
     when PATH lacked a directory containing `sleep`.
     """
     import signal as _signal
-    from hermes_cli import gateway as gw
+    from sonic_cli import gateway as gw
 
     registered: dict[int, object] = {}
     monkeypatch.setattr(
-        "hermes_cli.gateway.signal.signal",
+        "sonic_cli.gateway.signal.signal",
         lambda signum, handler: registered.__setitem__(signum, handler),
     )
 
@@ -491,7 +491,7 @@ def test_block_until_terminated_installs_sigterm_handler_and_blocks(
         pause_calls["n"] += 1
         raise KeyboardInterrupt  # break out of the `while True: pause()` loop
 
-    monkeypatch.setattr("hermes_cli.gateway.signal.pause", fake_pause)
+    monkeypatch.setattr("sonic_cli.gateway.signal.pause", fake_pause)
 
     with pytest.raises(KeyboardInterrupt):
         gw._block_until_terminated()

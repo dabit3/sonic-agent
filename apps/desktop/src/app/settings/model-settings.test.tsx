@@ -6,7 +6,7 @@ const getGlobalModelOptions = vi.fn()
 const getAuxiliaryModels = vi.fn()
 const setModelAssignment = vi.fn()
 
-vi.mock('@/hermes', () => ({
+vi.mock('@/sonic', () => ({
   getGlobalModelInfo: () => getGlobalModelInfo(),
   getGlobalModelOptions: () => getGlobalModelOptions(),
   getAuxiliaryModels: () => getAuxiliaryModels(),
@@ -14,15 +14,15 @@ vi.mock('@/hermes', () => ({
 }))
 
 beforeEach(() => {
-  getGlobalModelInfo.mockResolvedValue({ provider: 'nous', model: 'hermes-4' })
+  getGlobalModelInfo.mockResolvedValue({ provider: 'nous', model: 'sonic-4' })
   getGlobalModelOptions.mockResolvedValue({
-    providers: [{ name: 'Nous', slug: 'nous', models: ['hermes-4', 'hermes-4-mini'] }]
+    providers: [{ name: 'Nous', slug: 'nous', models: ['sonic-4', 'sonic-4-mini'] }]
   })
   getAuxiliaryModels.mockResolvedValue({
-    main: { provider: 'nous', model: 'hermes-4' },
+    main: { provider: 'nous', model: 'sonic-4' },
     tasks: [{ task: 'vision', provider: 'auto', model: '', base_url: '' }]
   })
-  setModelAssignment.mockResolvedValue({ provider: 'nous', model: 'hermes-4', gateway_tools: [] })
+  setModelAssignment.mockResolvedValue({ provider: 'nous', model: 'sonic-4', gateway_tools: [] })
 })
 
 afterEach(() => {
@@ -41,7 +41,7 @@ describe('ModelSettings', () => {
     await renderModelSettings()
 
     await waitFor(() => expect(getGlobalModelInfo).toHaveBeenCalled())
-    expect(screen.getByText('nous / hermes-4')).toBeTruthy()
+    expect(screen.getByText('nous / sonic-4')).toBeTruthy()
   })
 
   it('renders the auxiliary task rows', async () => {
@@ -60,7 +60,7 @@ describe('ModelSettings', () => {
 
     await waitFor(() =>
       expect(setModelAssignment).toHaveBeenCalledWith({
-        model: 'hermes-4',
+        model: 'sonic-4',
         provider: 'nous',
         scope: 'auxiliary',
         task: 'vision'

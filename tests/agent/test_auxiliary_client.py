@@ -1363,7 +1363,7 @@ class TestRefreshNousRecommendedModel:
 
     def test_returns_fresh_portal_recommendation(self, monkeypatch):
         monkeypatch.setattr(
-            "hermes_cli.models.get_nous_recommended_aux_model",
+            "sonic_cli.models.get_nous_recommended_aux_model",
             lambda **kw: "stepfun/step-3.7-flash:free",
         )
         out = _refresh_nous_recommended_model(
@@ -1374,7 +1374,7 @@ class TestRefreshNousRecommendedModel:
         """If the Portal still recommends the model that just 404'd, fall back
         to the known-good default."""
         monkeypatch.setattr(
-            "hermes_cli.models.get_nous_recommended_aux_model",
+            "sonic_cli.models.get_nous_recommended_aux_model",
             lambda **kw: "openai/gpt-5.4-mini",
         )
         out = _refresh_nous_recommended_model(
@@ -1385,7 +1385,7 @@ class TestRefreshNousRecommendedModel:
         def _boom(**kw):
             raise RuntimeError("portal down")
         monkeypatch.setattr(
-            "hermes_cli.models.get_nous_recommended_aux_model", _boom)
+            "sonic_cli.models.get_nous_recommended_aux_model", _boom)
         out = _refresh_nous_recommended_model(
             vision=False, stale_model="some/dead-model")
         assert out == "google/gemini-3-flash-preview"
@@ -1394,7 +1394,7 @@ class TestRefreshNousRecommendedModel:
         """When the failed model IS the default and the Portal has nothing
         else, there's no usable alternative."""
         monkeypatch.setattr(
-            "hermes_cli.models.get_nous_recommended_aux_model",
+            "sonic_cli.models.get_nous_recommended_aux_model",
             lambda **kw: "google/gemini-3-flash-preview",
         )
         out = _refresh_nous_recommended_model(

@@ -372,9 +372,9 @@ app.setAboutPanelOptions({
 // so any non-trivial video silently refused to load. Streaming via a protocol
 // handler removes the size cap and gives the <video> element seekable,
 // range-aware playback. Must be registered before the app is ready.
-const MEDIA_PROTOCOL = 'hermes-media'
+const MEDIA_PROTOCOL = 'sonic-media'
 // Only audio/video may be streamed. Without this the handler would read any
-// non-blocklisted local file (no size cap) for any `fetch(hermes-media://…)`.
+// non-blocklisted local file (no size cap) for any `fetch(sonic-media://…)`.
 const STREAMABLE_MEDIA_EXTS = new Set([
   '.avi',
   '.flac',
@@ -1523,13 +1523,13 @@ function readBootstrapMarker() {
   return readJson(BOOTSTRAP_COMPLETE_MARKER)
 }
 
-// Marker-independent: is the canonical install at ACTIVE_HERMES_ROOT actually
+// Marker-independent: is the canonical install at ACTIVE_SONIC_ROOT actually
 // runnable right now? A complete CLI install (`install.sh --include-desktop`)
 // or a DMG launch over a prior CLI install satisfies this WITHOUT the desktop
 // ever having written the bootstrap marker -- so we must be able to recognise
 // "already installed" off the filesystem alone, not just the marker.
 function isActiveRuntimeUsable() {
-  return isHermesSourceRoot(ACTIVE_HERMES_ROOT) && fileExists(getVenvPython(VENV_ROOT))
+  return isSonicSourceRoot(ACTIVE_SONIC_ROOT) && fileExists(getVenvPython(VENV_ROOT))
 }
 
 function isBootstrapComplete() {
@@ -1916,7 +1916,7 @@ async function ensureRuntime(backend) {
     bootstrapAbortController = null
 
     if (bootstrapResult.cancelled) {
-      const cancelledError = new Error('Hermes install was cancelled.')
+      const cancelledError = new Error('Sonic install was cancelled.')
       cancelledError.isBootstrapFailure = true
       cancelledError.bootstrapCancelled = true
       bootstrapFailure = cancelledError
@@ -4009,7 +4009,7 @@ ipcMain.handle('sonic:version', async () => ({
 // ---------------------------------------------------------------------------
 //
 // The DMG and CLI-built apps launch from wherever the user left them (a DMG
-// mount, ~/Downloads, ~/.hermes/...) -- which means Gatekeeper translocation,
+// mount, ~/Downloads, ~/.sonic/...) -- which means Gatekeeper translocation,
 // no Dock tile, and "which icon do I click?" confusion. On first packaged
 // launch we relocate into /Applications (Electron relaunches from there) and,
 // once we're that canonical copy, pin to the Dock. Both macOS-only,
@@ -4020,7 +4020,7 @@ ipcMain.handle('sonic:version', async () => ({
 // /Applications. `existsAndRunning` -> another copy owns the slot; don't fight
 // it. `exists` -> stale copy; replace it so there's exactly one current app.
 function maybeRelocateToApplications() {
-  if (!IS_MAC || !IS_PACKAGED || process.env.HERMES_DESKTOP_NO_AUTO_MOVE === '1') return false
+  if (!IS_MAC || !IS_PACKAGED || process.env.SONIC_DESKTOP_NO_AUTO_MOVE === '1') return false
   try {
     if (app.isInApplicationsFolder()) return false
     const moved = app.moveToApplicationsFolder({ conflictHandler: type => type !== 'existsAndRunning' })
@@ -4038,7 +4038,7 @@ const DOCK_PINNED_MARKER = 'dock-pinned.json'
 // this, so we append to com.apple.dock's persistent-apps and restart the Dock.
 // Guarded by a userData marker + membership check so we never duplicate the tile.
 function maybePinToDock() {
-  if (!IS_MAC || !IS_PACKAGED || process.env.HERMES_DESKTOP_NO_DOCK_PIN === '1') return
+  if (!IS_MAC || !IS_PACKAGED || process.env.SONIC_DESKTOP_NO_DOCK_PIN === '1') return
   const marker = path.join(app.getPath('userData'), DOCK_PINNED_MARKER)
   if (fileExists(marker)) return
 
@@ -4052,7 +4052,7 @@ function maybePinToDock() {
   if (!bundle) return
 
   // The Dock stores tiles as file-reference URLs (type 15), e.g.
-  // file:///Applications/Hermes.app/ -- NOT a raw POSIX path. A type-0/raw-path
+  // file:///Applications/Sonic.app/ -- NOT a raw POSIX path. A type-0/raw-path
   // tile is silently dropped when the Dock rewrites persistent-apps on restart.
   const url = pathToFileURL(bundle.endsWith('/') ? bundle : `${bundle}/`).href
 

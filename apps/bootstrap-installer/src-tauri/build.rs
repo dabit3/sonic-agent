@@ -64,7 +64,7 @@ fn main() {
     // Rerun build.rs when HEAD moves. With branch-follow as the default the
     // baked commit no longer changes per-commit, but a branch *switch* changes
     // the detected branch name, so we still re-trigger. When an explicit
-    // HERMES_BUILD_PIN_COMMIT resolves a moving ref (tag/branch) to a SHA, a
+    // SONIC_BUILD_PIN_COMMIT resolves a moving ref (tag/branch) to a SHA, a
     // HEAD move can also change that resolution. .git/HEAD changes on every
     // commit / branch switch / rebase.
     let git_dir = locate_git_dir();
@@ -132,7 +132,7 @@ fn resolve_commit_pin() -> Option<String> {
         return Some(requested.to_string());
     }
     panic!(
-        "HERMES_BUILD_PIN_COMMIT={requested:?} could not be resolved to a commit \
+        "SONIC_BUILD_PIN_COMMIT={requested:?} could not be resolved to a commit \
          (git rev-parse failed and it is not a valid SHA)"
     );
 }

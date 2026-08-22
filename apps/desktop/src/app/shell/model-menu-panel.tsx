@@ -15,8 +15,8 @@ import {
   DropdownMenuSubTrigger
 } from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { HermesGateway } from '@/hermes'
-import { getGlobalModelOptions } from '@/hermes'
+import type { SonicGateway } from '@/sonic'
+import { getGlobalModelOptions } from '@/sonic'
 import { displayModelName, modelDisplayParts, reasoningEffortLabel } from '@/lib/model-status-label'
 import { cn } from '@/lib/utils'
 import {
@@ -34,12 +34,12 @@ import {
   $currentProvider,
   $currentReasoningEffort
 } from '@/store/session'
-import type { ModelOptionProvider, ModelOptionsResponse } from '@/types/hermes'
+import type { ModelOptionProvider, ModelOptionsResponse } from '@/types/sonic'
 
 import { ModelEditSubmenu, resolveFastControl } from './model-edit-submenu'
 
 interface ModelMenuPanelProps {
-  gateway?: HermesGateway
+  gateway?: SonicGateway
   onSelectModel: (selection: { model: string; persistGlobal: boolean; provider: string }) => Promise<boolean> | void
   requestGateway: <T>(method: string, params?: Record<string, unknown>) => Promise<T>
 }

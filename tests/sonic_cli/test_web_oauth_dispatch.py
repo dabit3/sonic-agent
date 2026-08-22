@@ -147,9 +147,9 @@ def test_nous_dashboard_device_flow_does_not_retry_legacy_scope_on_invoke_refusa
 
 
 def test_codex_dashboard_worker_persists_runtime_provider(tmp_path, monkeypatch):
-    from hermes_cli import web_server as ws
-    from hermes_cli.auth import get_active_provider
-    from hermes_cli.runtime_provider import resolve_runtime_provider
+    from sonic_cli import web_server as ws
+    from sonic_cli.auth import get_active_provider
+    from sonic_cli.runtime_provider import resolve_runtime_provider
 
     access_token = "h.eyJleHAiOjk5OTk5OTk5OTl9.s"
 
@@ -188,7 +188,7 @@ def test_codex_dashboard_worker_persists_runtime_provider(tmp_path, monkeypatch)
                 "refresh_token": "codex-refresh",
             })
 
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     monkeypatch.setattr(httpx, "Client", _Client)
     monkeypatch.setattr(ws.time, "sleep", lambda _: None)
 
@@ -339,8 +339,8 @@ def test_xai_oauth_listed_as_loopback_flow():
 
 def test_xai_loopback_start_returns_authorize_url(monkeypatch):
     """Start MUST bind the loopback listener and hand back an xAI authorize URL."""
-    from hermes_cli import auth as auth_mod
-    from hermes_cli import web_server as ws
+    from sonic_cli import auth as auth_mod
+    from sonic_cli import web_server as ws
 
     class _FakeServer:
         def shutdown(self):
@@ -391,8 +391,8 @@ def test_xai_loopback_start_returns_authorize_url(monkeypatch):
 
 def test_xai_loopback_worker_persists_tokens_on_success(monkeypatch):
     """The worker exchanges the callback code and marks the session approved."""
-    from hermes_cli import auth as auth_mod
-    from hermes_cli import web_server as ws
+    from sonic_cli import auth as auth_mod
+    from sonic_cli import web_server as ws
 
     saved = {}
     session_id = "xai-loopback-success-test"
@@ -447,8 +447,8 @@ def test_xai_loopback_worker_persists_tokens_on_success(monkeypatch):
 
 def test_xai_loopback_worker_fails_on_state_mismatch(monkeypatch):
     """A mismatched OAuth state must fail the session, not persist tokens."""
-    from hermes_cli import auth as auth_mod
-    from hermes_cli import web_server as ws
+    from sonic_cli import auth as auth_mod
+    from sonic_cli import web_server as ws
 
     session_id = "xai-loopback-state-test"
     ws._oauth_sessions[session_id] = {
@@ -491,8 +491,8 @@ def test_xai_loopback_worker_fails_on_state_mismatch(monkeypatch):
 
 def test_xai_loopback_worker_skips_persist_when_cancelled(monkeypatch):
     """If the session is cancelled while waiting, the worker must not persist."""
-    from hermes_cli import auth as auth_mod
-    from hermes_cli import web_server as ws
+    from sonic_cli import auth as auth_mod
+    from sonic_cli import web_server as ws
 
     session_id = "xai-loopback-cancel-test"
     ws._oauth_sessions[session_id] = {
@@ -535,7 +535,7 @@ def test_xai_loopback_worker_skips_persist_when_cancelled(monkeypatch):
 
 def test_cancel_loopback_session_shuts_down_callback_server():
     """Cancelling a loopback session must free the bound callback port now."""
-    from hermes_cli import web_server as ws
+    from sonic_cli import web_server as ws
 
     shutdown_calls = {"shutdown": 0, "close": 0, "join": 0}
 

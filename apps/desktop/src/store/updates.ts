@@ -161,7 +161,7 @@ export async function refreshDesktopVersion(): Promise<DesktopVersionInfo | null
   // mid-reload, or the bridge not yet ready on first paint) would surface
   // as an unhandled promise rejection in the renderer. Swallow it.
   try {
-    const next = await window.hermesDesktop?.getVersion?.()
+    const next = await window.sonicDesktop?.getVersion?.()
 
     if (next) {
       $desktopVersion.set(next)
@@ -186,7 +186,7 @@ export async function checkUpdates(): Promise<DesktopUpdateStatus | null> {
     const status = await bridge.check()
     $updateStatus.set(status)
     maybeNotifyUpdateAvailable(status)
-    // The update check pulls the latest hermes_cli + bundled package metadata
+    // The update check pulls the latest sonic_cli + bundled package metadata
     // into place. Re-read the running version so About reflects the now-fresh
     // checkout rather than the one captured at process start.
     void refreshDesktopVersion()
@@ -308,7 +308,7 @@ function onFocus() {
   lastFocusAt = now
   void checkUpdates()
   // Cheap and safe to re-read on every (throttled) focus: the user may have
-  // updated Hermes from another window/CLI between focuses, and About should
+  // updated Sonic from another window/CLI between focuses, and About should
   // catch up without forcing a restart.
   void refreshDesktopVersion()
 }

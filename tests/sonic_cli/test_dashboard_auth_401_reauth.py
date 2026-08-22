@@ -199,8 +199,8 @@ class TestTransparentRefreshOnAccessTokenEviction:
 
     This is the common-path expiry bug, not an edge case. The access-token
     cookie is set with ``Max-Age = access_token_expires_in`` (~15 min), so
-    the browser deletes ``hermes_session_at`` the instant the token lapses,
-    while ``hermes_session_rt`` lives for 30 days. From that moment the
+    the browser deletes ``sonic_session_at`` the instant the token lapses,
+    while ``sonic_session_rt`` lives for 30 days. From that moment the
     browser sends ONLY the refresh-token cookie. The original gate bailed at
     ``if not at: return _unauth_response(...)`` — bouncing the user to
     /login on every single expiry despite holding a perfectly good refresh
@@ -220,7 +220,7 @@ class TestTransparentRefreshOnAccessTokenEviction:
         signature + exp), then send ONLY that RT cookie.
         """
         import time as _t
-        from tests.hermes_cli.conftest_dashboard_auth import _sign
+        from tests.sonic_cli.conftest_dashboard_auth import _sign
 
         clear_providers()
         provider = StubAuthProvider(default_ttl=900)
@@ -273,7 +273,7 @@ class TestTransparentRefreshOnAccessTokenEviction:
         gated_app.cookies.clear()
         # A syntactically-real but expired RT (signed with exp<=now).
         import time as _t
-        from tests.hermes_cli.conftest_dashboard_auth import _sign
+        from tests.sonic_cli.conftest_dashboard_auth import _sign
         dead_rt = _sign({"sub": "u", "kind": "refresh", "exp": int(_t.time()) - 1})
         gated_app.cookies.set(SESSION_RT_COOKIE, dead_rt)
         r = gated_app.get("/api/sessions")

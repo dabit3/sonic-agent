@@ -10,10 +10,10 @@ test('runBootstrap bails immediately when the signal is already aborted', async 
   const events = []
   const result = await runBootstrap({
     installStamp: null,
-    activeRoot: '/tmp/hermes-runner-test',
+    activeRoot: '/tmp/sonic-runner-test',
     sourceRepoRoot: null,
-    hermesHome: '/tmp/hermes-runner-test',
-    logRoot: '/tmp/hermes-runner-test',
+    sonicHome: '/tmp/sonic-runner-test',
+    logRoot: '/tmp/sonic-runner-test',
     onEvent: ev => events.push(ev),
     abortSignal: controller.signal
   })

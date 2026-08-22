@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "8bf498c21dcccbb2b9c10e2da804f792b654543d",
-  "synced_at": "2026-08-21T16:00:00Z",
-  "notes": "Partial sync. 2026-08-21 batch: 1044d9f2..8bf498c2 (80 first-parent commits, 1 skipped: 92273e4f5 upstream user-stories collage data, which Sonic keeps empty). Backlog remains large (~11.4k first-parent commits beyond 8bf498c2); each daily run advances the baseline by a reviewable batch. The original bootstrap baseline was inferred in an earlier run and still warrants a human double-check."
+  "last_synced_upstream_sha": "1e047677a57bf83ddcf9092f4f09fa625259c030",
+  "synced_at": "2026-08-22T16:00:00Z",
+  "notes": "Partial sync. 2026-08-22 batch: 8bf498c2..1e047677 (80 first-parent commits, 0 skipped). Backlog remains large (~11.5k first-parent commits beyond 1e047677); each daily run advances the baseline by a reviewable batch. The original bootstrap baseline was inferred in an earlier run and still warrants a human double-check."
 }
