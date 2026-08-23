@@ -152,7 +152,7 @@ export function isDesktopSlashCommand(command: string): boolean {
 
 /**
  * An "extension" command is anything the backend surfaces that is NOT one of
- * Hermes' built-in slash commands — i.e. skill commands (`/gif-search`,
+ * Sonic' built-in slash commands — i.e. skill commands (`/gif-search`,
  * `/codex`, …) and user-defined quick commands. These are user-activated, so
  * they should appear in the desktop slash palette even though they aren't in
  * the curated `DESKTOP_COMMANDS` allow-list. This mirrors the predicate in
@@ -165,7 +165,7 @@ export function isDesktopSlashExtensionCommand(command: string): boolean {
     return false
   }
 
-  return !isKnownHermesSlashCommand(normalized)
+  return !isKnownSonicSlashCommand(normalized)
 }
 
 export function isDesktopSlashSuggestion(command: string): boolean {

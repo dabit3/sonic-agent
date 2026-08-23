@@ -193,9 +193,9 @@ class TestFindStaleDashboardPids:
             mock_run.return_value = MagicMock(
                 returncode=0,
                 stdout="\n".join([
-                    _ps_line(11111, "hermes dashboard --port 9119"),
-                    _ps_line(22222, "hermes dashboard --port 9120"),
-                    _ps_line(33333, "hermes dashboard --port 9121"),
+                    _ps_line(11111, "sonic dashboard --port 9119"),
+                    _ps_line(22222, "sonic dashboard --port 9120"),
+                    _ps_line(33333, "sonic dashboard --port 9121"),
                 ]) + "\n",
                 stderr="",
             )
@@ -210,7 +210,7 @@ class TestFindStaleDashboardPids:
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
                 returncode=0,
-                stdout=_ps_line(12345, "hermes dashboard --port 9119") + "\n",
+                stdout=_ps_line(12345, "sonic dashboard --port 9119") + "\n",
                 stderr="",
             )
             pids = _find_stale_dashboard_pids(exclude_pids=None)
@@ -221,7 +221,7 @@ class TestFindStaleDashboardPids:
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
                 returncode=0,
-                stdout=_ps_line(12345, "hermes dashboard --port 9119") + "\n",
+                stdout=_ps_line(12345, "sonic dashboard --port 9119") + "\n",
                 stderr="",
             )
             pids = _find_stale_dashboard_pids(exclude_pids={12345})

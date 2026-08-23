@@ -118,7 +118,7 @@ def test_nemo_relay_extra_uses_official_0_3_distribution():
 
     assert optional_dependencies["nemo-relay"] == ["nemo-relay==0.3"]
     assert not any(
-        spec == "hermes-agent[nemo-relay]"
+        spec == "sonic-agent[nemo-relay]"
         for spec in optional_dependencies["all"]
     )
 

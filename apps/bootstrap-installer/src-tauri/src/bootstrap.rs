@@ -180,7 +180,7 @@ pub async fn launch_sonic_desktop(
     tracing::info!(?exe_path, "launching Sonic desktop");
 
     // Detach from us — the installer is about to exit. On macOS launch the
-    // bundle through LaunchServices instead of exec'ing Contents/MacOS/Hermes
+    // bundle through LaunchServices instead of exec'ing Contents/MacOS/Sonic
     // directly; this matches user double-click/open behavior and avoids cwd /
     // quarantine oddities after a self-update rebuild.
     let mut cmd = desktop_launch_command(&exe_path, &install_root);
@@ -234,11 +234,11 @@ pub(crate) fn resolve_sonic_desktop_exe(install_root: &std::path::Path) -> Optio
     None
 }
 
-pub(crate) fn resolve_hermes_desktop_app(install_root: &std::path::Path) -> Option<PathBuf> {
-    let exe = resolve_hermes_desktop_exe(install_root)?;
+pub(crate) fn resolve_sonic_desktop_app(install_root: &std::path::Path) -> Option<PathBuf> {
+    let exe = resolve_sonic_desktop_exe(install_root)?;
     #[cfg(target_os = "macos")]
     {
-        // .../Hermes.app/Contents/MacOS/Hermes -> .../Hermes.app
+        // .../Sonic.app/Contents/MacOS/Sonic -> .../Sonic.app
         let app = exe.parent()?.parent()?.parent()?.to_path_buf();
         if app.extension().and_then(|e| e.to_str()) == Some("app") && app.is_dir() {
             return Some(app);
@@ -284,7 +284,7 @@ pub(crate) fn spawn_installed_desktop(install_root: &std::path::Path) -> std::io
 pub(crate) fn open_macos_app_detached(app_bundle: &std::path::Path) -> std::io::Result<()> {
     let mut cmd = std::process::Command::new("/usr/bin/open");
     cmd.arg(app_bundle);
-    cmd.current_dir(crate::paths::hermes_home());
+    cmd.current_dir(crate::paths::sonic_home());
     cmd.spawn().map(|_child| ())
 }
 
@@ -307,7 +307,7 @@ fn desktop_launch_command(
         if let Some(app_bundle) = app_bundle_for_exe(exe_path) {
             let mut cmd = tokio::process::Command::new("/usr/bin/open");
             cmd.arg(app_bundle);
-            cmd.current_dir(crate::paths::hermes_home());
+            cmd.current_dir(crate::paths::sonic_home());
             return cmd;
         }
     }
@@ -326,7 +326,7 @@ fn desktop_launch_command_std(
         if let Some(app_bundle) = app_bundle_for_exe(exe_path) {
             let mut cmd = std::process::Command::new("/usr/bin/open");
             cmd.arg(app_bundle);
-            cmd.current_dir(crate::paths::hermes_home());
+            cmd.current_dir(crate::paths::sonic_home());
             return cmd;
         }
     }
@@ -826,7 +826,7 @@ mod tests {
 
     fn unique_tmp_dir(tag: &str) -> PathBuf {
         let base = std::env::temp_dir().join(format!(
-            "hermes-bootstrap-test-{tag}-{}-{}",
+            "sonic-bootstrap-test-{tag}-{}-{}",
             std::process::id(),
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
@@ -844,22 +844,22 @@ mod tests {
         if cfg!(target_os = "macos") {
             let macos_dir = release
                 .join("mac-arm64")
-                .join("Hermes.app")
+                .join("Sonic.app")
                 .join("Contents")
                 .join("MacOS");
             std::fs::create_dir_all(&macos_dir).unwrap();
-            std::fs::write(macos_dir.join("Hermes"), b"#!/bin/sh\n").unwrap();
-            macos_dir.parent().unwrap().parent().unwrap().to_path_buf() // .../Hermes.app
+            std::fs::write(macos_dir.join("Sonic"), b"#!/bin/sh\n").unwrap();
+            macos_dir.parent().unwrap().parent().unwrap().to_path_buf() // .../Sonic.app
         } else if cfg!(target_os = "windows") {
             let dir = release.join("win-unpacked");
             std::fs::create_dir_all(&dir).unwrap();
-            let exe = dir.join("Hermes.exe");
+            let exe = dir.join("Sonic.exe");
             std::fs::write(&exe, b"stub").unwrap();
             exe
         } else {
             let dir = release.join("linux-unpacked");
             std::fs::create_dir_all(&dir).unwrap();
-            let exe = dir.join("hermes");
+            let exe = dir.join("sonic");
             std::fs::write(&exe, b"stub").unwrap();
             exe
         }
@@ -867,14 +867,14 @@ mod tests {
 
     // The relaunch / install target is derived from the rebuilt desktop app.
     // On macOS this MUST resolve to the .app bundle (what `open` relaunches and
-    // what the updater ditto's over /Applications/Hermes.app). A regression in
+    // what the updater ditto's over /Applications/Sonic.app). A regression in
     // this derivation breaks the post-update auto-relaunch, so guard it.
     #[test]
-    fn resolve_hermes_desktop_app_finds_built_bundle() {
+    fn resolve_sonic_desktop_app_finds_built_bundle() {
         let root = unique_tmp_dir("app-ok");
         let expected = make_release_tree(&root);
 
-        let resolved = resolve_hermes_desktop_app(&root)
+        let resolved = resolve_sonic_desktop_app(&root)
             .expect("should resolve the freshly-built desktop app");
 
         #[cfg(target_os = "macos")]
@@ -894,11 +894,11 @@ mod tests {
     }
 
     #[test]
-    fn resolve_hermes_desktop_app_is_none_without_a_build() {
+    fn resolve_sonic_desktop_app_is_none_without_a_build() {
         let root = unique_tmp_dir("app-none");
         // No release tree created.
         assert!(
-            resolve_hermes_desktop_app(&root).is_none(),
+            resolve_sonic_desktop_app(&root).is_none(),
             "no resolved app when nothing has been built"
         );
         let _ = std::fs::remove_dir_all(&root);

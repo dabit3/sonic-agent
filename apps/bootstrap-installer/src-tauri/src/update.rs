@@ -70,7 +70,7 @@ pub async fn start_update(app: AppHandle) -> Result<(), String> {
             None
         };
         let mut stages = vec![
-            stage_info("update", "Updating Hermes"),
+            stage_info("update", "Updating Sonic"),
             stage_info("rebuild", "Rebuilding the desktop app"),
         ];
         if cfg!(target_os = "macos") && target_app.is_some() {
@@ -132,7 +132,7 @@ async fn run_update(app: AppHandle) -> Result<()> {
 
     // Synthetic manifest so the existing progress UI renders our two stages.
     let mut stages = vec![
-        stage_info("update", "Updating Hermes"),
+        stage_info("update", "Updating Sonic"),
         stage_info("rebuild", "Rebuilding the desktop app"),
     ];
     if cfg!(target_os = "macos") && target_app.is_some() {
@@ -492,13 +492,13 @@ fn resolve_sonic(install_root: &Path) -> Option<PathBuf> {
 }
 
 fn update_child_env(install_root: &Path) -> Vec<(String, OsString)> {
-    let hermes_home = crate::paths::hermes_home();
+    let sonic_home = crate::paths::sonic_home();
     let mut envs = vec![(
-        "HERMES_HOME".to_string(),
-        hermes_home.as_os_str().to_os_string(),
+        "SONIC_HOME".to_string(),
+        sonic_home.as_os_str().to_os_string(),
     )];
     if let Some(path) = path_with_prepended_entries(&[
-        hermes_home.join("node").join("bin"),
+        sonic_home.join("node").join("bin"),
         venv_bin_dir(install_root),
     ]) {
         envs.push(("PATH".to_string(), path));
@@ -572,9 +572,9 @@ async fn install_macos_app_update(
         ));
     }
 
-    let rebuilt_app = crate::bootstrap::resolve_hermes_desktop_app(install_root).ok_or_else(|| {
+    let rebuilt_app = crate::bootstrap::resolve_sonic_desktop_app(install_root).ok_or_else(|| {
         anyhow!(
-            "desktop rebuild succeeded but no Hermes.app was found under {}",
+            "desktop rebuild succeeded but no Sonic.app was found under {}",
             install_root.join("apps").join("desktop").join("release").display()
         )
     })?;
@@ -610,15 +610,15 @@ async fn install_macos_app_update(
     if let Some(parent) = target_app.parent() {
         tokio::fs::create_dir_all(parent).await?;
     }
-    let tmp = PathBuf::from(format!("{}.hermes-update-new", target_app.display()));
-    let old = PathBuf::from(format!("{}.hermes-update-old", target_app.display()));
+    let tmp = PathBuf::from(format!("{}.sonic-update-new", target_app.display()));
+    let old = PathBuf::from(format!("{}.sonic-update-old", target_app.display()));
     remove_dir_if_exists(&tmp).await;
     remove_dir_if_exists(&old).await;
 
     let ditto = Command::new("/usr/bin/ditto")
         .arg(&rebuilt_app)
         .arg(&tmp)
-        .current_dir(crate::paths::hermes_home())
+        .current_dir(crate::paths::sonic_home())
         .status()
         .await
         .map_err(|e| anyhow!("running ditto: {e}"))?;
@@ -638,7 +638,7 @@ async fn install_macos_app_update(
         .arg("-dr")
         .arg("com.apple.quarantine")
         .arg(target_app)
-        .current_dir(crate::paths::hermes_home())
+        .current_dir(crate::paths::sonic_home())
         .status()
         .await;
 
@@ -809,8 +809,8 @@ mod tests {
     #[test]
     fn parses_only_app_targets() {
         assert_eq!(
-            target_app_from_args(["--update", "--target-app", "/Applications/Hermes.app"]),
-            Some(PathBuf::from("/Applications/Hermes.app"))
+            target_app_from_args(["--update", "--target-app", "/Applications/Sonic.app"]),
+            Some(PathBuf::from("/Applications/Sonic.app"))
         );
         assert_eq!(target_app_from_args(["--target-app", "/tmp/not-an-app"]), None);
     }
@@ -818,7 +818,7 @@ mod tests {
     // Helpers for the swap tests: make a throwaway dir tree we can rename.
     fn unique_tmp_dir(tag: &str) -> PathBuf {
         let base = std::env::temp_dir().join(format!(
-            "hermes-swap-test-{tag}-{}-{}",
+            "sonic-swap-test-{tag}-{}-{}",
             std::process::id(),
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
@@ -837,9 +837,9 @@ mod tests {
     #[tokio::test]
     async fn swap_installs_new_bundle_and_cleans_up() {
         let base = unique_tmp_dir("ok");
-        let target = base.join("Hermes.app");
-        let tmp = base.join("Hermes.app.hermes-update-new");
-        let old = base.join("Hermes.app.hermes-update-old");
+        let target = base.join("Sonic.app");
+        let tmp = base.join("Sonic.app.sonic-update-new");
+        let old = base.join("Sonic.app.sonic-update-old");
         write_marker(&target, "OLD");
         write_marker(&tmp, "NEW");
 
@@ -867,9 +867,9 @@ mod tests {
         //  - `old` is a NON-EMPTY dir  -> rename(target, old) fails
         //  - `tmp` does not exist       -> rename(tmp, target) fails
         let base = unique_tmp_dir("fail");
-        let target = base.join("Hermes.app");
-        let tmp = base.join("Hermes.app.hermes-update-new"); // intentionally absent
-        let old = base.join("Hermes.app.hermes-update-old");
+        let target = base.join("Sonic.app");
+        let tmp = base.join("Sonic.app.sonic-update-new"); // intentionally absent
+        let old = base.join("Sonic.app.sonic-update-old");
         write_marker(&target, "OLD");
         write_marker(&old, "OCCUPIED"); // non-empty => rename(target,old) fails
 
@@ -890,9 +890,9 @@ mod tests {
         // Move-aside succeeds but installing the staged bundle fails (tmp
         // absent). The original must be rolled back from `old` to `target`.
         let base = unique_tmp_dir("rollback");
-        let target = base.join("Hermes.app");
-        let tmp = base.join("Hermes.app.hermes-update-new"); // absent
-        let old = base.join("Hermes.app.hermes-update-old");
+        let target = base.join("Sonic.app");
+        let tmp = base.join("Sonic.app.sonic-update-new"); // absent
+        let old = base.join("Sonic.app.sonic-update-old");
         write_marker(&target, "OLD");
 
         let result = swap_in_new_bundle(&tmp, &target, &old).await;

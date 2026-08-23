@@ -72,9 +72,9 @@ def _plant_skill(sonic_home: Path, name: str, body: str) -> None:
     )
 
 
-def _plant_bundle(hermes_home: Path, name: str, skills: list[str], instruction: str = "") -> None:
-    """Drop a bundle YAML into ~/.hermes/skill-bundles/ and refresh cache."""
-    bundles_dir = hermes_home / "skill-bundles"
+def _plant_bundle(sonic_home: Path, name: str, skills: list[str], instruction: str = "") -> None:
+    """Drop a bundle YAML into ~/.sonic/skill-bundles/ and refresh cache."""
+    bundles_dir = sonic_home / "skill-bundles"
     bundles_dir.mkdir(parents=True, exist_ok=True)
     lines = [f"name: {name}", "skills:"]
     lines.extend(f"  - {skill}" for skill in skills)
@@ -277,11 +277,11 @@ class TestBuildJobPromptScansSkillContent:
         assert "could not be found" in prompt
 
     def test_skill_bundle_in_job_skills_loads_referenced_skills(self, cron_env):
-        hermes_home, scheduler = cron_env
-        _plant_skill(hermes_home, "alpha-skill", "Alpha guidance for the cron task.")
-        _plant_skill(hermes_home, "beta-skill", "Beta guidance for the cron task.")
+        sonic_home, scheduler = cron_env
+        _plant_skill(sonic_home, "alpha-skill", "Alpha guidance for the cron task.")
+        _plant_skill(sonic_home, "beta-skill", "Beta guidance for the cron task.")
         _plant_bundle(
-            hermes_home,
+            sonic_home,
             "article-pipeline",
             ["alpha-skill", "beta-skill"],
             instruction="Use the skills in order.",
@@ -303,10 +303,10 @@ class TestBuildJobPromptScansSkillContent:
         assert "skill(s) were listed for this job but could not be found" not in prompt
 
     def test_bundle_name_shadows_skill_name_for_cron_jobs(self, cron_env):
-        hermes_home, scheduler = cron_env
-        _plant_skill(hermes_home, "article-pipeline", "Standalone skill should not win.")
-        _plant_skill(hermes_home, "bundle-member", "Bundle member should win.")
-        _plant_bundle(hermes_home, "article-pipeline", ["bundle-member"])
+        sonic_home, scheduler = cron_env
+        _plant_skill(sonic_home, "article-pipeline", "Standalone skill should not win.")
+        _plant_skill(sonic_home, "bundle-member", "Bundle member should win.")
+        _plant_bundle(sonic_home, "article-pipeline", ["bundle-member"])
 
         job = {
             "id": "job-bundle-shadow",

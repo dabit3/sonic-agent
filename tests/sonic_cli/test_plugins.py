@@ -373,7 +373,7 @@ class TestPluginHooks:
 
     def test_invoke_hook_adds_observer_schema_version(self, tmp_path, monkeypatch):
         """invoke_hook() supplies the observer schema version for all hooks."""
-        plugins_dir = tmp_path / "hermes_test" / "plugins"
+        plugins_dir = tmp_path / "sonic_test" / "plugins"
         _make_plugin_dir(
             plugins_dir,
             "schema_plugin",
@@ -382,13 +382,13 @@ class TestPluginHooks:
                 'lambda **kw: kw.get("telemetry_schema_version"))'
             ),
         )
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes_test"))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic_test"))
 
         mgr = PluginManager()
         mgr.discover_and_load()
 
         assert mgr.invoke_hook("pre_tool_call", tool_name="test", args={}) == [
-            "hermes.observer.v1"
+            "sonic.observer.v1"
         ]
 
     def test_hook_exception_does_not_propagate(self, tmp_path, monkeypatch):

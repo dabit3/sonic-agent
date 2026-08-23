@@ -135,8 +135,8 @@ class TestHandleFunctionCall:
         """
         with (
             patch("model_tools.registry.dispatch", return_value='{"ok":true}'),
-            patch("hermes_cli.plugins.has_hook", return_value=False),
-            patch("hermes_cli.plugins.invoke_hook") as mock_invoke_hook,
+            patch("sonic_cli.plugins.has_hook", return_value=False),
+            patch("sonic_cli.plugins.invoke_hook") as mock_invoke_hook,
         ):
             result = handle_function_call("web_search", {"q": "test"}, task_id="t1")
 

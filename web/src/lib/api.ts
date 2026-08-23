@@ -199,9 +199,9 @@ export async function buildWsAuthParam(): Promise<[string, string]> {
  * the caller can read ``.blob()`` / ``.formData()`` / stream it.
  *
  * Auth, in both modes, exactly as ``fetchJSON`` does it:
- *  - loopback / ``--insecure``: attach the ``X-Hermes-Session-Token`` header.
+ *  - loopback / ``--insecure``: attach the ``X-Sonic-Session-Token`` header.
  *  - gated OAuth: no token header (it's absent by design); the
- *    ``hermes_session_at`` cookie rides along via ``credentials: 'include'``.
+ *    ``sonic_session_at`` cookie rides along via ``credentials: 'include'``.
  *
  * Unlike ``fetchJSON`` this does NOT parse the body, does NOT throw on
  * non-2xx (the caller decides — a 404 on a download is meaningful), and
@@ -214,7 +214,7 @@ export async function authedFetch(
   init?: RequestInit,
 ): Promise<Response> {
   const headers = new Headers(init?.headers);
-  const token = window.__HERMES_SESSION_TOKEN__;
+  const token = window.__SONIC_SESSION_TOKEN__;
   if (token) {
     setSessionHeader(headers, token);
   }
@@ -230,7 +230,7 @@ export async function authedFetch(
  * with the correct auth query param appended for the active mode (fresh
  * single-use ``ticket`` in gated mode, ``token`` in loopback). Plugins and
  * the SPA should use this instead of hand-assembling a WS URL + reading
- * ``window.__HERMES_SESSION_TOKEN__`` directly, so the gated-mode ticket
+ * ``window.__SONIC_SESSION_TOKEN__`` directly, so the gated-mode ticket
  * path can never be forgotten.
  *
  * ``path`` is the dashboard-relative path (e.g.

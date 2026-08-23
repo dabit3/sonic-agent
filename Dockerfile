@@ -158,7 +158,7 @@ RUN npm install --prefer-offline --no-audit && \
 # lazy-install access to PyPI (often blocked in containerized envs).
 #
 # The hindsight memory provider's client (hindsight-client) is baked in
-# for the same reason: it lazy-installs into /opt/hermes/.venv at first
+# for the same reason: it lazy-installs into /opt/sonic/.venv at first
 # use, which lives inside the (immutable) image layer rather than the
 # mounted /opt/data volume, so it is lost on every container recreate /
 # image update and recall/retain then fails with

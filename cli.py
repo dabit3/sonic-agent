@@ -1013,7 +1013,7 @@ def _emit_interrupted_session_end(cli, *, reason: str = "keyboard_interrupt") ->
             pass
 
     try:
-        from hermes_cli.plugins import invoke_hook as _invoke_hook
+        from sonic_cli.plugins import invoke_hook as _invoke_hook
         _invoke_hook(
             "on_session_end",
             session_id=session_id,
@@ -15925,11 +15925,11 @@ def main(
                     _exit_code = 0
                     if isinstance(result, dict) and result.get("failed"):
                         _exit_code = 1
-                        if os.environ.get("HERMES_KANBAN_TASK") and result.get(
+                        if os.environ.get("SONIC_KANBAN_TASK") and result.get(
                             "failure_reason"
                         ) in ("rate_limit", "billing"):
                             try:
-                                from hermes_cli.kanban_db import (
+                                from sonic_cli.kanban_db import (
                                     KANBAN_RATE_LIMIT_EXIT_CODE as _RL_CODE,
                                 )
                                 _exit_code = _RL_CODE

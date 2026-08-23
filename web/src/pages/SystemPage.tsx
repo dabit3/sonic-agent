@@ -198,7 +198,7 @@ export default function SystemPage() {
       api.getPortal(),
       // Cached (non-forced) check so the version row shows update status on
       // load without a separate effect / a forced network round-trip.
-      api.checkHermesUpdate(false),
+      api.checkSonicUpdate(false),
     ])
       .then(([s, st, m, p, c, h, cur, prt, upd]) => {
         if (s.status === "fulfilled") setStatus(s.value);
@@ -329,7 +329,7 @@ export default function SystemPage() {
     async (force = false) => {
       setCheckingUpdate(true);
       try {
-        const info = await api.checkHermesUpdate(force);
+        const info = await api.checkSonicUpdate(force);
         setUpdateInfo(info);
         if (force) {
           if (info.update_available) {
@@ -359,7 +359,7 @@ export default function SystemPage() {
   const applyUpdate = async () => {
     setUpdateConfirmOpen(false);
     try {
-      const resp = await api.updateHermes();
+      const resp = await api.updateSonic();
       if (!resp.ok && resp.error === "docker_update_unsupported") {
         showToast(
           resp.message ??
@@ -368,7 +368,7 @@ export default function SystemPage() {
         );
         return;
       }
-      setActiveAction(resp.name ?? "hermes-update");
+      setActiveAction(resp.name ?? "sonic-update");
       showToast("Update started", "success");
     } catch (e) {
       showToast(`Update failed: ${e}`, "error");
@@ -456,11 +456,11 @@ export default function SystemPage() {
         open={updateConfirmOpen}
         onCancel={() => setUpdateConfirmOpen(false)}
         onConfirm={() => void applyUpdate()}
-        title="Update Hermes?"
+        title="Update Sonic?"
         description={
           updateInfo && updateInfo.behind && updateInfo.behind > 0
-            ? `This will run 'hermes update' (${updateInfo.update_command}) and pull ${updateInfo.behind} new commit${updateInfo.behind === 1 ? "" : "s"}. The gateway restarts when the update finishes; the current session keeps its prompt cache until then.`
-            : `This will run 'hermes update' (${updateInfo?.update_command ?? "hermes update"}) and restart the gateway when it finishes.`
+            ? `This will run 'sonic update' (${updateInfo.update_command}) and pull ${updateInfo.behind} new commit${updateInfo.behind === 1 ? "" : "s"}. The gateway restarts when the update finishes; the current session keeps its prompt cache until then.`
+            : `This will run 'sonic update' (${updateInfo?.update_command ?? "sonic update"}) and restart the gateway when it finishes.`
         }
         confirmLabel="Update now"
       />

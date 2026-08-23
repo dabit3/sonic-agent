@@ -186,14 +186,14 @@ def _resolve_crash_grace_seconds() -> int:
 def _resolve_rate_limit_cooldown_seconds() -> int:
     """Return the rate-limit requeue cooldown in seconds.
 
-    Reads ``HERMES_KANBAN_RATE_LIMIT_COOLDOWN_SECONDS`` from the environment;
+    Reads ``SONIC_KANBAN_RATE_LIMIT_COOLDOWN_SECONDS`` from the environment;
     falls back to ``DEFAULT_RATE_LIMIT_COOLDOWN_SECONDS`` when absent, empty,
     non-integer, or negative. A value of 0 disables the cooldown (re-spawn on
     the next tick) — useful for tests that want to assert the task becomes
     spawnable again immediately.
     """
     raw = os.environ.get(
-        "HERMES_KANBAN_RATE_LIMIT_COOLDOWN_SECONDS", ""
+        "SONIC_KANBAN_RATE_LIMIT_COOLDOWN_SECONDS", ""
     ).strip()
     if raw:
         try:
@@ -4757,7 +4757,7 @@ _RESPAWN_GUARD_SUCCESS_WINDOW = 3600  # 1 hour
 # would be re-spawned on the very next tick and immediately bounce off the
 # same quota wall, burning a worker slot every tick for hours. The cooldown
 # spaces retries out so the board keeps cheaply probing whether quota is back
-# without thrashing. Overridable via ``HERMES_KANBAN_RATE_LIMIT_COOLDOWN_SECONDS``
+# without thrashing. Overridable via ``SONIC_KANBAN_RATE_LIMIT_COOLDOWN_SECONDS``
 # for operators who want a tighter/looser probe cadence.
 DEFAULT_RATE_LIMIT_COOLDOWN_SECONDS = 300  # 5 minutes
 

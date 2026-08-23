@@ -36,14 +36,14 @@ sonic          # now uses the TUI
 sonic chat     # same
 ```
 
-Or make it the persistent default in `~/.hermes/config.yaml`:
+Or make it the persistent default in `~/.sonic/config.yaml`:
 
 ```yaml
 display:
   interface: tui   # "cli" (default) or "tui"
 ```
 
-With `display.interface: tui`, a bare `hermes` (and `hermes chat`) launches the TUI. Explicit flags always win — run `hermes --cli` to drop back to the classic REPL for a single invocation, or `hermes --tui` / `HERMES_TUI=1` to force the TUI when the config default is `cli`.
+With `display.interface: tui`, a bare `sonic` (and `sonic chat`) launches the TUI. Explicit flags always win — run `sonic --cli` to drop back to the classic REPL for a single invocation, or `sonic --tui` / `SONIC_TUI=1` to force the TUI when the config default is `cli`.
 
 The classic CLI remains the shipped default. Anything documented in [CLI Interface](cli.md) — slash commands, quick commands, skill preloading, personalities, multi-line input, interrupts — works in the TUI identically.
 

@@ -170,13 +170,13 @@ def _cmd_tools(args) -> int:
 def _cmd_login(args) -> int:
     """Run the one-shot Nous Portal onboarding (login + model + provider + tools).
 
-    This is the human-readable front door for `hermes auth add nous --type
-    oauth`. It reuses the exact wiring behind `hermes setup --portal` (which in
+    This is the human-readable front door for `sonic auth add nous --type
+    oauth`. It reuses the exact wiring behind `sonic setup --portal` (which in
     turn runs the same Nous flow as the first-time quick setup), so the
     commands stay in lockstep: device-code login, pick a Nous model, switch the
     inference provider to Nous, then offer the Tool Gateway opt-in.
     """
-    from hermes_cli.setup import _run_portal_one_shot
+    from sonic_cli.setup import _run_portal_one_shot
 
     config = load_config() or {}
     try:
@@ -192,9 +192,9 @@ def portal_command(args) -> int:
     """Top-level dispatch for `sonic portal <subcommand>`."""
     sub = getattr(args, "portal_command", None)
     if sub in {None, "", "login"}:
-        # Default to the one-shot onboarding — `hermes portal` is the
-        # human-readable alias for `hermes auth add nous --type oauth` /
-        # `hermes setup --portal`.
+        # Default to the one-shot onboarding — `sonic portal` is the
+        # human-readable alias for `sonic auth add nous --type oauth` /
+        # `sonic setup --portal`.
         return _cmd_login(args)
     if sub in {"info", "status"}:
         # `status` kept as a back-compat alias for the prior default.
@@ -214,10 +214,10 @@ def add_parser(subparsers) -> None:
         "portal",
         help="Set up Nous Portal (login, model pick, Tool Gateway); see also `portal info`",
         description=(
-            "Run `hermes portal` with no subcommand to log in to Nous Portal "
+            "Run `sonic portal` with no subcommand to log in to Nous Portal "
             "and set it up — pick a model, set Nous as your provider, and offer "
-            "the Tool Gateway (the human-readable alias for `hermes auth add "
-            "nous --type oauth`, identical to `hermes setup --portal`). "
+            "the Tool Gateway (the human-readable alias for `sonic auth add "
+            "nous --type oauth`, identical to `sonic setup --portal`). "
             "Subcommands: login (default), info, open, tools."
         ),
     )

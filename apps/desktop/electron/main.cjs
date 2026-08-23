@@ -82,7 +82,7 @@ const APP_ROOT = app.getAppPath()
 // GPU and never see it. Fall back to software rendering when a remote display
 // is detected; it's rock-steady over the wire and the CPU cost is negligible
 // next to the connection's latency. Must run before app `ready` — these
-// switches only apply pre-launch. Override with HERMES_DESKTOP_DISABLE_GPU
+// switches only apply pre-launch. Override with SONIC_DESKTOP_DISABLE_GPU
 // (1/true → always disable, 0/false → keep GPU on).
 const REMOTE_DISPLAY_REASON = detectRemoteDisplay()
 if (REMOTE_DISPLAY_REASON) {
@@ -91,7 +91,7 @@ if (REMOTE_DISPLAY_REASON) {
   // with only --disable-gpu: force compositing onto the CPU too.
   app.commandLine.appendSwitch('disable-gpu-compositing')
   console.log(
-    `[hermes] remote display detected (${REMOTE_DISPLAY_REASON}); disabling GPU hardware acceleration to prevent flicker`
+    `[sonic] remote display detected (${REMOTE_DISPLAY_REASON}); disabling GPU hardware acceleration to prevent flicker`
   )
 }
 const SOURCE_REPO_ROOT = path.resolve(APP_ROOT, '../..')
@@ -1431,16 +1431,16 @@ async function applyUpdatesPosixInApp(opts = {}) {
     PATH: [extraPath, process.env.PATH].filter(Boolean).join(path.delimiter)
   }
 
-  // `hermes update` reaps stale `hermes dashboard` backends (a code update
+  // `sonic update` reaps stale `sonic dashboard` backends (a code update
   // leaves the running process serving old Python against the freshly-updated
   // JS bundle). But OUR backend is one of those processes, and killing it
   // mid-update produces the boot→kill→crash loop in #37532 — the desktop
   // already restarts its own backend via the rebuild+relaunch below, so the
   // reap must spare it. Hand the live backend's PID to the update process;
-  // _kill_stale_dashboard_processes reads HERMES_DESKTOP_CHILD_PID and excludes
+  // _kill_stale_dashboard_processes reads SONIC_DESKTOP_CHILD_PID and excludes
   // it while still reaping any genuinely-orphaned dashboards. (#37532)
-  if (hermesProcess && Number.isInteger(hermesProcess.pid)) {
-    env.HERMES_DESKTOP_CHILD_PID = String(hermesProcess.pid)
+  if (sonicProcess && Number.isInteger(sonicProcess.pid)) {
+    env.SONIC_DESKTOP_CHILD_PID = String(sonicProcess.pid)
   }
 
   // Branch-pin so a non-main checkout doesn't get switched to main (and self-heal
@@ -2696,12 +2696,12 @@ function sendClosePreviewRequested() {
 
 // Tell the renderer the machine just woke. Sleep silently drops the
 // renderer's WebSocket to the local backend; the renderer reconnects on this
-// signal so the chat composer doesn't stay stuck on "Starting Hermes...".
+// signal so the chat composer doesn't stay stuck on "Starting Sonic...".
 function sendPowerResume() {
   if (!mainWindow || mainWindow.isDestroyed()) return
   const { webContents } = mainWindow
   if (!webContents || webContents.isDestroyed()) return
-  webContents.send('hermes:power-resume')
+  webContents.send('sonic:power-resume')
 }
 
 let powerResumeRegistered = false

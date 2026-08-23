@@ -834,7 +834,7 @@ def _emit_post_tool_call_hook(
     listener will actually consume it).
     """
     try:
-        from hermes_cli.plugins import has_hook, invoke_hook
+        from sonic_cli.plugins import has_hook, invoke_hook
         if not has_hook("post_tool_call"):
             return
         if status is None:

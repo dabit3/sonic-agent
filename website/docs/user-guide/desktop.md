@@ -57,7 +57,7 @@ The center of the app. You get:
 - **Drag-and-drop files** anywhere in the chat area to attach them to your next message.
 - **A right-hand preview rail** — render web pages, files, and tool outputs side by side while you keep chatting.
 
-Chatting against a Hermes instance on another machine instead of the bundled local backend? See [Connecting to a remote backend](#connecting-to-a-remote-backend) below — and for the full picture of how the remote-hosted dashboard connection works (the `/api/ws` chat socket, the `--tui` requirement, session-token pinning, and WebSocket close-code triage), see [Web Dashboard → Connecting Hermes Desktop to a remote backend](./features/web-dashboard.md#connecting-hermes-desktop-to-a-remote-backend).
+Chatting against a Sonic instance on another machine instead of the bundled local backend? See [Connecting to a remote backend](#connecting-to-a-remote-backend) below — and for the full picture of how the remote-hosted dashboard connection works (the `/api/ws` chat socket, the `--tui` requirement, session-token pinning, and WebSocket close-code triage), see [Web Dashboard → Connecting Sonic Desktop to a remote backend](./features/web-dashboard.md#connecting-sonic-desktop-to-a-remote-backend).
 
 ### File browser
 
@@ -108,24 +108,24 @@ The packaged app ships only the Electron shell. On first launch it installs the 
 
 ## Connecting to a remote backend
 
-By default the app starts and manages its own **local** backend. You can instead point it at a Hermes backend running on another machine — a VPS, a home server, or a Mini behind Tailscale — under **Settings → Gateway → Remote gateway**. It asks for two things:
+By default the app starts and manages its own **local** backend. You can instead point it at a Sonic backend running on another machine — a VPS, a home server, or a Mini behind Tailscale — under **Settings → Gateway → Remote gateway**. It asks for two things:
 
 - **Remote URL** — the backend's dashboard URL, e.g. `http://<host>:9119`
 - **Session token** — the backend's dashboard session token
 
-The session token is the part that trips people up. **Hermes does not print it for you to copy** — by default the backend mints a fresh random token on every boot and injects it straight into the served HTML, so there is nothing in `config.yaml`, in `/gateway`, or in the logs to grab. For a remote connection you pin the token yourself on the backend, then paste that same value into the app.
+The session token is the part that trips people up. **Sonic does not print it for you to copy** — by default the backend mints a fresh random token on every boot and injects it straight into the served HTML, so there is nothing in `config.yaml`, in `/gateway`, or in the logs to grab. For a remote connection you pin the token yourself on the backend, then paste that same value into the app.
 
-The backend also has to be started with **`--tui`** (or `HERMES_DASHBOARD_TUI=1`). The desktop's chat runs over the dashboard's `/api/ws` + `/api/pty` WebSockets, and those endpoints are refused unless the embedded-chat surface is enabled. Without `--tui` the connection still passes the `/api/status` health check and the app reports "Remote Hermes backend is ready" — but chat never works because the WebSocket is closed immediately. A plain `hermes dashboard` or `hermes gateway` is not enough.
+The backend also has to be started with **`--tui`** (or `SONIC_DASHBOARD_TUI=1`). The desktop's chat runs over the dashboard's `/api/ws` + `/api/pty` WebSockets, and those endpoints are refused unless the embedded-chat surface is enabled. Without `--tui` the connection still passes the `/api/status` health check and the app reports "Remote Sonic backend is ready" — but chat never works because the WebSocket is closed immediately. A plain `sonic dashboard` or `sonic gateway` is not enough.
 
 ### On the backend (the remote machine)
 
 ```bash
-# 1. Mint a stable token and store it in ~/.hermes/.env (secrets file, 0600).
-#    Without HERMES_DASHBOARD_SESSION_TOKEN the token is random per boot and
+# 1. Mint a stable token and store it in ~/.sonic/.env (secrets file, 0600).
+#    Without SONIC_DASHBOARD_SESSION_TOKEN the token is random per boot and
 #    uncopyable; setting it pins the value the desktop app will use.
 TOKEN=$(openssl rand -base64 32)
-echo "HERMES_DASHBOARD_SESSION_TOKEN=$TOKEN" >> ~/.hermes/.env
-chmod 600 ~/.hermes/.env
+echo "SONIC_DASHBOARD_SESSION_TOKEN=$TOKEN" >> ~/.sonic/.env
+chmod 600 ~/.sonic/.env
 echo "$TOKEN"   # copy this value into the desktop app
 
 # 2. Run the dashboard bound to a reachable address.
@@ -134,10 +134,10 @@ echo "$TOKEN"   # copy this value into the desktop app
 #    --insecure is required for any non-loopback bind and keeps the legacy
 #    session-token auth path (a non-loopback bind WITHOUT --insecure engages
 #    the OAuth gate, which ignores the session token).
-hermes dashboard --tui --no-open --insecure --host 0.0.0.0 --port 9119
+sonic dashboard --tui --no-open --insecure --host 0.0.0.0 --port 9119
 ```
 
-Running the dashboard as a systemd service? Give the unit `EnvironmentFile=%h/.hermes/.env` so the token is in the environment at boot.
+Running the dashboard as a systemd service? Give the unit `EnvironmentFile=%h/.sonic/.env` so the token is in the environment at boot.
 
 :::warning
 `--insecure` exposes a port that reads/writes your `.env` (API keys, secrets) and can run agent commands. Never expose it to the open internet — put it behind a VPN. [Tailscale](https://tailscale.com/) is the clean option: bind to the machine's tailscale IP (`--host <tailscale-ip>`) and use `http://<tailscale-ip>:9119` as the Remote URL so only your tailnet can reach it.
@@ -147,21 +147,21 @@ Running the dashboard as a systemd service? Give the unit `EnvironmentFile=%h/.h
 
 **Settings → Gateway → Remote gateway:**
 
-1. **Remote URL** — `http://<backend-host>:9119` (path prefixes like `/hermes` work if you front it with a reverse proxy)
+1. **Remote URL** — `http://<backend-host>:9119` (path prefixes like `/sonic` work if you front it with a reverse proxy)
 2. **Session token** — paste the `$TOKEN` value from step 1
 3. **Test remote** — confirms the backend is reachable and the token is accepted
 4. **Save and reconnect** — switches the desktop shell onto the remote backend
 
-The token is stored encrypted in the app's local config; leave the field blank on a later edit to keep the saved one. You can also set it without the UI via the `HERMES_DESKTOP_REMOTE_URL` + `HERMES_DESKTOP_REMOTE_TOKEN` environment variables before launching the app (both must be set together; they override the in-app settings).
+The token is stored encrypted in the app's local config; leave the field blank on a later edit to keep the saved one. You can also set it without the UI via the `SONIC_DESKTOP_REMOTE_URL` + `SONIC_DESKTOP_REMOTE_TOKEN` environment variables before launching the app (both must be set together; they override the in-app settings).
 
 ### Troubleshooting
 
-- **Test fails with 401** — the token doesn't match the backend's `HERMES_DASHBOARD_SESSION_TOKEN`, or the backend is bound non-loopback *without* `--insecure` (OAuth gate is on, ignoring the token). Verify with `curl -s -H "X-Hermes-Session-Token: $TOKEN" http://<host>:9119/api/status` — that should return JSON, not a 401.
-- **App says "Remote Hermes backend is ready" but chat does nothing** — the backend was started without `--tui` (or `HERMES_DASHBOARD_TUI=1`). The status probe passes, but the chat WebSocket (`/api/ws` / `/api/pty`) is refused. Restart the backend with `--tui`.
+- **Test fails with 401** — the token doesn't match the backend's `SONIC_DASHBOARD_SESSION_TOKEN`, or the backend is bound non-loopback *without* `--insecure` (OAuth gate is on, ignoring the token). Verify with `curl -s -H "X-Sonic-Session-Token: $TOKEN" http://<host>:9119/api/status` — that should return JSON, not a 401.
+- **App says "Remote Sonic backend is ready" but chat does nothing** — the backend was started without `--tui` (or `SONIC_DASHBOARD_TUI=1`). The status probe passes, but the chat WebSocket (`/api/ws` / `/api/pty`) is refused. Restart the backend with `--tui`.
 - **Connection refused / times out** — the backend bound to `127.0.0.1` (the default) or a firewall/VPN is blocking the port. Bind to `0.0.0.0` or the tailscale IP and open the port to your trusted network.
-- **No token to copy** — expected. You mint it yourself; Hermes never surfaces the default ephemeral one.
+- **No token to copy** — expected. You mint it yourself; Sonic never surfaces the default ephemeral one.
 
-For the same setup from the web-dashboard angle, see [Web Dashboard → Connecting Hermes Desktop to a remote backend](./features/web-dashboard.md#connecting-hermes-desktop-to-a-remote-backend); the env vars are catalogued under [Environment Variables → Web Dashboard & Hermes Desktop](../reference/environment-variables.md#web-dashboard--hermes-desktop).
+For the same setup from the web-dashboard angle, see [Web Dashboard → Connecting Sonic Desktop to a remote backend](./features/web-dashboard.md#connecting-sonic-desktop-to-a-remote-backend); the env vars are catalogued under [Environment Variables → Web Dashboard & Sonic Desktop](../reference/environment-variables.md#web-dashboard--sonic-desktop).
 
 ## Troubleshooting
 

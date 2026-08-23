@@ -435,7 +435,7 @@ class TestWebServerEndpoints:
         so the sidebar stops showing the same chat several times."""
         import time as _time
 
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         db = SessionDB()
         try:
@@ -472,7 +472,7 @@ class TestWebServerEndpoints:
         branch instead of being collapsed back to the parent/root."""
         import time as _time
 
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         db = SessionDB()
         try:
@@ -779,7 +779,7 @@ class TestWebServerEndpoints:
         assert any(k.endswith("_API_KEY") or k.endswith("_TOKEN") for k in data.keys())
 
     def test_get_env_vars_marks_channel_managed_keys(self):
-        from hermes_cli.web_server import _channel_managed_env_keys
+        from sonic_cli.web_server import _channel_managed_env_keys
 
         data = self.client.get("/api/env").json()
         # Every entry carries the classification the Keys page relies on.
@@ -1586,8 +1586,8 @@ class TestNewEndpoints:
     # --- New profiles endpoints: active / description / model / describe-auto ---
 
     def test_profiles_active_defaults(self):
-        from hermes_constants import get_hermes_home
-        get_hermes_home().mkdir(parents=True, exist_ok=True)
+        from sonic_constants import get_sonic_home
+        get_sonic_home().mkdir(parents=True, exist_ok=True)
 
         resp = self.client.get("/api/profiles/active")
         assert resp.status_code == 200
@@ -1596,7 +1596,7 @@ class TestNewEndpoints:
         assert data["current"] == "default"
 
     def test_profiles_set_active_round_trip(self, monkeypatch):
-        import hermes_cli.profiles as profiles_mod
+        import sonic_cli.profiles as profiles_mod
         monkeypatch.setattr(profiles_mod, "create_wrapper_script", lambda name: None)
 
         self.client.post("/api/profiles", json={"name": "router"})
@@ -1611,7 +1611,7 @@ class TestNewEndpoints:
         assert resp.status_code == 404
 
     def test_profile_description_round_trip(self, monkeypatch):
-        import hermes_cli.profiles as profiles_mod
+        import sonic_cli.profiles as profiles_mod
         monkeypatch.setattr(profiles_mod, "create_wrapper_script", lambda name: None)
 
         self.client.post("/api/profiles", json={"name": "desc-prof"})
@@ -1636,8 +1636,8 @@ class TestNewEndpoints:
         assert resp.status_code == 404
 
     def test_profile_model_round_trip(self, monkeypatch):
-        from hermes_constants import get_hermes_home
-        import hermes_cli.profiles as profiles_mod
+        from sonic_constants import get_sonic_home
+        import sonic_cli.profiles as profiles_mod
         monkeypatch.setattr(profiles_mod, "create_wrapper_script", lambda name: None)
 
         self.client.post("/api/profiles", json={"name": "model-prof"})
@@ -1650,13 +1650,13 @@ class TestNewEndpoints:
         assert resp.json()["provider"] == "openrouter"
 
         import yaml
-        cfg_path = get_hermes_home() / "profiles" / "model-prof" / "config.yaml"
+        cfg_path = get_sonic_home() / "profiles" / "model-prof" / "config.yaml"
         cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8"))
         assert cfg["model"]["provider"] == "openrouter"
         assert cfg["model"]["default"] == "anthropic/claude-sonnet-4.6"
 
     def test_profile_model_requires_provider_and_model(self, monkeypatch):
-        import hermes_cli.profiles as profiles_mod
+        import sonic_cli.profiles as profiles_mod
         monkeypatch.setattr(profiles_mod, "create_wrapper_script", lambda name: None)
 
         self.client.post("/api/profiles", json={"name": "model-prof2"})
@@ -1667,12 +1667,12 @@ class TestNewEndpoints:
         assert resp.status_code == 400
 
     def test_profile_describe_auto_success(self, monkeypatch):
-        import hermes_cli.profiles as profiles_mod
+        import sonic_cli.profiles as profiles_mod
         monkeypatch.setattr(profiles_mod, "create_wrapper_script", lambda name: None)
 
         self.client.post("/api/profiles", json={"name": "auto-prof"})
 
-        from hermes_cli import profile_describer
+        from sonic_cli import profile_describer
         monkeypatch.setattr(
             profile_describer,
             "describe_profile",
@@ -1689,12 +1689,12 @@ class TestNewEndpoints:
         assert body["description_auto"] is True
 
     def test_profile_describe_auto_failure_is_not_auto(self, monkeypatch):
-        import hermes_cli.profiles as profiles_mod
+        import sonic_cli.profiles as profiles_mod
         monkeypatch.setattr(profiles_mod, "create_wrapper_script", lambda name: None)
 
         self.client.post("/api/profiles", json={"name": "auto-fail"})
 
-        from hermes_cli import profile_describer
+        from sonic_cli import profile_describer
         monkeypatch.setattr(
             profile_describer,
             "describe_profile",

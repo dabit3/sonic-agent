@@ -64,7 +64,7 @@ router = APIRouter()
 
 def _ws_upgrade_authorized(ws: "WebSocket") -> bool:
     """Authorize a WebSocket upgrade by delegating to the dashboard's canonical
-    WS auth gate (``hermes_cli.web_server._ws_auth_ok``).
+    WS auth gate (``sonic_cli.web_server._ws_auth_ok``).
 
     Delegating (rather than re-implementing a ``_SESSION_TOKEN``-only check)
     means this endpoint transparently accepts whatever the core gate accepts

@@ -85,8 +85,8 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   },
   onPowerResume: callback => {
     const listener = () => callback()
-    ipcRenderer.on('hermes:power-resume', listener)
-    return () => ipcRenderer.removeListener('hermes:power-resume', listener)
+    ipcRenderer.on('sonic:power-resume', listener)
+    return () => ipcRenderer.removeListener('sonic:power-resume', listener)
   },
   onBootProgress: callback => {
     const listener = (_event, payload) => callback(payload)

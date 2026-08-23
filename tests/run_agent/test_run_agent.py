@@ -2066,8 +2066,8 @@ class TestExecuteToolCalls:
             hook_calls.append((hook_name, kwargs))
             return []
 
-        monkeypatch.setattr("hermes_cli.plugins.invoke_hook", _capture_hook)
-        monkeypatch.setattr("hermes_cli.plugins.has_hook", lambda name: True)
+        monkeypatch.setattr("sonic_cli.plugins.invoke_hook", _capture_hook)
+        monkeypatch.setattr("sonic_cli.plugins.has_hook", lambda name: True)
 
         with (
             patch("run_agent.handle_function_call", side_effect=KeyboardInterrupt),
@@ -2518,14 +2518,14 @@ class TestConcurrentToolExecution:
         """Agent-owned tool paths should close observer tool spans."""
         hook_calls = []
         monkeypatch.setattr(
-            "hermes_cli.plugins.get_pre_tool_call_block_message",
+            "sonic_cli.plugins.get_pre_tool_call_block_message",
             lambda *args, **kwargs: None,
         )
         monkeypatch.setattr(
-            "hermes_cli.plugins.invoke_hook",
+            "sonic_cli.plugins.invoke_hook",
             lambda hook_name, **kwargs: hook_calls.append((hook_name, kwargs)) or [],
         )
-        monkeypatch.setattr("hermes_cli.plugins.has_hook", lambda name: True)
+        monkeypatch.setattr("sonic_cli.plugins.has_hook", lambda name: True)
 
         with patch("tools.todo_tool.todo_tool", return_value='{"ok":true}') as mock_todo:
             result = agent._invoke_tool("todo", {"todos": []}, "task-1", tool_call_id="todo-1")
@@ -2601,14 +2601,14 @@ class TestConcurrentToolExecution:
         hook_calls = []
 
         monkeypatch.setattr(
-            "hermes_cli.plugins.get_pre_tool_call_block_message",
+            "sonic_cli.plugins.get_pre_tool_call_block_message",
             lambda *args, **kwargs: "Blocked by policy",
         )
         monkeypatch.setattr(
-            "hermes_cli.plugins.invoke_hook",
+            "sonic_cli.plugins.invoke_hook",
             lambda hook_name, **kwargs: hook_calls.append((hook_name, kwargs)) or [],
         )
-        monkeypatch.setattr("hermes_cli.plugins.has_hook", lambda name: True)
+        monkeypatch.setattr("sonic_cli.plugins.has_hook", lambda name: True)
 
         with patch("run_agent.handle_function_call", side_effect=AssertionError("should not run")):
             agent._execute_tool_calls_sequential(mock_msg, messages, "task-1")
@@ -2628,14 +2628,14 @@ class TestConcurrentToolExecution:
         hook_calls = []
 
         monkeypatch.setattr(
-            "hermes_cli.plugins.get_pre_tool_call_block_message",
+            "sonic_cli.plugins.get_pre_tool_call_block_message",
             lambda *args, **kwargs: None,
         )
         monkeypatch.setattr(
-            "hermes_cli.plugins.invoke_hook",
+            "sonic_cli.plugins.invoke_hook",
             lambda hook_name, **kwargs: hook_calls.append((hook_name, kwargs)) or [],
         )
-        monkeypatch.setattr("hermes_cli.plugins.has_hook", lambda name: True)
+        monkeypatch.setattr("sonic_cli.plugins.has_hook", lambda name: True)
 
         with patch("tools.todo_tool.todo_tool", return_value='{"ok":true}') as mock_todo:
             agent._execute_tool_calls_sequential(mock_msg, messages, "task-1")
@@ -3393,8 +3393,8 @@ class TestRunConversation:
             hook_called = True
             return []
 
-        monkeypatch.setattr("hermes_cli.plugins.has_hook", lambda name: False)
-        monkeypatch.setattr("hermes_cli.plugins.invoke_hook", _invoke_hook)
+        monkeypatch.setattr("sonic_cli.plugins.has_hook", lambda name: False)
+        monkeypatch.setattr("sonic_cli.plugins.invoke_hook", _invoke_hook)
         monkeypatch.setattr(agent, "_api_request_payload_for_hook", _payload_for_hook)
 
         agent._invoke_api_request_error_hook(
@@ -3433,12 +3433,12 @@ class TestRunConversation:
             payload_counts["response"] += 1
             return {}
 
-        monkeypatch.setattr("hermes_cli.plugins.has_hook", _has_hook)
+        monkeypatch.setattr("sonic_cli.plugins.has_hook", _has_hook)
         monkeypatch.setattr(agent, "_api_request_payload_for_hook", _request_payload)
         monkeypatch.setattr(agent, "_api_response_payload_for_hook", _response_payload)
 
         with (
-            patch("hermes_cli.plugins.invoke_hook", return_value=[]),
+            patch("sonic_cli.plugins.invoke_hook", return_value=[]),
             patch.object(agent, "_persist_session"),
             patch.object(agent, "_save_trajectory"),
             patch.object(agent, "_cleanup_task_resources"),

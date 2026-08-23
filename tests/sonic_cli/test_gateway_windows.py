@@ -62,7 +62,7 @@ def test_exec_schtasks_decodes_with_replace_errors(monkeypatch):
     monkeypatch.setattr(gateway_windows.shutil, "which", lambda name: r"C:\\Windows\\System32\\schtasks.exe")
     monkeypatch.setattr(gateway_windows.subprocess, "run", fake_run)
 
-    code, out, err = gateway_windows._exec_schtasks(["/Query", "/TN", "Hermes_Gateway"])
+    code, out, err = gateway_windows._exec_schtasks(["/Query", "/TN", "Sonic_Gateway"])
 
     assert (code, out, err) == (0, "ok", "")
     assert captured["errors"] == "replace", "schtasks output must decode with errors='replace'"

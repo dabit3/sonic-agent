@@ -717,7 +717,7 @@ def test_fresh_install_browser_default_is_free_local_not_paid_nous():
     to index 0 (Nous) and pressing Enter walked users straight into a Nous
     Portal login for a paid offering (Javier's bug, June 2026).
     """
-    from hermes_cli.tools_config import _detect_active_provider_index
+    from sonic_cli.tools_config import _detect_active_provider_index
 
     providers = TOOL_CATEGORIES["browser"]["providers"]
     assert providers[0]["name"] == "Local Browser"
@@ -728,7 +728,7 @@ def test_fresh_install_browser_default_is_free_local_not_paid_nous():
 
 def test_fresh_install_tts_default_is_free_edge_not_paid_nous():
     """TTS picker defaults to the free Edge backend on a fresh install."""
-    from hermes_cli.tools_config import _detect_active_provider_index
+    from sonic_cli.tools_config import _detect_active_provider_index
 
     providers = TOOL_CATEGORIES["tts"]["providers"]
     assert providers[0]["name"] == "Microsoft Edge TTS"

@@ -154,8 +154,8 @@ pub async fn run_script(
     })
 }
 
-fn stable_script_cwd<'a>(script_path: &'a Path, hermes_home_override: Option<&'a str>) -> Option<&'a Path> {
-    if let Some(home) = hermes_home_override {
+fn stable_script_cwd<'a>(script_path: &'a Path, sonic_home_override: Option<&'a str>) -> Option<&'a Path> {
+    if let Some(home) = sonic_home_override {
         let path = Path::new(home);
         if path.is_dir() {
             return Some(path);
@@ -284,7 +284,7 @@ info line
     }
 
     #[test]
-    fn stable_script_cwd_prefers_existing_hermes_home() {
+    fn stable_script_cwd_prefers_existing_sonic_home() {
         let script = Path::new("/tmp/install.sh");
         let cwd = stable_script_cwd(script, Some("/"));
         assert_eq!(cwd, Some(Path::new("/")));

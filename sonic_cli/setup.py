@@ -2767,7 +2767,7 @@ def _run_portal_one_shot(config: dict) -> None:
     # provider=nous via the login/model save. This is the same routine quick
     # setup calls, so `sonic portal` == quick setup's Nous step.
     try:
-        from hermes_cli.main import _model_flow_nous
+        from sonic_cli.main import _model_flow_nous
 
         _model_flow_nous(config)
     except (KeyboardInterrupt, EOFError, SystemExit):
@@ -2781,10 +2781,10 @@ def _run_portal_one_shot(config: dict) -> None:
         print_info("  You can retry later with `sonic portal`.")
         return
     except Exception as exc:
-        logger.debug("_model_flow_nous error during `hermes portal`: %s", exc)
+        logger.debug("_model_flow_nous error during `sonic portal`: %s", exc)
         print()
         print_error(f"  Nous Portal setup encountered an error: {exc}")
-        print_info("  You can retry later with `hermes portal`.")
+        print_info("  You can retry later with `sonic portal`.")
         return
 
     # Re-sync the in-memory config from disk — _model_flow_nous (and the

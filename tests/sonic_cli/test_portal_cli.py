@@ -112,27 +112,27 @@ def test_parser_registers_subcommands():
 
 
 def test_one_shot_delegates_to_model_flow_nous(monkeypatch):
-    """`hermes portal` must run the quick-setup Nous flow (login + MODEL PICK +
+    """`sonic portal` must run the quick-setup Nous flow (login + MODEL PICK +
     provider + Tool Gateway), i.e. delegate to `_model_flow_nous` — not the
     lighter auth-only path that skipped model selection.
     """
-    import hermes_cli.setup as setup_mod
+    import sonic_cli.setup as setup_mod
 
     calls = {"model_flow": 0}
 
     def fake_model_flow(config):
         calls["model_flow"] += 1
 
-    # _model_flow_nous lives in hermes_cli.main and is imported lazily inside
+    # _model_flow_nous lives in sonic_cli.main and is imported lazily inside
     # _run_portal_one_shot, so patch it at the source module.
-    monkeypatch.setattr("hermes_cli.main._model_flow_nous", fake_model_flow)
+    monkeypatch.setattr("sonic_cli.main._model_flow_nous", fake_model_flow)
     # Keep the disk re-sync a no-op so the test never touches real config.
-    monkeypatch.setattr("hermes_cli.config.load_config", lambda: {})
+    monkeypatch.setattr("sonic_cli.config.load_config", lambda: {})
 
     setup_mod._run_portal_one_shot({})
 
     assert calls["model_flow"] == 1, (
-        "`hermes portal` must route through _model_flow_nous so the model "
+        "`sonic portal` must route through _model_flow_nous so the model "
         "picker runs every time (matching quick setup)."
     )
 
@@ -145,13 +145,13 @@ def test_one_shot_swallows_cancel_and_systemexit(monkeypatch, exc):
     Exception — so SystemExit could otherwise propagate out. The portal handler
     must treat KeyboardInterrupt/EOFError/SystemExit as a graceful cancel.
     """
-    import hermes_cli.setup as setup_mod
+    import sonic_cli.setup as setup_mod
 
     def boom(config):
         raise exc
 
-    monkeypatch.setattr("hermes_cli.main._model_flow_nous", boom)
-    monkeypatch.setattr("hermes_cli.config.load_config", lambda: {})
+    monkeypatch.setattr("sonic_cli.main._model_flow_nous", boom)
+    monkeypatch.setattr("sonic_cli.config.load_config", lambda: {})
 
     # Must return normally (None), not propagate the exception.
     assert setup_mod._run_portal_one_shot({}) is None

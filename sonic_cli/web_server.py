@@ -1165,17 +1165,17 @@ async def update_sonic():
     }
 
 
-@app.get("/api/hermes/update/check")
-async def check_hermes_update(force: bool = False):
-    """Report whether a Hermes update is available, without applying it.
+@app.get("/api/sonic/update/check")
+async def check_sonic_update(force: bool = False):
+    """Report whether a Sonic update is available, without applying it.
 
     Powers the dashboard's "check before you update" flow: the System page
     shows the commit-behind count and asks the user to confirm before
-    ``POST /api/hermes/update`` actually runs ``hermes update``.
+    ``POST /api/sonic/update`` actually runs ``sonic update``.
 
     Returns:
         install_method: 'git' | 'pip' | 'docker' | 'nixos' | 'homebrew' | ...
-        current_version: installed Hermes version string
+        current_version: installed Sonic version string
         behind: commits behind upstream (>=1), 0 if up to date,
                 -1 if behind by an unknown count (nix/pypi), or null if the
                 check could not run (offline, no remote, etc.)
@@ -1207,11 +1207,11 @@ async def check_hermes_update(force: bool = False):
     # caches the result for 6h. ``force`` busts the cache so the "Check now"
     # button reflects reality immediately.
     try:
-        from hermes_cli.banner import check_for_updates
+        from sonic_cli.banner import check_for_updates
 
         if force:
             try:
-                (get_hermes_home() / ".update_check").unlink()
+                (get_sonic_home() / ".update_check").unlink()
             except OSError:
                 pass
 
@@ -6180,14 +6180,14 @@ def _write_profile_model(profile_dir: Path, provider: str, model: str) -> None:
     """Write the main model assignment into a specific profile's config.yaml.
 
     Scopes ``load_config``/``save_config`` to ``profile_dir`` via the
-    context-local HERMES_HOME override so the write lands in the target
+    context-local SONIC_HOME override so the write lands in the target
     profile's config rather than the dashboard process's active profile.
     Clears any stale ``base_url`` / ``context_length`` the same way
     ``POST /api/model/set`` does, since the new model may differ.
     """
-    from hermes_constants import set_hermes_home_override, reset_hermes_home_override
+    from sonic_constants import set_sonic_home_override, reset_sonic_home_override
 
-    token = set_hermes_home_override(str(profile_dir))
+    token = set_sonic_home_override(str(profile_dir))
     try:
         cfg = load_config()
         model_cfg = cfg.get("model", {})
@@ -6201,7 +6201,7 @@ def _write_profile_model(profile_dir: Path, provider: str, model: str) -> None:
         cfg["model"] = model_cfg
         save_config(cfg)
     finally:
-        reset_hermes_home_override(token)
+        reset_sonic_home_override(token)
 
 
 @app.get("/api/profiles")
@@ -6268,11 +6268,11 @@ async def get_active_profile_endpoint():
     """Return the sticky active profile and the profile this dashboard
     process is currently running as.
 
-    ``active`` is the sticky default written by ``hermes profile use`` —
+    ``active`` is the sticky default written by ``sonic profile use`` —
     the profile new CLI invocations pick up. ``current`` is the profile
-    the running dashboard/gateway is scoped to (derived from HERMES_HOME).
+    the running dashboard/gateway is scoped to (derived from SONIC_HOME).
     """
-    from hermes_cli import profiles as profiles_mod
+    from sonic_cli import profiles as profiles_mod
     try:
         active = profiles_mod.get_active_profile() or "default"
     except Exception:
@@ -6286,12 +6286,12 @@ async def get_active_profile_endpoint():
 
 @app.post("/api/profiles/active")
 async def set_active_profile_endpoint(body: ProfileActiveUpdate):
-    """Set the sticky active profile (mirrors ``hermes profile use``).
+    """Set the sticky active profile (mirrors ``sonic profile use``).
 
     Note: this does not retarget the already-running dashboard process —
     it changes which profile subsequent CLI commands and gateways use.
     """
-    from hermes_cli import profiles as profiles_mod
+    from sonic_cli import profiles as profiles_mod
     try:
         profiles_mod.set_active_profile(body.name)
     except FileNotFoundError as e:
@@ -6426,7 +6426,7 @@ async def update_profile_description_endpoint(name: str, body: ProfileDescriptio
     user-authored description (``description_auto: false``) so the
     auto-describer won't overwrite it on a sweep.
     """
-    from hermes_cli import profiles as profiles_mod
+    from sonic_cli import profiles as profiles_mod
     profile_dir = _resolve_profile_dir(name)
     text = (body.description or "").strip()
     try:
@@ -6446,7 +6446,7 @@ async def update_profile_model_endpoint(name: str, body: ProfileModelUpdate):
     """Set the main model (``model.default`` + ``model.provider``) for a
     specific profile's config.yaml, without touching the dashboard's own
     active profile. Mirrors ``POST /api/model/set`` (main scope) but scoped
-    to the named profile via the HERMES_HOME override.
+    to the named profile via the SONIC_HOME override.
     """
     profile_dir = _resolve_profile_dir(name)
     provider = (body.provider or "").strip()
@@ -6464,7 +6464,7 @@ async def update_profile_model_endpoint(name: str, body: ProfileModelUpdate):
 @app.post("/api/profiles/{name}/describe-auto")
 async def describe_profile_auto_endpoint(name: str, body: ProfileDescribeAuto):
     """Auto-generate a profile's description via the auxiliary LLM
-    (``auxiliary.profile_describer``). Mirrors ``hermes profile describe
+    (``auxiliary.profile_describer``). Mirrors ``sonic profile describe
     <name> --auto``.
 
     A failed generation (no aux client, LLM error, …) is returned as
@@ -6473,7 +6473,7 @@ async def describe_profile_auto_endpoint(name: str, body: ProfileDescribeAuto):
     """
     _resolve_profile_dir(name)
     try:
-        from hermes_cli import profile_describer
+        from sonic_cli import profile_describer
         outcome = profile_describer.describe_profile(name, overwrite=bool(body.overwrite))
     except Exception as e:
         _log.exception("POST /api/profiles/%s/describe-auto failed", name)
@@ -7170,7 +7170,7 @@ def _build_gateway_ws_url() -> Optional[str]:
     )
 
     if getattr(app.state, "auth_required", False):
-        from hermes_cli.dashboard_auth.ws_tickets import internal_ws_credential
+        from sonic_cli.dashboard_auth.ws_tickets import internal_ws_credential
 
         qs = urllib.parse.urlencode({"internal": internal_ws_credential()})
     else:

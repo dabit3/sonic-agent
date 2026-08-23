@@ -381,7 +381,7 @@ To find a Room ID: in Element, go to the room → **Settings** → **Advanced** 
 
 ## Commands in Matrix
 
-Hermes supports the same gateway commands in Matrix that it supports on other
+Sonic supports the same gateway commands in Matrix that it supports on other
 messaging platforms, including `/commands`, `/model`, `/stop`, `/queue`,
 `/steer`, `/goal`, `/subgoal`, `/background`, `/bg`, `/btw`, `/tasks`, and
 `/yolo`.
@@ -398,7 +398,7 @@ alias:
 !stop
 ```
 
-Hermes only normalizes `!command` when the command is known to the gateway, a
+Sonic only normalizes `!command` when the command is known to the gateway, a
 registered plugin command, or an installed skill command. Ordinary exclamations
 such as `!important` remain normal chat messages.
 

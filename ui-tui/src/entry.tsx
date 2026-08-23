@@ -83,7 +83,7 @@ const stopMemoryMonitor = startMemoryMonitor({
   onWarn: snap => {
     recordParentLifecycle(`memory-warning fast heap growth heap=${formatBytes(snap.heapUsed)} rss=${formatBytes(snap.rss)}`)
     process.stderr.write(
-      `hermes-tui: heap climbing fast (${formatBytes(snap.heapUsed)}) — a large tool output or long session may be straining memory\n`
+      `sonic-tui: heap climbing fast (${formatBytes(snap.heapUsed)}) — a large tool output or long session may be straining memory\n`
     )
   }
 })

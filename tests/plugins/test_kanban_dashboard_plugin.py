@@ -791,13 +791,13 @@ def test_ws_events_accepts_gated_ticket(tmp_path, monkeypatch):
     for the hosted-dashboard bug where the kanban live-events WS 1008'd on
     every gated deployment because its bespoke check only knew _SESSION_TOKEN.
     We stub _ws_auth_ok with the real gated semantics (ticket-only)."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
-    monkeypatch.setenv("HERMES_HOME", str(home))
+    monkeypatch.setenv("SONIC_HOME", str(home))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     kb.init_db()
 
-    import hermes_cli
+    import sonic_cli
     import types
 
     def _fake_ws_auth_ok(ws):
@@ -808,8 +808,8 @@ def test_ws_events_accepts_gated_ticket(tmp_path, monkeypatch):
         _SESSION_TOKEN="secret-xyz",
         _ws_auth_ok=_fake_ws_auth_ok,
     )
-    monkeypatch.setitem(sys.modules, "hermes_cli.web_server", stub)
-    monkeypatch.setattr(hermes_cli, "web_server", stub, raising=False)
+    monkeypatch.setitem(sys.modules, "sonic_cli.web_server", stub)
+    monkeypatch.setattr(sonic_cli, "web_server", stub, raising=False)
 
     app = FastAPI()
     app.include_router(_load_plugin_router(), prefix="/api/plugins/kanban")

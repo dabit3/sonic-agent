@@ -307,14 +307,14 @@ fi
 # freshly-provisioned container comes up with the gateway down until
 # someone starts it (e.g. from the dashboard). An orchestrator that
 # provisions a fresh volume and wants the gateway running from first boot
-# can set HERMES_GATEWAY_BOOTSTRAP_STATE=running; we seed the state file
+# can set SONIC_GATEWAY_BOOTSTRAP_STATE=running; we seed the state file
 # here, BEFORE 02-reconcile-profiles runs (cont-init.d scripts run in
 # lexicographic order), so the reconciler sees prior_state=running and
 # brings the supervised slot up on the very first boot.
 #
 # This is a generic container contract, not specific to any host: it seeds
 # the SAME gateway_state.json the reconciler already consults, exactly as
-# HERMES_AUTH_JSON_BOOTSTRAP seeds auth.json. The [ ! -f ] guard is the
+# SONIC_AUTH_JSON_BOOTSTRAP seeds auth.json. The [ ! -f ] guard is the
 # load-bearing part — on every subsequent boot the persisted state wins,
 # so a gateway the operator deliberately stopped stays stopped across
 # restarts and we never clobber real runtime state.
@@ -322,11 +322,11 @@ fi
 # Only a literal "running" is honoured (the sole value in the reconciler's
 # _AUTOSTART_STATES); any other value is ignored so a typo can't write a
 # bogus state the reconciler would treat as "no prior state" anyway.
-if [ ! -f "$HERMES_HOME/gateway_state.json" ] && \
-        [ "${HERMES_GATEWAY_BOOTSTRAP_STATE:-}" = "running" ]; then
-    printf '{"gateway_state":"running"}\n' > "$HERMES_HOME/gateway_state.json"
-    chown hermes:hermes "$HERMES_HOME/gateway_state.json" 2>/dev/null || true
-    chmod 644 "$HERMES_HOME/gateway_state.json"
+if [ ! -f "$SONIC_HOME/gateway_state.json" ] && \
+        [ "${SONIC_GATEWAY_BOOTSTRAP_STATE:-}" = "running" ]; then
+    printf '{"gateway_state":"running"}\n' > "$SONIC_HOME/gateway_state.json"
+    chown sonic:sonic "$SONIC_HOME/gateway_state.json" 2>/dev/null || true
+    chmod 644 "$SONIC_HOME/gateway_state.json"
 fi
 
 # --- Sync bundled skills ---

@@ -454,10 +454,10 @@ class TestCollectDebugReport:
 
         assert "--- gateway.log" in report
 
-    def test_report_includes_desktop_log(self, hermes_home):
-        from hermes_cli.debug import collect_debug_report
+    def test_report_includes_desktop_log(self, sonic_home):
+        from sonic_cli.debug import collect_debug_report
 
-        with patch("hermes_cli.dump.run_dump"):
+        with patch("sonic_cli.dump.run_dump"):
             report = collect_debug_report(log_lines=50)
 
         assert "--- desktop.log" in report
@@ -580,7 +580,7 @@ class TestRunDebugShare:
         assert "--- sonic dump ---" in gateway_paste
         assert "--- full gateway.log ---" in gateway_paste
         desktop_paste = uploaded_content[3]
-        assert "--- hermes dump ---" in desktop_paste
+        assert "--- sonic dump ---" in desktop_paste
         assert "--- full desktop.log ---" in desktop_paste
 
     def test_share_keeps_report_and_full_log_on_same_snapshot(self, sonic_home, capsys):

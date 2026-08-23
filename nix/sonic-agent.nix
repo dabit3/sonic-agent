@@ -68,7 +68,7 @@ let
   };
 
   # i18n locale catalogs (locales/*.yaml). Shipped into the store and pointed
-  # at by HERMES_BUNDLED_LOCALES so the wrapped binary always resolves human
+  # at by SONIC_BUNDLED_LOCALES so the wrapped binary always resolves human
   # strings instead of raw i18n keys (#23943 / #27632 / #35374).
   #
   # Defense-in-depth, not load-bearing: the wheel already declares locales/ as

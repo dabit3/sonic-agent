@@ -416,19 +416,19 @@ For cloud sandbox backends, persistence is filesystem-oriented. `TERMINAL_LIFETI
 | `GATEWAY_ALLOWED_USERS` | Comma-separated user IDs allowed across all platforms |
 | `GATEWAY_ALLOW_ALL_USERS` | Allow all users without allowlists (`true`/`false`, default: `false`) |
 
-### Web Dashboard & Hermes Desktop
+### Web Dashboard & Sonic Desktop
 
-Auth for the [web dashboard](/user-guide/features/web-dashboard) and for connecting [Hermes Desktop to a remote backend](/user-guide/features/web-dashboard#connecting-hermes-desktop-to-a-remote-backend). Per the secrets-only convention, the token belongs in `~/.hermes/.env`; the OAuth `client_id`/`portal_url` are better set under `dashboard.oauth` in `config.yaml` (env wins when set).
+Auth for the [web dashboard](/user-guide/features/web-dashboard) and for connecting [Sonic Desktop to a remote backend](/user-guide/features/web-dashboard#connecting-sonic-desktop-to-a-remote-backend). Per the secrets-only convention, the token belongs in `~/.sonic/.env`; the OAuth `client_id`/`portal_url` are better set under `dashboard.oauth` in `config.yaml` (env wins when set).
 
 | Variable | Description |
 |----------|-------------|
-| `HERMES_DASHBOARD_SESSION_TOKEN` | Pins the dashboard session token instead of generating a random one per boot. Set this (e.g. `openssl rand -base64 32`) on the backend, then paste the same value into Hermes Desktop → Settings → Gateway → Remote gateway → Session token. Required for a stable remote desktop connection. |
-| `HERMES_DESKTOP_REMOTE_URL` | (Desktop side) Base URL of the remote backend, e.g. `http://host:9119`. When set, overrides the in-app Gateway settings. Must be paired with `HERMES_DESKTOP_REMOTE_TOKEN`. |
-| `HERMES_DESKTOP_REMOTE_TOKEN` | (Desktop side) The session token to authenticate with the remote backend — the same value as the backend's `HERMES_DASHBOARD_SESSION_TOKEN`. |
-| `HERMES_DASHBOARD_TUI` | `1` exposes the in-browser Chat tab (embedded `hermes --tui`), same as the `--tui` flag. |
-| `HERMES_DASHBOARD_OAUTH_CLIENT_ID` | OAuth client id (`agent:{instance_id}`) for the gated/public dashboard. Overrides `dashboard.oauth.client_id`. Provisioned by the Nous Portal for hosted deploys. |
-| `HERMES_DASHBOARD_PORTAL_URL` | OAuth portal URL (default: `https://portal.nousresearch.com`). Override only for staging/custom deploys. |
-| `HERMES_DASHBOARD_PUBLIC_URL` | Complete public URL the dashboard is reached at, for OAuth callback construction behind reverse proxies. Overrides `dashboard.public_url`. |
+| `SONIC_DASHBOARD_SESSION_TOKEN` | Pins the dashboard session token instead of generating a random one per boot. Set this (e.g. `openssl rand -base64 32`) on the backend, then paste the same value into Sonic Desktop → Settings → Gateway → Remote gateway → Session token. Required for a stable remote desktop connection. |
+| `SONIC_DESKTOP_REMOTE_URL` | (Desktop side) Base URL of the remote backend, e.g. `http://host:9119`. When set, overrides the in-app Gateway settings. Must be paired with `SONIC_DESKTOP_REMOTE_TOKEN`. |
+| `SONIC_DESKTOP_REMOTE_TOKEN` | (Desktop side) The session token to authenticate with the remote backend — the same value as the backend's `SONIC_DASHBOARD_SESSION_TOKEN`. |
+| `SONIC_DASHBOARD_TUI` | `1` exposes the in-browser Chat tab (embedded `sonic --tui`), same as the `--tui` flag. |
+| `SONIC_DASHBOARD_OAUTH_CLIENT_ID` | OAuth client id (`agent:{instance_id}`) for the gated/public dashboard. Overrides `dashboard.oauth.client_id`. Provisioned by the Nous Portal for hosted deploys. |
+| `SONIC_DASHBOARD_PORTAL_URL` | OAuth portal URL (default: `https://portal.nousresearch.com`). Override only for staging/custom deploys. |
+| `SONIC_DASHBOARD_PUBLIC_URL` | Complete public URL the dashboard is reached at, for OAuth callback construction behind reverse proxies. Overrides `dashboard.public_url`. |
 
 ### Microsoft Graph (Teams Meetings)
 

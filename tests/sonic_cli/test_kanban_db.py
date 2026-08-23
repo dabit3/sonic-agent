@@ -694,7 +694,7 @@ def _exited_status(code: int) -> int:
 
 
 def test_classify_worker_exit_recognizes_rate_limit_sentinel(kanban_home):
-    import hermes_cli.kanban_db as _kb
+    import sonic_cli.kanban_db as _kb
 
     pid = 31337
     _kb._record_worker_exit(pid, _exited_status(_kb.KANBAN_RATE_LIMIT_EXIT_CODE))
@@ -713,10 +713,10 @@ def test_rate_limit_exit_requeues_without_counting_failure(
     """A rate-limit sentinel exit releases the task to ``ready`` and leaves
     ``consecutive_failures`` untouched — the breaker must never trip on a
     transient throttle, even across many quota-wall hits."""
-    import hermes_cli.kanban_db as _kb
+    import sonic_cli.kanban_db as _kb
 
     monkeypatch.setattr(_kb, "_pid_alive", lambda _pid: False)
-    monkeypatch.setenv("HERMES_KANBAN_CRASH_GRACE_SECONDS", "0")
+    monkeypatch.setenv("SONIC_KANBAN_CRASH_GRACE_SECONDS", "0")
 
     with kb.connect() as conn:
         host = _kb._claimer_id().split(":", 1)[0]
@@ -773,7 +773,7 @@ def test_real_crash_still_counts_and_trips_breaker(kanban_home, monkeypatch):
     """Sanity: a genuine non-zero crash (not the sentinel) still increments
     the failure counter and trips the breaker — the rate-limit carve-out is
     surgical, not a blanket "never count crashes"."""
-    import hermes_cli.kanban_db as _kb
+    import sonic_cli.kanban_db as _kb
 
     monkeypatch.setattr(_kb, "_pid_alive", lambda _pid: False)
 
@@ -804,9 +804,9 @@ def test_respawn_guard_defers_rate_limited_within_cooldown(
     """Within the cooldown after a rate-limit requeue, the guard defers the
     respawn; after the cooldown it allows a probe — and crucially does NOT
     fall into ``blocker_auth`` (which would defer forever)."""
-    import hermes_cli.kanban_db as _kb
+    import sonic_cli.kanban_db as _kb
 
-    monkeypatch.setenv("HERMES_KANBAN_RATE_LIMIT_COOLDOWN_SECONDS", "300")
+    monkeypatch.setenv("SONIC_KANBAN_RATE_LIMIT_COOLDOWN_SECONDS", "300")
     now = 5_000_000
 
     with kb.connect() as conn:
@@ -842,9 +842,9 @@ def test_respawn_guard_rate_limit_cooldown_zero_allows_immediately(
 ):
     """Cooldown of 0 disables the wait — task is spawnable on the next tick,
     and the stamped rate-limit text does not re-trap it via blocker_auth."""
-    import hermes_cli.kanban_db as _kb
+    import sonic_cli.kanban_db as _kb
 
-    monkeypatch.setenv("HERMES_KANBAN_RATE_LIMIT_COOLDOWN_SECONDS", "0")
+    monkeypatch.setenv("SONIC_KANBAN_RATE_LIMIT_COOLDOWN_SECONDS", "0")
     now = 6_000_000
 
     with kb.connect() as conn:
@@ -868,11 +868,11 @@ def test_respawn_guard_rate_limit_cooldown_zero_allows_immediately(
 
 
 def test_resolve_rate_limit_cooldown_handles_bad_env(monkeypatch):
-    import hermes_cli.kanban_db as _kb
+    import sonic_cli.kanban_db as _kb
 
     for bad_val in ("notanumber", "-5", ""):
         monkeypatch.setenv(
-            "HERMES_KANBAN_RATE_LIMIT_COOLDOWN_SECONDS", bad_val
+            "SONIC_KANBAN_RATE_LIMIT_COOLDOWN_SECONDS", bad_val
         )
         assert (
             _kb._resolve_rate_limit_cooldown_seconds()

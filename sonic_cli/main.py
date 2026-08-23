@@ -107,7 +107,7 @@ def _set_process_title() -> None:
 
 # Cheap, dependency-free read of `display.interface` from config.yaml for the
 # earliest hot-path decisions (mouse-residue suppression, Termux fast launch)
-# that run *before* hermes_cli.config is importable. Mirrors the explicit
+# that run *before* sonic_cli.config is importable. Mirrors the explicit
 # precedence used everywhere else: `--cli` always wins, then `--tui`/env, then
 # this config value. Cached so the multiple early callers don't re-parse YAML.
 _EARLY_INTERFACE_CACHE: "list | None" = None
@@ -121,11 +121,11 @@ def _config_default_interface_early() -> str:
         return _EARLY_INTERFACE_CACHE[0]
     value = "cli"
     try:
-        home = os.environ.get("HERMES_HOME")
+        home = os.environ.get("SONIC_HOME")
         if home:
             cfg_path = os.path.join(home, "config.yaml")
         else:
-            cfg_path = os.path.join(os.path.expanduser("~"), ".hermes", "config.yaml")
+            cfg_path = os.path.join(os.path.expanduser("~"), ".sonic", "config.yaml")
         if os.path.exists(cfg_path):
             import yaml as _yaml_iface
 
@@ -146,13 +146,13 @@ def _wants_tui_early(argv: "list[str] | None" = None) -> bool:
     """Earliest TUI decision, usable before argparse/config imports.
 
     Precedence: explicit ``--cli`` wins (forces classic REPL), then
-    ``--tui``/``HERMES_TUI=1``, then ``display.interface`` in config.
+    ``--tui``/``SONIC_TUI=1``, then ``display.interface`` in config.
     """
     if argv is None:
         argv = sys.argv[1:]
     if "--cli" in argv:
         return False
-    if os.environ.get("HERMES_TUI") == "1" or "--tui" in argv:
+    if os.environ.get("SONIC_TUI") == "1" or "--tui" in argv:
         return True
     return _config_default_interface_early() == "tui"
 
@@ -1903,7 +1903,7 @@ def _resolve_use_tui(args) -> bool:
 
     Precedence (highest first):
       1. ``--cli`` flag         → always classic REPL
-      2. ``--tui`` flag / ``HERMES_TUI=1`` → always TUI
+      2. ``--tui`` flag / ``SONIC_TUI=1`` → always TUI
       3. ``display.interface`` config value ("cli" | "tui")
       4. default → classic REPL
 
@@ -1912,10 +1912,10 @@ def _resolve_use_tui(args) -> bool:
     """
     if getattr(args, "cli", False):
         return False
-    if getattr(args, "tui", False) or os.environ.get("HERMES_TUI") == "1":
+    if getattr(args, "tui", False) or os.environ.get("SONIC_TUI") == "1":
         return True
     try:
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
 
         iface = (load_config().get("display", {}) or {}).get("interface", "cli")
         return isinstance(iface, str) and iface.strip().lower() == "tui"
@@ -7494,11 +7494,11 @@ def _find_stale_dashboard_pids(
     ``_kill_stale_dashboard_processes`` for the kill.
 
     *exclude_pids* is an optional set of PIDs that must never be returned.
-    This is used by the Hermes Desktop Electron app to protect its own
-    backend child process: when the desktop spawns ``hermes dashboard`` as
+    This is used by the Sonic Desktop Electron app to protect its own
+    backend child process: when the desktop spawns ``sonic dashboard`` as
     a backend and triggers an auto-update, the update must not kill the
     dashboard that the desktop itself manages.  The desktop sets the
-    environment variable ``HERMES_DESKTOP_CHILD_PID`` on the spawned
+    environment variable ``SONIC_DESKTOP_CHILD_PID`` on the spawned
     backend process; ``_kill_stale_dashboard_processes`` reads it and
     passes it here.  (#37532)
 
@@ -7730,11 +7730,11 @@ def _kill_stale_dashboard_processes(
     launch args (--host, --port, --insecure, --tui, --no-open).  The user
     restarts it manually; a hint is printed.
     """
-    # When the Hermes Desktop Electron app spawns this dashboard as a
-    # backend child, it sets HERMES_DESKTOP_CHILD_PID so that the update
+    # When the Sonic Desktop Electron app spawns this dashboard as a
+    # backend child, it sets SONIC_DESKTOP_CHILD_PID so that the update
     # path can skip killing the desktop-managed process.  (#37532)
     exclude: set[int] | None = None
-    raw_pid = os.environ.get("HERMES_DESKTOP_CHILD_PID")
+    raw_pid = os.environ.get("SONIC_DESKTOP_CHILD_PID")
     if raw_pid:
         try:
             exclude = {int(raw_pid)}
@@ -8063,8 +8063,8 @@ def _stash_local_changes_if_needed(git_cmd: list[str], cwd: Path) -> Optional[st
 def _clean_managed_worktree(git_cmd: list[str], cwd: Path) -> bool:
     """Discard working-tree dirt on a managed (non-fork) clone.
 
-    On a managed install (%LOCALAPPDATA%\\hermes\\hermes-agent or
-    ~/.hermes/hermes-agent) the user never edits the source tree, so any
+    On a managed install (%LOCALAPPDATA%\\sonic\\sonic-agent or
+    ~/.sonic/sonic-agent) the user never edits the source tree, so any
     "dirty" state is pure git artifact: CRLF renormalization, npm lockfile
     churn, or files left behind when a directory was deleted upstream (e.g.
     apps/bootstrap-installer/). Stashing that dirt and re-applying it after a
