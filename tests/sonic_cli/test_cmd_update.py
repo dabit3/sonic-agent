@@ -68,10 +68,10 @@ def _patch_managed_uv(request):
     def _fake_rebuild_venv(*args, **kwargs):
         return True  # no-op in tests
 
-    with patch("hermes_cli.managed_uv.resolve_uv", side_effect=_fake_resolve_uv), \
-         patch("hermes_cli.managed_uv.ensure_uv", side_effect=_fake_ensure_uv), \
-         patch("hermes_cli.managed_uv.update_managed_uv", side_effect=_fake_update_managed_uv), \
-         patch("hermes_cli.managed_uv.rebuild_venv", side_effect=_fake_rebuild_venv):
+    with patch("sonic_cli.managed_uv.resolve_uv", side_effect=_fake_resolve_uv), \
+         patch("sonic_cli.managed_uv.ensure_uv", side_effect=_fake_ensure_uv), \
+         patch("sonic_cli.managed_uv.update_managed_uv", side_effect=_fake_update_managed_uv), \
+         patch("sonic_cli.managed_uv.rebuild_venv", side_effect=_fake_rebuild_venv):
         yield
 
 

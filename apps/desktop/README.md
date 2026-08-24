@@ -126,12 +126,12 @@ tccutil reset Microphone com.nousresearch.sonic
 
 ```powershell
 # Force a clean first-launch setup
-Remove-Item "$env:LOCALAPPDATA\hermes\hermes-agent\.hermes-bootstrap-complete"
+Remove-Item "$env:LOCALAPPDATA\sonic\sonic-agent\.sonic-bootstrap-complete"
 # Rebuild a broken Python venv
-Remove-Item -Recurse -Force "$env:LOCALAPPDATA\hermes\hermes-agent\venv"
+Remove-Item -Recurse -Force "$env:LOCALAPPDATA\sonic\sonic-agent\venv"
 ```
 
-> The default Hermes home on Windows is `%LOCALAPPDATA%\hermes`. Set the `HERMES_HOME` env var if you've relocated it.
+> The default Sonic home on Windows is `%LOCALAPPDATA%\sonic`. Set the `SONIC_HOME` env var if you've relocated it.
 
 ---
 

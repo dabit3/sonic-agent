@@ -30,16 +30,16 @@ export HOME=/opt/data
 # Save the Docker -w (or default) working directory before init
 # scripts cd to /opt/data, so the container starts in the
 # directory the user requested.
-_hermes_orig_cwd="${HERMES_ORIG_CWD:-$PWD}"
+_sonic_orig_cwd="${SONIC_ORIG_CWD:-$PWD}"
 
 cd /opt/data
 # shellcheck disable=SC1091
 . /opt/sonic/.venv/bin/activate
 
 # Restore the original working directory before handing off to
-# the user's command so `hermes chat` starts in the Docker -w
+# the user's command so `sonic chat` starts in the Docker -w
 # directory, not /opt/data.
-cd "$_hermes_orig_cwd"
+cd "$_sonic_orig_cwd"
 
 if [ $# -eq 0 ]; then
     drop sonic

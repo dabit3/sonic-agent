@@ -8,7 +8,7 @@ import type { SessionInfo, UsageStats } from '@/types/sonic'
 
 type Updater<T> = T | ((current: T) => T)
 
-const WORKSPACE_CWD_KEY = 'hermes.desktop.workspace-cwd'
+const WORKSPACE_CWD_KEY = 'sonic.desktop.workspace-cwd'
 
 export const getRememberedWorkspaceCwd = (): string => storedString(WORKSPACE_CWD_KEY)?.trim() || ''
 

@@ -31,7 +31,7 @@ describe('statusRuleWidths', () => {
   })
 
   it('reserves the high-priority left content so the cwd/branch yields first', () => {
-    const cwd = '~/src/hermes-agent/apps/desktop (bb/tui-statusbar-responsive)'
+    const cwd = '~/src/sonic-agent/apps/desktop (bb/tui-statusbar-responsive)'
 
     const greedy = statusRuleWidths(70, cwd) // legacy behaviour: cwd hogs the row
     const reserved = statusRuleWidths(70, cwd, 40) // reserve indicator+model+ctx
@@ -51,7 +51,7 @@ describe('statusRuleWidths', () => {
   })
 
   it('keeps the default (no reservation) behaviour identical for legacy callers', () => {
-    const cwd = '~/src/hermes-agent/main (some-long-branch-name)'
+    const cwd = '~/src/sonic-agent/main (some-long-branch-name)'
 
     expect(statusRuleWidths(80, cwd, 0)).toEqual(statusRuleWidths(80, cwd))
   })

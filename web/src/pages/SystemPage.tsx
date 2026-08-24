@@ -551,8 +551,8 @@ export default function SystemPage() {
                 <div>{stats?.python_impl} {stats?.python_version}</div>
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wider text-muted-foreground">Hermes</div>
-                <div>v{stats?.hermes_version}</div>
+                <div className="text-xs uppercase tracking-wider text-muted-foreground">Sonic</div>
+                <div>v{stats?.sonic_version}</div>
               </div>
               <div>
                 <div className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1">
@@ -646,7 +646,7 @@ export default function SystemPage() {
             )}
             {!portal?.logged_in && (
               <p className="text-xs text-muted-foreground">
-                Log in with <span className="font-mono">hermes auth add nous --type oauth</span>.
+                Log in with <span className="font-mono">sonic auth add nous --type oauth</span>.
               </p>
             )}
           </CardContent>

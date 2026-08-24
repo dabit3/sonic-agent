@@ -797,7 +797,7 @@ async def get_system_stats():
 
     OS / Python / host identity from stdlib; CPU / memory / disk / uptime from
     psutil when available, with graceful degradation when it isn't.  Read-only
-    and non-sensitive (no env values, no paths beyond the hermes home root).
+    and non-sensitive (no env values, no paths beyond the sonic home root).
     """
     import platform as _platform
 
@@ -810,7 +810,7 @@ async def get_system_stats():
         "hostname": _platform.node(),
         "python_version": _platform.python_version(),
         "python_impl": _platform.python_implementation(),
-        "hermes_version": __version__,
+        "sonic_version": __version__,
         "cpu_count": os.cpu_count(),
     }
 
@@ -826,7 +826,7 @@ async def get_system_stats():
             "percent": vm.percent,
         }
         try:
-            du = psutil.disk_usage(str(get_hermes_home()))
+            du = psutil.disk_usage(str(get_sonic_home()))
             info["disk"] = {
                 "total": du.total,
                 "used": du.used,
@@ -875,7 +875,7 @@ async def get_system_stats():
 #
 # The curator periodically reviews skills (archive stale, prune, pin).  The
 # dashboard surfaces its state and the pause/resume/run-now controls that
-# `hermes curator` exposes.
+# `sonic curator` exposes.
 # ---------------------------------------------------------------------------
 
 
@@ -916,7 +916,7 @@ async def set_curator_paused(body: CuratorPause):
 async def run_curator():
     """Trigger a curator review now (backgrounded; tail via action status)."""
     try:
-        proc = _spawn_hermes_action(["curator", "run"], "curator-run")
+        proc = _spawn_sonic_action(["curator", "run"], "curator-run")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Failed to run curator: {exc}")
     return {"ok": True, "pid": proc.pid, "name": "curator-run"}
@@ -940,7 +940,7 @@ async def get_portal_status():
     cfg = load_config() or {}
     auth: Dict[str, Any] = {}
     try:
-        from hermes_cli.auth import get_nous_auth_status
+        from sonic_cli.auth import get_nous_auth_status
 
         auth = get_nous_auth_status() or {}
     except Exception:
@@ -948,7 +948,7 @@ async def get_portal_status():
 
     features = []
     try:
-        from hermes_cli.nous_subscription import get_nous_subscription_features
+        from sonic_cli.nous_subscription import get_nous_subscription_features
 
         feats = get_nous_subscription_features(cfg)
         if feats is not None:
@@ -986,7 +986,7 @@ async def get_portal_status():
 @app.post("/api/ops/prompt-size")
 async def run_prompt_size():
     try:
-        proc = _spawn_hermes_action(["prompt-size"], "prompt-size")
+        proc = _spawn_sonic_action(["prompt-size"], "prompt-size")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Failed: {exc}")
     return {"ok": True, "pid": proc.pid, "name": "prompt-size"}
@@ -995,7 +995,7 @@ async def run_prompt_size():
 @app.post("/api/ops/dump")
 async def run_dump():
     try:
-        proc = _spawn_hermes_action(["dump"], "dump")
+        proc = _spawn_sonic_action(["dump"], "dump")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Failed: {exc}")
     return {"ok": True, "pid": proc.pid, "name": "dump"}
@@ -1004,7 +1004,7 @@ async def run_dump():
 @app.post("/api/ops/config-migrate")
 async def run_config_migrate():
     try:
-        proc = _spawn_hermes_action(["config", "migrate"], "config-migrate")
+        proc = _spawn_sonic_action(["config", "migrate"], "config-migrate")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Failed: {exc}")
     return {"ok": True, "pid": proc.pid, "name": "config-migrate"}
@@ -2982,8 +2982,8 @@ _OAUTH_PROVIDER_CATALOG: tuple[Dict[str, Any], ...] = (
         # callback server, the client opens the browser, and the redirect
         # lands back on the loopback listener — no code to copy/paste.
         "flow": "loopback",
-        "cli_command": "hermes auth add xai-oauth",
-        "docs_url": "https://hermes-agent.nousresearch.com/docs/guides/xai-grok-oauth",
+        "cli_command": "sonic auth add xai-oauth",
+        "docs_url": "https://lightning-agent.nousresearch.com/docs/guides/xai-grok-oauth",
         "status_fn": None,  # dispatched via auth.get_xai_oauth_auth_status
     },
 )
@@ -3566,7 +3566,7 @@ async def _start_device_code_flow(provider_id: str) -> Dict[str, Any]:
 # binds a 127.0.0.1 callback server, the client opens the authorize URL in
 # the browser, and the redirect lands back on the loopback listener. The
 # background worker waits for that callback, exchanges the code, and persists
-# the tokens exactly like `hermes auth add xai-oauth`.
+# the tokens exactly like `sonic auth add xai-oauth`.
 _XAI_LOOPBACK_TIMEOUT_SECONDS = 300.0
 
 
@@ -3577,7 +3577,7 @@ def _start_xai_loopback_flow() -> Dict[str, Any]:
     background worker that waits for the redirect and finishes the exchange.
     Returns the authorize URL for the client to open in the browser.
     """
-    from hermes_cli import auth as hauth
+    from sonic_cli import auth as hauth
 
     discovery = hauth._xai_oauth_discovery()
     server, thread, callback_result, redirect_uri = hauth._xai_start_callback_server()
@@ -3636,7 +3636,7 @@ def _xai_loopback_worker(session_id: str) -> None:
     """Wait for the xAI loopback callback, exchange the code, persist tokens."""
     from datetime import datetime, timezone
 
-    from hermes_cli import auth as hauth
+    from sonic_cli import auth as hauth
 
     with _oauth_sessions_lock:
         sess = _oauth_sessions.get(session_id)
@@ -3698,7 +3698,7 @@ def _xai_loopback_worker(session_id: str) -> None:
             _fail("xAI token exchange did not return the expected tokens.")
             return
         base_url = hauth._xai_validate_inference_base_url(
-            os.getenv("HERMES_XAI_BASE_URL", "").strip().rstrip("/")
+            os.getenv("SONIC_XAI_BASE_URL", "").strip().rstrip("/")
             or os.getenv("XAI_BASE_URL", "").strip().rstrip("/"),
             fallback=hauth.DEFAULT_XAI_OAUTH_BASE_URL,
         )
@@ -3733,7 +3733,7 @@ def _xai_loopback_worker(session_id: str) -> None:
 def _add_xai_oauth_pool_entry(
     access_token: str, refresh_token: str, base_url: str, last_refresh: str
 ) -> None:
-    """Mirror `hermes auth add xai-oauth`'s credential-pool insert.
+    """Mirror `sonic auth add xai-oauth`'s credential-pool insert.
 
     Best-effort: the auth-store write in _save_xai_oauth_tokens is the source
     of truth for runtime resolution; the pool entry only matters for the
@@ -4292,7 +4292,7 @@ async def bulk_delete_sessions_endpoint(body: BulkDeleteSessions):
             status_code=400,
             detail="ids must contain at most 500 entries",
         )
-    from hermes_state import SessionDB
+    from sonic_state import SessionDB
     db = SessionDB()
     try:
         deleted = db.delete_sessions(body.ids)
@@ -4309,7 +4309,7 @@ async def count_empty_sessions_endpoint():
     UI hides the affordance so users aren't presented with a button
     that does nothing. Cheap, single-COUNT query.
     """
-    from hermes_state import SessionDB
+    from sonic_state import SessionDB
     db = SessionDB()
     try:
         return {"count": db.count_empty_sessions()}
@@ -4337,7 +4337,7 @@ async def delete_empty_sessions_endpoint():
     prune-on-startup pass. Matching that pre-existing trade-off keeps
     the two delete endpoints' DB-vs-disk behaviour consistent.
     """
-    from hermes_state import SessionDB
+    from sonic_state import SessionDB
     db = SessionDB()
     try:
         deleted = db.delete_empty_sessions()
@@ -4348,12 +4348,12 @@ async def delete_empty_sessions_endpoint():
 
 @app.get("/api/sessions/stats")
 async def get_session_stats():
-    """Session-store statistics for the Sessions page (mirrors `hermes sessions stats`).
+    """Session-store statistics for the Sessions page (mirrors `sonic sessions stats`).
 
     Registered before ``/api/sessions/{session_id}`` so the literal ``stats``
     path isn't captured as a session id by the parameterized route.
     """
-    from hermes_state import SessionDB
+    from sonic_state import SessionDB
 
     db = SessionDB()
     try:
@@ -4474,7 +4474,7 @@ async def rename_session_endpoint(session_id: str, body: SessionRename):
 @app.get("/api/sessions/{session_id}/export")
 async def export_session_endpoint(session_id: str):
     """Export a single session (metadata + messages) as JSON."""
-    from hermes_state import SessionDB
+    from sonic_state import SessionDB
 
     db = SessionDB()
     try:
@@ -4496,14 +4496,14 @@ class SessionPrune(BaseModel):
 
 @app.post("/api/sessions/prune")
 async def prune_sessions_endpoint(body: SessionPrune):
-    """Delete ended sessions older than N days (mirrors `hermes sessions prune`)."""
+    """Delete ended sessions older than N days (mirrors `sonic sessions prune`)."""
     if body.older_than_days < 1:
         raise HTTPException(status_code=400, detail="older_than_days must be >= 1")
-    from hermes_state import SessionDB
+    from sonic_state import SessionDB
 
     db = SessionDB()
     try:
-        sessions_dir = get_hermes_home() / "sessions"
+        sessions_dir = get_sonic_home() / "sessions"
         removed = db.prune_sessions(
             older_than_days=body.older_than_days,
             source=(body.source or None),
@@ -4933,10 +4933,10 @@ async def list_mcp_catalog():
 
     Each entry reports whether it's already installed and enabled so the UI
     can show install / enabled state inline.  This is the same catalog
-    `hermes mcp catalog` / `hermes mcp install` read.
+    `sonic mcp catalog` / `sonic mcp install` read.
     """
     try:
-        from hermes_cli import mcp_catalog
+        from sonic_cli import mcp_catalog
     except Exception as exc:
         _log.exception("mcp_catalog import failed")
         raise HTTPException(status_code=500, detail=f"Catalog unavailable: {exc}")
@@ -4991,7 +4991,7 @@ async def install_mcp_catalog_entry(body: MCPCatalogInstall):
     Entries that need a git bootstrap (``needs_install``) are installed via
     the CLI action path because the clone can take time.
     """
-    from hermes_cli import mcp_catalog
+    from sonic_cli import mcp_catalog
 
     name = (body.name or "").strip()
     entry = mcp_catalog.get_entry(name)
@@ -5009,7 +5009,7 @@ async def install_mcp_catalog_entry(body: MCPCatalogInstall):
     # action path so the request returns immediately and the UI can tail logs.
     if entry.install is not None:
         try:
-            proc = _spawn_hermes_action(["mcp", "install", name], "mcp-install")
+            proc = _spawn_sonic_action(["mcp", "install", name], "mcp-install")
         except Exception as exc:
             raise HTTPException(status_code=500, detail=f"Install failed: {exc}")
         return {"ok": True, "name": name, "background": True, "action": "mcp-install"}
@@ -5237,7 +5237,7 @@ async def set_webhook_enabled(name: str, body: WebhookEnabledToggle):
     gateway hot-reloads the subscriptions file, so this takes effect on the
     next event without a restart.
     """
-    import hermes_cli.webhook as wh
+    import sonic_cli.webhook as wh
 
     key = (name or "").strip().lower()
     subs = wh._load_subscriptions()
@@ -5575,11 +5575,11 @@ async def list_hooks():
     currently executable, plus the set of valid hook events so the create
     form can offer them.
     """
-    from hermes_cli.config import load_config as _load_config
+    from sonic_cli.config import load_config as _load_config
     from agent import shell_hooks
 
     try:
-        from hermes_cli.plugins import VALID_HOOKS
+        from sonic_cli.plugins import VALID_HOOKS
         valid_events = sorted(VALID_HOOKS)
     except Exception:
         valid_events = []
@@ -5643,7 +5643,7 @@ async def create_hook(body: HookCreate):
         raise HTTPException(status_code=400, detail="event and command are required")
 
     try:
-        from hermes_cli.plugins import VALID_HOOKS
+        from sonic_cli.plugins import VALID_HOOKS
         if event not in VALID_HOOKS:
             raise HTTPException(
                 status_code=400,

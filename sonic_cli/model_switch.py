@@ -706,8 +706,8 @@ def switch_model(
         # routes to has no credentials, do NOT silently switch them onto an
         # unauthed endpoint (the classic HTTP 401 "Missing Authentication
         # header"). Point them at the real direct provider instead.
-        from hermes_cli.models import _AGGREGATOR_PROVIDERS as _AGG_PROVIDERS
-        from hermes_cli.providers import ALIASES as _PROVIDER_ALIAS_TABLE
+        from sonic_cli.models import _AGGREGATOR_PROVIDERS as _AGG_PROVIDERS
+        from sonic_cli.providers import ALIASES as _PROVIDER_ALIAS_TABLE
         _explicit_norm = explicit_provider.strip().lower()
         _alias_target = _PROVIDER_ALIAS_TABLE.get(_explicit_norm)
         if (
@@ -904,7 +904,7 @@ def switch_model(
         # or hop to an aggregator. Use the pdef's endpoint directly instead.
         _user_pdef = None
         if explicit_provider and user_providers:
-            from hermes_cli.providers import resolve_user_provider as _ruser
+            from sonic_cli.providers import resolve_user_provider as _ruser
             _user_pdef = _ruser(explicit_provider.strip().lower(), user_providers)
             if _user_pdef is None:
                 _user_pdef = _ruser(target_provider, user_providers)

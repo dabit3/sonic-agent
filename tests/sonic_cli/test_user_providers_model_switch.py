@@ -287,7 +287,7 @@ def test_resolve_provider_full_user_config_openai_beats_alias():
     'openai' → 'openrouter' alias. Regression for the model-picker bug
     where users with provider=openai-api + a providers.openai config block
     had their OpenAI selection silently routed to OpenRouter (HTTP 401)."""
-    from hermes_cli.providers import resolve_provider_full
+    from sonic_cli.providers import resolve_provider_full
 
     user_providers = {
         "openai": {

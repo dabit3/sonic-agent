@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { deleteSession, listSessions, setSessionArchived } from '@/hermes'
+import { deleteSession, listSessions, setSessionArchived } from '@/sonic'
 import { sessionTitle } from '@/lib/chat-runtime'
 import { triggerHaptic } from '@/lib/haptics'
 import { Archive, ArchiveOff, FolderOpen, Loader2, Trash2 } from '@/lib/icons'
 import { notify, notifyError } from '@/store/notifications'
 import { setSessions } from '@/store/session'
-import type { SessionInfo } from '@/types/hermes'
+import type { SessionInfo } from '@/types/sonic'
 
 import { EmptyState, ListRow, LoadingState, SectionHeading, SettingsContent } from './primitives'
 import type { SearchProps } from './types'
@@ -171,7 +171,7 @@ export function SessionsSettings({ query }: SearchProps) {
 
 // Lets the user pin the default cwd for new sessions. Without this, packaged
 // builds on Windows used to spawn sessions in the install dir (`win-unpacked`
-// / Program Files), which buried any files Hermes wrote there.
+// / Program Files), which buried any files Sonic wrote there.
 function DefaultProjectDirSetting() {
   const [dir, setDir] = useState<null | string>(null)
   const [fallback, setFallback] = useState<string>('')
@@ -179,11 +179,11 @@ function DefaultProjectDirSetting() {
 
   useEffect(() => {
     // The bridge is only present when running inside Electron. In a Vitest
-    // / Storybook / non-Electron context `window.hermesDesktop` is
+    // / Storybook / non-Electron context `window.sonicDesktop` is
     // undefined, so guard the WHOLE call chain rather than chaining
     // `?.settings.getDefaultProjectDir().then(...)` (the latter would
     // short-circuit to `undefined.then(...)` and throw at runtime).
-    const settings = window.hermesDesktop?.settings
+    const settings = window.sonicDesktop?.settings
 
     if (!settings) {
       return
@@ -203,7 +203,7 @@ function DefaultProjectDirSetting() {
   }, [])
 
   const choose = useCallback(async () => {
-    const settings = window.hermesDesktop?.settings
+    const settings = window.sonicDesktop?.settings
 
     if (!settings) return
 
@@ -227,7 +227,7 @@ function DefaultProjectDirSetting() {
   }, [])
 
   const clear = useCallback(async () => {
-    const settings = window.hermesDesktop?.settings
+    const settings = window.sonicDesktop?.settings
 
     if (!settings) return
 
@@ -263,7 +263,7 @@ function DefaultProjectDirSetting() {
             )}
           </div>
         }
-        description={dir || `Defaults to ${fallback || '~/hermes-projects'}.`}
+        description={dir || `Defaults to ${fallback || '~/sonic-projects'}.`}
         title={dir ? dir : 'Not set'}
       />
     </div>

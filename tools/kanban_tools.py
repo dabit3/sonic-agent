@@ -744,11 +744,11 @@ def _handle_create(args: dict, **kw) -> str:
     session_id = args.get("session_id") or os.environ.get("SONIC_SESSION_ID")
     priority = args.get("priority")
     # Resolve workspace. If the caller passed one explicitly, honor it.
-    # Otherwise, a dispatcher-spawned worker (HERMES_KANBAN_TASK set)
+    # Otherwise, a dispatcher-spawned worker (SONIC_KANBAN_TASK set)
     # inherits its own running task's workspace, so a worker editing a
     # dir:/worktree project that spawns a follow-up child keeps the child
     # in that project instead of a throwaway scratch dir. Orchestrators
-    # (kanban toolset, no HERMES_KANBAN_TASK) and CLI/dashboard callers
+    # (kanban toolset, no SONIC_KANBAN_TASK) and CLI/dashboard callers
     # fall back to scratch as before. Explicit None path stays None.
     workspace_kind = args.get("workspace_kind")
     workspace_path = args.get("workspace_path")
@@ -786,7 +786,7 @@ def _handle_create(args: dict, **kw) -> str:
             # Inherit the spawning worker's own task workspace when the
             # caller didn't specify one (see resolution note above).
             if _inherit_workspace:
-                _self_tid = os.environ.get("HERMES_KANBAN_TASK")
+                _self_tid = os.environ.get("SONIC_KANBAN_TASK")
                 if _self_tid:
                     _self_task = kb.get_task(conn, _self_tid)
                     if _self_task is not None and _self_task.workspace_kind:

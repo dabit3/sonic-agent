@@ -773,7 +773,7 @@ def test_create_inherits_worker_dir_workspace(monkeypatch, worker_env):
     workspace arg inherits the dir, not scratch (so follow-up code-gen
     lands in the same project)."""
     from tools import kanban_tools as kt
-    from hermes_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
 
     proj = "/home/teknium/myproject"
     conn = kb.connect()
@@ -785,7 +785,7 @@ def test_create_inherits_worker_dir_workspace(monkeypatch, worker_env):
         kb.claim_task(conn, self_tid)
     finally:
         conn.close()
-    monkeypatch.setenv("HERMES_KANBAN_TASK", self_tid)
+    monkeypatch.setenv("SONIC_KANBAN_TASK", self_tid)
 
     d = json.loads(kt._handle_create({"title": "follow-up", "assignee": "peer"}))
     assert d["ok"] is True
@@ -801,7 +801,7 @@ def test_create_inherits_worker_dir_workspace(monkeypatch, worker_env):
 def test_create_explicit_workspace_beats_inheritance(monkeypatch, worker_env):
     """An explicit workspace arg overrides worker-task inheritance."""
     from tools import kanban_tools as kt
-    from hermes_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
 
     conn = kb.connect()
     try:
@@ -812,7 +812,7 @@ def test_create_explicit_workspace_beats_inheritance(monkeypatch, worker_env):
         kb.claim_task(conn, self_tid)
     finally:
         conn.close()
-    monkeypatch.setenv("HERMES_KANBAN_TASK", self_tid)
+    monkeypatch.setenv("SONIC_KANBAN_TASK", self_tid)
 
     d = json.loads(kt._handle_create({
         "title": "scratch child", "assignee": "peer",
@@ -828,12 +828,12 @@ def test_create_explicit_workspace_beats_inheritance(monkeypatch, worker_env):
 
 
 def test_create_no_worker_task_stays_scratch(monkeypatch, worker_env):
-    """Orchestrator/CLI callers (no HERMES_KANBAN_TASK) still default to
+    """Orchestrator/CLI callers (no SONIC_KANBAN_TASK) still default to
     scratch — inheritance only applies to task-scoped workers."""
     from tools import kanban_tools as kt
-    from hermes_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
 
-    monkeypatch.delenv("HERMES_KANBAN_TASK", raising=False)
+    monkeypatch.delenv("SONIC_KANBAN_TASK", raising=False)
     d = json.loads(kt._handle_create({"title": "orch child", "assignee": "peer"}))
     assert d["ok"] is True
     conn = kb.connect()
