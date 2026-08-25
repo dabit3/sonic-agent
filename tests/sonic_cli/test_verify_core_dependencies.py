@@ -24,6 +24,18 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 
+def _clear_marker_environment_cache() -> None:
+    """Drop packaging's process-wide cached marker environment, if present."""
+    try:
+        import packaging.markers as markers_mod
+    except Exception:
+        return
+    cached = getattr(markers_mod, "_cached_default_environment", None)
+    clear = getattr(cached, "cache_clear", None)
+    if clear is not None:
+        clear()
+
+
 @pytest.fixture
 def temp_pyproject(tmp_path, monkeypatch):
     """Point sonic_cli.main.PROJECT_ROOT at a tmp dir with a minimal pyproject.
@@ -157,13 +169,20 @@ class TestVerifyCoreDependencies:
 
         # Force sys.platform to look like Windows so the marker filters
         # ptyprocess out. (We need the actual marker.evaluate() to see win32.)
+        # packaging >= 26 caches the default marker environment per process, so
+        # the cache has to be dropped for the patched sys.platform to be seen —
+        # and dropped again afterwards so the real platform is restored.
         with patch("sonic_cli.main._resolve_install_target_python", return_value=py), \
              patch("sonic_cli.main.subprocess.run", side_effect=fake_subprocess_run), \
              patch("sonic_cli.main._run_install_with_heartbeat"), \
              patch("sys.platform", "win32"):
 
-            from sonic_cli.main import _verify_core_dependencies_installed
-            _verify_core_dependencies_installed(["uv", "pip"], env=env)
+            _clear_marker_environment_cache()
+            try:
+                from sonic_cli.main import _verify_core_dependencies_installed
+                _verify_core_dependencies_installed(["uv", "pip"], env=env)
+            finally:
+                _clear_marker_environment_cache()
 
         # Find the probe argv — it's the call that passed the dep names.
         probe = next(
