@@ -164,10 +164,10 @@ class TestLoadConfigParseFailure:
         Ported from google-gemini/gemini-cli#21541 (policy-file TOML recovery),
         adapted: we back up but deliberately do NOT reset config.yaml.
         """
-        from hermes_cli import config as cfg_mod
+        from sonic_cli import config as cfg_mod
         cfg_mod._CONFIG_PARSE_WARNED.clear()
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             broken = "\tmodel: test/custom\nbroken indent:\n"
             (tmp_path / "config.yaml").write_text(broken)
 
@@ -186,10 +186,10 @@ class TestLoadConfigParseFailure:
     def test_backup_skips_when_same_size_bak_exists(self, tmp_path, capsys):
         """Don't churn backups: if a corrupt backup of the same size already
         exists (same corruption already preserved), skip making another."""
-        from hermes_cli import config as cfg_mod
+        from sonic_cli import config as cfg_mod
         cfg_mod._CONFIG_PARSE_WARNED.clear()
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             broken = "\tbroken:\n"
             cfg = tmp_path / "config.yaml"
             cfg.write_text(broken)
@@ -208,10 +208,10 @@ class TestLoadConfigParseFailure:
         import sys as _sys
         if _sys.platform == "win32":
             pytest.skip("symlink creation requires privileges on Windows")
-        from hermes_cli import config as cfg_mod
+        from sonic_cli import config as cfg_mod
         cfg_mod._CONFIG_PARSE_WARNED.clear()
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             real = tmp_path / "real_config.yaml"
             real.write_text("\tbroken:\n")
             link = tmp_path / "config.yaml"
@@ -612,19 +612,19 @@ class TestConfigVersionDetection:
         config_path = tmp_path / "config.yaml"
         config_path.write_text("model: {}\n", encoding="utf-8")
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             assert load_config()["_config_version"] == DEFAULT_CONFIG["_config_version"]
             assert check_config_version() == (0, DEFAULT_CONFIG["_config_version"])
 
     def test_check_config_version_treats_missing_file_as_current(self, tmp_path):
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             latest = DEFAULT_CONFIG["_config_version"]
             assert check_config_version() == (latest, latest)
 
     def test_check_config_version_does_not_migrate_invalid_yaml(self, tmp_path):
         (tmp_path / "config.yaml").write_text("model: [unterminated\n", encoding="utf-8")
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             latest = DEFAULT_CONFIG["_config_version"]
             assert check_config_version() == (latest, latest)
 

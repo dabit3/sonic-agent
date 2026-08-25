@@ -44,7 +44,7 @@ function SudoDialog() {
       }
 
       if (!gateway) {
-        notifyError(new Error('Hermes gateway is not connected'), 'Could not send sudo password')
+        notifyError(new Error('Sonic gateway is not connected'), 'Could not send sudo password')
 
         return
       }
@@ -98,7 +98,7 @@ function SudoDialog() {
             Administrator password
           </DialogTitle>
           <DialogDescription>
-            Hermes needs your sudo password to run a privileged command. It is sent only to your local agent.
+            Sonic needs your sudo password to run a privileged command. It is sent only to your local agent.
           </DialogDescription>
         </DialogHeader>
 
@@ -143,7 +143,7 @@ function SecretDialog() {
       }
 
       if (!gateway) {
-        notifyError(new Error('Hermes gateway is not connected'), 'Could not send secret')
+        notifyError(new Error('Sonic gateway is not connected'), 'Could not send secret')
 
         return
       }
@@ -194,7 +194,7 @@ function SecretDialog() {
             <KeyRound className="size-4 text-primary" />
             {request.envVar || 'Secret required'}
           </DialogTitle>
-          <DialogDescription>{request.prompt || 'Hermes needs a credential to continue.'}</DialogDescription>
+          <DialogDescription>{request.prompt || 'Sonic needs a credential to continue.'}</DialogDescription>
         </DialogHeader>
 
         <form className="grid gap-3" onSubmit={onSubmit}>

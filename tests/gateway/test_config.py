@@ -487,9 +487,9 @@ class TestLoadGatewayConfig:
         and allow_from was silently ignored.  The apply_yaml_config_fn dispatch
         received the same fix in #44f3e51; the shared-key loop now mirrors it.
         """
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
-        config_path = hermes_home / "config.yaml"
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        config_path = sonic_home / "config.yaml"
         config_path.write_text(
             "platforms:\n"
             "  telegram:\n"
@@ -500,7 +500,7 @@ class TestLoadGatewayConfig:
             encoding="utf-8",
         )
 
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         config = load_gateway_config()
 
@@ -516,9 +516,9 @@ class TestLoadGatewayConfig:
 
     def test_shared_key_loop_bridges_allow_from_from_nested_gateway_platforms(self, tmp_path, monkeypatch):
         """Same regression check for ``gateway.platforms:`` path."""
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
-        config_path = hermes_home / "config.yaml"
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        config_path = sonic_home / "config.yaml"
         config_path.write_text(
             "gateway:\n"
             "  platforms:\n"
@@ -529,7 +529,7 @@ class TestLoadGatewayConfig:
             encoding="utf-8",
         )
 
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         config = load_gateway_config()
 

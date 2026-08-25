@@ -1491,7 +1491,7 @@ def test_apply_provider_selection_does_not_prompt_or_post_setup(monkeypatch):
 
 
 # ── Checklist diff scope: non-configurable toolsets (kanban) must not be
-#    reported as added/removed by `hermes tools` ──────────────────────────
+#    reported as added/removed by `sonic tools` ──────────────────────────
 
 
 def test_checklist_toolset_keys_excludes_kanban():
@@ -1505,7 +1505,7 @@ def test_checklist_toolset_keys_excludes_kanban():
 
 
 def test_kanban_not_reported_as_removed_in_diff():
-    """Reproduces the false-signal bug: `hermes tools` printed ``- kanban``
+    """Reproduces the false-signal bug: `sonic tools` printed ``- kanban``
     when saving a platform that resolves kanban as enabled, even though the
     checklist never offered kanban as a toggle.
 

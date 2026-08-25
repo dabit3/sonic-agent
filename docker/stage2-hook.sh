@@ -348,12 +348,12 @@ fi
 
 # --- Migrate persisted config schema ---
 # Docker image upgrades replace the code under $INSTALL_DIR but preserve
-# $HERMES_HOME on the mounted volume. Run the same safe, non-interactive
-# config-schema migrations that `hermes update` runs for non-Docker installs,
+# $SONIC_HOME on the mounted volume. Run the same safe, non-interactive
+# config-schema migrations that `sonic update` runs for non-Docker installs,
 # after first-boot seeding and before supervised gateway services start.
-# Set HERMES_SKIP_CONFIG_MIGRATION=1 for controlled/manual migrations.
-if [ -f "$HERMES_HOME/config.yaml" ]; then
-    s6-setuidgid hermes "$INSTALL_DIR/.venv/bin/python" "$INSTALL_DIR/scripts/docker_config_migrate.py" \
+# Set SONIC_SKIP_CONFIG_MIGRATION=1 for controlled/manual migrations.
+if [ -f "$SONIC_HOME/config.yaml" ]; then
+    s6-setuidgid sonic "$INSTALL_DIR/.venv/bin/python" "$INSTALL_DIR/scripts/docker_config_migrate.py" \
         || echo "[stage2] Warning: docker_config_migrate.py failed; continuing"
 fi
 

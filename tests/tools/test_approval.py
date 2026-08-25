@@ -432,20 +432,20 @@ class TestSonicConfigWriteProtection:
         # perl -i performs the same in-place mutation as sed -i but was not
         # caught by the -e/-c pattern (which targets code evaluation).
         dangerous, key, desc = detect_dangerous_command(
-            "perl -i -pe 's/approvals.mode: on/approvals.mode: off/' ~/.hermes/config.yaml"
+            "perl -i -pe 's/approvals.mode: on/approvals.mode: off/' ~/.sonic/config.yaml"
         )
         assert dangerous is True
         assert "in-place" in desc.lower() or "perl" in desc.lower()
 
     def test_ruby_in_place_config(self):
         dangerous, key, desc = detect_dangerous_command(
-            "ruby -i -pe 'gsub(/manual/, \"off\")' ~/.hermes/config.yaml"
+            "ruby -i -pe 'gsub(/manual/, \"off\")' ~/.sonic/config.yaml"
         )
         assert dangerous is True
 
     def test_perl_in_place_env(self):
         dangerous, key, desc = detect_dangerous_command(
-            "perl -i -pe 's/SECRET=old/SECRET=new/' ~/.hermes/.env"
+            "perl -i -pe 's/SECRET=old/SECRET=new/' ~/.sonic/.env"
         )
         assert dangerous is True
 
@@ -454,14 +454,14 @@ class TestSonicConfigWriteProtection:
         # splits the in-place flag out as its own token after -p; the pattern
         # must catch it the same as `perl -i -pe`.
         dangerous, key, desc = detect_dangerous_command(
-            "perl -p -i -e 's/approvals.mode: on/approvals.mode: off/' ~/.hermes/config.yaml"
+            "perl -p -i -e 's/approvals.mode: on/approvals.mode: off/' ~/.sonic/config.yaml"
         )
         assert dangerous is True
 
     def test_perl_in_place_backup_suffix(self):
         # `perl -i.bak` keeps a backup but still mutates the file in place.
         dangerous, key, desc = detect_dangerous_command(
-            "perl -i.bak -pe 's/x/y/' ~/.hermes/config.yaml"
+            "perl -i.bak -pe 's/x/y/' ~/.sonic/config.yaml"
         )
         assert dangerous is True
 
@@ -469,7 +469,7 @@ class TestSonicConfigWriteProtection:
         # `perl -e` with no -i flag is code evaluation, not file mutation —
         # the perl/ruby -i pattern must not fire on it.
         dangerous, key, desc = detect_dangerous_command(
-            "perl -wne 'print' ~/.hermes/config.yaml"
+            "perl -wne 'print' ~/.sonic/config.yaml"
         )
         assert dangerous is False
 

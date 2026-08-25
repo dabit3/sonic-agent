@@ -1052,7 +1052,7 @@ class TestWebServerEndpoints:
         custom providers, clear stale base_url for hosted ones, and always drop
         a hardcoded context_length override. Both POST /api/model/set and
         profile-model writes route through this, so the contract is pinned here."""
-        from hermes_cli.web_server import _apply_main_model_assignment
+        from sonic_cli.web_server import _apply_main_model_assignment
 
         # Custom + base_url → persisted; stale context_length dropped.
         out = _apply_main_model_assignment(
@@ -1083,7 +1083,7 @@ class TestWebServerEndpoints:
     def test_parse_model_ids_handles_openai_and_bare_shapes(self):
         """Model discovery must tolerate the common /v1/models shapes and
         never raise (so a slightly non-standard local endpoint still works)."""
-        from hermes_cli.web_server import _parse_model_ids
+        from sonic_cli.web_server import _parse_model_ids
 
         class FakeResp:
             def __init__(self, payload, ok=True):
@@ -1113,7 +1113,7 @@ class TestWebServerEndpoints:
         resolver (which ignores OPENAI_BASE_URL) can route to a self-hosted
         endpoint without an API key. Regression for the desktop onboarding bug
         where 'Local / custom endpoint' could never be configured."""
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
 
         resp = self.client.post(
             "/api/model/set",
@@ -1139,7 +1139,7 @@ class TestWebServerEndpoints:
     def test_set_model_main_non_custom_clears_stale_base_url(self):
         """Switching to a hosted provider must clear a stale base_url so the
         resolver picks that provider's own default endpoint."""
-        from hermes_cli.config import load_config, save_config
+        from sonic_cli.config import load_config, save_config
 
         cfg = load_config()
         cfg["model"] = {

@@ -111,7 +111,7 @@ ExecStart=/path/to/venv/bin/python -m sonic_cli.main dashboard \
     --host 0.0.0.0 --port 9119 --no-open
 ```
 
-with `~/.hermes/.env` containing:
+with `~/.sonic/.env` containing:
 
 ```bash
 SONIC_DASHBOARD_BASIC_AUTH_USERNAME=admin
@@ -491,7 +491,7 @@ same auth gate as the rest of `/api/`.
 
 When the dashboard is bound to a public or non-loopback address — anything other than `127.0.0.1` / `localhost` — Sonic Agent engages an auth gate. Every request must carry a verified session cookie or it's bounced to the login page. Two providers ship in the box:
 
-- **[Username/password](#usernamepassword-provider-no-oauth-idp)** — the simplest way to put auth on a self-hosted / on-prem / homelab dashboard (and the recommended path for a [remote Hermes Desktop connection](#connecting-hermes-desktop-to-a-remote-backend)). No external identity provider.
+- **[Username/password](#usernamepassword-provider-no-oauth-idp)** — the simplest way to put auth on a self-hosted / on-prem / homelab dashboard (and the recommended path for a [remote Sonic Desktop connection](#connecting-sonic-desktop-to-a-remote-backend)). No external identity provider.
 - **OAuth (Nous Portal)** — for hosted deployments (typically Fly.io) where the dashboard is reachable over the public internet.
 
 Operator-owned dashboards bound to loopback are unaffected — no auth, no login page.
@@ -591,11 +591,11 @@ dashboard:
 
 | Env var | Overrides | Notes |
 |---------|-----------|-------|
-| `HERMES_DASHBOARD_BASIC_AUTH_USERNAME` | `dashboard.basic_auth.username` | required to activate |
-| `HERMES_DASHBOARD_BASIC_AUTH_PASSWORD_HASH` | `dashboard.basic_auth.password_hash` | preferred (no plaintext at rest) |
-| `HERMES_DASHBOARD_BASIC_AUTH_PASSWORD` | `dashboard.basic_auth.password` | plaintext; **wins over a config `password_hash`** so you can rotate via env |
-| `HERMES_DASHBOARD_BASIC_AUTH_SECRET` | `dashboard.basic_auth.secret` | token-signing key |
-| `HERMES_DASHBOARD_BASIC_AUTH_TTL_SECONDS` | `dashboard.basic_auth.session_ttl_seconds` | access-token lifetime |
+| `SONIC_DASHBOARD_BASIC_AUTH_USERNAME` | `dashboard.basic_auth.username` | required to activate |
+| `SONIC_DASHBOARD_BASIC_AUTH_PASSWORD_HASH` | `dashboard.basic_auth.password_hash` | preferred (no plaintext at rest) |
+| `SONIC_DASHBOARD_BASIC_AUTH_PASSWORD` | `dashboard.basic_auth.password` | plaintext; **wins over a config `password_hash`** so you can rotate via env |
+| `SONIC_DASHBOARD_BASIC_AUTH_SECRET` | `dashboard.basic_auth.secret` | token-signing key |
+| `SONIC_DASHBOARD_BASIC_AUTH_TTL_SECONDS` | `dashboard.basic_auth.session_ttl_seconds` | access-token lifetime |
 
 :::caution Set an explicit `secret` for stable sessions
 When `secret` is empty, a random per-process signing key is generated. That's fine for a single process, but it means **every session is invalidated on restart** and sessions **don't span multiple workers**. Set an explicit `secret` for restart-surviving / multi-worker deployments.
@@ -626,8 +626,8 @@ dashboard:
   oauth:
     provider: self-hosted
     self_hosted:
-      issuer: https://auth.example.com/application/o/hermes/   # required
-      client_id: hermes-dashboard                              # required
+      issuer: https://auth.example.com/application/o/sonic/   # required
+      client_id: sonic-dashboard                              # required
       scopes: "openid profile email"                           # optional (this is the default)
 ```
 
@@ -635,9 +635,9 @@ dashboard:
 
 | Env var | Overrides | Notes |
 |---------|-----------|-------|
-| `HERMES_DASHBOARD_OIDC_ISSUER` | `dashboard.oauth.self_hosted.issuer` | OIDC issuer URL — required |
-| `HERMES_DASHBOARD_OIDC_CLIENT_ID` | `dashboard.oauth.self_hosted.client_id` | Public client id — required |
-| `HERMES_DASHBOARD_OIDC_SCOPES` | `dashboard.oauth.self_hosted.scopes` | Defaults to `openid profile email` |
+| `SONIC_DASHBOARD_OIDC_ISSUER` | `dashboard.oauth.self_hosted.issuer` | OIDC issuer URL — required |
+| `SONIC_DASHBOARD_OIDC_CLIENT_ID` | `dashboard.oauth.self_hosted.client_id` | Public client id — required |
+| `SONIC_DASHBOARD_OIDC_SCOPES` | `dashboard.oauth.self_hosted.scopes` | Defaults to `openid profile email` |
 
 In your IDP, register a **public** application/client with the authorization-code + PKCE (S256) grant and add the dashboard's callback as an allowed redirect URI. The callback is `<dashboard public URL>/auth/callback` (see [Public URL override](#public-url-override) for how the dashboard derives its public URL behind a proxy).
 
@@ -660,16 +660,16 @@ The ID token is what establishes identity — the access token is treated as opa
 
 [Keycloak](https://www.keycloak.org/) is one of the easiest self-hosted OIDC servers to stand up for a local test — it runs as a single container in dev mode (in-memory DB) and exposes textbook OIDC discovery. This walkthrough gets you from nothing to a working dashboard login in a few minutes.
 
-**1. Run Keycloak with a pre-configured realm.** Save this realm export as `realm-hermes.json` — it defines a `hermes` realm, a **public PKCE client** (`hermes-dashboard`), and a test user, all imported on boot so there's nothing to click in the admin UI:
+**1. Run Keycloak with a pre-configured realm.** Save this realm export as `realm-sonic.json` — it defines a `sonic` realm, a **public PKCE client** (`sonic-dashboard`), and a test user, all imported on boot so there's nothing to click in the admin UI:
 
 ```json
 {
-  "realm": "hermes",
+  "realm": "sonic",
   "enabled": true,
   "clients": [
     {
-      "clientId": "hermes-dashboard",
-      "name": "Hermes Agent Dashboard",
+      "clientId": "sonic-dashboard",
+      "name": "Sonic Agent Dashboard",
       "enabled": true,
       "publicClient": true,
       "standardFlowEnabled": true,
@@ -701,26 +701,26 @@ Start it (Keycloak 26+), mounting that file into the import directory:
 docker run --rm -p 8080:8080 \
   -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
   -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
-  -v "$PWD/realm-hermes.json:/opt/keycloak/data/import/realm-hermes.json:ro" \
+  -v "$PWD/realm-sonic.json:/opt/keycloak/data/import/realm-sonic.json:ro" \
   quay.io/keycloak/keycloak:26.0 \
   start-dev --import-realm
 ```
 
 Once it's up, the realm advertises standard OIDC discovery at
-`http://localhost:8080/realms/hermes/.well-known/openid-configuration` (issuer
-`http://localhost:8080/realms/hermes`). The admin console is at
+`http://localhost:8080/realms/sonic/.well-known/openid-configuration` (issuer
+`http://localhost:8080/realms/sonic`). The admin console is at
 `http://localhost:8080/` (`admin` / `admin`).
 
 **2. Point the dashboard at it.** The self-hosted plugin permits a loopback `http://` issuer (HTTPS is required for any non-loopback issuer), so the local Keycloak works as-is:
 
 ```bash
-export HERMES_DASHBOARD_OIDC_ISSUER="http://localhost:8080/realms/hermes"
-export HERMES_DASHBOARD_OIDC_CLIENT_ID="hermes-dashboard"
-export HERMES_DASHBOARD_PUBLIC_URL="http://localhost:9119"
-hermes dashboard --host 0.0.0.0 --port 9119 --no-open
+export SONIC_DASHBOARD_OIDC_ISSUER="http://localhost:8080/realms/sonic"
+export SONIC_DASHBOARD_OIDC_CLIENT_ID="sonic-dashboard"
+export SONIC_DASHBOARD_PUBLIC_URL="http://localhost:9119"
+sonic dashboard --host 0.0.0.0 --port 9119 --no-open
 ```
 
-`HERMES_DASHBOARD_PUBLIC_URL` tells the dashboard its OAuth callback is
+`SONIC_DASHBOARD_PUBLIC_URL` tells the dashboard its OAuth callback is
 `http://localhost:9119/auth/callback` — the redirect URI the realm registered
 above. Binding to `0.0.0.0` (a non-loopback bind) without `--insecure` is what
 engages the OAuth gate.
@@ -729,7 +729,7 @@ engages the OAuth gate.
 
 > If you bind or browse on a different host/port, add that origin's
 > `…/auth/callback` to the client's **Valid redirect URIs** in the Keycloak
-> admin console (Clients → hermes-dashboard → Settings). The same pattern works
+> admin console (Clients → sonic-dashboard → Settings). The same pattern works
 > for Authentik, Zitadel, Authelia, and other OIDC servers — only the issuer
 > URL and client registration UI differ.
 
@@ -877,7 +877,7 @@ The dashboard reads and writes your `.env` (API keys, secrets) and can run agent
 - **Sign in** — the app detects the username/password gateway and shows a **Sign in** button; click it and enter the credentials from step 1
 - **Save and reconnect** — switches the desktop shell onto the remote backend
 
-The session refreshes automatically and survives restarts when `HERMES_DASHBOARD_BASIC_AUTH_SECRET` is set on the backend.
+The session refreshes automatically and survives restarts when `SONIC_DASHBOARD_BASIC_AUTH_SECRET` is set on the backend.
 
 ### Environment-variable override
 

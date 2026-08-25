@@ -733,7 +733,7 @@ export async function saveOnboardingLocalEndpoint(baseUrl: string, ctx: Onboardi
     const runtime = await checkRuntime(ctx)
     if (!runtime.ready) {
       const detail = (runtime.reason ?? '').trim()
-      return { ok: false, message: detail || `Saved, but Hermes still cannot reach ${url}.` }
+      return { ok: false, message: detail || `Saved, but Sonic still cannot reach ${url}.` }
     }
 
     notifyReady('Local / custom endpoint')

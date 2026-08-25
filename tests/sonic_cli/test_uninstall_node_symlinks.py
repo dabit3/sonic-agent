@@ -138,8 +138,8 @@ def test_removes_fhs_symlinks_in_usr_local_bin(fake_home, tmp_path, monkeypatch)
     We monkeypatch _node_symlink_candidate_dirs to return a temp dir standing
     in for /usr/local/bin so the test doesn't need real root privileges.
     """
-    hermes_home = fake_home / ".hermes"
-    node_bin = _make_hermes_node(hermes_home)
+    sonic_home = fake_home / ".sonic"
+    node_bin = _make_sonic_node(sonic_home)
 
     # Fake /usr/local/bin as a temp dir with our symlinks.
     fhs_bin = tmp_path / "usr_local_bin"
@@ -159,7 +159,7 @@ def test_removes_fhs_symlinks_in_usr_local_bin(fake_home, tmp_path, monkeypatch)
         uninstall, "_node_symlink_candidate_dirs", lambda: [fhs_bin]
     )
 
-    removed = uninstall.remove_node_symlinks(hermes_home)
+    removed = uninstall.remove_node_symlinks(sonic_home)
 
     assert sorted(p.name for p in removed) == ["node", "npm", "npx"]
     for name in ("node", "npm", "npx"):

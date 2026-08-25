@@ -9105,7 +9105,7 @@ def _install_python_dependencies_with_optional_fallback(
     # partial installs where a newly added base dep (e.g. ``pathspec``)
     # silently fails to land on top of a half-stale venv, and the only
     # symptom is a downstream subprocess crashing with ModuleNotFoundError
-    # hours later inside ``hermes update``'s desktop-rebuild or skill-sync
+    # hours later inside ``sonic update``'s desktop-rebuild or skill-sync
     # stage. Reinstall with --reinstall to force resolution if anything is
     # missing, then re-verify so the failure surfaces here instead of
     # downstream.
@@ -9190,7 +9190,7 @@ def _verify_core_dependencies_installed(
         return
 
     # Run the check inside the venv Python — sys.executable here may be the
-    # outer Python that drove ``hermes update``, not the venv we just wrote
+    # outer Python that drove ``sonic update``, not the venv we just wrote
     # to. The uv install_cmd_prefix encodes which environment we targeted
     # (either ``[uv, pip]`` with VIRTUAL_ENV in env, or
     # ``[sys.executable, -m, pip]`` for the in-process Python); resolve the
@@ -9241,7 +9241,7 @@ def _verify_core_dependencies_installed(
         _run_install_with_heartbeat(install_cmd_prefix + repair_args, env=env)
     except subprocess.CalledProcessError as e:
         logger.warning("dep verification: repair install failed: %s", e)
-        print("  ⚠ Repair install failed; check `hermes update` output above.")
+        print("  ⚠ Repair install failed; check `sonic update` output above.")
         return
 
     still_missing = _missing_deps()
@@ -9274,7 +9274,7 @@ def _verify_core_dependencies_installed(
         logger.warning("dep verification: per-package repair failed: %s", e)
         print(
             f"  ⚠ Could not install: {', '.join(still_missing)}. "
-            "Run `hermes update --force` after closing other hermes processes."
+            "Run `sonic update --force` after closing other sonic processes."
         )
         return
 
@@ -9282,7 +9282,7 @@ def _verify_core_dependencies_installed(
     if final_missing:
         print(
             f"  ⚠ Still missing after repair: {', '.join(final_missing)}. "
-            "Run `hermes update --force` after closing other hermes processes."
+            "Run `sonic update --force` after closing other sonic processes."
         )
     else:
         print("  ✓ All declared core dependencies now installed")
@@ -12285,7 +12285,7 @@ def cmd_dashboard(args):
 
 def cmd_dashboard_register(args):
     """Register a self-hosted dashboard OAuth client with Nous Portal."""
-    from hermes_cli.dashboard_register import cmd_dashboard_register as _impl
+    from sonic_cli.dashboard_register import cmd_dashboard_register as _impl
 
     _impl(args)
 
@@ -15592,9 +15592,9 @@ Examples:
     )
     dashboard_parser.set_defaults(func=cmd_dashboard)
 
-    # `hermes dashboard register` — register a self-hosted dashboard OAuth
-    # client with Nous Portal and write the client_id into ~/.hermes/.env.
-    # Nested subparser so bare `hermes dashboard` keeps launching the server
+    # `sonic dashboard register` — register a self-hosted dashboard OAuth
+    # client with Nous Portal and write the client_id into ~/.sonic/.env.
+    # Nested subparser so bare `sonic dashboard` keeps launching the server
     # (set_defaults(func=cmd_dashboard) above remains the default).
     dashboard_subparsers = dashboard_parser.add_subparsers(
         dest="dashboard_subcommand"
@@ -15605,8 +15605,8 @@ Examples:
         description=(
             "Register this install as a self-hosted dashboard with your Nous "
             "Portal account. Creates an OAuth client, writes "
-            "HERMES_DASHBOARD_OAUTH_CLIENT_ID into ~/.hermes/.env, and prints "
-            "how to engage the login gate. Requires being logged in (hermes setup)."
+            "SONIC_DASHBOARD_OAUTH_CLIENT_ID into ~/.sonic/.env, and prints "
+            "how to engage the login gate. Requires being logged in (sonic setup)."
         ),
     )
     dashboard_register_parser.add_argument(
@@ -15620,7 +15620,7 @@ Examples:
         default=None,
         help=(
             "Optional public HTTPS OAuth redirect URI for the dashboard, e.g. "
-            "https://hermes.example.com/auth/callback. Omit for localhost-only use."
+            "https://sonic.example.com/auth/callback. Omit for localhost-only use."
         ),
     )
     dashboard_register_parser.add_argument(
@@ -15630,7 +15630,7 @@ Examples:
         help=(
             "Override the Nous Portal base URL for registration (default: the "
             "portal you logged into). The access token must be valid at this "
-            "portal. Also settable via HERMES_DASHBOARD_PORTAL_URL. Mainly for "
+            "portal. Also settable via SONIC_DASHBOARD_PORTAL_URL. Mainly for "
             "testing against a staging/preview portal."
         ),
     )

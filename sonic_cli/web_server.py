@@ -1067,7 +1067,7 @@ async def run_debug_share_endpoint(body: DebugShareRequest | None = None):
     dashboard renders those as real, copyable links instead of scraping a log
     tail. Pastes auto-delete after 6 hours (handled inside the share core).
     """
-    from hermes_cli.debug import build_debug_share
+    from sonic_cli.debug import build_debug_share
 
     req = body or DebugShareRequest()
     try:
@@ -3258,7 +3258,7 @@ _OAUTH_PROVIDER_CATALOG: tuple[Dict[str, Any], ...] = (
         "id": "anthropic",
         "name": "Anthropic API Key",
         "flow": "pkce",
-        "cli_command": "hermes auth add anthropic",
+        "cli_command": "sonic auth add anthropic",
         "docs_url": "https://docs.claude.com/en/api/getting-started",
         "status_fn": _anthropic_oauth_status,
     },

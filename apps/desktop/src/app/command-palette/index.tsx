@@ -12,7 +12,7 @@ import {
   CommandItem,
   CommandList
 } from '@/components/ui/command'
-import { getHermesConfigRecord, listSessions } from '@/hermes'
+import { getSonicConfigRecord, listSessions } from '@/sonic'
 import { sessionTitle } from '@/lib/chat-runtime'
 import {
   Activity,
@@ -137,7 +137,7 @@ export function CommandPalette() {
 
   // Server-backed sources for the type-to-search groups, fetched lazily while
   // the palette is open. react-query handles caching/dedup/staleness.
-  const configQuery = useQuery({ queryKey: ['command-palette', 'config'], queryFn: getHermesConfigRecord, enabled: open })
+  const configQuery = useQuery({ queryKey: ['command-palette', 'config'], queryFn: getSonicConfigRecord, enabled: open })
 
   const sessionsQuery = useQuery({
     queryKey: ['command-palette', 'sessions'],

@@ -56,9 +56,9 @@ Kebab-case names are registered for the agent; snake_case aliases remain support
 
 ## Source attribution
 
-All Supermemory API calls send `x-sm-source: hermes`, and document writes stamp
-`metadata.sm_source: hermes`. This is a **functional routing key, not telemetry**:
-it groups Hermes-written memories into a dedicated "Hermes" Space in the
+All Supermemory API calls send `x-sm-source: sonic`, and document writes stamp
+`metadata.sm_source: sonic`. This is a **functional routing key, not telemetry**:
+it groups Sonic-written memories into a dedicated "Sonic" Space in the
 Supermemory app, so you can filter, browse, and bulk-manage them per source agent
 (alongside Codex, Claude Code, etc.) from the Supermemory UI.
 

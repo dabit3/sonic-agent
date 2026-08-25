@@ -132,7 +132,7 @@ export function GatewaySettings() {
       return
     }
 
-    const desktop = window.hermesDesktop
+    const desktop = window.sonicDesktop
 
     if (!desktop?.probeConnectionConfig) {
       return
@@ -293,7 +293,7 @@ export function GatewaySettings() {
     try {
       // Save (don't apply/restart) so the login window has a URL to use and the
       // oauth mode is persisted, without yet flipping the live connection.
-      const saved = await window.hermesDesktop.saveConnectionConfig({
+      const saved = await window.sonicDesktop.saveConnectionConfig({
         mode: state.mode,
         remoteAuthMode: 'oauth',
         remoteUrl: trimmedUrl
@@ -301,10 +301,10 @@ export function GatewaySettings() {
 
       setState(saved)
 
-      const result = await window.hermesDesktop.oauthLoginConnectionConfig(trimmedUrl)
+      const result = await window.sonicDesktop.oauthLoginConnectionConfig(trimmedUrl)
 
       if (result.connected) {
-        const refreshed = await window.hermesDesktop.getConnectionConfig()
+        const refreshed = await window.sonicDesktop.getConnectionConfig()
         setState(refreshed)
         notify({ kind: 'success', title: 'Signed in', message: `Connected to ${providerLabel}.` })
       } else {
@@ -325,8 +325,8 @@ export function GatewaySettings() {
     setSigningIn(true)
 
     try {
-      await window.hermesDesktop.oauthLogoutConnectionConfig(trimmedUrl || undefined)
-      const refreshed = await window.hermesDesktop.getConnectionConfig()
+      await window.sonicDesktop.oauthLogoutConnectionConfig(trimmedUrl || undefined)
+      const refreshed = await window.sonicDesktop.getConnectionConfig()
       setState(refreshed)
       notify({ kind: 'success', title: 'Signed out', message: 'Cleared the remote gateway session.' })
     } catch (err) {

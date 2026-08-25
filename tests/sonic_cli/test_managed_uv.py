@@ -147,7 +147,7 @@ class TestRebuildVenv:
 
     def test_retries_with_clear_when_dir_already_exists(self, tmp_path):
         """On Windows, rmtree can silently fail when an open handle holds a
-        file in the venv (running hermes.exe, gateway, AV scanner). uv then
+        file in the venv (running sonic.exe, gateway, AV scanner). uv then
         refuses with ``Caused by: A directory already exists at: venv``.
         Make sure we don't give up — retry with ``--clear`` to force uv past
         the stale directory and rebuild successfully."""
@@ -189,9 +189,9 @@ class TestRebuildVenv:
             m.returncode = 0
             return m
 
-        with patch("hermes_cli.managed_uv.subprocess.run", side_effect=fake_run), \
-             patch("hermes_cli.managed_uv.shutil.rmtree"):
-            from hermes_cli.managed_uv import rebuild_venv
+        with patch("sonic_cli.managed_uv.subprocess.run", side_effect=fake_run), \
+             patch("sonic_cli.managed_uv.shutil.rmtree"):
+            from sonic_cli.managed_uv import rebuild_venv
             result = rebuild_venv(uv_bin, venv_dir)
 
         assert result is True, "rebuild should succeed after --clear retry"
@@ -214,9 +214,9 @@ class TestRebuildVenv:
             m = MagicMock(returncode=1, stderr="error: No space left on device", stdout="")
             return m
 
-        with patch("hermes_cli.managed_uv.subprocess.run", side_effect=fake_run), \
-             patch("hermes_cli.managed_uv.shutil.rmtree"):
-            from hermes_cli.managed_uv import rebuild_venv
+        with patch("sonic_cli.managed_uv.subprocess.run", side_effect=fake_run), \
+             patch("sonic_cli.managed_uv.shutil.rmtree"):
+            from sonic_cli.managed_uv import rebuild_venv
             result = rebuild_venv(uv_bin, venv_dir)
 
         assert result is False

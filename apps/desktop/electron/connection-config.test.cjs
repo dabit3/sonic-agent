@@ -28,12 +28,12 @@ const {
 
 test('normalizeRemoteBaseUrl strips trailing slashes, hash, and query', () => {
   assert.equal(normalizeRemoteBaseUrl('https://gw.example.com/'), 'https://gw.example.com')
-  assert.equal(normalizeRemoteBaseUrl('https://gw.example.com/hermes/'), 'https://gw.example.com/hermes')
-  assert.equal(normalizeRemoteBaseUrl('https://gw.example.com/hermes?x=1#frag'), 'https://gw.example.com/hermes')
+  assert.equal(normalizeRemoteBaseUrl('https://gw.example.com/sonic/'), 'https://gw.example.com/sonic')
+  assert.equal(normalizeRemoteBaseUrl('https://gw.example.com/sonic?x=1#frag'), 'https://gw.example.com/sonic')
 })
 
 test('normalizeRemoteBaseUrl preserves a path prefix', () => {
-  assert.equal(normalizeRemoteBaseUrl('https://host/hermes'), 'https://host/hermes')
+  assert.equal(normalizeRemoteBaseUrl('https://host/sonic'), 'https://host/sonic')
 })
 
 test('normalizeRemoteBaseUrl rejects empty input', () => {
@@ -68,8 +68,8 @@ test('buildGatewayWsUrl uses ws for http', () => {
 
 test('buildGatewayWsUrl honors a path prefix', () => {
   assert.equal(
-    buildGatewayWsUrl('https://host/hermes', 't'),
-    'wss://host/hermes/api/ws?token=t'
+    buildGatewayWsUrl('https://host/sonic', 't'),
+    'wss://host/sonic/api/ws?token=t'
   )
 })
 
@@ -83,8 +83,8 @@ test('buildGatewayWsUrl url-encodes the token', () => {
 // --- buildGatewayWsUrlWithTicket (oauth) ---
 
 test('buildGatewayWsUrlWithTicket uses ?ticket= not ?token=', () => {
-  const url = buildGatewayWsUrlWithTicket('https://gw.example.com/hermes', 'tkt-9')
-  assert.equal(url, 'wss://gw.example.com/hermes/api/ws?ticket=tkt-9')
+  const url = buildGatewayWsUrlWithTicket('https://gw.example.com/sonic', 'tkt-9')
+  assert.equal(url, 'wss://gw.example.com/sonic/api/ws?ticket=tkt-9')
   assert.ok(!url.includes('token='))
 })
 
@@ -133,20 +133,20 @@ test('resolveAuthMode: ignores unknown values, defaults to token', () => {
 // --- cookiesHaveSession ---
 
 test('cookiesHaveSession detects the bare access-token cookie', () => {
-  assert.equal(cookiesHaveSession([{ name: 'hermes_session_at', value: 'x' }]), true)
+  assert.equal(cookiesHaveSession([{ name: 'sonic_session_at', value: 'x' }]), true)
 })
 
 test('cookiesHaveSession detects the __Host- and __Secure- prefixed variants', () => {
-  assert.equal(cookiesHaveSession([{ name: '__Host-hermes_session_at', value: 'x' }]), true)
-  assert.equal(cookiesHaveSession([{ name: '__Secure-hermes_session_at', value: 'x' }]), true)
+  assert.equal(cookiesHaveSession([{ name: '__Host-sonic_session_at', value: 'x' }]), true)
+  assert.equal(cookiesHaveSession([{ name: '__Secure-sonic_session_at', value: 'x' }]), true)
 })
 
 test('cookiesHaveSession is false for an empty value', () => {
-  assert.equal(cookiesHaveSession([{ name: 'hermes_session_at', value: '' }]), false)
+  assert.equal(cookiesHaveSession([{ name: 'sonic_session_at', value: '' }]), false)
 })
 
 test('cookiesHaveSession ignores unrelated cookies', () => {
-  assert.equal(cookiesHaveSession([{ name: 'hermes_session_rt', value: 'x' }]), false)
+  assert.equal(cookiesHaveSession([{ name: 'sonic_session_rt', value: 'x' }]), false)
   assert.equal(cookiesHaveSession([{ name: 'other', value: 'x' }]), false)
 })
 
@@ -158,9 +158,9 @@ test('cookiesHaveSession handles non-arrays', () => {
 
 test('AT_COOKIE_VARIANTS covers all three deploy shapes', () => {
   assert.deepEqual(AT_COOKIE_VARIANTS, [
-    '__Host-hermes_session_at',
-    '__Secure-hermes_session_at',
-    'hermes_session_at'
+    '__Host-sonic_session_at',
+    '__Secure-sonic_session_at',
+    'sonic_session_at'
   ])
 })
 

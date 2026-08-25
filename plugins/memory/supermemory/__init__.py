@@ -273,14 +273,14 @@ class _SupermemoryClient:
             api_key=api_key,
             timeout=timeout,
             max_retries=0,
-            default_headers={"x-sm-source": "hermes"},
+            default_headers={"x-sm-source": "sonic"},
         )
 
     def _merge_metadata(self, metadata: Optional[dict]) -> dict:
-        # sm_source routes Hermes writes into the "Hermes" Space in the Supermemory
+        # sm_source routes Sonic writes into the "Sonic" Space in the Supermemory
         # app so the user can filter / bulk-manage them per source agent. This is a
         # functional routing key for the user, not vendor telemetry.
-        merged = {"sm_source": "hermes", **(metadata or {})}
+        merged = {"sm_source": "sonic", **(metadata or {})}
         legacy_source = merged.pop("source", None)
         if legacy_source and "type" not in merged:
             merged["type"] = str(legacy_source)
@@ -379,7 +379,7 @@ class _SupermemoryClient:
             headers={
                 "Authorization": f"Bearer {self._api_key}",
                 "Content-Type": "application/json",
-                "x-sm-source": "hermes",
+                "x-sm-source": "sonic",
             },
             method="POST",
         )

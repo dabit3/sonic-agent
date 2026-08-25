@@ -1,4 +1,4 @@
-import type { HermesConnection } from '@/global'
+import type { SonicConnection } from '@/global'
 
 /**
  * The desktop main process exposes `getGatewayWsUrl()` to re-mint a WebSocket
@@ -25,7 +25,7 @@ import type { HermesConnection } from '@/global'
  * transport failure.
  */
 export interface ResolveGatewayWsUrlDeps {
-  /** `window.hermesDesktop.getGatewayWsUrl`, if the preload exposes it. */
+  /** `window.sonicDesktop.getGatewayWsUrl`, if the preload exposes it. */
   getGatewayWsUrl?: () => Promise<string>
 }
 
@@ -47,7 +47,7 @@ export function isGatewayReauthRequired(error: unknown): error is GatewayReauthR
 
 export async function resolveGatewayWsUrl(
   desktop: ResolveGatewayWsUrlDeps,
-  conn: Pick<HermesConnection, 'authMode' | 'wsUrl'>
+  conn: Pick<SonicConnection, 'authMode' | 'wsUrl'>
 ): Promise<string> {
   const mint = desktop.getGatewayWsUrl
 

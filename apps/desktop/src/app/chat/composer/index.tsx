@@ -86,7 +86,7 @@ const COMPOSER_FADE_BACKGROUND =
 // One is picked at random per session (stable until the session changes).
 const NEW_SESSION_PLACEHOLDERS = [
   'What are we building?',
-  'Give Hermes a task',
+  'Give Sonic a task',
   "What's on your mind?",
   'Describe what you need',
   'What should we tackle?',

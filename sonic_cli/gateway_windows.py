@@ -315,15 +315,15 @@ def get_startup_entry_path() -> Path:
 def _stable_gateway_working_dir(project_root: Path) -> str:
     """Return a stable cwd for detached/startup gateway runs.
 
-    Mirror the POSIX service invariant: anchor at ``HERMES_HOME`` whenever it
+    Mirror the POSIX service invariant: anchor at ``SONIC_HOME`` whenever it
     exists so Scheduled Task / Startup launches do not fail at the ``cd`` step
     after a transient checkout or worktree is moved away. Fall back to the
-    source checkout only if ``HERMES_HOME`` cannot be resolved yet.
+    source checkout only if ``SONIC_HOME`` cannot be resolved yet.
     """
-    from hermes_cli.config import get_hermes_home
+    from sonic_cli.config import get_sonic_home
 
     try:
-        home = get_hermes_home()
+        home = get_sonic_home()
         if home and Path(home).is_dir():
             return str(Path(home).resolve())
     except Exception:

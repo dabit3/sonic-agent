@@ -609,7 +609,7 @@ def build_debug_share(
 ) -> DebugShareResult:
     """Collect the debug report + full logs, upload each, return the URLs.
 
-    This is the shared core behind ``hermes debug share`` (CLI) and the
+    This is the shared core behind ``sonic debug share`` (CLI) and the
     dashboard ``POST /api/ops/debug-share`` endpoint. It performs blocking
     network I/O (paste uploads) — callers inside an event loop must run it in
     a worker thread.
@@ -752,7 +752,7 @@ def run_debug_share(args):
         )
     except RuntimeError as exc:
         print(f"\nUpload failed: {exc}", file=sys.stderr)
-        print("\nRun `hermes debug share --local` to print the report instead.\n")
+        print("\nRun `sonic debug share --local` to print the report instead.\n")
         sys.exit(1)
 
     # Print results

@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import type { HermesGateway } from '@/hermes'
+import type { SonicGateway } from '@/sonic'
 import { $gateway } from '@/store/gateway'
 import { $approvalRequest } from '@/store/prompts'
 
@@ -18,7 +18,7 @@ function setRequest(command = 'rm -rf /tmp/x') {
 
 function mockGateway() {
   const request = vi.fn().mockResolvedValue({ resolved: true })
-  $gateway.set({ request } as unknown as HermesGateway)
+  $gateway.set({ request } as unknown as SonicGateway)
 
   return request
 }

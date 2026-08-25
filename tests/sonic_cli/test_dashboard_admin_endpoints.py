@@ -504,18 +504,18 @@ class TestDebugShareEndpoint:
     dashboard can render them as copyable links (not a backgrounded log tail)."""
 
     @pytest.fixture(autouse=True)
-    def _setup(self, _isolate_hermes_home):
+    def _setup(self, _isolate_sonic_home):
         self.client, self.header = _client()
-        from hermes_constants import get_hermes_home
+        from sonic_constants import get_sonic_home
 
-        logs = get_hermes_home() / "logs"
+        logs = get_sonic_home() / "logs"
         logs.mkdir(parents=True, exist_ok=True)
         (logs / "agent.log").write_text("agent line\n")
         (logs / "errors.log").write_text("err line\n")
         (logs / "gateway.log").write_text("gw line\n")
 
     def test_returns_structured_urls(self, monkeypatch):
-        import hermes_cli.debug as dbg
+        import sonic_cli.debug as dbg
 
         count = [0]
 
@@ -526,7 +526,7 @@ class TestDebugShareEndpoint:
         monkeypatch.setattr(dbg, "upload_to_pastebin", _upload)
         monkeypatch.setattr(dbg, "_schedule_auto_delete", lambda *a, **k: None)
         monkeypatch.setattr(dbg, "_best_effort_sweep_expired_pastes", lambda: None)
-        monkeypatch.setattr("hermes_cli.dump.run_dump", lambda a: None)
+        monkeypatch.setattr("sonic_cli.dump.run_dump", lambda a: None)
 
         r = self.client.post("/api/ops/debug-share", json={"redact": True})
         assert r.status_code == 200
@@ -538,28 +538,28 @@ class TestDebugShareEndpoint:
         assert isinstance(body["failures"], list)
 
     def test_redact_false_is_honored(self, monkeypatch):
-        import hermes_cli.debug as dbg
+        import sonic_cli.debug as dbg
 
         monkeypatch.setattr(
             dbg, "upload_to_pastebin", lambda c, expiry_days=7: "https://paste.rs/x"
         )
         monkeypatch.setattr(dbg, "_schedule_auto_delete", lambda *a, **k: None)
         monkeypatch.setattr(dbg, "_best_effort_sweep_expired_pastes", lambda: None)
-        monkeypatch.setattr("hermes_cli.dump.run_dump", lambda a: None)
+        monkeypatch.setattr("sonic_cli.dump.run_dump", lambda a: None)
 
         r = self.client.post("/api/ops/debug-share", json={"redact": False})
         assert r.status_code == 200
         assert r.json()["redacted"] is False
 
     def test_default_body_redacts(self, monkeypatch):
-        import hermes_cli.debug as dbg
+        import sonic_cli.debug as dbg
 
         monkeypatch.setattr(
             dbg, "upload_to_pastebin", lambda c, expiry_days=7: "https://paste.rs/x"
         )
         monkeypatch.setattr(dbg, "_schedule_auto_delete", lambda *a, **k: None)
         monkeypatch.setattr(dbg, "_best_effort_sweep_expired_pastes", lambda: None)
-        monkeypatch.setattr("hermes_cli.dump.run_dump", lambda a: None)
+        monkeypatch.setattr("sonic_cli.dump.run_dump", lambda a: None)
 
         # No JSON body at all — should default redact=True.
         r = self.client.post("/api/ops/debug-share")
@@ -567,7 +567,7 @@ class TestDebugShareEndpoint:
         assert r.json()["redacted"] is True
 
     def test_upload_failure_returns_502(self, monkeypatch):
-        import hermes_cli.debug as dbg
+        import sonic_cli.debug as dbg
 
         monkeypatch.setattr(
             dbg,
@@ -576,7 +576,7 @@ class TestDebugShareEndpoint:
         )
         monkeypatch.setattr(dbg, "_schedule_auto_delete", lambda *a, **k: None)
         monkeypatch.setattr(dbg, "_best_effort_sweep_expired_pastes", lambda: None)
-        monkeypatch.setattr("hermes_cli.dump.run_dump", lambda a: None)
+        monkeypatch.setattr("sonic_cli.dump.run_dump", lambda a: None)
 
         r = self.client.post("/api/ops/debug-share", json={"redact": True})
         assert r.status_code == 502

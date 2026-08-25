@@ -361,12 +361,12 @@ class _UnreachableProvider(StubAuthProvider):
     display_name = "Unreachable IdP (test only)"
 
     def verify_session(self, *, access_token: str):
-        from hermes_cli.dashboard_auth.base import ProviderError
+        from sonic_cli.dashboard_auth.base import ProviderError
 
         raise ProviderError("simulated: IDP/JWKS unreachable")
 
     def refresh_session(self, *, refresh_token: str):
-        from hermes_cli.dashboard_auth.base import ProviderError
+        from sonic_cli.dashboard_auth.base import ProviderError
 
         raise ProviderError("simulated: IDP/JWKS unreachable")
 
@@ -377,12 +377,12 @@ def _mint_stub_at(stub: StubAuthProvider) -> str:
     ls = stub.start_login(redirect_uri="https://fly-app.fly.dev/auth/callback")
     state = dict(
         seg.split("=", 1)
-        for seg in ls.cookie_payload["hermes_session_pkce"].split(";")
+        for seg in ls.cookie_payload["sonic_session_pkce"].split(";")
         if "=" in seg
     )["state"]
     verifier = dict(
         seg.split("=", 1)
-        for seg in ls.cookie_payload["hermes_session_pkce"].split(";")
+        for seg in ls.cookie_payload["sonic_session_pkce"].split(";")
         if "=" in seg
     )["verifier"]
     session = stub.complete_login(

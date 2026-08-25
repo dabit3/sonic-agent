@@ -67,7 +67,7 @@ def _resolve_portal_base_url(override: Optional[str] = None) -> str:
 
     Precedence:
       1. ``override`` — explicit ``--portal-url`` flag or
-         ``HERMES_DASHBOARD_PORTAL_URL`` env (used for testing against a
+         ``SONIC_DASHBOARD_PORTAL_URL`` env (used for testing against a
          preview/staging portal). NOTE: the access token must be valid at
          this portal — it's minted by whatever portal you logged into, so an
          override only works if the token's issuer matches (e.g. you logged
@@ -239,9 +239,9 @@ def cmd_dashboard_register(args) -> None:
         sys.exit(1)
 
     # Portal override: explicit --portal-url flag wins, else the
-    # HERMES_DASHBOARD_PORTAL_URL env var, else the stored login's portal.
+    # SONIC_DASHBOARD_PORTAL_URL env var, else the stored login's portal.
     portal_override = getattr(args, "portal_url", None) or os.environ.get(
-        "HERMES_DASHBOARD_PORTAL_URL"
+        "SONIC_DASHBOARD_PORTAL_URL"
     )
     portal_base_url = _resolve_portal_base_url(portal_override)
 

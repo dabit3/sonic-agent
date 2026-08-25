@@ -446,7 +446,7 @@ export function DesktopController() {
       event.preventDefault()
       startFreshSessionDraft()
       // Briefly light up the sidebar's ⌘N hint so the shortcut is discoverable.
-      window.dispatchEvent(new CustomEvent('hermes:new-session-shortcut'))
+      window.dispatchEvent(new CustomEvent('sonic:new-session-shortcut'))
     }
 
     window.addEventListener('keydown', onKeyDown)

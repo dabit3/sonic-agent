@@ -2588,9 +2588,9 @@ class TestServiceWorkingDirIsStable:
         causes the old instance to exit cleanly).  Switching to the scalar
         ``<key>KeepAlive</key><true/>`` makes launchd restart regardless of exit code.
         """
-        home = tmp_path / ".hermes"
+        home = tmp_path / ".sonic"
         home.mkdir()
-        monkeypatch.setattr(gateway_cli, "get_hermes_home", lambda: home)
+        monkeypatch.setattr(gateway_cli, "get_sonic_home", lambda: home)
         plist = gateway_cli.generate_launchd_plist()
 
         # Scalar <true/> must be present immediately after the KeepAlive key

@@ -35,9 +35,9 @@ describe('settings helpers', () => {
       // KIMI_CN_ likewise must beat KIMI_.
       expect(providerGroup('KIMI_CN_API_KEY')).toBe('Kimi (China)')
       expect(providerGroup('KIMI_API_KEY')).toBe('Kimi / Moonshot')
-      // HERMES_QWEN_ and HERMES_GEMINI_ both share the HERMES_ stem.
-      expect(providerGroup('HERMES_QWEN_BASE_URL')).toBe('DashScope (Qwen)')
-      expect(providerGroup('HERMES_GEMINI_CLIENT_ID')).toBe('Gemini')
+      // SONIC_QWEN_ and SONIC_GEMINI_ both share the SONIC_ stem.
+      expect(providerGroup('SONIC_QWEN_BASE_URL')).toBe('DashScope (Qwen)')
+      expect(providerGroup('SONIC_GEMINI_CLIENT_ID')).toBe('Gemini')
     })
 
     it('falls back to "Other" for un-grouped env vars', () => {

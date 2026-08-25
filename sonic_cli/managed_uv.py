@@ -109,7 +109,7 @@ def rebuild_venv(uv_bin: str, venv_dir: Path, python_version: str = "3.11") -> b
     On Windows, ``shutil.rmtree(..., ignore_errors=True)`` can silently leave
     the venv directory partially intact when another process is holding an
     open handle to a file inside it (typical culprits: a running
-    ``hermes.exe`` REPL, the gateway, AV scanners). If we don't notice that
+    ``sonic.exe`` REPL, the gateway, AV scanners). If we don't notice that
     and just call ``uv venv``, uv refuses with
     ``Caused by: A directory already exists at: venv`` and the *whole
     update* falls back to installing on top of the stale venv — which has

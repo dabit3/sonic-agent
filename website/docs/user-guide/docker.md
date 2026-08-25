@@ -463,8 +463,8 @@ Each profile created with `sonic profile create <name>` automatically gets an s6
 
 Pull the latest image and recreate the container. Your data directory is
 preserved, and the container runs non-interactive config-schema migrations
-against the mounted `$HERMES_HOME/config.yaml` before starting the gateway.
-When a migration is needed, Hermes writes timestamped backups next to
+against the mounted `$SONIC_HOME/config.yaml` before starting the gateway.
+When a migration is needed, Sonic writes timestamped backups next to
 `config.yaml` and `.env` first.
 
 ```sh
@@ -484,7 +484,7 @@ docker compose pull
 docker compose up -d
 ```
 
-Set `HERMES_SKIP_CONFIG_MIGRATION=1` only if you need to inspect or migrate the
+Set `SONIC_SKIP_CONFIG_MIGRATION=1` only if you need to inspect or migrate the
 persisted config manually before letting the new image rewrite it.
 
 ## Skills and credential files

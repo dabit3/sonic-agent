@@ -356,15 +356,15 @@ On top of the chat/card permissions already granted, add the drive comment event
 
 ## Meeting Invitation Events
 
-You can invite the Hermes Feishu/Lark bot into a video meeting the same way you invite a human participant. When the bot receives the meeting invitation event, Hermes can automatically start an agent turn that attempts to join the meeting.
+You can invite the Sonic Feishu/Lark bot into a video meeting the same way you invite a human participant. When the bot receives the meeting invitation event, Sonic can automatically start an agent turn that attempts to join the meeting.
 
 Powered by the `vc.bot.meeting_invited_v1` event, the flow is:
 
 - A user invites the bot to a Feishu/Lark video meeting.
-- Feishu/Lark sends Hermes the meeting invitation event.
-- Hermes extracts the inviter, meeting topic, and meeting number.
+- Feishu/Lark sends Sonic the meeting invitation event.
+- Sonic extracts the inviter, meeting topic, and meeting number.
 - If the inviter is authorized by the normal gateway allowlist or pairing policy, the agent receives the meeting number and tries to join automatically.
-- If the invite is malformed, or the agent cannot join, Hermes drops the event or replies to the inviter with a concise explanation.
+- If the invite is malformed, or the agent cannot join, Sonic drops the event or replies to the inviter with a concise explanation.
 
 Malformed invitations that do not include both an inviter and a `meeting_no` are ignored.
 
@@ -374,7 +374,7 @@ On top of the chat/card permissions already granted, add the video-meeting invit
 
 - Subscribe to `vc.bot.meeting_invited_v1` in **Event Subscriptions**.
 - Enable the Video Conferencing permission scope prompted by the Feishu/Lark developer console for that event.
-- Keep `im:message` and `im:message:send_as_bot` enabled so Hermes can reply to the inviter.
+- Keep `im:message` and `im:message:send_as_bot` enabled so Sonic can reply to the inviter.
 - Ensure the gateway user allowlist or pairing policy authorizes the inviter. Meeting invitations do not bypass normal gateway access checks.
 
 ## Media Support
