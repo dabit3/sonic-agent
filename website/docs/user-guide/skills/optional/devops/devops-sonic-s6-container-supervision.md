@@ -1,7 +1,7 @@
 ---
 title: "Sonic S6 Container Supervision"
 sidebar_label: "Sonic S6 Container Supervision"
-description: "Modify, debug, or extend the s6-overlay supervision tree inside the Sonic Agent Docker image — adding new services, debugging profile gateways, understandin..."
+description: "Modify, debug, or extend the s6-overlay supervision tree inside the Sonic Agent Docker image — adding new services, debugging profile gateways, understanding..."
 ---
 
 {/* This page is auto-generated from the skill's SKILL.md by website/scripts/generate-skill-docs.py. Edit the source SKILL.md, not this page. */}

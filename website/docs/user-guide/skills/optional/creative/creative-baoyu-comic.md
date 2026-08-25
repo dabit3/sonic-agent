@@ -89,13 +89,7 @@ Character consistency is driven by **text descriptions** in `characters/characte
 | Images only | Generate images from existing prompts directory |
 | Regenerate N | Regenerate specific page(s) only (e.g., `3` or `2,5,8`) |
 
-<<<<<<< HEAD:website/docs/user-guide/skills/bundled/creative/creative-baoyu-comic.md
-Details: [references/partial-workflows.md](https://github.com/dabit3/sonic-agent/blob/main/skills/creative/baoyu-comic/references/partial-workflows.md)
-||||||| parent of 38d3c49aa (refactor(skills): clean up bundled skill set + add environments: relevance gate (#39028)):website/docs/user-guide/skills/bundled/creative/creative-baoyu-comic.md
-Details: [references/partial-workflows.md](https://github.com/NousResearch/hermes-agent/blob/main/skills/creative/baoyu-comic/references/partial-workflows.md)
-=======
-Details: [references/partial-workflows.md](https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/creative/baoyu-comic/references/partial-workflows.md)
->>>>>>> 38d3c49aa (refactor(skills): clean up bundled skill set + add environments: relevance gate (#39028)):website/docs/user-guide/skills/optional/creative/creative-baoyu-comic.md
+Details: [references/partial-workflows.md](https://github.com/dabit3/sonic-agent/blob/main/optional-skills/creative/baoyu-comic/references/partial-workflows.md)
 
 ### Art, Tone & Preset Catalogue
 
@@ -113,13 +107,7 @@ Details: [references/partial-workflows.md](https://github.com/NousResearch/herme
 
   Full rules at `references/presets/<preset>.md` — load the file when a preset is picked.
 
-<<<<<<< HEAD:website/docs/user-guide/skills/bundled/creative/creative-baoyu-comic.md
-- **Compatibility matrix** and **content-signal → preset** table live in [references/auto-selection.md](https://github.com/dabit3/sonic-agent/blob/main/skills/creative/baoyu-comic/references/auto-selection.md). Read it before recommending combinations in Step 2.
-||||||| parent of 38d3c49aa (refactor(skills): clean up bundled skill set + add environments: relevance gate (#39028)):website/docs/user-guide/skills/bundled/creative/creative-baoyu-comic.md
-- **Compatibility matrix** and **content-signal → preset** table live in [references/auto-selection.md](https://github.com/NousResearch/hermes-agent/blob/main/skills/creative/baoyu-comic/references/auto-selection.md). Read it before recommending combinations in Step 2.
-=======
-- **Compatibility matrix** and **content-signal → preset** table live in [references/auto-selection.md](https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/creative/baoyu-comic/references/auto-selection.md). Read it before recommending combinations in Step 2.
->>>>>>> 38d3c49aa (refactor(skills): clean up bundled skill set + add environments: relevance gate (#39028)):website/docs/user-guide/skills/optional/creative/creative-baoyu-comic.md
+- **Compatibility matrix** and **content-signal → preset** table live in [references/auto-selection.md](https://github.com/dabit3/sonic-agent/blob/main/optional-skills/creative/baoyu-comic/references/auto-selection.md). Read it before recommending combinations in Step 2.
 
 ## File Structure
 
@@ -197,13 +185,7 @@ Input → Analyze → [Check Existing?] → [Confirm: Style + Reviews] → Story
 
 ### User Questions
 
-<<<<<<< HEAD:website/docs/user-guide/skills/bundled/creative/creative-baoyu-comic.md
-Use the `clarify` tool to confirm options. Since `clarify` handles one question at a time, ask the most important question first and proceed sequentially. See [references/workflow.md](https://github.com/dabit3/sonic-agent/blob/main/skills/creative/baoyu-comic/references/workflow.md) for the full Step 2 question set.
-||||||| parent of 38d3c49aa (refactor(skills): clean up bundled skill set + add environments: relevance gate (#39028)):website/docs/user-guide/skills/bundled/creative/creative-baoyu-comic.md
-Use the `clarify` tool to confirm options. Since `clarify` handles one question at a time, ask the most important question first and proceed sequentially. See [references/workflow.md](https://github.com/NousResearch/hermes-agent/blob/main/skills/creative/baoyu-comic/references/workflow.md) for the full Step 2 question set.
-=======
-Use the `clarify` tool to confirm options. Since `clarify` handles one question at a time, ask the most important question first and proceed sequentially. See [references/workflow.md](https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/creative/baoyu-comic/references/workflow.md) for the full Step 2 question set.
->>>>>>> 38d3c49aa (refactor(skills): clean up bundled skill set + add environments: relevance gate (#39028)):website/docs/user-guide/skills/optional/creative/creative-baoyu-comic.md
+Use the `clarify` tool to confirm options. Since `clarify` handles one question at a time, ask the most important question first and proceed sequentially. See [references/workflow.md](https://github.com/dabit3/sonic-agent/blob/main/optional-skills/creative/baoyu-comic/references/workflow.md) for the full Step 2 question set.
 
 **Timeout handling (CRITICAL)**: `clarify` can return `"The user did not provide a response within the time limit. Use your best judgement to make the choice and proceed."` — this is NOT user consent to default everything.
 
@@ -239,33 +221,15 @@ Use Sonic' built-in `image_generate` tool for all image rendering. Its schema ac
 
 **Backup rule**: existing `prompts/…md` and `…png` files → rename with `-backup-YYYYMMDD-HHMMSS` suffix before regenerating.
 
-<<<<<<< HEAD:website/docs/user-guide/skills/bundled/creative/creative-baoyu-comic.md
-Full step-by-step workflow (analysis, storyboard, review gates, regeneration variants): [references/workflow.md](https://github.com/dabit3/sonic-agent/blob/main/skills/creative/baoyu-comic/references/workflow.md).
-||||||| parent of 38d3c49aa (refactor(skills): clean up bundled skill set + add environments: relevance gate (#39028)):website/docs/user-guide/skills/bundled/creative/creative-baoyu-comic.md
-Full step-by-step workflow (analysis, storyboard, review gates, regeneration variants): [references/workflow.md](https://github.com/NousResearch/hermes-agent/blob/main/skills/creative/baoyu-comic/references/workflow.md).
-=======
-Full step-by-step workflow (analysis, storyboard, review gates, regeneration variants): [references/workflow.md](https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/creative/baoyu-comic/references/workflow.md).
->>>>>>> 38d3c49aa (refactor(skills): clean up bundled skill set + add environments: relevance gate (#39028)):website/docs/user-guide/skills/optional/creative/creative-baoyu-comic.md
+Full step-by-step workflow (analysis, storyboard, review gates, regeneration variants): [references/workflow.md](https://github.com/dabit3/sonic-agent/blob/main/optional-skills/creative/baoyu-comic/references/workflow.md).
 
 ## References
 
 **Core Templates**:
-<<<<<<< HEAD:website/docs/user-guide/skills/bundled/creative/creative-baoyu-comic.md
-- [analysis-framework.md](https://github.com/dabit3/sonic-agent/blob/main/skills/creative/baoyu-comic/references/analysis-framework.md) - Deep content analysis
-- [character-template.md](https://github.com/dabit3/sonic-agent/blob/main/skills/creative/baoyu-comic/references/character-template.md) - Character definition format
-- [storyboard-template.md](https://github.com/dabit3/sonic-agent/blob/main/skills/creative/baoyu-comic/references/storyboard-template.md) - Storyboard structure
-- [ohmsha-guide.md](https://github.com/dabit3/sonic-agent/blob/main/skills/creative/baoyu-comic/references/ohmsha-guide.md) - Ohmsha manga specifics
-||||||| parent of 38d3c49aa (refactor(skills): clean up bundled skill set + add environments: relevance gate (#39028)):website/docs/user-guide/skills/bundled/creative/creative-baoyu-comic.md
-- [analysis-framework.md](https://github.com/NousResearch/hermes-agent/blob/main/skills/creative/baoyu-comic/references/analysis-framework.md) - Deep content analysis
-- [character-template.md](https://github.com/NousResearch/hermes-agent/blob/main/skills/creative/baoyu-comic/references/character-template.md) - Character definition format
-- [storyboard-template.md](https://github.com/NousResearch/hermes-agent/blob/main/skills/creative/baoyu-comic/references/storyboard-template.md) - Storyboard structure
-- [ohmsha-guide.md](https://github.com/NousResearch/hermes-agent/blob/main/skills/creative/baoyu-comic/references/ohmsha-guide.md) - Ohmsha manga specifics
-=======
-- [analysis-framework.md](https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/creative/baoyu-comic/references/analysis-framework.md) - Deep content analysis
-- [character-template.md](https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/creative/baoyu-comic/references/character-template.md) - Character definition format
-- [storyboard-template.md](https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/creative/baoyu-comic/references/storyboard-template.md) - Storyboard structure
-- [ohmsha-guide.md](https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/creative/baoyu-comic/references/ohmsha-guide.md) - Ohmsha manga specifics
->>>>>>> 38d3c49aa (refactor(skills): clean up bundled skill set + add environments: relevance gate (#39028)):website/docs/user-guide/skills/optional/creative/creative-baoyu-comic.md
+- [analysis-framework.md](https://github.com/dabit3/sonic-agent/blob/main/optional-skills/creative/baoyu-comic/references/analysis-framework.md) - Deep content analysis
+- [character-template.md](https://github.com/dabit3/sonic-agent/blob/main/optional-skills/creative/baoyu-comic/references/character-template.md) - Character definition format
+- [storyboard-template.md](https://github.com/dabit3/sonic-agent/blob/main/optional-skills/creative/baoyu-comic/references/storyboard-template.md) - Storyboard structure
+- [ohmsha-guide.md](https://github.com/dabit3/sonic-agent/blob/main/optional-skills/creative/baoyu-comic/references/ohmsha-guide.md) - Ohmsha manga specifics
 
 **Style Definitions**:
 - `references/art-styles/` - Art styles (ligne-claire, manga, realistic, ink-brush, chalk, minimalist)
@@ -274,19 +238,9 @@ Full step-by-step workflow (analysis, storyboard, review gates, regeneration var
 - `references/layouts/` - Layouts (standard, cinematic, dense, splash, mixed, webtoon, four-panel)
 
 **Workflow**:
-<<<<<<< HEAD:website/docs/user-guide/skills/bundled/creative/creative-baoyu-comic.md
-- [workflow.md](https://github.com/dabit3/sonic-agent/blob/main/skills/creative/baoyu-comic/references/workflow.md) - Full workflow details
-- [auto-selection.md](https://github.com/dabit3/sonic-agent/blob/main/skills/creative/baoyu-comic/references/auto-selection.md) - Content signal analysis
-- [partial-workflows.md](https://github.com/dabit3/sonic-agent/blob/main/skills/creative/baoyu-comic/references/partial-workflows.md) - Partial workflow options
-||||||| parent of 38d3c49aa (refactor(skills): clean up bundled skill set + add environments: relevance gate (#39028)):website/docs/user-guide/skills/bundled/creative/creative-baoyu-comic.md
-- [workflow.md](https://github.com/NousResearch/hermes-agent/blob/main/skills/creative/baoyu-comic/references/workflow.md) - Full workflow details
-- [auto-selection.md](https://github.com/NousResearch/hermes-agent/blob/main/skills/creative/baoyu-comic/references/auto-selection.md) - Content signal analysis
-- [partial-workflows.md](https://github.com/NousResearch/hermes-agent/blob/main/skills/creative/baoyu-comic/references/partial-workflows.md) - Partial workflow options
-=======
-- [workflow.md](https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/creative/baoyu-comic/references/workflow.md) - Full workflow details
-- [auto-selection.md](https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/creative/baoyu-comic/references/auto-selection.md) - Content signal analysis
-- [partial-workflows.md](https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/creative/baoyu-comic/references/partial-workflows.md) - Partial workflow options
->>>>>>> 38d3c49aa (refactor(skills): clean up bundled skill set + add environments: relevance gate (#39028)):website/docs/user-guide/skills/optional/creative/creative-baoyu-comic.md
+- [workflow.md](https://github.com/dabit3/sonic-agent/blob/main/optional-skills/creative/baoyu-comic/references/workflow.md) - Full workflow details
+- [auto-selection.md](https://github.com/dabit3/sonic-agent/blob/main/optional-skills/creative/baoyu-comic/references/auto-selection.md) - Content signal analysis
+- [partial-workflows.md](https://github.com/dabit3/sonic-agent/blob/main/optional-skills/creative/baoyu-comic/references/partial-workflows.md) - Partial workflow options
 
 ## Page Modification
 
