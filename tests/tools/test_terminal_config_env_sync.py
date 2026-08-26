@@ -265,12 +265,12 @@ def test_docker_orphan_reaper_is_bridged_everywhere():
 
 def test_docker_volumes_is_bridged_everywhere():
     """Regression pin for ``terminal.docker_volumes`` being silently dropped by
-    ``hermes config set``.
+    ``sonic config set``.
 
     The JSON list of ``host:container`` bind mounts was bridged by cli.py and
     gateway/run.py and consumed by terminal_tool (via json.loads), but was
     missing from set_config_value's _config_to_env_sync.  So
-    ``hermes config set terminal.docker_volumes '["/host:/workspace"]'`` wrote
+    ``sonic config set terminal.docker_volumes '["/host:/workspace"]'`` wrote
     config.yaml yet left the running process's TERMINAL_DOCKER_VOLUMES stale —
     the mounts didn't apply until a full restart.  Same four-site bridge
     invariant as docker_env / docker_run_as_host_user.
@@ -288,7 +288,7 @@ def test_docker_forward_env_is_bridged_everywhere():
     The JSON list of host env-var names forwarded into the container was
     bridged by cli.py and gateway/run.py and consumed by terminal_tool (via
     json.loads), but missing from set_config_value's _config_to_env_sync, so
-    ``hermes config set terminal.docker_forward_env '["GITHUB_TOKEN"]'`` had no
+    ``sonic config set terminal.docker_forward_env '["GITHUB_TOKEN"]'`` had no
     effect on the running process until restart.
     """
     assert "docker_forward_env" in _cli_env_map_keys()

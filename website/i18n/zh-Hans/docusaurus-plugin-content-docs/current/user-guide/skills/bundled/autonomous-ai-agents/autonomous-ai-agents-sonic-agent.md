@@ -52,7 +52,7 @@ Sonic 的差异化特性：
 
 ```bash
 # 安装
-curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.sh | bash
 
 # 交互式聊天（默认）
 sonic

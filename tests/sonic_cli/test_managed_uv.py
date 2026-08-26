@@ -74,28 +74,28 @@ class TestResolveUv:
 class TestEnsureUv:
     def test_already_installed_no_bootstrap(self, tmp_path):
         _make_executable(tmp_path / "bin" / "uv")
-        with patch("hermes_cli.managed_uv.get_hermes_home", return_value=tmp_path):
-            from hermes_cli.managed_uv import ensure_uv
+        with patch("sonic_cli.managed_uv.get_sonic_home", return_value=tmp_path):
+            from sonic_cli.managed_uv import ensure_uv
             path = ensure_uv()
             assert path == str(tmp_path / "bin" / "uv")
 
     def test_installs_if_missing(self, tmp_path):
-        with patch("hermes_cli.managed_uv.get_hermes_home", return_value=tmp_path), \
-             patch("hermes_cli.managed_uv._install_uv") as mock_install:
+        with patch("sonic_cli.managed_uv.get_sonic_home", return_value=tmp_path), \
+             patch("sonic_cli.managed_uv._install_uv") as mock_install:
             # Simulate the installer creating the binary
             def fake_install(target):
                 _make_executable(target)
             mock_install.side_effect = fake_install
 
-            from hermes_cli.managed_uv import ensure_uv
+            from sonic_cli.managed_uv import ensure_uv
             path = ensure_uv()
             assert path == str(tmp_path / "bin" / "uv")
             mock_install.assert_called_once()
 
     def test_install_failure_returns_none(self, tmp_path):
-        with patch("hermes_cli.managed_uv.get_hermes_home", return_value=tmp_path), \
-             patch("hermes_cli.managed_uv._install_uv", side_effect=RuntimeError("network down")):
-            from hermes_cli.managed_uv import ensure_uv
+        with patch("sonic_cli.managed_uv.get_sonic_home", return_value=tmp_path), \
+             patch("sonic_cli.managed_uv._install_uv", side_effect=RuntimeError("network down")):
+            from sonic_cli.managed_uv import ensure_uv
             path = ensure_uv()
             assert path is None
 

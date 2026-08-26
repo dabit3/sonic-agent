@@ -384,7 +384,7 @@ class TestWebServerEndpoints:
     def test_profiles_sessions_tags_default_profile(self):
         """The cross-profile aggregator returns the default profile's rows
         tagged profile="default" (single-profile parity with /api/sessions)."""
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         db = SessionDB()
         try:
@@ -816,7 +816,7 @@ class TestWebServerEndpoints:
             assert info["channel_managed"] is (key in channel_keys)
 
     def test_platform_scoped_messaging_env_vars_are_channel_managed(self):
-        from hermes_cli.web_server import (
+        from sonic_cli.web_server import (
             _MESSAGING_KEYS_PAGE_KEYS,
             _build_catalog_entry,
             _channel_managed_env_keys,
@@ -993,7 +993,7 @@ class TestWebServerEndpoints:
         assert "DISCORD_BOT_TOKEN" in data["message"]
 
     def test_telegram_onboarding_start_strips_poll_token(self, monkeypatch):
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         with ws._telegram_onboarding_lock:
             ws._telegram_onboarding_pairings.clear()
@@ -1005,9 +1005,9 @@ class TestWebServerEndpoints:
             return {
                 "pairing_id": "pair123",
                 "poll_token": "poll-secret",
-                "suggested_username": "hermes_pair123_bot",
-                "deep_link": "https://t.me/newbot/HermesSetupBot/hermes_pair123_bot",
-                "qr_payload": "https://t.me/newbot/HermesSetupBot/hermes_pair123_bot",
+                "suggested_username": "sonic_pair123_bot",
+                "deep_link": "https://t.me/newbot/SonicSetupBot/sonic_pair123_bot",
+                "qr_payload": "https://t.me/newbot/SonicSetupBot/sonic_pair123_bot",
                 "expires_at": "2027-05-18T00:00:00.000Z",
             }
 
@@ -1015,7 +1015,7 @@ class TestWebServerEndpoints:
 
         resp = self.client.post(
             "/api/messaging/telegram/onboarding/start",
-            json={"bot_name": "Hosted Hermes"},
+            json={"bot_name": "Hosted Sonic"},
         )
 
         assert resp.status_code == 200
@@ -1026,14 +1026,14 @@ class TestWebServerEndpoints:
             (
                 "POST",
                 "/v1/telegram/pairings",
-                {"bot_name": "Hosted Hermes"},
+                {"bot_name": "Hosted Sonic"},
                 None,
             )
         ]
 
     def test_telegram_onboarding_ready_and_apply_never_returns_bot_token(self, monkeypatch):
-        import hermes_cli.web_server as ws
-        from hermes_cli.config import load_config, load_env
+        import sonic_cli.web_server as ws
+        from sonic_cli.config import load_config, load_env
 
         with ws._telegram_onboarding_lock:
             ws._telegram_onboarding_pairings.clear()
@@ -1043,9 +1043,9 @@ class TestWebServerEndpoints:
                 return {
                     "pairing_id": "pair-ready",
                     "poll_token": "poll-secret",
-                    "suggested_username": "hermes_pair_ready_bot",
-                    "deep_link": "https://t.me/newbot/HermesSetupBot/hermes_pair_ready_bot",
-                    "qr_payload": "https://t.me/newbot/HermesSetupBot/hermes_pair_ready_bot",
+                    "suggested_username": "sonic_pair_ready_bot",
+                    "deep_link": "https://t.me/newbot/SonicSetupBot/sonic_pair_ready_bot",
+                    "qr_payload": "https://t.me/newbot/SonicSetupBot/sonic_pair_ready_bot",
                     "expires_at": "2027-05-18T00:00:00.000Z",
                 }
             assert method == "GET"
@@ -1053,7 +1053,7 @@ class TestWebServerEndpoints:
             assert bearer_token == "poll-secret"
             return {
                 "status": "ready",
-                "bot_username": "hermes_pair_ready_bot",
+                "bot_username": "sonic_pair_ready_bot",
                 "owner_user_id": 123456789,
                 "token": "123456:SECRET",
             }
@@ -1079,7 +1079,7 @@ class TestWebServerEndpoints:
         assert applied_data == {
             "ok": True,
             "platform": "telegram",
-            "bot_username": "hermes_pair_ready_bot",
+            "bot_username": "sonic_pair_ready_bot",
             "needs_restart": True,
         }
         env = load_env()
@@ -1088,7 +1088,7 @@ class TestWebServerEndpoints:
         assert load_config()["platforms"]["telegram"]["enabled"] is True
 
     def test_telegram_onboarding_apply_requires_ready_pairing(self, monkeypatch):
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         with ws._telegram_onboarding_lock:
             ws._telegram_onboarding_pairings.clear()
@@ -1097,9 +1097,9 @@ class TestWebServerEndpoints:
             return {
                 "pairing_id": "pair-waiting",
                 "poll_token": "poll-secret",
-                "suggested_username": "hermes_pair_waiting_bot",
-                "deep_link": "https://t.me/newbot/HermesSetupBot/hermes_pair_waiting_bot",
-                "qr_payload": "https://t.me/newbot/HermesSetupBot/hermes_pair_waiting_bot",
+                "suggested_username": "sonic_pair_waiting_bot",
+                "deep_link": "https://t.me/newbot/SonicSetupBot/sonic_pair_waiting_bot",
+                "qr_payload": "https://t.me/newbot/SonicSetupBot/sonic_pair_waiting_bot",
                 "expires_at": "2027-05-18T00:00:00.000Z",
             }
 
@@ -1117,7 +1117,7 @@ class TestWebServerEndpoints:
         assert "not ready" in resp.json()["detail"]
 
     def test_telegram_onboarding_cancel_clears_local_session(self, monkeypatch):
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         with ws._telegram_onboarding_lock:
             ws._telegram_onboarding_pairings.clear()
@@ -1126,9 +1126,9 @@ class TestWebServerEndpoints:
             return {
                 "pairing_id": "pair-cancel",
                 "poll_token": "poll-secret",
-                "suggested_username": "hermes_pair_cancel_bot",
-                "deep_link": "https://t.me/newbot/HermesSetupBot/hermes_pair_cancel_bot",
-                "qr_payload": "https://t.me/newbot/HermesSetupBot/hermes_pair_cancel_bot",
+                "suggested_username": "sonic_pair_cancel_bot",
+                "deep_link": "https://t.me/newbot/SonicSetupBot/sonic_pair_cancel_bot",
+                "qr_payload": "https://t.me/newbot/SonicSetupBot/sonic_pair_cancel_bot",
                 "expires_at": "2027-05-18T00:00:00.000Z",
             }
 
@@ -1797,14 +1797,14 @@ class TestNewEndpoints:
         assert profiles["cloned"]["skill_count"] == 1
 
     def test_profiles_create_with_clone_from_duplicates_source(self, monkeypatch):
-        from hermes_constants import get_hermes_home
-        import hermes_cli.profiles as profiles_mod
+        from sonic_constants import get_sonic_home
+        import sonic_cli.profiles as profiles_mod
 
         monkeypatch.setattr(profiles_mod, "create_wrapper_script", lambda name: None)
 
         # Create a source profile and give it a distinctive skill.
         assert self.client.post("/api/profiles", json={"name": "source-prof"}).status_code == 200
-        source_skill = get_hermes_home() / "profiles" / "source-prof" / "skills" / "custom" / "src-skill"
+        source_skill = get_sonic_home() / "profiles" / "source-prof" / "skills" / "custom" / "src-skill"
         source_skill.mkdir(parents=True)
         (source_skill / "SKILL.md").write_text("---\nname: src-skill\n---\n", encoding="utf-8")
 
@@ -1816,7 +1816,7 @@ class TestNewEndpoints:
 
         assert resp.status_code == 200
         cloned_skill = (
-            get_hermes_home() / "profiles" / "source-prof-copy" / "skills" / "custom" / "src-skill" / "SKILL.md"
+            get_sonic_home() / "profiles" / "source-prof-copy" / "skills" / "custom" / "src-skill" / "SKILL.md"
         )
         assert cloned_skill.exists()
 

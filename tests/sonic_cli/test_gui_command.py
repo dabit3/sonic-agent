@@ -479,13 +479,13 @@ def test_gui_retries_pack_once_after_purging_build_cache(tmp_path, monkeypatch):
     pack_ok = subprocess.CompletedProcess(["npm", "run", "pack"], 0)
     launch_ok = subprocess.CompletedProcess([str(packaged_exe)], 0)
 
-    with patch("hermes_cli.main.shutil.which", return_value="/usr/bin/npm"), \
-         patch("hermes_cli.main._run_npm_install_deterministic", return_value=install_ok), \
-         patch("hermes_cli.main._desktop_macos_relaunchable_fixup"), \
-         patch("hermes_cli.main._desktop_linux_sandbox_fixup", return_value=True), \
-         patch("hermes_cli.main._write_desktop_build_stamp"), \
-         patch("hermes_cli.main._purge_electron_build_cache", return_value=[Path("/c/electron.zip")]) as mock_purge, \
-         patch("hermes_cli.main.subprocess.run", side_effect=[pack_fail, pack_ok, launch_ok]) as mock_run, \
+    with patch("sonic_cli.main.shutil.which", return_value="/usr/bin/npm"), \
+         patch("sonic_cli.main._run_npm_install_deterministic", return_value=install_ok), \
+         patch("sonic_cli.main._desktop_macos_relaunchable_fixup"), \
+         patch("sonic_cli.main._desktop_linux_sandbox_fixup", return_value=True), \
+         patch("sonic_cli.main._write_desktop_build_stamp"), \
+         patch("sonic_cli.main._purge_electron_build_cache", return_value=[Path("/c/electron.zip")]) as mock_purge, \
+         patch("sonic_cli.main.subprocess.run", side_effect=[pack_fail, pack_ok, launch_ok]) as mock_run, \
          pytest.raises(SystemExit) as exc:
         cli_main.cmd_gui(_ns())
 
@@ -507,11 +507,11 @@ def test_gui_does_not_retry_when_purge_finds_nothing(tmp_path, monkeypatch, caps
     install_ok = subprocess.CompletedProcess(["npm", "ci"], 0)
     pack_fail = subprocess.CompletedProcess(["npm", "run", "pack"], 1)
 
-    with patch("hermes_cli.main.shutil.which", return_value="/usr/bin/npm"), \
-         patch("hermes_cli.main._run_npm_install_deterministic", return_value=install_ok), \
-         patch("hermes_cli.main._desktop_macos_relaunchable_fixup"), \
-         patch("hermes_cli.main._purge_electron_build_cache", return_value=[]) as mock_purge, \
-         patch("hermes_cli.main.subprocess.run", side_effect=[pack_fail]) as mock_run, \
+    with patch("sonic_cli.main.shutil.which", return_value="/usr/bin/npm"), \
+         patch("sonic_cli.main._run_npm_install_deterministic", return_value=install_ok), \
+         patch("sonic_cli.main._desktop_macos_relaunchable_fixup"), \
+         patch("sonic_cli.main._purge_electron_build_cache", return_value=[]) as mock_purge, \
+         patch("sonic_cli.main.subprocess.run", side_effect=[pack_fail]) as mock_run, \
          pytest.raises(SystemExit) as exc:
         cli_main.cmd_gui(_ns())
 

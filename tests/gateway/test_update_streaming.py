@@ -481,7 +481,7 @@ class TestWatchUpdateProgress:
         discord_adapter.send.assert_called_once()
         # ...and the markers are cleaned up after successful delivery.
         assert not pending_path.exists()
-        assert not (hermes_home / ".update_exit_code").exists()
+        assert not (sonic_home / ".update_exit_code").exists()
 
     @pytest.mark.asyncio
     async def test_prompt_forwarded_only_once(self, tmp_path):

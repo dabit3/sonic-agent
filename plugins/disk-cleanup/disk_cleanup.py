@@ -145,7 +145,7 @@ ALLOWED_CATEGORIES = {
 }
 
 
-# Paths under $HERMES_HOME that must NEVER be deleted by quick(),
+# Paths under $SONIC_HOME that must NEVER be deleted by quick(),
 # regardless of what the stored category says.  This is a defense-in-depth
 # guard against stale tracked.json entries from before #34840.
 _PROTECTED_CRON_PATHS: set[str] = set()
@@ -159,12 +159,12 @@ def _is_protected_cron_path(p: Path) -> bool:
     (``jobs.json``, ``.tick.lock``) — it does NOT blanket-protect
     everything under ``cron/`` because ``cron/output/`` is disposable.
     """
-    # Lazily build the set once per process so HERMES_HOME is resolved
+    # Lazily build the set once per process so SONIC_HOME is resolved
     # exactly once.
     if not _PROTECTED_CRON_PATHS:
-        hermes_home = get_hermes_home()
+        sonic_home = get_sonic_home()
         for parent in ("cron", "cronjobs"):
-            base = hermes_home / parent
+            base = sonic_home / parent
             _PROTECTED_CRON_PATHS.add(str(base))
             _PROTECTED_CRON_PATHS.add(str(base / "jobs.json"))
             _PROTECTED_CRON_PATHS.add(str(base / ".tick.lock"))

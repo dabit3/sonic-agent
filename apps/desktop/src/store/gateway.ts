@@ -1,4 +1,4 @@
-import type { ConnectionState, GatewayEvent } from '@hermes/shared'
+import type { ConnectionState, GatewayEvent } from '@sonic/shared'
 import { atom } from 'nanostores'
 
 import { SonicGateway } from '@/sonic'
@@ -152,7 +152,7 @@ async function reconnectSecondary(entry: Secondary): Promise<void> {
 }
 
 function createSecondary(profile: string): Secondary {
-  const gateway = new HermesGateway()
+  const gateway = new SonicGateway()
 
   const entry: Secondary = {
     profile,
@@ -217,7 +217,7 @@ export async function ensureGatewayForProfile(profile: string): Promise<void> {
 
 // Reconnect the active gateway after a transient request failure. Primary
 // reconnects are owned by use-gateway-boot, so we only drive secondaries here.
-export async function ensureActiveGatewayOpen(): Promise<HermesGateway | null> {
+export async function ensureActiveGatewayOpen(): Promise<SonicGateway | null> {
   if (activeKey === primaryProfile) {
     return primaryGateway
   }
@@ -251,7 +251,7 @@ export function reconnectSecondaryGateways(): void {
 // Keep the idle reaper from killing a backend we still need: ping every live
 // secondary. The active one is pinged separately (touchActiveGatewayBackend).
 export function touchSecondaryGateways(): void {
-  const desktop = window.hermesDesktop
+  const desktop = window.sonicDesktop
 
   for (const entry of secondaries.values()) {
     if (entry.wantOpen) {

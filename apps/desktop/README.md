@@ -27,7 +27,7 @@
 Add `--include-desktop` to the [one-line installer](../../README.md#quick-install) and it sets up the agent and builds the desktop app in one go:
 
 ```bash
-curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --include-desktop
+curl -fsSL https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.sh | bash -s -- --include-desktop
 ```
 
 Already have the Sonic CLI? Just run:
@@ -40,7 +40,7 @@ It builds and launches the GUI against your existing install — same config, ke
 
 ### Prebuilt installers
 
-Prebuilt installers are built and distributed via [the Sonic Desktop website.](https://sonic-agent.nousresearch.com/desktop).
+Prebuilt installers are built and distributed via [the Sonic Desktop website.](https://github.com/dabit3/sonic-agent/releases/latest).
 
 ---
 

@@ -31,7 +31,7 @@ export function useGatewayRequest() {
   useEffect(
     () =>
       $gateway.subscribe(gateway => {
-        gatewayRef.current = gateway as HermesGateway | null
+        gatewayRef.current = gateway as SonicGateway | null
       }),
     []
   )

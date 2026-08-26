@@ -827,7 +827,7 @@ def test_failed_docker_run_cleans_up_orphaned_container(monkeypatch):
     assert len(cleanup_calls) == 1, "docker rm should be called once for the orphaned container"
     rm_cmd = cleanup_calls[0]
     assert rm_cmd[1] == "rm" and rm_cmd[2] == "-f"
-    assert rm_cmd[3].startswith("hermes-"), "should remove the container by its generated name"
+    assert rm_cmd[3].startswith("sonic-"), "should remove the container by its generated name"
 
 
 def test_docker_run_timeout_cleans_up_orphaned_container(monkeypatch):
@@ -862,7 +862,7 @@ def test_docker_run_timeout_cleans_up_orphaned_container(monkeypatch):
     assert len(cleanup_calls) == 1, "docker rm should be called once for the orphaned container"
     rm_cmd = cleanup_calls[0]
     assert rm_cmd[1] == "rm" and rm_cmd[2] == "-f"
-    assert rm_cmd[3].startswith("hermes-"), "should remove the container by its generated name"
+    assert rm_cmd[3].startswith("sonic-"), "should remove the container by its generated name"
 
 
 def test_no_reuse_when_persist_across_processes_disabled(monkeypatch):
@@ -1725,7 +1725,7 @@ def test_is_container_gone_matches_removal_errors(monkeypatch):
 
     # Positive: the daemon's "container gone" phrasings.
     assert env._is_container_gone(
-        "Error response from daemon: No such container: hermes-abc123"
+        "Error response from daemon: No such container: sonic-abc123"
     )
     assert env._is_container_gone("Error: No such container: deadbeef")
     assert env._is_container_gone(
@@ -1755,7 +1755,7 @@ def test_execute_recovers_from_out_of_band_removal(monkeypatch):
 
     # First execute() sees a dead container; second (post-recovery) succeeds.
     outputs = iter([
-        {"output": "Error response from daemon: No such container: hermes-x", "returncode": 1},
+        {"output": "Error response from daemon: No such container: sonic-x", "returncode": 1},
         {"output": "ok", "returncode": 0},
     ])
 

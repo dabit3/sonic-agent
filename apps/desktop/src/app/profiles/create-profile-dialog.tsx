@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { createProfile, updateProfileSoul } from '@/hermes'
+import { createProfile, updateProfileSoul } from '@/sonic'
 import { AlertTriangle } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
@@ -87,7 +87,7 @@ export function CreateProfileDialog({
         <DialogHeader>
           <DialogTitle>New profile</DialogTitle>
           <DialogDescription>
-            Profiles are independent Hermes environments: separate config, skills, and SOUL.md.
+            Profiles are independent Sonic environments: separate config, skills, and SOUL.md.
           </DialogDescription>
         </DialogHeader>
 

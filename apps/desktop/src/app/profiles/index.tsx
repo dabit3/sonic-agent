@@ -114,7 +114,7 @@ export function ProfilesView({ onClose }: ProfilesViewProps) {
 
   const handleMakeDefault = useCallback(async (profile: ProfileInfo) => {
     try {
-      // Relaunches the backend under this profile's HERMES_HOME and reloads the
+      // Relaunches the backend under this profile's SONIC_HOME and reloads the
       // window, so control normally doesn't return here.
       await switchProfile(profile.name)
     } catch (err) {

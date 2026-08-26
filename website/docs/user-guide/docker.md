@@ -22,7 +22,7 @@ Some VPS providers (Hetzner Cloud, and several others) offer a browser-based
 console for managing hosts. These consoles transmit special characters
 incorrectly — `:` may arrive as `;`, `@` may be mis-rendered, and non-English
 keyboard layouts fare worse — which silently corrupts `docker run` arguments
-like `-v ~/.hermes:/opt/data`, `-e KEY=value`, and pasted API keys / tokens.
+like `-v ~/.sonic:/opt/data`, `-e KEY=value`, and pasted API keys / tokens.
 
 **Connect over SSH instead** (`ssh root@<host>`) for copy-paste-safe command
 entry. If you must use the browser console, type the commands manually
@@ -742,7 +742,7 @@ docker run -d \
   --name sonic \
   -e PUID=1000 -e PGID=10 \
   -v /volume1/docker/sonic:/opt/data \
-  nousresearch/hermes-agent gateway run
+  nousresearch/sonic-agent gateway run
 ```
 
 `docker exec sonic <cmd>` automatically drops to UID 10000 too — see [`docker exec` automatically drops to the `sonic` user](#docker-exec-automatically-drops-to-the-sonic-user) for details and the per-invocation opt-out.

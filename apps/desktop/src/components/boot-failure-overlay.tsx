@@ -62,7 +62,7 @@ export function BootFailureOverlay() {
     let cancelled = false
 
     void (async () => {
-      const desktop = window.hermesDesktop
+      const desktop = window.sonicDesktop
 
       if (!desktop?.getConnectionConfig) {
         return

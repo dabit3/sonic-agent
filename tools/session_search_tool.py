@@ -119,8 +119,8 @@ def _resolve_profile_db(profile: str):
     if profile is None or not str(profile).strip():
         return None
 
-    from hermes_cli import profiles as profiles_mod
-    from hermes_state import SessionDB
+    from sonic_cli import profiles as profiles_mod
+    from sonic_state import SessionDB
 
     canon = profiles_mod.normalize_profile_name(profile)
     profiles_mod.validate_profile_name(canon)
@@ -142,8 +142,8 @@ def _locate_session_db(session_id: str):
     from pathlib import Path
 
     try:
-        from hermes_cli import profiles as profiles_mod
-        from hermes_state import SessionDB
+        from sonic_cli import profiles as profiles_mod
+        from sonic_state import SessionDB
     except Exception:
         return None, None
 
@@ -747,7 +747,7 @@ SESSION_SEARCH_SCHEMA = {
             "profile": {
                 "type": "string",
                 "description": (
-                    "Optional. Read sessions from another Hermes profile's database "
+                    "Optional. Read sessions from another Sonic profile's database "
                     "(read-only). Use when resolving an `@session:<profile>/<id>` link: "
                     "pass the profile segment here with session_id as the id segment. "
                     "Omit to use the current profile."

@@ -113,7 +113,7 @@ export class SonicGateway extends JsonRpcGatewayClient {
 // should target. Mirrors $activeGatewayProfile, pushed in from the store via
 // setApiRequestProfile so this module needs no store import (avoids a cycle).
 // Electron main consumes request.profile to pick which backend *process* serves
-// the call; each pooled backend already has its own HERMES_HOME, so no backend
+// the call; each pooled backend already has its own SONIC_HOME, so no backend
 // change is needed. Null → primary, so single-profile users are unaffected.
 let _apiProfile: null | string = null
 
@@ -153,7 +153,7 @@ export async function listAllProfileSessions(
   order: 'created' | 'recent' = 'recent',
   profile: 'all' | (string & {}) = 'all'
 ): Promise<PaginatedSessions> {
-  const result = await window.hermesDesktop.api<PaginatedSessions>({
+  const result = await window.sonicDesktop.api<PaginatedSessions>({
     path:
       `/api/profiles/sessions?limit=${limit}&offset=0&min_messages=${Math.max(0, minMessages)}` +
       `&archived=${archived}&order=${order}&profile=${encodeURIComponent(profile)}`

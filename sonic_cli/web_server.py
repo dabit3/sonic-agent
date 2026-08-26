@@ -1645,8 +1645,8 @@ async def get_profiles_sessions(
     if order not in ("created", "recent"):
         raise HTTPException(status_code=400, detail="order must be one of: created, recent")
 
-    from hermes_state import SessionDB
-    from hermes_cli import profiles as profiles_mod
+    from sonic_state import SessionDB
+    from sonic_cli import profiles as profiles_mod
 
     targets: List[Tuple[str, Path]] = []
     if profile and profile != "all":
@@ -1838,7 +1838,7 @@ async def search_sessions(q: str = "", limit: int = 20):
                 seen[root] = payload
 
             # Direct ID matches first: users often paste a session id from CLI,
-            # logs, or another Hermes surface. FTS can't find those unless the
+            # logs, or another Sonic surface. FTS can't find those unless the
             # id happens to appear in message text. search_sessions_by_id is
             # SQL-bounded, so this stays cheap even with thousands of sessions.
             for row in db.search_sessions_by_id(q, limit=safe_limit, include_archived=True):
@@ -3315,7 +3315,7 @@ async def _telegram_onboarding_request(
 
 @app.post("/api/messaging/telegram/onboarding/start")
 async def start_telegram_onboarding(body: TelegramOnboardingStart):
-    bot_name = (body.bot_name or "Hermes Agent").strip() or "Hermes Agent"
+    bot_name = (body.bot_name or "Sonic Agent").strip() or "Sonic Agent"
     payload = await _telegram_onboarding_request(
         "POST",
         "/v1/telegram/pairings",

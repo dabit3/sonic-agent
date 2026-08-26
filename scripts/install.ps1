@@ -1939,7 +1939,7 @@ function Install-NodeDeps {
 # the per-user Electron download cache - most often a partial download resumed
 # into the same file, leaving concatenated junk - makes electron-builder's
 # `app-builder unpack-electron` extract a tree MISSING the electron binary, so
-# the final `electron` -> `Hermes` rename dies with ENOENT and every re-run
+# the final `electron` -> `Sonic` rename dies with ENOENT and every re-run
 # repeats the broken extraction forever.
 #
 # We deliberately do not validate the zip ourselves: the common
@@ -2118,7 +2118,7 @@ function Install-Desktop {
         $code = $LASTEXITCODE
         if ($code -ne 0) {
             # A corrupt cached Electron zip makes `pack` fail with an opaque
-            # ENOENT on the final `electron` -> `Hermes` rename: app-builder's
+            # ENOENT on the final `electron` -> `Sonic` rename: app-builder's
             # unpack-electron extracted a partial tree (missing the binary) from
             # the bad zip, and re-running reuses the poisoned cache forever.
             # Purge the cached download + any stale unpacked output and retry
