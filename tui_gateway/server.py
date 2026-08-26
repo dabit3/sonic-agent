@@ -4252,7 +4252,13 @@ def _notification_poller_loop(
     even if the process was started by a different session. This matches
     CLI/gateway behavior (single session per process).
     """
-    from tools.process_registry import process_registry, format_process_notification
+    try:
+        from tools.process_registry import process_registry, format_process_notification
+    except BaseException:
+        # The daemon thread can start while the interpreter is already
+        # finalizing (short-lived processes / tests): imports fail there and an
+        # excepthook write to a closing stderr aborts the process.
+        return
 
     _emitted = set()  # dedup re-queued events so same completion isn't emitted 50 times while session is busy
     while not stop_event.is_set() and not session.get("_finalized"):
