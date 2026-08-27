@@ -24,7 +24,7 @@ curl -fsSL https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/ins
 
 Run in powershell:
 ```powershell
-iex (irm https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.ps1) 
+iex (irm https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/install.ps1)
 ```
 
 If you want to install & run Sonic Desktop after a command-line only install, simply run
