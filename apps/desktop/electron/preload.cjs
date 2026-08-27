@@ -1,12 +1,21 @@
 const { contextBridge, ipcRenderer, webUtils } = require('electron')
 
 contextBridge.exposeInMainWorld('sonicDesktop', {
-  getConnection: () => ipcRenderer.invoke('sonic:connection'),
+  getConnection: profile => ipcRenderer.invoke('sonic:connection', profile),
+  touchBackend: profile => ipcRenderer.invoke('sonic:backend:touch', profile),
+  getGatewayWsUrl: profile => ipcRenderer.invoke('sonic:gateway:ws-url', profile),
   getBootProgress: () => ipcRenderer.invoke('sonic:boot-progress:get'),
-  getConnectionConfig: () => ipcRenderer.invoke('sonic:connection-config:get'),
+  getConnectionConfig: profile => ipcRenderer.invoke('sonic:connection-config:get', profile),
   saveConnectionConfig: payload => ipcRenderer.invoke('sonic:connection-config:save', payload),
   applyConnectionConfig: payload => ipcRenderer.invoke('sonic:connection-config:apply', payload),
   testConnectionConfig: payload => ipcRenderer.invoke('sonic:connection-config:test', payload),
+  probeConnectionConfig: remoteUrl => ipcRenderer.invoke('sonic:connection-config:probe', remoteUrl),
+  oauthLoginConnectionConfig: remoteUrl => ipcRenderer.invoke('sonic:connection-config:oauth-login', remoteUrl),
+  oauthLogoutConnectionConfig: remoteUrl => ipcRenderer.invoke('sonic:connection-config:oauth-logout', remoteUrl),
+  profile: {
+    get: () => ipcRenderer.invoke('sonic:profile:get'),
+    set: name => ipcRenderer.invoke('sonic:profile:set', name)
+  },
   api: request => ipcRenderer.invoke('sonic:api', request),
   notify: payload => ipcRenderer.invoke('sonic:notify', payload),
   requestMicrophoneAccess: () => ipcRenderer.invoke('sonic:requestMicrophoneAccess'),
@@ -31,6 +40,11 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   setPreviewShortcutActive: active => ipcRenderer.send('sonic:previewShortcutActive', Boolean(active)),
   openExternal: url => ipcRenderer.invoke('sonic:openExternal', url),
   fetchLinkTitle: url => ipcRenderer.invoke('sonic:fetchLinkTitle', url),
+  settings: {
+    getDefaultProjectDir: () => ipcRenderer.invoke('sonic:setting:defaultProjectDir:get'),
+    setDefaultProjectDir: dir => ipcRenderer.invoke('sonic:setting:defaultProjectDir:set', dir),
+    pickDefaultProjectDir: () => ipcRenderer.invoke('sonic:setting:defaultProjectDir:pick')
+  },
   revealLogs: () => ipcRenderer.invoke('sonic:logs:reveal'),
   getRecentLogs: () => ipcRenderer.invoke('sonic:logs:recent'),
   readDir: dirPath => ipcRenderer.invoke('sonic:fs:readDir', dirPath),
@@ -78,6 +92,11 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
     ipcRenderer.on('sonic:backend-exit', listener)
     return () => ipcRenderer.removeListener('sonic:backend-exit', listener)
   },
+  onPowerResume: callback => {
+    const listener = () => callback()
+    ipcRenderer.on('sonic:power-resume', listener)
+    return () => ipcRenderer.removeListener('sonic:power-resume', listener)
+  },
   onBootProgress: callback => {
     const listener = (_event, payload) => callback(payload)
     ipcRenderer.on('sonic:boot-progress', listener)
@@ -91,6 +110,7 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   getBootstrapState: () => ipcRenderer.invoke('sonic:bootstrap:get'),
   resetBootstrap: () => ipcRenderer.invoke('sonic:bootstrap:reset'),
   repairBootstrap: () => ipcRenderer.invoke('sonic:bootstrap:repair'),
+  cancelBootstrap: () => ipcRenderer.invoke('sonic:bootstrap:cancel'),
   onBootstrapEvent: callback => {
     const listener = (_event, payload) => callback(payload)
     ipcRenderer.on('sonic:bootstrap:event', listener)

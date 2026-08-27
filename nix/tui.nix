@@ -1,34 +1,32 @@
 # nix/tui.nix — Sonic TUI (Ink/React) compiled with tsc and bundled
 { pkgs, sonicNpmLib, ... }:
 let
-  src = ../ui-tui;
-  npmDeps = pkgs.fetchNpmDeps {
-    inherit src;
-    hash = "sha256-qts8wiSNxu9pH/I0pM9Cn/YExxhGcCkqQydFJ8eE934=";
-  };
-
   npm = sonicNpmLib.mkNpmPassthru { folder = "ui-tui"; attr = "tui"; pname = "sonic-tui"; };
 
-  packageJson = builtins.fromJSON (builtins.readFile (src + "/package.json"));
+  packageJson = builtins.fromJSON (builtins.readFile (npm.src + "/ui-tui/package.json"));
   version = packageJson.version;
 in
 pkgs.buildNpmPackage (npm // {
   pname = "sonic-tui";
-  inherit src npmDeps version;
+  inherit version;
 
   doCheck = false;
-  npmFlags = [ "--legacy-peer-deps" ];
+
+  buildPhase = ''
+    # esbuild bundles everything — no need for tsc or vite.
+    # Run from the workspace root where node_modules/ lives.
+    node ui-tui/scripts/build.mjs
+  '';
 
   installPhase = ''
     runHook preInstall
 
     mkdir -p $out/lib/sonic-tui
-
-    # Single self-contained bundle built by scripts/build.mjs (esbuild).
-    cp -r dist $out/lib/sonic-tui/dist
+    # esbuild writes to ui-tui/dist/ from the source root (no cd).
+    cp -r ui-tui/dist $out/lib/sonic-tui/dist
 
     # package.json kept for "type": "module" resolution on `node dist/entry.js`.
-    cp package.json $out/lib/sonic-tui/
+    cp ui-tui/package.json $out/lib/sonic-tui/
 
     runHook postInstall
   '';

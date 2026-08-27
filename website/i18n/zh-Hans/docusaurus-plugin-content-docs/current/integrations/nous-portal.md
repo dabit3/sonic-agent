@@ -14,7 +14,7 @@ description: "一个订阅，300+ 前沿模型，Tool Gateway，以及 Nous Chat
 sonic setup --portal
 ```
 
-这条命令会完成 Portal OAuth 认证，在 `config.yaml` 中将 Nous 设为推理提供商，并开启 Tool Gateway。完成后即可立即运行 `sonic chat`。
+这条命令会完成 Portal OAuth 认证，让你选择一个 Nous 模型，在 `config.yaml` 中将 Nous 设为推理提供商，并开启 Tool Gateway。完成后即可立即运行 `sonic chat`。
 
 还没有订阅？前往 [portal.nousresearch.com/manage-subscription](https://portal.nousresearch.com/manage-subscription) 注册，然后回来运行上面的命令。
 
@@ -95,9 +95,10 @@ sonic setup --portal
 
 1. 打开浏览器跳转至 portal.nousresearch.com 进行 OAuth 登录
 2. 将 refresh token 存储至 `~/.sonic/auth.json`
-3. 在 `~/.sonic/config.yaml` 中将 Nous 设为推理提供商
-4. 开启 Tool Gateway（网页、图像、TTS、浏览器路由）
-5. 返回终端，即可运行 `sonic chat`
+3. 让你从精选列表中选择一个 Nous 模型（也可跳过以保留当前模型）
+4. 在 `~/.sonic/config.yaml` 中将 Nous 设为推理提供商（当你选择模型时）
+5. 开启 Tool Gateway（网页、图像、TTS、浏览器路由）
+6. 返回终端，即可运行 `sonic chat`
 
 如果还没有订阅，请先在 [portal.nousresearch.com/manage-subscription](https://portal.nousresearch.com/manage-subscription) 注册。
 
@@ -126,12 +127,15 @@ OAuth 需要浏览器，但回调的 loopback 运行在 Sonic 所在的机器上
 ### 查看当前配置状态
 
 ```bash
-sonic portal status     # 登录状态、订阅信息、模型与 gateway 路由
+sonic portal            # 登录 Nous Portal 并完成配置（一键引导）
+sonic portal info       # 登录状态、订阅信息、模型与 gateway 路由
 sonic portal tools      # 详细的 Tool Gateway 目录及每个工具的路由信息
 sonic portal open       # 在浏览器中打开订阅管理页面
 ```
 
-`sonic portal status`（或直接 `sonic portal`）给出高层概览：
+`sonic portal`（不带子命令）是 `sonic auth add nous --type oauth` 的易记别名——它会登录、让你选择 Nous 模型、把 Nous 设为推理服务商，并提供 Tool Gateway 启用选项（与 `sonic setup --portal` 等价，与首次快速设置走的是同一套 Nous 流程）。
+
+`sonic portal info` 给出高层概览：
 
 ```
   Nous Portal
@@ -230,12 +234,12 @@ Sonic 在每次推理调用时从存储的 Portal refresh token 生成短期 JWT
 
 ## 故障排查
 
-### `sonic portal status` 显示"not logged in"
+### `sonic portal info` 显示"not logged in"
 
 你尚未完成 OAuth 流程，或 refresh token 已被清除。运行：
 
 ```bash
-sonic auth add nous --type oauth
+sonic portal
 ```
 
 或使用 `sonic model` 重新选择 Nous Portal。
@@ -256,7 +260,7 @@ Portal 通过 OpenRouter 代理，因此 OpenRouter 支持的所有模型通常�
 
 ### 账单未出现在我的 Portal 账号中
 
-先检查 `sonic portal status`——如果显示你正在使用其他提供商（`Model: currently openrouter` 而非 `using Nous as inference provider`），说明本地配置已偏离。运行 `sonic model`，选择 Nous Portal，下一次请求将通过你的订阅路由。
+先检查 `sonic portal info`——如果显示你正在使用其他提供商（`Model: currently openrouter` 而非 `using Nous as inference provider`），说明本地配置已偏离。运行 `sonic model`，选择 Nous Portal，下一次请求将通过你的订阅路由。
 
 ## 另请参阅
 

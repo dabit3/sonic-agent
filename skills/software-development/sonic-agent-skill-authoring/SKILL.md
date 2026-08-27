@@ -8,7 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   sonic:
     tags: [skills, authoring, sonic-agent, conventions, skill-md]
-    related_skills: [writing-plans, requesting-code-review]
+    related_skills: [plan, requesting-code-review]
 ---
 
 # Authoring Sonic-Agent Skills (in-repo)

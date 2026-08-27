@@ -5,6 +5,7 @@ import { useStore } from '@nanostores/react'
 import { createContext, type FC, type PropsWithChildren, type ReactNode, useContext, useMemo } from 'react'
 import { useShallow } from 'zustand/shallow'
 
+import { AnsiText } from '@/components/assistant-ui/ansi-text'
 import { useElapsedSeconds } from '@/components/chat/activity-timer'
 import { ActivityTimerText } from '@/components/chat/activity-timer-text'
 import { CompactMarkdown } from '@/components/chat/compact-markdown'
@@ -16,13 +17,16 @@ import { BrailleSpinner } from '@/components/ui/braille-spinner'
 import { Codicon } from '@/components/ui/codicon'
 import { CopyButton } from '@/components/ui/copy-button'
 import { FadeText } from '@/components/ui/fade-text'
+import { useI18n } from '@/i18n'
 import { PrettyLink, LinkifiedText as SharedLinkifiedText, urlSlugTitleLabel } from '@/lib/external-link'
 import { AlertCircle, CheckCircle2 } from '@/lib/icons'
 import { useEnterAnimation } from '@/lib/use-enter-animation'
 import { cn } from '@/lib/utils'
+import { $approvalRequest } from '@/store/prompts'
 import { $toolInlineDiffs } from '@/store/tool-diffs'
 import { $toolDisclosureOpen, $toolViewMode, setToolDisclosureOpen } from '@/store/tool-view'
 
+import { APPROVAL_TOOLS, PendingToolApproval } from './tool-approval'
 import {
   groupCopyText as buildGroupCopyText,
   buildToolView,
@@ -185,6 +189,8 @@ function useDisclosureOpen(disclosureId: string, fallbackOpen = false): boolean 
 }
 
 function ToolEntry({ part }: ToolEntryProps) {
+  const { t } = useI18n()
+  const copy = t.assistant.tool
   const messageId = useAuiState(s => s.message.id)
   const messageRunning = useAuiState(selectMessageRunning)
   const embedded = useContext(ToolEmbedContext)
@@ -308,6 +314,7 @@ function ToolEntry({ part }: ToolEntryProps) {
           </span>
         </DisclosureRow>
       </div>
+      {isPending && <PendingToolApproval part={part} />}
       {open && (
         <div className="grid w-full min-w-0 max-w-full gap-1.5 overflow-hidden p-1.5">
           {!embedded && view.previewTarget && isPreviewableTarget(view.previewTarget) && (
@@ -315,7 +322,7 @@ function ToolEntry({ part }: ToolEntryProps) {
           )}
           {view.imageUrl && (
             <div className="max-w-72 overflow-hidden rounded-[0.25rem] border border-(--ui-stroke-tertiary)">
-              <ZoomableImage alt="Tool output" className="h-auto w-full object-cover" src={view.imageUrl} />
+              <ZoomableImage alt={copy.outputAlt} className="h-auto w-full object-cover" src={view.imageUrl} />
             </div>
           )}
           {hasSearchHits && view.searchHits && (
@@ -344,11 +351,41 @@ function ToolEntry({ part }: ToolEntryProps) {
                   )}
                 </div>
               ) : null
+            ) : view.stdout || view.stderr ? (
+              // Stdout + stderr split: render both as labeled blocks. stderr
+              // is intentionally NOT painted destructive — many CLIs log
+              // informational output there.
+              <div className="max-w-full text-xs leading-relaxed text-(--ui-text-secondary)">
+                {view.detailLabel && <p className={TOOL_SECTION_LABEL_CLASS}>{view.detailLabel}</p>}
+                {view.stdout && (
+                  <div className="space-y-0.5">
+                    {view.stderr && <p className={TOOL_SECTION_LABEL_CLASS}>stdout</p>}
+                    <pre className={cn(TOOL_SECTION_PRE_CLASS, 'whitespace-pre-wrap wrap-anywhere')}>
+                      {view.rendersAnsi ? <AnsiText text={view.stdout} /> : view.stdout}
+                    </pre>
+                  </div>
+                )}
+                {view.stderr && (
+                  <div className={cn('space-y-0.5', view.stdout && 'mt-1.5')}>
+                    <p className={TOOL_SECTION_LABEL_CLASS}>stderr</p>
+                    <pre
+                      className={cn(
+                        TOOL_SECTION_PRE_CLASS,
+                        'whitespace-pre-wrap wrap-anywhere text-(--ui-text-tertiary)'
+                      )}
+                    >
+                      {view.rendersAnsi ? <AnsiText text={view.stderr} /> : view.stderr}
+                    </pre>
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="max-w-full text-xs leading-relaxed text-(--ui-text-secondary)">
                 {view.detailLabel && <p className={TOOL_SECTION_LABEL_CLASS}>{view.detailLabel}</p>}
                 {renderDetailAsCode ? (
-                  <pre className={cn(TOOL_SECTION_PRE_CLASS, 'whitespace-pre-wrap wrap-anywhere')}>{view.detail}</pre>
+                  <pre className={cn(TOOL_SECTION_PRE_CLASS, 'whitespace-pre-wrap wrap-anywhere')}>
+                    {view.rendersAnsi ? <AnsiText text={view.detail} /> : view.detail}
+                  </pre>
                 ) : (
                   <CompactMarkdown className={cn(TOOL_SECTION_SURFACE_CLASS, 'wrap-anywhere')} text={view.detail} />
                 )}
@@ -356,7 +393,7 @@ function ToolEntry({ part }: ToolEntryProps) {
             ))}
           {showRawSearchDrilldown && (
             <details className="max-w-full">
-              <summary className={cn(TOOL_SECTION_LABEL_CLASS, 'cursor-pointer mb-0')}>Raw response</summary>
+              <summary className={cn(TOOL_SECTION_LABEL_CLASS, 'mb-0')}>{copy.rawResponse}</summary>
               <pre className={cn(TOOL_SECTION_PRE_CLASS, 'mt-1 whitespace-pre-wrap wrap-anywhere')}>
                 {view.rawResult}
               </pre>
@@ -398,6 +435,8 @@ export const ToolGroupSlot: FC<PropsWithChildren<{ endIndex: number; startIndex:
   endIndex,
   startIndex
 }) => {
+  const { t } = useI18n()
+  const copy = t.assistant.tool
   const messageId = useAuiState(s => s.message.id)
   const messageRunning = useAuiState(selectMessageRunning)
 
@@ -425,7 +464,24 @@ export const ToolGroupSlot: FC<PropsWithChildren<{ endIndex: number; startIndex:
   // tools append to the end), so user-driven open/close persists across
   // streaming.
   const disclosureId = `tool-group:${messageId}:${startIndex}`
-  const open = useDisclosureOpen(disclosureId)
+  const userOpen = useDisclosureOpen(disclosureId)
+
+  // A live approval request must NEVER be buried inside a collapsed group —
+  // the user has to be able to act on it without first expanding "Tool
+  // actions · N steps". When an approval is in flight and this group hosts
+  // the pending approval-eligible tool that raised it (terminal /
+  // execute_code with no result yet — see tool-approval.tsx for why the
+  // single pending row IS the one that raised it), force the body open so
+  // the inline ApprovalBar surfaces. The user can still collapse the group
+  // again once the approval resolves.
+  const approvalRequest = useStore($approvalRequest)
+
+  const hostsLiveApproval =
+    approvalRequest !== null &&
+    messageRunning &&
+    visibleParts.some(p => p.result === undefined && APPROVAL_TOOLS.has(p.toolName))
+
+  const open = userOpen || hostsLiveApproval
   const enterRef = useEnterAnimation(messageRunning, disclosureId)
 
   const status = groupStatus(visibleParts)
@@ -438,11 +494,11 @@ export const ToolGroupSlot: FC<PropsWithChildren<{ endIndex: number; startIndex:
       ? ''
       : displayStatus === 'warning'
         ? failedStepCount === 1
-          ? 'Recovered after 1 failed step'
-          : `Recovered after ${failedStepCount} failed steps`
+          ? copy.recoveredOne
+          : copy.recoveredMany(failedStepCount)
         : failedStepCount === 1
-          ? '1 step failed'
-          : `${failedStepCount} steps failed`
+          ? copy.failedOne
+          : copy.failedMany(failedStepCount)
 
   const groupCopyText = useMemo(() => buildGroupCopyText(visibleParts), [visibleParts])
   const previewTargets = useMemo(() => groupPreviewTargets(visibleParts), [visibleParts])
@@ -457,7 +513,7 @@ export const ToolGroupSlot: FC<PropsWithChildren<{ endIndex: number; startIndex:
             open={open}
             trailing={
               !isRunning && groupCopyText ? (
-                <CopyButton appearance="tool-row" label="Copy activity" stopPropagation text={groupCopyText} />
+                <CopyButton appearance="tool-row" label={copy.copyActivity} stopPropagation text={groupCopyText} />
               ) : undefined
             }
           >

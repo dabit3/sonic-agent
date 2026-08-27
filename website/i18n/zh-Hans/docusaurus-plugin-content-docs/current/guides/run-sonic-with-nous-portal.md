@@ -57,7 +57,7 @@ sonic auth add nous --type oauth --manual-paste
 ## 3. 验证配置是否成功
 
 ```bash
-sonic portal status
+sonic portal info
 ```
 
 你应该看到：
@@ -95,7 +95,7 @@ Hey, search the web for "Sonic Agent release notes" and summarize the top 3 hits
 
 ## 5. 选择你实际需要的模型
 
-`sonic setup --portal` 后的默认模型是一个合理的通用模型，但订阅的意义在于可以访问完整的模型目录。在会话中使用 `/model` 切换：
+`sonic setup --portal` 会在设置过程中让你选择模型，但订阅的意义在于可以访问完整的模型目录——随时可在会话中使用 `/model` 切换：
 
 ```bash
 /model anthropic/claude-sonnet-4.6     # 最佳通用 agentic 模型
@@ -175,12 +175,12 @@ sonic cron add "Daily AI news summary" "every day at 9am" \
 
 ## 故障排查
 
-### 运行 `sonic setup --portal` 后，`sonic portal status` 显示"not logged in"
+### 运行 `sonic setup --portal` 后，`sonic portal info` 显示"not logged in"
 
 OAuth 流程未完成。重新运行：
 
 ```bash
-sonic auth add nous --type oauth
+sonic portal
 ```
 
 如果浏览器未打开或回调失败，你可能在远程/无头主机上——参见 [OAuth over SSH](/guides/oauth-over-ssh) 了解端口转发和手动粘贴的解决方案。
@@ -200,7 +200,7 @@ sonic model
 # 选择 Nous Portal
 ```
 
-使用 `sonic portal status` 重新验证。
+使用 `sonic portal info` 重新验证。
 
 ### Tool Gateway 工具显示合作方名称而非"via Nous Portal"
 
@@ -236,7 +236,7 @@ Portal 目录镜像了 OpenRouter 的模型列表（300+ 个）。如果某个�
 
 ### 账单未出现在我的 Portal 账号中
 
-`sonic portal status` 会告诉你是否真的在通过 Portal 路由，还是使用了其他 provider。常见原因：
+`sonic portal info` 会告诉你是否真的在通过 Portal 路由，还是使用了其他 provider。常见原因：
 
 - `model.provider` 设置为 `openrouter`/`anthropic`/等，而非 `nous`
 - OAuth refresh 失败后回退到了其他已配置的 provider

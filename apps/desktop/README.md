@@ -1,10 +1,10 @@
 # Sonic Desktop ☤
 
 <p align="center">
-  <a href="https://github.com/NousResearch/hermes-agent/releases"><img src="https://img.shields.io/badge/Download-macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-FFD700?style=for-the-badge" alt="Download"></a>
+  <a href="https://github.com/dabit3/sonic-agent/releases"><img src="https://img.shields.io/badge/Download-macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-FFD700?style=for-the-badge" alt="Download"></a>
   <a href="https://lightning-agent.nousresearch.com/docs/"><img src="https://img.shields.io/badge/Docs-lightning--agent.nousresearch.com-FFD700?style=for-the-badge" alt="Documentation"></a>
   <a href="https://discord.gg/NousResearch"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
-  <a href="https://github.com/NousResearch/hermes-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
+  <a href="https://github.com/dabit3/sonic-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
 </p>
 
 **The native desktop app for [Sonic Agent](../../README.md) — the self-improving AI agent from [Nous Research](https://nousresearch.com).** Same agent, same skills, same memory as the CLI and gateway, in a polished native window — chat with streaming tool output, side-by-side previews, a file browser, voice, and settings, no terminal required. Available for **macOS, Windows, and Linux**.
@@ -24,12 +24,6 @@
 
 ### Install with Sonic (recommended)
 
-Add `--include-desktop` to the [one-line installer](../../README.md#quick-install) and it sets up the agent and builds the desktop app in one go:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash -s -- --include-desktop
-```
-
 Already have the Sonic CLI? Just run:
 
 ```bash
@@ -40,7 +34,7 @@ It builds and launches the GUI against your existing install — same config, ke
 
 ### Prebuilt installers
 
-When a release ships desktop installers they're attached to its [releases page](https://github.com/NousResearch/hermes-agent/releases) — `.dmg` (macOS), `.exe` / `.msi` (Windows), `.AppImage` / `.deb` / `.rpm` (Linux). These are published manually, so the install-with-Sonic path above is the most reliable way to get the latest.
+Prebuilt installers are built and distributed via [the Sonic Desktop website.](https://github.com/dabit3/sonic-agent/releases/latest).
 
 ---
 
@@ -56,10 +50,7 @@ sonic update
 
 ## Requirements
 
-The installer handles everything for you (Python 3.11+, a portable Git, ripgrep). The only thing worth knowing:
-
-- **Windows** — the installer bundles its own Git and Python; no admin rights or system changes required.
-- **macOS / Linux** — uses your system Python 3.11+ (installed automatically if missing).
+The installer handles everything for you (Python 3.11+, a portable Git, ripgrep).
 
 ---
 
@@ -94,7 +85,7 @@ Installers are built and uploaded to GitHub Releases manually. macOS/Windows sig
 
 ### How it works
 
-The packaged app ships only the Electron shell. On first launch it installs the Sonic Agent runtime into `SONIC_HOME` (`~/.sonic`, or `%LOCALAPPDATA%\sonic` on Windows) — the **same layout a CLI install uses**, so the two are interchangeable. The renderer (React, in `src/`) talks to a `sonic dashboard --tui` backend over the standard gateway APIs and reuses the embedded TUI rather than reimplementing chat. The install, backend-resolution, and self-update logic all live in `electron/main.cjs`.
+The packaged app ships only the Electron shell. On first launch it installs the Sonic Agent runtime into `SONIC_HOME` (`~/.sonic`, or `%LOCALAPPDATA%\sonic` on Windows) — the **same layout a CLI install uses**, so the two are interchangeable. The renderer (React, in `src/`) talks to a `sonic dashboard` backend over the standard gateway APIs and reuses the embedded TUI rather than reimplementing chat. The install, backend-resolution, and self-update logic all live in `electron/main.cjs`.
 
 ### Verification
 
@@ -111,14 +102,27 @@ npm run test:desktop:all
 
 Boot logs land in `SONIC_HOME/logs/desktop.log` (includes backend output and recent Python tracebacks) — check it first if the app reports a boot failure.
 
+**macOS / Linux:**
+
 ```bash
 # Force a clean first-launch setup
-rm "$HOME/.sonic/sonic-agent/.sonic-bootstrap-complete"   # macOS/Linux
+rm "$HOME/.sonic/sonic-agent/.sonic-bootstrap-complete"
 # Rebuild a broken Python venv
-rm -rf "$HOME/.sonic/sonic-agent/venv"                     # macOS/Linux
-# Reset a stuck macOS microphone prompt
+rm -rf "$HOME/.sonic/sonic-agent/venv"
+# Reset a stuck macOS microphone prompt (macOS only)
 tccutil reset Microphone com.nousresearch.sonic
 ```
+
+**Windows (PowerShell):**
+
+```powershell
+# Force a clean first-launch setup
+Remove-Item "$env:LOCALAPPDATA\sonic\sonic-agent\.sonic-bootstrap-complete"
+# Rebuild a broken Python venv
+Remove-Item -Recurse -Force "$env:LOCALAPPDATA\sonic\sonic-agent\venv"
+```
+
+> The default Sonic home on Windows is `%LOCALAPPDATA%\sonic`. Set the `SONIC_HOME` env var if you've relocated it.
 
 ---
 
@@ -126,7 +130,7 @@ tccutil reset Microphone com.nousresearch.sonic
 
 - 💬 [Discord](https://discord.gg/NousResearch)
 - 📖 [Documentation](https://lightning-agent.nousresearch.com/docs/)
-- 🐛 [Issues](https://github.com/NousResearch/hermes-agent/issues)
+- 🐛 [Issues](https://github.com/dabit3/sonic-agent/issues)
 
 ---
 

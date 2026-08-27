@@ -50,7 +50,7 @@ Token storage layout
     ``${SONIC_HOME}/google_chat_user_oauth_pending/<sanitized_email>.json``
 - Legacy pending state:
     ``${SONIC_HOME}/google_chat_user_oauth_pending.json``
-- Shared OAuth client (one per host):
+- OAuth client secret (profile-scoped — each profile registers its own):
     ``${SONIC_HOME}/google_chat_user_client_secret.json``
 """
 

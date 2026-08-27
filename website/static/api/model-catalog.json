@@ -69,6 +69,10 @@
           "description": ""
         },
         {
+          "id": "qwen/qwen3.7-plus",
+          "description": ""
+        },
+        {
           "id": "qwen/qwen3.6-35b-a3b",
           "description": ""
         },
@@ -190,6 +194,9 @@
         },
         {
           "id": "qwen/qwen3.7-max"
+        },
+        {
+          "id": "qwen/qwen3.7-plus"
         },
         {
           "id": "qwen/qwen3.6-35b-a3b"

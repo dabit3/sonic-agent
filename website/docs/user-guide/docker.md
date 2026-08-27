@@ -17,6 +17,19 @@ This page covers option 1. The container stores all user data (config, API keys,
 
 If this is your first time running Sonic Agent, create a data directory on the host and start the container interactively to run the setup wizard:
 
+:::caution Avoid browser-based VPS consoles for the install commands
+Some VPS providers (Hetzner Cloud, and several others) offer a browser-based
+console for managing hosts. These consoles transmit special characters
+incorrectly — `:` may arrive as `;`, `@` may be mis-rendered, and non-English
+keyboard layouts fare worse — which silently corrupts `docker run` arguments
+like `-v ~/.sonic:/opt/data`, `-e KEY=value`, and pasted API keys / tokens.
+
+**Connect over SSH instead** (`ssh root@<host>`) for copy-paste-safe command
+entry. If you must use the browser console, type the commands manually
+instead of pasting, and double-check every `:`, `@`, `=`, and `/` in the
+result before hitting Enter.
+:::
+
 ```sh
 mkdir -p ~/.sonic
 docker run -it --rm \
@@ -96,19 +109,24 @@ The dashboard is supervised by s6 — if it crashes, `s6-supervise` restarts it 
 | `SONIC_DASHBOARD` | Set to `1` (or `true` / `yes`) to enable the supervised dashboard service | *(unset — service is registered but stays down)* |
 | `SONIC_DASHBOARD_HOST` | Bind address for the dashboard HTTP server | `0.0.0.0` |
 | `SONIC_DASHBOARD_PORT` | Port for the dashboard HTTP server | `9119` |
-| `SONIC_DASHBOARD_TUI` | Set to `1` to expose the in-browser Chat tab (embedded `sonic --tui` via PTY/WebSocket) | *(unset)* |
 | `SONIC_DASHBOARD_INSECURE` | Set to `1` (or `true` / `yes`) to bind without the OAuth auth gate. Only use on trusted networks behind a reverse proxy without the OAuth contract — the dashboard exposes API keys and session data | *(unset — gate enforced when a `DashboardAuthProvider` is registered)* |
 
 The dashboard inside the container defaults to binding `0.0.0.0` — without it, the published `-p 9119:9119` port would not be reachable from the host. To restrict the bind to container loopback (for sidecar / reverse-proxy setups), set `SONIC_DASHBOARD_HOST=127.0.0.1`.
 
-The dashboard's OAuth auth gate engages automatically when both of the following are true:
+The dashboard's auth gate engages automatically when both of the following are true:
 
 1. The bind host is non-loopback (e.g. the default `0.0.0.0` inside the container), **and**
 2. A `DashboardAuthProvider` plugin is registered.
 
-The bundled `dashboard_auth/nous` provider activates whenever `SONIC_DASHBOARD_OAUTH_CLIENT_ID` is set (see [Web Dashboard → Authentication](features/web-dashboard.md)). With the gate engaged, browser callers are redirected to the configured portal's OAuth flow before they can reach any protected route.
+There are three bundled ways to satisfy the second condition:
 
-If no provider is registered and the bind is non-loopback, the dashboard **fails closed at startup** with a specific error pointing at the missing env var. To opt out of the gate explicitly — for a trusted-LAN deployment behind your own reverse proxy without the OAuth contract — set `SONIC_DASHBOARD_INSECURE=1`. This is the **only** path that disables the gate; the bind host alone never implies `--insecure` (it used to, but that predated the OAuth gate and silently disabled it on every container-deployed dashboard).
+- **Username/password** — the simplest for a self-hosted / on-prem / homelab container on a trusted network or behind a VPN: set `SONIC_DASHBOARD_BASIC_AUTH_USERNAME` + `SONIC_DASHBOARD_BASIC_AUTH_PASSWORD` (and `SONIC_DASHBOARD_BASIC_AUTH_SECRET` for restart-stable sessions). Not suitable for direct public-internet exposure.
+- **OAuth (Nous Portal)** — for hosted/public deploys: the `dashboard_auth/nous` provider activates whenever `SONIC_DASHBOARD_OAUTH_CLIENT_ID` is set.
+- **Self-hosted OIDC** — to authenticate against your own identity provider via standard OpenID Connect: the `dashboard_auth/self_hosted` provider activates when `SONIC_DASHBOARD_OIDC_ISSUER` + `SONIC_DASHBOARD_OIDC_CLIENT_ID` are set.
+
+Whichever you choose, the gate redirects callers to a login page before they can reach any protected route. See [Web Dashboard → Authentication](features/web-dashboard.md#authentication-gated-mode) for all three providers.
+
+If no provider is registered and the bind is non-loopback, the dashboard **fails closed at startup** with a specific error pointing at the missing env var. The `SONIC_DASHBOARD_INSECURE=1` escape hatch disables the gate entirely (the bind host alone never implies `--insecure`), but it serves an unauthenticated dashboard — configure a provider instead unless you have your own auth layer in front.
 
 :::warning `SONIC_DASHBOARD_INSECURE=1` exposes API keys
 Opting out of the OAuth gate serves the dashboard's API surface (including model keys and session data) to anyone who can reach the published port. Only enable it when you have your own auth layer in front, or on a trusted LAN you fully control.
@@ -418,7 +436,7 @@ The official image is based on `debian:13.4` and includes:
 - **[`s6-overlay`](https://github.com/just-containers/s6-overlay) v3** as PID 1 (replaces the older `tini`) — supervises the dashboard and per-profile gateways with auto-restart on crash, reaps zombie subprocesses, and forwards signals.
 
 The container's `ENTRYPOINT` is s6-overlay's `/init`. On boot it:
-1. Runs `/etc/cont-init.d/01-sonic-setup` (= `docker/stage2-hook.sh`) as root: optional UID/GID remap, fixes volume ownership, seeds `.env` / `config.yaml` / `SOUL.md` on first boot, syncs bundled skills.
+1. Runs `/etc/cont-init.d/01-sonic-setup` (= `docker/stage2-hook.sh`) as root: optional UID/GID remap, fixes volume ownership, seeds `.env` / `config.yaml` / `SOUL.md` on first boot, runs non-interactive config-schema migrations unless `SONIC_SKIP_CONFIG_MIGRATION=1`, syncs bundled skills.
 2. Runs `/etc/cont-init.d/02-reconcile-profiles` (= `sonic_cli.container_boot`): walks `$SONIC_HOME/profiles/<name>/`, recreates the per-profile gateway s6 service slot under `/run/service/gateway-<profile>/`, and auto-starts only those whose last recorded state was `running` (see [Per-profile gateway supervision](#per-profile-gateway-supervision)).
 3. Starts the static `main-sonic` and `dashboard` s6-rc services.
 4. Exec's the container's CMD as the main program (`/opt/sonic/docker/main-wrapper.sh`), which routes the arguments the user passed to `docker run`:
@@ -462,7 +480,11 @@ Each profile created with `sonic profile create <name>` automatically gets an s6
 
 ## Upgrading
 
-Pull the latest image and recreate the container. Your data directory is untouched.
+Pull the latest image and recreate the container. Your data directory is
+preserved, and the container runs non-interactive config-schema migrations
+against the mounted `$SONIC_HOME/config.yaml` before starting the gateway.
+When a migration is needed, Sonic writes timestamped backups next to
+`config.yaml` and `.env` first.
 
 ```sh
 docker pull nousresearch/sonic-agent:latest
@@ -480,6 +502,9 @@ Or with Docker Compose:
 docker compose pull
 docker compose up -d
 ```
+
+Set `SONIC_SKIP_CONFIG_MIGRATION=1` only if you need to inspect or migrate the
+persisted config manually before letting the new image rewrite it.
 
 ## Skills and credential files
 
@@ -565,7 +590,7 @@ From inside the Sonic container, the sidecar is reachable at `http://my-tool:<po
 
 ### Broadly useful tools — open an issue or pull request
 
-If a tool is likely to be useful to most Sonic Agent users, consider contributing it upstream rather than carrying it in a private derived image. Open an issue or pull request on the [sonic-agent repository](https://github.com/NousResearch/hermes-agent) describing the tool and its use case. Tools that get bundled into the official image benefit every user and avoid the maintenance overhead of a downstream fork.
+If a tool is likely to be useful to most Sonic Agent users, consider contributing it upstream rather than carrying it in a private derived image. Open an issue or pull request on the [sonic-agent repository](https://github.com/dabit3/sonic-agent) describing the tool and its use case. Tools that get bundled into the official image benefit every user and avoid the maintenance overhead of a downstream fork.
 
 ## Connecting to local inference servers (vLLM, Ollama, etc.)
 
@@ -723,7 +748,7 @@ docker run -d \
   --name sonic \
   -e PUID=1000 -e PGID=10 \
   -v /volume1/docker/sonic:/opt/data \
-  nousresearch/hermes-agent gateway run
+  nousresearch/sonic-agent gateway run
 ```
 
 `docker exec sonic <cmd>` automatically drops to UID 10000 too — see [`docker exec` automatically drops to the `sonic` user](#docker-exec-automatically-drops-to-the-sonic-user) for details and the per-invocation opt-out.

@@ -428,6 +428,51 @@ class TestSonicConfigWriteProtection:
         dangerous, key, desc = detect_dangerous_command("echo x | tee $SONIC_HOME/config.yaml")
         assert dangerous is True
 
+    def test_perl_in_place_config(self):
+        # perl -i performs the same in-place mutation as sed -i but was not
+        # caught by the -e/-c pattern (which targets code evaluation).
+        dangerous, key, desc = detect_dangerous_command(
+            "perl -i -pe 's/approvals.mode: on/approvals.mode: off/' ~/.sonic/config.yaml"
+        )
+        assert dangerous is True
+        assert "in-place" in desc.lower() or "perl" in desc.lower()
+
+    def test_ruby_in_place_config(self):
+        dangerous, key, desc = detect_dangerous_command(
+            "ruby -i -pe 'gsub(/manual/, \"off\")' ~/.sonic/config.yaml"
+        )
+        assert dangerous is True
+
+    def test_perl_in_place_env(self):
+        dangerous, key, desc = detect_dangerous_command(
+            "perl -i -pe 's/SECRET=old/SECRET=new/' ~/.sonic/.env"
+        )
+        assert dangerous is True
+
+    def test_perl_in_place_separate_flag_token(self):
+        # The -i flag does not have to be the first token. `perl -p -i -e`
+        # splits the in-place flag out as its own token after -p; the pattern
+        # must catch it the same as `perl -i -pe`.
+        dangerous, key, desc = detect_dangerous_command(
+            "perl -p -i -e 's/approvals.mode: on/approvals.mode: off/' ~/.sonic/config.yaml"
+        )
+        assert dangerous is True
+
+    def test_perl_in_place_backup_suffix(self):
+        # `perl -i.bak` keeps a backup but still mutates the file in place.
+        dangerous, key, desc = detect_dangerous_command(
+            "perl -i.bak -pe 's/x/y/' ~/.sonic/config.yaml"
+        )
+        assert dangerous is True
+
+    def test_perl_eval_no_inplace_safe(self):
+        # `perl -e` with no -i flag is code evaluation, not file mutation —
+        # the perl/ruby -i pattern must not fire on it.
+        dangerous, key, desc = detect_dangerous_command(
+            "perl -wne 'print' ~/.sonic/config.yaml"
+        )
+        assert dangerous is False
+
     def test_read_is_safe(self):
         # Reading config is not a write — must not trip.
         dangerous, key, desc = detect_dangerous_command("cat ~/.sonic/config.yaml")
@@ -1395,11 +1440,16 @@ class TestApprovalTimeoutIsNotConsent:
 
         self._saved_env = {
             k: os.environ.get(k)
-            for k in ("SONIC_GATEWAY_SESSION", "SONIC_YOLO_MODE",
+            for k in ("SONIC_GATEWAY_SESSION", "SONIC_CRON_SESSION",
+                      "SONIC_YOLO_MODE",
                       "SONIC_SESSION_KEY", "SONIC_INTERACTIVE")
         }
         os.environ.pop("SONIC_YOLO_MODE", None)
         os.environ.pop("SONIC_INTERACTIVE", None)
+        # SONIC_CRON_SESSION takes priority over SONIC_GATEWAY_SESSION in
+        # _is_gateway_approval_context(); a leaked value from a parent cron
+        # process would force the cron path and break these gateway tests.
+        os.environ.pop("SONIC_CRON_SESSION", None)
         os.environ["SONIC_GATEWAY_SESSION"] = "1"
         os.environ["SONIC_SESSION_KEY"] = self.SESSION_KEY
 

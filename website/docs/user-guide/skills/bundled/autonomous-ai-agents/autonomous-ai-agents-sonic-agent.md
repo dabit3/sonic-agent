@@ -21,7 +21,7 @@ Configure, extend, or contribute to Sonic Agent.
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `sonic`, `setup`, `configuration`, `multi-agent`, `spawning`, `cli`, `gateway`, `development` |
-| Related skills | [`claude-code`](/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-claude-code), [`codex`](/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-codex), [`opencode`](/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-opencode) |
+| Related skills | [`claude-code`](/docs/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-claude-code), [`codex`](/docs/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-codex), [`opencode`](/docs/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-opencode) |
 
 ## Reference: full SKILL.md
 
@@ -157,6 +157,10 @@ sonic mcp test NAME        Test connection
 sonic mcp configure NAME   Toggle tool selection
 ```
 
+How the built-in MCP client connects servers (stdio/HTTP), auto-discovers
+their tools, and exposes them as first-class tools, plus catalog install
+(`sonic mcp install <name>`): `skill_view(name="sonic-agent", file_path="references/native-mcp.md")`.
+
 ### Gateway (Messaging Platforms)
 
 ```
@@ -204,6 +208,9 @@ sonic webhook list         List subscriptions
 sonic webhook remove NAME  Remove a subscription
 sonic webhook test NAME    Send a test POST
 ```
+
+Full setup, route config, payload templating, and event-driven agent-run
+patterns: `skill_view(name="sonic-agent", file_path="references/webhooks.md")`.
 
 ### Profiles
 

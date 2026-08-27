@@ -1,5 +1,6 @@
 import { normalizeExternalUrl } from '@/lib/external-link'
 import { extractToolErrorMessage, formatToolResultSummary } from '@/lib/tool-result-summary'
+import { translateNow } from '@/i18n'
 
 export type ToolTone = 'agent' | 'browser' | 'default' | 'file' | 'image' | 'terminal' | 'web'
 export type ToolStatus = 'error' | 'running' | 'success' | 'warning'
@@ -35,7 +36,18 @@ export interface ToolView {
   previewTarget?: string
   rawArgs: string
   rawResult: string
+  /** Set for tools whose output naturally contains ANSI escape codes
+   *  (terminal/execute_code) so the renderer knows to run them through
+   *  the ANSI parser instead of printing them as literals. */
+  rendersAnsi?: boolean
   searchHits?: SearchResultRow[]
+  /** When the backend reports stderr as a separate stream (terminal /
+   *  execute_code), the renderer shows it as its own labeled, neutrally
+   *  tinted block under stdout — distinct from an error tone. */
+  stderr?: string
+  /** When set, the renderer uses stdout+stderr as separate sections and
+   *  ignores the merged `detail`. */
+  stdout?: string
   status: ToolStatus
   subtitle: string
   title: string
@@ -1002,6 +1014,10 @@ function toolDetailText(
   }
 
   if (part.toolName === 'terminal' || part.toolName === 'execute_code') {
+    // Streams are split out into ToolView.stdout / ToolView.stderr by
+    // buildToolView so the renderer can label them separately. The merged
+    // fallback here is only used when the backend doesn't expose either
+    // stream individually.
     const output = firstStringField(resultRecord, ['output', 'stdout', 'stderr'])
 
     const lines = Array.isArray(resultRecord.lines)
@@ -1066,6 +1082,17 @@ function toolDetailText(
 }
 
 export function toolCopyPayload(part: ToolPart, view: ToolView): { label: string; text: string } {
+  const copy = {
+    command: translateNow('assistant.tool.copyCommand'),
+    content: translateNow('assistant.tool.copyContent'),
+    file: translateNow('assistant.tool.copyFile'),
+    output: translateNow('assistant.tool.copyOutput'),
+    path: translateNow('assistant.tool.copyPath'),
+    query: translateNow('assistant.tool.copyQuery'),
+    results: translateNow('assistant.tool.copyResults'),
+    url: translateNow('assistant.tool.copyUrl'),
+    generic: translateNow('common.copy')
+  }
   const args = parseMaybeObject(part.args)
   const result = parseMaybeObject(part.result)
   const detail = view.detail.trim()
@@ -1073,25 +1100,25 @@ export function toolCopyPayload(part: ToolPart, view: ToolView): { label: string
 
   if (part.toolName === 'terminal' || part.toolName === 'execute_code') {
     if (hasSubstantialOutput) {
-      return { label: 'Copy output', text: detail }
+      return { label: copy.output, text: detail }
     }
 
     const command = firstStringField(args, ['command', 'code']) || contextValue(args)
 
     if (command) {
-      return { label: 'Copy command', text: command }
+      return { label: copy.command, text: command }
     }
   }
 
   if (part.toolName === 'web_extract') {
     if (hasSubstantialOutput) {
-      return { label: 'Copy content', text: detail }
+      return { label: copy.content, text: detail }
     }
 
     const url = firstStringField(args, ['url', 'target']) || findFirstUrl(args, result)
 
     if (url) {
-      return { label: 'Copy URL', text: url }
+      return { label: copy.url, text: url }
     }
   }
 
@@ -1099,7 +1126,7 @@ export function toolCopyPayload(part: ToolPart, view: ToolView): { label: string
     const url = firstStringField(args, ['url', 'target']) || findFirstUrl(args, result)
 
     if (url) {
-      return { label: 'Copy URL', text: url }
+      return { label: copy.url, text: url }
     }
   }
 
@@ -1107,25 +1134,25 @@ export function toolCopyPayload(part: ToolPart, view: ToolView): { label: string
     if (view.searchHits?.length) {
       const text = view.searchHits.map(hit => [hit.title, hit.url, hit.snippet].filter(Boolean).join('\n')).join('\n\n')
 
-      return { label: 'Copy results', text }
+      return { label: copy.results, text }
     }
 
     const query = firstStringField(args, ['search_term', 'query']) || contextValue(args)
 
     if (query) {
-      return { label: 'Copy query', text: query }
+      return { label: copy.query, text: query }
     }
   }
 
   if (part.toolName === 'read_file') {
     if (hasSubstantialOutput) {
-      return { label: 'Copy file', text: detail }
+      return { label: copy.file, text: detail }
     }
 
     const path = firstStringField(args, ['path', 'file', 'filepath'])
 
     if (path) {
-      return { label: 'Copy path', text: path }
+      return { label: copy.path, text: path }
     }
   }
 
@@ -1133,15 +1160,15 @@ export function toolCopyPayload(part: ToolPart, view: ToolView): { label: string
     const path = firstStringField(args, ['path', 'file', 'filepath'])
 
     if (path) {
-      return { label: 'Copy path', text: path }
+      return { label: copy.path, text: path }
     }
   }
 
   if (detail) {
-    return { label: 'Copy output', text: detail }
+    return { label: copy.output, text: detail }
   }
 
-  return { label: 'Copy', text: view.title }
+  return { label: copy.generic, text: view.title }
 }
 
 function dynamicTitle(
@@ -1209,6 +1236,18 @@ export function buildToolView(part: ToolPart, inlineDiff: string): ToolView {
 
   const resultCount = status === 'error' ? null : toolResultCount(part, argsRecord, resultRecord)
 
+  // For shell/code tools we surface stdout and stderr as separate labeled
+  // streams in the renderer. Many CLIs use stderr for informational
+  // messages (npm progress, git hints), so we deliberately don't paint
+  // stderr destructively even though it's tagged.
+  const rendersAnsi = part.toolName === 'terminal' || part.toolName === 'execute_code'
+  const stdout = rendersAnsi ? firstStringField(resultRecord, ['stdout']) : ''
+  const stderrRaw = rendersAnsi ? firstStringField(resultRecord, ['stderr']) : ''
+  // Only attach stderr when the backend actually returned it as its own
+  // field — otherwise the merged `detail` already covers it and double-
+  // rendering would duplicate output.
+  const hasSplitStreams = rendersAnsi && (Boolean(stdout) || Boolean(stderrRaw))
+
   return {
     countLabel: resultCount ? formatCountLabel(resultCount) : undefined,
     detail,
@@ -1220,7 +1259,10 @@ export function buildToolView(part: ToolPart, inlineDiff: string): ToolView {
     previewTarget: toolPreviewTarget(part.toolName, argsRecord, resultRecord),
     rawArgs: prettyJson(part.args),
     rawResult: prettyJson(part.result),
+    rendersAnsi: rendersAnsi || undefined,
     searchHits: searchHits?.length ? searchHits : undefined,
+    stderr: hasSplitStreams ? stderrRaw || undefined : undefined,
+    stdout: hasSplitStreams ? stdout || undefined : undefined,
     status,
     subtitle,
     title,

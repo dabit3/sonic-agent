@@ -105,7 +105,9 @@ _sonic_profiles() {{
     local profiles_dir="$HOME/.sonic/profiles"
     local profiles="default"
     if [ -d "$profiles_dir" ]; then
-        profiles="$profiles $(ls "$profiles_dir" 2>/dev/null)"
+        for f in "$profiles_dir"/*/; do
+            [ -d "$f" ] && profiles="$profiles $(basename "$f")"
+        done
     fi
     echo "$profiles"
 }}
@@ -206,7 +208,7 @@ _sonic_profiles() {{
     local -a profiles
     profiles=(default)
     if [[ -d "$HOME/.sonic/profiles" ]]; then
-        profiles+=("${{(@f)$(ls $HOME/.sonic/profiles 2>/dev/null)}}")
+        profiles+=($HOME/.sonic/profiles/*(N/:t))
     fi
     _describe 'profile' profiles
 }}
@@ -260,7 +262,9 @@ def generate_fish(parser: argparse.ArgumentParser) -> str:
         "function __sonic_profiles",
         "    echo default",
         "    if test -d $HOME/.sonic/profiles",
-        "        ls $HOME/.sonic/profiles 2>/dev/null",
+        "        for d in $HOME/.sonic/profiles/*/",
+        "            basename $d",
+        "        end",
         "    end",
         "end",
         "",
