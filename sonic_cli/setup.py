@@ -1649,15 +1649,15 @@ def _is_valid_telegram_bot_token(token: str) -> bool:
 def _setup_telegram_auto_result():
     """Attempt automatic Telegram bot creation via managed QR onboarding."""
     try:
-        from hermes_cli.telegram_managed_bot import auto_setup_telegram_bot_result
+        from sonic_cli.telegram_managed_bot import auto_setup_telegram_bot_result
     except ImportError:
         return None
 
     profile_name: str | None = None
     try:
-        hermes_home = str(get_hermes_home())
-        if "/profiles/" in hermes_home:
-            profile_name = hermes_home.rstrip("/").rsplit("/", 1)[-1]
+        sonic_home = str(get_sonic_home())
+        if "/profiles/" in sonic_home:
+            profile_name = sonic_home.rstrip("/").rsplit("/", 1)[-1]
     except Exception:
         pass
 

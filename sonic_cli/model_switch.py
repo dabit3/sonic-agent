@@ -1150,7 +1150,7 @@ def prewarm_picker_cache_async() -> Optional["_threading.Thread"]:
 
     def _warm() -> None:
         try:
-            from hermes_cli.inventory import load_picker_context
+            from sonic_cli.inventory import load_picker_context
 
             ctx = load_picker_context()
             # Calling this is what populates cached_provider_model_ids() ->

@@ -566,14 +566,14 @@ class TestCustomProviderModelSwitch:
 
 
 class TestCustomProviderDiscoverModels:
-    """#18726: honor ``discover_models: false`` in the terminal ``hermes model``
+    """#18726: honor ``discover_models: false`` in the terminal ``sonic model``
     named-custom flow so the picker shows the configured ``models:`` subset
     instead of the endpoint's full live catalog."""
 
     def test_discover_false_uses_configured_list_and_skips_probe(self, config_home):
         """discover_models: false + configured models → no live probe, the
         configured list is used verbatim."""
-        from hermes_cli.main import _model_flow_named_custom
+        from sonic_cli.main import _model_flow_named_custom
 
         provider_info = {
             "name": "Baidu Coding",
@@ -584,8 +584,8 @@ class TestCustomProviderDiscoverModels:
             "model": "kimi-k2.5",
         }
 
-        with patch("hermes_cli.models.fetch_api_models") as mock_fetch, \
-             patch("hermes_cli.curses_ui.curses_radiolist", side_effect=ImportError), \
+        with patch("sonic_cli.models.fetch_api_models") as mock_fetch, \
+             patch("sonic_cli.curses_ui.curses_radiolist", side_effect=ImportError), \
              patch("builtins.input", return_value="2"), \
              patch("builtins.print"):
             _model_flow_named_custom({}, provider_info)
@@ -596,7 +596,7 @@ class TestCustomProviderDiscoverModels:
     def test_discover_false_saves_choice_from_configured_list(self, config_home):
         """User picks the 2nd configured model; it persists, list-driven."""
         import yaml
-        from hermes_cli.main import _model_flow_named_custom
+        from sonic_cli.main import _model_flow_named_custom
 
         provider_info = {
             "name": "Baidu Coding",
@@ -607,8 +607,8 @@ class TestCustomProviderDiscoverModels:
             "model": "kimi-k2.5",
         }
 
-        with patch("hermes_cli.models.fetch_api_models") as mock_fetch, \
-             patch("hermes_cli.curses_ui.curses_radiolist", side_effect=ImportError), \
+        with patch("sonic_cli.models.fetch_api_models") as mock_fetch, \
+             patch("sonic_cli.curses_ui.curses_radiolist", side_effect=ImportError), \
              patch("builtins.input", return_value="2"), \
              patch("builtins.print"):
             _model_flow_named_custom({}, provider_info)
@@ -622,7 +622,7 @@ class TestCustomProviderDiscoverModels:
     def test_default_still_probes_when_discover_unset(self, config_home):
         """Default (discover_models unset → True) keeps live-probe behaviour
         even when a models: list is configured — Option B opt-out semantics."""
-        from hermes_cli.main import _model_flow_named_custom
+        from sonic_cli.main import _model_flow_named_custom
 
         provider_info = {
             "name": "My Gateway",
@@ -633,10 +633,10 @@ class TestCustomProviderDiscoverModels:
         }
 
         with patch(
-            "hermes_cli.models.fetch_api_models",
+            "sonic_cli.models.fetch_api_models",
             return_value=["live-a", "live-b", "live-c"],
         ) as mock_fetch, \
-             patch("hermes_cli.curses_ui.curses_radiolist", side_effect=ImportError), \
+             patch("sonic_cli.curses_ui.curses_radiolist", side_effect=ImportError), \
              patch("builtins.input", return_value="1"), \
              patch("builtins.print"):
             _model_flow_named_custom({}, provider_info)
@@ -652,7 +652,7 @@ class TestCustomProviderDiscoverModels:
         """When discovery is on but the probe returns nothing, fall back to the
         configured models: list instead of forcing manual entry."""
         import yaml
-        from hermes_cli.main import _model_flow_named_custom
+        from sonic_cli.main import _model_flow_named_custom
 
         provider_info = {
             "name": "My Gateway",
@@ -662,8 +662,8 @@ class TestCustomProviderDiscoverModels:
             "model": "fallback-a",
         }
 
-        with patch("hermes_cli.models.fetch_api_models", return_value=[]), \
-             patch("hermes_cli.curses_ui.curses_radiolist", side_effect=ImportError), \
+        with patch("sonic_cli.models.fetch_api_models", return_value=[]), \
+             patch("sonic_cli.curses_ui.curses_radiolist", side_effect=ImportError), \
              patch("builtins.input", return_value="2"), \
              patch("builtins.print"):
             _model_flow_named_custom({}, provider_info)
@@ -675,7 +675,7 @@ class TestCustomProviderDiscoverModels:
 
     def test_discover_false_string_is_normalised(self, config_home):
         """String 'false' (hand-edited configs) disables discovery too."""
-        from hermes_cli.main import _model_flow_named_custom
+        from sonic_cli.main import _model_flow_named_custom
 
         provider_info = {
             "name": "Baidu Coding",
@@ -686,8 +686,8 @@ class TestCustomProviderDiscoverModels:
             "model": "kimi-k2.5",
         }
 
-        with patch("hermes_cli.models.fetch_api_models") as mock_fetch, \
-             patch("hermes_cli.curses_ui.curses_radiolist", side_effect=ImportError), \
+        with patch("sonic_cli.models.fetch_api_models") as mock_fetch, \
+             patch("sonic_cli.curses_ui.curses_radiolist", side_effect=ImportError), \
              patch("builtins.input", return_value="1"), \
              patch("builtins.print"):
             _model_flow_named_custom({}, provider_info)

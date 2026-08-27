@@ -356,7 +356,7 @@ def test_setup_summary_local_browser_unavailable_without_chromium(
     ``get_nous_subscription_features`` so the surface stays aligned with the
     runtime gate in ``tools.browser_tool.check_browser_requirements``.
     """
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     _clear_provider_env(monkeypatch)
 
     cfg = load_config()
@@ -368,9 +368,9 @@ def test_setup_summary_local_browser_unavailable_without_chromium(
     save_config(cfg)
 
     # Only stub the readiness probes; the feature resolver itself is real.
-    monkeypatch.setattr("hermes_cli.nous_subscription._has_agent_browser", lambda: True)
+    monkeypatch.setattr("sonic_cli.nous_subscription._has_agent_browser", lambda: True)
     monkeypatch.setattr(
-        "hermes_cli.nous_subscription.get_nous_portal_account_info",
+        "sonic_cli.nous_subscription.get_nous_portal_account_info",
         lambda *a, **k: None,
     )
     monkeypatch.setattr("tools.browser_tool._chromium_installed", lambda: False)

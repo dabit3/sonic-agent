@@ -4392,7 +4392,7 @@ def _setup_standard_platform(platform: dict):
         choice = prompt("  Choice [1/2]", default="1")
         if choice.strip() == "1":
             try:
-                from hermes_cli.telegram_managed_bot import (
+                from sonic_cli.telegram_managed_bot import (
                     auto_setup_telegram_bot_result,
                     is_valid_telegram_bot_token,
                 )

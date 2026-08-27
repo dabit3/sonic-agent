@@ -1218,7 +1218,7 @@ def _resolve_runtime_agent_kwargs() -> dict:
 
     model_cfg = _get_model_config()
     max_tokens = None
-    _env_mt = os.environ.get("HERMES_MAX_TOKENS")
+    _env_mt = os.environ.get("SONIC_MAX_TOKENS")
     if _env_mt:
         try:
             max_tokens = int(_env_mt)
@@ -10934,8 +10934,8 @@ class GatewayRunner:
 
 
     async def _handle_version_command(self, event: MessageEvent) -> str:
-        """Handle /version — show the running Hermes Agent version."""
-        from hermes_cli.banner import format_banner_version_label
+        """Handle /version — show the running Sonic Agent version."""
+        from sonic_cli.banner import format_banner_version_label
 
         return format_banner_version_label()
 

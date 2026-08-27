@@ -344,7 +344,7 @@ class TestSlackNativeSlashes:
         then aliases, so the lowest-priority aliases can be clamped off
         once the registry fills the cap (e.g. ``/q`` once ``/version``
         landed). The surviving aliases below still prove alias parity;
-        anything dropped remains reachable via ``/hermes <command>``."""
+        anything dropped remains reachable via ``/sonic <command>``."""
         names = {n for n, _d, _h in slack_native_slashes()}
         assert "btw" in names
         assert "bg" in names

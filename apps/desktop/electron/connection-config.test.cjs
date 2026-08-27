@@ -69,11 +69,11 @@ test('profileRemoteOverride ignores local or url-less profile entries', () => {
 test('profileRemoteOverride returns the per-profile remote with defaulted auth mode', () => {
   const config = {
     profiles: {
-      coder: { mode: 'remote', url: '  https://coder.example.com/hermes  ', token: { value: 'sek' } }
+      coder: { mode: 'remote', url: '  https://coder.example.com/sonic  ', token: { value: 'sek' } }
     }
   }
   assert.deepEqual(profileRemoteOverride(config, 'coder'), {
-    url: 'https://coder.example.com/hermes',
+    url: 'https://coder.example.com/sonic',
     authMode: 'token',
     token: { value: 'sek' }
   })
@@ -215,43 +215,43 @@ test('AT_COOKIE_VARIANTS covers all three deploy shapes', () => {
 })
 
 test('RT_COOKIE_VARIANTS covers all three deploy shapes', () => {
-  assert.deepEqual(RT_COOKIE_VARIANTS, ['__Host-hermes_session_rt', '__Secure-hermes_session_rt', 'hermes_session_rt'])
+  assert.deepEqual(RT_COOKIE_VARIANTS, ['__Host-sonic_session_rt', '__Secure-sonic_session_rt', 'sonic_session_rt'])
 })
 
 // --- cookiesHaveLiveSession (AT or RT — the connectivity check) ---
 
 test('cookiesHaveLiveSession is true for a live access-token cookie', () => {
-  assert.equal(cookiesHaveLiveSession([{ name: 'hermes_session_at', value: 'x' }]), true)
-  assert.equal(cookiesHaveLiveSession([{ name: '__Host-hermes_session_at', value: 'x' }]), true)
-  assert.equal(cookiesHaveLiveSession([{ name: '__Secure-hermes_session_at', value: 'x' }]), true)
+  assert.equal(cookiesHaveLiveSession([{ name: 'sonic_session_at', value: 'x' }]), true)
+  assert.equal(cookiesHaveLiveSession([{ name: '__Host-sonic_session_at', value: 'x' }]), true)
+  assert.equal(cookiesHaveLiveSession([{ name: '__Secure-sonic_session_at', value: 'x' }]), true)
 })
 
 test('cookiesHaveLiveSession is true for an RT cookie even with NO access-token cookie', () => {
   // This is the bug-fix case: the AT cookie has lapsed (dropped from the jar)
   // but the 24h RT cookie is still alive. The session is still connectable —
   // the gateway rotates a fresh AT from the RT on the next request.
-  assert.equal(cookiesHaveLiveSession([{ name: 'hermes_session_rt', value: 'x' }]), true)
-  assert.equal(cookiesHaveLiveSession([{ name: '__Host-hermes_session_rt', value: 'x' }]), true)
-  assert.equal(cookiesHaveLiveSession([{ name: '__Secure-hermes_session_rt', value: 'x' }]), true)
+  assert.equal(cookiesHaveLiveSession([{ name: 'sonic_session_rt', value: 'x' }]), true)
+  assert.equal(cookiesHaveLiveSession([{ name: '__Host-sonic_session_rt', value: 'x' }]), true)
+  assert.equal(cookiesHaveLiveSession([{ name: '__Secure-sonic_session_rt', value: 'x' }]), true)
 })
 
 test('cookiesHaveLiveSession is true when both AT and RT are present', () => {
   assert.equal(
     cookiesHaveLiveSession([
-      { name: 'hermes_session_at', value: 'a' },
-      { name: 'hermes_session_rt', value: 'r' }
+      { name: 'sonic_session_at', value: 'a' },
+      { name: 'sonic_session_rt', value: 'r' }
     ]),
     true
   )
 })
 
 test('cookiesHaveLiveSession is false for empty values', () => {
-  assert.equal(cookiesHaveLiveSession([{ name: 'hermes_session_at', value: '' }]), false)
-  assert.equal(cookiesHaveLiveSession([{ name: 'hermes_session_rt', value: '' }]), false)
+  assert.equal(cookiesHaveLiveSession([{ name: 'sonic_session_at', value: '' }]), false)
+  assert.equal(cookiesHaveLiveSession([{ name: 'sonic_session_rt', value: '' }]), false)
   assert.equal(
     cookiesHaveLiveSession([
-      { name: 'hermes_session_at', value: '' },
-      { name: 'hermes_session_rt', value: '' }
+      { name: 'sonic_session_at', value: '' },
+      { name: 'sonic_session_rt', value: '' }
     ]),
     false
   )

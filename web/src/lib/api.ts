@@ -1047,7 +1047,7 @@ export interface SkillHubSource {
   label: string;
   /** GitHub only: whether the API is currently rate-limited. */
   rate_limited?: boolean;
-  /** hermes-index only: whether the centralized index loaded. */
+  /** sonic-index only: whether the centralized index loaded. */
   available?: boolean;
 }
 

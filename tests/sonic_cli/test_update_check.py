@@ -135,22 +135,22 @@ def test_check_for_updates_docker_returns_none(tmp_path, monkeypatch):
     """Inside the Docker image, check_for_updates() must short-circuit to None.
 
     Regression: the published image excludes .git (.dockerignore) and sets no
-    HERMES_REVISION (nix-only), so without a docker guard check_for_updates()
+    SONIC_REVISION (nix-only), so without a docker guard check_for_updates()
     falls through to check_via_pypi(), whose version-mismatch flag (1) gets
     rendered by both the Rich banner and the Ink TUI badge as a phantom
     "1 commit behind" — despite there being no git repo or commit math in the
-    container, and `hermes update` correctly refusing to run there. The guard
+    container, and `sonic update` correctly refusing to run there. The guard
     must return None (so the > 0 render guards stay false) AND not reach the
     git/pypi probes or write a cache entry.
     """
-    import hermes_cli.banner as banner
+    import sonic_cli.banner as banner
 
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     cache_file = tmp_path / ".update_check"
 
-    with patch("hermes_cli.config.detect_install_method", return_value="docker"), \
-         patch("hermes_cli.banner.subprocess.run") as mock_run, \
-         patch("hermes_cli.banner.check_via_pypi") as mock_pypi:
+    with patch("sonic_cli.config.detect_install_method", return_value="docker"), \
+         patch("sonic_cli.banner.subprocess.run") as mock_run, \
+         patch("sonic_cli.banner.check_via_pypi") as mock_pypi:
         result = banner.check_for_updates()
 
     assert result is None
@@ -167,19 +167,19 @@ def test_check_for_updates_non_docker_still_checks(tmp_path, monkeypatch):
     Invariant guarding against the guard firing for non-docker methods — pip
     installs legitimately reach check_via_pypi() and surface a real update.
     """
-    import hermes_cli.banner as banner
+    import sonic_cli.banner as banner
 
     # No local git checkout -> the PyPI (pip-install) path is exercised.
-    fake_banner = tmp_path / "hermes_cli" / "banner.py"
+    fake_banner = tmp_path / "sonic_cli" / "banner.py"
     fake_banner.parent.mkdir(parents=True, exist_ok=True)
     fake_banner.touch()
     monkeypatch.setattr(banner, "__file__", str(fake_banner))
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
-    monkeypatch.delenv("HERMES_REVISION", raising=False)
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
+    monkeypatch.delenv("SONIC_REVISION", raising=False)
 
-    with patch("hermes_cli.config.detect_install_method", return_value="pip"), \
-         patch("hermes_cli.banner.subprocess.run") as mock_run, \
-         patch("hermes_cli.banner.check_via_pypi", return_value=1) as mock_pypi:
+    with patch("sonic_cli.config.detect_install_method", return_value="pip"), \
+         patch("sonic_cli.banner.subprocess.run") as mock_run, \
+         patch("sonic_cli.banner.check_via_pypi", return_value=1) as mock_pypi:
         result = banner.check_for_updates()
 
     assert result == 1

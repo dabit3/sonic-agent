@@ -618,7 +618,7 @@ def test_custom_providers_discover_models_false_keeps_explicit_subset(monkeypatc
     serve a configured subset.
     """
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
-    monkeypatch.setattr("hermes_cli.providers.HERMES_OVERLAYS", {})
+    monkeypatch.setattr("sonic_cli.providers.SONIC_OVERLAYS", {})
 
     calls = []
 
@@ -626,7 +626,7 @@ def test_custom_providers_discover_models_false_keeps_explicit_subset(monkeypatc
         calls.append((api_key, base_url))
         return ["gateway-model-a", "gateway-model-b", "gateway-model-c"]
 
-    monkeypatch.setattr("hermes_cli.models.fetch_api_models", fake_fetch_api_models)
+    monkeypatch.setattr("sonic_cli.models.fetch_api_models", fake_fetch_api_models)
 
     custom_providers = [
         {
@@ -674,7 +674,7 @@ def test_custom_providers_discover_models_false_string_is_normalised(monkeypatch
     must be treated as a disable, same as the boolean ``False`` and section 3.
     """
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
-    monkeypatch.setattr("hermes_cli.providers.HERMES_OVERLAYS", {})
+    monkeypatch.setattr("sonic_cli.providers.SONIC_OVERLAYS", {})
 
     calls = []
 
@@ -682,7 +682,7 @@ def test_custom_providers_discover_models_false_string_is_normalised(monkeypatch
         calls.append((api_key, base_url))
         return ["live-a", "live-b"]
 
-    monkeypatch.setattr("hermes_cli.models.fetch_api_models", fake_fetch_api_models)
+    monkeypatch.setattr("sonic_cli.models.fetch_api_models", fake_fetch_api_models)
 
     custom_providers = [
         {

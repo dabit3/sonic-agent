@@ -3192,8 +3192,8 @@ class SonicCLI:
         _config_model = (_model_config.get("default") or _model_config.get("model") or "") if isinstance(_model_config, dict) else (_model_config or "")
         _DEFAULT_CONFIG_MODEL = ""
         self.model = model or _config_model or _DEFAULT_CONFIG_MODEL
-        # Read max_tokens from config (env var override: HERMES_MAX_TOKENS)
-        _env_mt = os.environ.get("HERMES_MAX_TOKENS")
+        # Read max_tokens from config (env var override: SONIC_MAX_TOKENS)
+        _env_mt = os.environ.get("SONIC_MAX_TOKENS")
         if _env_mt:
             try:
                 self.max_tokens = int(_env_mt)
@@ -9072,7 +9072,7 @@ class SonicCLI:
             if self._handle_update_command():
                 return False
         elif canonical == "version":
-            from hermes_cli.main import _print_version_info
+            from sonic_cli.main import _print_version_info
 
             _print_version_info(check_updates=True)
         elif canonical == "paste":
@@ -10729,7 +10729,7 @@ class SonicCLI:
         It's agent-independent (a portal fetch gated on "a Nous account is logged in",
         NOT the inference-provider string), so /usage shows the block even in the TUI
         slash-worker subprocess that resumes WITHOUT a live agent. Fail-open and
-        wall-clock-bounded inside the helper; also honors HERMES_DEV_CREDITS_FIXTURE
+        wall-clock-bounded inside the helper; also honors SONIC_DEV_CREDITS_FIXTURE
         for offline testing — same behavior as every other surface.
         """
         from agent.account_usage import nous_credits_lines
@@ -13212,7 +13212,7 @@ class SonicCLI:
         # otherwise blocks ~1-2s on serial /v1/models fetches the first time
         # it's opened in a session. Fire-and-forget, guarded once-per-process.
         try:
-            from hermes_cli.model_switch import prewarm_picker_cache_async
+            from sonic_cli.model_switch import prewarm_picker_cache_async
             prewarm_picker_cache_async()
         except Exception:
             pass

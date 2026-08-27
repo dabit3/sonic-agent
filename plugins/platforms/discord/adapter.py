@@ -1957,7 +1957,7 @@ class DiscordAdapter(BasePlatformAdapter):
             ],
         }
         try:
-            from hermes_cli.config import read_raw_config
+            from sonic_cli.config import read_raw_config
             cfg = read_raw_config() or {}
             fx = ((cfg.get("discord") or {}).get("voice_fx") or {})
             if isinstance(fx, dict):
@@ -2044,7 +2044,7 @@ class DiscordAdapter(BasePlatformAdapter):
         # Synthesise the ack via the configured TTS provider, then layer it.
         import uuid as _uuid
         audio_path = os.path.join(
-            tempfile.gettempdir(), "hermes_voice",
+            tempfile.gettempdir(), "sonic_voice",
             f"ack_{_uuid.uuid4().hex[:12]}.mp3",
         )
         os.makedirs(os.path.dirname(audio_path), exist_ok=True)

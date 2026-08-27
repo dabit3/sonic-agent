@@ -1381,10 +1381,10 @@ class TestWebServerEndpoints:
         """Switching the main provider must report auxiliary slots still pinned
         to a *different* provider so the UI can warn the user their helper tasks
         aren't following the switch (the silent credit-burn path)."""
-        from hermes_cli.config import load_config, save_config
+        from sonic_cli.config import load_config, save_config
 
         cfg = load_config()
-        cfg["model"] = {"provider": "nous", "default": "hermes-4"}
+        cfg["model"] = {"provider": "nous", "default": "sonic-4"}
         cfg["auxiliary"] = {
             # Pinned to nous — same as the OLD main, becomes stale after switch.
             "compression": {"provider": "nous", "model": "anthropic/claude-sonnet-4.6"},
@@ -1412,10 +1412,10 @@ class TestWebServerEndpoints:
 
     def test_set_model_main_no_stale_when_aux_matches_new_provider(self):
         """Aux slots pinned to the SAME provider as the new main are not stale."""
-        from hermes_cli.config import load_config, save_config
+        from sonic_cli.config import load_config, save_config
 
         cfg = load_config()
-        cfg["model"] = {"provider": "nous", "default": "hermes-4"}
+        cfg["model"] = {"provider": "nous", "default": "sonic-4"}
         cfg["auxiliary"] = {
             "compression": {"provider": "openrouter", "model": "google/gemini-2.5-flash"},
             "vision": {"provider": "auto", "model": ""},

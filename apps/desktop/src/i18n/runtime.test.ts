@@ -15,7 +15,7 @@ describe('desktop i18n runtime translator', () => {
   it('translates string paths for the active runtime locale', () => {
     setRuntimeI18nLocale('zh')
 
-    expect(translateNow('boot.ready')).toBe('Hermes Desktop 已就绪')
+    expect(translateNow('boot.ready')).toBe('Sonic Desktop 已就绪')
   })
 
   it('passes arguments to function translations', () => {
@@ -50,7 +50,7 @@ describe('desktop i18n runtime translator', () => {
   it('falls back to English for untranslated desktop-only keys in partial locales', () => {
     setRuntimeI18nLocale('ja')
 
-    expect(translateNow('boot.ready')).toBe('Hermes Desktop is ready')
+    expect(translateNow('boot.ready')).toBe('Sonic Desktop is ready')
   })
 
   it('returns the key when no locale can resolve a path', () => {

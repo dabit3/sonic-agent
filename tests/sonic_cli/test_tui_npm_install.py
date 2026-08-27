@@ -198,7 +198,7 @@ def test_make_tui_argv_scopes_npm_install_on_termux_workspace(
     tui_dir = tmp_path / "ui-tui"
     tui_dir.mkdir()
     (tui_dir / "package.json").write_text("{}")
-    ink_dir = tui_dir / "packages" / "hermes-ink"
+    ink_dir = tui_dir / "packages" / "sonic-ink"
     ink_dir.mkdir(parents=True)
     (ink_dir / "package.json").write_text("{}")
     (tmp_path / "package-lock.json").write_text("{}")
@@ -224,7 +224,7 @@ def test_make_tui_argv_scopes_npm_install_on_termux_workspace(
         "--workspace",
         "ui-tui",
         "--workspace",
-        "ui-tui/packages/hermes-ink",
+        "ui-tui/packages/sonic-ink",
         "--include-workspace-root=false",
     ]
     assert calls[0][1]["cwd"] == str(tmp_path)

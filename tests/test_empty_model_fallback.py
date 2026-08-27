@@ -37,7 +37,7 @@ class TestGetDefaultModelForProvider:
         must NOT escalate to it — otherwise an unconfigured profile silently
         bills the most expensive model. Regression for the billing footgun.
         """
-        from hermes_cli.models import (
+        from sonic_cli.models import (
             _PROVIDER_MODELS,
             _PROVIDER_SILENT_DEFAULT_OVERRIDES,
             get_default_model_for_provider,
@@ -60,7 +60,7 @@ class TestGetDefaultModelForProvider:
         rather than returning a stale/absent id."""
         from unittest.mock import patch
 
-        from hermes_cli import models as models_mod
+        from sonic_cli import models as models_mod
 
         with patch.dict(
             models_mod._PROVIDER_SILENT_DEFAULT_OVERRIDES,

@@ -8434,7 +8434,7 @@ def _discard_stashed_changes(
     if stash_selector is None:
         print(
             "⚠ Configured to discard local changes on non-interactive update, "
-            "but Hermes couldn't find the stash entry to drop."
+            "but Sonic couldn't find the stash entry to drop."
         )
         _print_stash_cleanup_guidance(stash_ref)
         return False
@@ -8447,7 +8447,7 @@ def _discard_stashed_changes(
     )
     if drop.returncode != 0:
         print(
-            "⚠ Configured to discard local changes, but Hermes couldn't drop "
+            "⚠ Configured to discard local changes, but Sonic couldn't drop "
             "the saved stash entry."
         )
         if drop.stderr.strip():
@@ -14774,13 +14774,13 @@ Examples:
         help="Platform to apply to (default: cli)",
     )
 
-    # hermes tools post-setup <key>
+    # sonic tools post-setup <key>
     tools_postsetup_p = tools_sub.add_parser(
         "post-setup",
         help="Run a provider's post-setup install hook (npm/pip/binary)",
         description=(
             "Run the install/bootstrap hook a tool backend declares — the\n"
-            "same step `hermes tools` runs after you pick a provider that\n"
+            "same step `sonic tools` runs after you pick a provider that\n"
             "needs extra dependencies (browser Chromium, Camofox, cua-driver,\n"
             "KittenTTS/Piper, ddgs, Spotify, Langfuse, xAI). Stable,\n"
             "non-interactive target the dashboard spawns to drive backend\n"
@@ -14801,7 +14801,7 @@ Examples:
 
             tools_disable_enable_command(args)
         elif action == "post-setup":
-            from hermes_cli.tools_config import run_post_setup_command
+            from sonic_cli.tools_config import run_post_setup_command
 
             sys.exit(run_post_setup_command(args))
         else:

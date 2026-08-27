@@ -398,7 +398,7 @@ class _FakeBundle:
 
 class TestSkillsHubSourcesEndpoint:
     @pytest.fixture(autouse=True)
-    def _setup(self, _isolate_hermes_home):
+    def _setup(self, _isolate_sonic_home):
         self.client, _ = _client()
 
     def test_sources_lists_configured_hubs(self, monkeypatch):
@@ -414,12 +414,12 @@ class TestSkillsHubSourcesEndpoint:
                 return self._sid
 
             def search(self, q, limit=10):
-                return [_FakeMeta("hermes-index/featured-skill", "trusted")]
+                return [_FakeMeta("sonic-index/featured-skill", "trusted")]
 
         def _fake_router():
             srcs = [_Src("official"), _Src("github")]
-            # hermes-index source advertises availability + featured search.
-            idx = _Src("hermes-index")
+            # sonic-index source advertises availability + featured search.
+            idx = _Src("sonic-index")
             idx.is_available = True
             srcs.insert(1, idx)
             return srcs
@@ -431,7 +431,7 @@ class TestSkillsHubSourcesEndpoint:
         assert r.status_code == 200
         body = r.json()
         ids = {s["id"] for s in body["sources"]}
-        assert {"official", "github", "hermes-index"} <= ids
+        assert {"official", "github", "sonic-index"} <= ids
         # Every source carries a human label.
         assert all(s.get("label") for s in body["sources"])
         assert body["index_available"] is True
@@ -443,7 +443,7 @@ class TestSkillsHubSourcesEndpoint:
 
 class TestSkillsHubPreviewEndpoint:
     @pytest.fixture(autouse=True)
-    def _setup(self, _isolate_hermes_home):
+    def _setup(self, _isolate_sonic_home):
         self.client, _ = _client()
 
     def test_preview_requires_identifier(self):
@@ -457,7 +457,7 @@ class TestSkillsHubPreviewEndpoint:
         bundle = _FakeBundle("github/owner/repo/x")
         meta = _FakeMeta("github/owner/repo/x")
         monkeypatch.setattr(
-            "hermes_cli.skills_hub._resolve_source_meta_and_bundle",
+            "sonic_cli.skills_hub._resolve_source_meta_and_bundle",
             lambda ident, sources: (meta, bundle, None),
         )
         r = self.client.get(
@@ -476,7 +476,7 @@ class TestSkillsHubPreviewEndpoint:
             "tools.skills_hub.create_source_router", lambda: []
         )
         monkeypatch.setattr(
-            "hermes_cli.skills_hub._resolve_source_meta_and_bundle",
+            "sonic_cli.skills_hub._resolve_source_meta_and_bundle",
             lambda ident, sources: (None, None, None),
         )
         r = self.client.get("/api/skills/hub/preview?identifier=nope/x")
@@ -485,7 +485,7 @@ class TestSkillsHubPreviewEndpoint:
 
 class TestSkillsHubScanEndpoint:
     @pytest.fixture(autouse=True)
-    def _setup(self, _isolate_hermes_home):
+    def _setup(self, _isolate_sonic_home):
         self.client, _ = _client()
 
     def test_scan_requires_identifier(self):
@@ -500,7 +500,7 @@ class TestSkillsHubScanEndpoint:
         )
         bundle = _FakeBundle("github/owner/repo/x", trust_level="community")
         monkeypatch.setattr(
-            "hermes_cli.skills_hub._resolve_source_meta_and_bundle",
+            "sonic_cli.skills_hub._resolve_source_meta_and_bundle",
             lambda ident, sources: (None, bundle, None),
         )
 
@@ -553,7 +553,7 @@ class TestSkillsHubScanEndpoint:
             "tools.skills_hub.create_source_router", lambda: []
         )
         monkeypatch.setattr(
-            "hermes_cli.skills_hub._resolve_source_meta_and_bundle",
+            "sonic_cli.skills_hub._resolve_source_meta_and_bundle",
             lambda ident, sources: (None, None, None),
         )
         r = self.client.get("/api/skills/hub/scan?identifier=nope/x")
@@ -797,10 +797,10 @@ class TestDebugShareEndpoint:
 
 class TestToolsConfigEndpoints:
     """Provider selection, API-key save, and post-setup spawn for toolsets —
-    the dashboard surface that replicates the `hermes tools` configurator."""
+    the dashboard surface that replicates the `sonic tools` configurator."""
 
     @pytest.fixture(autouse=True)
-    def _setup(self, _isolate_hermes_home):
+    def _setup(self, _isolate_sonic_home):
         self.client, self.header = _client()
 
     def test_list_toolsets_shape(self):
@@ -825,7 +825,7 @@ class TestToolsConfigEndpoints:
         assert r.status_code == 400
 
     def test_save_env_writes_key_and_validates_allowlist(self):
-        from hermes_cli.config import get_env_value
+        from sonic_cli.config import get_env_value
 
         cfg = self.client.get("/api/tools/toolsets/web/config").json()
         # Find a real env-var key from the visible provider matrix.
@@ -887,7 +887,7 @@ class TestToolsConfigEndpoints:
         assert r.status_code == 400
 
     def test_post_setup_spawns_action(self, monkeypatch):
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         spawned = {}
 
@@ -899,7 +899,7 @@ class TestToolsConfigEndpoints:
             spawned["name"] = name
             return _FakeProc()
 
-        monkeypatch.setattr(ws, "_spawn_hermes_action", _fake_spawn)
+        monkeypatch.setattr(ws, "_spawn_sonic_action", _fake_spawn)
         r = self.client.post(
             "/api/tools/toolsets/browser/post-setup",
             json={"key": "agent_browser"},

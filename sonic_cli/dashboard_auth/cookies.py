@@ -140,7 +140,7 @@ def set_session_cookies(
     TTL for the access token.
 
     ``refresh_token`` is written as the RT cookie when non-empty. Nous Portal
-    issues a 24h rotating refresh token (hermes #37247); a provider that
+    issues a 24h rotating refresh token (sonic #37247); a provider that
     omits it returns ``Session.refresh_token == ""`` and we simply don't
     persist the RT cookie — the session then behaves as access-token-only
     until the AT expires. No other branch changes between the two cases.

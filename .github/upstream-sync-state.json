@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "7c00ffd92c4135365f395224d359a760f8838cce",
-  "synced_at": "2026-08-26T16:00:00Z",
-  "notes": "Partial sync. This branch carries four daily batches because PRs #37 and #38 were closed unmerged: 8bf498c2..7c00ffd9 (320 first-parent commits, 0 skipped); today's batch is 4cca7f56..7c00ffd9 (80 commits). Backlog remains large (~12.4k first-parent commits beyond 7c00ffd9); each daily run advances the baseline by a reviewable batch. The original bootstrap baseline was inferred in an earlier run and still warrants a human double-check."
+  "last_synced_upstream_sha": "b1b89f843e62d375e886f468532025561989d725",
+  "synced_at": "2026-08-27T16:00:00Z",
+  "notes": "Partial sync. This branch carries five daily batches because PRs #37 and #38 were closed unmerged: 8bf498c2..b1b89f84 (400 first-parent commits, 0 skipped); today's batch is 7c00ffd9..b1b89f84 (80 commits). Backlog remains large (~12.3k first-parent commits beyond b1b89f84); each daily run advances the baseline by a reviewable batch. The original bootstrap baseline was inferred in an earlier run and still warrants a human double-check."
 }

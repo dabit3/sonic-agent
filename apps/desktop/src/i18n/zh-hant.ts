@@ -29,7 +29,7 @@ export const zhHant = defineLocale({
     exportConfig: '匯出設定',
     importConfig: '匯入設定',
     resetToDefaults: '恢復預設值',
-    resetConfirm: '要將所有設定恢復為 Hermes 預設值嗎？',
+    resetConfirm: '要將所有設定恢復為 Sonic 預設值嗎？',
     exportFailed: '匯出失敗',
     resetFailed: '重設失敗',
     nav: {
@@ -55,7 +55,7 @@ export const zhHant = defineLocale({
       advanced: '進階'
     },
     searchPlaceholder: {
-      about: '關於 Hermes Desktop',
+      about: '關於 Sonic Desktop',
       config: '搜尋設定…',
       gateway: '閘道連線…',
       keys: '搜尋 API 金鑰…',
@@ -71,7 +71,7 @@ export const zhHant = defineLocale({
       title: '外觀',
       intro: '這些是僅限桌面端的顯示偏好。模式控制亮度；主題控制強調色與聊天介面樣式。',
       colorMode: '色彩模式',
-      colorModeDesc: '選擇固定模式，或讓 Hermes 跟隨系統設定。',
+      colorModeDesc: '選擇固定模式，或讓 Sonic 跟隨系統設定。',
       toolViewTitle: '工具呼叫顯示',
       toolViewDesc: '產品模式會隱藏原始工具 payload；技術模式會顯示完整輸入/輸出。',
       product: '產品',
@@ -201,10 +201,10 @@ export const zhHant = defineLocale({
         personality: '新工作階段的預設助手風格。',
         show_reasoning: '後端提供推理內容時顯示該區塊。'
       },
-      timezone: 'Hermes 需要本機時間上下文時使用。留空則使用系統時區。',
+      timezone: 'Sonic 需要本機時間上下文時使用。留空則使用系統時區。',
       agent: {
         image_input_mode: '控制圖片附件如何傳送給模型。',
-        max_turns: 'Hermes 停止一次執行前的工具呼叫輪次上限。'
+        max_turns: 'Sonic 停止一次執行前的工具呼叫輪次上限。'
       },
       terminal: {
         cwd: '工具與終端機操作的預設專案資料夾。',
@@ -214,9 +214,9 @@ export const zhHant = defineLocale({
       code_execution: {
         mode: '程式碼執行被限制在目前專案中的嚴格程度。'
       },
-      file_read_max_chars: 'Hermes 單次檔案讀取可讀取的最大字元數。',
+      file_read_max_chars: 'Sonic 單次檔案讀取可讀取的最大字元數。',
       approvals: {
-        mode: 'Hermes 如何處理需要明確批准的指令。',
+        mode: 'Sonic 如何處理需要明確批准的指令。',
         timeout: '批准提示逾時前等待的時間。'
       },
       security: {
@@ -246,11 +246,11 @@ export const zhHant = defineLocale({
       },
       updates: {
         non_interactive_local_changes:
-          'Hermes 從應用程式內更新自身時，保留本機原始碼變更（stash）或丟棄（discard）。終端機更新一律會詢問。'
+          'Sonic 從應用程式內更新自身時，保留本機原始碼變更（stash）或丟棄（discard）。終端機更新一律會詢問。'
       }
     }),
     about: {
-      heading: 'Hermes Desktop',
+      heading: 'Sonic Desktop',
       version: value => `版本 ${value}`,
       versionUnavailable: '版本不可用',
       updates: '更新',
@@ -267,7 +267,7 @@ export const zhHant = defineLocale({
       lastChecked: age => `上次檢查：${age}`,
       justNowSuffix: ' · 剛剛',
       automaticUpdates: '自動更新',
-      automaticUpdatesDesc: 'Hermes 會在背景自動檢查更新，並在有可用更新時通知你。',
+      automaticUpdatesDesc: 'Sonic 會在背景自動檢查更新，並在有可用更新時通知你。',
       branchCommit: (branch, commit) => `分支 ${branch} · 提交 ${commit}`,
       never: '從未',
       justNow: '剛剛',

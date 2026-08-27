@@ -426,8 +426,8 @@ def find_alias_for_profile(profile_name: str) -> Optional[str]:
     """Return the alias name of the wrapper that activates *profile_name*, or None.
 
     A wrapper created by :func:`create_wrapper_script` is a file named after the
-    alias whose body invokes ``hermes -p <profile>``. When the alias name equals
-    the profile name this is trivial, but a custom alias (``hermes profile alias
+    alias whose body invokes ``sonic -p <profile>``. When the alias name equals
+    the profile name this is trivial, but a custom alias (``sonic profile alias
     <profile> --name <custom>``) produces a differently-named file — so the
     display side cannot assume ``wrapper == profile`` and must reverse-look-up.
 
@@ -440,7 +440,7 @@ def find_alias_for_profile(profile_name: str) -> Optional[str]:
         return None
     canon = normalize_profile_name(profile_name)
     is_windows = sys.platform == "win32"
-    needle = f"hermes -p {canon}"
+    needle = f"sonic -p {canon}"
 
     custom: Optional[str] = None
     profile_named: Optional[str] = None

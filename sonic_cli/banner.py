@@ -225,18 +225,18 @@ def check_for_updates() -> Optional[int]:
 
     # Docker images have no working tree to count commits against — the
     # published image excludes `.git` (see .dockerignore) and sets no
-    # HERMES_REVISION (that's nix-only). Without this guard the checks below
+    # SONIC_REVISION (that's nix-only). Without this guard the checks below
     # fall through to `check_via_pypi()`, whose PyPI-version mismatch flag (1)
     # then gets rendered by the CLI banner and the TUI badge as a phantom
     # "1 commit behind" — even though no git repo or commit math is involved,
-    # and `hermes update` correctly refuses to run in-place inside the
-    # container anyway. The dashboard's REST `/api/hermes/update/check`
+    # and `sonic update` correctly refuses to run in-place inside the
+    # container anyway. The dashboard's REST `/api/sonic/update/check`
     # endpoint already short-circuits docker the same way (web_server.py);
     # mirror that here so the banner/TUI surfaces agree. Returning None makes
     # both the Rich banner (build_welcome_banner) and the Ink badge
     # (branding.tsx, guarded on `typeof === 'number' && > 0`) show nothing.
     try:
-        from hermes_cli.config import detect_install_method
+        from sonic_cli.config import detect_install_method
         if detect_install_method() == "docker":
             return None
     except Exception:

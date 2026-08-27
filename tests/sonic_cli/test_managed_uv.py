@@ -107,8 +107,8 @@ class TestEnsureUvUpdateBoundary:
     """``ensure_uv()`` must answer to both the single-value and the legacy
     ``(path, fresh_bootstrap)`` call conventions — **on POSIX**.
 
-    ``hermes update`` runs the call site from the old, already-imported
-    ``hermes_cli.main`` against the freshly pulled ``managed_uv``. A release
+    ``sonic update`` runs the call site from the old, already-imported
+    ``sonic_cli.main`` against the freshly pulled ``managed_uv``. A release
     parked on a ``(path, fresh)`` tuple runs ``uv_bin, fresh = ensure_uv()``
     against the single-value module; the path is an iterable ``str`` so the
     2-target unpack walked its characters and raised
@@ -124,27 +124,27 @@ class TestEnsureUvUpdateBoundary:
 
     def test_success_usable_as_single_value(self, tmp_path):
         _make_executable(tmp_path / "bin" / "uv")
-        with patch("hermes_cli.managed_uv.get_hermes_home", return_value=tmp_path), \
-             patch("hermes_cli.managed_uv.platform.system", return_value="Linux"):
-            from hermes_cli.managed_uv import ensure_uv
+        with patch("sonic_cli.managed_uv.get_sonic_home", return_value=tmp_path), \
+             patch("sonic_cli.managed_uv.platform.system", return_value="Linux"):
+            from sonic_cli.managed_uv import ensure_uv
             uv_bin = ensure_uv()
             assert uv_bin == str(tmp_path / "bin" / "uv")
             assert bool(uv_bin) is True
 
     def test_success_unpacks_as_legacy_two_tuple(self, tmp_path):
         _make_executable(tmp_path / "bin" / "uv")
-        with patch("hermes_cli.managed_uv.get_hermes_home", return_value=tmp_path), \
-             patch("hermes_cli.managed_uv.platform.system", return_value="Linux"):
-            from hermes_cli.managed_uv import ensure_uv
+        with patch("sonic_cli.managed_uv.get_sonic_home", return_value=tmp_path), \
+             patch("sonic_cli.managed_uv.platform.system", return_value="Linux"):
+            from sonic_cli.managed_uv import ensure_uv
             uv_bin, fresh = ensure_uv()  # old: uv_bin, fresh_bootstrap = ensure_uv()
             assert uv_bin == str(tmp_path / "bin" / "uv")
             assert fresh is False
 
     def test_failure_unpacks_without_raising(self, tmp_path):
-        with patch("hermes_cli.managed_uv.get_hermes_home", return_value=tmp_path), \
-             patch("hermes_cli.managed_uv.platform.system", return_value="Linux"), \
-             patch("hermes_cli.managed_uv._install_uv", side_effect=RuntimeError("network down")):
-            from hermes_cli.managed_uv import ensure_uv
+        with patch("sonic_cli.managed_uv.get_sonic_home", return_value=tmp_path), \
+             patch("sonic_cli.managed_uv.platform.system", return_value="Linux"), \
+             patch("sonic_cli.managed_uv._install_uv", side_effect=RuntimeError("network down")):
+            from sonic_cli.managed_uv import ensure_uv
             uv_bin, fresh = ensure_uv()
             assert uv_bin is None
             assert fresh is False
@@ -171,17 +171,17 @@ class TestEnsureUvWindowsSafe:
         # change makes _UvResult char-iterable (and thus list2cmdline-safe),
         # the gate may be revisited.
         import subprocess
-        from hermes_cli.managed_uv import _UvResult
+        from sonic_cli.managed_uv import _UvResult
         with pytest.raises(TypeError):
-            subprocess.list2cmdline([_UvResult("C:\\hermes\\uv.exe"), "pip"])
+            subprocess.list2cmdline([_UvResult("C:\\sonic\\uv.exe"), "pip"])
 
     def test_windows_returns_plain_str_safe_for_subprocess(self, tmp_path):
         import subprocess
         # On (mocked) Windows the managed binary is uv.exe.
         _make_executable(tmp_path / "bin" / "uv.exe")
-        with patch("hermes_cli.managed_uv.get_hermes_home", return_value=tmp_path), \
-             patch("hermes_cli.managed_uv.platform.system", return_value="Windows"):
-            from hermes_cli.managed_uv import _UvResult, ensure_uv
+        with patch("sonic_cli.managed_uv.get_sonic_home", return_value=tmp_path), \
+             patch("sonic_cli.managed_uv.platform.system", return_value="Windows"):
+            from sonic_cli.managed_uv import _UvResult, ensure_uv
             uv_bin = ensure_uv()
             assert type(uv_bin) is str and not isinstance(uv_bin, _UvResult)
             # The exact operation that crashed in the field must now succeed.
@@ -189,10 +189,10 @@ class TestEnsureUvWindowsSafe:
             assert "pip" in cmdline and "install" in cmdline
 
     def test_windows_failure_returns_none(self, tmp_path):
-        with patch("hermes_cli.managed_uv.get_hermes_home", return_value=tmp_path), \
-             patch("hermes_cli.managed_uv.platform.system", return_value="Windows"), \
-             patch("hermes_cli.managed_uv._install_uv", side_effect=RuntimeError("network down")):
-            from hermes_cli.managed_uv import ensure_uv
+        with patch("sonic_cli.managed_uv.get_sonic_home", return_value=tmp_path), \
+             patch("sonic_cli.managed_uv.platform.system", return_value="Windows"), \
+             patch("sonic_cli.managed_uv._install_uv", side_effect=RuntimeError("network down")):
+            from sonic_cli.managed_uv import ensure_uv
             assert ensure_uv() is None
 
 

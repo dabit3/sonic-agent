@@ -171,12 +171,12 @@ async fn run_update(app: AppHandle) -> Result<()> {
     let child_env = update_child_env(&install_root);
     let mut update_args: Vec<String> =
         vec!["update".into(), "--yes".into(), "--gateway".into()];
-    // --force skips `hermes update`'s Windows running-exe guard (which would
+    // --force skips `sonic update`'s Windows running-exe guard (which would
     // `sys.exit(2)` and dead-end the handoff). By contract the desktop has
     // already exited and waited for the venv shim to unlock before launching
     // us, and wait_for_venv_free below force-kills any straggler — so by the
-    // time `hermes update` runs there is no legitimate hermes.exe to protect,
-    // and the guard would only produce a false "Hermes is still running" stop.
+    // time `sonic update` runs there is no legitimate sonic.exe to protect,
+    // and the guard would only produce a false "Sonic is still running" stop.
     update_args.push("--force".into());
     update_args.push("--branch".into());
     update_args.push(update_branch);
@@ -193,7 +193,7 @@ async fn run_update(app: AppHandle) -> Result<()> {
     )
     .await?;
 
-    // Retry-once for the update-boundary crash. `hermes update` lazily imports
+    // Retry-once for the update-boundary crash. `sonic update` lazily imports
     // the FRESHLY PULLED modules, but the dependency-install step still runs the
     // already-in-memory pre-pull code for one invocation. A release that changed
     // an updater-path contract across that boundary (e.g. #39780's `_UvResult`,
@@ -201,10 +201,10 @@ async fn run_update(app: AppHandle) -> Result<()> {
     // `list2cmdline` with `TypeError: sequence item 1: expected str instance,
     // bool found`, fixed in #39820) therefore kills the FIRST update on the
     // parked population — even though the fix is already on disk by then. A
-    // second `hermes update` runs clean because the now-current module is loaded
+    // second `sonic update` runs clean because the now-current module is loaded
     // from the start. Rather than make the parked user click Update twice (and
     // stare at a scary crash first), retry once automatically. Skip the retry
-    // for the concurrent-instance guard (exit 2) — that's a "close Hermes" state
+    // for the concurrent-instance guard (exit 2) — that's a "close Sonic" state
     // a retry can't fix.
     if !matches!(update.exit_code, Some(0) | Some(UPDATE_EXIT_CONCURRENT)) {
         emit_log(
@@ -216,7 +216,7 @@ async fn run_update(app: AppHandle) -> Result<()> {
         );
         update = run_streamed(
             &app,
-            &hermes,
+            &sonic,
             &update_args,
             &install_root,
             &child_env,
@@ -405,12 +405,12 @@ async fn wait_for_venv_free(install_root: &Path, app: &AppHandle) {
             return;
         }
         if Instant::now() >= deadline {
-            // Last resort: a backend hermes.exe (or a grandchild it spawned)
+            // Last resort: a backend sonic.exe (or a grandchild it spawned)
             // is still holding the shim. The desktop should have reaped its
             // tree before handing off, but SIGTERM races / detached
             // grandchildren / AV handles can leave a straggler. Rather than
             // "proceed anyway" straight into uv's "Access is denied", force-kill
-            // every hermes.exe except ourselves, then give the OS a beat to
+            // every sonic.exe except ourselves, then give the OS a beat to
             // unload the image.
             emit_log(
                 app,
@@ -418,7 +418,7 @@ async fn wait_for_venv_free(install_root: &Path, app: &AppHandle) {
                 LogStream::Stdout,
                 "[update] Sonic still holding the venv shim; force-killing stragglers…",
             );
-            force_kill_other_hermes();
+            force_kill_other_sonic();
             tokio::time::sleep(Duration::from_millis(800)).await;
             if !is_locked(&shim) {
                 emit_log(
@@ -441,19 +441,19 @@ async fn wait_for_venv_free(install_root: &Path, app: &AppHandle) {
     }
 }
 
-/// Force-kill any `hermes.exe` other than this process. Windows-only; a no-op
+/// Force-kill any `sonic.exe` other than this process. Windows-only; a no-op
 /// elsewhere (POSIX has no mandatory-lock contention). We can't selectively
 /// target "the backend" by PID here — the desktop already exited and we never
-/// knew its children — so we kill the whole `hermes.exe` image tree via
+/// knew its children — so we kill the whole `sonic.exe` image tree via
 /// taskkill, excluding our own PID.
 ///
 /// Safe w.r.t. our own update child: this runs inside `wait_for_venv_free`,
-/// which completes BEFORE we spawn `venv\Scripts\hermes.exe update`. At this
-/// point no update-driven hermes.exe exists yet, so the only hermes.exe images
+/// which completes BEFORE we spawn `venv\Scripts\sonic.exe update`. At this
+/// point no update-driven sonic.exe exists yet, so the only sonic.exe images
 /// are stragglers from the old desktop — exactly what we want gone. (`/FI PID
 /// ne <self>` also spares this Tauri process, though it isn't named
-/// hermes.exe.)
-fn force_kill_other_hermes() {
+/// sonic.exe.)
+fn force_kill_other_sonic() {
     if !cfg!(target_os = "windows") {
         return;
     }
@@ -466,7 +466,7 @@ fn force_kill_other_hermes() {
                 "/F",
                 "/T",
                 "/IM",
-                "hermes.exe",
+                "sonic.exe",
                 "/FI",
                 &format!("PID ne {my_pid}"),
             ])

@@ -442,7 +442,7 @@ _SCHEMA_OVERRIDES: Dict[str, Dict[str, Any]] = {
     "updates.non_interactive_local_changes": {
         "type": "select",
         "description": (
-            "When the chat app / gateway updates Hermes (no terminal prompt), "
+            "When the chat app / gateway updates Sonic (no terminal prompt), "
             "what to do with uncommitted local source edits. 'stash' keeps them "
             "and re-applies them after the update; 'discard' throws them away. "
             "Terminal updates always ask, regardless of this setting."
@@ -3214,7 +3214,7 @@ def _write_platform_enabled(platform_id: str, enabled: bool) -> None:
     save_config(config)
 
 
-_TELEGRAM_ONBOARDING_DEFAULT_URL = "https://setup.hermes-agent.nousresearch.com"
+_TELEGRAM_ONBOARDING_DEFAULT_URL = "https://setup.sonic-agent.nousresearch.com"
 _TELEGRAM_USER_ID_RE = re.compile(r"^\d+$")
 
 
@@ -6722,11 +6722,11 @@ async def update_skills_hub():
     return {"ok": True, "pid": proc.pid, "name": "skills-update"}
 
 
-# Human-readable labels for each hub source id (matches `hermes skills search`
+# Human-readable labels for each hub source id (matches `sonic skills search`
 # provenance).  Keep in sync with create_source_router()'s source list.
 _SKILL_HUB_SOURCE_LABELS = {
     "official": "Official (Nous)",
-    "hermes-index": "Hermes Index",
+    "sonic-index": "Sonic Index",
     "skills-sh": "skills.sh",
     "well-known": "Well-Known",
     "url": "Direct URL",
@@ -6802,7 +6802,7 @@ async def list_skills_hub_sources():
                     entry["rate_limited"] = bool(getattr(src, "is_rate_limited", False))
                 except Exception:
                     entry["rate_limited"] = False
-            if sid == "hermes-index":
+            if sid == "sonic-index":
                 try:
                     index_available = bool(getattr(src, "is_available", False))
                 except Exception:
@@ -6891,7 +6891,7 @@ async def preview_skill_hub(identifier: str = ""):
         raise HTTPException(status_code=400, detail="identifier is required")
 
     def _run():
-        from hermes_cli.skills_hub import _resolve_source_meta_and_bundle
+        from sonic_cli.skills_hub import _resolve_source_meta_and_bundle
         from tools.skills_hub import create_source_router
 
         sources = create_source_router()
@@ -6955,7 +6955,7 @@ async def scan_skill_hub(identifier: str = ""):
     def _run():
         import shutil as _shutil
 
-        from hermes_cli.skills_hub import _resolve_source_meta_and_bundle
+        from sonic_cli.skills_hub import _resolve_source_meta_and_bundle
         from tools.skills_hub import create_source_router, quarantine_bundle
         from tools.skills_guard import scan_skill, should_allow_install
 
@@ -7693,20 +7693,20 @@ class ToolsetEnvUpdate(BaseModel):
 async def save_toolset_env(name: str, body: ToolsetEnvUpdate):
     """Persist API keys for a toolset's provider env vars.
 
-    Writes each ``key: value`` to ``~/.hermes/.env`` via ``save_env_value`` —
-    the same store ``hermes tools`` writes when it prompts for keys. Keys are
+    Writes each ``key: value`` to ``~/.sonic/.env`` via ``save_env_value`` —
+    the same store ``sonic tools`` writes when it prompts for keys. Keys are
     validated against the env-var allowlist for the toolset's category (the
     union of every visible provider's ``env_vars``), so the GUI can't write an
     arbitrary env var through this endpoint. A blank value is treated as
     "leave unchanged" and skipped. Returns the saved/skipped key lists and the
     refreshed ``is_set`` status. Returns 400 for unknown toolset or env keys.
     """
-    from hermes_cli.tools_config import (
+    from sonic_cli.tools_config import (
         TOOL_CATEGORIES,
         _get_effective_configurable_toolsets,
         _visible_providers,
     )
-    from hermes_cli.config import get_env_value, save_env_value
+    from sonic_cli.config import get_env_value, save_env_value
 
     valid_ts = {ts_key for ts_key, _, _ in _get_effective_configurable_toolsets()}
     if name not in valid_ts:
@@ -7754,12 +7754,12 @@ async def run_toolset_post_setup(name: str, body: ToolsetPostSetup):
     Post-setup hooks (npm install for browser/Camofox, pip install for
     KittenTTS/Piper/ddgs, cua-driver fetch, etc.) are long-running and
     text-output, so this follows the spawn-action pattern: it launches
-    ``hermes tools post-setup <key>`` and the frontend tails the log via
+    ``sonic tools post-setup <key>`` and the frontend tails the log via
     ``GET /api/actions/tools-post-setup/status``. The ``key`` is validated
     against the declared post-setup allowlist before spawning. Returns 400
     for unknown toolset or post-setup key.
     """
-    from hermes_cli.tools_config import (
+    from sonic_cli.tools_config import (
         _get_effective_configurable_toolsets,
         valid_post_setup_keys,
     )
@@ -7774,7 +7774,7 @@ async def run_toolset_post_setup(name: str, body: ToolsetPostSetup):
         )
 
     try:
-        proc = _spawn_hermes_action(
+        proc = _spawn_sonic_action(
             ["tools", "post-setup", body.key], "tools-post-setup"
         )
     except Exception as exc:

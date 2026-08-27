@@ -529,7 +529,7 @@ def init_agent(
     # Credits tracking (dev-only, L0 usage-aware-credits) — updated from
     # x-nous-credits-* response headers after each API call.  Session-start
     # remaining is latched the first time a header is ever seen so we can
-    # report cumulative micros spent.  Surfaced behind HERMES_DEV_CREDITS.
+    # report cumulative micros spent.  Surfaced behind SONIC_DEV_CREDITS.
     agent._credits_state = None
     agent._credits_session_start_micros = None
     # Threshold-notice latch (L4): active sticky-notice keys + the warn90 crossing gate.
