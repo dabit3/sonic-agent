@@ -88,6 +88,8 @@ def test_per_provider_max_output_tokens_fallback(isolated_home):
             api_key: sk-test
             default_model: glm-5.1
             max_output_tokens: 12000
+        speed:
+          enabled: false
         """
     )
     grun = fresh_gateway()
@@ -141,7 +143,24 @@ def test_env_override_beats_everything(isolated_home, monkeypatch):
 
 
 def test_no_config_leaves_max_tokens_none(isolated_home):
-    """No cap configured anywhere -> max_tokens is None (no spurious limit)."""
+    """No cap configured with the speed profile off leaves max_tokens unset."""
+    write_cfg, fresh_gateway = isolated_home
+    write_cfg(
+        """
+        model:
+          default: glm-5.1
+          provider: openrouter
+        speed:
+          enabled: false
+        """
+    )
+    grun = fresh_gateway()
+    kw = grun._resolve_runtime_agent_kwargs()
+    assert kw["max_tokens"] is None
+
+
+def test_sonic_speed_profile_supplies_default_cap(isolated_home):
+    """Sonic's default speed profile keeps its latency-first output cap."""
     write_cfg, fresh_gateway = isolated_home
     write_cfg(
         """
@@ -152,7 +171,7 @@ def test_no_config_leaves_max_tokens_none(isolated_home):
     )
     grun = fresh_gateway()
     kw = grun._resolve_runtime_agent_kwargs()
-    assert kw["max_tokens"] is None
+    assert kw["max_tokens"] == 4096
 
 
 def test_lift_helper_accepts_alias_and_rejects_garbage(isolated_home):
