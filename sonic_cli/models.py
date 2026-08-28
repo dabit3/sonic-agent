@@ -2251,6 +2251,9 @@ def provider_model_ids(provider: Optional[str], *, force_refresh: bool = False) 
                     return live
         except Exception:
             pass
+        # GMI has an explicit discovery path above; do not fall through to
+        # the generic profile fetch after the explicit fetcher returns empty.
+        return list(_PROVIDER_MODELS.get("gmi", []))
     if normalized == "custom":
         base_url = _get_custom_base_url()
         if base_url:
