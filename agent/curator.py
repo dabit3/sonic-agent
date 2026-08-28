@@ -31,11 +31,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Set
 
-from sonic_constants import (
-    get_sonic_home,
-    reset_sonic_home_override,
-    set_sonic_home_override,
-)
+from sonic_constants import get_sonic_home
 from tools import skill_usage
 
 logger = logging.getLogger(__name__)
@@ -1439,7 +1435,6 @@ def run_curator_review(
     gets written and ``state.last_report_path`` still records it so users
     can read what the curator WOULD have done.
     """
-    sonic_home = get_sonic_home()
     start = datetime.now(timezone.utc)
     if dry_run:
         # Count candidates without mutating state.
@@ -1608,21 +1603,10 @@ def run_curator_review(
             except Exception:
                 pass
 
-    def _run_in_sonic_home() -> None:
-        token = set_sonic_home_override(sonic_home)
-        try:
-            _llm_pass()
-        finally:
-            reset_sonic_home_override(token)
-
     if synchronous:
-        _run_in_sonic_home()
+        _llm_pass()
     else:
-        t = threading.Thread(
-            target=_run_in_sonic_home,
-            daemon=True,
-            name="curator-review",
-        )
+        t = threading.Thread(target=_llm_pass, daemon=True, name="curator-review")
         t.start()
 
     return {
