@@ -195,7 +195,7 @@ def test_build_models_payload_uses_cached_nous_tier_by_default():
     ctx = _empty_ctx(provider="nous", model="openai/gpt-5.5")
     rows = [_nous_row()]
     with patch(
-        "hermes_cli.model_switch.list_authenticated_providers",
+        "sonic_cli.model_switch.list_authenticated_providers",
         return_value=rows,
     ) as mock_list:
         build_models_payload(ctx)
@@ -208,7 +208,7 @@ def test_build_models_payload_can_force_fresh_nous_tier():
     ctx = _empty_ctx(provider="nous", model="openai/gpt-5.5")
     rows = [_nous_row()]
     with patch(
-        "hermes_cli.model_switch.list_authenticated_providers",
+        "sonic_cli.model_switch.list_authenticated_providers",
         return_value=rows,
     ) as mock_list:
         build_models_payload(ctx, force_fresh_nous_tier=True)
@@ -227,7 +227,7 @@ def test_list_authenticated_providers_force_fresh_is_keyword_only():
     """
     import inspect
 
-    from hermes_cli.model_switch import list_authenticated_providers
+    from sonic_cli.model_switch import list_authenticated_providers
 
     sig = inspect.signature(list_authenticated_providers)
     param = sig.parameters["force_fresh_nous_tier"]
@@ -241,7 +241,7 @@ def test_pricing_uses_cached_nous_tier_by_default():
     with (
         _list_auth_returning(rows),
         patch(
-            "hermes_cli.models.get_pricing_for_provider",
+            "sonic_cli.models.get_pricing_for_provider",
             return_value={
                 "openai/gpt-5.5": {
                     "prompt": "0.000001",
@@ -249,7 +249,7 @@ def test_pricing_uses_cached_nous_tier_by_default():
                 },
             },
         ),
-        patch("hermes_cli.models.check_nous_free_tier", return_value=False) as mock_free,
+        patch("sonic_cli.models.check_nous_free_tier", return_value=False) as mock_free,
     ):
         build_models_payload(ctx, pricing=True)
 
@@ -262,7 +262,7 @@ def test_pricing_can_force_fresh_nous_tier():
     with (
         _list_auth_returning(rows),
         patch(
-            "hermes_cli.models.get_pricing_for_provider",
+            "sonic_cli.models.get_pricing_for_provider",
             return_value={
                 "openai/gpt-5.5": {
                     "prompt": "0.000001",
@@ -270,7 +270,7 @@ def test_pricing_can_force_fresh_nous_tier():
                 },
             },
         ),
-        patch("hermes_cli.models.check_nous_free_tier", return_value=False) as mock_free,
+        patch("sonic_cli.models.check_nous_free_tier", return_value=False) as mock_free,
     ):
         build_models_payload(ctx, pricing=True, force_fresh_nous_tier=True)
 

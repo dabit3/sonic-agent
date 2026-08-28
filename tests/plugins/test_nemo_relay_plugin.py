@@ -462,7 +462,7 @@ mode = "route"
 """,
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
+    monkeypatch.setenv("SONIC_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
 
     seen_request = {}
     raw_choice = SimpleNamespace(
@@ -560,7 +560,7 @@ mode = "route"
 """,
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
+    monkeypatch.setenv("SONIC_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
 
     seen_args = {}
 
@@ -618,7 +618,7 @@ mode = "route"
 """,
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
+    monkeypatch.setenv("SONIC_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
 
     base = {
         "session_id": "s1",

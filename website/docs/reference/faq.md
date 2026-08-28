@@ -33,7 +33,7 @@ Set your provider with `sonic model` or by editing `~/.sonic/.env`. See the [Env
 **Yes, natively.** Sonic supports native Windows via the PowerShell installer — no WSL required. Run in PowerShell:
 
 ```powershell
-iex (irm https://sonic-agent.nousresearch.com/install.ps1)
+iex (irm https://lightning-agent.nousresearch.com/install.ps1)
 ```
 
 The installer provisions a PortableGit that backs the terminal tool's shell. See the [Windows (Native) Guide](../user-guide/windows-native.md) for details.

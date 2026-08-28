@@ -1009,7 +1009,7 @@ class TestSafeStderr:
         fake_stderr = io.StringIO()
         monkeypatch.setattr(sys, "stderr", fake_stderr)
         # On Linux/macOS, encoding is typically utf-8
-        result = hermes_logging._safe_stderr()
+        result = sonic_logging._safe_stderr()
         # Should return the same object (or a equivalent stream)
         assert result is fake_stderr or getattr(result, "encoding", "").lower().startswith("utf")
 
@@ -1030,7 +1030,7 @@ class TestSafeStderr:
 
         fake = FakeStderr()
         monkeypatch.setattr(sys, "stderr", fake)
-        result = hermes_logging._safe_stderr()
+        result = sonic_logging._safe_stderr()
         # Should be a TextIOWrapper, not the original FakeStderr
         assert isinstance(result, io.TextIOWrapper)
         assert result.encoding == "utf-8"

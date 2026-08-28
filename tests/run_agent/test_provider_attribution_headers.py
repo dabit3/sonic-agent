@@ -2,6 +2,7 @@
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
+from agent.auxiliary_client import _OR_HEADERS_BASE
 from run_agent import AIAgent
 
 
@@ -196,7 +197,7 @@ def test_user_default_headers_override_sdk_user_agent(mock_openai):
         skip_memory=True,
     )
 
-    with patch("hermes_cli.config.load_config", return_value={
+    with patch("sonic_cli.config.load_config", return_value={
         "model": {"default_headers": {"User-Agent": "curl/8.7.1", "X-Extra": "1"}},
     }):
         agent._apply_client_headers_for_base_url("http://localhost:8080/v1")
@@ -219,14 +220,14 @@ def test_user_default_headers_win_over_provider_defaults(mock_openai):
         skip_memory=True,
     )
 
-    with patch("hermes_cli.config.load_config", return_value={
+    with patch("sonic_cli.config.load_config", return_value={
         "model": {"default_headers": {"X-Title": "MyApp"}},
     }):
         agent._apply_client_headers_for_base_url("https://openrouter.ai/api/v1")
 
     headers = agent._client_kwargs["default_headers"]
     assert headers["X-Title"] == "MyApp"  # user override wins
-    assert headers["HTTP-Referer"] == "https://hermes-agent.nousresearch.com"  # default preserved
+    assert headers["HTTP-Referer"] == _OR_HEADERS_BASE["HTTP-Referer"]  # default preserved
 
 
 @patch("run_agent.OpenAI")
@@ -241,11 +242,11 @@ def test_no_user_default_headers_leaves_provider_defaults_untouched(mock_openai)
         skip_memory=True,
     )
 
-    with patch("hermes_cli.config.load_config", return_value={"model": {}}):
+    with patch("sonic_cli.config.load_config", return_value={"model": {}}):
         agent._apply_client_headers_for_base_url("https://openrouter.ai/api/v1")
 
     headers = agent._client_kwargs["default_headers"]
-    assert headers["HTTP-Referer"] == "https://hermes-agent.nousresearch.com"
+    assert headers["HTTP-Referer"] == _OR_HEADERS_BASE["HTTP-Referer"]
     assert "User-Agent" not in headers  # nothing injected when unconfigured
 
 
@@ -265,7 +266,7 @@ def test_user_default_headers_skipped_for_anthropic_mode(mock_openai):
     agent.api_mode = "anthropic_messages"
     agent._client_kwargs = {}
 
-    with patch("hermes_cli.config.load_config", return_value={
+    with patch("sonic_cli.config.load_config", return_value={
         "model": {"default_headers": {"User-Agent": "curl/8.7.1"}},
     }):
         agent._apply_user_default_headers()

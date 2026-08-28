@@ -100,7 +100,7 @@ Sonic 有两个斜杠命令入口，均由 `sonic_cli/commands.py` 中的中央 
 | 命令 | 描述 |
 |---------|-------------|
 | `/help` | 显示帮助信息 |
-| `/version` | 显示 Hermes Agent 版本、构建及环境信息。 |
+| `/version` | 显示 Sonic Agent 版本、构建及环境信息。 |
 | `/usage` | 显示 token 用量、费用明细、会话时长，以及——当活动提供商支持时——从提供商 API 实时拉取的**账户限额**部分，包含剩余配额/积分/套餐用量。 |
 | `/insights` | 显示用量洞察和分析（最近 30 天） |
 | `/platforms`（别名：`/gateway`） | 显示 gateway/消息平台状态（仅限 CLI 摘要视图）。 |

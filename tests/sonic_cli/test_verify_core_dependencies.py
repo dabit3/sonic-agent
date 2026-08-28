@@ -214,11 +214,11 @@ class TestVerifyCoreDependencies:
         self, temp_pyproject, fake_venv_python
     ):
         """Regression: the ``--reinstall -e .`` repair must
-        quarantine the running ``hermes.exe`` on Windows before installing.
+        quarantine the running ``sonic.exe`` on Windows before installing.
 
         That reinstall rewrites the editable entry-point shims, and on Windows
         pip can't overwrite the live launcher — so without quarantine the shim
-        is left missing and ``hermes`` drops off PATH. Previously this path
+        is left missing and ``sonic`` drops off PATH. Previously this path
         called ``_run_install_with_heartbeat`` directly, bypassing the
         quarantine that the primary install path performs.
         """
@@ -237,19 +237,19 @@ class TestVerifyCoreDependencies:
 
         fake_scripts = venv_root / "Scripts"  # created by fake_venv_python
 
-        with patch("hermes_cli.main._resolve_install_target_python", return_value=py), \
-             patch("hermes_cli.main.subprocess.run", side_effect=fake_subprocess_run), \
-             patch("hermes_cli.main._is_windows", return_value=True), \
-             patch("hermes_cli.main._venv_scripts_dir", return_value=fake_scripts), \
-             patch("hermes_cli.main._run_install_with_heartbeat"), \
-             patch("hermes_cli.main._quarantine_running_hermes_exe", return_value=[]) as mock_quar:
+        with patch("sonic_cli.main._resolve_install_target_python", return_value=py), \
+             patch("sonic_cli.main.subprocess.run", side_effect=fake_subprocess_run), \
+             patch("sonic_cli.main._is_windows", return_value=True), \
+             patch("sonic_cli.main._venv_scripts_dir", return_value=fake_scripts), \
+             patch("sonic_cli.main._run_install_with_heartbeat"), \
+             patch("sonic_cli.main._quarantine_running_sonic_exe", return_value=[]) as mock_quar:
 
-            from hermes_cli.main import _verify_core_dependencies_installed
+            from sonic_cli.main import _verify_core_dependencies_installed
             _verify_core_dependencies_installed(["uv", "pip"], env=env)
 
             assert mock_quar.called, (
                 "the --reinstall -e . repair must quarantine the running "
-                "hermes.exe on Windows"
+                "sonic.exe on Windows"
             )
             assert mock_quar.call_args[0][0] == fake_scripts
 

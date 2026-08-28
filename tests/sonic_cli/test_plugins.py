@@ -21,7 +21,7 @@ from sonic_cli.plugins import (
     has_middleware,
     resolve_plugin_command_result,
 )
-from hermes_cli.middleware import (
+from sonic_cli.middleware import (
     VALID_MIDDLEWARE,
     apply_llm_request_middleware,
     apply_tool_request_middleware,
@@ -104,7 +104,7 @@ class TestPluginDiscovery:
         assert mgr._plugins["hello_plugin"].enabled
 
     def test_plugin_can_register_and_invoke_middleware(self, tmp_path, monkeypatch):
-        plugins_dir = tmp_path / "hermes_test" / "plugins"
+        plugins_dir = tmp_path / "sonic_test" / "plugins"
         _make_plugin_dir(
             plugins_dir,
             "mw_plugin",
@@ -115,7 +115,7 @@ class TestPluginDiscovery:
                 "lambda **kw: {'args': {**kw['args'], 'mw': True}})"
             ),
         )
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes_test"))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic_test"))
 
         mgr = PluginManager()
         mgr.discover_and_load()
@@ -138,7 +138,7 @@ class TestPluginDiscovery:
             return kwargs["next_call"](kwargs["args"])
 
         manager = types.SimpleNamespace(_middleware={"tool_execution": [middleware]})
-        monkeypatch.setattr("hermes_cli.plugins.get_plugin_manager", lambda: manager)
+        monkeypatch.setattr("sonic_cli.plugins.get_plugin_manager", lambda: manager)
 
         def terminal(args):
             calls.append(args)
@@ -151,7 +151,7 @@ class TestPluginDiscovery:
 
     def test_middleware_helpers_skip_no_listener_work(self, monkeypatch):
         manager = types.SimpleNamespace(_middleware={})
-        monkeypatch.setattr("hermes_cli.plugins.get_plugin_manager", lambda: manager)
+        monkeypatch.setattr("sonic_cli.plugins.get_plugin_manager", lambda: manager)
 
         request = {"messages": []}
         args = {"path": "README.md"}
@@ -178,7 +178,7 @@ class TestPluginDiscovery:
             _middleware={"tool_request": [same_payload_middleware]},
             invoke_middleware=lambda kind, **kwargs: [same_payload_middleware(**kwargs)],
         )
-        monkeypatch.setattr("hermes_cli.plugins.get_plugin_manager", lambda: manager)
+        monkeypatch.setattr("sonic_cli.plugins.get_plugin_manager", lambda: manager)
 
         args = {"path": "README.md"}
         result = apply_tool_request_middleware("read_file", args)
@@ -196,7 +196,7 @@ class TestPluginDiscovery:
             raise RuntimeError(f"post-processing failed after {result}")
 
         manager = types.SimpleNamespace(_middleware={"tool_execution": [middleware]})
-        monkeypatch.setattr("hermes_cli.plugins.get_plugin_manager", lambda: manager)
+        monkeypatch.setattr("sonic_cli.plugins.get_plugin_manager", lambda: manager)
 
         def terminal(args):
             calls.append(args)
@@ -219,7 +219,7 @@ class TestPluginDiscovery:
             return kwargs["next_call"]({**kwargs["args"], "rewritten": True})
 
         manager = types.SimpleNamespace(_middleware={"tool_execution": [failing_middleware, downstream_middleware]})
-        monkeypatch.setattr("hermes_cli.plugins.get_plugin_manager", lambda: manager)
+        monkeypatch.setattr("sonic_cli.plugins.get_plugin_manager", lambda: manager)
 
         def terminal(args):
             calls.append(("terminal", args))
@@ -240,7 +240,7 @@ class TestPluginDiscovery:
                 raise RuntimeError(f"translated downstream failure: {exc}") from exc
 
         manager = types.SimpleNamespace(_middleware={"tool_execution": [middleware]})
-        monkeypatch.setattr("hermes_cli.plugins.get_plugin_manager", lambda: manager)
+        monkeypatch.setattr("sonic_cli.plugins.get_plugin_manager", lambda: manager)
 
         def terminal(args):
             calls.append(args)
@@ -261,7 +261,7 @@ class TestPluginDiscovery:
                 raise RuntimeError(f"middleware should not catch base exception: {exc}") from exc
 
         manager = types.SimpleNamespace(_middleware={"tool_execution": [middleware]})
-        monkeypatch.setattr("hermes_cli.plugins.get_plugin_manager", lambda: manager)
+        monkeypatch.setattr("sonic_cli.plugins.get_plugin_manager", lambda: manager)
 
         def terminal(args):
             calls.append(args)
@@ -284,7 +284,7 @@ class TestPluginDiscovery:
             return first
 
         manager = types.SimpleNamespace(_middleware={"tool_execution": [middleware]})
-        monkeypatch.setattr("hermes_cli.plugins.get_plugin_manager", lambda: manager)
+        monkeypatch.setattr("sonic_cli.plugins.get_plugin_manager", lambda: manager)
 
         def terminal(args):
             calls.append(args)
@@ -308,7 +308,7 @@ class TestPluginDiscovery:
             _middleware={"tool_request": [middleware]},
             invoke_middleware=lambda kind, **kwargs: [middleware(**kwargs)],
         )
-        monkeypatch.setattr("hermes_cli.plugins.get_plugin_manager", lambda: manager)
+        monkeypatch.setattr("sonic_cli.plugins.get_plugin_manager", lambda: manager)
 
         # threading.Lock is not deepcopyable; a hard deepcopy would raise.
         args = {"command": "noop", "lock": threading.Lock()}

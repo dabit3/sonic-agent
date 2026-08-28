@@ -1021,9 +1021,9 @@ def _print_deep_probes() -> None:
     import json
     from datetime import datetime, timezone
 
-    from hermes_cli.config import get_hermes_home
+    from sonic_cli.config import get_sonic_home
 
-    home = Path(get_hermes_home()).resolve()
+    home = Path(get_sonic_home()).resolve()
     pid_path = home / "gateway.pid"
     lock_path = home / "gateway.lock"
     state_path = home / "gateway_state.json"

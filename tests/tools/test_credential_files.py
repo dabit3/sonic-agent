@@ -428,42 +428,42 @@ class TestMapCachePathToContainer:
     """Tests for map_cache_path_to_container() — the backend-agnostic mapper."""
 
     def test_maps_path_under_cache_dir(self, tmp_path, monkeypatch):
-        hermes_home = tmp_path / ".hermes"
-        img_dir = hermes_home / "cache" / "images"
+        sonic_home = tmp_path / ".sonic"
+        img_dir = sonic_home / "cache" / "images"
         img_dir.mkdir(parents=True)
         host_path = str(img_dir / "generated.png")
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         assert (
             map_cache_path_to_container(host_path)
-            == "/root/.hermes/cache/images/generated.png"
+            == "/root/.sonic/cache/images/generated.png"
         )
 
     def test_custom_container_base_for_remote_home(self, tmp_path, monkeypatch):
-        hermes_home = tmp_path / ".hermes"
-        img_dir = hermes_home / "cache" / "images"
+        sonic_home = tmp_path / ".sonic"
+        img_dir = sonic_home / "cache" / "images"
         img_dir.mkdir(parents=True)
         host_path = str(img_dir / "remote.png")
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         assert (
-            map_cache_path_to_container(host_path, container_base="/home/agent/.hermes")
-            == "/home/agent/.hermes/cache/images/remote.png"
+            map_cache_path_to_container(host_path, container_base="/home/agent/.sonic")
+            == "/home/agent/.sonic/cache/images/remote.png"
         )
 
     def test_returns_none_when_outside_cache_dirs(self, tmp_path, monkeypatch):
-        hermes_home = tmp_path / ".hermes"
-        (hermes_home / "cache" / "images").mkdir(parents=True)
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        sonic_home = tmp_path / ".sonic"
+        (sonic_home / "cache" / "images").mkdir(parents=True)
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         assert map_cache_path_to_container(str(tmp_path / "elsewhere.png")) is None
 
     def test_returns_none_when_no_cache_dirs_exist(self, tmp_path, monkeypatch):
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
-        assert map_cache_path_to_container(str(hermes_home / "cache" / "images" / "x.png")) is None
+        assert map_cache_path_to_container(str(sonic_home / "cache" / "images" / "x.png")) is None
 
 
 class TestIterCacheFiles:

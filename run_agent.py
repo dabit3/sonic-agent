@@ -3839,7 +3839,7 @@ class AIAgent:
         if self.api_mode in ("anthropic_messages", "bedrock_converse"):
             return
         try:
-            from hermes_cli.config import cfg_get, load_config
+            from sonic_cli.config import cfg_get, load_config
             user_headers = cfg_get(load_config(), "model", "default_headers")
         except Exception:
             return

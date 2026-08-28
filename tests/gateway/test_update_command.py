@@ -388,7 +388,7 @@ class TestUpdateCommandPlatformGate:
         # Stop _handle_update_command from progressing further if the gate
         # somehow lets the event through — the assertion on the returned
         # string is the real test.
-        monkeypatch.setenv("HERMES_MANAGED", "")
+        monkeypatch.setenv("SONIC_MANAGED", "")
 
         result = await runner._handle_update_command(event)
 
@@ -403,7 +403,7 @@ class TestUpdateCommandPlatformGate:
         """
         runner = _make_runner()
         event = _make_event(platform=Platform.API_SERVER)
-        monkeypatch.setenv("HERMES_MANAGED", "")
+        monkeypatch.setenv("SONIC_MANAGED", "")
 
         result = await runner._handle_update_command(event)
 
@@ -425,7 +425,7 @@ class TestUpdateCommandPlatformGate:
         assert Platform.DISCORD not in GatewayRunner._UPDATE_ALLOWED_PLATFORMS
 
         # Make sure the plugin registry is populated so the fallback fires.
-        from hermes_cli.plugins import PluginManager
+        from sonic_cli.plugins import PluginManager
         PluginManager().discover_and_load(force=True)
         from gateway.platform_registry import platform_registry
         discord_entry = platform_registry.get("discord")
@@ -434,13 +434,13 @@ class TestUpdateCommandPlatformGate:
 
         runner = _make_runner()
         event = _make_event(platform=Platform.DISCORD)
-        monkeypatch.setenv("HERMES_MANAGED", "")
+        monkeypatch.setenv("SONIC_MANAGED", "")
 
         result = await runner._handle_update_command(event)
 
         # The gate must NOT have rejected us — anything other than the
         # ``platform_not_messaging`` rejection string is acceptable here.
-        # Later steps may legitimately return success ("Starting Hermes
+        # Later steps may legitimately return success ("Starting Sonic
         # update…") or fail for environment reasons.
         assert "only available from messaging platforms" not in result
 
@@ -453,7 +453,7 @@ class TestUpdateCommandPlatformGate:
 
         assert Platform.MATTERMOST not in GatewayRunner._UPDATE_ALLOWED_PLATFORMS
 
-        from hermes_cli.plugins import PluginManager
+        from sonic_cli.plugins import PluginManager
         PluginManager().discover_and_load(force=True)
         from gateway.platform_registry import platform_registry
         mm_entry = platform_registry.get("mattermost")
@@ -462,7 +462,7 @@ class TestUpdateCommandPlatformGate:
 
         runner = _make_runner()
         event = _make_event(platform=Platform.MATTERMOST)
-        monkeypatch.setenv("HERMES_MANAGED", "")
+        monkeypatch.setenv("SONIC_MANAGED", "")
 
         result = await runner._handle_update_command(event)
 
@@ -478,7 +478,7 @@ class TestUpdateCommandPlatformGate:
 
         assert Platform.HOMEASSISTANT not in GatewayRunner._UPDATE_ALLOWED_PLATFORMS
 
-        from hermes_cli.plugins import PluginManager
+        from sonic_cli.plugins import PluginManager
         PluginManager().discover_and_load(force=True)
         from gateway.platform_registry import platform_registry
         ha_entry = platform_registry.get("homeassistant")
@@ -487,7 +487,7 @@ class TestUpdateCommandPlatformGate:
 
         runner = _make_runner()
         event = _make_event(platform=Platform.HOMEASSISTANT)
-        monkeypatch.setenv("HERMES_MANAGED", "")
+        monkeypatch.setenv("SONIC_MANAGED", "")
 
         result = await runner._handle_update_command(event)
 
@@ -504,7 +504,7 @@ class TestUpdateCommandPlatformGate:
 
         runner = _make_runner()
         event = _make_event(platform=Platform.TELEGRAM)
-        monkeypatch.setenv("HERMES_MANAGED", "")
+        monkeypatch.setenv("SONIC_MANAGED", "")
 
         result = await runner._handle_update_command(event)
 
