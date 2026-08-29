@@ -155,7 +155,7 @@ Sonic will:
 This is the easiest way to get worktree isolation. You can also combine it with a single query:
 
 ```bash
-sonic -w -q "Fix issue #123"
+sonic -w -z "Fix issue #123"
 ```
 
 For parallel agents, open multiple terminals and run `sonic -w` in each — every invocation gets its own worktree and branch automatically.

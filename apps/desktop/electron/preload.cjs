@@ -117,6 +117,10 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
     return () => ipcRenderer.removeListener('sonic:bootstrap:event', listener)
   },
   getVersion: () => ipcRenderer.invoke('sonic:version'),
+  uninstall: {
+    summary: () => ipcRenderer.invoke('sonic:uninstall:summary'),
+    run: mode => ipcRenderer.invoke('sonic:uninstall:run', { mode })
+  },
   updates: {
     check: () => ipcRenderer.invoke('sonic:updates:check'),
     apply: opts => ipcRenderer.invoke('sonic:updates:apply', opts),

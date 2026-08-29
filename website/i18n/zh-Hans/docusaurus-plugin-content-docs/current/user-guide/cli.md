@@ -44,7 +44,7 @@ sonic chat --verbose
 
 # 隔离的 git worktree（用于并行运行多个 agent）
 sonic -w                         # 在 worktree 中以交互模式运行
-sonic -w -q "Fix issue #123"     # 在 worktree 中以单次查询模式运行
+sonic -w -z "Fix issue #123"     # 在 worktree 中以单次查询模式运行
 ```
 
 ## 界面布局

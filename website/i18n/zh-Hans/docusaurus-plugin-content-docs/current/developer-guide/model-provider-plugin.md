@@ -250,7 +250,7 @@ sonic -z "hello" --provider my-provider -m some-model
 与所有 Sonic 插件一样，模型提供商可以作为 pip 包发布。在你的 `pyproject.toml` 中添加入口点：
 
 ```toml
-[project.entry-points."sonic.plugins"]
+[project.entry-points."sonic_agent.plugins"]
 acme-inference = "acme_sonic_plugin:register"
 ```
 

@@ -1,3 +1,8 @@
+---
+title: Computer Use
+sidebar_position: 16
+---
+
 # Computer Use (macOS)
 
 Sonic Agent can drive your Mac's desktop — clicking, typing, scrolling,

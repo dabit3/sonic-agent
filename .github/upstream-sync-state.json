@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "b1b89f843e62d375e886f468532025561989d725",
-  "synced_at": "2026-08-27T16:00:00Z",
-  "notes": "Partial sync. This branch carries five daily batches because PRs #37 and #38 were closed unmerged: 8bf498c2..b1b89f84 (400 first-parent commits, 0 skipped); today's batch is 7c00ffd9..b1b89f84 (80 commits). Backlog remains large (~12.3k first-parent commits beyond b1b89f84); each daily run advances the baseline by a reviewable batch. The original bootstrap baseline was inferred in an earlier run and still warrants a human double-check."
+  "last_synced_upstream_sha": "a216ff839b4ec6cea53d249610aa8210a6658963",
+  "synced_at": "2026-08-28T16:05:44Z",
+  "notes": "Partial sync: today's batch ports the first 80 first-parent commits after b1b89f84, ending at a216ff83 (0 commits skipped by the picker; 1 upstream-only dashboard screenshot omitted). Three conflicts required manual resolution in scripts/release.py, uv.lock, and website/docs/reference/model-catalog.md; other branding-only conflicts were auto-resolved. Remaining backlog is approximately 12,436 first-parent commits after a216ff83; each daily run advances the baseline by a reviewable batch."
 }

@@ -20,10 +20,12 @@ export const zh: Translations = {
     continue: '继续',
     copied: '已复制',
     copy: '复制',
+    copyFailed: '复制失败',
     delete: '删除',
     docs: '文档',
     done: '完成',
     error: '错误',
+    failed: '失败',
     free: '免费',
     loading: '加载中…',
     notSet: '未设置',
@@ -41,14 +43,14 @@ export const zh: Translations = {
   },
 
   boot: {
-    ready: 'Sonic Desktop 已就绪',
-    desktopBootFailedWithMessage: message => `桌面启动失败:${message}`,
+    ready: 'Sonic 桌面版已就绪',
+    desktopBootFailedWithMessage: message => `桌面启动失败：${message}`,
     steps: {
-      connectingGateway: '正在连接实时桌面网关',
+      connectingGateway: '正在连接桌面网关',
       loadingSettings: '正在加载 Sonic 设置',
       loadingSessions: '正在加载最近会话',
       startingDesktopConnection: '正在启动桌面连接',
-      startingSonicDesktop: '正在启动 Sonic Desktop…'
+      startingSonicDesktop: '正在启动 Sonic 桌面版…'
     },
     errors: {
       backgroundExited: 'Sonic 后台进程已退出。',
@@ -60,14 +62,14 @@ export const zh: Translations = {
     },
     failure: {
       title: 'Sonic 无法启动',
-      description: '后台网关没有启动。请尝试下面的恢复步骤。这些操作不会删除你的对话或设置。',
+      description: '后台网关没有启动。请尝试下面的恢复步骤；这里不会删除你的对话或设置。',
       remoteTitle: '需要重新登录远程网关',
       remoteDescription: '你的远程网关会话已过期。请重新登录以恢复连接。这些操作不会删除你的对话或设置。',
       retry: '重试',
       repairInstall: '修复安装',
       useLocalGateway: '使用本地网关',
       openLogs: '打开日志',
-      repairHint: '修复会重新运行安装器。在新机器上可能需要几分钟。',
+      repairHint: '修复会重新运行安装器，在新机器上可能需要几分钟。',
       remoteSignInHint: '打开网关登录窗口。也可以使用本地网关切换到随应用提供的后端。',
       hideRecentLogs: '隐藏最近日志',
       showRecentLogs: '显示最近日志',
@@ -106,6 +108,25 @@ export const zh: Translations = {
       openaiRejectedApiKey: 'OpenAI 拒绝了该 API key。',
       openaiRejectedApiKeyWithStatus: status => `OpenAI 拒绝了该 API key (${status} invalid_api_key)。`,
       openaiTtsNeedsKey: 'OpenAI TTS 需要 VOICE_TOOLS_OPENAI_KEY 或 OPENAI_API_KEY。'
+    },
+    voice: {
+      configureSpeechToText: '配置语音转文字后即可使用语音模式。',
+      couldNotStartSession: '无法启动语音会话',
+      microphoneAccessDenied: '麦克风访问被拒绝。',
+      microphoneConstraintsUnsupported: '此设备不支持当前麦克风约束。',
+      microphoneFailed: '麦克风出错',
+      microphoneInUse: '麦克风正被其他应用占用。',
+      microphonePermissionDenied: '麦克风权限被拒绝。',
+      microphoneStartFailed: '无法开始麦克风录音。',
+      microphoneUnsupported: '当前运行环境不支持麦克风录音。',
+      noMicrophone: '未找到麦克风。',
+      noSpeechDetected: '没有检测到语音',
+      playbackFailed: '语音播放失败',
+      recordingFailed: '语音录制失败',
+      transcriptionFailed: '语音转写失败',
+      transcriptionUnavailable: '语音转写暂不可用。',
+      tryRecordingAgain: '请再录一次。',
+      unavailable: '语音不可用'
     }
   },
 
@@ -120,7 +141,85 @@ export const zh: Translations = {
     showRightSidebar: '显示右侧栏',
     muteHaptics: '关闭触感反馈',
     unmuteHaptics: '开启触感反馈',
-    openSettings: '打开设置'
+    openSettings: '打开设置',
+    openKeybinds: '键盘快捷键'
+  },
+
+  keybinds: {
+    title: '键盘快捷键',
+    subtitle: open => `点击快捷键即可重新绑定 · ${open} 可重新打开此面板。`,
+    rebind: '重新绑定',
+    reset: '恢复默认',
+    resetAll: '全部重置',
+    pressKey: '请按下按键…',
+    set: '设置',
+    conflictWith: label => `已绑定到“${label}”`,
+    categories: {
+      composer: '输入框',
+      profiles: '配置',
+      session: '会话',
+      navigation: '导航',
+      view: '视图'
+    },
+    actions: {
+      'keybinds.openPanel': '打开键盘快捷键',
+      'nav.commandPalette': '打开命令面板',
+      'nav.commandCenter': '打开命令中心',
+      'nav.settings': '打开设置',
+      'nav.profiles': '打开配置',
+      'nav.skills': '打开技能',
+      'nav.messaging': '打开消息',
+      'nav.artifacts': '打开制品',
+      'nav.cron': '打开定时任务',
+      'nav.agents': '打开智能体',
+      'session.new': '新建会话',
+      'session.next': '下一个会话',
+      'session.prev': '上一个会话',
+      'session.focusSearch': '搜索会话',
+      'session.togglePin': '固定/取消固定当前会话',
+      'composer.focus': '聚焦输入框',
+      'composer.modelPicker': '打开模型选择器',
+      'view.toggleSidebar': '切换会话侧边栏',
+      'view.toggleRightSidebar': '切换文件浏览器',
+      'view.showFiles': '显示文件浏览器',
+      'view.showTerminal': '显示终端',
+      'view.terminalSelection': '将终端选区发送到输入框',
+      'view.closePreviewTab': '关闭预览标签',
+      'view.flipPanes': '交换侧边栏位置',
+      'appearance.toggleMode': '切换浅色/深色',
+      'profile.default': '切换到默认配置',
+      'profile.switch.1': '切换到配置 1',
+      'profile.switch.2': '切换到配置 2',
+      'profile.switch.3': '切换到配置 3',
+      'profile.switch.4': '切换到配置 4',
+      'profile.switch.5': '切换到配置 5',
+      'profile.switch.6': '切换到配置 6',
+      'profile.switch.7': '切换到配置 7',
+      'profile.switch.8': '切换到配置 8',
+      'profile.switch.9': '切换到配置 9',
+      'profile.switch.10': '切换到配置 10',
+      'profile.switch.11': '切换到配置 11',
+      'profile.switch.12': '切换到配置 12',
+      'profile.switch.13': '切换到配置 13',
+      'profile.switch.14': '切换到配置 14',
+      'profile.switch.15': '切换到配置 15',
+      'profile.switch.16': '切换到配置 16',
+      'profile.switch.17': '切换到配置 17',
+      'profile.switch.18': '切换到配置 18',
+      'profile.next': '下一个配置',
+      'profile.prev': '上一个配置',
+      'profile.toggleAll': '切换全部配置视图',
+      'profile.create': '创建配置',
+      'composer.send': '发送消息',
+      'composer.newline': '插入换行',
+      'composer.steer': '引导正在运行的回合',
+      'composer.sendQueued': '发送下一条排队消息',
+      'composer.mention': '引用文件、文件夹、网址',
+      'composer.slash': '斜杠命令面板',
+      'composer.help': '快速帮助',
+      'composer.history': '切换弹窗/历史',
+      'composer.cancel': '关闭弹窗·取消运行'
+    }
   },
 
   language: {
@@ -128,7 +227,9 @@ export const zh: Translations = {
     description: '选择桌面界面的语言。',
     saving: '正在保存语言…',
     saveError: '语言更新失败',
-    switchTo: '切换语言'
+    switchTo: '切换语言',
+    searchPlaceholder: '搜索语言…',
+    noResults: '未找到语言'
   },
 
   settings: {
@@ -190,59 +291,59 @@ export const zh: Translations = {
     },
     fieldLabels: defineFieldCopy({
       model: '默认模型',
-      model_context_length: '上下文窗口',
-      fallback_providers: '备用模型',
+      modelContextLength: '上下文窗口',
+      fallbackProviders: '备用模型',
       toolsets: '启用的工具集',
       timezone: '时区',
       display: {
         personality: '人格',
-        show_reasoning: '推理过程块'
+        showReasoning: '推理过程块'
       },
       agent: {
-        max_turns: '最大智能体步数',
-        image_input_mode: '图片附件',
-        api_max_retries: 'API 重试次数',
-        service_tier: '服务等级',
-        tool_use_enforcement: '工具调用强制'
+        maxTurns: '最大智能体步数',
+        imageInputMode: '图片附件',
+        apiMaxRetries: 'API 重试次数',
+        serviceTier: '服务等级',
+        toolUseEnforcement: '工具调用强制'
       },
       terminal: {
         cwd: '工作目录',
         backend: '执行后端',
         timeout: '命令超时',
-        persistent_shell: '持久化 Shell',
-        env_passthrough: '环境变量透传'
+        persistentShell: '持久化 Shell',
+        envPassthrough: '环境变量透传'
       },
-      file_read_max_chars: '文件读取上限',
-      tool_output: {
-        max_bytes: '终端输出上限',
-        max_lines: '文件分页上限',
-        max_line_length: '行长度上限'
+      fileReadMaxChars: '文件读取上限',
+      toolOutput: {
+        maxBytes: '终端输出上限',
+        maxLines: '文件分页上限',
+        maxLineLength: '行长度上限'
       },
-      code_execution: {
+      codeExecution: {
         mode: '代码执行模式'
       },
       approvals: {
         mode: '审批模式',
         timeout: '审批超时',
-        mcp_reload_confirm: '确认 MCP 重载'
+        mcpReloadConfirm: '确认 MCP 重载'
       },
-      command_allowlist: '命令白名单',
+      commandAllowlist: '命令白名单',
       security: {
-        redact_secrets: '隐去密钥',
-        allow_private_urls: '允许私有 URL'
+        redactSecrets: '隐去密钥',
+        allowPrivateUrls: '允许私有 URL'
       },
       browser: {
-        allow_private_urls: '浏览器私有 URL',
-        auto_local_for_private_urls: '私有 URL 使用本地浏览器'
+        allowPrivateUrls: '浏览器私有 URL',
+        autoLocalForPrivateUrls: '私有 URL 使用本地浏览器'
       },
       checkpoints: {
         enabled: '文件检查点',
-        max_snapshots: '检查点上限'
+        maxSnapshots: '检查点上限'
       },
       voice: {
-        record_key: '语音快捷键',
-        max_recording_seconds: '最长录音时长',
-        auto_tts: '朗读回复'
+        recordKey: '语音快捷键',
+        maxRecordingSeconds: '最长录音时长',
+        autoTts: '朗读回复'
       },
       stt: {
         enabled: '语音转文字',
@@ -252,9 +353,9 @@ export const zh: Translations = {
           language: '转写语言'
         },
         elevenlabs: {
-          model_id: 'ElevenLabs STT 模型',
-          language_code: 'ElevenLabs 语言',
-          tag_audio_events: '标记音频事件',
+          modelId: 'ElevenLabs STT 模型',
+          languageCode: 'ElevenLabs 语言',
+          tagAudioEvents: '标记音频事件',
           diarize: '说话人区分'
         }
       },
@@ -268,15 +369,15 @@ export const zh: Translations = {
           voice: 'OpenAI 语音'
         },
         elevenlabs: {
-          voice_id: 'ElevenLabs 语音',
-          model_id: 'ElevenLabs 模型'
+          voiceId: 'ElevenLabs 语音',
+          modelId: 'ElevenLabs 模型'
         }
       },
       memory: {
-        memory_enabled: '持久记忆',
-        user_profile_enabled: '用户画像',
-        memory_char_limit: '记忆预算',
-        user_char_limit: '画像预算',
+        memoryEnabled: '持久记忆',
+        userProfileEnabled: '用户画像',
+        memoryCharLimit: '记忆预算',
+        userCharLimit: '画像预算',
         provider: '记忆提供方'
       },
       context: {
@@ -285,53 +386,56 @@ export const zh: Translations = {
       compression: {
         enabled: '自动压缩',
         threshold: '压缩阈值',
-        target_ratio: '压缩目标',
-        protect_last_n: '保护最近消息'
+        targetRatio: '压缩目标',
+        protectLastN: '保护最近消息'
       },
       delegation: {
         model: '子智能体模型',
         provider: '子智能体提供方',
-        max_iterations: '子智能体轮次上限',
-        max_concurrent_children: '并行子智能体',
-        child_timeout_seconds: '子智能体超时',
-        reasoning_effort: '子智能体推理强度'
+        maxIterations: '子智能体轮次上限',
+        maxConcurrentChildren: '并行子智能体',
+        childTimeoutSeconds: '子智能体超时',
+        reasoningEffort: '子智能体推理强度'
+      },
+      updates: {
+        nonInteractiveLocalChanges: '应用内更新本地更改'
       }
     }),
     fieldDescriptions: defineFieldCopy({
       model: '用于新对话，除非你在输入框中选择其他模型。',
-      model_context_length: '保持为 0 则使用所选模型检测到的上下文窗口。',
-      fallback_providers: '默认模型失败时尝试的备用 provider:model 条目。',
+      modelContextLength: '保持为 0 则使用所选模型检测到的上下文窗口。',
+      fallbackProviders: '默认模型失败时尝试的备用 provider:model 条目。',
       display: {
         personality: '新会话的默认助手风格。',
-        show_reasoning: '当后端提供推理内容时予以显示。'
+        showReasoning: '当后端提供推理内容时予以显示。'
       },
       timezone: '当 Sonic 需要本地时间上下文时使用。留空则使用系统时区。',
       agent: {
-        image_input_mode: '控制图片附件如何发送给模型。',
-        max_turns: 'Sonic 停止一次运行前工具调用轮次的上限。'
+        imageInputMode: '控制图片附件如何发送给模型。',
+        maxTurns: 'Sonic 停止一次运行前工具调用轮次的上限。'
       },
       terminal: {
         cwd: '工具与终端操作的默认项目目录。',
-        persistent_shell: '当后端支持时，在命令之间保留 Shell 状态。',
-        env_passthrough: '传入工具执行的环境变量。'
+        persistentShell: '当后端支持时，在命令之间保留 Shell 状态。',
+        envPassthrough: '传入工具执行的环境变量。'
       },
-      code_execution: {
+      codeExecution: {
         mode: '代码执行被限定到当前项目的严格程度。'
       },
-      file_read_max_chars: 'Sonic 单次文件读取可读取的最大字符数。',
+      fileReadMaxChars: 'Sonic 单次文件读取可读取的最大字符数。',
       approvals: {
         mode: 'Sonic 如何处理需要显式审批的命令。',
         timeout: '审批提示在超时前等待的时长。'
       },
       security: {
-        redact_secrets: '尽可能从模型可见内容中隐藏检测到的密钥。'
+        redactSecrets: '尽可能从模型可见内容中隐藏检测到的密钥。'
       },
       checkpoints: {
         enabled: '在文件编辑前创建可回滚的快照。'
       },
       memory: {
-        memory_enabled: '保存有助于未来会话的持久记忆。',
-        user_profile_enabled: '维护一份精简的用户偏好画像。'
+        memoryEnabled: '保存有助于未来会话的持久记忆。',
+        userProfileEnabled: '维护一份精简的用户偏好画像。'
       },
       context: {
         engine: '在接近上下文上限时管理长对话的策略。'
@@ -340,13 +444,17 @@ export const zh: Translations = {
         enabled: '当对话变大时对较早的上下文进行摘要。'
       },
       voice: {
-        auto_tts: '自动朗读助手回复。'
+        autoTts: '自动朗读助手回复。'
       },
       stt: {
         enabled: '启用本地或提供方支持的语音转写。',
         elevenlabs: {
-          language_code: '可选的 ISO-639-3 语言代码。留空让 ElevenLabs 自动检测。'
+          languageCode: '可选的 ISO-639-3 语言代码。留空让 ElevenLabs 自动检测。'
         }
+      },
+      updates: {
+        nonInteractiveLocalChanges:
+          'Sonic 从应用内更新时（无终端提示），保留本地源码修改（暂存）或丢弃（放弃）。通过终端更新时始终会询问。'
       }
     }),
     about: {
@@ -588,7 +696,15 @@ export const zh: Translations = {
       ready: '就绪',
       nousIncluded: '包含在 Nous 订阅中；登录 Nous Portal 即可激活。',
       noApiKeyRequired: '不需要 API 密钥。',
-      postSetup: step => `此提供方需要额外设置步骤 (${step})。暂时请在 CLI 中运行 sonic tools。`
+      postSetupHint: step => `此后端需要一次性安装 (${step})。将在此机器上执行，可能需要几分钟。`,
+      postSetupRun: '运行设置',
+      postSetupRunning: '安装中…',
+      postSetupStarting: '启动中…',
+      postSetupCompleteTitle: '设置完成',
+      postSetupCompleteMessage: step => `已安装 ${step}。`,
+      postSetupErrorTitle: '设置完成但有错误',
+      postSetupErrorMessage: step => `请检查 ${step} 日志。`,
+      postSetupFailed: step => `运行 ${step} 设置失败`
     }
   },
 
@@ -929,8 +1045,6 @@ export const zh: Translations = {
   cron: {
     close: '关闭定时任务',
     search: '搜索定时任务…',
-    refresh: '刷新定时任务',
-    refreshing: '正在刷新定时任务',
     loading: '正在加载定时任务…',
     states: {
       enabled: '已启用',
@@ -983,15 +1097,18 @@ export const zh: Translations = {
     monthlyOnDayAt: (dayOfMonth, time) => `每月 ${dayOfMonth} 日 ${time}`,
     topOfHour: '每个整点',
     everyHourAt: minute => `每小时的 :${minute}`,
-    active: (enabled, total) => `${enabled}/${total} 个启用`,
     newCron: '新建定时任务',
-    createFirst: '创建第一个定时任务',
     emptyDescNew: '按 cron 表达式排程一个提示词。Sonic 会运行它，并把结果发送到你选择的目的地。',
     emptyDescSearch: '尝试更宽泛的搜索词。',
     emptyTitleNew: '暂无排程任务',
     emptyTitleSearch: '无匹配项',
     last: '上次：',
     next: '下次：',
+    noRuns: '尚无运行',
+    manage: '管理',
+    showRuns: '显示运行记录',
+    hideRuns: '隐藏运行记录',
+    runHistory: '运行记录',
     actionsFor: title => `${title} 的操作`,
     actionsTitle: '定时任务操作',
     resume: '恢复定时任务',
@@ -1083,6 +1200,7 @@ export const zh: Translations = {
     results: '结果',
     pinned: '已置顶',
     sessions: '会话',
+    cronJobs: '定时任务',
     groupAriaGrouped: '以单一列表显示会话',
     groupAriaUngrouped: '按工作区分组会话',
     groupTitleGrouped: '取消分组',
@@ -1164,6 +1282,10 @@ export const zh: Translations = {
     stopDictation: '停止听写',
     transcribingDictation: '正在转写听写',
     voiceDictation: '语音听写',
+    lookupLoading: '查找中…',
+    lookupNoMatches: '没有匹配项。',
+    lookupTry: '试试',
+    lookupOr: '或',
     commonCommands: '常用命令',
     hotkeys: '快捷键',
     helpFooter: '打开完整面板 · 退格键关闭',
@@ -1304,7 +1426,7 @@ export const zh: Translations = {
       '某个安装步骤失败。在 Windows 上，如果另一个 Sonic CLI 或桌面实例正在运行，可能会出现这种情况。请停止正在运行的 Sonic 实例后重试。可查看下面的详情或 desktop 日志中的完整记录。',
     activeDesc: '这是一次性设置。Sonic 安装器正在下载依赖并配置你的机器。之后启动会跳过此步骤。',
     progress: (completed, total) => `${completed}/${total} 个步骤已完成`,
-    currentStage: stage => ` -- 当前: ${stage}`,
+    currentStage: stage => ` -- 当前：${stage}`,
     fetchingManifest: '正在获取安装器 manifest...',
     error: '错误',
     hideOutput: '隐藏安装器输出',
@@ -1340,7 +1462,7 @@ export const zh: Translations = {
       xai: { short: 'Grok 模型', description: '直接访问 xAI Grok 模型。' },
       local: {
         short: '自托管',
-        description: '将 Sonic 指向本地或自托管的 OpenAI 兼容端点(vLLM、llama.cpp、Ollama 等)。'
+        description: '将 Sonic 指向本地或自托管的 OpenAI 兼容端点 (vLLM、llama.cpp、Ollama 等)。'
       }
     },
     backToSignIn: '返回登录',
@@ -1358,7 +1480,7 @@ export const zh: Translations = {
     },
     startingSignIn: provider => `正在为 ${provider} 启动登录...`,
     verifyingCode: provider => `正在通过 ${provider} 验证你的代码...`,
-    connectedProvider: provider => `${provider} 已连接。`,
+    connectedProvider: provider => `${provider} 已连接`,
     connectedPicking: provider => `${provider} 已连接。正在选择默认模型...`,
     signInFailed: '登录失败，请重试。',
     pickDifferentProvider: '选择其他提供方',
@@ -1382,17 +1504,17 @@ export const zh: Translations = {
     free: '免费',
     price: (input, output) => `${input} 输入 / ${output} 输出每 Mtok`,
     change: '更改',
-    startChatting: '开始对话',
+    startChatting: '开始',
     docs: provider => `${provider} 文档`
   },
 
   modelPicker: {
     title: '切换模型',
-    current: '当前:',
+    current: '当前：',
     unknown: '(未知)',
     search: '筛选提供方和模型...',
     noModels: '未找到模型。',
-    persistGlobalSession: '全局保存(否则仅当前会话)',
+    persistGlobalSession: '全局保存 (否则仅当前会话)',
     persistGlobal: '全局保存',
     addProvider: '添加提供方',
     loadFailed: '无法加载模型',
@@ -1446,7 +1568,7 @@ export const zh: Translations = {
       checkingInference: '正在检查推理',
       disconnected: '已断开',
       openSystem: '打开系统面板',
-      connection: label => `连接: ${label}`,
+      connection: label => `连接：${label}`,
       recentActivity: '最近活动',
       viewAllLogs: '查看全部日志 →',
       messagingPlatforms: '消息平台'
@@ -1509,7 +1631,7 @@ export const zh: Translations = {
     noProjectTitle: '没有项目',
     noProjectBody: '从状态栏设置工作目录后即可浏览文件。',
     unreadableTitle: '无法读取',
-    unreadableBody: error => `无法读取此文件夹(${error})。`,
+    unreadableBody: error => `无法读取此文件夹 (${error})。`,
     emptyTitle: '空文件夹',
     emptyBody: '此文件夹为空。',
     treeErrorTitle: '文件树错误',
@@ -1559,7 +1681,7 @@ export const zh: Translations = {
       copy: '复制',
       clear: '清除',
       empty: '暂无控制台消息。',
-      promptHeader: '预览控制台:',
+      promptHeader: '预览控制台：',
       sentTitle: '已发送到对话',
       sentMessage: count => `已将 ${count} 条日志添加到输入框`
     },
@@ -1573,14 +1695,14 @@ export const zh: Translations = {
       lookingRestart: taskId => `Sonic 正在查找要重启的预览服务器 (${taskId})`,
       restartingTitle: '正在重启预览服务器',
       restartingMessage: 'Sonic 正在后台工作。可在预览控制台查看进度。',
-      startRestartFailed: message => `无法启动服务器重启: ${message}`,
+      startRestartFailed: message => `无法启动服务器重启：${message}`,
       restartFailed: '服务器重启失败',
       hideConsole: '隐藏预览控制台',
       showConsole: '显示预览控制台',
       hideDevTools: '隐藏预览 DevTools',
       openDevTools: '打开预览 DevTools',
       finishedRestarting: message => `Sonic 已完成预览服务器重启${message ? `: ${message}` : ''}`,
-      failedRestarting: message => `服务器重启失败: ${message}`,
+      failedRestarting: message => `服务器重启失败：${message}`,
       unknownError: '未知错误',
       restartedTitle: '预览服务器已重启',
       reloadingNow: '正在重新加载预览。',
@@ -1588,9 +1710,9 @@ export const zh: Translations = {
       restartFailedMessage: 'Sonic 无法重启服务器。',
       stillWorking: 'Sonic 仍在工作，但还没有收到重启结果。服务器命令可能正在前台运行。',
       workspaceReloading: '工作区已变更，正在重新加载预览',
-      fileChanged: url => `文件已变更，正在重新加载预览: ${url}`,
-      filesChanged: (count, url) => `${count} 个文件变更，正在重新加载预览: ${url}`,
-      watchFailed: message => `无法监听预览文件: ${message}`,
+      fileChanged: url => `文件已变更，正在重新加载预览：${url}`,
+      filesChanged: (count, url) => `${count} 个文件变更，正在重新加载预览：${url}`,
+      watchFailed: message => `无法监听预览文件：${message}`,
       moduleMimeDescription:
         '模块脚本使用了错误的 MIME 类型。这通常表示静态文件服务器正在服务 Vite/React 应用，而不是项目开发服务器。',
       loadFailedConsole: (code, message) => `加载失败${code ? ` (${code})` : ''}: ${message}`,
@@ -1634,7 +1756,7 @@ export const zh: Translations = {
       reject: '拒绝',
       alwaysTitle: '始终允许此命令？',
       alwaysDescription: pattern =>
-        `这会将 “${pattern}” 模式加入永久允许列表(~/.sonic/config.yaml)。Sonic 对类似命令将不再询问，包括当前会话和未来会话。`,
+        `这会将“${pattern}”模式加入永久允许列表 (~/.sonic/config.yaml)。Sonic 对类似命令将不再询问，包括当前会话和未来会话。`,
       alwaysAllow: '始终允许'
     },
     clarify: {
@@ -1642,7 +1764,7 @@ export const zh: Translations = {
       gatewayDisconnected: 'Sonic 网关未连接',
       sendFailed: '无法发送澄清响应',
       loadingQuestion: '正在加载问题…',
-      other: '其他(输入你的答案)',
+      other: '其他 (输入你的答案)',
       placeholder: '输入你的答案…',
       shortcut: '⌘/Ctrl + Enter 发送',
       back: '返回',
@@ -1667,7 +1789,11 @@ export const zh: Translations = {
       recoveredOne: '在 1 个失败步骤后已恢复',
       recoveredMany: count => `在 ${count} 个失败步骤后已恢复`,
       failedOne: '1 个步骤失败',
-      failedMany: count => `${count} 个步骤失败`
+      failedMany: count => `${count} 个步骤失败`,
+      statusRunning: '运行中',
+      statusError: '错误',
+      statusRecovered: '已恢复',
+      statusDone: '完成'
     }
   },
 
@@ -1692,17 +1818,17 @@ export const zh: Translations = {
     emptySlashCommand: '空 slash 命令',
     desktopCommands: '桌面端命令',
     skillCommandsAvailable: count => `${count} 个技能命令可用。`,
-    warningLine: message => `警告: ${message}`,
+    warningLine: message => `警告：${message}`,
     yoloArmed: '此对话已启用 YOLO',
     yoloOff: 'YOLO 已关闭',
     yoloSystem: active => `此会话 YOLO ${active ? '已开启' : '已关闭'}`,
     yoloTitle: 'YOLO',
     yoloToggleFailed: '无法切换 YOLO',
-    profileStatus: current => `Profile: ${current}。使用 /profile <name> 或“新建会话”选择器在其他 profile 中开始对话。`,
-    unknownProfile: '未知 profile',
-    noProfileNamed: (target, available) => `没有名为“${target}”的 profile。可用: ${available}`,
-    newChatsProfile: name => `新对话将使用 profile ${name}。`,
-    setProfileFailed: '设置 profile 失败',
+    profileStatus: current => `配置档案：${current}。使用 /profile <name> 或“新建会话”选择器在其他配置档案中开始对话。`,
+    unknownProfile: '未知配置档案',
+    noProfileNamed: (target, available) => `没有名为“${target}”的配置档案。可用：${available}`,
+    newChatsProfile: name => `新对话将使用配置档案 ${name}。`,
+    setProfileFailed: '设置配置档案失败',
     sttDisabled: '设置中已禁用语音转文字。',
     stopFailed: '停止失败',
     regenerateFailed: '重新生成失败',
@@ -1726,9 +1852,12 @@ export const zh: Translations = {
     sessionExportFailed: '无法导出会话',
     imageSaved: '图片已保存',
     downloadStarted: '下载已开始',
-    restartToUseSaveImage: '重启 Sonic Desktop 后可使用保存图片。',
-    restartToSaveImages: '重启 Sonic Desktop 以保存图片',
+    restartToUseSaveImage: '重启 Sonic 桌面版后可使用保存图片。',
+    restartToSaveImages: '重启 Sonic 桌面版以保存图片',
     imageDownloadFailed: '图片下载失败',
+    openImage: '打开图片',
+    downloadImage: '下载图片',
+    savingImage: '正在保存图片',
     imagePreviewFailed: '图片预览失败',
     imageAttach: '附加图片',
     imageWriteFailed: '无法将图片写入磁盘。',

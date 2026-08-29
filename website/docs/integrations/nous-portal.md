@@ -133,6 +133,7 @@ If you use [Sonic profiles](/user-guide/profiles), the Portal refresh token is a
 ```bash
 sonic portal            # log in to Nous Portal + set it up (one-shot onboarding)
 sonic portal info       # login status, subscription info, model + gateway routing
+sonic portal status     # alias for `portal info`
 sonic portal tools      # detailed Tool Gateway catalog with per-tool routing
 sonic portal open       # open the subscription management page in your browser
 ```

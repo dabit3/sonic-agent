@@ -13,7 +13,7 @@ Sonic 从托管于文档站点旁的 JSON 清单中获取 **OpenRouter** 和 **N
 ## 线上清单 URL
 
 ```
-https://sonic-agent.nousresearch.com/docs/api/model-catalog.json
+https://lightning-agent.nousresearch.com/docs/api/model-catalog.json
 ```
 
 每次合并到 `main` 时，通过现有的 `deploy-site.yml` GitHub Pages 流水线发布。真实来源位于仓库的 `website/static/api/model-catalog.json`。
@@ -68,8 +68,8 @@ https://sonic-agent.nousresearch.com/docs/api/model-catalog.json
 ```yaml
 model_catalog:
   enabled: true
-  url: https://sonic-agent.nousresearch.com/docs/api/model-catalog.json
-  ttl_hours: 24
+  url: https://lightning-agent.nousresearch.com/docs/api/model-catalog.json
+  ttl_hours: 1
   providers: {}
 ```
 

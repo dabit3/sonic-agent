@@ -165,6 +165,28 @@ When `SONIC_NEMO_RELAY_PLUGINS_TOML` is set and initializes successfully, NeMo
 Relay owns exporter lifecycle through that config. The direct
 `SONIC_NEMO_RELAY_ATOF_*` fallback setup is skipped.
 
+To enable NeMo Relay managed execution intercepts for provider and tool calls,
+include an adaptive component in the same `plugins.toml`:
+
+```toml
+[[components]]
+kind = "adaptive"
+enabled = true
+
+[components.config]
+mode = "route"
+```
+
+When the adaptive component is enabled and the installed NeMo Relay runtime
+exposes `llm.execute(...)` / `tools.execute(...)`, Sonic routes LLM and tool
+execution through those middleware boundaries. The observer hooks still emit
+session, turn, approval, and subagent marks; the plugin skips its manual
+`llm.call` and `tools.call` spans for executions that are already managed by
+NeMo Relay.
+
+For the full generic Sonic middleware contract, see
+[`docs/middleware/README.md`](../../../docs/middleware/README.md).
+
 ## Canonical Local Examples
 
 The examples below use the official `nemo-relay==0.3` distribution and a local
@@ -366,3 +388,166 @@ subagent IDs, role/status fields when present, and derived
 `parent_trajectory_id` / `child_trajectory_id` values. This keeps the ATOF
 stream lossless for later ATIF conversion that can compact subagents into
 separate trajectories.
+
+## Adaptive Middleware Example
+
+The `observability/nemo_relay` plugin uses Sonic execution middleware to hand
+LLM and tool calls to NeMo Relay managed execution when an adaptive component is
+enabled.
+
+Minimal `plugins.toml`:
+
+```toml
+version = 1
+
+[[components]]
+kind = "adaptive"
+enabled = true
+
+[components.config]
+mode = "route"
+```
+
+Enable it for Sonic:
+
+```bash
+export SONIC_NEMO_RELAY_PLUGINS_TOML=/tmp/sonic-middleware-test/plugins.toml
+```
+
+When the adaptive component is enabled and the installed NeMo Relay runtime
+exposes `llm.execute(...)` and `tools.execute(...)`, Sonic routes execution
+through these boundaries:
+
+```text
+Sonic provider call
+  -> llm_execution middleware
+    -> nemo_relay.llm.execute(...)
+      -> Sonic provider adapter next_call(...)
+
+Sonic tool call
+  -> tool_execution middleware
+    -> nemo_relay.tools.execute(...)
+      -> Sonic tool dispatcher next_call(...)
+```
+
+The plugin still emits observer marks for sessions, turns, approvals, and
+subagents. When adaptive managed execution is active, it skips manual
+`llm.call` and `tools.call` observer spans to avoid duplicate LLM/tool events
+for the same execution.
+
+### Local Adaptive E2E
+
+This example enables both NeMo Relay observability export and adaptive execution
+middleware for a local Sonic run.
+
+```bash
+pip install "nemo-relay==0.3"
+
+export SONIC_HOME=/tmp/sonic-middleware-test/sonic-home
+mkdir -p "$SONIC_HOME" /tmp/sonic-middleware-test/nemo-relay
+
+cat > "$SONIC_HOME/config.yaml" <<'YAML'
+model:
+  provider: custom
+  default: qwen3.6:35b
+  base_url: http://127.0.0.1:11434/v1
+  api_key: ollama
+plugins:
+  enabled:
+    - observability/nemo_relay
+YAML
+
+cat > /tmp/sonic-middleware-test/nemo-relay/plugins.toml <<'TOML'
+version = 1
+
+[[components]]
+kind = "observability"
+enabled = true
+
+[components.config]
+version = 1
+
+[components.config.atof]
+enabled = true
+output_directory = "/tmp/sonic-middleware-test/atof"
+filename = "middleware-events.jsonl"
+mode = "overwrite"
+
+[components.config.atif]
+enabled = true
+output_directory = "/tmp/sonic-middleware-test/atif"
+filename_template = "middleware-trajectory-{session_id}.json"
+agent_name = "Sonic Middleware E2E"
+agent_version = "local"
+
+[[components]]
+kind = "adaptive"
+enabled = true
+
+[components.config]
+mode = "route"
+TOML
+
+export SONIC_NEMO_RELAY_PLUGINS_TOML=/tmp/sonic-middleware-test/nemo-relay/plugins.toml
+
+sonic chat \
+  --query 'Use the terminal tool exactly once to run printf middleware_execution_ok. Then reply with exactly the command output.' \
+  --provider custom \
+  --model qwen3.6:35b \
+  --toolsets terminal \
+  --max-turns 4 \
+  --quiet \
+  --accept-hooks
+```
+
+Expected CLI output:
+
+```text
+session_id: middleware-demo-session
+middleware_execution_ok
+```
+
+Expected ATOF shape:
+
+```jsonl
+{"kind":"scope","category":"llm","name":"custom","scope_category":"start","metadata":{"session_id":"middleware-demo-session"},"data":{"mode":"route"}}
+{"kind":"scope","category":"tool","name":"terminal","scope_category":"start","metadata":{"session_id":"middleware-demo-session","tool_call_id":"call_terminal"},"data":{"mode":"route"}}
+{"kind":"scope","category":"tool","name":"terminal","scope_category":"end","metadata":{"session_id":"middleware-demo-session","tool_call_id":"call_terminal","status":"ok"},"data":"{\"output\":\"middleware_execution_ok\",\"exit_code\":0,\"error\":null}"}
+```
+
+Expected ATIF shape:
+
+```json
+{
+  "schema_version": "ATIF-v1.7",
+  "session_id": "middleware-demo-session",
+  "agent": {
+    "name": "Sonic Middleware E2E",
+    "version": "local",
+    "model_name": "qwen3.6:35b"
+  },
+  "steps": [
+    {
+      "source": "agent",
+      "tool_calls": [
+        {
+          "function_name": "terminal",
+          "arguments": {"command": "printf middleware_execution_ok"}
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_terminal",
+            "content": "{\"output\":\"middleware_execution_ok\",\"exit_code\":0,\"error\":null}"
+          }
+        ]
+      }
+    },
+    {
+      "source": "agent",
+      "message": "middleware_execution_ok"
+    }
+  ]
+}
+```

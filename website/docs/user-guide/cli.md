@@ -48,7 +48,7 @@ sonic chat --verbose
 
 # Isolated git worktree (for running multiple agents in parallel)
 sonic -w                         # Interactive mode in worktree
-sonic -w -q "Fix issue #123"     # Single query in worktree
+sonic -w -z "Fix issue #123"     # Single query in worktree
 ```
 
 ## Interface Layout

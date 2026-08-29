@@ -35,10 +35,12 @@ export interface Translations {
     continue: string
     copied: string
     copy: string
+    copyFailed: string
     delete: string
     docs: string
     done: string
     error: string
+    failed: string
     free: string
     loading: string
     notSet: string
@@ -122,6 +124,25 @@ export interface Translations {
       openaiRejectedApiKeyWithStatus: (status: string) => string
       openaiTtsNeedsKey: string
     }
+    voice: {
+      configureSpeechToText: string
+      couldNotStartSession: string
+      microphoneAccessDenied: string
+      microphoneConstraintsUnsupported: string
+      microphoneFailed: string
+      microphoneInUse: string
+      microphonePermissionDenied: string
+      microphoneStartFailed: string
+      microphoneUnsupported: string
+      noMicrophone: string
+      noSpeechDetected: string
+      playbackFailed: string
+      recordingFailed: string
+      transcriptionFailed: string
+      transcriptionUnavailable: string
+      tryRecordingAgain: string
+      unavailable: string
+    }
   }
 
   titlebar: {
@@ -136,6 +157,20 @@ export interface Translations {
     muteHaptics: string
     unmuteHaptics: string
     openSettings: string
+    openKeybinds: string
+  }
+
+  keybinds: {
+    title: string
+    subtitle: (open: string) => string
+    rebind: string
+    reset: string
+    resetAll: string
+    pressKey: string
+    set: string
+    conflictWith: (label: string) => string
+    categories: Record<string, string>
+    actions: Record<string, string>
   }
 
   language: {
@@ -144,6 +179,8 @@ export interface Translations {
     saving: string
     saveError: string
     switchTo: string
+    searchPlaceholder: string
+    noResults: string
   }
 
   settings: {
@@ -413,7 +450,15 @@ export interface Translations {
       ready: string
       nousIncluded: string
       noApiKeyRequired: string
-      postSetup: (step: string) => string
+      postSetupHint: (step: string) => string
+      postSetupRun: string
+      postSetupRunning: string
+      postSetupStarting: string
+      postSetupCompleteTitle: string
+      postSetupCompleteMessage: (step: string) => string
+      postSetupErrorTitle: string
+      postSetupErrorMessage: (step: string) => string
+      postSetupFailed: (step: string) => string
     }
   }
 
@@ -654,8 +699,6 @@ export interface Translations {
   cron: {
     close: string
     search: string
-    refresh: string
-    refreshing: string
     loading: string
     states: Record<string, string>
     deliveryLabels: Record<string, string>
@@ -669,15 +712,18 @@ export interface Translations {
     monthlyOnDayAt: (dayOfMonth: string, time: string) => string
     topOfHour: string
     everyHourAt: (minute: string) => string
-    active: (enabled: number, total: number) => string
     newCron: string
-    createFirst: string
     emptyDescNew: string
     emptyDescSearch: string
     emptyTitleNew: string
     emptyTitleSearch: string
     last: string
     next: string
+    noRuns: string
+    manage: string
+    showRuns: string
+    hideRuns: string
+    runHistory: string
     actionsFor: (title: string) => string
     actionsTitle: string
     resume: string
@@ -764,6 +810,7 @@ export interface Translations {
     results: string
     pinned: string
     sessions: string
+    cronJobs: string
     groupAriaGrouped: string
     groupAriaUngrouped: string
     groupTitleGrouped: string
@@ -829,6 +876,10 @@ export interface Translations {
     stopDictation: string
     transcribingDictation: string
     voiceDictation: string
+    lookupLoading: string
+    lookupNoMatches: string
+    lookupTry: string
+    lookupOr: string
     commonCommands: string
     hotkeys: string
     helpFooter: string
@@ -1268,6 +1319,10 @@ export interface Translations {
       recoveredMany: (count: number) => string
       failedOne: string
       failedMany: (count: number) => string
+      statusRunning: string
+      statusError: string
+      statusRecovered: string
+      statusDone: string
     }
   }
 
@@ -1329,6 +1384,9 @@ export interface Translations {
     restartToUseSaveImage: string
     restartToSaveImages: string
     imageDownloadFailed: string
+    openImage: string
+    downloadImage: string
+    savingImage: string
     imagePreviewFailed: string
     imageAttach: string
     imageWriteFailed: string

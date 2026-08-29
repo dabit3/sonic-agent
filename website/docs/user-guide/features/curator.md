@@ -10,7 +10,7 @@ The curator is a background maintenance pass for **agent-created skills**. It tr
 
 It exists so that skills created via the [self-improvement loop](/user-guide/features/skills#agent-managed-skills-skill_manage-tool) don't pile up forever. Every time the agent solves a novel problem and saves a skill, that skill lands in `~/.sonic/skills/`. Without maintenance, you end up with dozens of narrow near-duplicates that pollute the catalog and waste tokens.
 
-The curator **never touches** bundled skills (shipped with the repo) or hub-installed skills (from [agentskills.io](https://agentskills.io)). It only reviews skills the agent itself authored. It also **never auto-deletes** — the worst outcome is archival into `~/.sonic/skills/.archive/`, which is recoverable.
+By default (`prune_builtins: true`) the curator can archive **unused bundled built-in skills** (shipped with the repo) after `archive_after_days` of non-use, alongside the agent-created skills it primarily manages. Hub-installed skills (from [agentskills.io](https://agentskills.io)) are always off-limits. Set `curator.prune_builtins: false` to restore the old agent-created-only behavior, where bundled skills are never touched. The curator also **never auto-deletes** — the worst outcome is archival into `~/.sonic/skills/.archive/`, which is recoverable.
 
 Tracks [issue #7816](https://github.com/dabit3/sonic-agent/issues/7816).
 
@@ -47,6 +47,7 @@ curator:
   min_idle_hours: 2
   stale_after_days: 30
   archive_after_days: 90
+  prune_builtins: true         # archive unused bundled built-in skills too (hub skills always exempt)
 ```
 
 To disable entirely, set `curator.enabled: false`.
@@ -97,6 +98,9 @@ sonic curator resume
 sonic curator pin <skill>    # never auto-transition this skill
 sonic curator unpin <skill>
 sonic curator restore <skill>  # move an archived skill back to active
+sonic curator list-archived    # list skills currently in ~/.sonic/skills/.archive/
+sonic curator archive <skill>  # manually archive a single skill now
+sonic curator prune [--days N] # bulk-archive agent-created skills idle >= N days (default 90)
 ```
 
 ## Backups and rollback
@@ -186,7 +190,7 @@ sonic curator unpin <skill>
 
 The flag is stored as `"pinned": true` on the skill's entry in `~/.sonic/skills/.usage.json`, so it survives across sessions.
 
-Only **agent-created** skills can be pinned — bundled and hub-installed skills are never subject to curator mutation in the first place, and `sonic curator pin` will refuse with an explanatory message if you try.
+Only **agent-created** skills can be pinned — `sonic curator pin` refuses on bundled and hub-installed skills with an explanatory message if you try. Hub-installed skills are never subject to curator mutation. Bundled built-in skills are only touched when `curator.prune_builtins: true` (the default), and even then only archived after `archive_after_days` of non-use — never patched, consolidated, or deleted. Set `curator.prune_builtins: false` to exempt bundled skills entirely.
 
 If you want a stronger guarantee than "no deletion" — for instance, freezing a skill's content entirely while the agent still reads it — edit `~/.sonic/skills/<name>/SKILL.md` directly with your editor. The pin guards tool-driven deletion, not your own filesystem access.
 
