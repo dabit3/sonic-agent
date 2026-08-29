@@ -59,6 +59,8 @@ AUTHOR_MAP = {
     "266365592+bmoore210@users.noreply.github.com": "bmoore210",
     "manishbyatroy@gmail.com": "manishbyatroy",
     "chilltulpa@gmail.com": "TheGardenGallery",
+    "enesilhaydin@gmail.com": "enesilhaydin",  # direct email match
+    "info@amikchat.site": "AMIK-coorporations",  # PR #40578 (Urdu README)
     "al@randomsnowflake.me": "randomsnowflake",
     "zakame@zakame.net": "zakame",
     "152110621+jiangkoumo@users.noreply.github.com": "jiangkoumo",
