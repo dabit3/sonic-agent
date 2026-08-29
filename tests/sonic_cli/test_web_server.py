@@ -247,9 +247,9 @@ class TestWebServerEndpoints:
 
     def test_get_media_serves_image_in_root(self):
         """An image under the gateway's images dir is returned as a data URL."""
-        from hermes_constants import get_hermes_home
+        from sonic_constants import get_sonic_home
 
-        img_dir = get_hermes_home() / "images"
+        img_dir = get_sonic_home() / "images"
         img_dir.mkdir(parents=True, exist_ok=True)
         img = img_dir / "shot.png"
         img.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 16)
@@ -267,9 +267,9 @@ class TestWebServerEndpoints:
         assert resp.status_code == 403
 
     def test_get_media_rejects_non_image_extension(self):
-        from hermes_constants import get_hermes_home
+        from sonic_constants import get_sonic_home
 
-        img_dir = get_hermes_home() / "images"
+        img_dir = get_sonic_home() / "images"
         img_dir.mkdir(parents=True, exist_ok=True)
         env = img_dir / "leak.env"
         env.write_text("SECRET=1")
@@ -278,14 +278,14 @@ class TestWebServerEndpoints:
         assert resp.status_code == 415
 
     def test_get_media_404_for_missing_file(self):
-        from hermes_constants import get_hermes_home
+        from sonic_constants import get_sonic_home
 
-        missing = get_hermes_home() / "images" / "nope.png"
+        missing = get_sonic_home() / "images" / "nope.png"
         resp = self.client.get("/api/media", params={"path": str(missing)})
         assert resp.status_code == 404
 
     def test_get_media_requires_auth(self):
-        from hermes_cli.web_server import _SESSION_HEADER_NAME
+        from sonic_cli.web_server import _SESSION_HEADER_NAME
 
         resp = self.client.get(
             "/api/media",
@@ -304,7 +304,7 @@ class TestWebServerEndpoints:
 
     def test_set_dashboard_font_persists_valid_choice(self):
         """A valid catalog id is accepted, persisted, and read back."""
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
 
         resp = self.client.put("/api/dashboard/font", json={"font": "inter"})
         assert resp.status_code == 200
@@ -336,7 +336,7 @@ class TestWebServerEndpoints:
 
     def test_get_dashboard_font_coerces_stale_persisted_value(self):
         """A config value no longer in the catalog reads back as 'theme'."""
-        from hermes_cli.config import load_config, save_config
+        from sonic_cli.config import load_config, save_config
 
         config = load_config()
         config.setdefault("dashboard", {})["font"] = "retired-font-id"
@@ -347,7 +347,7 @@ class TestWebServerEndpoints:
     def test_dashboard_font_override_independent_of_theme(self):
         """The font override and the theme are stored separately — setting
         one must not disturb the other."""
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
 
         self.client.put("/api/dashboard/theme", json={"name": "ember"})
         self.client.put("/api/dashboard/font", json={"font": "jetbrains-mono"})
@@ -824,7 +824,7 @@ class TestWebServerEndpoints:
         assert calls == [(["update"], "sonic-update")]
 
     def test_action_status_reaps_completed_process(self, monkeypatch):
-        import hermes_cli.web_server as web_server
+        import sonic_cli.web_server as web_server
 
         waited = {"done": False}
 
@@ -838,11 +838,11 @@ class TestWebServerEndpoints:
                 waited["done"] = True
 
         proc = _Proc()
-        web_server._ACTION_PROCS.pop("hermes-update", None)
-        web_server._ACTION_RESULTS.pop("hermes-update", None)
-        web_server._ACTION_PROCS["hermes-update"] = proc
+        web_server._ACTION_PROCS.pop("sonic-update", None)
+        web_server._ACTION_RESULTS.pop("sonic-update", None)
+        web_server._ACTION_PROCS["sonic-update"] = proc
 
-        resp = self.client.get("/api/actions/hermes-update/status")
+        resp = self.client.get("/api/actions/sonic-update/status")
         assert resp.status_code == 200
         data = resp.json()
         assert data["running"] is False
@@ -851,14 +851,14 @@ class TestWebServerEndpoints:
 
         # Process should have been reaped and moved to results.
         assert waited["done"] is True
-        assert "hermes-update" not in web_server._ACTION_PROCS
-        assert web_server._ACTION_RESULTS["hermes-update"] == {
+        assert "sonic-update" not in web_server._ACTION_PROCS
+        assert web_server._ACTION_RESULTS["sonic-update"] == {
             "exit_code": 0,
             "pid": 42424,
         }
 
     def test_action_status_ignores_wait_failure(self, monkeypatch):
-        import hermes_cli.web_server as web_server
+        import sonic_cli.web_server as web_server
 
         class _Proc:
             pid = 99
@@ -870,17 +870,17 @@ class TestWebServerEndpoints:
                 raise OSError("already reaped")
 
         proc = _Proc()
-        web_server._ACTION_PROCS.pop("hermes-update", None)
-        web_server._ACTION_RESULTS.pop("hermes-update", None)
-        web_server._ACTION_PROCS["hermes-update"] = proc
+        web_server._ACTION_PROCS.pop("sonic-update", None)
+        web_server._ACTION_RESULTS.pop("sonic-update", None)
+        web_server._ACTION_PROCS["sonic-update"] = proc
 
-        resp = self.client.get("/api/actions/hermes-update/status")
+        resp = self.client.get("/api/actions/sonic-update/status")
         assert resp.status_code == 200
         data = resp.json()
         assert data["exit_code"] == 1
         # Still reaped despite wait() raising.
-        assert "hermes-update" not in web_server._ACTION_PROCS
-        assert web_server._ACTION_RESULTS["hermes-update"] == {
+        assert "sonic-update" not in web_server._ACTION_PROCS
+        assert web_server._ACTION_RESULTS["sonic-update"] == {
             "exit_code": 1,
             "pid": 99,
         }
@@ -1199,7 +1199,7 @@ class TestWebServerEndpoints:
 
     def test_telegram_onboarding_worker_request_uses_httpx(self, monkeypatch):
         import httpx
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         calls = {}
 
@@ -1231,7 +1231,7 @@ class TestWebServerEndpoints:
         payload = ws._telegram_onboarding_request_sync(
             "POST",
             "/v1/telegram/pairings",
-            body={"bot_name": "Hermes Agent"},
+            body={"bot_name": "Sonic Agent"},
             bearer_token="poll-secret",
         )
 
@@ -1239,16 +1239,16 @@ class TestWebServerEndpoints:
         method, url, kwargs = calls["request"]
         assert method == "POST"
         assert url == "https://worker.example/v1/telegram/pairings"
-        assert kwargs["json"] == {"bot_name": "Hermes Agent"}
+        assert kwargs["json"] == {"bot_name": "Sonic Agent"}
         assert kwargs["headers"]["Accept"] == "application/json"
         assert kwargs["headers"]["Authorization"] == "Bearer poll-secret"
         assert kwargs["headers"]["Content-Type"] == "application/json"
-        assert kwargs["headers"]["User-Agent"].startswith("HermesDashboard/")
+        assert kwargs["headers"]["User-Agent"].startswith("SonicDashboard/")
 
     def test_telegram_onboarding_worker_request_maps_unexpected_errors(
         self, monkeypatch
     ):
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         monkeypatch.setenv("TELEGRAM_ONBOARDING_URL", "not a valid url")
 
@@ -1256,7 +1256,7 @@ class TestWebServerEndpoints:
             ws._telegram_onboarding_request_sync(
                 "POST",
                 "/v1/telegram/pairings",
-                body={"bot_name": "Hermes Agent"},
+                body={"bot_name": "Sonic Agent"},
             )
 
         assert exc.value.status_code == 502
@@ -1651,7 +1651,7 @@ class TestWebServerEndpoints:
         base_url. Regression for the desktop bug where selecting a Xiaomi MiMo
         model reset a Token Plan endpoint back to the registry default, breaking
         Token Plan keys (https://token-plan-*.xiaomimimo.com/v1)."""
-        from hermes_cli.config import load_config, save_config
+        from sonic_cli.config import load_config, save_config
 
         cfg = load_config()
         cfg["model"] = {

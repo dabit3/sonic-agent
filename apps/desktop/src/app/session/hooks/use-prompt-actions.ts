@@ -97,7 +97,7 @@ function imageFilenameFromPath(filePath: string): string {
 async function readImageForRemoteAttach(
   filePath: string
 ): Promise<{ contentBase64: string; filename: string } | null> {
-  const dataUrl = await window.hermesDesktop?.readFileDataUrl(filePath)
+  const dataUrl = await window.sonicDesktop?.readFileDataUrl(filePath)
   const contentBase64 = dataUrl ? base64FromDataUrl(dataUrl) : ''
 
   return contentBase64 ? { contentBase64, filename: imageFilenameFromPath(filePath) } : null

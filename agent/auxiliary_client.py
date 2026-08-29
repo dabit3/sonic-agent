@@ -372,7 +372,7 @@ def _apply_user_default_headers(headers: dict | None) -> dict | None:
     when nothing is configured. No allocation when there are no overrides.
     """
     try:
-        from hermes_cli.config import cfg_get, load_config
+        from sonic_cli.config import cfg_get, load_config
         user_headers = cfg_get(load_config(), "model", "default_headers")
     except Exception:
         return headers

@@ -5179,7 +5179,7 @@ def _queue_attached_image(session: dict, img_bytes: bytes, ext: str, *, prefix: 
     the existing native-image-attach pipeline. Returns the written path.
     """
     session["image_counter"] = session.get("image_counter", 0) + 1
-    img_dir = _hermes_home / "images"
+    img_dir = _sonic_home / "images"
     img_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     img_path = img_dir / f"{prefix}_{ts}_{session['image_counter']}{ext}"
@@ -5861,7 +5861,7 @@ def _(rid, params: dict) -> dict:
                     os.environ["SONIC_YOLO_MODE"] = "1"
                     nv = "1"
                 else:
-                    os.environ.pop("HERMES_YOLO_MODE", None)
+                    os.environ.pop("SONIC_YOLO_MODE", None)
                     nv = "0"
             return _ok(rid, {"key": key, "value": nv, "scope": "session"})
         except Exception as e:

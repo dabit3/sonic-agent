@@ -137,7 +137,7 @@ describe('settings helpers', () => {
   })
 
   describe('enumOptionsFor — backend selector dropdowns', () => {
-    const config: HermesConfigRecord = {}
+    const config: SonicConfigRecord = {}
 
     it('renders a dropdown for the TTS provider including xAI (Grok)', () => {
       const opts = enumOptionsFor('tts.provider', 'edge', config)

@@ -767,7 +767,7 @@ class TestCardActionCallbackResponse:
             "chat_id": "oc_12345",
         }
         data = _make_card_action_data(
-            {"hermes_update_prompt_action": "y", "update_prompt_id": 7},
+            {"sonic_update_prompt_action": "y", "update_prompt_id": 7},
             open_id="ou_intruder",
         )
 
@@ -790,7 +790,7 @@ class TestCardActionCallbackResponse:
             "chat_id": "oc_expected",
         }
         data = _make_card_action_data(
-            {"hermes_update_prompt_action": "y", "update_prompt_id": 8},
+            {"sonic_update_prompt_action": "y", "update_prompt_id": 8},
             chat_id="oc_mismatch",
             open_id="ou_bob",
         )

@@ -273,7 +273,7 @@ class TestSlackApprovalAction:
             "user": {"name": "mallory", "id": "U_ATTACKER"},
         }
         action = {
-            "action_id": "hermes_approve_once",
+            "action_id": "sonic_approve_once",
             "value": "agent:main:slack:group:C1:1111",
         }
 
@@ -330,7 +330,7 @@ class TestSlackSlashConfirmAction:
             "user": {"name": "owner", "id": "U_OWNER"},
         }
         action = {
-            "action_id": "hermes_confirm_once",
+            "action_id": "sonic_confirm_once",
             "value": "agent:main:slack:group:C1:1111|confirm-1",
         }
 

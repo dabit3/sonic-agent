@@ -278,16 +278,16 @@ def test_make_agent_honors_per_session_model_override():
         patch("tui_gateway.server._load_service_tier", return_value=None),
         patch("tui_gateway.server._load_enabled_toolsets", return_value=None),
         patch(
-            "hermes_cli.runtime_provider.resolve_runtime_provider",
+            "sonic_cli.runtime_provider.resolve_runtime_provider",
             side_effect=echo_runtime,
         ),
         patch("run_agent.AIAgent") as mock_agent,
     ):
         for var in (
-            "HERMES_MODEL",
-            "HERMES_INFERENCE_MODEL",
-            "HERMES_TUI_PROVIDER",
-            "HERMES_INFERENCE_PROVIDER",
+            "SONIC_MODEL",
+            "SONIC_INFERENCE_MODEL",
+            "SONIC_TUI_PROVIDER",
+            "SONIC_INFERENCE_PROVIDER",
         ):
             os.environ.pop(var, None)
 
@@ -335,19 +335,19 @@ def test_apply_model_switch_does_not_leak_process_env():
             self.provider = kw["new_provider"]
 
     env_keys = (
-        "HERMES_MODEL",
-        "HERMES_INFERENCE_MODEL",
-        "HERMES_TUI_PROVIDER",
-        "HERMES_INFERENCE_PROVIDER",
+        "SONIC_MODEL",
+        "SONIC_INFERENCE_MODEL",
+        "SONIC_TUI_PROVIDER",
+        "SONIC_INFERENCE_PROVIDER",
     )
 
     sess_b = {"agent": _FakeAgent(), "session_key": "k-B", "model_override": None}
     sess_a = {"agent": _FakeAgent(), "session_key": "k-A", "model_override": None}
 
     with (
-        patch("hermes_cli.model_switch.parse_model_flags",
+        patch("sonic_cli.model_switch.parse_model_flags",
               return_value=("glm-5.1", None, False, False)),
-        patch("hermes_cli.model_switch.switch_model", return_value=_FakeResult()),
+        patch("sonic_cli.model_switch.switch_model", return_value=_FakeResult()),
         patch("tui_gateway.server._emit"),
         patch("tui_gateway.server._restart_slash_worker"),
         patch("tui_gateway.server._session_info", return_value={}),

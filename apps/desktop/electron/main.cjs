@@ -1913,7 +1913,7 @@ function resolveWebDist() {
     rememberLog(
       `[web-dist] dashboard frontend dir resolved to an asar-internal path that ` +
         `is not a real directory: ${fallback}. Static routes will 404. ` +
-        `Ensure dist/** is unpacked (asarUnpack) or set HERMES_DESKTOP_WEB_DIST.`
+        `Ensure dist/** is unpacked (asarUnpack) or set SONIC_DESKTOP_WEB_DIST.`
     )
   }
   return fallback
@@ -1929,7 +1929,7 @@ function resolveRendererIndex() {
   rememberLog(
     `[renderer] index.html not found — the desktop app was packaged without a ` +
       `renderer bundle. Tried: ${candidates.join(', ')}. ` +
-      `Rebuild with: hermes desktop --force-build`
+      `Rebuild with: sonic desktop --force-build`
   )
   return candidates[0]
 }
@@ -3244,7 +3244,7 @@ function installPreviewShortcut(window) {
 // survives reloads/restarts) rather than a main-process JSON file. The main
 // process owns setZoomLevel, so we mirror each change into localStorage and
 // read it back on did-finish-load to re-apply after reloads or crash recovery.
-const ZOOM_STORAGE_KEY = 'hermes:desktop:zoomLevel'
+const ZOOM_STORAGE_KEY = 'sonic:desktop:zoomLevel'
 
 function clampZoomLevel(value) {
   if (!Number.isFinite(value)) return 0

@@ -820,7 +820,7 @@ def _media_serve_roots() -> list[Path]:
     key or a screenshot outside the cache) merely because the suffix passes the
     allowlist.
     """
-    home = get_hermes_home()
+    home = get_sonic_home()
     roots = [home / "images", home / "screenshots", home / "cache"]
     out: list[Path] = []
     for root in roots:
@@ -3391,7 +3391,7 @@ def _write_platform_enabled(platform_id: str, enabled: bool) -> None:
     save_config(config)
 
 
-_TELEGRAM_ONBOARDING_DEFAULT_URL = "https://setup.sonic-agent.nousresearch.com"
+_TELEGRAM_ONBOARDING_DEFAULT_URL = "https://setup.lightning-agent.nousresearch.com"
 _TELEGRAM_ONBOARDING_USER_AGENT = f"SonicDashboard/{__version__}"
 _TELEGRAM_USER_ID_RE = re.compile(r"^\d+$")
 

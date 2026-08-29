@@ -214,7 +214,7 @@ async function resolveInstallScript({ installStamp, sourceRepoRoot, sonicHome, e
     // write-build-stamp.cjs fromLocalGit). Fall back to the installer that
     // ships inside the already-installed agent checkout so dev/self-builds can
     // still bootstrap instead of dying with a fatal 404.
-    const installed = installedAgentInstallScript(hermesHome)
+    const installed = installedAgentInstallScript(sonicHome)
     if (installed) {
       emit({
         type: 'log',

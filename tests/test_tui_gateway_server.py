@@ -1460,7 +1460,7 @@ def test_config_set_yolo_global_scope_writes_approvals_mode(tmp_path, monkeypatc
 
     cfg_path = tmp_path / "config.yaml"
     cfg_path.write_text(yaml.safe_dump({"approvals": {"mode": "manual"}}))
-    monkeypatch.setattr(server, "_hermes_home", tmp_path)
+    monkeypatch.setattr(server, "_sonic_home", tmp_path)
 
     resp_on = server.handle_request(
         {
@@ -1490,7 +1490,7 @@ def test_config_set_yolo_global_scope_honors_explicit_value(tmp_path, monkeypatc
 
     cfg_path = tmp_path / "config.yaml"
     cfg_path.write_text(yaml.safe_dump({"approvals": {"mode": "manual"}}))
-    monkeypatch.setattr(server, "_hermes_home", tmp_path)
+    monkeypatch.setattr(server, "_sonic_home", tmp_path)
 
     resp = server.handle_request(
         {
@@ -2359,7 +2359,7 @@ def test_config_set_model_records_per_session_override_not_env(monkeypatch):
 
 def test_config_set_model_switches_agent_without_touching_env(monkeypatch):
     """A /model switch mutates the target session's agent in place and records
-    a per-session override; it does NOT write HERMES_MODEL / HERMES_TUI_PROVIDER
+    a per-session override; it does NOT write SONIC_MODEL / SONIC_TUI_PROVIDER
     etc. into the shared process environment.
 
     (Was test_config_set_model_syncs_tui_provider_env.)
@@ -5854,7 +5854,7 @@ def _attach_bytes_cli(monkeypatch):
 def test_image_attach_bytes_writes_to_gateway_dir(monkeypatch, tmp_path):
     """Remote client uploads base64 bytes; gateway writes them to its own disk."""
     _attach_bytes_cli(monkeypatch)
-    monkeypatch.setattr(server, "_hermes_home", tmp_path)
+    monkeypatch.setattr(server, "_sonic_home", tmp_path)
     server._sessions["abx"] = _session()
 
     resp = server.handle_request(
@@ -5881,7 +5881,7 @@ def test_image_attach_bytes_writes_to_gateway_dir(monkeypatch, tmp_path):
 
 def test_image_attach_bytes_accepts_data_url_prefix(monkeypatch, tmp_path):
     _attach_bytes_cli(monkeypatch)
-    monkeypatch.setattr(server, "_hermes_home", tmp_path)
+    monkeypatch.setattr(server, "_sonic_home", tmp_path)
     server._sessions["abx2"] = _session()
 
     resp = server.handle_request(
@@ -5900,7 +5900,7 @@ def test_image_attach_bytes_accepts_data_url_prefix(monkeypatch, tmp_path):
 def test_image_attach_bytes_data_alias_and_magic_sniff(monkeypatch, tmp_path):
     """Older desktop builds send `data` (not content_base64); ext sniffed from bytes."""
     _attach_bytes_cli(monkeypatch)
-    monkeypatch.setattr(server, "_hermes_home", tmp_path)
+    monkeypatch.setattr(server, "_sonic_home", tmp_path)
     server._sessions["abx3"] = _session()
 
     resp = server.handle_request(
@@ -5917,7 +5917,7 @@ def test_image_attach_bytes_data_alias_and_magic_sniff(monkeypatch, tmp_path):
 
 def test_image_attach_bytes_rejects_invalid_base64(monkeypatch, tmp_path):
     _attach_bytes_cli(monkeypatch)
-    monkeypatch.setattr(server, "_hermes_home", tmp_path)
+    monkeypatch.setattr(server, "_sonic_home", tmp_path)
     server._sessions["abx4"] = _session()
 
     resp = server.handle_request(
@@ -5935,7 +5935,7 @@ def test_image_attach_bytes_rejects_oversize(monkeypatch, tmp_path):
     import base64 as _b64
 
     _attach_bytes_cli(monkeypatch)
-    monkeypatch.setattr(server, "_hermes_home", tmp_path)
+    monkeypatch.setattr(server, "_sonic_home", tmp_path)
     monkeypatch.setattr(server, "_ATTACH_BYTES_MAX_BYTES", 10)
     server._sessions["abx5"] = _session()
 
@@ -5953,7 +5953,7 @@ def test_image_attach_bytes_rejects_oversize(monkeypatch, tmp_path):
 
 def test_image_attach_bytes_rejects_unsupported_extension(monkeypatch, tmp_path):
     _attach_bytes_cli(monkeypatch)
-    monkeypatch.setattr(server, "_hermes_home", tmp_path)
+    monkeypatch.setattr(server, "_sonic_home", tmp_path)
     server._sessions["abx6"] = _session()
 
     # filename hint forces a non-image extension; magic sniff is bypassed by hint
@@ -5975,7 +5975,7 @@ def test_image_attach_bytes_rejects_unsupported_extension(monkeypatch, tmp_path)
 def test_pdf_attach_requires_poppler(monkeypatch, tmp_path):
     """Without pdftoppm on PATH, pdf.attach returns a clear 5028."""
     _attach_bytes_cli(monkeypatch)
-    monkeypatch.setattr(server, "_hermes_home", tmp_path)
+    monkeypatch.setattr(server, "_sonic_home", tmp_path)
     monkeypatch.setattr("shutil.which", lambda _name: None)
     server._sessions["pdf1"] = _session()
 
@@ -5994,7 +5994,7 @@ def test_pdf_attach_rejects_non_pdf_bytes(monkeypatch, tmp_path):
     import base64 as _b64
 
     _attach_bytes_cli(monkeypatch)
-    monkeypatch.setattr(server, "_hermes_home", tmp_path)
+    monkeypatch.setattr(server, "_sonic_home", tmp_path)
     monkeypatch.setattr("shutil.which", lambda _name: "/usr/bin/pdftoppm")
     server._sessions["pdf2"] = _session()
 
@@ -6012,7 +6012,7 @@ def test_pdf_attach_rejects_non_pdf_bytes(monkeypatch, tmp_path):
 
 def test_pdf_attach_requires_path_or_bytes(monkeypatch, tmp_path):
     _attach_bytes_cli(monkeypatch)
-    monkeypatch.setattr(server, "_hermes_home", tmp_path)
+    monkeypatch.setattr(server, "_sonic_home", tmp_path)
     monkeypatch.setattr("shutil.which", lambda _name: "/usr/bin/pdftoppm")
     server._sessions["pdf3"] = _session()
 

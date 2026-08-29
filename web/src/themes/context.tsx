@@ -38,7 +38,7 @@ const STORAGE_KEY = "sonic-dashboard-theme";
  *  font id from the catalog in `fonts.ts`, or the `THEME_DEFAULT_FONT_ID`
  *  sentinel / absent = "use the active theme's font". Pre-applied before
  *  the React tree mounts (see `main.tsx`) to avoid a font flash. */
-const FONT_STORAGE_KEY = "hermes-dashboard-font";
+const FONT_STORAGE_KEY = "sonic-dashboard-font";
 
 /** Renames of built-in theme keys we've shipped previously. Without this,
  *  users who saved one of the old names in localStorage (or had it

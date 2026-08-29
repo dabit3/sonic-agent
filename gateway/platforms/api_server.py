@@ -62,22 +62,22 @@ from gateway.platforms.base import (
 logger = logging.getLogger(__name__)
 
 
-def _hermes_version() -> str:
-    """Return the hermes-agent version string, or "dev" if it can't be resolved.
+def _sonic_version() -> str:
+    """Return the sonic-agent version string, or "dev" if it can't be resolved.
 
     Tries the installed package metadata first (authoritative for a pip/uv
-    install), then the in-tree ``hermes_cli.__version__`` (covers editable /
+    install), then the in-tree ``sonic_cli.__version__`` (covers editable /
     source checkouts where metadata may be stale or absent). Never raises —
     a version probe must not be able to break the health endpoint.
     """
     try:
         from importlib.metadata import version
 
-        return version("hermes-agent")
+        return version("sonic-agent")
     except Exception:
         pass
     try:
-        from hermes_cli import __version__
+        from sonic_cli import __version__
 
         return __version__
     except Exception:
