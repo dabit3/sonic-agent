@@ -761,8 +761,8 @@ class SonicACPAgent(acp.Agent):
         updated_at = datetime.now(timezone.utc).isoformat()
         meta = self._provenance_meta(
             session_id,
-            current_hermes_session_id or session_id,
-            previous_hermes_session_id,
+            current_sonic_session_id or session_id,
+            previous_sonic_session_id,
         )
         update = SessionInfoUpdate(
             session_update="session_info_update",
@@ -1541,11 +1541,11 @@ class SonicACPAgent(acp.Agent):
                         logger.debug("Could not clear ACP session context", exc_info=True)
 
         try:
-            # Snapshot the internal Hermes DB session id before the turn so we
+            # Snapshot the internal Sonic DB session id before the turn so we
             # can detect a compression-driven session rotation afterwards. The
             # ACP `session_id` stays the stable client handle; agent.session_id
             # is the live internal head that compression may rotate.
-            pre_turn_hermes_id = getattr(state.agent, "session_id", None)
+            pre_turn_sonic_id = getattr(state.agent, "session_id", None)
             # Wrap the executor call in a fresh copy of the current context so
             # concurrent ACP sessions on the shared ThreadPoolExecutor don't
             # stomp on each other's ContextVar writes (SONIC_SESSION_KEY in
@@ -1566,20 +1566,20 @@ class SonicACPAgent(acp.Agent):
 
         # Detect a compression-driven internal session rotation. If the agent's
         # DB head moved during the turn, emit a session_info_update carrying
-        # _meta.hermes.sessionProvenance so ACP clients can render the boundary
+        # _meta.sonic.sessionProvenance so ACP clients can render the boundary
         # and keep old/new ids in lineage. The ACP session_id is unchanged.
-        post_turn_hermes_id = getattr(state.agent, "session_id", None)
+        post_turn_sonic_id = getattr(state.agent, "session_id", None)
         if (
             conn
-            and post_turn_hermes_id
-            and pre_turn_hermes_id
-            and post_turn_hermes_id != pre_turn_hermes_id
+            and post_turn_sonic_id
+            and pre_turn_sonic_id
+            and post_turn_sonic_id != pre_turn_sonic_id
         ):
             try:
                 await self._send_session_info_update(
                     session_id,
-                    current_hermes_session_id=post_turn_hermes_id,
-                    previous_hermes_session_id=pre_turn_hermes_id,
+                    current_sonic_session_id=post_turn_sonic_id,
+                    previous_sonic_session_id=pre_turn_sonic_id,
                 )
             except Exception:
                 logger.debug(
@@ -1591,7 +1591,7 @@ class SonicACPAgent(acp.Agent):
         final_response = result.get("final_response", "")
         cancelled = bool(state.cancel_event and state.cancel_event.is_set())
         interrupted = bool(result.get("interrupted")) or cancelled
-        # Hermes' local "waiting for model response" interrupt status is metadata,
+        # Sonic' local "waiting for model response" interrupt status is metadata,
         # not assistant prose — clients get cancellation from stop_reason instead.
         from agent.conversation_loop import INTERRUPT_WAITING_FOR_MODEL_PREFIX
 

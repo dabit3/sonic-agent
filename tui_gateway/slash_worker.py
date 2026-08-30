@@ -19,8 +19,8 @@ from cli import SonicCLI
 from rich.console import Console
 
 # Env-overridable so the integration test can drive sub-second timing.
-_WATCHDOG_POLL_S = float(os.environ.get("HERMES_SLASH_WATCHDOG_POLL_S", 2.0))
-_ORPHAN_GRACE_S = float(os.environ.get("HERMES_SLASH_WATCHDOG_GRACE_S", 5.0))
+_WATCHDOG_POLL_S = float(os.environ.get("SONIC_SLASH_WATCHDOG_POLL_S", 2.0))
+_ORPHAN_GRACE_S = float(os.environ.get("SONIC_SLASH_WATCHDOG_GRACE_S", 5.0))
 _in_flight = threading.Event()  # set while a command is executing
 
 
@@ -87,7 +87,7 @@ def main():
     os.environ["SONIC_SESSION_KEY"] = args.session_key
     os.environ["SONIC_INTERACTIVE"] = "1"
 
-    # Start before the (hundreds-of-ms) HermesCLI build — that window is itself
+    # Start before the (hundreds-of-ms) SonicCLI build — that window is itself
     # an orphan risk if the gateway dies mid-spawn.
     orig_ppid = os.getppid()
     try:

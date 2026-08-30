@@ -7088,7 +7088,7 @@ def _nixos_build_env() -> dict[str, str] | None:
     does a bare ``PATH`` lookup — which fails on NixOS.
 
     Two-tier resolution:
-    1. Fast path — the hermes venv's python3 (present in managed installs)
+    1. Fast path — the sonic venv's python3 (present in managed installs)
     2. Fallback — resolves the absolute python3 path via ``nix-shell``
 
     Returns an env dict suitable for ``subprocess.run(env=...)`` or
@@ -7107,7 +7107,7 @@ def _nixos_build_env() -> dict[str, str] | None:
     if shutil.which("python3"):
         return None
 
-    # Tier 1: fast path — hermes venv python3, no nix-shell overhead
+    # Tier 1: fast path — sonic venv python3, no nix-shell overhead
     for venv_name in ("venv", ".venv"):
         venv_python = PROJECT_ROOT / venv_name / "bin" / "python3"
         if venv_python.exists():
@@ -7115,7 +7115,7 @@ def _nixos_build_env() -> dict[str, str] | None:
 
     # Tier 2: nix-shell fallback — resolves the absolute python3 path once.
     # Slower (~2–5 s for the nix-shell eval) but always works, even without
-    # a hermes venv (pip / non-managed / bare-git installs).  The resolved
+    # a sonic venv (pip / non-managed / bare-git installs).  The resolved
     # path is a self-contained Nix store binary (all deps via RPATH) so it
     # stays valid even after the nix-shell exits.
     try:
@@ -12972,7 +12972,7 @@ def _try_termux_fast_tui_launch() -> bool:
 def cmd_memory(args):
     sub = getattr(args, "memory_command", None)
     if sub == "off":
-        from hermes_cli.config import load_config, save_config
+        from sonic_cli.config import load_config, save_config
 
         config = load_config()
         if not isinstance(config.get("memory"), dict):
@@ -12982,9 +12982,9 @@ def cmd_memory(args):
         print("\n  ✓ Memory provider: built-in only")
         print("  Saved to config.yaml\n")
     elif sub == "reset":
-        from hermes_constants import get_hermes_home, display_hermes_home
+        from sonic_constants import get_sonic_home, display_sonic_home
 
-        mem_dir = get_hermes_home() / "memories"
+        mem_dir = get_sonic_home() / "memories"
         target = getattr(args, "target", "all")
         files_to_reset = []
         if target in {"all", "memory"}:
@@ -12998,7 +12998,7 @@ def cmd_memory(args):
         ]
         if not existing:
             print(
-                f"\n  Nothing to reset — no memory files found in {display_hermes_home()}/memories/\n"
+                f"\n  Nothing to reset — no memory files found in {display_sonic_home()}/memories/\n"
             )
             return
 
@@ -13025,15 +13025,15 @@ def cmd_memory(args):
         print(
             f"\n  Memory reset complete. New sessions will start with a blank slate."
         )
-        print(f"  Files were in: {display_hermes_home()}/memories/\n")
+        print(f"  Files were in: {display_sonic_home()}/memories/\n")
     else:
-        from hermes_cli.memory_setup import memory_command
+        from sonic_cli.memory_setup import memory_command
 
         memory_command(args)
 
 
 def cmd_acp(args):
-    """Launch Hermes Agent as an ACP server."""
+    """Launch Sonic Agent as an ACP server."""
     try:
         from acp_adapter.entry import main as acp_main
 
@@ -13058,23 +13058,23 @@ def cmd_acp(args):
 def cmd_tools(args):
     action = getattr(args, "tools_action", None)
     if action in {"list", "disable", "enable"}:
-        from hermes_cli.tools_config import tools_disable_enable_command
+        from sonic_cli.tools_config import tools_disable_enable_command
 
         tools_disable_enable_command(args)
     elif action == "post-setup":
-        from hermes_cli.tools_config import run_post_setup_command
+        from sonic_cli.tools_config import run_post_setup_command
 
         sys.exit(run_post_setup_command(args))
     else:
         _require_tty("tools")
-        from hermes_cli.tools_config import tools_command
+        from sonic_cli.tools_config import tools_command
 
         tools_command(args)
 
 
 def cmd_insights(args):
     try:
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
         from agent.insights import InsightsEngine
 
         db = SessionDB()
@@ -13090,35 +13090,35 @@ def cmd_skills(args):
     # Route 'config' action to skills_config module
     if getattr(args, "skills_action", None) == "config":
         _require_tty("skills config")
-        from hermes_cli.skills_config import skills_command as skills_config_command
+        from sonic_cli.skills_config import skills_command as skills_config_command
 
         skills_config_command(args)
     else:
-        from hermes_cli.skills_hub import skills_command
+        from sonic_cli.skills_hub import skills_command
 
         skills_command(args)
 
 
 def cmd_pairing(args):
-    from hermes_cli.pairing import pairing_command
+    from sonic_cli.pairing import pairing_command
 
     pairing_command(args)
 
 
 def cmd_plugins(args):
-    from hermes_cli.plugins_cmd import plugins_command
+    from sonic_cli.plugins_cmd import plugins_command
 
     plugins_command(args)
 
 
 def cmd_mcp(args):
-    from hermes_cli.mcp_config import mcp_command
+    from sonic_cli.mcp_config import mcp_command
 
     mcp_command(args)
 
 
 def cmd_claw(args):
-    from hermes_cli.claw import claw_command
+    from sonic_cli.claw import claw_command
 
     claw_command(args)
 
@@ -13155,7 +13155,7 @@ def main():
     chat_parser.set_defaults(func=cmd_chat)
 
     # =========================================================================
-    # model command  (parser built in hermes_cli/subcommands/model.py)
+    # model command  (parser built in sonic_cli/subcommands/model.py)
     # =========================================================================
     build_model_parser(subparsers, cmd_model=cmd_model)
 
@@ -13270,7 +13270,7 @@ def main():
     migrate_parser.set_defaults(func=cmd_migrate)
 
     # =========================================================================
-    # gateway + proxy commands  (parsers built in hermes_cli/subcommands/gateway.py)
+    # gateway + proxy commands  (parsers built in sonic_cli/subcommands/gateway.py)
     # =========================================================================
     build_gateway_parser(subparsers, cmd_gateway=cmd_gateway, cmd_proxy=cmd_proxy)
 
@@ -13286,22 +13286,22 @@ def main():
         logger.debug("LSP CLI registration failed: %s", _lsp_err)
 
     # =========================================================================
-    # setup command  (parser built in hermes_cli/subcommands/setup.py)
+    # setup command  (parser built in sonic_cli/subcommands/setup.py)
     # =========================================================================
     build_setup_parser(subparsers, cmd_setup=cmd_setup)
 
     # =========================================================================
-    # postinstall command  (parser built in hermes_cli/subcommands/postinstall.py)
+    # postinstall command  (parser built in sonic_cli/subcommands/postinstall.py)
     # =========================================================================
     build_postinstall_parser(subparsers, cmd_postinstall=cmd_postinstall)
 
     # =========================================================================
-    # whatsapp command  (parser built in hermes_cli/subcommands/whatsapp.py)
+    # whatsapp command  (parser built in sonic_cli/subcommands/whatsapp.py)
     # =========================================================================
     build_whatsapp_parser(subparsers, cmd_whatsapp=cmd_whatsapp)
 
     # =========================================================================
-    # slack command  (parser built in hermes_cli/subcommands/slack.py)
+    # slack command  (parser built in sonic_cli/subcommands/slack.py)
     # =========================================================================
     build_slack_parser(subparsers, cmd_slack=cmd_slack)
 
@@ -13312,17 +13312,17 @@ def main():
     register_send_subparser(subparsers)
 
     # =========================================================================
-    # login command  (parser built in hermes_cli/subcommands/login.py)
+    # login command  (parser built in sonic_cli/subcommands/login.py)
     # =========================================================================
     build_login_parser(subparsers, cmd_login=cmd_login)
 
     # =========================================================================
-    # logout command  (parser built in hermes_cli/subcommands/logout.py)
+    # logout command  (parser built in sonic_cli/subcommands/logout.py)
     # =========================================================================
     build_logout_parser(subparsers, cmd_logout=cmd_logout)
 
     # =========================================================================
-    # auth command  (parser built in hermes_cli/subcommands/auth.py)
+    # auth command  (parser built in sonic_cli/subcommands/auth.py)
     # =========================================================================
     build_auth_parser(subparsers, cmd_auth=cmd_auth)
 
@@ -13332,12 +13332,12 @@ def main():
     build_status_parser(subparsers, cmd_status=cmd_status)
 
     # =========================================================================
-    # cron command  (parser built in hermes_cli/subcommands/cron.py)
+    # cron command  (parser built in sonic_cli/subcommands/cron.py)
     # =========================================================================
     build_cron_parser(subparsers, cmd_cron=cmd_cron)
 
     # =========================================================================
-    # webhook command  (parser built in hermes_cli/subcommands/webhook.py)
+    # webhook command  (parser built in sonic_cli/subcommands/webhook.py)
     # =========================================================================
     build_webhook_parser(subparsers, cmd_webhook=cmd_webhook)
 
@@ -13363,7 +13363,7 @@ def main():
     build_hooks_parser(subparsers, cmd_hooks=cmd_hooks)
 
     # =========================================================================
-    # doctor command  (parser built in hermes_cli/subcommands/doctor.py)
+    # doctor command  (parser built in sonic_cli/subcommands/doctor.py)
     # =========================================================================
     build_doctor_parser(subparsers, cmd_doctor=cmd_doctor)
 
@@ -13375,17 +13375,17 @@ def main():
     build_security_parser(subparsers, cmd_security=cmd_security)
 
     # =========================================================================
-    # dump command  (parser built in hermes_cli/subcommands/dump.py)
+    # dump command  (parser built in sonic_cli/subcommands/dump.py)
     # =========================================================================
     build_dump_parser(subparsers, cmd_dump=cmd_dump)
 
     # =========================================================================
-    # debug command  (parser built in hermes_cli/subcommands/debug.py)
+    # debug command  (parser built in sonic_cli/subcommands/debug.py)
     # =========================================================================
     build_debug_parser(subparsers, cmd_debug=cmd_debug)
 
     # =========================================================================
-    # backup command  (parser built in hermes_cli/subcommands/backup.py)
+    # backup command  (parser built in sonic_cli/subcommands/backup.py)
     # =========================================================================
     build_backup_parser(subparsers, cmd_backup=cmd_backup)
 
@@ -13404,22 +13404,22 @@ def main():
     _register_checkpoints_cli(checkpoints_parser)
 
     # =========================================================================
-    # import command  (parser built in hermes_cli/subcommands/import_cmd.py)
+    # import command  (parser built in sonic_cli/subcommands/import_cmd.py)
     # =========================================================================
     build_import_cmd_parser(subparsers, cmd_import=cmd_import)
 
     # =========================================================================
-    # config command  (parser built in hermes_cli/subcommands/config.py)
+    # config command  (parser built in sonic_cli/subcommands/config.py)
     # =========================================================================
     build_config_parser(subparsers, cmd_config=cmd_config)
 
     # =========================================================================
-    # pairing command  (parser built in hermes_cli/subcommands/pairing.py)
+    # pairing command  (parser built in sonic_cli/subcommands/pairing.py)
     # =========================================================================
     build_pairing_parser(subparsers, cmd_pairing=cmd_pairing)
 
     # =========================================================================
-    # skills command  (parser built in hermes_cli/subcommands/skills.py)
+    # skills command  (parser built in sonic_cli/subcommands/skills.py)
     # =========================================================================
     build_skills_parser(subparsers, cmd_skills=cmd_skills)
 
@@ -13440,7 +13440,7 @@ def main():
     bundles_parser.set_defaults(func=bundles_command)
 
     # =========================================================================
-    # plugins command  (parser built in hermes_cli/subcommands/plugins.py)
+    # plugins command  (parser built in sonic_cli/subcommands/plugins.py)
     # =========================================================================
     build_plugins_parser(subparsers, cmd_plugins=cmd_plugins)
 
@@ -13511,12 +13511,12 @@ def main():
         logging.getLogger(__name__).debug("curator CLI wiring failed: %s", _exc)
 
     # =========================================================================
-    # memory command  (parser built in hermes_cli/subcommands/memory.py)
+    # memory command  (parser built in sonic_cli/subcommands/memory.py)
     # =========================================================================
     build_memory_parser(subparsers, cmd_memory=cmd_memory)
 
     # =========================================================================
-    # tools command  (parser built in hermes_cli/subcommands/tools.py)
+    # tools command  (parser built in sonic_cli/subcommands/tools.py)
     # =========================================================================
     build_tools_parser(subparsers, cmd_tools=cmd_tools)
 
@@ -13590,7 +13590,7 @@ def main():
 
     computer_use_parser.set_defaults(func=cmd_computer_use)
     # =========================================================================
-    # mcp command  (parser built in hermes_cli/subcommands/mcp.py)
+    # mcp command  (parser built in sonic_cli/subcommands/mcp.py)
     # =========================================================================
     build_mcp_parser(subparsers, cmd_mcp=cmd_mcp)
 
@@ -13868,37 +13868,37 @@ def main():
     sessions_parser.set_defaults(func=cmd_sessions)
 
     # =========================================================================
-    # insights command  (parser built in hermes_cli/subcommands/insights.py)
+    # insights command  (parser built in sonic_cli/subcommands/insights.py)
     # =========================================================================
     build_insights_parser(subparsers, cmd_insights=cmd_insights)
 
     # =========================================================================
-    # claw command  (parser built in hermes_cli/subcommands/claw.py)
+    # claw command  (parser built in sonic_cli/subcommands/claw.py)
     # =========================================================================
     build_claw_parser(subparsers, cmd_claw=cmd_claw)
 
     # =========================================================================
-    # version command  (parser built in hermes_cli/subcommands/version.py)
+    # version command  (parser built in sonic_cli/subcommands/version.py)
     # =========================================================================
     build_version_parser(subparsers, cmd_version=cmd_version)
 
     # =========================================================================
-    # update command  (parser built in hermes_cli/subcommands/update.py)
+    # update command  (parser built in sonic_cli/subcommands/update.py)
     # =========================================================================
     build_update_parser(subparsers, cmd_update=cmd_update)
 
     # =========================================================================
-    # uninstall command  (parser built in hermes_cli/subcommands/uninstall.py)
+    # uninstall command  (parser built in sonic_cli/subcommands/uninstall.py)
     # =========================================================================
     build_uninstall_parser(subparsers, cmd_uninstall=cmd_uninstall)
 
     # =========================================================================
-    # acp command  (parser built in hermes_cli/subcommands/acp.py)
+    # acp command  (parser built in sonic_cli/subcommands/acp.py)
     # =========================================================================
     build_acp_parser(subparsers, cmd_acp=cmd_acp)
 
     # =========================================================================
-    # profile command  (parser built in hermes_cli/subcommands/profile.py)
+    # profile command  (parser built in sonic_cli/subcommands/profile.py)
     # =========================================================================
     build_profile_parser(subparsers, cmd_profile=cmd_profile)
 
@@ -13919,7 +13919,7 @@ def main():
     completion_parser.set_defaults(func=lambda args: cmd_completion(args, parser))
 
     # =========================================================================
-    # dashboard command  (parser built in hermes_cli/subcommands/dashboard.py)
+    # dashboard command  (parser built in sonic_cli/subcommands/dashboard.py)
     # =========================================================================
     build_dashboard_parser(
         subparsers,
@@ -13942,12 +13942,12 @@ def main():
     build_gui_parser(subparsers, cmd_gui=cmd_gui)
 
     # =========================================================================
-    # logs command  (parser built in hermes_cli/subcommands/logs.py)
+    # logs command  (parser built in sonic_cli/subcommands/logs.py)
     # =========================================================================
     build_logs_parser(subparsers, cmd_logs=cmd_logs)
 
     # =========================================================================
-    # prompt-size command  (parser built in hermes_cli/subcommands/prompt_size.py)
+    # prompt-size command  (parser built in sonic_cli/subcommands/prompt_size.py)
     # =========================================================================
     build_prompt_size_parser(subparsers, cmd_prompt_size=cmd_prompt_size)
 

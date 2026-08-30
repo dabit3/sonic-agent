@@ -603,7 +603,7 @@ export interface BackendUpdateCommit {
   at: number
 }
 
-/** Shape of `GET /api/hermes/update/check` — the backend's own update state.
+/** Shape of `GET /api/sonic/update/check` — the backend's own update state.
  *  Used by the desktop's remote update overlay so the backend version (not the
  *  Electron client clone) drives "what's changed + Install" in remote mode. */
 export interface BackendUpdateCheckResponse {

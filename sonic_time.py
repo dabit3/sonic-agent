@@ -92,7 +92,7 @@ def reset_cache() -> None:
     """Clear the cached timezone so the next call re-resolves it.
 
     Call this after the configured timezone may have changed (e.g. after a
-    config edit or ``HERMES_TIMEZONE`` update) to force ``get_timezone()`` /
+    config edit or ``SONIC_TIMEZONE`` update) to force ``get_timezone()`` /
     ``now()`` to read the new value instead of the value cached at first use.
     """
     global _cached_tz, _cached_tz_name, _cache_resolved

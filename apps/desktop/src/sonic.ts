@@ -691,9 +691,9 @@ export function updateSonic(): Promise<ActionResponse> {
 /** Query the connected backend's own update state. In remote mode this is the
  *  authoritative source for the backend's behind-count + "what's changed",
  *  distinct from the Electron client clone's git state. */
-export function checkHermesUpdate(force = false): Promise<BackendUpdateCheckResponse> {
-  return window.hermesDesktop.api<BackendUpdateCheckResponse>({
-    path: `/api/hermes/update/check${force ? '?force=true' : ''}`
+export function checkSonicUpdate(force = false): Promise<BackendUpdateCheckResponse> {
+  return window.sonicDesktop.api<BackendUpdateCheckResponse>({
+    path: `/api/sonic/update/check${force ? '?force=true' : ''}`
   })
 }
 

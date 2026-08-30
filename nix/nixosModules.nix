@@ -50,7 +50,7 @@
     configMergeScript = pkgs.callPackage ./configMergeScript.nix { };
 
     # config.yaml mode: group-writable (0660) when interactive users share this
-    # HERMES_HOME via addToSystemPackages, so they can save settings through the
+    # SONIC_HOME via addToSystemPackages, so they can save settings through the
     # CLI/TUI without hitting EACCES; otherwise group-read-only (0640). Secrets
     # (.env) stay 0640 regardless — see below.
     configYamlMode = if cfg.addToSystemPackages then "0660" else "0640";
@@ -751,7 +751,7 @@
           # Preserves user-added keys (skills, streaming, etc.); Nix keys win.
           # If configFile is user-provided (not generated), overwrite instead of merge.
           # Mode is configYamlMode (0660 under addToSystemPackages so interactive
-          # hermes-group users can save settings via the CLI/TUI, else 0640).
+          # sonic-group users can save settings via the CLI/TUI, else 0640).
           ${if cfg.configFile != null then ''
             install -o ${cfg.user} -g ${cfg.group} -m ${configYamlMode} -D ${configFile} ${cfg.stateDir}/.sonic/config.yaml
           '' else ''

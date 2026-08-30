@@ -243,7 +243,7 @@ async def test_start_gateway_replace_aborts_when_force_killed_pid_still_alive(
     file / scoped locks and start a fresh instance — that leaves two live
     gateways fighting over the same token. It should abort instead.
     """
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
 
     calls = []
     removed_pid = False
@@ -278,8 +278,8 @@ async def test_start_gateway_replace_aborts_when_force_killed_pid_still_alive(
     monkeypatch.setattr("gateway.run.os.kill", lambda pid, sig: None)
     monkeypatch.setattr("time.sleep", lambda _: None)
     monkeypatch.setattr("tools.skills_sync.sync_skills", lambda quiet=True: None)
-    monkeypatch.setattr("hermes_logging.setup_logging", lambda hermes_home, mode: tmp_path)
-    monkeypatch.setattr("hermes_logging._add_rotating_handler", lambda *args, **kwargs: None)
+    monkeypatch.setattr("sonic_logging.setup_logging", lambda sonic_home, mode: tmp_path)
+    monkeypatch.setattr("sonic_logging._add_rotating_handler", lambda *args, **kwargs: None)
     monkeypatch.setattr("gateway.run.GatewayRunner", _RunnerShouldNotStart)
 
     from gateway.run import start_gateway

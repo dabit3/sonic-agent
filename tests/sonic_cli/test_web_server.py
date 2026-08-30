@@ -643,7 +643,7 @@ class TestWebServerEndpoints:
         live continuation, matching /resume behavior."""
         import time as _time
 
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         db = SessionDB()
         try:

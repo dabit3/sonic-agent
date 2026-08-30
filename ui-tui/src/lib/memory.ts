@@ -52,7 +52,7 @@ export interface HeapDumpResult {
   error?: string
   heapPath?: string
   // True when an auto trigger wrote diagnostics only and intentionally skipped
-  // the heavy snapshot because HERMES_AUTO_HEAPDUMP was not enabled (#21767).
+  // the heavy snapshot because SONIC_AUTO_HEAPDUMP was not enabled (#21767).
   suppressed?: boolean
   success: boolean
 }
@@ -163,7 +163,7 @@ export async function performHeapDump(trigger: MemoryTrigger = 'manual'): Promis
     // Auto triggers require explicit opt-in: multi-GiB snapshots written on
     // every threshold cross can fill the user's disk (issue #21767).
     const isAuto = trigger === 'auto-critical' || trigger === 'auto-high'
-    const autoEnabled = /^(?:1|true|yes|on)$/i.test((process.env.HERMES_AUTO_HEAPDUMP ?? '').trim())
+    const autoEnabled = /^(?:1|true|yes|on)$/i.test((process.env.SONIC_AUTO_HEAPDUMP ?? '').trim())
 
     if (isAuto && !autoEnabled) {
       await pruneHeapdumps(dir).catch(() => undefined)
@@ -188,7 +188,7 @@ export async function performHeapDump(trigger: MemoryTrigger = 'manual'): Promis
 // gated auto-triggers cannot accumulate without bound. The newest file is
 // always retained even if it alone exceeds the cap.
 async function pruneHeapdumps(dir: string): Promise<void> {
-  const raw = process.env.HERMES_HEAPDUMP_MAX_BYTES?.trim()
+  const raw = process.env.SONIC_HEAPDUMP_MAX_BYTES?.trim()
   const parsed = raw ? Number(raw) : NaN
   const cap = Number.isFinite(parsed) && parsed > 0 ? parsed : 2 * 1024 ** 3
 

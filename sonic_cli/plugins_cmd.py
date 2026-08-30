@@ -657,7 +657,7 @@ def _resolve_plugin_key(name: str) -> Optional[str]:
     returns the canonical key the loader gates on (``manifest.key`` or, for a
     flat plugin, the bare name). Returns ``None`` when no plugin matches.
 
-    This is the single normalization point so ``hermes plugins enable`` /
+    This is the single normalization point so ``sonic plugins enable`` /
     ``disable`` write the same key that ``PluginManager`` matches against —
     nested category plugins (e.g. ``observability/nemo_relay``) included.
     """
@@ -822,7 +822,7 @@ def _discover_all_plugins() -> list:
     seen: dict = {}  # key -> (name, version, description, source, path, key)
 
     # Bundled (<repo>/plugins/<name>/), excluding memory/ and context_engine/
-    from hermes_cli.plugins import get_bundled_plugins_dir
+    from sonic_cli.plugins import get_bundled_plugins_dir
     repo_plugins = get_bundled_plugins_dir()
     for base, source, skip in (
         (repo_plugins, "bundled", {"memory", "context_engine"}),

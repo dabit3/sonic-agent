@@ -13,12 +13,12 @@ import type {
   DesktopUpdateStatus,
   DesktopVersionInfo
 } from '@/global'
-import { checkHermesUpdate, getActionStatus, updateHermes } from '@/hermes'
+import { checkSonicUpdate, getActionStatus, updateSonic } from '@/sonic'
 import { translateNow } from '@/i18n'
 import { persistString, storedString } from '@/lib/storage'
 import { dismissNotification, notify } from '@/store/notifications'
 import { $connection } from '@/store/session'
-import type { BackendUpdateCheckResponse } from '@/types/hermes'
+import type { BackendUpdateCheckResponse } from '@/types/sonic'
 
 export interface UpdateApplyState {
   applying: boolean
@@ -213,7 +213,7 @@ export async function checkBackendUpdates(): Promise<DesktopUpdateStatus | null>
   $backendUpdateChecking.set(true)
 
   try {
-    const status = mapBackendCheck(await checkHermesUpdate(true))
+    const status = mapBackendCheck(await checkSonicUpdate(true))
     $backendUpdateStatus.set(status)
     maybeNotifyUpdateAvailable(status)
 
@@ -309,11 +309,11 @@ export async function applyBackendUpdate(): Promise<DesktopUpdateApplyResult> {
   $backendUpdateApply.set({ ...IDLE, applying: true, stage: 'prepare', message: 'Updating backend…' })
 
   try {
-    const started = await updateHermes()
+    const started = await updateSonic()
 
     if (!started.ok) {
       const message = (started as { message?: string }).message || 'Update not available for this backend.'
-      const command = (started as { update_command?: string }).update_command || 'hermes update'
+      const command = (started as { update_command?: string }).update_command || 'sonic update'
       $backendUpdateApply.set({ ...IDLE, applying: false, stage: 'manual', message, command })
 
       return { ok: false, error: 'manual', manual: true, message, command }

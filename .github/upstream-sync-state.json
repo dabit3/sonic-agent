@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "bddc5fd0873424bbefa7fdb48c53ee8834366892",
-  "synced_at": "2026-08-29T16:40:00Z",
-  "notes": "Partial sync: this batch ports the first 80 first-parent commits after a216ff83, ending at bddc5fd0 (0 commits skipped). Conflicts required manual resolution in scripts/release.py (author map union), website/docs/user-guide/windows-native.md (Sonic install paths + upstream PATH guidance), website/docs/reference/skills-catalog.md and website/sidebars.ts (kept both Sonic and upstream skill entries). Upstream's new README.ur-pk.md was rebranded to Sonic identity/URLs, and apps/desktop/src/hermes.test.ts was renamed to sonic.test.ts. Remaining backlog is approximately 12,493 first-parent commits after bddc5fd0; each daily run advances the baseline by a reviewable batch."
+  "last_synced_upstream_sha": "56be1a63a33d7c7f0562c4c01b7c8b4463b4f984",
+  "synced_at": "2026-08-30T16:45:00Z",
+  "notes": "Partial sync: this batch ports the 80 first-parent commits after bddc5fd0, ending at 56be1a63 (0 commits skipped). Two conflicts needed manual resolution: agent/conversation_loop.py (upstream's TurnRetryState consolidation - accepted the flag deletion, kept Sonic's tool_use_unsupported_retry_attempted local guard) and scripts/release.py (AUTHOR_MAP union). Upstream's new CLI subcommands package plus cli_commands_mixin.py landed under hermes_cli/ and were relocated to sonic_cli/. Remaining backlog is approximately 12,650 first-parent commits after 56be1a63."
 }

@@ -346,7 +346,7 @@ def _make_real_paint_cli_stub():
     _last_invalidate inside the throttle window. A throttled _invalidate() would
     be dropped under these conditions — _paint_now must paint regardless.
     """
-    cli = HermesCLI.__new__(HermesCLI)
+    cli = SonicCLI.__new__(SonicCLI)
     cli._approval_state = None
     cli._approval_deadline = 0
     cli._approval_lock = threading.Lock()
@@ -357,8 +357,8 @@ def _make_real_paint_cli_stub():
     cli._clarify_deadline = 0
     cli._modal_input_snapshot = None
     # Real methods, not mocks.
-    cli._paint_now = HermesCLI._paint_now.__get__(cli, HermesCLI)
-    cli._invalidate = HermesCLI._invalidate.__get__(cli, HermesCLI)
+    cli._paint_now = SonicCLI._paint_now.__get__(cli, SonicCLI)
+    cli._invalidate = SonicCLI._invalidate.__get__(cli, SonicCLI)
     cli._resize_recovery_pending = True       # gate 1: resize in flight
     cli._last_invalidate = time.monotonic()   # gate 2: inside throttle window
     cli._app = SimpleNamespace(invalidate=MagicMock(), current_buffer=_FakeBuffer())
@@ -386,7 +386,7 @@ class TestModalPaintNow:
         assert cli._app.invalidate.called
 
     def test_paint_now_no_app_is_safe(self):
-        cli = HermesCLI.__new__(HermesCLI)
+        cli = SonicCLI.__new__(SonicCLI)
         cli._app = None
         cli._paint_now()  # must not raise
 
