@@ -279,7 +279,7 @@ class TestCliEnsureRuntimeCredentialsCallable:
         # ``CLIAgentSetupMixin`` (god-file decomposition Phase 4). Read the
         # module the method actually lives in now.
         src = (Path(__file__).resolve().parent.parent.parent
-               / "hermes_cli" / "cli_agent_setup_mixin.py").read_text()
+               / "sonic_cli" / "cli_agent_setup_mixin.py").read_text()
         # The fix introduces ``_is_callable_provider`` which gates the
         # string-only check so callable token providers survive.
         assert "_is_callable_provider = callable(api_key)" in src, (

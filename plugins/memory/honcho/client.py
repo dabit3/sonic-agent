@@ -793,7 +793,7 @@ def get_honcho_client(config: HonchoClientConfig | None = None) -> Honcho:
             raise ImportError(
                 "honcho-ai is required for Honcho integration. "
                 "Install it with: pip install honcho-ai  "
-                "(or run `hermes honcho setup` to configure)."
+                "(or run `sonic honcho setup` to configure)."
             )
 
         # Allow config.yaml honcho.base_url to override the SDK's environment
@@ -803,9 +803,9 @@ def get_honcho_client(config: HonchoClientConfig | None = None) -> Honcho:
         resolved_timeout = config.timeout
         if not resolved_base_url or resolved_timeout is None:
             try:
-                from hermes_cli.config import load_config
-                hermes_cfg = load_config()
-                honcho_cfg = hermes_cfg.get("honcho", {})
+                from sonic_cli.config import load_config
+                sonic_cfg = load_config()
+                honcho_cfg = sonic_cfg.get("honcho", {})
                 if isinstance(honcho_cfg, dict):
                     if not resolved_base_url:
                         resolved_base_url = honcho_cfg.get("base_url", "").strip() or None

@@ -1299,7 +1299,7 @@ async def test_terminal_progress_is_truncated_preview_not_bash_block(monkeypatch
     """Regression for #41215: terminal progress must render as a short truncated
     preview, never the full command in a fenced ```bash block, even on a
     markdown-capable (supports_code_blocks) gateway."""
-    monkeypatch.setenv("HERMES_TOOL_PROGRESS_MODE", "all")
+    monkeypatch.setenv("SONIC_TOOL_PROGRESS_MODE", "all")
 
     fake_dotenv = types.ModuleType("dotenv")
     fake_dotenv.load_dotenv = lambda *args, **kwargs: None
@@ -1313,7 +1313,7 @@ async def test_terminal_progress_is_truncated_preview_not_bash_block(monkeypatch
     adapter = CodeBlockProgressAdapter(platform=Platform.TELEGRAM)
     runner = _make_runner(adapter)
     gateway_run = importlib.import_module("gateway.run")
-    monkeypatch.setattr(gateway_run, "_hermes_home", tmp_path)
+    monkeypatch.setattr(gateway_run, "_sonic_home", tmp_path)
     monkeypatch.setattr(gateway_run, "_resolve_runtime_agent_kwargs", lambda: {"api_key": "***"})
 
     source = SessionSource(
@@ -1347,7 +1347,7 @@ async def test_terminal_progress_no_bash_block_in_verbose_mode(monkeypatch, tmp_
     """#41215 also rendered the bash block in verbose mode. The revert removed it
     from both branches, so verbose progress must not emit a fenced ```bash block
     either (verbose still shows args by opt-in, just not as a code block)."""
-    monkeypatch.setenv("HERMES_TOOL_PROGRESS_MODE", "verbose")
+    monkeypatch.setenv("SONIC_TOOL_PROGRESS_MODE", "verbose")
 
     fake_dotenv = types.ModuleType("dotenv")
     fake_dotenv.load_dotenv = lambda *args, **kwargs: None
@@ -1361,7 +1361,7 @@ async def test_terminal_progress_no_bash_block_in_verbose_mode(monkeypatch, tmp_
     adapter = CodeBlockProgressAdapter(platform=Platform.TELEGRAM)
     runner = _make_runner(adapter)
     gateway_run = importlib.import_module("gateway.run")
-    monkeypatch.setattr(gateway_run, "_hermes_home", tmp_path)
+    monkeypatch.setattr(gateway_run, "_sonic_home", tmp_path)
     monkeypatch.setattr(gateway_run, "_resolve_runtime_agent_kwargs", lambda: {"api_key": "***"})
 
     source = SessionSource(

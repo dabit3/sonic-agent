@@ -3913,11 +3913,11 @@ async function sanitizeDesktopConnectionConfig(config = readDesktopConnectionCon
   const scoped = key ? config.profiles?.[key] || null : null
   const block = key ? scoped || {} : config.remote || {}
 
-  const envOverride = key ? false : Boolean(process.env.HERMES_DESKTOP_REMOTE_URL)
+  const envOverride = key ? false : Boolean(process.env.SONIC_DESKTOP_REMOTE_URL)
 
   const remoteToken = decryptDesktopSecret(block.token)
   const authMode = normAuthMode(block.authMode)
-  const remoteUrl = envOverride ? String(process.env.HERMES_DESKTOP_REMOTE_URL || '') : String(block.url || '')
+  const remoteUrl = envOverride ? String(process.env.SONIC_DESKTOP_REMOTE_URL || '') : String(block.url || '')
   const mode = envOverride || (key ? scoped?.mode : config.mode) === 'remote' ? 'remote' : 'local'
 
   let remoteOauthConnected = false

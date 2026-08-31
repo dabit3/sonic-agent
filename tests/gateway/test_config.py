@@ -348,37 +348,37 @@ class TestLoadGatewayConfig:
         assert config.thread_sessions_per_user is False
 
     def test_bridges_top_level_max_concurrent_sessions_from_config_yaml(self, tmp_path, monkeypatch):
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
-        config_path = hermes_home / "config.yaml"
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        config_path = sonic_home / "config.yaml"
         config_path.write_text("max_concurrent_sessions: 2\n", encoding="utf-8")
 
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         config = load_gateway_config()
 
         assert config.max_concurrent_sessions == 2
 
     def test_bridges_nested_max_concurrent_sessions_from_config_yaml(self, tmp_path, monkeypatch):
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
-        config_path = hermes_home / "config.yaml"
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        config_path = sonic_home / "config.yaml"
         config_path.write_text(
             "gateway:\n"
             "  max_concurrent_sessions: 3\n",
             encoding="utf-8",
         )
 
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         config = load_gateway_config()
 
         assert config.max_concurrent_sessions == 3
 
     def test_top_level_max_concurrent_sessions_overrides_nested_config_yaml(self, tmp_path, monkeypatch):
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
-        config_path = hermes_home / "config.yaml"
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        config_path = sonic_home / "config.yaml"
         config_path.write_text(
             "max_concurrent_sessions: 2\n"
             "gateway:\n"
@@ -386,7 +386,7 @@ class TestLoadGatewayConfig:
             encoding="utf-8",
         )
 
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         config = load_gateway_config()
 

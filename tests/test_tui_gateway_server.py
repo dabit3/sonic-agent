@@ -9,16 +9,16 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
 
-from hermes_constants import reset_hermes_home_override, set_hermes_home_override
-from hermes_cli.active_sessions import active_session_registry_snapshot
+from sonic_constants import reset_sonic_home_override, set_sonic_home_override
+from sonic_cli.active_sessions import active_session_registry_snapshot
 from tui_gateway import server
 
 
 def test_session_create_rejects_at_active_session_limit(monkeypatch, tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
     (home / "config.yaml").write_text("max_concurrent_sessions: 1\n", encoding="utf-8")
-    token = set_hermes_home_override(home)
+    token = set_sonic_home_override(home)
 
     def _clear_server_sessions():
         for session in list(server._sessions.values()):
@@ -39,7 +39,7 @@ def test_session_create_rejects_at_active_session_limit(monkeypatch, tmp_path):
 
         second = server._methods["session.create"]("r2", {"cols": 80})
         assert second["error"]["message"] == (
-            "Hermes is at the active session limit (1/1). "
+            "Sonic is at the active session limit (1/1). "
             "Try again when another session finishes."
         )
         assert list(server._sessions) == [sid]
@@ -55,7 +55,7 @@ def test_session_create_rejects_at_active_session_limit(monkeypatch, tmp_path):
         server._cfg_cache = None
         server._cfg_mtime = None
         server._cfg_path = None
-        reset_hermes_home_override(token)
+        reset_sonic_home_override(token)
 
 
 def test_session_context_uses_session_cwd(monkeypatch, tmp_path):
@@ -4573,7 +4573,7 @@ def test_session_active_list_excludes_finalized_sessions(monkeypatch):
     that window ``session.active_list`` would otherwise still report the dead
     session, which is exactly the footer "N sessions" count that only ever grew
     until a gateway restart. A live session on the real stdio transport (the
-    standalone ``hermes --tui`` case) must still be reported.
+    standalone ``sonic --tui`` case) must still be reported.
     """
     class _DB:
         def get_session_title(self, key):

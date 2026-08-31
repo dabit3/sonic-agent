@@ -9,7 +9,7 @@ from types import SimpleNamespace
 from unittest.mock import patch as mock_patch
 
 import tools.approval as approval_module
-from hermes_constants import get_hermes_home
+from sonic_constants import get_sonic_home
 from tools.approval import (
     _get_approval_mode,
     _smart_approve,
@@ -454,8 +454,8 @@ class TestSonicConfigWriteProtection:
         assert dangerous is True
         assert "in-place" in desc.lower() or "perl" in desc.lower()
 
-    def test_perl_in_place_absolute_hermes_home_config(self):
-        config_path = get_hermes_home() / "config.yaml"
+    def test_perl_in_place_absolute_sonic_home_config(self):
+        config_path = get_sonic_home() / "config.yaml"
         dangerous, key, desc = detect_dangerous_command(
             f"perl -i -pe 's/approvals.mode: on/approvals.mode: off/' {config_path}"
         )
@@ -468,8 +468,8 @@ class TestSonicConfigWriteProtection:
         )
         assert dangerous is True
 
-    def test_ruby_in_place_absolute_hermes_home_env(self):
-        env_path = get_hermes_home() / ".env"
+    def test_ruby_in_place_absolute_sonic_home_env(self):
+        env_path = get_sonic_home() / ".env"
         dangerous, key, desc = detect_dangerous_command(
             f"ruby -i -pe 'gsub(/API_KEY=.*/, \"API_KEY=x\")' {env_path}"
         )

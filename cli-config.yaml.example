@@ -533,7 +533,7 @@ session_reset:
 # unlimited concurrent sessions. When the limit is reached, new sessions get a
 # clean error while existing active sessions keep their normal behavior. This
 # top-level key takes precedence over gateway.max_concurrent_sessions. The cap
-# is a best-effort single-host/profile runtime guard; Hermes fails open if the
+# is a best-effort single-host/profile runtime guard; Sonic fails open if the
 # local runtime lease registry cannot be read or locked.
 max_concurrent_sessions: null
 

@@ -191,14 +191,14 @@ def test_session_key_falls_back_to_os_environ(monkeypatch):
 
 
 def test_session_id_set_via_contextvars(monkeypatch):
-    """set_session_vars should set HERMES_SESSION_ID via contextvars."""
-    monkeypatch.setenv("HERMES_SESSION_ID", "stale-env-session")
+    """set_session_vars should set SONIC_SESSION_ID via contextvars."""
+    monkeypatch.setenv("SONIC_SESSION_ID", "stale-env-session")
 
     tokens = set_session_vars(session_id="ctx-session-456")
-    assert get_session_env("HERMES_SESSION_ID") == "ctx-session-456"
+    assert get_session_env("SONIC_SESSION_ID") == "ctx-session-456"
 
     clear_session_vars(tokens)
-    assert get_session_env("HERMES_SESSION_ID") == ""
+    assert get_session_env("SONIC_SESSION_ID") == ""
 
 
 def test_set_session_env_includes_session_key():

@@ -314,7 +314,7 @@ def test_save_codex_tokens_syncs_manual_device_code_entries(tmp_path, monkeypatc
 
     Narrowed for #39236: the original fix treated every ``manual:device_code``
     entry as a singleton-alias and refreshed them all, which silently
-    clobbered independent accounts added via ``hermes auth add openai-codex``.
+    clobbered independent accounts added via ``sonic auth add openai-codex``.
     The current behavior refreshes only entries whose access_token matches
     the *previous* singleton access_token (true legacy aliases), and leaves
     distinct-token entries alone (independent accounts).
@@ -352,7 +352,7 @@ def test_save_codex_tokens_syncs_manual_device_code_entries(tmp_path, monkeypatc
                     "last_error_code": 401,
                     "last_error_reason": "token_invalidated",
                 },
-                # Independent account from `hermes auth add openai-codex` —
+                # Independent account from `sonic auth add openai-codex` —
                 # its tokens are distinct from the singleton.  Must NOT be
                 # overwritten by a re-auth that targeted a different account
                 # (#39236).
@@ -409,7 +409,7 @@ def test_save_codex_tokens_does_not_overwrite_independent_manual_entries(tmp_pat
     """Re-auth must NOT overwrite ``manual:device_code`` entries that hold
     independent token material (different OpenAI/ChatGPT accounts).
 
-    Regression for #39236: ``hermes auth add openai-codex`` for accounts B and C
+    Regression for #39236: ``sonic auth add openai-codex`` for accounts B and C
     routes through ``_save_codex_tokens`` because the singleton path is the
     only Codex OAuth save flow.  The #33538 fix refreshed every
     ``manual:device_code`` entry on every re-auth, which works fine for the
@@ -422,9 +422,9 @@ def test_save_codex_tokens_does_not_overwrite_independent_manual_entries(tmp_pat
     entries whose tokens never matched the singleton are independent accounts
     and must be left alone.
     """
-    hermes_home = tmp_path / "hermes"
-    hermes_home.mkdir(parents=True, exist_ok=True)
-    (hermes_home / "auth.json").write_text(json.dumps({
+    sonic_home = tmp_path / "sonic"
+    sonic_home.mkdir(parents=True, exist_ok=True)
+    (sonic_home / "auth.json").write_text(json.dumps({
         "version": 1,
         "providers": {
             "openai-codex": {
@@ -448,7 +448,7 @@ def test_save_codex_tokens_does_not_overwrite_independent_manual_entries(tmp_pat
                     "refresh_token": "acctA-rt",
                 },
                 # Two INDEPENDENT manual entries added later via
-                # ``hermes auth add openai-codex`` (account B and account C).
+                # ``sonic auth add openai-codex`` (account B and account C).
                 # Each has its OWN distinct token material, unrelated to the
                 # singleton.
                 {
@@ -470,7 +470,7 @@ def test_save_codex_tokens_does_not_overwrite_independent_manual_entries(tmp_pat
             ],
         },
     }))
-    monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
     # User re-authenticates account A — fresh device-code login produces new
     # tokens.  The legitimate update is the seeded singleton mirror; the
@@ -480,7 +480,7 @@ def test_save_codex_tokens_does_not_overwrite_independent_manual_entries(tmp_pat
         last_refresh="2026-06-05T00:00:00Z",
     )
 
-    auth = json.loads((hermes_home / "auth.json").read_text())
+    auth = json.loads((sonic_home / "auth.json").read_text())
     pool = auth["credential_pool"]["openai-codex"]
 
     # Singleton-seeded entry: refreshed (legitimate sync).
@@ -508,7 +508,7 @@ def test_save_codex_tokens_still_refreshes_legacy_manual_alias(tmp_path, monkeyp
     """The #33538 legacy use case must keep working.
 
     A user who hit #33000 before the #33164 fix landed might have run
-    ``hermes auth add openai-codex`` as a workaround when there was no
+    ``sonic auth add openai-codex`` as a workaround when there was no
     singleton entry — that created a ``manual:device_code`` pool entry that
     holds the SAME token material as the (later) singleton.  This entry is a
     true alias of the singleton and SHOULD still be refreshed on subsequent
@@ -517,9 +517,9 @@ def test_save_codex_tokens_still_refreshes_legacy_manual_alias(tmp_path, monkeyp
     The distinguishing signal: a legacy alias has access_token == previous
     singleton access_token; an independent account does not.
     """
-    hermes_home = tmp_path / "hermes"
-    hermes_home.mkdir(parents=True, exist_ok=True)
-    (hermes_home / "auth.json").write_text(json.dumps({
+    sonic_home = tmp_path / "sonic"
+    sonic_home.mkdir(parents=True, exist_ok=True)
+    (sonic_home / "auth.json").write_text(json.dumps({
         "version": 1,
         "providers": {
             "openai-codex": {
@@ -553,14 +553,14 @@ def test_save_codex_tokens_still_refreshes_legacy_manual_alias(tmp_path, monkeyp
             ],
         },
     }))
-    monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
     _save_codex_tokens(
         {"access_token": "fresh-at", "refresh_token": "fresh-rt"},
         last_refresh="2026-06-05T00:00:00Z",
     )
 
-    auth = json.loads((hermes_home / "auth.json").read_text())
+    auth = json.loads((sonic_home / "auth.json").read_text())
     pool = auth["credential_pool"]["openai-codex"]
 
     # Singleton: refreshed.
@@ -588,9 +588,9 @@ def test_save_codex_tokens_handles_missing_previous_singleton_tokens(tmp_path, m
     pool entry can be a true alias and only the singleton-seeded entry gets
     written.
     """
-    hermes_home = tmp_path / "hermes"
-    hermes_home.mkdir(parents=True, exist_ok=True)
-    (hermes_home / "auth.json").write_text(json.dumps({
+    sonic_home = tmp_path / "sonic"
+    sonic_home.mkdir(parents=True, exist_ok=True)
+    (sonic_home / "auth.json").write_text(json.dumps({
         "version": 1,
         "providers": {},
         "credential_pool": {
@@ -606,14 +606,14 @@ def test_save_codex_tokens_handles_missing_previous_singleton_tokens(tmp_path, m
             ],
         },
     }))
-    monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
     _save_codex_tokens(
         {"access_token": "first-at", "refresh_token": "first-rt"},
         last_refresh="2026-06-05T00:00:00Z",
     )
 
-    auth = json.loads((hermes_home / "auth.json").read_text())
+    auth = json.loads((sonic_home / "auth.json").read_text())
     pool = auth["credential_pool"]["openai-codex"]
     # Pre-existing independent entry with no relationship to a (now-new)
     # singleton MUST be preserved.
@@ -630,9 +630,9 @@ def test_save_codex_tokens_alias_match_uses_access_token_only(tmp_path, monkeypa
     have access_token but no refresh_token.  These should still be treated as
     aliases when the access_token matches.
     """
-    hermes_home = tmp_path / "hermes"
-    hermes_home.mkdir(parents=True, exist_ok=True)
-    (hermes_home / "auth.json").write_text(json.dumps({
+    sonic_home = tmp_path / "sonic"
+    sonic_home.mkdir(parents=True, exist_ok=True)
+    (sonic_home / "auth.json").write_text(json.dumps({
         "version": 1,
         "providers": {
             "openai-codex": {
@@ -652,14 +652,14 @@ def test_save_codex_tokens_alias_match_uses_access_token_only(tmp_path, monkeypa
             ],
         },
     }))
-    monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
     _save_codex_tokens(
         {"access_token": "new-at", "refresh_token": "new-rt"},
         last_refresh="2026-06-05T00:00:00Z",
     )
 
-    auth = json.loads((hermes_home / "auth.json").read_text())
+    auth = json.loads((sonic_home / "auth.json").read_text())
     pool = auth["credential_pool"]["openai-codex"]
     alias = next(e for e in pool if e["id"] == "alias-no-refresh")
     # Treated as alias → refreshed with new tokens.
@@ -673,9 +673,9 @@ def test_save_codex_tokens_clears_error_markers_only_on_refreshed_entries(tmp_pa
     with their own stale-error markers must be left alone (their stale state
     is not the current re-auth's business).
     """
-    hermes_home = tmp_path / "hermes"
-    hermes_home.mkdir(parents=True, exist_ok=True)
-    (hermes_home / "auth.json").write_text(json.dumps({
+    sonic_home = tmp_path / "sonic"
+    sonic_home.mkdir(parents=True, exist_ok=True)
+    (sonic_home / "auth.json").write_text(json.dumps({
         "version": 1,
         "providers": {
             "openai-codex": {
@@ -707,14 +707,14 @@ def test_save_codex_tokens_clears_error_markers_only_on_refreshed_entries(tmp_pa
             ],
         },
     }))
-    monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
     _save_codex_tokens(
         {"access_token": "fresh-at", "refresh_token": "fresh-rt"},
         last_refresh="2026-06-05T00:00:00Z",
     )
 
-    auth = json.loads((hermes_home / "auth.json").read_text())
+    auth = json.loads((sonic_home / "auth.json").read_text())
     pool = auth["credential_pool"]["openai-codex"]
 
     # Singleton: refreshed AND error markers cleared.

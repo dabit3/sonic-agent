@@ -104,7 +104,7 @@ def _register_self_hosted_client(
     When ``existing_client_id`` is provided (the client_id this install
     persisted on a prior run), it is sent so the portal updates that existing
     dashboard record in place instead of minting a duplicate — this is what
-    makes re-running ``hermes dashboard register`` idempotent. The portal
+    makes re-running ``sonic dashboard register`` idempotent. The portal
     falls back to creating a fresh client if the id no longer resolves to a row
     in the caller's org (stale/deleted), so passing it is always safe.
 
@@ -277,14 +277,14 @@ def cmd_dashboard_register(args) -> None:
     portal_base_url = _resolve_portal_base_url(portal_override)
 
     # Idempotency: if this install already registered a dashboard, we hold its
-    # client_id locally (HERMES_DASHBOARD_OAUTH_CLIENT_ID). Re-send it so the
+    # client_id locally (SONIC_DASHBOARD_OAUTH_CLIENT_ID). Re-send it so the
     # portal UPDATES that existing record instead of creating a duplicate. No
     # stored client_id -> this is a first registration -> create a fresh one
     # (the original behavior). This mirrors the portal's rule: no client id =
     # new dashboard; client id present = the stable key of the row to modify.
     existing_client_id = None
     try:
-        existing_client_id = get_env_value("HERMES_DASHBOARD_OAUTH_CLIENT_ID")
+        existing_client_id = get_env_value("SONIC_DASHBOARD_OAUTH_CLIENT_ID")
     except Exception:
         existing_client_id = None
     if isinstance(existing_client_id, str):
@@ -341,7 +341,7 @@ def cmd_dashboard_register(args) -> None:
 
     # Persist the portal URL. Two cases:
     #   a) The user explicitly supplied a custom portal (--portal-url flag or
-    #      HERMES_DASHBOARD_PORTAL_URL env). That's an intentional choice we
+    #      SONIC_DASHBOARD_PORTAL_URL env). That's an intentional choice we
     #      always persist so it survives across sessions — overwriting any
     #      existing entry in place (save_env_value updates a matching key
     #      rather than appending a duplicate). This is true even when it equals
@@ -377,13 +377,13 @@ def cmd_dashboard_register(args) -> None:
     # Persist the dashboard public URL derived from the OAuth redirect URI.
     #
     # --redirect-uri is the full public HTTPS callback the user registered with
-    # the portal, e.g. https://hermes.example.com/auth/callback. At serve time
+    # the portal, e.g. https://sonic.example.com/auth/callback. At serve time
     # the dashboard auth layer (dashboard_auth/routes._redirect_uri) reconstructs
-    # that same callback by taking HERMES_DASHBOARD_PUBLIC_URL and appending
+    # that same callback by taking SONIC_DASHBOARD_PUBLIC_URL and appending
     # "/auth/callback" verbatim. So the value the runtime actually consumes is
     # the ORIGIN (scheme://host[:port]), not the full callback path — persisting
     # the raw redirect URI would double up the path. We derive the origin from
-    # the supplied redirect URI and persist it as HERMES_DASHBOARD_PUBLIC_URL so
+    # the supplied redirect URI and persist it as SONIC_DASHBOARD_PUBLIC_URL so
     # the operator doesn't have to re-supply it and the public-URL override is
     # actually wired (the gate engages and the callback round-trips correctly).
     #
@@ -406,12 +406,12 @@ def cmd_dashboard_register(args) -> None:
     if public_url:
         existing_public_url = None
         try:
-            existing_public_url = get_env_value("HERMES_DASHBOARD_PUBLIC_URL")
+            existing_public_url = get_env_value("SONIC_DASHBOARD_PUBLIC_URL")
         except Exception:
             existing_public_url = None
         if existing_public_url != public_url:
             try:
-                save_env_value("HERMES_DASHBOARD_PUBLIC_URL", public_url)
+                save_env_value("SONIC_DASHBOARD_PUBLIC_URL", public_url)
                 wrote_public_url = True
             except Exception:
                 # Non-fatal: the client_id is the load-bearing value.

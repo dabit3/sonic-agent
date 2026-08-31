@@ -3394,7 +3394,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
     def _get_max_concurrent_sessions(self) -> Optional[int]:
         """Return the configured active chat session cap, if enabled."""
         try:
-            from hermes_cli.active_sessions import resolve_max_concurrent_sessions
+            from sonic_cli.active_sessions import resolve_max_concurrent_sessions
 
             return resolve_max_concurrent_sessions(getattr(self, "config", None))
         except Exception:
@@ -3411,7 +3411,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         if active_count < max_sessions:
             return None
         return (
-            f"Hermes is at the active session limit ({active_count}/{max_sessions}). "
+            f"Sonic is at the active session limit ({active_count}/{max_sessions}). "
             "Try again when another session finishes."
         )
 
@@ -3427,7 +3427,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         if local_limit_message is not None:
             return None, local_limit_message
         try:
-            from hermes_cli.active_sessions import try_acquire_active_session
+            from sonic_cli.active_sessions import try_acquire_active_session
 
             platform = source.platform.value if source and source.platform else "gateway"
             return try_acquire_active_session(

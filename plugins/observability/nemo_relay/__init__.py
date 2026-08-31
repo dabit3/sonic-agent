@@ -65,7 +65,7 @@ class _Runtime:
         self.sessions: dict[str, _SessionState] = {}
         self.subagent_parents: dict[str, _SubagentParent] = {}
         self.atof_exporter: Any = None
-        self._atof_subscriber_name = "hermes.nemo_relay.atof"
+        self._atof_subscriber_name = "sonic.nemo_relay.atof"
         self._plugin_config_initialized = self._configure_plugins_toml()
         self._plugin_config_needs_reinit = False
         if not self._plugin_config_initialized:

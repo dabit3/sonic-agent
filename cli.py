@@ -3494,7 +3494,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
         if self._active_session_lease is not None:
             return True
         try:
-            from hermes_cli.active_sessions import try_acquire_active_session
+            from sonic_cli.active_sessions import try_acquire_active_session
 
             lease, message = try_acquire_active_session(
                 session_id=self.session_id,
@@ -13382,7 +13382,7 @@ def main(
                                 build_native_content_parts as _build_parts,  # noqa: F811
                             )
                             from agent.image_routing import decide_image_input_mode
-                            from hermes_cli.config import load_config
+                            from sonic_cli.config import load_config
 
                             _img_mode = decide_image_input_mode(
                                 (cli.provider or "").strip(),

@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "56be1a63a33d7c7f0562c4c01b7c8b4463b4f984",
-  "synced_at": "2026-08-30T16:45:00Z",
-  "notes": "Partial sync: this batch ports the 80 first-parent commits after bddc5fd0, ending at 56be1a63 (0 commits skipped). Two conflicts needed manual resolution: agent/conversation_loop.py (upstream's TurnRetryState consolidation - accepted the flag deletion, kept Sonic's tool_use_unsupported_retry_attempted local guard) and scripts/release.py (AUTHOR_MAP union). Upstream's new CLI subcommands package plus cli_commands_mixin.py landed under hermes_cli/ and were relocated to sonic_cli/. Remaining backlog is approximately 12,650 first-parent commits after 56be1a63."
+  "last_synced_upstream_sha": "92179352fb7621a04a3592082ac30873759d0cff",
+  "synced_at": "2026-08-31T16:26:51Z",
+  "notes": "Partial sync: this batch ports the 80 first-parent commits after 56be1a63, ending at 92179352 (0 commits skipped). Four conflicts needed manual resolution: sonic_cli/main.py + sonic_cli/model_setup_flows.py (upstream's Phase 2 extraction of the 18 _model_flow_* wizards - accepted the move and re-applied Sonic's live xAI/Anthropic model discovery and tty-aware curses picker inside the new module), uv.lock twice (aiohttp 3.13.4 and anthropic 0.87.0 extras pins - kept Sonic's project block), and scripts/release.py AUTHOR_MAP (union). Remaining backlog is approximately 12,619 first-parent commits after 92179352."
 }

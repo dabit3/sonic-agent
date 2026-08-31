@@ -311,7 +311,7 @@ async function waitForBackendReturn(): Promise<boolean> {
   for (let attempt = 0; attempt < BACKEND_RETURN_MAX_ATTEMPTS; attempt += 1) {
     await new Promise(resolve => globalThis.setTimeout(resolve, BACKEND_RETURN_POLL_MS))
     try {
-      await checkHermesUpdate()
+      await checkSonicUpdate()
 
       return true
     } catch {

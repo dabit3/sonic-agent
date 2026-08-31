@@ -1185,7 +1185,7 @@ def _store_provider_state(
 def mark_provider_active_if_unset(provider_id: str) -> None:
     """Set ``active_provider`` to *provider_id* only when none is set yet.
 
-    Used by ``hermes auth add`` OAuth paths that create credential-pool
+    Used by ``sonic auth add`` OAuth paths that create credential-pool
     entries directly (no singleton ``providers.<id>`` block). Adding the
     very first credential for a provider should make it the active provider
     so the setup wizard's ``_model_section_has_credentials()`` check (which
@@ -1579,10 +1579,10 @@ def resolve_provider(
     if has_usable_secret(os.getenv("OPENAI_API_KEY")) or has_usable_secret(os.getenv("OPENROUTER_API_KEY")):
         return "openrouter"
 
-    # Auto-detect an OpenRouter credential added via `hermes auth add openrouter`
+    # Auto-detect an OpenRouter credential added via `sonic auth add openrouter`
     # (manual pool entry, no env var). Without this, a key that only lives in
     # the credential pool is invisible to auto-detection — the user sees
-    # `hermes auth list` showing the credential while requests go out with no
+    # `sonic auth list` showing the credential while requests go out with no
     # Authorization header ("HTTP 401: Missing Authentication header"). The
     # env-var check above only covers keys exported as OPENROUTER_API_KEY /
     # OPENAI_API_KEY. See issue #42130.
@@ -3480,7 +3480,7 @@ def _save_codex_tokens(tokens: Dict[str, str], last_refresh: str = None, label: 
         # Capture the previous singleton tokens BEFORE overwriting them.  The
         # pool-sync step uses this to distinguish legacy singleton-aliases
         # (which should be refreshed) from independent accounts that
-        # ``hermes auth add openai-codex`` created (which must not be
+        # ``sonic auth add openai-codex`` created (which must not be
         # overwritten — see #39236).
         previous_singleton_tokens = state.get("tokens") if isinstance(state.get("tokens"), dict) else None
         state["tokens"] = tokens

@@ -352,7 +352,7 @@ def _claim_active_session_slot(
     surface: str = "tui",
 ) -> tuple[Any, str | None]:
     try:
-        from hermes_cli.active_sessions import try_acquire_active_session
+        from sonic_cli.active_sessions import try_acquire_active_session
 
         return try_acquire_active_session(
             session_id=session_key,
@@ -561,7 +561,7 @@ def _close_sessions_for_transport(
         else:
             # Point detached sessions at the drop sentinel (NOT real stdio) so
             # _ws_session_is_orphaned recognizes them and the grace-reap can
-            # actually fire; a standalone `hermes --tui` keeps real _stdio.
+            # actually fire; a standalone `sonic --tui` keeps real _stdio.
             session["transport"] = _detached_ws_transport
             detached += 1
             try:
@@ -582,7 +582,7 @@ def _shutdown_sessions() -> None:
 # hours-scale because last_active freezes during a long turn and on passive
 # viewing — running/pending/starting/live-transport are hard exemptions instead.
 try:
-    _SESSION_TTL_S = float(os.environ.get("HERMES_TUI_SESSION_TTL_S") or 6 * 3600)
+    _SESSION_TTL_S = float(os.environ.get("SONIC_TUI_SESSION_TTL_S") or 6 * 3600)
 except (TypeError, ValueError):
     _SESSION_TTL_S = float(6 * 3600)
 _SESSION_TTL_S = max(0.0, _SESSION_TTL_S)
@@ -592,7 +592,7 @@ _REAPER_SCAN_S = 300.0
 def _transport_is_dead(transport) -> bool:
     # _detached_ws_transport is the post-WS-disconnect drop sentinel; a session
     # parked on it has no live client. _stdio_transport is the REAL transport
-    # for a standalone `hermes --tui`, so it must NOT count as dead here (doing
+    # for a standalone `sonic --tui`, so it must NOT count as dead here (doing
     # so let the idle reaper evict healthy standalone TUI sessions).
     if transport is _detached_ws_transport:
         return True
@@ -3792,7 +3792,7 @@ def _(rid, params: dict) -> dict:
     # filter on ``transport is _detached_ws_transport`` (the WS-detached drop
     # sentinel): a detached session is still attachable via a quick reconnect /
     # session.resume until the grace-reap finalizes it, and a standalone
-    # ``hermes --tui`` session legitimately rides the real stdio transport and
+    # ``sonic --tui`` session legitimately rides the real stdio transport and
     # must stay visible.
     # Keep the natural creation/insertion order from ``_sessions``.  The
     # frontend marks the focused session with ``current``; it should not jump to

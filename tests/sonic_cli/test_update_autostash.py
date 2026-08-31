@@ -638,9 +638,9 @@ def test_cmd_update_fetch_is_scoped_to_target_branch(monkeypatch, tmp_path):
     monkeypatch.setattr("shutil.which", lambda name: "/usr/bin/uv" if name == "uv" else None)
 
     side_effect, recorded = _make_update_side_effect()
-    monkeypatch.setattr(hermes_main.subprocess, "run", side_effect)
+    monkeypatch.setattr(sonic_main.subprocess, "run", side_effect)
 
-    hermes_main.cmd_update(SimpleNamespace())
+    sonic_main.cmd_update(SimpleNamespace())
 
     fetch_calls = [c for c in recorded if "fetch" in c]
     assert fetch_calls == [["git", "fetch", "origin", "main"]]

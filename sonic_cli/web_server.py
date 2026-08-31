@@ -8305,7 +8305,7 @@ if sys.platform.startswith("win"):
             pass
 else:
     try:
-        from hermes_cli.pty_bridge import PtyBridge, PtyUnavailableError
+        from sonic_cli.pty_bridge import PtyBridge, PtyUnavailableError
         _PTY_BRIDGE_AVAILABLE = True
     except ImportError:  # pragma: no cover - dev env without ptyprocess
         PtyBridge = None  # type: ignore[assignment]

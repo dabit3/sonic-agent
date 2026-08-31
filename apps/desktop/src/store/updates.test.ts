@@ -158,8 +158,8 @@ describe('checkBackendUpdates', () => {
 describe('applyBackendUpdate recovery', () => {
   beforeEach(() => {
     storage.clear()
-    checkHermesUpdateSpy.mockReset()
-    updateHermesSpy.mockReset()
+    checkSonicUpdateSpy.mockReset()
+    updateSonicSpy.mockReset()
     getActionStatusSpy.mockReset()
     $backendUpdateApply.set({ applying: false, stage: 'idle', message: '', percent: null, error: null, command: null, log: [] })
     vi.useFakeTimers()
@@ -170,9 +170,9 @@ describe('applyBackendUpdate recovery', () => {
   })
 
   it('waits for the backend to return after the restart drops the connection, then clears the overlay', async () => {
-    updateHermesSpy.mockResolvedValue({ ok: true, name: 'update', pid: 1 })
+    updateSonicSpy.mockResolvedValue({ ok: true, name: 'update', pid: 1 })
     getActionStatusSpy.mockRejectedValue(new Error('ECONNREFUSED'))
-    checkHermesUpdateSpy.mockResolvedValue({ install_method: 'git', current_version: '0.16.0', behind: 0, update_available: false, can_apply: true, update_command: 'hermes update', message: null })
+    checkSonicUpdateSpy.mockResolvedValue({ install_method: 'git', current_version: '0.16.0', behind: 0, update_available: false, can_apply: true, update_command: 'sonic update', message: null })
 
     const promise = applyBackendUpdate()
     await vi.advanceTimersByTimeAsync(5000)
@@ -184,9 +184,9 @@ describe('applyBackendUpdate recovery', () => {
   })
 
   it('surfaces an error when the backend never comes back after the restart', async () => {
-    updateHermesSpy.mockResolvedValue({ ok: true, name: 'update', pid: 1 })
+    updateSonicSpy.mockResolvedValue({ ok: true, name: 'update', pid: 1 })
     getActionStatusSpy.mockRejectedValue(new Error('ECONNREFUSED'))
-    checkHermesUpdateSpy.mockRejectedValue(new Error('ECONNREFUSED'))
+    checkSonicUpdateSpy.mockRejectedValue(new Error('ECONNREFUSED'))
 
     const promise = applyBackendUpdate()
     await vi.advanceTimersByTimeAsync(70000)

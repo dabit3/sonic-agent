@@ -469,7 +469,7 @@ enabled = true
 """,
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
+    monkeypatch.setenv("SONIC_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
 
     plugin.on_session_start(session_id="s1")
     plugin.on_session_finalize(session_id="s1", reason="shutdown")
@@ -494,7 +494,7 @@ enabled = true
 """,
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
+    monkeypatch.setenv("SONIC_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
 
     plugin.on_session_start(session_id="parent")
     plugin.on_session_start(session_id="child")
@@ -520,7 +520,7 @@ enabled = true
 """,
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
+    monkeypatch.setenv("SONIC_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
 
     async def _drive() -> None:
         plugin.on_session_start(session_id="s1")
@@ -538,7 +538,7 @@ enabled = true
     assert runtime is not None
     assert runtime._plugin_config_initialized is True
     scope_push_names = [event[1] for event in fake.events if event[0] == "scope.push"]
-    assert "hermes-session-s2" in scope_push_names
+    assert "sonic-session-s2" in scope_push_names
 
 
 def test_nemo_relay_plugin_retries_plugins_toml_after_clear_failure(tmp_path, monkeypatch):
@@ -569,7 +569,7 @@ enabled = true
 """,
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
+    monkeypatch.setenv("SONIC_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
 
     plugin.on_session_start(session_id="s1")
     plugin.on_session_finalize(session_id="s1", reason="shutdown")
@@ -579,7 +579,7 @@ enabled = true
     assert event_names.count("plugin.initialize.attempt") == 2
     assert event_names.count("plugin.clear.failed") == 1
     scope_push_names = [event[1] for event in fake.events if event[0] == "scope.push"]
-    assert "hermes-session-s2" in scope_push_names
+    assert "sonic-session-s2" in scope_push_names
 
 
 def test_nemo_relay_plugin_disables_direct_atif_when_plugins_toml_owns_atif(tmp_path, monkeypatch):
@@ -600,9 +600,9 @@ output_directory = "{(tmp_path / "managed-atif").as_posix()}"
 """,
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
-    monkeypatch.setenv("HERMES_NEMO_RELAY_ATIF_ENABLED", "1")
-    monkeypatch.setenv("HERMES_NEMO_RELAY_ATIF_OUTPUT_DIRECTORY", str(tmp_path / "direct-atif"))
+    monkeypatch.setenv("SONIC_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
+    monkeypatch.setenv("SONIC_NEMO_RELAY_ATIF_ENABLED", "1")
+    monkeypatch.setenv("SONIC_NEMO_RELAY_ATIF_OUTPUT_DIRECTORY", str(tmp_path / "direct-atif"))
 
     plugin.on_session_start(session_id="s1")
     plugin.on_session_finalize(session_id="s1", reason="shutdown")
@@ -611,7 +611,7 @@ output_directory = "{(tmp_path / "managed-atif").as_posix()}"
     assert "plugin.initialize" in event_names
     assert "plugin.clear" in event_names
     assert "atif.register" not in event_names
-    assert not (tmp_path / "direct-atif" / "hermes-atif-s1.json").exists()
+    assert not (tmp_path / "direct-atif" / "sonic-atif-s1.json").exists()
 
 
 def test_nemo_relay_plugin_keeps_direct_atif_when_plugins_toml_init_fails(tmp_path, monkeypatch):
@@ -638,9 +638,9 @@ output_directory = "{(tmp_path / "managed-atif").as_posix()}"
 """,
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
-    monkeypatch.setenv("HERMES_NEMO_RELAY_ATIF_ENABLED", "1")
-    monkeypatch.setenv("HERMES_NEMO_RELAY_ATIF_OUTPUT_DIRECTORY", str(tmp_path / "direct-atif"))
+    monkeypatch.setenv("SONIC_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
+    monkeypatch.setenv("SONIC_NEMO_RELAY_ATIF_ENABLED", "1")
+    monkeypatch.setenv("SONIC_NEMO_RELAY_ATIF_OUTPUT_DIRECTORY", str(tmp_path / "direct-atif"))
 
     plugin.on_session_start(session_id="s1")
     plugin.on_session_finalize(session_id="s1", reason="shutdown")
@@ -649,7 +649,7 @@ output_directory = "{(tmp_path / "managed-atif").as_posix()}"
     assert "plugin.initialize.failed" in event_names
     assert "plugin.clear" not in event_names
     assert "atif.register" in event_names
-    assert (tmp_path / "direct-atif" / "hermes-atif-s1.json").exists()
+    assert (tmp_path / "direct-atif" / "sonic-atif-s1.json").exists()
 
 
 def test_nemo_relay_plugin_retries_plugins_toml_after_fallback_only_session_and_clears_direct_atof(
@@ -684,9 +684,9 @@ output_directory = "{(tmp_path / "managed-atof").as_posix()}"
 """,
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
-    monkeypatch.setenv("HERMES_NEMO_RELAY_ATOF_ENABLED", "1")
-    monkeypatch.setenv("HERMES_NEMO_RELAY_ATOF_OUTPUT_DIRECTORY", str(tmp_path / "direct-atof"))
+    monkeypatch.setenv("SONIC_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
+    monkeypatch.setenv("SONIC_NEMO_RELAY_ATOF_ENABLED", "1")
+    monkeypatch.setenv("SONIC_NEMO_RELAY_ATOF_OUTPUT_DIRECTORY", str(tmp_path / "direct-atof"))
 
     plugin.on_session_start(session_id="s1")
     plugin.on_session_finalize(session_id="s1", reason="shutdown")
@@ -788,7 +788,7 @@ def _adaptive_llm_execute_mode(tmp_path, monkeypatch, plugins_toml_text: str) ->
     plugin = _fresh_plugin(monkeypatch, fake)
     plugins_toml = tmp_path / "plugins.toml"
     plugins_toml.write_text(plugins_toml_text, encoding="utf-8")
-    monkeypatch.setenv("HERMES_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
+    monkeypatch.setenv("SONIC_NEMO_RELAY_PLUGINS_TOML", str(plugins_toml))
 
     plugin.on_llm_execution_middleware(
         session_id="s1",
