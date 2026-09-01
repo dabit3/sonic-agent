@@ -147,18 +147,18 @@ describe('workspaceCwdForNewSession', () => {
     applyConfiguredDefaultProjectDir(null)
     $currentCwd.set('')
     $activeSessionId.set(null)
-    window.localStorage.removeItem('hermes.desktop.workspace-cwd')
+    window.localStorage.removeItem('sonic.desktop.workspace-cwd')
   })
 
   it('prefers the configured default over the sticky remembered workspace', () => {
-    window.localStorage.setItem('hermes.desktop.workspace-cwd', '/home/user/sticky')
+    window.localStorage.setItem('sonic.desktop.workspace-cwd', '/home/user/sticky')
     applyConfiguredDefaultProjectDir('/home/user/configured')
 
     expect(workspaceCwdForNewSession()).toBe('/home/user/configured')
   })
 
   it('falls back to the remembered workspace when no configured default is set', () => {
-    window.localStorage.setItem('hermes.desktop.workspace-cwd', '/home/user/sticky')
+    window.localStorage.setItem('sonic.desktop.workspace-cwd', '/home/user/sticky')
 
     expect(workspaceCwdForNewSession()).toBe('/home/user/sticky')
   })

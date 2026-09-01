@@ -334,7 +334,7 @@ class TestScriptOutputNotStrictScanned:
     code — same trust class as install-vetted skill markdown — and must be
     scanned with the looser assembled-content tier instead.
 
-    Live incident: the ``hermes-triage`` cron was blocked every 5 minutes
+    Live incident: the ``sonic-triage`` cron was blocked every 5 minutes
     once an open security issue containing the root-delete pattern entered
     its ingest queue (112 such rows in the triage corpus — dangerous-command
     quotes are *normal* for triage data).
@@ -343,7 +343,7 @@ class TestScriptOutputNotStrictScanned:
     # Build the command-shape strings at runtime so this test file itself
     # never contains the literal payloads.
     RM_ROOT = "rm" + " -rf " + "/"
-    CAT_ENV = "cat" + " ~/.hermes/" + ".env"
+    CAT_ENV = "cat" + " ~/.sonic/" + ".env"
     SUDOERS = "/etc/" + "sudoers"
 
     def _script_job(self, **extra):
@@ -418,9 +418,9 @@ class TestScriptOutputNotStrictScanned:
 
     def test_command_shapes_in_context_from_output_not_blocked(self, cron_env, monkeypatch):
         """context_from injects a prior job's output — also runtime data."""
-        hermes_home, scheduler = cron_env
+        sonic_home, scheduler = cron_env
         import cron.jobs as cron_jobs
-        output_root = hermes_home / "cron" / "output"
+        output_root = sonic_home / "cron" / "output"
         monkeypatch.setattr(cron_jobs, "OUTPUT_DIR", output_root)
         upstream_dir = output_root / "abcdef123456"
         upstream_dir.mkdir(parents=True)

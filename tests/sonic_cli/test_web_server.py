@@ -4147,17 +4147,17 @@ class TestPtyWebSocket:
         assert env["SONIC_TUI_DISABLE_MOUSE"] == "1"
 
     def test_resolve_chat_argv_applies_terminal_backend_config(
-        self, monkeypatch, _isolate_hermes_home
+        self, monkeypatch, _isolate_sonic_home
     ):
-        import hermes_cli.main as main_mod
+        import sonic_cli.main as main_mod
 
-        config_path = Path(os.environ["HERMES_HOME"]) / "config.yaml"
+        config_path = Path(os.environ["SONIC_HOME"]) / "config.yaml"
         config_path.write_text(
             "\n".join(
                 [
                     "terminal:",
                     "  backend: docker",
-                    "  docker_image: example/hermes-tools:latest",
+                    "  docker_image: example/sonic-tools:latest",
                     "  docker_extra_args:",
                     "    - --network=host",
                 ]
@@ -4176,7 +4176,7 @@ class TestPtyWebSocket:
         _argv, _cwd, env = self.ws_module._resolve_chat_argv()
 
         assert env["TERMINAL_ENV"] == "docker"
-        assert env["TERMINAL_DOCKER_IMAGE"] == "example/hermes-tools:latest"
+        assert env["TERMINAL_DOCKER_IMAGE"] == "example/sonic-tools:latest"
         assert env["TERMINAL_DOCKER_EXTRA_ARGS"] == '["--network=host"]'
 
     def test_rejects_when_embedded_chat_disabled(self, monkeypatch):

@@ -769,7 +769,7 @@ class S6ServiceManager:
         BEFORE sending the down command, so the gateway's shutdown
         handler recognises this SIGTERM as an operator-initiated stop
         and persists ``gateway_state=stopped`` (respecting the explicit
-        intent). Without the marker, an intentional ``hermes gateway
+        intent). Without the marker, an intentional ``sonic gateway
         stop`` is indistinguishable from the container/s6 SIGTERM sent on
         ``docker restart``; the latter must NOT persist ``stopped`` or
         container_boot refuses to auto-start on the next boot (#42675).

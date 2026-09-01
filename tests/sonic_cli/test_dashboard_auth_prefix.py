@@ -391,18 +391,18 @@ class TestPublicUrlOverride:
         self, patch_config, monkeypatch, caplog
     ):
         """A non-empty env var that's missing its scheme (the #1 cause
-        of "I set HERMES_DASHBOARD_PUBLIC_URL but the callback is still
+        of "I set SONIC_DASHBOARD_PUBLIC_URL but the callback is still
         http://") must emit an operator-facing WARNING rather than being
         silently discarded. Regression for #42780."""
         import logging
 
-        from hermes_cli.dashboard_auth import prefix as prefix_mod
+        from sonic_cli.dashboard_auth import prefix as prefix_mod
 
         # Reset the per-value dedup cache so the warning fires in-test
         # regardless of test ordering.
         prefix_mod._warned_malformed_public_urls.clear()
         patch_config(None)
-        monkeypatch.setenv("HERMES_DASHBOARD_PUBLIC_URL", "hermes.domain.com")
+        monkeypatch.setenv("SONIC_DASHBOARD_PUBLIC_URL", "sonic.domain.com")
 
         with caplog.at_level(logging.WARNING, logger=prefix_mod.__name__):
             result = prefix_mod.resolve_public_url()
@@ -414,8 +414,8 @@ class TestPublicUrlOverride:
             if r.levelno == logging.WARNING
         ]
         assert any(
-            "HERMES_DASHBOARD_PUBLIC_URL" in m
-            and "hermes.domain.com" in m
+            "SONIC_DASHBOARD_PUBLIC_URL" in m
+            and "sonic.domain.com" in m
             and "scheme" in m
             for m in warnings
         ), f"expected a scheme warning, got: {warnings!r}"
@@ -428,11 +428,11 @@ class TestPublicUrlOverride:
         misconfigured deploy doesn't flood the logs."""
         import logging
 
-        from hermes_cli.dashboard_auth import prefix as prefix_mod
+        from sonic_cli.dashboard_auth import prefix as prefix_mod
 
         prefix_mod._warned_malformed_public_urls.clear()
         patch_config(None)
-        monkeypatch.setenv("HERMES_DASHBOARD_PUBLIC_URL", "hermes.domain.com")
+        monkeypatch.setenv("SONIC_DASHBOARD_PUBLIC_URL", "sonic.domain.com")
 
         with caplog.at_level(logging.WARNING, logger=prefix_mod.__name__):
             for _ in range(5):
@@ -442,7 +442,7 @@ class TestPublicUrlOverride:
             r
             for r in caplog.records
             if r.levelno == logging.WARNING
-            and "hermes.domain.com" in r.getMessage()
+            and "sonic.domain.com" in r.getMessage()
         ]
         assert len(scheme_warnings) == 1, (
             f"expected exactly one warning across 5 calls, "
@@ -455,18 +455,18 @@ class TestPublicUrlOverride:
         """A correctly-formed value must not produce a spurious warning."""
         import logging
 
-        from hermes_cli.dashboard_auth import prefix as prefix_mod
+        from sonic_cli.dashboard_auth import prefix as prefix_mod
 
         prefix_mod._warned_malformed_public_urls.clear()
         patch_config(None)
         monkeypatch.setenv(
-            "HERMES_DASHBOARD_PUBLIC_URL", "https://hermes.domain.com"
+            "SONIC_DASHBOARD_PUBLIC_URL", "https://sonic.domain.com"
         )
 
         with caplog.at_level(logging.WARNING, logger=prefix_mod.__name__):
             result = prefix_mod.resolve_public_url()
 
-        assert result == "https://hermes.domain.com"
+        assert result == "https://sonic.domain.com"
         assert not [
             r for r in caplog.records if r.levelno == logging.WARNING
         ]

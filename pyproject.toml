@@ -67,7 +67,7 @@ dependencies = [
   # try/except-ImportError fallbacks silently degrade: Hindsight's
   # ``_meets_minimum_version`` disables update_mode='append' (#40503),
   # tools/lazy_deps.py treats every version constraint as satisfied, and
-  # hermes_cli/main.py drops to naive requirement parsing. Pure-Python
+  # sonic_cli/main.py drops to naive requirement parsing. Pure-Python
   # py3-none-any wheel, no compiled extensions — safe to ship everywhere.
   # Pinned to the version already resolved in uv.lock (no resolution churn).
   "packaging==26.0",
@@ -287,9 +287,9 @@ py-modules = ["run_agent", "model_tools", "toolsets", "batch_runner", "trajector
 locales = ["locales/*.yaml"]
 # Shipped MCP catalog (optional-mcps/<name>/manifest.yaml). Same bare-data-dir
 # case as locales: data-files ships it in the wheel, `graft optional-mcps` in
-# MANIFEST.in ships it in the sdist. Without this, `hermes mcp catalog` and the
+# MANIFEST.in ships it in the sdist. Without this, `sonic mcp catalog` and the
 # dashboard catalog screen come up empty on packaged installs even though the
-# manifests exist in the repo (hermes_cli/mcp_catalog.py:_catalog_root resolves
+# manifests exist in the repo (sonic_cli/mcp_catalog.py:_catalog_root resolves
 # the packaged dir; list_catalog() returns [] when it's missing).
 #
 # data-files flattens every glob match into its single target dir, so each

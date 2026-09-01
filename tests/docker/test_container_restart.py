@@ -271,8 +271,8 @@ def test_live_gateway_autostarts_after_real_restart_without_manual_state_stamp(
     """
     container = restart_container
 
-    _exec(container, "hermes", "profile", "create", "live").check_returncode()
-    r = _exec(container, "hermes", "-p", "live", "gateway", "start", timeout=60)
+    _exec(container, "sonic", "profile", "create", "live").check_returncode()
+    r = _exec(container, "sonic", "-p", "live", "gateway", "start", timeout=60)
     assert r.returncode == 0, f"gateway start failed: {r.stderr}"
 
     # Wait for the gateway to actually come up under supervision AND write
@@ -304,7 +304,7 @@ def test_live_gateway_autostarts_after_real_restart_without_manual_state_stamp(
 
     # Real restart — Docker sends SIGTERM to PID 1; s6 propagates it to the
     # supervised gateway. No planned-stop marker is written (this is not an
-    # operator `hermes gateway stop`), so the shutdown is signal-initiated.
+    # operator `sonic gateway stop`), so the shutdown is signal-initiated.
     _docker("restart", container, timeout=60).check_returncode()
 
     log = _wait_for_reconcile_log_mention(container, "live", deadline_s=30.0)

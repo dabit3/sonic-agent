@@ -83,7 +83,7 @@ def test_packaging_declared_as_core_dependency():
 
     ``packaging`` is imported directly on three production paths
     (plugins/memory/hindsight/__init__.py, tools/lazy_deps.py,
-    hermes_cli/main.py) yet was undeclared, so it only reached users
+    sonic_cli/main.py) yet was undeclared, so it only reached users
     transitively. The slim Docker image shipped without it, silently
     disabling Hindsight append-mode and version-constraint checks. It must
     be a declared core dependency so it installs everywhere and the
@@ -269,12 +269,12 @@ def test_locale_catalogs_ship_in_both_wheel_and_sdist():
 def test_optional_mcps_manifests_ship_in_both_wheel_and_sdist():
     """Regression guard: the shipped MCP catalog must reach packaged installs.
 
-    hermes_cli/mcp_catalog.py resolves the catalog via get_optional_mcps_dir()
+    sonic_cli/mcp_catalog.py resolves the catalog via get_optional_mcps_dir()
     -> _get_packaged_data_dir("optional-mcps"), and list_catalog() returns []
     when that directory is absent. optional-mcps/ is a bare data directory (no
     __init__.py), invisible to packages.find and package-data. It must ship as
     setuptools data-files (wheel) AND be grafted in MANIFEST.in (sdist), or
-    `hermes mcp catalog` and the dashboard catalog screen come up empty on
+    `sonic mcp catalog` and the dashboard catalog screen come up empty on
     pip / Homebrew / Nix installs even though the manifests exist in the repo.
 
     data-files flattens every glob match into its single target dir, so each

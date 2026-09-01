@@ -7334,7 +7334,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
                     # keyed by name, when available.
                     loaded: dict = {}
                     try:
-                        from hermes_cli.plugins import get_plugin_manager
+                        from sonic_cli.plugins import get_plugin_manager
                         for p in get_plugin_manager().list_plugins():
                             loaded[p["name"]] = p
                     except Exception:
@@ -7358,8 +7358,8 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
                         error = f" — {info['error']}" if info.get("error") else ""
                         print(f"  {glyph} {name}{ver}{label}{detail}{error}")
                     if bundled_count:
-                        print(f"  (+{bundled_count} bundled — see: hermes plugins list)")
-                    print("  Enable/disable: hermes plugins enable/disable <name>")
+                        print(f"  (+{bundled_count} bundled — see: sonic plugins list)")
+                    print("  Enable/disable: sonic plugins enable/disable <name>")
             except Exception as e:
                 print(f"Plugin system error: {e}")
         elif canonical == "rollback":

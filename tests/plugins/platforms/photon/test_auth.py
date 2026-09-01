@@ -102,7 +102,7 @@ def test_store_project_credentials_writes_env(tmp_sonic_home: Path) -> None:
     assert "PHOTON_PROJECT_SECRET=sek-ret" in env_text
 
 
-def test_store_user_numbers_round_trip(tmp_hermes_home: Path) -> None:
+def test_store_user_numbers_round_trip(tmp_sonic_home: Path) -> None:
     photon_auth.store_user_numbers(
         phone_number="+15551234567",
         assigned_phone_number="+16282679185",
@@ -125,9 +125,9 @@ def test_store_user_numbers_round_trip(tmp_hermes_home: Path) -> None:
 
 
 def test_load_user_numbers_falls_back_to_home_channel(
-    tmp_hermes_home: Path,
+    tmp_sonic_home: Path,
 ) -> None:
-    from hermes_cli.config import save_env_value
+    from sonic_cli.config import save_env_value
 
     save_env_value("PHOTON_HOME_CHANNEL", "+15551234567")
 
@@ -137,7 +137,7 @@ def test_load_user_numbers_falls_back_to_home_channel(
 
 
 def test_refresh_user_numbers_reads_existing_assignment(
-    tmp_hermes_home: Path, monkeypatch: pytest.MonkeyPatch,
+    tmp_sonic_home: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     photon_auth.store_user_numbers(phone_number="+15551234567")
 

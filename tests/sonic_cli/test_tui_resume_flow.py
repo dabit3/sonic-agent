@@ -897,16 +897,16 @@ def test_launch_tui_exports_model_provider_and_toolsets(monkeypatch, main_mod):
 
 
 def test_launch_tui_applies_terminal_backend_config(
-    monkeypatch, main_mod, _isolate_hermes_home
+    monkeypatch, main_mod, _isolate_sonic_home
 ):
     captured = {}
-    config_path = Path(os.environ["HERMES_HOME"]) / "config.yaml"
+    config_path = Path(os.environ["SONIC_HOME"]) / "config.yaml"
     config_path.write_text(
         "\n".join(
             [
                 "terminal:",
                 "  backend: docker",
-                "  docker_image: example/hermes-tools:latest",
+                "  docker_image: example/sonic-tools:latest",
                 "  docker_extra_args:",
                 "    - --network=host",
             ]
@@ -932,7 +932,7 @@ def test_launch_tui_applies_terminal_backend_config(
         main_mod._launch_tui()
 
     assert captured["env"]["TERMINAL_ENV"] == "docker"
-    assert captured["env"]["TERMINAL_DOCKER_IMAGE"] == "example/hermes-tools:latest"
+    assert captured["env"]["TERMINAL_DOCKER_IMAGE"] == "example/sonic-tools:latest"
     assert captured["env"]["TERMINAL_DOCKER_EXTRA_ARGS"] == '["--network=host"]'
 
 

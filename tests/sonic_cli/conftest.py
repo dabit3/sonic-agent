@@ -42,9 +42,9 @@ def _suppress_concurrent_sonic_gate(request, monkeypatch):
     except Exception:
         return
     # raising=False: under pytest's per-test spawn isolation, a concurrent
-    # xdist worker importing a module that transitively touches hermes_cli.main
+    # xdist worker importing a module that transitively touches sonic_cli.main
     # can briefly expose a partially-initialized module object here — one where
-    # _detect_concurrent_hermes_instances isn't defined yet. A bare setattr
+    # _detect_concurrent_sonic_instances isn't defined yet. A bare setattr
     # would raise AttributeError and error the (unrelated) test. The attribute
     # always exists once main.py finishes importing, so a no-op when it's
     # transiently absent is the correct, race-free default.

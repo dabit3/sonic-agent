@@ -163,7 +163,7 @@ sonic photon status
 ```
 
 Prints saved credentials, sidecar health, your registered number, and the
-assigned iMessage line Hermes uses. When a Photon token and dashboard project
+assigned iMessage line Sonic uses. When a Photon token and dashboard project
 are available, `status` refreshes missing number rows from the dashboard
 without provisioning new lines.
 

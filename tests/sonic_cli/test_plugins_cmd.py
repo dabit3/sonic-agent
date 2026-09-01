@@ -840,7 +840,7 @@ class TestSubdirInstallE2E:
         if shutil.which("git") is None:
             pytest.skip("git not available")
 
-        from hermes_cli import plugins_cmd as pc
+        from sonic_cli import plugins_cmd as pc
 
         repo_root = tmp_path / "monorepo"
         self._make_repo_with_subdir_plugin(repo_root)
@@ -868,7 +868,7 @@ class TestSubdirInstallE2E:
         if shutil.which("git") is None:
             pytest.skip("git not available")
 
-        from hermes_cli import plugins_cmd as pc
+        from sonic_cli import plugins_cmd as pc
 
         repo_root = tmp_path / "monorepo"
         self._make_repo_with_subdir_plugin(repo_root)

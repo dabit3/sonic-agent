@@ -1826,7 +1826,7 @@ def _launch_tui(
 
     env = os.environ.copy()
     try:
-        from hermes_cli.config import apply_terminal_config_to_env
+        from sonic_cli.config import apply_terminal_config_to_env
         apply_terminal_config_to_env(env=env)
     except Exception:
         logger.debug("Failed to apply terminal config bridge for TUI launch", exc_info=True)
@@ -5841,7 +5841,7 @@ def _update_via_zip(args):
     # Seed the model-catalog disk cache from the freshly-unpacked checkout
     # (same rationale as the git-pull path in _cmd_update_impl). Non-fatal.
     try:
-        from hermes_cli.model_catalog import seed_cache_from_checkout
+        from sonic_cli.model_catalog import seed_cache_from_checkout
 
         if seed_cache_from_checkout(PROJECT_ROOT):
             print("  ✓ Model catalog cache refreshed from checkout")
@@ -8410,13 +8410,13 @@ def _cmd_update_impl(args, gateway_mode: bool):
         # Seed the model-catalog disk cache from the freshly-pulled checkout.
         # The repo ships the canonical catalog at
         # website/static/api/model-catalog.json, and `git pull` just made it
-        # current — so copy it straight over ~/.hermes/cache/model_catalog.json
+        # current — so copy it straight over ~/.sonic/cache/model_catalog.json
         # instead of waiting on a network fetch (which can be bot-gated or hit a
         # Portal hiccup). Keeps the model picker's curated/free lists in sync
         # with the version the user just installed. Non-fatal on failure: the
         # normal network refresh still applies on the next picker open.
         try:
-            from hermes_cli.model_catalog import seed_cache_from_checkout
+            from sonic_cli.model_catalog import seed_cache_from_checkout
 
             if seed_cache_from_checkout(PROJECT_ROOT):
                 print("  ✓ Model catalog cache refreshed from checkout")
@@ -11249,7 +11249,7 @@ def main():
         # exactly the case where SessionDB() can't open, so it operates on the
         # raw file path instead.
         if action == "repair":
-            from hermes_state import (
+            from sonic_state import (
                 DEFAULT_DB_PATH,
                 _db_opens_cleanly,
                 repair_state_db_schema,
@@ -11275,7 +11275,7 @@ def main():
                     print(f"  backup: {report['backup_path']}")
                 print(f"  strategy: {report.get('strategy')}")
                 try:
-                    from hermes_state import SessionDB
+                    from sonic_state import SessionDB
 
                     n = SessionDB()._conn.execute(
                         "SELECT COUNT(*) FROM sessions"

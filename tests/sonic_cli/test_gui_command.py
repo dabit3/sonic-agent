@@ -509,11 +509,11 @@ def test_gui_falls_back_to_mirror_when_purge_finds_nothing(tmp_path, monkeypatch
     install_ok = subprocess.CompletedProcess(["npm", "ci"], 0)
     pack_fail = subprocess.CompletedProcess(["npm", "run", "pack"], 1)
 
-    with patch("hermes_cli.main.shutil.which", return_value="/usr/bin/npm"), \
-         patch("hermes_cli.main._run_npm_install_deterministic", return_value=install_ok), \
-         patch("hermes_cli.main._desktop_macos_relaunchable_fixup"), \
-         patch("hermes_cli.main._purge_electron_build_cache", return_value=[]) as mock_purge, \
-         patch("hermes_cli.main.subprocess.run", side_effect=[pack_fail, pack_fail]) as mock_run, \
+    with patch("sonic_cli.main.shutil.which", return_value="/usr/bin/npm"), \
+         patch("sonic_cli.main._run_npm_install_deterministic", return_value=install_ok), \
+         patch("sonic_cli.main._desktop_macos_relaunchable_fixup"), \
+         patch("sonic_cli.main._purge_electron_build_cache", return_value=[]) as mock_purge, \
+         patch("sonic_cli.main.subprocess.run", side_effect=[pack_fail, pack_fail]) as mock_run, \
          pytest.raises(SystemExit) as exc:
         cli_main.cmd_gui(_ns())
 

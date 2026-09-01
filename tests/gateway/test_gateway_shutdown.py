@@ -393,7 +393,7 @@ async def test_signal_initiated_shutdown_persists_running_not_stopped(tmp_path, 
     """Unexpected SIGTERM (container restart / OOM / kill) must persist
     gateway_state=running — NOT stopped, and NOT leave the mid-shutdown
     'draining' marker — so container_boot auto-starts on next boot (#42675)."""
-    monkeypatch.setattr(gateway_run, "_hermes_home", tmp_path)
+    monkeypatch.setattr(gateway_run, "_sonic_home", tmp_path)
     runner, adapter = make_restart_runner()
     adapter.disconnect = AsyncMock()
     runner._signal_initiated_shutdown = True  # set by handler on unmarked signal
@@ -414,8 +414,8 @@ async def test_signal_initiated_shutdown_persists_running_not_stopped(tmp_path, 
 @pytest.mark.asyncio
 async def test_operator_initiated_stop_persists_stopped(tmp_path, monkeypatch):
     """A planned stop (marker written → not signal-initiated) must persist
-    gateway_state=stopped so an explicit `hermes gateway stop` stays down."""
-    monkeypatch.setattr(gateway_run, "_hermes_home", tmp_path)
+    gateway_state=stopped so an explicit `sonic gateway stop` stays down."""
+    monkeypatch.setattr(gateway_run, "_sonic_home", tmp_path)
     runner, adapter = make_restart_runner()
     adapter.disconnect = AsyncMock()
     runner._signal_initiated_shutdown = False  # planned stop classification
@@ -433,7 +433,7 @@ async def test_signal_initiated_restart_still_persists_stopped(tmp_path, monkeyp
     """A restart is not a 'stay down' — it persists normally (the new
     process/container brings the gateway back up itself). The suppression
     only applies to a terminal signal-initiated stop, not a restart."""
-    monkeypatch.setattr(gateway_run, "_hermes_home", tmp_path)
+    monkeypatch.setattr(gateway_run, "_sonic_home", tmp_path)
     runner, adapter = make_restart_runner()
     adapter.disconnect = AsyncMock()
     runner._signal_initiated_shutdown = True

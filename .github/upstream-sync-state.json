@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "92179352fb7621a04a3592082ac30873759d0cff",
-  "synced_at": "2026-08-31T16:26:51Z",
-  "notes": "Partial sync: this batch ports the 80 first-parent commits after 56be1a63, ending at 92179352 (0 commits skipped). Four conflicts needed manual resolution: sonic_cli/main.py + sonic_cli/model_setup_flows.py (upstream's Phase 2 extraction of the 18 _model_flow_* wizards - accepted the move and re-applied Sonic's live xAI/Anthropic model discovery and tty-aware curses picker inside the new module), uv.lock twice (aiohttp 3.13.4 and anthropic 0.87.0 extras pins - kept Sonic's project block), and scripts/release.py AUTHOR_MAP (union). Remaining backlog is approximately 12,619 first-parent commits after 92179352."
+  "last_synced_upstream_sha": "1770263cccf76950b6df9be8ac987f99d924b372",
+  "synced_at": "2026-09-01T17:10:00Z",
+  "notes": "Partial sync: this batch ports the 80 first-parent commits after 92179352, ending at 1770263c (2 skipped: 3dcfbbfc and 68a997fe, both no-ops against Sonic). Manual resolutions: scripts/release.py AUTHOR_MAP (union, twice), uv.lock twice (packaging core dep + pyjwt 2.13.0 pin - kept Sonic's project block), website/static/api/model-catalog.json updated_at (kept Sonic's newer stamp), website/docs/user-guide/windows-native.md (took upstream's corrected data-layout docs, rebranded), sonic_cli/models.py Anthropic list (kept claude-opus-5, added claude-fable-5). Remaining backlog is approximately 12,908 first-parent commits after 1770263c."
 }

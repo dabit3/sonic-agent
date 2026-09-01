@@ -44,9 +44,9 @@ def _warn_if_malformed(source: str, raw: str) -> None:
     was rejected by :func:`_normalise_public_url`.
 
     A non-empty value that normalises to ``""`` is almost always a
-    missing scheme (``hermes.example.com`` instead of
-    ``https://hermes.example.com``) — the single most common cause of
-    "I set HERMES_DASHBOARD_PUBLIC_URL but the OAuth callback is still
+    missing scheme (``sonic.example.com`` instead of
+    ``https://sonic.example.com``) — the single most common cause of
+    "I set SONIC_DASHBOARD_PUBLIC_URL but the OAuth callback is still
     http://". Without this warning the value is silently discarded and
     the dashboard falls back to reconstructing the redirect URI from
     request headers, which behind a reverse proxy can yield the wrong
@@ -68,7 +68,7 @@ def _warn_if_malformed(source: str, raw: str) -> None:
         "scheme behind a reverse proxy.",
         source,
         cleaned,
-        cleaned.split("://")[-1] or "hermes.example.com",
+        cleaned.split("://")[-1] or "sonic.example.com",
     )
 
 
@@ -193,7 +193,7 @@ def resolve_public_url() -> str:
     env_clean = _normalise_public_url(env_raw)
     if env_clean:
         return env_clean
-    _warn_if_malformed("HERMES_DASHBOARD_PUBLIC_URL env var", env_raw)
+    _warn_if_malformed("SONIC_DASHBOARD_PUBLIC_URL env var", env_raw)
     cfg_raw = str(_load_dashboard_section().get("public_url", ""))
     cfg_clean = _normalise_public_url(cfg_raw)
     if not cfg_clean:

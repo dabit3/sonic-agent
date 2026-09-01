@@ -359,14 +359,14 @@ def get_curated_nous_models() -> list[str] | None:
 def seed_cache_from_checkout(project_root: "Path | str") -> bool:
     """Overwrite the disk cache with the catalog shipped in a local checkout.
 
-    ``hermes update`` pulls the latest repo, so the freshly-pulled
+    ``sonic update`` pulls the latest repo, so the freshly-pulled
     ``website/static/api/model-catalog.json`` IS the newest catalog — no
     network round-trip needed. Copying it straight over the disk cache keeps
     the model picker current even when the remote manifest fetch is bot-gated
     or the Portal hiccups.
 
     Reads the shipped manifest, validates it against the schema, and writes it
-    to ``~/.hermes/cache/model_catalog.json`` via the same atomic writer the
+    to ``~/.sonic/cache/model_catalog.json`` via the same atomic writer the
     network path uses. Returns ``True`` on success, ``False`` if the file is
     missing, malformed, or fails validation (caller should treat a ``False``
     as non-fatal — the network fetch path still applies on the next picker
