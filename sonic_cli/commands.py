@@ -1574,8 +1574,8 @@ class SlashCommandCompleter(Completer):
         already = set(parts[1:] if trailing_space else parts[1:-1])
 
         try:
-            from hermes_cli.config import load_config
-            from hermes_cli.tools_config import (
+            from sonic_cli.config import load_config
+            from sonic_cli.tools_config import (
                 CONFIGURABLE_TOOLSETS,
                 _get_platform_tools,
                 _get_plugin_toolset_keys,

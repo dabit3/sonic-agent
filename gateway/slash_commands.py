@@ -48,7 +48,7 @@ class GatewaySlashCommandsMixin:
     """In-session slash-command handlers for GatewayRunner."""
 
     def _typed_command_prefix_for(self, platform) -> str:
-        """Return the prefix users can always type to reach Hermes commands.
+        """Return the prefix users can always type to reach Sonic commands.
 
         Reads the adapter's ``typed_command_prefix`` capability flag
         (default "/"). Slack and Matrix return "!" because typed "/"
@@ -1245,7 +1245,7 @@ class GatewaySlashCommandsMixin:
                     model_cfg["provider"] = result.target_provider
                     if result.base_url:
                         model_cfg["base_url"] = result.base_url
-                    from hermes_cli.config import save_config
+                    from sonic_cli.config import save_config
                     save_config(cfg)
                 except Exception as e:
                     logger.warning("Failed to persist model switch: %s", e)
@@ -1258,7 +1258,7 @@ class GatewaySlashCommandsMixin:
             # Context: always resolve via the provider-aware chain so Codex OAuth,
             # Copilot, and Nous-enforced caps win over the raw models.dev entry.
             mi = result.model_info
-            from hermes_cli.model_switch import resolve_display_context_length
+            from sonic_cli.model_switch import resolve_display_context_length
             _sw2_config_ctx = None
             try:
                 _sw2_cfg = _load_gateway_config()
@@ -1313,7 +1313,7 @@ class GatewaySlashCommandsMixin:
         # on a cache miss, so run it off the event loop.
         _cost_warning = None
         try:
-            from hermes_cli.model_cost_guard import expensive_model_warning
+            from sonic_cli.model_cost_guard import expensive_model_warning
 
             _cost_warning = await asyncio.to_thread(
                 expensive_model_warning,
@@ -2024,15 +2024,15 @@ class GatewaySlashCommandsMixin:
         Gate changes persist to config.yaml and evict the cached agent so the
         new setting takes effect on the next message.
         """
-        from gateway.run import _hermes_home
-        from hermes_cli.write_approval_commands import handle_pending_subcommand
+        from gateway.run import _sonic_home
+        from sonic_cli.write_approval_commands import handle_pending_subcommand
         from tools import write_approval as wa
         from tools.memory_tool import MemoryStore
 
         raw_args = event.get_command_args().strip()
         args = raw_args.split() if raw_args else []
         session_key = self._session_key_for_source(event.source)
-        config_path = _hermes_home / "config.yaml"
+        config_path = _sonic_home / "config.yaml"
 
         def _set_approval(enabled: bool):
             import yaml
@@ -2072,14 +2072,14 @@ class GatewaySlashCommandsMixin:
         ``diff`` output is truncated for chat bubbles — the full diff lives in
         the CLI (``/skills diff <id>``) and the pending JSON file.
         """
-        from gateway.run import _hermes_home
-        from hermes_cli.write_approval_commands import handle_pending_subcommand
+        from gateway.run import _sonic_home
+        from sonic_cli.write_approval_commands import handle_pending_subcommand
         from tools import write_approval as wa
 
         raw_args = event.get_command_args().strip()
         args = raw_args.split() if raw_args else []
         session_key = self._session_key_for_source(event.source)
-        config_path = _hermes_home / "config.yaml"
+        config_path = _sonic_home / "config.yaml"
 
         gate_on = wa.write_approval_enabled(wa.SKILLS)
         wants_toggle = bool(args) and args[0].lower() in {"approval", "mode"}
@@ -2113,7 +2113,7 @@ class GatewaySlashCommandsMixin:
             pending_id = args[1] if len(args) > 1 else "<id>"
             out = (out[:3000]
                    + f"\n… (truncated — full diff: `/skills diff {pending_id}` "
-                     f"on the CLI, or ~/.hermes/pending/skills/{pending_id}.json)")
+                     f"on the CLI, or ~/.sonic/pending/skills/{pending_id}.json)")
         return out
 
     async def _handle_fast_command(self, event: MessageEvent) -> str:

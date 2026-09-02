@@ -1321,7 +1321,7 @@ class CLICommandsMixin:
 
     def _handle_memory_command(self, cmd: str):
         """Handle /memory slash command — pending review + approval-gate toggle."""
-        from hermes_cli.write_approval_commands import handle_pending_subcommand
+        from sonic_cli.write_approval_commands import handle_pending_subcommand
         from tools import write_approval as wa
         parts = cmd.strip().split()
         args = parts[1:] if len(parts) > 1 else []

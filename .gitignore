@@ -115,7 +115,7 @@ docs/superpowers/*
 .sonic-bootstrap-complete
 
 # Interrupted-update breadcrumb + recovery lock written next to the shared venv
-# by `hermes update` / launch-time self-heal. Runtime state, never a code change
+# by `sonic update` / launch-time self-heal. Runtime state, never a code change
 # — ignore so `git status` stays clean and update's autostash skips them.
 .update-incomplete
 .update-incomplete.lock

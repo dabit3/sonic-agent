@@ -1072,7 +1072,7 @@ class TestWebServerEndpoints:
 
     def test_model_set_requires_confirmation_for_expensive_model(self, monkeypatch):
         monkeypatch.setattr(
-            "hermes_cli.model_cost_guard.expensive_model_warning",
+            "sonic_cli.model_cost_guard.expensive_model_warning",
             lambda *_args, **_kwargs: SimpleNamespace(message="EXPENSIVE MODEL WARNING"),
         )
 
@@ -1409,7 +1409,7 @@ class TestWebServerEndpoints:
             restart_calls.append((subcommand, name))
             return FakeRestartProc()
 
-        monkeypatch.setattr(ws, "_spawn_hermes_action", fake_spawn_action)
+        monkeypatch.setattr(ws, "_spawn_sonic_action", fake_spawn_action)
 
         start = self.client.post("/api/messaging/telegram/onboarding/start", json={})
         assert start.status_code == 200
@@ -1445,8 +1445,8 @@ class TestWebServerEndpoints:
     def test_telegram_onboarding_apply_reports_restart_failure_after_save(
         self, monkeypatch
     ):
-        import hermes_cli.web_server as ws
-        from hermes_cli.config import load_config, load_env
+        import sonic_cli.web_server as ws
+        from sonic_cli.config import load_config, load_env
 
         with ws._telegram_onboarding_lock:
             ws._telegram_onboarding_pairings.clear()
@@ -1456,9 +1456,9 @@ class TestWebServerEndpoints:
                 return {
                     "pairing_id": "pair-restart-fails",
                     "poll_token": "poll-secret",
-                    "suggested_username": "hermes_pair_restart_fails_bot",
-                    "deep_link": "https://t.me/newbot/HermesSetupBot/hermes_pair_restart_fails_bot",
-                    "qr_payload": "https://t.me/newbot/HermesSetupBot/hermes_pair_restart_fails_bot",
+                    "suggested_username": "sonic_pair_restart_fails_bot",
+                    "deep_link": "https://t.me/newbot/SonicSetupBot/sonic_pair_restart_fails_bot",
+                    "qr_payload": "https://t.me/newbot/SonicSetupBot/sonic_pair_restart_fails_bot",
                     "expires_at": "2027-05-18T00:00:00.000Z",
                 }
             assert method == "GET"
@@ -1466,7 +1466,7 @@ class TestWebServerEndpoints:
             assert bearer_token == "poll-secret"
             return {
                 "status": "ready",
-                "bot_username": "hermes_pair_restart_fails_bot",
+                "bot_username": "sonic_pair_restart_fails_bot",
                 "owner_user_id": 123456789,
                 "token": "123456:SECRET",
             }
@@ -1479,7 +1479,7 @@ class TestWebServerEndpoints:
             assert name == "gateway-restart"
             raise RuntimeError("supervisor unavailable")
 
-        monkeypatch.setattr(ws, "_spawn_hermes_action", fail_spawn_action)
+        monkeypatch.setattr(ws, "_spawn_sonic_action", fail_spawn_action)
 
         start = self.client.post("/api/messaging/telegram/onboarding/start", json={})
         assert start.status_code == 200
@@ -1508,9 +1508,9 @@ class TestWebServerEndpoints:
         self, monkeypatch
     ):
         """A live in-flight gateway restart is reused instead of spawning a
-        second racing ``hermes gateway restart`` child (e.g. when a stale
+        second racing ``sonic gateway restart`` child (e.g. when a stale
         cached frontend also fires its own restart call)."""
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         with ws._telegram_onboarding_lock:
             ws._telegram_onboarding_pairings.clear()
@@ -1520,14 +1520,14 @@ class TestWebServerEndpoints:
                 return {
                     "pairing_id": "pair-reuse",
                     "poll_token": "poll-secret",
-                    "suggested_username": "hermes_pair_reuse_bot",
-                    "deep_link": "https://t.me/newbot/HermesSetupBot/hermes_pair_reuse_bot",
-                    "qr_payload": "https://t.me/newbot/HermesSetupBot/hermes_pair_reuse_bot",
+                    "suggested_username": "sonic_pair_reuse_bot",
+                    "deep_link": "https://t.me/newbot/SonicSetupBot/sonic_pair_reuse_bot",
+                    "qr_payload": "https://t.me/newbot/SonicSetupBot/sonic_pair_reuse_bot",
                     "expires_at": "2027-05-18T00:00:00.000Z",
                 }
             return {
                 "status": "ready",
-                "bot_username": "hermes_pair_reuse_bot",
+                "bot_username": "sonic_pair_reuse_bot",
                 "owner_user_id": 123456789,
                 "token": "123456:SECRET",
             }
@@ -1545,7 +1545,7 @@ class TestWebServerEndpoints:
         def fail_spawn_action(subcommand, name):
             raise AssertionError("must not spawn a second concurrent restart")
 
-        monkeypatch.setattr(ws, "_spawn_hermes_action", fail_spawn_action)
+        monkeypatch.setattr(ws, "_spawn_sonic_action", fail_spawn_action)
 
         start = self.client.post("/api/messaging/telegram/onboarding/start", json={})
         assert start.status_code == 200
@@ -2429,15 +2429,15 @@ class TestNewEndpoints:
         """Profile-builder create: model + MCP servers + keep-skills selection
         all land in the NEW profile's config, and hub installs are spawned
         scoped to that profile via ``-p <name>``."""
-        from hermes_constants import (
-            get_hermes_home,
-            set_hermes_home_override,
-            reset_hermes_home_override,
+        from sonic_constants import (
+            get_sonic_home,
+            set_sonic_home_override,
+            reset_sonic_home_override,
         )
-        from hermes_cli.config import load_config
-        from hermes_cli.skills_config import get_disabled_skills
-        import hermes_cli.profiles as profiles_mod
-        import hermes_cli.web_server as web_server
+        from sonic_cli.config import load_config
+        from sonic_cli.skills_config import get_disabled_skills
+        import sonic_cli.profiles as profiles_mod
+        import sonic_cli.web_server as web_server
 
         monkeypatch.setattr(profiles_mod, "create_wrapper_script", lambda name: None)
 
@@ -2461,7 +2461,7 @@ class TestNewEndpoints:
             spawned.append((list(subcommand), name))
             return _FakeProc()
 
-        monkeypatch.setattr(web_server, "_spawn_hermes_action", fake_spawn)
+        monkeypatch.setattr(web_server, "_spawn_sonic_action", fake_spawn)
 
         resp = self.client.post(
             "/api/profiles",
@@ -2489,8 +2489,8 @@ class TestNewEndpoints:
         assert spawned == [(["-p", "builder", "skills", "install", "someuser/some-skill"], "skills-install")]
 
         # Verify the writes landed in the NEW profile's config, not the root.
-        prof_dir = get_hermes_home() / "profiles" / "builder"
-        token = set_hermes_home_override(str(prof_dir))
+        prof_dir = get_sonic_home() / "profiles" / "builder"
+        token = set_sonic_home_override(str(prof_dir))
         try:
             cfg = load_config()
             assert cfg["model"]["default"] == "anthropic/claude-sonnet-4.6"
@@ -2500,7 +2500,7 @@ class TestNewEndpoints:
             assert "drop-me" in disabled
             assert "keep-me" not in disabled
         finally:
-            reset_hermes_home_override(token)
+            reset_sonic_home_override(token)
 
     def test_profile_open_terminal_uses_macos_terminal(self, monkeypatch):
         from sonic_constants import get_sonic_home

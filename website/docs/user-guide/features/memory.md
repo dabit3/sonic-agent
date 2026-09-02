@@ -269,7 +269,7 @@ inline, but the full diff stays out-of-band:
 
 On a messaging platform, approve a skill from its gist + metadata, or open
 `/skills diff` on the CLI / dashboard / the staged file under
-`~/.hermes/pending/skills/<id>.json` when you want to read the whole change.
+`~/.sonic/pending/skills/<id>.json` when you want to read the whole change.
 
 
 ## External Memory Providers

@@ -136,7 +136,7 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
     }
   },
   themes: {
-    fetchMarketplace: id => ipcRenderer.invoke('hermes:vscode-theme:fetch', id),
-    searchMarketplace: query => ipcRenderer.invoke('hermes:vscode-theme:search', query)
+    fetchMarketplace: id => ipcRenderer.invoke('sonic:vscode-theme:fetch', id),
+    searchMarketplace: query => ipcRenderer.invoke('sonic:vscode-theme:search', query)
   }
 })

@@ -37,7 +37,7 @@ def _prompt_auth_credentials_choice(title: str) -> str:
         "Cancel",
     ]
     try:
-        from hermes_cli.setup import _curses_prompt_choice
+        from sonic_cli.setup import _curses_prompt_choice
 
         idx = _curses_prompt_choice(title, choices, 0)
         if idx >= 0:

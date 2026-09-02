@@ -338,7 +338,7 @@ def _resolve_model_override(model_obj: Optional[Dict[str, Any]]) -> tuple:
     # silently hijacks a job that meant to use the configured custom endpoint.
     if provider_name == "custom":
         try:
-            from hermes_cli.runtime_provider import has_named_custom_provider
+            from sonic_cli.runtime_provider import has_named_custom_provider
             if not has_named_custom_provider("custom"):
                 provider_name = None
         except Exception:

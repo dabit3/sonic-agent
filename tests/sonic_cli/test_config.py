@@ -305,7 +305,7 @@ class TestSaveEnvValueSecure:
         env_path.write_text("EXISTING=value\n")
         os.chmod(env_path, 0o640)
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             save_env_value("TENOR_API_KEY", "sk-test-secret")
 
         env_mode = env_path.stat().st_mode & 0o777
@@ -368,7 +368,7 @@ class TestRemoveEnvValue:
         env_path.write_text("KEEP=value\nDROP=gone\n")
         os.chmod(env_path, 0o640)
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path), "DROP": "gone"}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path), "DROP": "gone"}):
             removed = remove_env_value("DROP")
 
         assert removed is True
@@ -1111,7 +1111,7 @@ class TestWriteApprovalMigration:
         (tmp_path / "config.yaml").write_text(body)
 
     def test_approve_maps_to_true(self, tmp_path):
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             self._write(tmp_path,
                         "_config_version: 28\nmemory:\n  write_mode: approve\n"
                         "skills:\n  write_mode: approve\n")
@@ -1123,7 +1123,7 @@ class TestWriteApprovalMigration:
             assert "write_mode" not in raw["skills"]
 
     def test_on_and_off_map_to_false(self, tmp_path):
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             # YAML 1.1 parses bare on/off as bools — write_mode could be either
             # the string or the bool; both legacy "not gating" values → False.
             self._write(tmp_path,
@@ -1135,7 +1135,7 @@ class TestWriteApprovalMigration:
             assert raw["skills"]["write_approval"] is False
 
     def test_unset_key_defaults_to_false(self, tmp_path):
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             self._write(tmp_path, "_config_version: 28\nmemory:\n  memory_enabled: true\n")
             migrate_config(interactive=False, quiet=True)
             raw = yaml.safe_load((tmp_path / "config.yaml").read_text())

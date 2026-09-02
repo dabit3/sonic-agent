@@ -195,7 +195,7 @@ def _complete_stub_login(client) -> None:
     """Walk the stub OAuth round trip so ``client`` carries a valid session.
 
     TestClient persists Set-Cookie across calls, so after this returns the
-    client's cookie jar holds ``hermes_session_at`` / ``hermes_session_rt``
+    client's cookie jar holds ``sonic_session_at`` / ``sonic_session_rt``
     and subsequent gated requests authenticate.
     """
     r1 = client.get("/auth/login?provider=stub", follow_redirects=False)

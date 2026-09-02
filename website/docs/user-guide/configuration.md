@@ -1126,7 +1126,7 @@ When unset (default), reasoning effort defaults to "medium" — a balanced level
 
 :::note Adaptive-thinking models (Claude 4.6+, Fable/Mythos-class) over OpenRouter
 These models use *adaptive* thinking and don't accept the usual `reasoning.effort`
-field — OpenRouter ignores it for them. Hermes transparently routes your
+field — OpenRouter ignores it for them. Sonic transparently routes your
 `reasoning_effort` to OpenRouter's `verbosity` parameter instead (which maps to
 Anthropic's `output_config.effort`), so the same `low`/`medium`/`high`/`xhigh`
 knob keeps working — no extra configuration needed. `none` (or unset) leaves the

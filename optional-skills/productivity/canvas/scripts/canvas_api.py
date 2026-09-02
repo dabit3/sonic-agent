@@ -28,8 +28,8 @@ def _check_config():
     if not CANVAS_BASE_URL:
         missing.append("CANVAS_BASE_URL")
     if missing:
-        hermes_env = os.path.join(
-            os.environ.get("HERMES_HOME", os.path.expanduser("~/.hermes")), ".env"
+        sonic_env = os.path.join(
+            os.environ.get("SONIC_HOME", os.path.expanduser("~/.sonic")), ".env"
         )
         print(
             f"Missing required environment variables: {', '.join(missing)}\n"

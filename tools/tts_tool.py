@@ -1410,8 +1410,8 @@ def _resolve_gemini_persona_prompt_path(gemini_config: Dict[str, Any]) -> Option
     path = Path(expanded).expanduser()
     if not path.is_absolute():
         try:
-            from hermes_constants import get_hermes_home
-            path = get_hermes_home() / path
+            from sonic_constants import get_sonic_home
+            path = get_sonic_home() / path
         except Exception:
             path = Path.cwd() / path
     return path

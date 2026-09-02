@@ -658,7 +658,7 @@ def test_do_browse_reports_live_per_source_progress():
     off each source as it resolves, instead of showing a frozen spinner while
     a slow source blocks. The page is still rendered once, after the full
     result set is merged and trust-sorted."""
-    from hermes_cli.skills_hub import do_browse
+    from sonic_cli.skills_hub import do_browse
     from tools.skills_hub import SkillMeta
 
     meta = SkillMeta(

@@ -1812,7 +1812,7 @@ class BasePlatformAdapter(ABC):
     supports_code_blocks: bool = False
 
     # The command prefix users can always TYPE on this platform to reach
-    # Hermes commands.  Default "/" (most platforms deliver "/approve" etc.
+    # Sonic commands.  Default "/" (most platforms deliver "/approve" etc.
     # as plain message text).  Platforms where typing a leading "/" is
     # intercepted or restricted by the client (Slack blocks native slash
     # commands inside threads; Matrix clients reserve "/" for client-local

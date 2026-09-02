@@ -6184,7 +6184,7 @@ def _confirm_expensive_model_selection(
 ) -> bool:
     """Prompt before saving a model whose known pricing exceeds guardrails."""
     try:
-        from hermes_cli.model_cost_guard import expensive_model_warning
+        from sonic_cli.model_cost_guard import expensive_model_warning
 
         warning = expensive_model_warning(
             model_id,

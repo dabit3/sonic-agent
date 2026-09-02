@@ -80,8 +80,8 @@ docs/
 assets/
 infographic/
 
-# Plugin-level docs (hermes-achievements ships docs/ but the runtime doesn't read them)
-plugins/hermes-achievements/docs/
+# Plugin-level docs (sonic-achievements ships docs/ but the runtime doesn't read them)
+plugins/sonic-achievements/docs/
 
 # Nix / Homebrew / AUR packaging metadata — irrelevant to Docker
 nix/

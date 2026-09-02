@@ -704,17 +704,17 @@ class TestSubcommandCompletion:
 
     def test_tools_enable_completes_toolset_names(self, monkeypatch):
         """`/tools enable ` should suggest currently-disabled toolsets."""
-        from hermes_cli import commands as commands_mod
+        from sonic_cli import commands as commands_mod
 
         # `web` is enabled, `spotify` is disabled — enabling should only offer
         # the disabled ones.
         monkeypatch.setattr(
-            "hermes_cli.tools_config._get_platform_tools",
+            "sonic_cli.tools_config._get_platform_tools",
             lambda *_a, **_k: {"web", "file"},
         )
-        monkeypatch.setattr("hermes_cli.config.load_config", lambda: {})
+        monkeypatch.setattr("sonic_cli.config.load_config", lambda: {})
         monkeypatch.setattr(
-            "hermes_cli.tools_config._get_plugin_toolset_keys",
+            "sonic_cli.tools_config._get_plugin_toolset_keys",
             lambda: set(),
         )
 
@@ -727,12 +727,12 @@ class TestSubcommandCompletion:
 
     def test_tools_disable_completes_enabled_toolsets_only(self, monkeypatch):
         monkeypatch.setattr(
-            "hermes_cli.tools_config._get_platform_tools",
+            "sonic_cli.tools_config._get_platform_tools",
             lambda *_a, **_k: {"web", "file"},
         )
-        monkeypatch.setattr("hermes_cli.config.load_config", lambda: {})
+        monkeypatch.setattr("sonic_cli.config.load_config", lambda: {})
         monkeypatch.setattr(
-            "hermes_cli.tools_config._get_plugin_toolset_keys",
+            "sonic_cli.tools_config._get_plugin_toolset_keys",
             lambda: set(),
         )
 
@@ -743,12 +743,12 @@ class TestSubcommandCompletion:
 
     def test_tools_enable_partial_filters(self, monkeypatch):
         monkeypatch.setattr(
-            "hermes_cli.tools_config._get_platform_tools",
+            "sonic_cli.tools_config._get_platform_tools",
             lambda *_a, **_k: set(),
         )
-        monkeypatch.setattr("hermes_cli.config.load_config", lambda: {})
+        monkeypatch.setattr("sonic_cli.config.load_config", lambda: {})
         monkeypatch.setattr(
-            "hermes_cli.tools_config._get_plugin_toolset_keys",
+            "sonic_cli.tools_config._get_plugin_toolset_keys",
             lambda: set(),
         )
 
@@ -759,12 +759,12 @@ class TestSubcommandCompletion:
     def test_tools_enable_skips_already_listed(self, monkeypatch):
         """If the user already typed a name, don't suggest it again."""
         monkeypatch.setattr(
-            "hermes_cli.tools_config._get_platform_tools",
+            "sonic_cli.tools_config._get_platform_tools",
             lambda *_a, **_k: set(),
         )
-        monkeypatch.setattr("hermes_cli.config.load_config", lambda: {})
+        monkeypatch.setattr("sonic_cli.config.load_config", lambda: {})
         monkeypatch.setattr(
-            "hermes_cli.tools_config._get_plugin_toolset_keys",
+            "sonic_cli.tools_config._get_plugin_toolset_keys",
             lambda: set(),
         )
 
@@ -774,15 +774,15 @@ class TestSubcommandCompletion:
 
     def test_tools_suggests_mcp_server_prefixes(self, monkeypatch):
         monkeypatch.setattr(
-            "hermes_cli.tools_config._get_platform_tools",
+            "sonic_cli.tools_config._get_platform_tools",
             lambda *_a, **_k: set(),
         )
         monkeypatch.setattr(
-            "hermes_cli.config.load_config",
+            "sonic_cli.config.load_config",
             lambda: {"mcp_servers": {"github": {}, "linear": {}}},
         )
         monkeypatch.setattr(
-            "hermes_cli.tools_config._get_plugin_toolset_keys",
+            "sonic_cli.tools_config._get_plugin_toolset_keys",
             lambda: set(),
         )
 

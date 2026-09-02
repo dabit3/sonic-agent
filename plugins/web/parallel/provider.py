@@ -58,7 +58,7 @@ _MCP_PROTOCOL_VERSION = "2025-06-18"
 # Deliberately generic client identity. Project policy (see the telemetry PR
 # policy in AGENTS.md) forbids third-party usage attribution without an
 # explicit user opt-in, so neither clientInfo nor the User-Agent names
-# hermes. MCP requires *a* clientInfo; a neutral one satisfies the spec
+# sonic. MCP requires *a* clientInfo; a neutral one satisfies the spec
 # without attributing traffic.
 _MCP_CLIENT_NAME = "mcp-web-client"
 _MCP_CLIENT_VERSION = "1.0.0"
@@ -79,7 +79,7 @@ def _new_session_id() -> str:
     Per-call rather than process-global: one process serves many unrelated
     chats in the gateway/batch runners, and a shared id would pool their
     searches into one Parallel session. The prefix is deliberately generic
-    (no hermes attribution — telemetry policy).
+    (no sonic attribution — telemetry policy).
     """
     return f"{_MCP_CLIENT_NAME}-{uuid.uuid4().hex}"
 
@@ -510,7 +510,7 @@ class ParallelWebSearchProvider(WebSearchProvider):
         """Return True when ``PARALLEL_API_KEY`` is set.
 
         Deliberately key-based: this gates the registry's active-provider walk
-        and the ``hermes tools`` picker (auto-selecting Parallel for a user who
+        and the ``sonic tools`` picker (auto-selecting Parallel for a user who
         hasn't named it), so it must not claim availability on the keyless path.
         The keyless free-MCP path is reached independently via
         :func:`tools.web_tools._get_backend`'s ``parallel`` terminal default.

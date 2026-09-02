@@ -254,7 +254,7 @@ def _require_token(request: Request) -> None:
 
     * **Loopback / ``--insecure`` mode** (``auth_required`` False): the
       ephemeral ``_SESSION_TOKEN`` is injected into the SPA HTML and echoed
-      back via ``X-Hermes-Session-Token`` (or the legacy ``Bearer`` header).
+      back via ``X-Sonic-Session-Token`` (or the legacy ``Bearer`` header).
       Validate it here.
     * **Gated / OAuth mode** (``auth_required`` True): ``_SESSION_TOKEN`` is
       NOT injected (the SPA authenticates with a session cookie), so there is
@@ -836,7 +836,7 @@ _MEDIA_CONTENT_TYPES = {
     ".ico": "image/x-icon",
 }
 _MEDIA_MAX_BYTES = 25 * 1024 * 1024
-_MANAGED_FILES_ROOT_ENV = "HERMES_DASHBOARD_FILES_ROOT"
+_MANAGED_FILES_ROOT_ENV = "SONIC_DASHBOARD_FILES_ROOT"
 _MANAGED_FILE_MAX_BYTES = 100 * 1024 * 1024
 _HOSTED_MANAGED_FILES_ROOT = Path("/opt/data")
 
@@ -944,14 +944,14 @@ def _local_dashboard_request(request: Request) -> bool:
     return host in local_hosts or client_host in local_hosts
 
 
-def _default_hermes_root_is_opt_data() -> bool:
-    raw = os.environ.get("HERMES_HOME", "").strip()
+def _default_sonic_root_is_opt_data() -> bool:
+    raw = os.environ.get("SONIC_HOME", "").strip()
     if not raw:
         return False
     try:
-        from hermes_constants import get_default_hermes_root
+        from sonic_constants import get_default_sonic_root
 
-        root = get_default_hermes_root().expanduser().resolve(strict=False)
+        root = get_default_sonic_root().expanduser().resolve(strict=False)
     except (OSError, RuntimeError):
         root = Path(raw).expanduser().resolve(strict=False)
     return root == _HOSTED_MANAGED_FILES_ROOT
@@ -963,7 +963,7 @@ def _managed_files_policy(request: Request, *, create_root: bool = True) -> Mana
         root = _ensure_managed_root(raw_forced_root) if create_root else _canonical_path(Path(raw_forced_root))
         return ManagedFilesPolicy(default_path=root, locked_root=root, can_change_path=False)
 
-    if not _local_dashboard_request(request) or _default_hermes_root_is_opt_data():
+    if not _local_dashboard_request(request) or _default_sonic_root_is_opt_data():
         root = _ensure_managed_root(_HOSTED_MANAGED_FILES_ROOT) if create_root else _HOSTED_MANAGED_FILES_ROOT
         return ManagedFilesPolicy(default_path=root, locked_root=root, can_change_path=False)
 
@@ -1691,12 +1691,12 @@ def _tail_lines(path: Path, n: int) -> List[str]:
 
 
 def _spawn_gateway_restart() -> Tuple[subprocess.Popen, bool]:
-    """Spawn ``hermes gateway restart``, reusing an in-flight restart.
+    """Spawn ``sonic gateway restart``, reusing an in-flight restart.
 
     Multiple dashboard paths can request a restart in quick succession
     (restart button double-click, or a stale cached frontend firing its own
     restart after the server already auto-restarted post-onboarding). Two
-    concurrent ``hermes gateway restart`` children race each other on the
+    concurrent ``sonic gateway restart`` children race each other on the
     manual kill-and-start path, so reuse the live one instead.
 
     Returns ``(proc, reused)``.
@@ -1704,7 +1704,7 @@ def _spawn_gateway_restart() -> Tuple[subprocess.Popen, bool]:
     existing = _ACTION_PROCS.get("gateway-restart")
     if existing is not None and existing.poll() is None:
         return existing, True
-    return _spawn_hermes_action(["gateway", "restart"], "gateway-restart"), False
+    return _spawn_sonic_action(["gateway", "restart"], "gateway-restart"), False
 
 
 @app.post("/api/gateway/restart")
@@ -2793,7 +2793,7 @@ async def set_model_assignment(body: ModelAssignment):
 
         if model and not body.confirm_expensive_model:
             try:
-                from hermes_cli.model_cost_guard import expensive_model_warning
+                from sonic_cli.model_cost_guard import expensive_model_warning
 
                 # Pricing lookup can hit models.dev / a /models endpoint on a
                 # cache miss — keep it off the event loop.
@@ -4087,7 +4087,7 @@ def _restart_gateway_after_telegram_onboarding() -> dict[str, Any]:
     """Best-effort gateway restart after saving Telegram QR onboarding.
 
     The QR flow naturally pulls users into Telegram on another device. If the
-    saved token waits on a separate dashboard restart click, Hermes appears
+    saved token waits on a separate dashboard restart click, Sonic appears
     broken from the chat side. Keep the config save authoritative, but report
     restart failures so the UI can fall back to the existing manual banner.
     """
@@ -7751,8 +7751,8 @@ class ProfileCreate(BaseModel):
     # Empty list = leave the seeded bundle untouched (legacy behaviour).
     keep_skills: List[str] = []
     # Skills-hub identifiers to install into the new profile. Installed async
-    # via a subprocess scoped to the profile (`hermes -p <name> skills install`)
-    # because skills_hub.SKILLS_DIR is import-time-bound and the HERMES_HOME
+    # via a subprocess scoped to the profile (`sonic -p <name> skills install`)
+    # because skills_hub.SKILLS_DIR is import-time-bound and the SONIC_HOME
     # override can't redirect it. Returns spawned PIDs for the UI to poll.
     hub_skills: List[str] = []
 
@@ -7904,7 +7904,7 @@ def _write_profile_mcp_servers(profile_dir: Path, servers: List["MCPServerCreate
     """Write MCP server entries into a specific profile's config.yaml.
 
     Scopes ``load_config``/``save_config`` to ``profile_dir`` via the
-    context-local HERMES_HOME override (same mechanism as
+    context-local SONIC_HOME override (same mechanism as
     ``_write_profile_model``) so the entries land in the target profile's
     config rather than the dashboard process's active profile.
 
@@ -7912,10 +7912,10 @@ def _write_profile_mcp_servers(profile_dir: Path, servers: List["MCPServerCreate
     but batched so the whole profile-create write is a single config save.
     Returns the number of servers written.
     """
-    from hermes_constants import set_hermes_home_override, reset_hermes_home_override
+    from sonic_constants import set_sonic_home_override, reset_sonic_home_override
 
     written = 0
-    token = set_hermes_home_override(str(profile_dir))
+    token = set_sonic_home_override(str(profile_dir))
     try:
         cfg = load_config()
         mcp = cfg.setdefault("mcp_servers", {})
@@ -7948,7 +7948,7 @@ def _write_profile_mcp_servers(profile_dir: Path, servers: List["MCPServerCreate
             cfg.pop("mcp_servers", None)
             save_config(cfg)
     finally:
-        reset_hermes_home_override(token)
+        reset_sonic_home_override(token)
     return written
 
 
@@ -7960,15 +7960,15 @@ def _disable_unselected_skills(profile_dir: Path, keep: List[str]) -> int:
     uses "replace" semantics: the user picks exactly which seeded built-in /
     optional skills stay active, and everything else gets added to the disabled
     list. (Hub skills are installed separately via subprocess and are active on
-    install.) Scoped to the profile via the HERMES_HOME override. Returns the
+    install.) Scoped to the profile via the SONIC_HOME override. Returns the
     number of skills newly disabled.
     """
-    from hermes_constants import set_hermes_home_override, reset_hermes_home_override
-    from hermes_cli.skills_config import get_disabled_skills, save_disabled_skills
+    from sonic_constants import set_sonic_home_override, reset_sonic_home_override
+    from sonic_cli.skills_config import get_disabled_skills, save_disabled_skills
 
     keep_set = {s.strip() for s in keep if s and s.strip()}
     disabled_count = 0
-    token = set_hermes_home_override(str(profile_dir))
+    token = set_sonic_home_override(str(profile_dir))
     try:
         installed: List[str] = []
         skills_root = profile_dir / "skills"
@@ -7984,7 +7984,7 @@ def _disable_unselected_skills(profile_dir: Path, keep: List[str]) -> int:
         if disabled_count:
             save_disabled_skills(cfg, disabled)
     finally:
-        reset_hermes_home_override(token)
+        reset_sonic_home_override(token)
     return disabled_count
 
 
@@ -8074,14 +8074,14 @@ async def create_profile_endpoint(body: ProfileCreate):
 
     # Optional skills-hub installs. Spawned async, scoped to the new profile
     # via `-p <name>` (a fresh subprocess re-binds skills_hub.SKILLS_DIR to the
-    # profile's HERMES_HOME at import). Returns PIDs for the UI to poll.
+    # profile's SONIC_HOME at import). Returns PIDs for the UI to poll.
     hub_installs: List[Dict[str, Any]] = []
     for identifier in body.hub_skills:
         ident = (identifier or "").strip()
         if not ident:
             continue
         try:
-            proc = _spawn_hermes_action(
+            proc = _spawn_sonic_action(
                 ["-p", body.name, "skills", "install", ident],
                 "skills-install",
             )

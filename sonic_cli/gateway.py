@@ -3068,7 +3068,7 @@ def get_launchd_label() -> str:
 
 
 # Cached launchd domain result — probing is cheap but should only run once per
-# process invocation (each ``hermes gateway start/stop/status`` call).
+# process invocation (each ``sonic gateway start/stop/status`` call).
 _resolved_launchd_domain: str | None = None
 
 

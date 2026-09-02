@@ -30,16 +30,16 @@ class TestMcpHeaders:
         assert h["Accept"] == "application/json, text/event-stream"
         assert "Mcp-Session-Id" not in h
 
-    def test_user_agent_is_generic_not_hermes(self):
+    def test_user_agent_is_generic_not_sonic(self):
         # Telemetry policy: no third-party usage attribution without opt-in.
         # The UA must be set (not python-httpx default) but must not name
-        # hermes, on both the anonymous and keyed paths.
+        # sonic, on both the anonymous and keyed paths.
         for ua in (
             pp._mcp_headers(session_id=None, api_key=None)["User-Agent"],
             pp._mcp_headers(session_id="sid", api_key="pk-live")["User-Agent"],
         ):
             assert ua == f"{pp._MCP_CLIENT_NAME}/{pp._MCP_CLIENT_VERSION}"
-            assert "hermes" not in ua.lower()
+            assert "sonic" not in ua.lower()
 
     def test_session_id_and_bearer_when_present(self):
         h = pp._mcp_headers(session_id="sid-123", api_key="pk-live")
