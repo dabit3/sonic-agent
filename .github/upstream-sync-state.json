@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "0a5762c78d11f4d6626dbf99da5f62cc34cfe2c4",
-  "synced_at": "2026-09-02T16:30:00Z",
-  "notes": "Partial sync: batch 5 (2026-09-02) ports the 80 first-parent commits after 1770263c, ending at 0a5762c7 (0 skipped). Manual conflicts: scripts/release.py AUTHOR_MAP (x3), sonic_cli/auth.py (expensive-model confirmation wrapped into Sonic's curses picker), nix/lib.nix (npmDepsHash taken from upstream; may need refresh from CI), uv.lock (parallel-web 0.6.0). Remaining backlog after 0a5762c7 is approximately 13,247 first-parent commits; each daily run advances the baseline by a reviewable batch."
+  "last_synced_upstream_sha": "b1fe2107d6e02207c8d7c315e4b51d50620ecb98",
+  "synced_at": "2026-09-03T16:30:00Z",
+  "notes": "Partial sync: batch 6 (2026-09-03) ports the 80 first-parent commits after 0a5762c7, ending at b1fe2107 (0 skipped). Manual conflicts: sonic_cli/banner.py (SSH-remote update check pointed at dabit3/sonic-agent), nix/lib.nix npmDepsHash (kept Sonic's; may need refresh from CI after @types/node lock bump), tests/sonic_cli/test_banner.py, sonic-already-has-routines.md, two delete/delete on stale hermes_cli paths. Remaining backlog after b1fe2107 is approximately 13,600 first-parent commits; each daily run advances the baseline by a reviewable batch."
 }

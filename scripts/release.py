@@ -1277,6 +1277,8 @@ AUTHOR_MAP = {
     # Debug share upload-time redaction (May 2026)
     "dhuysamen@gmail.com": "GodsBoy",  # PR #19318
     "github@nadyahermes.anonaddy.com": "ruangraung",  # PR #42308
+    "2081789787@qq.com": "pengyuyanITYU",  # PR #43618 (harden local file tree paths)
+    "omarbaradei21@gmail.com": "OmarB97",  # PR #43977 (desktop session model metadata)
     "mrcoferland@gmail.com": "mrcoferland",  # PR #19023
     "chenlinfeng@ruije.com.cn": "noOne-list",  # PR #19050
     "briansu@Mac-mini.attlocal.net": "likejudy",  # PR #19052
