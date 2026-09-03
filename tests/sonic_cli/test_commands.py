@@ -345,7 +345,7 @@ class TestSlackNativeSlashes:
         explicitly pinned ``_SLACK_PRIORITY_ALIASES`` are guaranteed slots;
         every other alias (e.g. ``reset``) may be clamped once the registry
         fills the cap — canonical commands win the contest, and clamped
-        aliases stay reachable via ``/hermes <alias>``.
+        aliases stay reachable via ``/sonic <alias>``.
         """
         slashes = slack_native_slashes()
         names = {n for n, _d, _h in slashes}

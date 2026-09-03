@@ -341,11 +341,11 @@ If your skill is specialized, community-contributed, or niche, it's better suite
 
 ## Blueprints: skills that are also automations
 
-A **blueprint** is an ordinary skill that additionally declares a schedule in its frontmatter. Add a `metadata.hermes.blueprint` block and the skill becomes a shareable, runnable automation:
+A **blueprint** is an ordinary skill that additionally declares a schedule in its frontmatter. Add a `metadata.sonic.blueprint` block and the skill becomes a shareable, runnable automation:
 
 ```yaml
 metadata:
-  hermes:
+  sonic:
     tags: [blueprint, email]
     blueprint:
       schedule: "0 8 * * *"     # presence of `blueprint:` marks it runnable
@@ -354,12 +354,12 @@ metadata:
       no_agent: false            # optional
 ```
 
-Because a blueprint **is** a skill, it flows through the entire skills pipeline unchanged — search, inspect, install, security scan, provenance, taps, the centralized index, and `hermes skills publish` for sharing. Nothing new to learn.
+Because a blueprint **is** a skill, it flows through the entire skills pipeline unchanged — search, inspect, install, security scan, provenance, taps, the centralized index, and `sonic skills publish` for sharing. Nothing new to learn.
 
-**Installing a blueprint.** When you install a skill that carries a `blueprint:` block, Hermes registers it as a **suggested cron job** rather than scheduling it. Scheduling is **opt-in** — installing never silently creates a recurring job. You review and accept it via `/suggestions`:
+**Installing a blueprint.** When you install a skill that carries a `blueprint:` block, Sonic registers it as a **suggested cron job** rather than scheduling it. Scheduling is **opt-in** — installing never silently creates a recurring job. You review and accept it via `/suggestions`:
 
 ```bash
-hermes skills install owner/morning-brief
+sonic skills install owner/morning-brief
 # → Blueprint: 'morning-brief' is an automation (schedule 0 8 * * *).
 #   Added to your suggestions — run /suggestions to schedule or dismiss it.
 
@@ -371,13 +371,13 @@ hermes skills install owner/morning-brief
 
 Blueprints are one **source** of the unified Suggested Cron Jobs surface — the same place curated starter automations and (later) usage-pattern and integration suggestions appear. See [Suggested Cron Jobs](#suggested-cron-jobs) below.
 
-**Sharing an automation you built.** A blueprint loaded by a cron job (`hermes cron create --skill <name> ...`) can be exported back to a SKILL.md and published like any other skill, so an automation you tuned for yourself becomes a one-command install for someone else.
+**Sharing an automation you built.** A blueprint loaded by a cron job (`sonic cron create --skill <name> ...`) can be exported back to a SKILL.md and published like any other skill, so an automation you tuned for yourself becomes a one-command install for someone else.
 
 The blueprint layer adds no new object type, store, or transport — the blueprint is a skill, the schedule is a cron job, and sharing is the existing publish/tap/index path.
 
 ## Suggested Cron Jobs
 
-Hermes can *propose* automations and let you accept them with one tap, instead of making you assemble cron jobs by hand. Every proposal flows through one surface — the `/suggestions` command — regardless of where it came from:
+Sonic can *propose* automations and let you accept them with one tap, instead of making you assemble cron jobs by hand. Every proposal flows through one surface — the `/suggestions` command — regardless of where it came from:
 
 | Source | Trigger |
 |--------|---------|

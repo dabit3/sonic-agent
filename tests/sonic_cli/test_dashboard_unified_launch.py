@@ -83,13 +83,13 @@ class TestUnifiedDashboardRouting:
         assert "SONIC_HOME" not in env
 
     def test_desktop_profile_backend_skips_machine_dashboard_reroute(self, main_mod, monkeypatch):
-        """A desktop-spawned named-profile backend (HERMES_DESKTOP=1) must NOT
+        """A desktop-spawned named-profile backend (SONIC_DESKTOP=1) must NOT
         reroute into the machine dashboard. The reroute re-execs as the default
         profile and exits, so the desktop never sees a ready backend → boot
         loop. The guard keeps desktop pool backends per-profile."""
-        monkeypatch.setenv("HERMES_DESKTOP", "1")
+        monkeypatch.setenv("SONIC_DESKTOP", "1")
         monkeypatch.setattr(
-            "hermes_cli.profiles.get_active_profile_name", lambda: "worker_x"
+            "sonic_cli.profiles.get_active_profile_name", lambda: "worker_x"
         )
         listening_calls = []
         monkeypatch.setattr(
@@ -157,31 +157,31 @@ class TestUnifiedDashboardRouting:
         tui_gateway/entry.py, so it must kick off MCP discovery itself or
         desktop sessions never see a profile's MCP tools."""
         monkeypatch.setattr(
-            "hermes_cli.profiles.get_active_profile_name", lambda: "default"
+            "sonic_cli.profiles.get_active_profile_name", lambda: "default"
         )
-        monkeypatch.delenv("HERMES_WEB_DIST", raising=False)
+        monkeypatch.delenv("SONIC_WEB_DIST", raising=False)
         monkeypatch.setattr(main_mod, "_sync_bundled_skills_quietly", lambda: None)
         monkeypatch.setattr(main_mod, "_build_web_ui", lambda *_a, **_k: True)
         monkeypatch.setitem(sys.modules, "fastapi", types.SimpleNamespace())
         monkeypatch.setitem(sys.modules, "uvicorn", types.SimpleNamespace())
         monkeypatch.setitem(
             sys.modules,
-            "hermes_logging",
+            "sonic_logging",
             types.SimpleNamespace(setup_logging=lambda **_k: None),
         )
         monkeypatch.setitem(
             sys.modules,
-            "hermes_cli.plugins",
+            "sonic_cli.plugins",
             types.SimpleNamespace(discover_plugins=lambda: None),
         )
         calls = []
         monkeypatch.setattr(
-            "hermes_cli.mcp_startup.start_background_mcp_discovery",
+            "sonic_cli.mcp_startup.start_background_mcp_discovery",
             lambda **kwargs: calls.append(kwargs),
         )
         monkeypatch.setitem(
             sys.modules,
-            "hermes_cli.web_server",
+            "sonic_cli.web_server",
             types.SimpleNamespace(start_server=lambda **_kwargs: None),
         )
 

@@ -98,9 +98,9 @@ def test_check_for_updates_expired_cache(tmp_path, monkeypatch):
 
 def test_check_for_updates_official_ssh_origin_uses_https_probe(tmp_path):
     """Passive update checks must not trigger SSH auth for official installs."""
-    import hermes_cli.banner as banner
+    import sonic_cli.banner as banner
 
-    repo_dir = tmp_path / "hermes-agent"
+    repo_dir = tmp_path / "sonic-agent"
     repo_dir.mkdir()
     (repo_dir / ".git").mkdir()
 
@@ -121,7 +121,7 @@ def test_check_for_updates_official_ssh_origin_uses_https_probe(tmp_path):
             return MagicMock(returncode=0, stdout="upstream-sha\trefs/heads/main\n")
         raise AssertionError(f"unexpected git command: {cmd!r}")
 
-    with patch("hermes_cli.banner.subprocess.run", side_effect=fake_run):
+    with patch("sonic_cli.banner.subprocess.run", side_effect=fake_run):
         result = banner._check_via_local_git(repo_dir)
 
     assert result == banner.UPDATE_AVAILABLE_NO_COUNT

@@ -284,7 +284,7 @@ class TestBuildSkillsSystemPrompt:
         (agent-created skills are the model's project memory, and models
         don't rediscover them via skills_list once the index goes quiet).
         """
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
         for cat, name in (("social-media", "tweet-stuff"), ("github", "pr-review")):
             d = tmp_path / "skills" / cat / name
             d.mkdir(parents=True)
@@ -307,7 +307,7 @@ class TestBuildSkillsSystemPrompt:
     def test_compact_categories_demote_nested_and_miss_cache_separately(
         self, monkeypatch, tmp_path
     ):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
         d = tmp_path / "skills" / "social-media" / "twitter" / "thread-writer"
         d.mkdir(parents=True)
         (d / "SKILL.md").write_text(

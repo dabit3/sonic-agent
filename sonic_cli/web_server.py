@@ -728,7 +728,7 @@ def _normalize_main_model_assignment(provider: str, model: str) -> tuple[str, st
 
     The Models page has two assignment paths and only one of them was safe:
 
-    - The "Change" picker sends a real Hermes provider slug — fine.
+    - The "Change" picker sends a real Sonic provider slug — fine.
     - The per-card "Use as → Main model" menu sends ``entry.provider``
       from the analytics rows, falling back to the model's VENDOR prefix
       (``modelVendor("anthropic/claude-opus-4.6") == "anthropic"``) when
@@ -741,8 +741,8 @@ def _normalize_main_model_assignment(provider: str, model: str) -> tuple[str, st
 
     Two repairs, both at this single chokepoint so every caller inherits:
 
-    1. Vendor-name → Hermes-provider mapping: when the provider string is
-       not a known Hermes provider/alias (e.g. ``moonshotai``, ``x-ai`` is
+    1. Vendor-name → Sonic-provider mapping: when the provider string is
+       not a known Sonic provider/alias (e.g. ``moonshotai``, ``x-ai`` is
        known but ``poolside`` isn't) but the model is a vendor-prefixed
        aggregator slug, keep the user's CURRENT aggregator if they're on
        one, else fall back to openrouter.
@@ -750,8 +750,8 @@ def _normalize_main_model_assignment(provider: str, model: str) -> tuple[str, st
        ``normalize_model_for_provider`` (e.g. ``anthropic/claude-opus-4.6``
        on native anthropic → ``claude-opus-4-6``).
     """
-    from hermes_cli.models import _KNOWN_PROVIDER_NAMES, normalize_provider
-    from hermes_cli.model_normalize import normalize_model_for_provider
+    from sonic_cli.models import _KNOWN_PROVIDER_NAMES, normalize_provider
+    from sonic_cli.model_normalize import normalize_model_for_provider
 
     prov_in = (provider or "").strip()
     model_in = (model or "").strip()
@@ -769,7 +769,7 @@ def _normalize_main_model_assignment(provider: str, model: str) -> tuple[str, st
             )
         except Exception:
             cur_provider = ""
-        from hermes_cli.models import _AGGREGATOR_PROVIDERS
+        from sonic_cli.models import _AGGREGATOR_PROVIDERS
         if cur_provider and normalize_provider(cur_provider) in _AGGREGATOR_PROVIDERS:
             canonical = normalize_provider(cur_provider)
             prov_in = cur_provider
@@ -3219,7 +3219,7 @@ def _apply_model_assignment_sync(
         cfg["model"] = model_cfg
 
         # When switching the main provider to Nous, mirror the CLI's
-        # post-model-selection behaviour (hermes_cli/main.py
+        # post-model-selection behaviour (sonic_cli/main.py
         # prompt_enable_tool_gateway / tools_config apply_nous_managed_defaults):
         # auto-route any *unconfigured* tools through the Nous Tool Gateway.
         # This is purely additive — apply_nous_managed_defaults skips every
@@ -3230,8 +3230,8 @@ def _apply_model_assignment_sync(
         gateway_tools: list[str] = []
         if provider.strip().lower() == "nous":
             try:
-                from hermes_cli.nous_subscription import apply_nous_managed_defaults
-                from hermes_cli.tools_config import _get_platform_tools
+                from sonic_cli.nous_subscription import apply_nous_managed_defaults
+                from sonic_cli.tools_config import _get_platform_tools
 
                 enabled = _get_platform_tools(
                     cfg, "cli", include_default_mcp_servers=False
@@ -4765,16 +4765,16 @@ def _anthropic_oauth_status() -> Dict[str, Any]:
     # environment first (where Bitwarden-sourced secrets land) then .env.
     env_var_order: tuple = ("ANTHROPIC_API_KEY", "ANTHROPIC_TOKEN", "CLAUDE_CODE_OAUTH_TOKEN")
     try:
-        from hermes_cli.auth import PROVIDER_REGISTRY
+        from sonic_cli.auth import PROVIDER_REGISTRY
         env_var_order = PROVIDER_REGISTRY["anthropic"].api_key_env_vars
     except (ImportError, KeyError):
         pass
     try:
-        from hermes_cli.config import get_env_value
+        from sonic_cli.config import get_env_value
     except ImportError:
         get_env_value = None  # type: ignore
     try:
-        from hermes_cli.env_loader import format_secret_source_suffix
+        from sonic_cli.env_loader import format_secret_source_suffix
     except ImportError:
         format_secret_source_suffix = None  # type: ignore
 
@@ -6980,7 +6980,7 @@ async def test_mcp_server(name: str, profile: Optional[str] = None):
         # keeps the lock-protected SKILLS_DIR swap balanced per-thread.)
         # The probe's dedicated MCP event-loop thread is covered too:
         # _run_on_mcp_loop wraps scheduled coroutines with the caller's
-        # HERMES_HOME override (see mcp_tool._wrap_with_home_override), so
+        # SONIC_HOME override (see mcp_tool._wrap_with_home_override), so
         # OAuth token stores resolve against the selected profile as well.
         with _profile_scope(profile):
             return _probe_single_server(name, servers[name])
@@ -7122,7 +7122,7 @@ async def install_mcp_catalog_entry(body: MCPCatalogInstall, profile: Optional[s
 
     # Git-bootstrap entries can take a while to clone — run via the background
     # action path so the request returns immediately and the UI can tail logs.
-    # The -p subprocess rebinds HERMES_HOME-derived paths in the child.
+    # The -p subprocess rebinds SONIC_HOME-derived paths in the child.
     if entry.install is not None:
         try:
             proc = _spawn_sonic_action(
@@ -7703,7 +7703,7 @@ async def run_backup(body: BackupRequest):
 
 class ImportRequest(BaseModel):
     archive: str
-    # Pass --force to `hermes import`. The spawned action runs with
+    # Pass --force to `sonic import`. The spawned action runs with
     # stdin=DEVNULL, so the CLI's interactive "Continue? [y/N]" overwrite
     # prompt hits EOF and auto-aborts ("Aborted.", exit 1) whenever the
     # target already has a config — which it always does when the dashboard
@@ -7949,7 +7949,7 @@ class SkillInstallRequest(BaseModel):
 def _profile_cli_args(profile: Optional[str]) -> List[str]:
     """Return ``["-p", <name>]`` for a validated non-default profile.
 
-    Hub install/uninstall/update run in a fresh ``hermes`` subprocess, and
+    Hub install/uninstall/update run in a fresh ``sonic`` subprocess, and
     ``_apply_profile_override()`` reads ``-p`` from argv in the child — the
     only mechanism that reaches import-time-bound globals like
     ``skills_hub.SKILLS_DIR``. Empty/"current" means the dashboard's own
@@ -7958,7 +7958,7 @@ def _profile_cli_args(profile: Optional[str]) -> List[str]:
     requested = (profile or "").strip()
     if not requested or requested.lower() == "current":
         return []
-    from hermes_cli import profiles as profiles_mod
+    from sonic_cli import profiles as profiles_mod
     _resolve_profile_dir(requested)
     return ["-p", profiles_mod.normalize_profile_name(requested)]
 
@@ -8979,8 +8979,8 @@ def _profile_scope(profile: Optional[str]):
 
     Two seams must be redirected for skills/toolsets endpoints:
 
-    1. ``load_config``/``save_config`` resolve ``get_hermes_home()`` at call
-       time — the context-local override from ``set_hermes_home_override``
+    1. ``load_config``/``save_config`` resolve ``get_sonic_home()`` at call
+       time — the context-local override from ``set_sonic_home_override``
        reaches them (same pattern as ``_write_profile_model``).
     2. ``tools.skills_tool`` and ``tools.skill_manager_tool`` bind
        ``SKILLS_DIR`` at import time, so the override CANNOT reach them.
@@ -8990,46 +8990,46 @@ def _profile_scope(profile: Optional[str]):
 
     ``profile`` of None/""/"current" means "the dashboard's own profile" —
     config resolution is untouched, but the skill-module globals are still
-    retargeted to the *current* ``get_hermes_home()`` so writes land in the
+    retargeted to the *current* ``get_sonic_home()`` so writes land in the
     live home even when the import-time binding is stale (e.g. the process
-    imported the modules before a HERMES_HOME override, or under test
+    imported the modules before a SONIC_HOME override, or under test
     isolation).
     """
     requested = (profile or "").strip()
 
-    from hermes_constants import (
-        get_hermes_home,
-        set_hermes_home_override,
-        reset_hermes_home_override,
+    from sonic_constants import (
+        get_sonic_home,
+        set_sonic_home_override,
+        reset_sonic_home_override,
     )
     from tools import skills_tool as _skills_tool
     from tools import skill_manager_tool as _skill_mgr
 
     token = None
     if not requested or requested.lower() == "current":
-        profile_dir = get_hermes_home()
+        profile_dir = get_sonic_home()
     else:
         profile_dir = _resolve_profile_dir(requested)
-        token = set_hermes_home_override(str(profile_dir))
+        token = set_sonic_home_override(str(profile_dir))
 
     with _SKILLS_PROFILE_LOCK:
-        old_home = _skills_tool.HERMES_HOME
+        old_home = _skills_tool.SONIC_HOME
         old_skills_dir = _skills_tool.SKILLS_DIR
-        old_mgr_home = _skill_mgr.HERMES_HOME
+        old_mgr_home = _skill_mgr.SONIC_HOME
         old_mgr_skills_dir = _skill_mgr.SKILLS_DIR
-        _skills_tool.HERMES_HOME = profile_dir
+        _skills_tool.SONIC_HOME = profile_dir
         _skills_tool.SKILLS_DIR = profile_dir / "skills"
-        _skill_mgr.HERMES_HOME = profile_dir
+        _skill_mgr.SONIC_HOME = profile_dir
         _skill_mgr.SKILLS_DIR = profile_dir / "skills"
         try:
             yield profile_dir if token is not None else None
         finally:
-            _skills_tool.HERMES_HOME = old_home
+            _skills_tool.SONIC_HOME = old_home
             _skills_tool.SKILLS_DIR = old_skills_dir
-            _skill_mgr.HERMES_HOME = old_mgr_home
+            _skill_mgr.SONIC_HOME = old_mgr_home
             _skill_mgr.SKILLS_DIR = old_mgr_skills_dir
             if token is not None:
-                reset_hermes_home_override(token)
+                reset_sonic_home_override(token)
 
 
 class SkillToggle(BaseModel):
@@ -9395,10 +9395,10 @@ async def run_toolset_post_setup(
     against the declared post-setup allowlist before spawning. Returns 400
     for unknown toolset or post-setup key.
 
-    ``profile`` spawns the hook as ``hermes -p <profile> tools post-setup``.
+    ``profile`` spawns the hook as ``sonic -p <profile> tools post-setup``.
     Most hooks install machine-level artifacts (repo node_modules, shared
     pip packages) where the scope is inert, but hooks that read config or
-    write per-profile state must see the same HERMES_HOME the rest of the
+    write per-profile state must see the same SONIC_HOME the rest of the
     drawer's writes targeted — so the scope is threaded for consistency.
     """
     from sonic_cli.tools_config import (
@@ -9934,12 +9934,12 @@ def _resolve_chat_argv(
     dashboard's ``/api/pub`` endpoint (see :func:`pub_ws`).
 
     `profile` (when set) scopes the ENTIRE chat to that profile by pointing
-    ``HERMES_HOME`` at the profile dir in the child env. Every spawned
+    ``SONIC_HOME`` at the profile dir in the child env. Every spawned
     process (the TUI and the ``tui_gateway.entry`` it launches) resolves
-    ``get_hermes_home()`` from that env var at its own import, so the child
+    ``get_sonic_home()`` from that env var at its own import, so the child
     binds the profile's config, skills, memory, and state.db from the start
-    — the same propagation ``hermes -p <name>`` performs. The in-process
-    ``HERMES_TUI_GATEWAY_URL`` attach is SKIPPED for scoped chats: the
+    — the same propagation ``sonic -p <name>`` performs. The in-process
+    ``SONIC_TUI_GATEWAY_URL`` attach is SKIPPED for scoped chats: the
     dashboard's in-memory gateway runs under the dashboard's own profile,
     so a profile-scoped chat must spawn its own gateway subprocess.
     """
@@ -9968,7 +9968,7 @@ def _resolve_chat_argv(
     env.setdefault("SONIC_TUI_INLINE", "1")
 
     if profile_dir is not None:
-        env["HERMES_HOME"] = str(profile_dir)
+        env["SONIC_HOME"] = str(profile_dir)
 
     if resume:
         latest_resume, _latest_path = _session_latest_descendant(resume)

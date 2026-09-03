@@ -554,7 +554,7 @@ class TestMatrixDmDetection:
             if event_type == "m.room.name":
                 raise Exception("no name")
             if event_type == "m.room.canonical_alias":
-                return {"content": {"alias": "#hermes:ex.org"}}
+                return {"content": {"alias": "#sonic:ex.org"}}
             raise Exception("unknown")
 
         self.adapter._client.get_state_event = AsyncMock(side_effect=get_state_event)
@@ -563,7 +563,7 @@ class TestMatrixDmDetection:
 
         identity = await self.adapter._resolve_room_identity("!alias:ex.org")
 
-        assert identity.display_name == "#hermes:ex.org"
+        assert identity.display_name == "#sonic:ex.org"
         assert identity.chat_type == "room"
 
     @pytest.mark.asyncio

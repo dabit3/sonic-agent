@@ -120,7 +120,7 @@ MATRIX_ALLOW_ROOM_MENTIONS=false
 :::
 
 :::tip Room-wide mentions
-Hermes sends structured Matrix user mentions for explicit Matrix IDs such as `@alice:example.org`. Room-wide `@room` notifications are disabled by default; set `MATRIX_ALLOW_ROOM_MENTIONS=true` only in rooms where the bot is allowed to notify everyone.
+Sonic sends structured Matrix user mentions for explicit Matrix IDs such as `@alice:example.org`. Room-wide `@room` notifications are disabled by default; set `MATRIX_ALLOW_ROOM_MENTIONS=true` only in rooms where the bot is allowed to notify everyone.
 :::
 
 :::note
@@ -145,7 +145,7 @@ MATRIX_AUTO_THREAD=false
 | `room` | Unthreaded room messages stay in one stable room session. Real Matrix threads still use their thread root. |
 | `thread` | Unthreaded room messages synthesize a thread/session from the triggering event ID. |
 
-Hermes now includes the current Matrix room name, room ID, topic, message ID,
+Sonic now includes the current Matrix room name, room ID, topic, message ID,
 and a Matrix room-boundary note in the agent prompt. `/status` also shows the
 current Matrix room/session scope, and `/resume` will not silently resume a
 named session from another Matrix room unless you explicitly use
@@ -407,7 +407,7 @@ When E2EE is enabled, Sonic:
 
 ### Matrix Tools and Controls
 
-In Matrix conversations, Hermes exposes Matrix-specific tools to the agent:
+In Matrix conversations, Sonic exposes Matrix-specific tools to the agent:
 
 - `matrix_send_reaction`
 - `matrix_redact_message`
@@ -430,11 +430,11 @@ Reaction controls use:
 - ❌ deny
 - number reactions for `/model` choices
 
-Set `MATRIX_APPROVAL_REQUIRE_SENDER=false` if you intentionally want any authorized Matrix user in the room to operate an approval/model picker prompt. The default is requester-bound when Hermes knows who requested the action.
+Set `MATRIX_APPROVAL_REQUIRE_SENDER=false` if you intentionally want any authorized Matrix user in the room to operate an approval/model picker prompt. The default is requester-bound when Sonic knows who requested the action.
 
 ### Media Limits
 
-Hermes uploads and downloads Matrix images, files, audio, and video through Matrix media APIs. Multiple generated images are sent as one ordered logical batch, preserving captions and thread context across the batch.
+Sonic uploads and downloads Matrix images, files, audio, and video through Matrix media APIs. Multiple generated images are sent as one ordered logical batch, preserving captions and thread context across the batch.
 
 By default, Matrix media over 100 MB is rejected before upload/download. Override with:
 
@@ -442,17 +442,17 @@ By default, Matrix media over 100 MB is rejected before upload/download. Overrid
 MATRIX_MAX_MEDIA_BYTES=104857600
 ```
 
-Inbound media must use Matrix `mxc://` content URIs. Hermes rejects arbitrary
+Inbound media must use Matrix `mxc://` content URIs. Sonic rejects arbitrary
 HTTP(S) media URLs in Matrix events to avoid turning a federated room into an
 unrestricted downloader.
 
 ## Synapse Integration Tests
 
-Hermes includes an opt-in Synapse harness for local validation:
+Sonic includes an opt-in Synapse harness for local validation:
 
 ```bash
 docker compose -f tests/e2e/matrix_synapse_gateway/docker-compose.yml up -d
-HERMES_MATRIX_SYNAPSE_INTEGRATION=1 \
+SONIC_MATRIX_SYNAPSE_INTEGRATION=1 \
   scripts/run_tests.sh -m "integration and matrix_synapse" \
   tests/e2e/matrix_synapse_gateway/test_gateway.py
 docker compose -f tests/e2e/matrix_synapse_gateway/docker-compose.yml down -v
@@ -476,7 +476,7 @@ MATRIX_RECOVERY_KEY=EsT... your recovery key here
 
 On each startup, if `MATRIX_RECOVERY_KEY` is set, Sonic imports cross-signing keys from the homeserver's secure secret storage and signs the current device. This is idempotent and safe to leave enabled permanently.
 
-If Hermes bootstraps a new Matrix recovery key, it never logs the raw key. Set
+If Sonic bootstraps a new Matrix recovery key, it never logs the raw key. Set
 `MATRIX_RECOVERY_KEY_OUTPUT_FILE=/secure/path/matrix-recovery-key.txt` before
 startup to write a generated key once with file mode `0600`; the file is not
 overwritten if it already exists.
@@ -883,9 +883,9 @@ mautrix's `handle_sync()` machinery. A raw `client.sync()` poll that never calls
 `handle_sync()` can leave the adapter connected (send works) while inbound
 messages never reach `_on_room_message`.
 
-**Fix**: Hermes uses an explicit sync loop that calls `client.handle_sync()` on
+**Fix**: Sonic uses an explicit sync loop that calls `client.handle_sync()` on
 both the initial sync and every incremental sync response. This matches the
-diagnosis in upstream issue #7914 and closed PR #37807, but keeps Hermes's own
+diagnosis in upstream issue #7914 and closed PR #37807, but keeps Sonic's own
 background maintenance tasks (joined-room tracking, invite handling, E2EE key
 share) instead of delegating the full lifecycle to `client.start()`. If inbound
 messages still fail after a gateway restart, verify handlers are registered before

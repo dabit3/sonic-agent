@@ -12,7 +12,7 @@ const WORKSPACE_CWD_KEY = 'sonic.desktop.workspace-cwd'
 
 let configuredDefaultProjectDir = ''
 
-function workspaceCwdKey(connection: HermesConnection | null = $connection.get()): string {
+function workspaceCwdKey(connection: SonicConnection | null = $connection.get()): string {
   if (connection?.mode !== 'remote') {
     return WORKSPACE_CWD_KEY
   }

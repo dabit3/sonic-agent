@@ -210,7 +210,7 @@ also follows the switcher, spawning a conversation under the selected
 profile's home.
 
 Note: "Set as active" on the dashboard's Profiles page is the sticky
-default for **future CLI/gateway runs** (same as `hermes profile use`) —
+default for **future CLI/gateway runs** (same as `sonic profile use`) —
 to edit a profile from the dashboard, use the switcher instead.
 
 ## Updating

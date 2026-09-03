@@ -1109,7 +1109,7 @@ class TestWebServerEndpoints:
         persist the vendor-prefixed slug verbatim (it 400s against the native
         API and reads as "changing models does nothing")."""
         monkeypatch.setattr(
-            "hermes_cli.model_cost_guard.expensive_model_warning",
+            "sonic_cli.model_cost_guard.expensive_model_warning",
             lambda *_args, **_kwargs: None,
         )
         resp = self.client.post(
@@ -1127,20 +1127,20 @@ class TestWebServerEndpoints:
         # Vendor prefix stripped + dots→hyphens for the native Anthropic API.
         assert data["model"] == "claude-opus-4-6"
 
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
         cfg = load_config()
         assert cfg["model"]["provider"] == "anthropic"
         assert cfg["model"]["default"] == "claude-opus-4-6"
 
     def test_model_set_maps_unknown_vendor_to_aggregator(self, monkeypatch):
         """A bare vendor name from analytics rows (no billing_provider) is not
-        a Hermes provider — keep the user's aggregator instead of writing a
+        a Sonic provider — keep the user's aggregator instead of writing a
         provider that can never resolve credentials."""
         monkeypatch.setattr(
-            "hermes_cli.model_cost_guard.expensive_model_warning",
+            "sonic_cli.model_cost_guard.expensive_model_warning",
             lambda *_args, **_kwargs: None,
         )
-        from hermes_cli.config import load_config, save_config
+        from sonic_cli.config import load_config, save_config
         cfg = load_config()
         cfg["model"] = {"provider": "openrouter", "default": "openai/gpt-5.5"}
         save_config(cfg)
@@ -1162,7 +1162,7 @@ class TestWebServerEndpoints:
     def test_model_set_keeps_aggregator_slug_unchanged(self, monkeypatch):
         """The happy path (picker → openrouter + vendor/model) is untouched."""
         monkeypatch.setattr(
-            "hermes_cli.model_cost_guard.expensive_model_warning",
+            "sonic_cli.model_cost_guard.expensive_model_warning",
             lambda *_args, **_kwargs: None,
         )
         resp = self.client.post(
@@ -1181,8 +1181,8 @@ class TestWebServerEndpoints:
 
     def test_ops_import_passes_force_flag(self, tmp_path, monkeypatch):
         """force=True must append --force so the spawned non-interactive
-        `hermes import` doesn't auto-abort at the overwrite prompt."""
-        import hermes_cli.web_server as ws
+        `sonic import` doesn't auto-abort at the overwrite prompt."""
+        import sonic_cli.web_server as ws
 
         archive = tmp_path / "backup.zip"
         import zipfile
@@ -1197,7 +1197,7 @@ class TestWebServerEndpoints:
             from types import SimpleNamespace as NS
             return NS(pid=12345)
 
-        monkeypatch.setattr(ws, "_spawn_hermes_action", fake_spawn)
+        monkeypatch.setattr(ws, "_spawn_sonic_action", fake_spawn)
 
         resp = self.client.post(
             "/api/ops/import", json={"archive": str(archive), "force": True},
@@ -2370,7 +2370,7 @@ class TestNewEndpoints:
         first = blueprints[0]
         assert "fields" in first
         assert first["command"].startswith("/blueprint")
-        assert first["appUrl"].startswith("hermes://")
+        assert first["appUrl"].startswith("sonic://")
 
     def test_blueprint_instantiate_creates_job(self):
         resp = self.client.post(

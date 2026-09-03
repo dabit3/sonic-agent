@@ -1389,7 +1389,7 @@ async function checkUpdates() {
         branch,
         error: 'fetch-failed',
         message: firstLine(target.stderr) || 'git ls-remote failed.',
-        hermesRoot: updateRoot,
+        sonicRoot: updateRoot,
         fetchedAt: Date.now()
       }
     }
@@ -1402,7 +1402,7 @@ async function checkUpdates() {
       targetSha,
       commits: [],
       dirty: dirtyStr.length > 0,
-      hermesRoot: updateRoot,
+      sonicRoot: updateRoot,
       fetchedAt: Date.now()
     }
   }
@@ -6112,18 +6112,18 @@ ipcMain.handle('sonic:vscode-theme:fetch', async (_event, id) => fetchMarketplac
 ipcMain.handle('sonic:vscode-theme:search', async (_event, query) => searchMarketplaceThemes(String(query || ''), 20))
 
 // ---------------------------------------------------------------------------
-// hermes:// deep links (e.g. hermes://blueprint/morning-brief?time=08:00).
+// sonic:// deep links (e.g. sonic://blueprint/morning-brief?time=08:00).
 // A docs/dashboard "Send to App" button opens this URL; we route it into the
 // running app's chat composer. Three delivery paths: macOS 'open-url',
 // Win/Linux running-app 'second-instance' (argv), Win/Linux cold-start argv.
 // ---------------------------------------------------------------------------
-const HERMES_PROTOCOL = 'hermes'
+const SONIC_PROTOCOL = 'sonic'
 let _pendingDeepLink = null
 let _rendererReadyForDeepLink = false
 
 function _extractDeepLink(argv) {
   if (!Array.isArray(argv)) return null
-  return argv.find((a) => typeof a === 'string' && a.startsWith(`${HERMES_PROTOCOL}://`)) || null
+  return argv.find((a) => typeof a === 'string' && a.startsWith(`${SONIC_PROTOCOL}://`)) || null
 }
 
 function handleDeepLink(url) {
@@ -6135,7 +6135,7 @@ function handleDeepLink(url) {
     rememberLog(`[deeplink] ignoring malformed url: ${url}`)
     return
   }
-  // hermes://blueprint/<key>?slot=val  -> host="blueprint", path="/<key>"
+  // sonic://blueprint/<key>?slot=val  -> host="blueprint", path="/<key>"
   const kind = parsed.hostname || ''
   const name = decodeURIComponent((parsed.pathname || '').replace(/^\//, ''))
   const params = {}
@@ -6151,7 +6151,7 @@ function handleDeepLink(url) {
   try {
     if (mainWindow.isMinimized()) mainWindow.restore()
     mainWindow.focus()
-    mainWindow.webContents.send('hermes:deep-link', payload)
+    mainWindow.webContents.send('sonic:deep-link', payload)
     rememberLog(`[deeplink] delivered ${kind}/${name}`)
   } catch (err) {
     rememberLog(`[deeplink] delivery failed: ${err.message}`)
@@ -6160,13 +6160,13 @@ function handleDeepLink(url) {
 
 // Renderer calls this (via IPC) once it has mounted its deep-link listener, so
 // a link that arrived during boot/install is flushed exactly once.
-ipcMain.handle('hermes:deep-link-ready', () => {
+ipcMain.handle('sonic:deep-link-ready', () => {
   _rendererReadyForDeepLink = true
   if (_pendingDeepLink) {
     const queued = _pendingDeepLink
     _pendingDeepLink = null
     handleDeepLink(
-      `${HERMES_PROTOCOL}://${queued.kind}/${encodeURIComponent(queued.name)}` +
+      `${SONIC_PROTOCOL}://${queued.kind}/${encodeURIComponent(queued.name)}` +
         (Object.keys(queued.params).length
           ? '?' + new URLSearchParams(queued.params).toString()
           : ''),
@@ -6180,11 +6180,11 @@ function registerDeepLinkProtocol() {
     if (process.defaultApp && process.argv.length >= 2) {
       // Dev: register with the electron exec path + entry script so the OS can
       // relaunch us with the URL.
-      app.setAsDefaultProtocolClient(HERMES_PROTOCOL, process.execPath, [
+      app.setAsDefaultProtocolClient(SONIC_PROTOCOL, process.execPath, [
         path.resolve(process.argv[1]),
       ])
     } else {
-      app.setAsDefaultProtocolClient(HERMES_PROTOCOL)
+      app.setAsDefaultProtocolClient(SONIC_PROTOCOL)
     }
   } catch (err) {
     rememberLog(`[deeplink] protocol registration failed: ${err.message}`)
@@ -6192,7 +6192,7 @@ function registerDeepLinkProtocol() {
 }
 
 // Single-instance lock: deep links on a running app (Win/Linux) arrive as a
-// second-instance argv. Without the lock a second `hermes://` launch spawns a
+// second-instance argv. Without the lock a second `sonic://` launch spawns a
 // whole new app instead of routing into the running one.
 const _gotSingleInstanceLock = app.requestSingleInstanceLock()
 if (!_gotSingleInstanceLock) {
@@ -6230,7 +6230,7 @@ app.whenReady().then(() => {
   registerPowerResumeListeners()
   createWindow()
 
-  // Win/Linux cold start: the launching hermes:// URL is in our own argv.
+  // Win/Linux cold start: the launching sonic:// URL is in our own argv.
   const _coldStartLink = _extractDeepLink(process.argv)
   if (_coldStartLink) handleDeepLink(_coldStartLink)
 

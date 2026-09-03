@@ -1270,7 +1270,7 @@ class CLICommandsMixin:
             tokens = (cmd or "").split()[1:]
         args = " ".join(tokens)
         try:
-            from hermes_cli.suggestions_cmd import handle_suggestions_command
+            from sonic_cli.suggestions_cmd import handle_suggestions_command
             output = handle_suggestions_command(args)
         except Exception as e:
             output = f"Suggestions command failed: {e}"
@@ -1294,7 +1294,7 @@ class CLICommandsMixin:
             tokens = (cmd or "").split()[1:]
         args = " ".join(shlex.quote(t) for t in tokens)
         try:
-            from hermes_cli.blueprint_cmd import handle_blueprint_command
+            from sonic_cli.blueprint_cmd import handle_blueprint_command
             result = handle_blueprint_command(args)
         except Exception as e:
             self._console_print(f"Cron blueprint command failed: {e}")

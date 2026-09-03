@@ -851,7 +851,7 @@ def _register_bundled_web_providers_directly() -> None:
     """Register the repo's bundled web providers without the plugin manager.
 
     The normal path is the general plugin sweep
-    (:func:`hermes_cli.plugins._ensure_plugins_discovered`), which auto-loads
+    (:func:`sonic_cli.plugins._ensure_plugins_discovered`), which auto-loads
     every ``plugins/web/<name>`` backend (they are ``kind: backend``). This
     fallback exists for the runtimes where that sweep does not leave the web
     registry populated — so the keyless Parallel default (and any bundled
@@ -864,7 +864,7 @@ def _register_bundled_web_providers_directly() -> None:
     so a backend the user turned off stays off.
     """
     try:
-        from hermes_cli.plugins import (
+        from sonic_cli.plugins import (
             _get_disabled_plugins,
             get_bundled_plugins_dir,
         )

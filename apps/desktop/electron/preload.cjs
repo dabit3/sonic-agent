@@ -82,10 +82,10 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   },
   onDeepLink: callback => {
     const listener = (_event, payload) => callback(payload)
-    ipcRenderer.on('hermes:deep-link', listener)
-    return () => ipcRenderer.removeListener('hermes:deep-link', listener)
+    ipcRenderer.on('sonic:deep-link', listener)
+    return () => ipcRenderer.removeListener('sonic:deep-link', listener)
   },
-  signalDeepLinkReady: () => ipcRenderer.invoke('hermes:deep-link-ready'),
+  signalDeepLinkReady: () => ipcRenderer.invoke('sonic:deep-link-ready'),
   onWindowStateChanged: callback => {
     const listener = (_event, payload) => callback(payload)
     ipcRenderer.on('sonic:window-state-changed', listener)

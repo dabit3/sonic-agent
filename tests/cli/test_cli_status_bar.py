@@ -682,18 +682,18 @@ class TestIdleSinceLastTurn:
     """Time-since-last-final-agent-response read-out on the status bar."""
 
     def test_hidden_before_first_turn(self):
-        assert HermesCLI._format_idle_since(None, turn_live=False) == ""
+        assert SonicCLI._format_idle_since(None, turn_live=False) == ""
 
     def test_hidden_while_turn_is_live(self):
-        assert HermesCLI._format_idle_since(time.time() - 30, turn_live=True) == ""
+        assert SonicCLI._format_idle_since(time.time() - 30, turn_live=True) == ""
 
     def test_shows_compact_idle_time_after_turn(self):
-        label = HermesCLI._format_idle_since(time.time() - 42, turn_live=False)
+        label = SonicCLI._format_idle_since(time.time() - 42, turn_live=False)
         assert label.startswith("✓ ")
         assert label == "✓ 42s"
 
     def test_scales_to_minutes(self):
-        label = HermesCLI._format_idle_since(time.time() - 3 * 60, turn_live=False)
+        label = SonicCLI._format_idle_since(time.time() - 3 * 60, turn_live=False)
         assert label == "✓ 3m"
 
     def test_snapshot_carries_idle_since(self):

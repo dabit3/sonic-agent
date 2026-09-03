@@ -202,8 +202,8 @@ class TestWebhookEndpoints:
         assert r.status_code == 400
 
     def test_enable_platform_starts_gateway_restart(self, monkeypatch):
-        import hermes_cli.web_server as ws
-        from hermes_cli.config import load_config
+        import sonic_cli.web_server as ws
+        from sonic_cli.config import load_config
 
         ws._ACTION_PROCS.pop("gateway-restart", None)
         restart_calls = []
@@ -215,7 +215,7 @@ class TestWebhookEndpoints:
             restart_calls.append((subcommand, name))
             return FakeRestartProc()
 
-        monkeypatch.setattr(ws, "_spawn_hermes_action", fake_spawn_action)
+        monkeypatch.setattr(ws, "_spawn_sonic_action", fake_spawn_action)
 
         r = self.client.post("/api/webhooks/enable")
 
@@ -234,8 +234,8 @@ class TestWebhookEndpoints:
         assert self.client.get("/api/webhooks").json()["enabled"] is True
 
     def test_enable_platform_reports_restart_failure_after_save(self, monkeypatch):
-        import hermes_cli.web_server as ws
-        from hermes_cli.config import load_config
+        import sonic_cli.web_server as ws
+        from sonic_cli.config import load_config
 
         ws._ACTION_PROCS.pop("gateway-restart", None)
 
@@ -244,7 +244,7 @@ class TestWebhookEndpoints:
             assert name == "gateway-restart"
             raise RuntimeError("supervisor unavailable")
 
-        monkeypatch.setattr(ws, "_spawn_hermes_action", fail_spawn_action)
+        monkeypatch.setattr(ws, "_spawn_sonic_action", fail_spawn_action)
 
         r = self.client.post("/api/webhooks/enable")
 
@@ -259,8 +259,8 @@ class TestWebhookEndpoints:
         assert load_config()["platforms"]["webhook"]["enabled"] is True
 
     def test_enable_platform_reuses_inflight_gateway_restart(self, monkeypatch):
-        import hermes_cli.web_server as ws
-        from hermes_cli.config import load_config
+        import sonic_cli.web_server as ws
+        from sonic_cli.config import load_config
 
         ws._ACTION_PROCS.pop("gateway-restart", None)
 
@@ -275,7 +275,7 @@ class TestWebhookEndpoints:
         def fail_spawn_action(subcommand, name):
             raise AssertionError("must not spawn a second concurrent restart")
 
-        monkeypatch.setattr(ws, "_spawn_hermes_action", fail_spawn_action)
+        monkeypatch.setattr(ws, "_spawn_sonic_action", fail_spawn_action)
 
         r = self.client.post("/api/webhooks/enable")
 

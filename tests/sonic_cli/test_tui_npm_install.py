@@ -302,7 +302,7 @@ def test_make_tui_argv_keeps_desktop_always_build_behaviour(
 def test_make_tui_argv_decodes_dev_prebuild_with_utf8_replace(
     tmp_path: Path, main_mod, monkeypatch
 ) -> None:
-    ink_dir = tmp_path / "packages" / "hermes-ink"
+    ink_dir = tmp_path / "packages" / "sonic-ink"
     ink_dir.mkdir(parents=True)
     tsx = tmp_path / "node_modules" / ".bin" / "tsx"
     tsx.parent.mkdir(parents=True)

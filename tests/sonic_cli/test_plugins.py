@@ -374,9 +374,9 @@ class TestPluginDiscovery:
         permanently, every later call would early-return against an empty
         registry ("No web provider configured") for the process lifetime.
         """
-        plugins_dir = tmp_path / "hermes_test" / "plugins"
+        plugins_dir = tmp_path / "sonic_test" / "plugins"
         _make_plugin_dir(plugins_dir, "retry_plugin")
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes_test"))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic_test"))
 
         mgr = PluginManager()
 
@@ -390,7 +390,7 @@ class TestPluginDiscovery:
 
         # A later call (with discovery healthy again) must do the real scan.
         monkeypatch.undo()
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes_test"))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic_test"))
         mgr.discover_and_load()
         assert mgr._discovered is True
         non_bundled = {

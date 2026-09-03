@@ -6100,7 +6100,7 @@ def test_make_agent_waits_for_shared_mcp_discovery(monkeypatch):
     _setup_make_agent_mocks(monkeypatch, {})
     waited = []
 
-    from hermes_cli import mcp_startup
+    from sonic_cli import mcp_startup
 
     monkeypatch.setattr(
         mcp_startup,

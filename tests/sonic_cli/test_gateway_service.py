@@ -292,15 +292,15 @@ class TestSystemdServiceRefresh:
     def test_refresh_refuses_to_bake_any_tempdir_home_into_real_user_unit(
         self, tmp_path, monkeypatch
     ):
-        """Structural guard: a manual E2E HERMES_HOME like
-        ``/tmp/hermes-e2e-41264`` carries none of the pytest markers but
+        """Structural guard: a manual E2E SONIC_HOME like
+        ``/tmp/sonic-e2e-41264`` carries none of the pytest markers but
         poisons the unit identically (seen live 2026-06-11 — an E2E probe ran
-        ``hermes gateway restart`` with a /tmp HERMES_HOME exported; the
+        ``sonic gateway restart`` with a /tmp SONIC_HOME exported; the
         restart's unit refresh baked it into the production unit and the
         post-update restart produced a 7-hour zombie gateway). The refresh
-        must refuse ANY temp-dir HERMES_HOME, not just pytest-shaped ones.
+        must refuse ANY temp-dir SONIC_HOME, not just pytest-shaped ones.
         """
-        unit_path = tmp_path / "hermes-gateway.service"
+        unit_path = tmp_path / "sonic-gateway.service"
         unit_path.write_text("old unit\n", encoding="utf-8")
 
         monkeypatch.setattr(
@@ -308,8 +308,8 @@ class TestSystemdServiceRefresh:
         )
         polluted_unit = (
             "[Service]\n"
-            'Environment="HERMES_HOME=/tmp/hermes-e2e-41264"\n'
-            "WorkingDirectory=/tmp/hermes-e2e-41264\n"
+            'Environment="SONIC_HOME=/tmp/sonic-e2e-41264"\n'
+            "WorkingDirectory=/tmp/sonic-e2e-41264\n"
         )
         monkeypatch.setattr(
             gateway_cli,
@@ -340,52 +340,52 @@ class TestTempHomeServiceDefinitionGuard:
     """_temp_home_in_service_definition() — structural temp-dir detection."""
 
     def test_detects_tmp_home_in_systemd_unit(self):
-        unit = '[Service]\nEnvironment="HERMES_HOME=/tmp/hermes-e2e-41264"\n'
+        unit = '[Service]\nEnvironment="SONIC_HOME=/tmp/sonic-e2e-41264"\n'
         assert (
             gateway_cli._temp_home_in_service_definition(unit)
-            == "/tmp/hermes-e2e-41264"
+            == "/tmp/sonic-e2e-41264"
         )
 
     def test_detects_var_tmp_home(self):
-        unit = '[Service]\nEnvironment="HERMES_HOME=/var/tmp/hermes-x"\n'
+        unit = '[Service]\nEnvironment="SONIC_HOME=/var/tmp/sonic-x"\n'
         assert gateway_cli._temp_home_in_service_definition(unit) is not None
 
     def test_detects_tempdir_env_home(self, monkeypatch, tmp_path):
         import tempfile as _tempfile
 
         monkeypatch.setattr(_tempfile, "gettempdir", lambda: str(tmp_path))
-        unit = f'[Service]\nEnvironment="HERMES_HOME={tmp_path}/hermes-home"\n'
+        unit = f'[Service]\nEnvironment="SONIC_HOME={tmp_path}/sonic-home"\n'
         assert gateway_cli._temp_home_in_service_definition(unit) is not None
 
     def test_detects_tmp_home_in_launchd_plist(self):
         plist = (
-            "<dict>\n  <key>HERMES_HOME</key>\n"
-            "  <string>/tmp/hermes-e2e-99999</string>\n</dict>\n"
+            "<dict>\n  <key>SONIC_HOME</key>\n"
+            "  <string>/tmp/sonic-e2e-99999</string>\n</dict>\n"
         )
         assert (
             gateway_cli._temp_home_in_service_definition(plist)
-            == "/tmp/hermes-e2e-99999"
+            == "/tmp/sonic-e2e-99999"
         )
 
     def test_accepts_real_home(self):
-        unit = '[Service]\nEnvironment="HERMES_HOME=/home/alice/.hermes"\n'
+        unit = '[Service]\nEnvironment="SONIC_HOME=/home/alice/.sonic"\n'
         assert gateway_cli._temp_home_in_service_definition(unit) is None
 
     def test_accepts_macos_real_home_plist(self):
         plist = (
-            "<dict>\n  <key>HERMES_HOME</key>\n"
-            "  <string>/Users/alice/.hermes</string>\n</dict>\n"
+            "<dict>\n  <key>SONIC_HOME</key>\n"
+            "  <string>/Users/alice/.sonic</string>\n</dict>\n"
         )
         assert gateway_cli._temp_home_in_service_definition(plist) is None
 
-    def test_accepts_unit_without_hermes_home(self):
-        unit = "[Service]\nExecStart=/usr/bin/python -m hermes_cli.main gateway run\n"
+    def test_accepts_unit_without_sonic_home(self):
+        unit = "[Service]\nExecStart=/usr/bin/python -m sonic_cli.main gateway run\n"
         assert gateway_cli._temp_home_in_service_definition(unit) is None
 
     def test_tmp_prefixed_non_temp_path_is_accepted(self):
         # /tmpfs-data is NOT under /tmp — prefix matching must be
         # component-wise, not string startswith.
-        unit = '[Service]\nEnvironment="HERMES_HOME=/tmpfs-data/.hermes"\n'
+        unit = '[Service]\nEnvironment="SONIC_HOME=/tmpfs-data/.sonic"\n'
         assert gateway_cli._temp_home_in_service_definition(unit) is None
 
 
@@ -582,13 +582,13 @@ class TestLaunchdServiceRecovery:
         monkeypatch.setattr(gateway_cli, "get_launchd_plist_path", lambda: plist_path)
         # Patch the generator with synthetic content carrying a real-looking
         # home — the temp-home guard refuses to write plists whose
-        # HERMES_HOME resolves under the (pytest tmp) test HERMES_HOME.
+        # SONIC_HOME resolves under the (pytest tmp) test SONIC_HOME.
         monkeypatch.setattr(
             gateway_cli,
             "generate_launchd_plist",
             lambda: (
-                "<plist>--replace\n<key>HERMES_HOME</key>"
-                "<string>/Users/alice/.hermes</string></plist>"
+                "<plist>--replace\n<key>SONIC_HOME</key>"
+                "<string>/Users/alice/.sonic</string></plist>"
             ),
         )
 
@@ -887,14 +887,14 @@ class TestLaunchdServiceRecovery:
         plist_path = tmp_path / "ai.sonic.gateway.plist"
         monkeypatch.setattr(gateway_cli, "get_launchd_plist_path", lambda: plist_path)
         # Synthetic plist with a non-temp home so the temp-home write guard
-        # (which would trip on the pytest-tmp test HERMES_HOME) stays out of
+        # (which would trip on the pytest-tmp test SONIC_HOME) stays out of
         # the way — this test exercises the bootstrap-error fallback.
         monkeypatch.setattr(
             gateway_cli,
             "generate_launchd_plist",
             lambda: (
-                "<plist><key>HERMES_HOME</key>"
-                "<string>/Users/alice/.hermes</string></plist>"
+                "<plist><key>SONIC_HOME</key>"
+                "<string>/Users/alice/.sonic</string></plist>"
             ),
         )
 

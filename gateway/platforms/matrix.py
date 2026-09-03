@@ -1282,7 +1282,7 @@ class MatrixAdapter(BasePlatformAdapter):
                     await crypto_db.start()
                     self._crypto_db = crypto_db
 
-                    _acct_id = self._user_id or "hermes"
+                    _acct_id = self._user_id or "sonic"
                     _pickle_key = f"{_acct_id}:{self._device_id or 'default'}"
                     crypto_store = PgCryptoStore(
                         account_id=_acct_id,
@@ -1993,7 +1993,7 @@ class MatrixAdapter(BasePlatformAdapter):
             )
 
         try:
-            from hermes_cli.providers import get_label
+            from sonic_cli.providers import get_label
             provider_label = get_label(current_provider)
         except Exception:
             provider_label = current_provider
