@@ -1048,12 +1048,12 @@ _SLACK_PRIORITY_ALIASES = ("btw", "bg")
 # caps apps at 50 slash commands and the registry is at that ceiling; rather
 # than let the clamp silently drop whichever command sorts last (and break
 # Telegram parity), we explicitly route a few low-frequency commands through
-# ``/hermes <command>`` on Slack only. They remain native on every other
+# ``/sonic <command>`` on Slack only. They remain native on every other
 # surface (CLI, TUI, Telegram, Discord). Keep this list TIGHT and intentional —
 # the telegram-parity test reads it so an entry here is a deliberate
-# "Slack-via-/hermes" decision, not a silent clamp.
-#   - credits: the billing/top-up surface; reached via /hermes credits on Slack.
-_SLACK_VIA_HERMES_ONLY = frozenset({"credits"})
+# "Slack-via-/sonic" decision, not a silent clamp.
+#   - credits: the billing/top-up surface; reached via /sonic credits on Slack.
+_SLACK_VIA_SONIC_ONLY = frozenset({"credits"})
 
 
 def _sanitize_slack_name(raw: str) -> str:
@@ -1103,8 +1103,8 @@ def slack_native_slashes() -> list[tuple[str, str, str]]:
             return
         if slack_name in _SLACK_RESERVED_COMMANDS:
             return
-        if slack_name in _SLACK_VIA_HERMES_ONLY:
-            # Intentionally Slack-via-/hermes only (see _SLACK_VIA_HERMES_ONLY).
+        if slack_name in _SLACK_VIA_SONIC_ONLY:
+            # Intentionally Slack-via-/sonic only (see _SLACK_VIA_SONIC_ONLY).
             return
         if len(entries) >= _SLACK_MAX_SLASH_COMMANDS:
             return

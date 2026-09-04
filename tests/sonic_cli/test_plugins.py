@@ -1210,10 +1210,10 @@ class TestPluginManagerList:
         already-loaded plugins, so when a later plugin registered a hook name
         an earlier plugin had already used, the shared name was attributed to
         the first plugin only and the later plugin reported 0 hooks in
-        `hermes plugins list`. Attribution now counts what each plugin's own
+        `sonic plugins list`. Attribution now counts what each plugin's own
         register() added (per-registration delta), so both get credit.
         """
-        plugins_dir = tmp_path / "hermes_test" / "plugins"
+        plugins_dir = tmp_path / "sonic_test" / "plugins"
         _make_plugin_dir(
             plugins_dir, "first_hooker",
             register_body='ctx.register_hook("post_tool_call", lambda **kw: None)',
@@ -1222,7 +1222,7 @@ class TestPluginManagerList:
             plugins_dir, "second_hooker",
             register_body='ctx.register_hook("post_tool_call", lambda **kw: None)',
         )
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes_test"))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic_test"))
 
         mgr = PluginManager()
         mgr.discover_and_load()

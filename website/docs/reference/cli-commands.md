@@ -374,15 +374,15 @@ If neither a positional `message` argument nor `--file` is provided, `sonic send
 `--file` is for *text* bodies only. To deliver an image, document, video, or audio file as a native platform attachment, reference it inside the message text with the `MEDIA:<local_path>` directive:
 
 ```bash
-hermes send --to telegram "MEDIA:/tmp/screenshot.png"
-hermes send --to telegram "Build chart for today MEDIA:/tmp/chart.png"   # with caption
-hermes send --to discord:#ops "MEDIA:/tmp/report.pdf"
+sonic send --to telegram "MEDIA:/tmp/screenshot.png"
+sonic send --to telegram "Build chart for today MEDIA:/tmp/chart.png"   # with caption
+sonic send --to discord:#ops "MEDIA:/tmp/report.pdf"
 ```
 
 By default, image files are sent as photos (platforms like Telegram recompress these). Add `[[as_document]]` to the message to deliver them as uncompressed file attachments instead:
 
 ```bash
-hermes send --to telegram "[[as_document]] MEDIA:/tmp/screenshot.png"
+sonic send --to telegram "[[as_document]] MEDIA:/tmp/screenshot.png"
 ```
 
 Examples:

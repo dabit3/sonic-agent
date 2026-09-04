@@ -2870,7 +2870,7 @@ class AIAgent:
             return cached
         enabled = True
         try:
-            from hermes_cli.config import load_config as _load_config
+            from sonic_cli.config import load_config as _load_config
             _cfg = _load_config() or {}
             _display = _cfg.get("display") if isinstance(_cfg, dict) else None
             if isinstance(_display, dict) and "credits_notices" in _display:

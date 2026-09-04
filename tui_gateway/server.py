@@ -1420,9 +1420,9 @@ def _resolve_model() -> str:
 def _config_model_target() -> tuple[str, str]:
     """(model, provider) currently selected by config (env as fallback).
 
-    config.yaml wins over HERMES_MODEL / HERMES_INFERENCE_MODEL here, the
+    config.yaml wins over SONIC_MODEL / SONIC_INFERENCE_MODEL here, the
     reverse of `_resolve_model()`'s startup order. Those env vars are a
-    provision-time seed (hosted instances set HERMES_INFERENCE_MODEL in the
+    provision-time seed (hosted instances set SONIC_INFERENCE_MODEL in the
     container env); if they outranked config.yaml, the per-turn sync would
     stay pinned to the seed forever and dashboard/CLI model changes would
     never reach an open chat — the exact bug this sync exists to fix.

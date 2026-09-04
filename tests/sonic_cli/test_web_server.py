@@ -1962,9 +1962,9 @@ class TestWebServerEndpoints:
         """A custom endpoint that requires auth must persist model.api_key (where
         the runtime reads it) AND register a named custom_providers entry so the
         endpoint reappears as a ready row in the picker — matching the
-        ``hermes model`` custom flow. Regression for the desktop loop where a
+        ``sonic model`` custom flow. Regression for the desktop loop where a
         keyed custom endpoint could never be configured from the GUI."""
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
 
         resp = self.client.post(
             "/api/model/set",

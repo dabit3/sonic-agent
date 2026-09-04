@@ -558,9 +558,9 @@ def test_account_payload_parses_org_slug_and_name(monkeypatch):
         "organisation": {"id": "org_123", "slug": "acme", "name": "Acme Inc"},
         "paid_service_access": {"allowed": True, "paid_access": True},
     }
-    monkeypatch.setattr("hermes_cli.auth.get_provider_auth_state", lambda provider: _state(token))
-    monkeypatch.setattr("hermes_cli.auth.resolve_nous_access_token", lambda: "fresh-token")
-    monkeypatch.setattr("hermes_cli.nous_account._fetch_nous_account_info", lambda *a, **kw: payload)
+    monkeypatch.setattr("sonic_cli.auth.get_provider_auth_state", lambda provider: _state(token))
+    monkeypatch.setattr("sonic_cli.auth.resolve_nous_access_token", lambda: "fresh-token")
+    monkeypatch.setattr("sonic_cli.nous_account._fetch_nous_account_info", lambda *a, **kw: payload)
 
     info = get_nous_portal_account_info(force_fresh=True)
 
@@ -577,9 +577,9 @@ def test_account_payload_org_without_slug_leaves_fields_none(monkeypatch):
         "organisation": {"id": "org_123"},
         "paid_service_access": {"allowed": True, "paid_access": True},
     }
-    monkeypatch.setattr("hermes_cli.auth.get_provider_auth_state", lambda provider: _state(token))
-    monkeypatch.setattr("hermes_cli.auth.resolve_nous_access_token", lambda: "fresh-token")
-    monkeypatch.setattr("hermes_cli.nous_account._fetch_nous_account_info", lambda *a, **kw: payload)
+    monkeypatch.setattr("sonic_cli.auth.get_provider_auth_state", lambda provider: _state(token))
+    monkeypatch.setattr("sonic_cli.auth.resolve_nous_access_token", lambda: "fresh-token")
+    monkeypatch.setattr("sonic_cli.nous_account._fetch_nous_account_info", lambda *a, **kw: payload)
 
     info = get_nous_portal_account_info(force_fresh=True)
 

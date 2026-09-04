@@ -868,7 +868,7 @@ def create_profile(
 
     # Seed an empty .env so the profile has its own credentials file from
     # day one. Without it, profile-scoped env writes (dashboard Channels /
-    # Keys pages, `hermes -p <name> auth add`) had no file until first
+    # Keys pages, `sonic -p <name> auth add`) had no file until first
     # write, and the profile silently inherited API keys from the shell
     # environment — users reasonably read that as "the new profile reads
     # the root .env". Skipped when --clone/--clone-all already copied one.
@@ -876,7 +876,7 @@ def create_profile(
     if not env_path.exists():
         try:
             env_path.write_text(
-                "# Per-profile secrets for this Hermes profile.\n"
+                "# Per-profile secrets for this Sonic profile.\n"
                 "# API keys and tokens set here override the shell environment.\n"
                 "# Behavioral settings belong in config.yaml, not here.\n",
                 encoding="utf-8",

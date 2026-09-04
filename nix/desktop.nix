@@ -120,8 +120,8 @@ stdenv.mkDerivation {
     # Standard nixpkgs pattern for electron-builder apps: patch process.resourcesPath
     # to point to the app's directory. In Nix, unpackaged electron defaults this
     # to the electron distribution's resources path, breaking extraResources lookups.
-    substituteInPlace $out/share/hermes-desktop/electron/main.cjs \
-      --replace-fail "process.resourcesPath" "'$out/share/hermes-desktop'"
+    substituteInPlace $out/share/sonic-desktop/electron/main.cjs \
+      --replace-fail "process.resourcesPath" "'$out/share/sonic-desktop'"
 
     # Wrap the nixpkgs electron binary to launch our app.  Set
     # SONIC_DESKTOP_SONIC to the absolute path of the nix-built `sonic`

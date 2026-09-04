@@ -177,7 +177,7 @@ class TestCreateProfile:
 
     def test_seeded_env_does_not_clobber_cloned_env(self, profile_env):
         tmp_path = profile_env
-        default_home = tmp_path / ".hermes"
+        default_home = tmp_path / ".sonic"
         (default_home / ".env").write_text("KEY=val")
         profile_dir = create_profile("coder", clone_config=True, no_alias=True)
         assert (profile_dir / ".env").read_text() == "KEY=val"
@@ -325,7 +325,7 @@ class TestCreateProfile:
         of GB.  Applies to ANY source profile, not just default.
         """
         tmp_path = profile_env
-        default_home = tmp_path / ".hermes"
+        default_home = tmp_path / ".sonic"
         (default_home / "state.db").write_text("sessions-data")
         (default_home / "state.db-wal").write_text("wal")
         (default_home / "state.db-shm").write_text("shm")

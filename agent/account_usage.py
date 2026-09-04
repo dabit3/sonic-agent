@@ -365,7 +365,7 @@ def build_credits_view(*, markdown: bool = False, timeout: float = 10.0) -> Cred
     """
     not_logged_in = CreditsView(logged_in=False)
     try:
-        from hermes_cli.auth import get_provider_auth_state
+        from sonic_cli.auth import get_provider_auth_state
 
         tok = (get_provider_auth_state("nous") or {}).get("access_token")
         if not (isinstance(tok, str) and tok.strip()):
@@ -376,7 +376,7 @@ def build_credits_view(*, markdown: bool = False, timeout: float = 10.0) -> Cred
     try:
         import concurrent.futures
 
-        from hermes_cli.nous_account import (
+        from sonic_cli.nous_account import (
             get_nous_portal_account_info,
             nous_portal_topup_url,
         )

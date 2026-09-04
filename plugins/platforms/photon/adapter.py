@@ -642,7 +642,7 @@ class PhotonAdapter(BasePlatformAdapter):
             )
         except (OSError, subprocess.TimeoutExpired):
             return False
-        # Checkout-agnostic: any Hermes checkout's sidecar entry point.
+        # Checkout-agnostic: any Sonic checkout's sidecar entry point.
         return "photon/sidecar/index.mjs" in out.stdout
 
     @staticmethod
@@ -670,7 +670,7 @@ class PhotonAdapter(BasePlatformAdapter):
             async with httpx.AsyncClient(timeout=2.0) as client:
                 await client.post(
                     f"http://{self._sidecar_bind}:{self._sidecar_port}/healthz",
-                    headers={"X-Hermes-Sidecar-Token": self._sidecar_token},
+                    headers={"X-Sonic-Sidecar-Token": self._sidecar_token},
                 )
         except httpx.RequestError:
             return  # nothing listening — the normal case

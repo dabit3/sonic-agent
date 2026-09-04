@@ -8371,7 +8371,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
         if not view.logged_in:
             print()
             print(f"  💳 {_DIM}Not logged into Nous Portal.{_RST}")
-            print("  Run `hermes portal` to log in, then /credits.")
+            print("  Run `sonic portal` to log in, then /credits.")
             return
 
         print()

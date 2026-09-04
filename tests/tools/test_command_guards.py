@@ -317,15 +317,15 @@ class TestGatewayApprovalAllowPermanent:
 
         register_gateway_notify(session_key, notify)
         token = set_current_session_key(session_key)
-        os.environ["HERMES_GATEWAY_SESSION"] = "1"
-        os.environ["HERMES_EXEC_ASK"] = "1"
-        os.environ["HERMES_SESSION_KEY"] = session_key
+        os.environ["SONIC_GATEWAY_SESSION"] = "1"
+        os.environ["SONIC_EXEC_ASK"] = "1"
+        os.environ["SONIC_SESSION_KEY"] = session_key
         try:
             check_all_command_guards(command, "local")
         finally:
-            os.environ.pop("HERMES_GATEWAY_SESSION", None)
-            os.environ.pop("HERMES_EXEC_ASK", None)
-            os.environ.pop("HERMES_SESSION_KEY", None)
+            os.environ.pop("SONIC_GATEWAY_SESSION", None)
+            os.environ.pop("SONIC_EXEC_ASK", None)
+            os.environ.pop("SONIC_SESSION_KEY", None)
             reset_current_session_key(token)
             unregister_gateway_notify(session_key)
 

@@ -194,12 +194,12 @@ class TestSnapshotEndToEnd:
         env = LocalEnvironment(cwd=str(tmp_path), timeout=15)
         try:
             first = env.execute(
-                'export HERMES_SESSION_ENV_PROBE="sticky"; '
-                'export PATH="/tmp/hermes-session-bin:$PATH"; '
-                'echo "first=$HERMES_SESSION_ENV_PROBE"'
+                'export SONIC_SESSION_ENV_PROBE="sticky"; '
+                'export PATH="/tmp/sonic-session-bin:$PATH"; '
+                'echo "first=$SONIC_SESSION_ENV_PROBE"'
             )
             second = env.execute(
-                'echo "second=$HERMES_SESSION_ENV_PROBE"; echo "PATH=$PATH"'
+                'echo "second=$SONIC_SESSION_ENV_PROBE"; echo "PATH=$PATH"'
             )
         finally:
             env.cleanup()
@@ -209,7 +209,7 @@ class TestSnapshotEndToEnd:
         assert "first=sticky" in first.get("output", "")
         output = second.get("output", "")
         assert "second=sticky" in output
-        assert "/tmp/hermes-session-bin" in output
+        assert "/tmp/sonic-session-bin" in output
 
     def test_venv_style_activation_persists_between_commands(self, tmp_path):
         venv_bin = tmp_path / ".venv" / "bin"

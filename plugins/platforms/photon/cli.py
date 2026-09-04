@@ -337,13 +337,13 @@ def _cmd_install_sidecar(_args: argparse.Namespace) -> int:
 
 
 def _telemetry_enabled() -> bool:
-    """Read PHOTON_TELEMETRY from the env / ~/.hermes/.env.
+    """Read PHOTON_TELEMETRY from the env / ~/.sonic/.env.
 
     Mirrors the sidecar's truthy set (index.mjs) so the state shown here
     always matches what the sidecar will actually do.
     """
     try:
-        from hermes_cli.config import get_env_value
+        from sonic_cli.config import get_env_value
         raw = get_env_value("PHOTON_TELEMETRY")
     except ImportError:
         raw = os.getenv("PHOTON_TELEMETRY")
@@ -354,16 +354,16 @@ def _cmd_telemetry(args: argparse.Namespace) -> int:
     state = getattr(args, "state", None)
     if state is None:
         print(f"Photon telemetry: {'on' if _telemetry_enabled() else 'off'}")
-        print("  Toggle with `hermes photon telemetry on` / `hermes photon telemetry off`.")
+        print("  Toggle with `sonic photon telemetry on` / `sonic photon telemetry off`.")
         return 0
     try:
-        from hermes_cli.config import save_env_value
+        from sonic_cli.config import save_env_value
         save_env_value("PHOTON_TELEMETRY", "true" if state == "on" else "false")
     except Exception as e:
         print(f"could not save PHOTON_TELEMETRY: {e}", file=sys.stderr)
         return 1
-    print(f"✓ Spectrum telemetry turned {state} (PHOTON_TELEMETRY in ~/.hermes/.env)")
-    print("  Restart the gateway for the sidecar to pick it up:  hermes gateway restart")
+    print(f"✓ Spectrum telemetry turned {state} (PHOTON_TELEMETRY in ~/.sonic/.env)")
+    print("  Restart the gateway for the sidecar to pick it up:  sonic gateway restart")
     return 0
 
 

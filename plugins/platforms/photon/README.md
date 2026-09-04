@@ -119,7 +119,7 @@ All env vars are documented in `plugin.yaml`. The most important:
 | `PHOTON_ALLOWED_USERS`    | your number (set by setup) | Comma-separated E.164 allowlist      |
 | `PHOTON_REQUIRE_MENTION`  | false                      | Gate group chats on a wake word      |
 | `PHOTON_MAX_INLINE_ATTACHMENT_BYTES` | 20 MB           | Max inbound attachment size the sidecar reads & inlines |
-| `PHOTON_TELEMETRY`        | false                      | Spectrum SDK telemetry — toggle with `hermes photon telemetry on\|off` (restart the gateway to apply) |
+| `PHOTON_TELEMETRY`        | false                      | Spectrum SDK telemetry — toggle with `sonic photon telemetry on\|off` (restart the gateway to apply) |
 | `PHOTON_MARKDOWN`         | true                       | Send agent replies as markdown (iMessage renders natively). `false` strips formatting to plain text |
 | `PHOTON_REACTIONS`        | false                      | Tapback 👀/👍/👎 as processing status; tapbacks on bot messages reach the agent as `reaction:added:<emoji>` |
 
@@ -167,7 +167,7 @@ release take down fresh setups silently. Upgrades are deliberate:
    (`sidecar/node_modules/spectrum-ts/dist/*.d.ts` is the source of truth —
    the hosted docs can lag).
 4. Run `pytest tests/plugins/platforms/photon/`.
-5. Verify end-to-end: `hermes photon status`, a DM and a group roundtrip,
+5. Verify end-to-end: `sonic photon status`, a DM and a group roundtrip,
    and an agent reply into a group right after a gateway restart (exercises
    `space.get` rehydration).
 

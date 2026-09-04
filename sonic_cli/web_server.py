@@ -731,7 +731,7 @@ class ModelAssignment(BaseModel):
     # Optional API key for a custom/local endpoint. Persisted to
     # ``model.api_key`` (where the runtime resolver reads it) so a self-hosted
     # endpoint that requires auth works from the GUI — mirrors the key the
-    # ``hermes model`` custom flow collects. Honored only on the main slot for
+    # ``sonic model`` custom flow collects. Honored only on the main slot for
     # custom/local providers.
     api_key: str = ""
     confirm_expensive_model: bool = False
@@ -3319,14 +3319,14 @@ def _apply_model_assignment_sync(
         save_config(cfg)
 
         # Register a named ``custom_providers`` entry for a custom/local
-        # endpoint, mirroring the ``hermes model`` custom flow
+        # endpoint, mirroring the ``sonic model`` custom flow
         # (_save_custom_provider). Without this the endpoint only lives in
         # ``model.*`` and the picker has no proper ready row for it — the
         # GUI then surfaces a "needs setup" dead-end on the bare ``custom``
         # provider. Dedups by base_url, so re-saving is idempotent.
         if provider.strip().lower() in {"custom", "local"} and base_url:
             try:
-                from hermes_cli.main import _auto_provider_name, _save_custom_provider
+                from sonic_cli.main import _auto_provider_name, _save_custom_provider
 
                 _save_custom_provider(
                     base_url,
@@ -4709,7 +4709,7 @@ async def get_messaging_platforms(profile: Optional[str] = None):
     # Profile-scoped so the dashboard's global profile switcher shows the
     # TARGET profile's channel credentials/state, not the root install's.
     # Inside _profile_scope, load_env()/read_runtime_status()/get_running_pid()
-    # all resolve against the requested profile's HERMES_HOME.
+    # all resolve against the requested profile's SONIC_HOME.
     with _profile_scope(profile) as scoped_dir:
         env_on_disk = load_env()
         runtime = read_runtime_status()
@@ -11755,8 +11755,8 @@ def start_server(
             actual_port = _read_bound_port(server, fallback=port)
             app.state.bound_port = actual_port
 
-            print(f"HERMES_DASHBOARD_READY port={actual_port}", flush=True)
-            print(f"  Hermes Web UI → http://{host}:{actual_port}")
+            print(f"SONIC_DASHBOARD_READY port={actual_port}", flush=True)
+            print(f"  Sonic Web UI → http://{host}:{actual_port}")
             _maybe_open_browser(host, actual_port, open_browser, initial_profile)
 
             await server.main_loop()

@@ -891,7 +891,7 @@ class SlackAdapter(BasePlatformAdapter):
                 pass
 
             # Reactions are useful lightweight acknowledgements in Slack, but
-            # Hermes does not currently need to route them into the agent loop.
+            # Sonic does not currently need to route them into the agent loop.
             # Ack the events explicitly so high-traffic channels do not fill
             # gateway.error.log with Slack Bolt "Unhandled request" warnings.
             @self._app.event("reaction_added")
@@ -972,7 +972,7 @@ class SlackAdapter(BasePlatformAdapter):
             # down the gateway: any exception inside the plugin handler is
             # caught and logged, and slack_bolt still sees a clean ack.
             try:
-                from hermes_cli.plugins import get_plugin_manager
+                from sonic_cli.plugins import get_plugin_manager
                 _plugin_handlers = get_plugin_manager().get_slack_action_handlers()
             except Exception as e:  # pragma: no cover - defensive
                 logger.warning(

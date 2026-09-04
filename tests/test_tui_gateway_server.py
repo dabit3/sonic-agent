@@ -1061,8 +1061,8 @@ def _sync_test_session(**extra):
 
 
 def _patch_config_model(monkeypatch, model, provider=""):
-    monkeypatch.delenv("HERMES_MODEL", raising=False)
-    monkeypatch.delenv("HERMES_INFERENCE_MODEL", raising=False)
+    monkeypatch.delenv("SONIC_MODEL", raising=False)
+    monkeypatch.delenv("SONIC_INFERENCE_MODEL", raising=False)
     cfg_model = {"default": model}
     if provider:
         cfg_model["provider"] = provider
@@ -1186,10 +1186,10 @@ def test_config_sync_failure_emits_error_once_per_edit(monkeypatch):
 
 
 def test_config_sync_config_wins_over_env_seed(monkeypatch):
-    # Hosted instances set HERMES_INFERENCE_MODEL as a provision-time seed;
+    # Hosted instances set SONIC_INFERENCE_MODEL as a provision-time seed;
     # the per-turn sync must follow config.yaml edits, not stay pinned to it.
-    monkeypatch.setenv("HERMES_INFERENCE_MODEL", "seed/model")
-    monkeypatch.delenv("HERMES_MODEL", raising=False)
+    monkeypatch.setenv("SONIC_INFERENCE_MODEL", "seed/model")
+    monkeypatch.delenv("SONIC_MODEL", raising=False)
     monkeypatch.setattr(server, "_load_cfg", lambda: {"model": {"default": "new/model"}})
     session = _sync_test_session(config_model_seen=("seed/model", ""))
     calls = []
