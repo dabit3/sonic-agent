@@ -1280,6 +1280,9 @@ AUTHOR_MAP = {
     # Debug share upload-time redaction (May 2026)
     "dhuysamen@gmail.com": "GodsBoy",  # PR #19318
     "github@nadyahermes.anonaddy.com": "ruangraung",  # PR #42308
+    "andyfieb@gmail.com": "mollusk",  # PR #44493 (desktop assistant-ui recovery)
+    "kyssta69@gmail.com": "kyssta-exe",  # PR #44282 (Windows dashboard re-exec)
+    "loongfay@foxmail.com": "loongfay",  # PR #43508 (Yuanbao wechat forward msg)
     "2081789787@qq.com": "pengyuyanITYU",  # PR #43618 (harden local file tree paths)
     "omarbaradei21@gmail.com": "OmarB97",  # PR #43977 (desktop session model metadata)
     "mrcoferland@gmail.com": "mrcoferland",  # PR #19023
