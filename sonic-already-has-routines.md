@@ -149,7 +149,7 @@ sonic webhook subscribe pr-review \
   --deliver github_comment
 ```
 
-Full automation templates gallery: [lightning-agent.nousresearch.com/docs/guides/automation-templates](https://lightning-agent.nousresearch.com/docs/guides/automation-templates)
+Full automation blueprints gallery: [lightning-agent.nousresearch.com/docs/reference/automation-blueprints-catalog](https://lightning-agent.nousresearch.com/docs/reference/automation-blueprints-catalog)
 
 Documentation: [lightning-agent.nousresearch.com](https://lightning-agent.nousresearch.com)
 

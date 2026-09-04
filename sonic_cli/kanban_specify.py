@@ -40,9 +40,11 @@ from typing import Optional
 
 from sonic_cli import kanban_db as kb
 
+from utils import env_int
+
 SONIC_KANBAN_SPECIFY_MAX_TOKENS = max(
     1500,
-    int(os.getenv("SONIC_KANBAN_SPECIFY_MAX_TOKENS", "6000")),
+    env_int("SONIC_KANBAN_SPECIFY_MAX_TOKENS", 6000),
 )
 
 logger = logging.getLogger(__name__)

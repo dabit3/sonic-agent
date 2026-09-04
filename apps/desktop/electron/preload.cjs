@@ -2,8 +2,10 @@ const { contextBridge, ipcRenderer, webUtils } = require('electron')
 
 contextBridge.exposeInMainWorld('sonicDesktop', {
   getConnection: profile => ipcRenderer.invoke('sonic:connection', profile),
+  revalidateConnection: () => ipcRenderer.invoke('sonic:connection:revalidate'),
   touchBackend: profile => ipcRenderer.invoke('sonic:backend:touch', profile),
   getGatewayWsUrl: profile => ipcRenderer.invoke('sonic:gateway:ws-url', profile),
+  openSessionWindow: (sessionId, opts) => ipcRenderer.invoke('sonic:window:openSession', sessionId, opts),
   getBootProgress: () => ipcRenderer.invoke('sonic:boot-progress:get'),
   getConnectionConfig: profile => ipcRenderer.invoke('sonic:connection-config:get', profile),
   saveConnectionConfig: payload => ipcRenderer.invoke('sonic:connection-config:save', payload),
@@ -37,9 +39,12 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   watchPreviewFile: url => ipcRenderer.invoke('sonic:watchPreviewFile', url),
   stopPreviewFileWatch: id => ipcRenderer.invoke('sonic:stopPreviewFileWatch', id),
   setTitleBarTheme: payload => ipcRenderer.send('sonic:titlebar-theme', payload),
+  setNativeTheme: mode => ipcRenderer.send('sonic:native-theme', mode),
+  setTranslucency: payload => ipcRenderer.send('sonic:translucency', payload),
   setPreviewShortcutActive: active => ipcRenderer.send('sonic:previewShortcutActive', Boolean(active)),
   openExternal: url => ipcRenderer.invoke('sonic:openExternal', url),
   fetchLinkTitle: url => ipcRenderer.invoke('sonic:fetchLinkTitle', url),
+  sanitizeWorkspaceCwd: cwd => ipcRenderer.invoke('sonic:workspace:sanitize', cwd),
   settings: {
     getDefaultProjectDir: () => ipcRenderer.invoke('sonic:setting:defaultProjectDir:get'),
     setDefaultProjectDir: dir => ipcRenderer.invoke('sonic:setting:defaultProjectDir:set', dir),
@@ -77,6 +82,12 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
     ipcRenderer.on('sonic:open-updates', listener)
     return () => ipcRenderer.removeListener('sonic:open-updates', listener)
   },
+  onDeepLink: callback => {
+    const listener = (_event, payload) => callback(payload)
+    ipcRenderer.on('sonic:deep-link', listener)
+    return () => ipcRenderer.removeListener('sonic:deep-link', listener)
+  },
+  signalDeepLinkReady: () => ipcRenderer.invoke('sonic:deep-link-ready'),
   onWindowStateChanged: callback => {
     const listener = (_event, payload) => callback(payload)
     ipcRenderer.on('sonic:window-state-changed', listener)
@@ -131,5 +142,9 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
       ipcRenderer.on('sonic:updates:progress', listener)
       return () => ipcRenderer.removeListener('sonic:updates:progress', listener)
     }
+  },
+  themes: {
+    fetchMarketplace: id => ipcRenderer.invoke('sonic:vscode-theme:fetch', id),
+    searchMarketplace: query => ipcRenderer.invoke('sonic:vscode-theme:search', query)
   }
 })

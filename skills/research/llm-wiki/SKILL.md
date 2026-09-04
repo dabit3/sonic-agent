@@ -35,7 +35,7 @@ Use this skill when the user:
 
 ## Wiki Location
 
-**Location:** Set via `WIKI_PATH` environment variable (e.g. in `~/.sonic/.env`).
+**Location:** Set via `WIKI_PATH` environment variable (e.g. in `${SONIC_HOME:-~/.sonic}/.env`).
 
 If unset, defaults to `~/wiki`.
 

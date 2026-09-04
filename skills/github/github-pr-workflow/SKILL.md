@@ -30,8 +30,8 @@ else
   AUTH="git"
   # Ensure we have a token for API calls
   if [ -z "$GITHUB_TOKEN" ]; then
-    if [ -f ~/.sonic/.env ] && grep -q "^GITHUB_TOKEN=" ~/.sonic/.env; then
-      GITHUB_TOKEN=$(grep "^GITHUB_TOKEN=" ~/.sonic/.env | head -1 | cut -d= -f2 | tr -d '\n\r')
+    if _sonic_env="${SONIC_HOME:-$HOME/.sonic}/.env"; [ -f "$_sonic_env" ] && grep -q "^GITHUB_TOKEN=" "$_sonic_env"; then
+      GITHUB_TOKEN=$(grep "^GITHUB_TOKEN=" "$_sonic_env" | head -1 | cut -d= -f2 | tr -d '\n\r')
     elif grep -q "github.com" ~/.git-credentials 2>/dev/null; then
       GITHUB_TOKEN=$(grep "github.com" ~/.git-credentials 2>/dev/null | head -1 | sed 's|https://[^:]*:\([^@]*\)@.*|\1|')
     fi

@@ -7,6 +7,7 @@ import type {
   AudioSpeakResponse,
   AudioTranscriptionResponse,
   AuxiliaryModelsResponse,
+  BackendUpdateCheckResponse,
   ConfigSchemaResponse,
   CronJob,
   CronJobCreatePayload,
@@ -42,6 +43,7 @@ import type {
 } from '@/types/sonic'
 
 const DEFAULT_GATEWAY_REQUEST_TIMEOUT_MS = 30_000
+const SESSION_LIST_REQUEST_TIMEOUT_MS = 60_000
 
 export type {
   ActionResponse,
@@ -55,6 +57,7 @@ export type {
   AudioSpeakResponse,
   AudioTranscriptionResponse,
   AuxiliaryModelsResponse,
+  BackendUpdateCheckResponse,
   ConfigFieldSchema,
   ConfigSchemaResponse,
   CronJob,
@@ -136,7 +139,8 @@ export async function listSessions(
   order: 'created' | 'recent' = 'recent'
 ): Promise<PaginatedSessions> {
   const result = await window.sonicDesktop.api<PaginatedSessions>({
-    path: `/api/sessions?limit=${limit}&offset=0&min_messages=${Math.max(0, minMessages)}&archived=${archived}&order=${order}`
+    path: `/api/sessions?limit=${limit}&offset=0&min_messages=${Math.max(0, minMessages)}&archived=${archived}&order=${order}`,
+    timeoutMs: SESSION_LIST_REQUEST_TIMEOUT_MS
   })
 
   return {
@@ -176,7 +180,8 @@ export async function listAllProfileSessions(
   const result = await window.sonicDesktop.api<PaginatedSessions>({
     path:
       `/api/profiles/sessions?limit=${limit}&offset=0&min_messages=${Math.max(0, minMessages)}` +
-      `&archived=${archived}&order=${order}&profile=${encodeURIComponent(profile)}${sourceParam}${excludeParam}`
+      `&archived=${archived}&order=${order}&profile=${encodeURIComponent(profile)}${sourceParam}${excludeParam}`,
+    timeoutMs: SESSION_LIST_REQUEST_TIMEOUT_MS
   })
 
   return {
@@ -213,6 +218,7 @@ export function getSessionMessages(id: string, profile?: string | null): Promise
   const suffix = profile ? `?profile=${encodeURIComponent(profile)}` : ''
 
   return window.sonicDesktop.api<SessionMessagesResponse>({
+    ...(profile ? { profile } : {}),
     path: `/api/sessions/${encodeURIComponent(id)}/messages${suffix}`
   })
 }
@@ -338,13 +344,14 @@ export function setEnvVar(key: string, value: string): Promise<{ ok: boolean }> 
 
 export function validateProviderCredential(
   key: string,
-  value: string
+  value: string,
+  apiKey?: string
 ): Promise<{ ok: boolean; reachable: boolean; message: string; models?: string[] }> {
   return window.sonicDesktop.api<{ ok: boolean; reachable: boolean; message: string; models?: string[] }>({
     ...profileScoped(),
     path: '/api/providers/validate',
     method: 'POST',
-    body: { key, value }
+    body: { key, value, api_key: apiKey ?? '' }
   })
 }
 
@@ -680,6 +687,15 @@ export function updateSonic(): Promise<ActionResponse> {
   return window.sonicDesktop.api<ActionResponse>({
     path: '/api/sonic/update',
     method: 'POST'
+  })
+}
+
+/** Query the connected backend's own update state. In remote mode this is the
+ *  authoritative source for the backend's behind-count + "what's changed",
+ *  distinct from the Electron client clone's git state. */
+export function checkSonicUpdate(force = false): Promise<BackendUpdateCheckResponse> {
+  return window.sonicDesktop.api<BackendUpdateCheckResponse>({
+    path: `/api/sonic/update/check${force ? '?force=true' : ''}`
   })
 }
 

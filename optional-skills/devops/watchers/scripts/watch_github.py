@@ -8,7 +8,8 @@ Usage (via cron with --no-agent):
       --script "$SONIC_HOME/skills/devops/watchers/scripts/watch_github.py" \\
       --script-args "--name sonic-issues --repo dabit3/sonic-agent --scope issues"
 
-Set GITHUB_TOKEN (or GH_TOKEN) in ~/.sonic/.env to avoid the 60 req/hr
+Set GITHUB_TOKEN (or GH_TOKEN) in the Sonic .env file
+(``${SONIC_HOME:-~/.sonic}/.env``) to avoid the 60 req/hr
 anonymous rate limit.
 
 Scopes: issues | pulls | releases | commits.  Or pass --search QUERY to

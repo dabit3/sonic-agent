@@ -146,6 +146,12 @@ class TestShouldExclude:
         from sonic_cli.backup import _should_exclude
         assert not _should_exclude(Path("logs/agent.log"))
 
+    def test_includes_nested_sonic_agent_in_skills(self):
+        """skills/autonomous-ai-agents/sonic-agent/ must NOT be excluded —
+        only the root-level sonic-agent/ repo is skipped."""
+        from sonic_cli.backup import _should_exclude
+        assert not _should_exclude(Path("skills/autonomous-ai-agents/sonic-agent/SKILL.md"))
+        assert not _should_exclude(Path("skills/autonomous-ai-agents/sonic-agent/sub/item.txt"))
 
 # ---------------------------------------------------------------------------
 # Backup tests
@@ -186,6 +192,66 @@ class TestBackup:
             # Skins
             assert "skins/cyber.yaml" in names
 
+    def test_db_snapshots_staged_beside_output_zip(self, tmp_path, monkeypatch):
+        """SQLite staging temp files must be created on the output zip's
+        filesystem (dir=out_path.parent), NOT the system /tmp default — a
+        small tmpfs there silently drops large DBs from the backup (#35376)."""
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        _make_sonic_tree(sonic_home)
+
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
+        monkeypatch.setattr(Path, "home", lambda: tmp_path)
+
+        out_dir = tmp_path / "external-drive"
+        out_dir.mkdir()
+        out_zip = out_dir / "backup.zip"
+        args = Namespace(output=str(out_zip))
+
+        import sonic_cli.backup as backup_mod
+        staged_dirs = []
+        real_ntf = backup_mod.tempfile.NamedTemporaryFile
+
+        def _spy(*a, **kw):
+            staged_dirs.append(kw.get("dir"))
+            return real_ntf(*a, **kw)
+
+        monkeypatch.setattr(backup_mod.tempfile, "NamedTemporaryFile", _spy)
+        backup_mod.run_backup(args)
+
+        # At least one .db was staged, and every staging call targeted the
+        # output zip's directory rather than the system temp default.
+        assert staged_dirs, "no SQLite snapshot was staged"
+        assert all(d == str(out_dir) for d in staged_dirs), staged_dirs
+
+    def test_pre_update_db_snapshots_staged_beside_output_zip(self, tmp_path, monkeypatch):
+        """The pre-update/pre-migration zip path (_write_full_zip_backup) must
+        also stage SQLite snapshots beside its output zip, not in /tmp."""
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        _make_sonic_tree(sonic_home)
+
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
+        monkeypatch.setattr(Path, "home", lambda: tmp_path)
+
+        out_zip = sonic_home / "backups" / "pre-update-test.zip"
+        out_zip.parent.mkdir(parents=True, exist_ok=True)
+
+        import sonic_cli.backup as backup_mod
+        staged_dirs = []
+        real_ntf = backup_mod.tempfile.NamedTemporaryFile
+
+        def _spy(*a, **kw):
+            staged_dirs.append(kw.get("dir"))
+            return real_ntf(*a, **kw)
+
+        monkeypatch.setattr(backup_mod.tempfile, "NamedTemporaryFile", _spy)
+        result = backup_mod._write_full_zip_backup(out_zip, sonic_home)
+
+        assert result is not None
+        assert staged_dirs, "no SQLite snapshot was staged"
+        assert all(d == str(out_zip.parent) for d in staged_dirs), staged_dirs
+
     def test_excludes_sonic_agent(self, tmp_path, monkeypatch):
         """Backup does NOT include sonic-agent/ directory."""
         sonic_home = tmp_path / ".sonic"
@@ -205,6 +271,37 @@ class TestBackup:
             names = zf.namelist()
             agent_files = [n for n in names if "sonic-agent" in n]
             assert agent_files == [], f"sonic-agent files leaked into backup: {agent_files}"
+
+    def test_includes_nested_sonic_agent_in_skills(self, tmp_path, monkeypatch):
+        """Backup includes skills/.../sonic-agent/ but NOT root sonic-agent/."""
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        _make_sonic_tree(sonic_home)
+
+        # Add a nested sonic-agent directory inside skills (like the real layout)
+        nested = sonic_home / "skills" / "autonomous-ai-agents" / "sonic-agent"
+        nested.mkdir(parents=True)
+        (nested / "SKILL.md").write_text("# Sonic Agent Skill\n")
+        (nested / "sub").mkdir()
+        (nested / "sub" / "item.txt").write_text("nested content\n")
+
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
+        monkeypatch.setattr(Path, "home", lambda: tmp_path)
+
+        out_zip = tmp_path / "backup.zip"
+        args = Namespace(output=str(out_zip))
+
+        from sonic_cli.backup import run_backup
+        run_backup(args)
+
+        with zipfile.ZipFile(out_zip, "r") as zf:
+            names = zf.namelist()
+            # Root sonic-agent must be excluded
+            root_agent = [n for n in names if n.startswith("sonic-agent/")]
+            assert root_agent == [], f"root sonic-agent leaked: {root_agent}"
+            # Nested skill sonic-agent must be included
+            assert "skills/autonomous-ai-agents/sonic-agent/SKILL.md" in names
+            assert "skills/autonomous-ai-agents/sonic-agent/sub/item.txt" in names
 
     def test_excludes_pycache(self, tmp_path, monkeypatch):
         """Backup does NOT include __pycache__ dirs."""

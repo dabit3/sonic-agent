@@ -13,6 +13,10 @@
       },
       "models": [
         {
+          "id": "anthropic/claude-fable-5",
+          "description": ""
+        },
+        {
           "id": "anthropic/claude-opus-4.8",
           "description": ""
         },
@@ -137,11 +141,19 @@
           "description": "free"
         },
         {
+          "id": "poolside/laguna-m.1:free",
+          "description": "free"
+        },
+        {
           "id": "tencent/hy3-preview:free",
           "description": "free"
         },
         {
           "id": "nvidia/nemotron-3-super-120b-a12b:free",
+          "description": "free"
+        },
+        {
+          "id": "nvidia/nemotron-3-ultra-550b-a55b:free",
           "description": "free"
         },
         {
@@ -156,6 +168,9 @@
         "note": "Free-tier gating is determined live via Portal pricing (partition_nous_models_by_tier), not this manifest."
       },
       "models": [
+        {
+          "id": "anthropic/claude-fable-5"
+        },
         {
           "id": "anthropic/claude-opus-4.8"
         },

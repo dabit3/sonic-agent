@@ -88,15 +88,39 @@ _CLONE_ALL_STRIP: list[str] = [
 #   node_modules  — npm packages (hundreds of MB)
 #
 # See ``_DEFAULT_EXPORT_EXCLUDE_ROOT`` below for the broader export-side
-# exclusion list (export drops state.db / logs / caches too because the
-# archive is a portable snapshot; clone-all keeps those because the cloned
-# profile is meant to keep working immediately).
+# exclusion list (export also drops logs / caches because the archive is a
+# portable snapshot; clone-all keeps those because the cloned profile is
+# meant to keep working immediately).
 _CLONE_ALL_DEFAULT_EXCLUDE_ROOT: frozenset[str] = frozenset({
     "sonic-agent",
     ".worktrees",
     "profiles",
     "bin",
     "node_modules",
+})
+
+# Per-profile history artifacts excluded from --clone-all regardless of the
+# source profile.  A new profile is a fresh workspace — inheriting the source
+# profile's session history, backup archives, or quick-backup snapshots is
+# never useful (restoring one inside the clone would resurrect the SOURCE
+# profile's state) and can balloon the copy by tens of GB.  Unlike
+# ``_CLONE_ALL_DEFAULT_EXCLUDE_ROOT`` this set is NOT gated on the default
+# profile: named profiles accumulate the same artifacts.
+#
+# Rationale per item:
+#   state.db (+wal/shm) — SQLite session store (can reach many GB)
+#   sessions            — per-session transcript/data dirs
+#   backups             — `sonic backup` archives
+#   state-snapshots     — quick-backup snapshot trees
+#   checkpoints         — session checkpoint data
+_CLONE_ALL_HISTORY_EXCLUDE_ROOT: frozenset[str] = frozenset({
+    "state.db",
+    "state.db-wal",
+    "state.db-shm",
+    "sessions",
+    "backups",
+    "state-snapshots",
+    "checkpoints",
 })
 
 # Marker file written by `sonic profile create --no-skills`.  When present in
@@ -119,13 +143,16 @@ def has_bundled_skills_opt_out(profile_dir: Path) -> bool:
 def _clone_all_copytree_ignore(source_dir: Path):
     """Exclude infrastructure artifacts when cloning a profile via --clone-all.
 
-    Two categories:
-      1. Root-level entries in ``_CLONE_ALL_DEFAULT_EXCLUDE_ROOT`` — known
+    Three categories:
+      1. Root-level entries in ``_CLONE_ALL_HISTORY_EXCLUDE_ROOT`` — session
+         history, backups, and snapshots that belong to the SOURCE profile
+         and should never carry into a fresh clone.  Applies to any source.
+      2. Root-level entries in ``_CLONE_ALL_DEFAULT_EXCLUDE_ROOT`` — known
          Sonic infrastructure directories that only the default profile
          (``~/.sonic``) ever contains.  Gated on ``source_dir`` actually
          being the default profile so a named-profile source never has its
          own data silently dropped.
-      2. Universal exclusions at any depth — Python bytecode caches that
+      3. Universal exclusions at any depth — Python bytecode caches that
          are stale or regenerable (``__pycache__``, ``*.pyc``, ``*.pyo``)
          and runtime sockets / temp files (``*.sock``, ``*.tmp``).
 
@@ -147,17 +174,21 @@ def _clone_all_copytree_ignore(source_dir: Path):
             ):
                 ignored.append(entry)
                 continue
-            # Root-level exclusions only apply when cloning the default profile.
-            if is_default_source:
-                try:
-                    if Path(directory).resolve() == source_resolved:
-                        if entry in _CLONE_ALL_DEFAULT_EXCLUDE_ROOT:
-                            ignored.append(entry)
-                except (OSError, ValueError):
-                    # ``resolve()`` can fail on unusual FS layouts (broken
-                    # symlinks, missing parents).  Fail open — better to
-                    # over-copy than silently drop user data.
-                    pass
+            try:
+                at_root = Path(directory).resolve() == source_resolved
+            except (OSError, ValueError):
+                # ``resolve()`` can fail on unusual FS layouts (broken
+                # symlinks, missing parents).  Fail open — better to
+                # over-copy than silently drop user data.
+                at_root = False
+            if at_root:
+                # History artifacts: excluded for ANY source profile.
+                if entry in _CLONE_ALL_HISTORY_EXCLUDE_ROOT:
+                    ignored.append(entry)
+                    continue
+                # Infrastructure: only the default profile contains these.
+                if is_default_source and entry in _CLONE_ALL_DEFAULT_EXCLUDE_ROOT:
+                    ignored.append(entry)
         return ignored
 
     return _ignore
@@ -683,6 +714,8 @@ def list_profiles() -> List[ProfileInfo]:
             if not entry.is_dir():
                 continue
             name = entry.name
+            if name == "default":
+                continue  # already added as the built-in default above
             if not _PROFILE_ID_RE.match(name):
                 continue
             model, provider = _read_config_model(entry)
@@ -832,6 +865,25 @@ def create_profile(
                     dst = profile_dir / relpath
                     dst.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(src, dst)
+
+    # Seed an empty .env so the profile has its own credentials file from
+    # day one. Without it, profile-scoped env writes (dashboard Channels /
+    # Keys pages, `sonic -p <name> auth add`) had no file until first
+    # write, and the profile silently inherited API keys from the shell
+    # environment — users reasonably read that as "the new profile reads
+    # the root .env". Skipped when --clone/--clone-all already copied one.
+    env_path = profile_dir / ".env"
+    if not env_path.exists():
+        try:
+            env_path.write_text(
+                "# Per-profile secrets for this Sonic profile.\n"
+                "# API keys and tokens set here override the shell environment.\n"
+                "# Behavioral settings belong in config.yaml, not here.\n",
+                encoding="utf-8",
+            )
+            os.chmod(str(env_path), 0o600)
+        except OSError:
+            pass  # best-effort — save_env_value creates the file on demand
 
     # Seed a default SOUL.md so the user has a file to customize immediately.
     # Skipped when the profile already has one (from --clone / --clone-all).
@@ -1008,6 +1060,7 @@ def delete_profile(name: str, yes: bool = False) -> Path:
             print(f"✓ Removed {wrapper_path}")
 
     # 4. Remove profile directory
+    remove_error: Exception | None = None
     try:
         def _make_writable(func, path, exc):
             """onexc/onerror handler: add +w on PermissionError so rmtree can proceed.
@@ -1054,6 +1107,7 @@ def delete_profile(name: str, yes: bool = False) -> Path:
         print(f"✓ Removed {profile_dir}")
     except Exception as e:
         print(f"⚠ Could not remove {profile_dir}: {e}")
+        remove_error = e
 
     # 5. Clear active_profile if it pointed to this profile
     try:
@@ -1063,6 +1117,9 @@ def delete_profile(name: str, yes: bool = False) -> Path:
             print("✓ Active profile reset to default")
     except Exception:
         pass
+
+    if remove_error is not None:
+        raise RuntimeError(f"Could not remove profile directory {profile_dir}: {remove_error}") from remove_error
 
     print(f"\nProfile '{canon}' deleted.")
     return profile_dir

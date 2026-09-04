@@ -28,9 +28,12 @@ def _check_config():
     if not CANVAS_BASE_URL:
         missing.append("CANVAS_BASE_URL")
     if missing:
+        sonic_env = os.path.join(
+            os.environ.get("SONIC_HOME", os.path.expanduser("~/.sonic")), ".env"
+        )
         print(
             f"Missing required environment variables: {', '.join(missing)}\n"
-            "Set them in ~/.sonic/.env or export them in your shell.\n"
+            f"Set them in {sonic_env} or export them in your shell.\n"
             "See the canvas skill SKILL.md for setup instructions.",
             file=sys.stderr,
         )

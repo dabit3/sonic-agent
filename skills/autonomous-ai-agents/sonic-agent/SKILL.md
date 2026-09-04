@@ -343,7 +343,7 @@ The registry of record is `sonic_cli/commands.py` — every consumer
 
 ```
 ~/.sonic/config.yaml       Main configuration
-~/.sonic/.env              API keys and secrets
+~/.sonic/.env              API keys and secrets (under $SONIC_HOME if set)
 $SONIC_HOME/skills/        Installed skills
 ~/.sonic/sessions/         Gateway routing index, request dumps, *.jsonl transcripts (and optional per-session JSON snapshots when sessions.write_json_snapshots: true)
 ~/.sonic/state.db          Canonical session store (SQLite + FTS5)
@@ -908,7 +908,7 @@ sonic-agent/
 └── website/              # Docusaurus docs site
 ```
 
-Config: `~/.sonic/config.yaml` (settings), `~/.sonic/.env` (API keys).
+Config: `~/.sonic/config.yaml` (settings), `~/.sonic/.env` (API keys) — both under `$SONIC_HOME` when it is set.
 
 ### Adding a Tool (3 files)
 

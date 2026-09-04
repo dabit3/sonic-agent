@@ -262,6 +262,14 @@ if [ -d "$SONIC_HOME/profiles" ]; then
     chown -R sonic:sonic "$SONIC_HOME/profiles" 2>/dev/null || true
 fi
 
+# Always reset ownership of $SONIC_HOME/cron on every boot for the same
+# docker-exec/root-write reason as profiles/. The cron scheduler state
+# (jobs.json) must stay readable by the unprivileged sonic runtime even
+# after root-context maintenance commands or scheduler writes.
+if [ -d "$SONIC_HOME/cron" ]; then
+    chown -R sonic:sonic "$SONIC_HOME/cron" 2>/dev/null || true
+fi
+
 # Reset ownership of sonic-owned top-level state files on every boot.
 # The targeted data-volume chown above only covers sonic-owned
 # *subdirectories*; loose state files living directly under $SONIC_HOME
