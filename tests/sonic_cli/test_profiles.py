@@ -479,14 +479,14 @@ class TestNoSkillsOptOut:
 # ===================================================================
 
 class TestBackfillProfileEnvs:
-    """Tests for backfill_profile_envs() — the `hermes update` pass that
+    """Tests for backfill_profile_envs() — the `sonic update` pass that
     gives pre-#44792 profiles (created before .env seeding) their own
     .env, copied from the default install so credentials don't break."""
 
     def test_copies_default_env_into_envless_profiles(self, profile_env):
         import stat
         tmp_path = profile_env
-        (tmp_path / ".hermes" / ".env").write_text("OPENROUTER_API_KEY=root-key\n")
+        (tmp_path / ".sonic" / ".env").write_text("OPENROUTER_API_KEY=root-key\n")
         p1 = create_profile("old1", no_alias=True)
         p2 = create_profile("old2", no_alias=True)
         # Simulate pre-#44792 profiles: no .env
@@ -502,7 +502,7 @@ class TestBackfillProfileEnvs:
 
     def test_never_overwrites_existing_profile_env(self, profile_env):
         tmp_path = profile_env
-        (tmp_path / ".hermes" / ".env").write_text("KEY=root\n")
+        (tmp_path / ".sonic" / ".env").write_text("KEY=root\n")
         p = create_profile("hasenv", no_alias=True)
         (p / ".env").write_text("KEY=mine\n")
 

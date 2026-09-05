@@ -75,7 +75,7 @@ def test_list_authenticated_providers_includes_active_bare_custom_endpoint(monke
     ignored.
     """
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
-    monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr(providers_mod, "SONIC_OVERLAYS", {})
 
     providers = list_authenticated_providers(
         current_provider="custom",
@@ -97,9 +97,9 @@ def test_list_authenticated_providers_includes_active_bare_custom_endpoint(monke
 
 def test_switch_model_accepts_explicit_bare_custom_current_endpoint(monkeypatch):
     """Picker selections for bare custom endpoints should route to current base_url."""
-    monkeypatch.setattr("hermes_cli.models.validate_requested_model", lambda *a, **k: _MOCK_VALIDATION)
-    monkeypatch.setattr("hermes_cli.model_switch.get_model_info", lambda *a, **k: None)
-    monkeypatch.setattr("hermes_cli.model_switch.get_model_capabilities", lambda *a, **k: None)
+    monkeypatch.setattr("sonic_cli.models.validate_requested_model", lambda *a, **k: _MOCK_VALIDATION)
+    monkeypatch.setattr("sonic_cli.model_switch.get_model_info", lambda *a, **k: None)
+    monkeypatch.setattr("sonic_cli.model_switch.get_model_capabilities", lambda *a, **k: None)
 
     result = switch_model(
         raw_input="gpt-4o-mini",

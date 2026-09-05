@@ -72,7 +72,7 @@ declare global {
       // Resolve git-worktree identity for a batch of session cwds, reading git's
       // on-disk metadata locally. Returns null per cwd that isn't inside a
       // checkout (or can't be read — e.g. a remote backend's path).
-      worktrees?: (cwds: string[]) => Promise<Record<string, HermesWorktreeInfo | null>>
+      worktrees?: (cwds: string[]) => Promise<Record<string, SonicWorktreeInfo | null>>
       terminal: {
         dispose: (id: string) => Promise<boolean>
         onData: (id: string, callback: (payload: string) => void) => () => void

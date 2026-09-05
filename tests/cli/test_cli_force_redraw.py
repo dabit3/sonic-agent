@@ -77,7 +77,7 @@ class TestForceFullRedraw:
         prompt_toolkit's built-in Application._on_resize() starts with
         renderer.erase(leave_alternate_screen=False), which uses the renderer's
         cached cursor position to move back to the live prompt origin before
-        erase_down(). If Hermes resets the renderer first, that cursor position
+        erase_down(). If Sonic resets the renderer first, that cursor position
         is lost and stale prompt glyphs can remain after a narrow resize.
         """
         app = MagicMock()

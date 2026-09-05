@@ -460,7 +460,7 @@ def test_pause_windows_gateways_for_update_stops_profile_and_unmapped_pids(
     capsys,
 ):
     import gateway.status as status_mod
-    import hermes_cli.gateway as gateway_mod
+    import sonic_cli.gateway as gateway_mod
 
     profile_home = tmp_path / "profiles" / "work"
     profile_home.mkdir(parents=True)
@@ -513,7 +513,7 @@ def test_resume_windows_gateways_after_update_relaunches_paused_profiles(
     monkeypatch,
     capsys,
 ):
-    import hermes_cli.gateway as gateway_mod
+    import sonic_cli.gateway as gateway_mod
 
     relaunched = []
     monkeypatch.setattr(

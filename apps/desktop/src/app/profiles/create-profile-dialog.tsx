@@ -10,7 +10,7 @@ import { createProfile, updateProfileSoul } from '@/sonic'
 import { useI18n } from '@/i18n'
 import { AlertTriangle } from '@/lib/icons'
 import { cn } from '@/lib/utils'
-import type { ProfileInfo } from '@/types/hermes'
+import type { ProfileInfo } from '@/types/sonic'
 
 const PROFILE_NAME_RE = /^[a-z0-9][a-z0-9_-]{0,63}$/
 

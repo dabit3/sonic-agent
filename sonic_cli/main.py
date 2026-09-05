@@ -2202,14 +2202,14 @@ def cmd_chat(args):
     # --safe-mode: troubleshooting mode that disables ALL customizations.
     # Inspired by Claude Code v2.1.169's --safe-mode (June 2026): run with a
     # pristine environment to isolate whether a problem comes from the user's
-    # setup (config, rules files, plugins, MCP servers) or from Hermes itself.
+    # setup (config, rules files, plugins, MCP servers) or from Sonic itself.
     # Implemented as a superset of --ignore-user-config + --ignore-rules plus
-    # plugin/MCP discovery suppression (HERMES_SAFE_MODE is checked by
-    # hermes_cli/plugins.py and tools/mcp_tool.py).
+    # plugin/MCP discovery suppression (SONIC_SAFE_MODE is checked by
+    # sonic_cli/plugins.py and tools/mcp_tool.py).
     if getattr(args, "safe_mode", False):
-        os.environ["HERMES_SAFE_MODE"] = "1"
-        os.environ["HERMES_IGNORE_USER_CONFIG"] = "1"
-        os.environ["HERMES_IGNORE_RULES"] = "1"
+        os.environ["SONIC_SAFE_MODE"] = "1"
+        os.environ["SONIC_IGNORE_USER_CONFIG"] = "1"
+        os.environ["SONIC_IGNORE_RULES"] = "1"
 
     # --ignore-user-config: make load_cli_config() / load_config() skip the
     # user's ~/.sonic/config.yaml and return built-in defaults. Set BEFORE
@@ -8098,7 +8098,7 @@ def _pause_windows_gateways_for_update() -> dict | None:
     """Stop running Windows gateways before mutating the checkout or venv.
 
     Windows scheduled/startup gateways run through pythonw.exe, so the generic
-    hermes.exe concurrent-instance guard does not see them. They still import
+    sonic.exe concurrent-instance guard does not see them. They still import
     from the checkout and can keep files locked while ``git`` or ``uv`` updates
     the install. Stop only PIDs that the gateway discovery code identifies.
     """
@@ -8107,7 +8107,7 @@ def _pause_windows_gateways_for_update() -> dict | None:
 
     try:
         from gateway.status import terminate_pid
-        from hermes_cli.gateway import (
+        from sonic_cli.gateway import (
             _get_restart_drain_timeout,
             find_gateway_pids,
             find_profile_gateway_processes,
@@ -8142,7 +8142,7 @@ def _pause_windows_gateways_for_update() -> dict | None:
         mapped_pids.append(int(pid))
         _write_update_planned_stop_marker(Path(proc.path), int(pid))
 
-    print("→ Stopping Windows gateway process(es) before updating Hermes...")
+    print("→ Stopping Windows gateway process(es) before updating Sonic...")
     try:
         drain_timeout = max(float(_get_restart_drain_timeout()), 1.0)
     except Exception:
@@ -8170,7 +8170,7 @@ def _pause_windows_gateways_for_update() -> dict | None:
         print(
             f"  → Stopped {len(unmapped_pids)} gateway process(es) without profile mapping"
         )
-        print("    Restart manually after update: hermes gateway run")
+        print("    Restart manually after update: sonic gateway run")
 
     return {
         "resume_needed": True,
@@ -8192,7 +8192,7 @@ def _resume_windows_gateways_after_update(token: dict | None) -> None:
         return
 
     try:
-        from hermes_cli.gateway import launch_detached_profile_gateway_restart
+        from sonic_cli.gateway import launch_detached_profile_gateway_restart
     except Exception as exc:
         logger.debug("Could not load Windows gateway restart helper: %s", exc)
         return
@@ -8963,7 +8963,7 @@ def _cmd_update_impl(args, gateway_mode: bool):
         # .env-seeding fix (#44792). Copies the default install's .env so
         # those profiles keep the credentials they were effectively using.
         try:
-            from hermes_cli.profiles import backfill_profile_envs
+            from sonic_cli.profiles import backfill_profile_envs
 
             backfilled = backfill_profile_envs(quiet=True)
             if backfilled:

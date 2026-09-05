@@ -523,8 +523,8 @@ class TestWebServerEndpoints:
     def test_sessions_endpoint_reads_requested_profile(self):
         """The machine dashboard's global profile switcher must retarget
         the Sessions page, not just config/skills/model pages."""
-        from hermes_state import SessionDB
-        from hermes_cli import profiles as profiles_mod
+        from sonic_state import SessionDB
+        from sonic_cli import profiles as profiles_mod
 
         worker_home = profiles_mod.get_profile_dir("worker")
         worker_home.mkdir(parents=True)
@@ -561,8 +561,8 @@ class TestWebServerEndpoints:
         assert [m["content"] for m in messages["messages"]] == ["worker"]
 
     def test_analytics_endpoints_read_requested_profile(self):
-        from hermes_state import SessionDB
-        from hermes_cli import profiles as profiles_mod
+        from sonic_state import SessionDB
+        from sonic_cli import profiles as profiles_mod
 
         worker_home = profiles_mod.get_profile_dir("worker")
         worker_home.mkdir(parents=True)
@@ -2686,13 +2686,13 @@ class TestNewEndpoints:
         assert cloned_skill.exists()
 
     def test_profiles_create_clone_all_from_named_source(self, monkeypatch):
-        from hermes_constants import get_hermes_home
-        import hermes_cli.profiles as profiles_mod
+        from sonic_constants import get_sonic_home
+        import sonic_cli.profiles as profiles_mod
 
         monkeypatch.setattr(profiles_mod, "create_wrapper_script", lambda name: None)
 
         assert self.client.post("/api/profiles", json={"name": "full-src"}).status_code == 200
-        source_dir = get_hermes_home() / "profiles" / "full-src"
+        source_dir = get_sonic_home() / "profiles" / "full-src"
         (source_dir / "config.yaml").write_text("model:\n  provider: source-only\n", encoding="utf-8")
         (source_dir / "workspace" / "artifact.txt").parent.mkdir(parents=True, exist_ok=True)
         (source_dir / "workspace" / "artifact.txt").write_text("copied", encoding="utf-8")
@@ -2703,7 +2703,7 @@ class TestNewEndpoints:
         )
 
         assert resp.status_code == 200
-        target_dir = get_hermes_home() / "profiles" / "full-copy"
+        target_dir = get_sonic_home() / "profiles" / "full-copy"
         assert (target_dir / "config.yaml").read_text(encoding="utf-8") == "model:\n  provider: source-only\n"
         assert (target_dir / "workspace" / "artifact.txt").read_text(encoding="utf-8") == "copied"
 
@@ -3307,7 +3307,7 @@ class TestNewEndpoints:
         ``billing_provider``. The Models dashboard should show one provider
         card, not a real card plus a misleading duplicate empty card.
         """
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         db = SessionDB()
         try:

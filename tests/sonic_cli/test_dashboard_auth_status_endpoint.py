@@ -103,7 +103,7 @@ def test_status_preserves_existing_fields(loopback_client):
 # (it is in ``PUBLIC_API_PATHS``), so on a network-exposed bind it must not
 # leak that detail to anonymous callers.
 _HOST_DETAIL_FIELDS = frozenset({
-    "hermes_home", "config_path", "env_path", "gateway_pid",
+    "sonic_home", "config_path", "env_path", "gateway_pid",
     "gateway_health_url",
 })
 
@@ -127,7 +127,7 @@ def test_status_withholds_host_detail_in_gated_mode(gated_client):
 def test_status_includes_host_detail_in_loopback_mode(loopback_client):
     """Counterpart to the gated case: a loopback bind is local-only, so the
     full payload (including host paths and PID) is still served — preserving
-    the StatusPage / ``hermes status`` experience for local operators."""
+    the StatusPage / ``sonic status`` experience for local operators."""
     r = loopback_client.get("/api/status")
     assert r.status_code == 200
     body = r.json()

@@ -1409,7 +1409,7 @@ class TestDoctorStaleMaxIterationsDrift:
 
 
 def test_npm_audit_fix_hint_avoids_crashing_workspace_flag(monkeypatch, tmp_path):
-    """`hermes doctor` must not hand users `npm audit fix --workspace <name>`:
+    """`sonic doctor` must not hand users `npm audit fix --workspace <name>`:
     that exact form crashes npm with "Cannot read properties of null (reading
     'edgesOut')" (an arborist bug with workspace-filtered audit fix).
 
@@ -1421,13 +1421,13 @@ def test_npm_audit_fix_hint_avoids_crashing_workspace_flag(monkeypatch, tmp_path
     Regression for user reports where doctor flagged the web/ui-tui workspaces
     and the suggested fix command errored out.
     """
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir(parents=True, exist_ok=True)
     project = tmp_path / "project"
     (project / "node_modules").mkdir(parents=True)
 
-    monkeypatch.setenv("HERMES_HOME", str(home))
-    monkeypatch.setattr(doctor_mod, "HERMES_HOME", home)
+    monkeypatch.setenv("SONIC_HOME", str(home))
+    monkeypatch.setattr(doctor_mod, "SONIC_HOME", home)
     monkeypatch.setattr(doctor_mod, "PROJECT_ROOT", project)
 
     # Only npm is "installed" — keeps the rest of run_doctor's external checks
@@ -1471,7 +1471,7 @@ def test_npm_audit_fix_hint_avoids_crashing_workspace_flag(monkeypatch, tmp_path
     assert "npm audit fix" not in out
     # ... and explains the workspace advisories are build-time tooling whose
     # manual remediation may hit a known npm arborist crash, so the user isn't
-    # left thinking a crashing command means a broken Hermes install.
+    # left thinking a crashing command means a broken Sonic install.
     assert "build-time tooling" in out
     assert "known npm bug" in out
     assert "lockfile bump" in out

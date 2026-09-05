@@ -196,10 +196,10 @@ def test_local_mode_defaults_to_home_and_can_jump_to_absolute_path(local_files_c
 def test_gated_local_mode_still_defaults_to_home(monkeypatch, tmp_path):
     home = tmp_path / "home"
     home.mkdir()
-    monkeypatch.delenv("HERMES_DASHBOARD_FILES_ROOT", raising=False)
-    monkeypatch.delenv("HERMES_MANAGED", raising=False)
+    monkeypatch.delenv("SONIC_DASHBOARD_FILES_ROOT", raising=False)
+    monkeypatch.delenv("SONIC_MANAGED", raising=False)
     monkeypatch.setenv("HOME", str(home))
-    monkeypatch.setenv("HERMES_HOME", str(home / ".hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(home / ".sonic"))
 
     prev_auth_required = getattr(web_server.app.state, "auth_required", None)
     prev_bound_host = getattr(web_server.app.state, "bound_host", None)

@@ -1569,7 +1569,7 @@ def _runtime_model_config(agent, existing: dict | None = None) -> dict:
             # ``custom:<name>`` menu key from the endpoint URL so
             # resolve_runtime_provider() can find the entry again.
             try:
-                from hermes_cli.runtime_provider import (
+                from sonic_cli.runtime_provider import (
                     find_custom_provider_identity,
                 )
 
@@ -3343,7 +3343,7 @@ def _make_agent(
             # base_url. Recover the entry identity from the persisted
             # base_url; failing that, hand the base_url to the direct-alias
             # branch so pool/env credentials can still be resolved for it.
-            from hermes_cli.runtime_provider import find_custom_provider_identity
+            from sonic_cli.runtime_provider import find_custom_provider_identity
 
             recovered = find_custom_provider_identity(override_base_url)
             if recovered:

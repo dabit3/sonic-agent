@@ -1676,7 +1676,7 @@ async def get_status():
     # envelope — the same loopback/gated split ``should_require_auth`` draws.
     if not auth_required:
         status.update({
-            "hermes_home": str(get_hermes_home()),
+            "sonic_home": str(get_sonic_home()),
             "config_path": str(get_config_path()),
             "env_path": str(get_env_path()),
             "gateway_pid": gateway_pid,

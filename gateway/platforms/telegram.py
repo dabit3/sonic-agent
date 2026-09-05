@@ -923,7 +923,7 @@ class TelegramAdapter(BasePlatformAdapter):
     # the RAW agent markdown so richer constructs (tables, task lists,
     # collapsible details, math, ...) render natively. The legacy MarkdownV2
     # send() path stays as the fallback for unsupported/oversized content and
-    # older PTB/clients. Streaming edits stay on Hermes' existing MarkdownV2
+    # older PTB/clients. Streaming edits stay on Sonic' existing MarkdownV2
     # edit path for now; finalization can re-send as rich and delete the stale
     # preview until rich_message edit support is wired directly.
     # ------------------------------------------------------------------
@@ -966,7 +966,7 @@ class TelegramAdapter(BasePlatformAdapter):
         self, content: str, metadata: Optional[Dict[str, Any]] = None
     ) -> bool:
         """Finalize rich-eligible streamed replies with a fresh sendRichMessage
-        instead of Hermes' current MarkdownV2 edit path.
+        instead of Sonic' current MarkdownV2 edit path.
 
         The final edit path has not yet been upgraded to Bot API 10.1's
         ``rich_message`` edit parameter, so finalizing through edit would lose

@@ -936,11 +936,11 @@ mod tests {
 
     #[test]
     fn lock_probe_paths_include_desktop_app_payload() {
-        let root = Path::new("/x/hermes-agent");
+        let root = Path::new("/x/sonic-agent");
         let probes = install_lock_probe_paths(root);
 
         assert!(
-            probes.iter().any(|p| p == &venv_hermes(root)),
+            probes.iter().any(|p| p == &venv_sonic(root)),
             "venv shim remains part of the update lock probe"
         );
         assert!(
@@ -951,7 +951,7 @@ mod tests {
 
     #[test]
     fn locked_paths_ignores_missing_payloads() {
-        let root = Path::new("/nonexistent/hermes-agent");
+        let root = Path::new("/nonexistent/sonic-agent");
         let probes = install_lock_probe_paths(root);
 
         assert!(locked_paths(&probes).is_empty());
