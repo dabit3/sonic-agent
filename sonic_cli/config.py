@@ -29,6 +29,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 
+from agent.skill_utils import yaml_load
 from sonic_cli.secret_prompt import masked_secret_prompt
 
 logger = logging.getLogger(__name__)
@@ -4108,7 +4109,7 @@ def check_config_version() -> Tuple[int, int]:
 
     try:
         with open(config_path, encoding="utf-8") as f:
-            config = yaml.safe_load(f) or {}
+            config = yaml_load(f.read()) or {}
     except Exception as e:
         # Invalid YAML needs a parse warning, not an automatic schema rewrite
         # that could replace the user's broken file with defaults.
@@ -4683,7 +4684,7 @@ def migrate_config(interactive: bool = True, quiet: bool = False) -> Dict[str, A
                             continue
                         try:
                             with open(manifest_file, encoding="utf-8") as _mf:
-                                manifest = yaml.safe_load(_mf) or {}
+                                manifest = yaml_load(_mf.read()) or {}
                         except Exception:
                             manifest = {}
                         name = manifest.get("name") or child.name
@@ -5230,7 +5231,7 @@ def read_raw_config() -> Dict[str, Any]:
 
         try:
             with open(config_path, encoding="utf-8") as f:
-                data = yaml.safe_load(f) or {}
+                data = yaml_load(f.read()) or {}
         except Exception as e:
             _warn_config_parse_failure(config_path, e)
             return {}
@@ -5433,7 +5434,7 @@ def _load_config_impl(*, want_deepcopy: bool) -> Dict[str, Any]:
         if cache_key is not None:
             try:
                 with open(config_path, encoding="utf-8") as f:
-                    user_config = yaml.safe_load(f) or {}
+                    user_config = yaml_load(f.read()) or {}
 
                 if "max_turns" in user_config:
                     agent_user_config = dict(user_config.get("agent") or {})
@@ -6280,7 +6281,7 @@ def set_config_value(key: str, value: str):
     if config_path.exists():
         try:
             with open(config_path, encoding="utf-8") as f:
-                user_config = yaml.safe_load(f) or {}
+                user_config = yaml_load(f.read()) or {}
         except Exception:
             user_config = {}
     
@@ -6550,7 +6551,7 @@ def _inject_platform_plugin_env_vars() -> None:
                 continue
             try:
                 with open(manifest_path, "r", encoding="utf-8") as f:
-                    manifest = yaml.safe_load(f) or {}
+                    manifest = yaml_load(f.read()) or {}
             except Exception:
                 continue
             label = manifest.get("label") or manifest.get("name") or child.name

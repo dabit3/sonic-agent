@@ -1,7 +1,7 @@
 import { AssistantRuntimeProvider, type ThreadMessage, useExternalStoreRuntime } from '@assistant-ui/react'
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { useEffect, useState } from 'react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { Thread } from './thread'
 
@@ -367,6 +367,8 @@ function IntroHarness() {
 }
 
 describe('assistant-ui streaming renderer', () => {
+  afterEach(cleanup)
+
   beforeEach(() => {
     resizeObservers.clear()
   })
@@ -640,8 +642,11 @@ describe('assistant-ui streaming renderer', () => {
   it('renders an incomplete streaming reasoning fenced code block as a code card', async () => {
     const { container } = render(<RunningReasoningHarness />)
     const ui = within(container)
+    const disclosure = ui.getByRole('button', { name: /thinking/i })
 
-    fireEvent.click(ui.getByRole('button', { name: /thinking/i }))
+    if (disclosure.getAttribute('aria-expanded') !== 'true') {
+      fireEvent.click(disclosure)
+    }
 
     await waitFor(() => {
       expect(container.querySelector('[data-slot="code-card"]')).toBeTruthy()

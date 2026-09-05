@@ -7,7 +7,7 @@ import {
   type SyntaxHighlighterProps
 } from '@assistant-ui/react-streamdown'
 import { code } from '@streamdown/code'
-import { type ComponentProps, memo, type ReactNode, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
+import { type ComponentProps, memo, type ReactNode, useDeferredValue, useEffect, useMemo, useState } from 'react'
 
 import { PreviewAttachment } from '@/components/chat/preview-attachment'
 import { SyntaxHighlighter } from '@/components/chat/shiki-highlighter'
@@ -232,87 +232,21 @@ function MarkdownImage({ className, src, alt, ...props }: ComponentProps<'img'>)
   )
 }
 
-// Steady character-reveal for streaming text: decouples visible cadence from
-// bursty arrival so text flows instead of popping (cf. assistant-ui's useSmooth,
-// reimplemented for a tunable rate). Proportional drain — each frame reveals a
-// slice of the backlog so the reveal converges within ~REVEAL_DRAIN_MS whatever
-// the size; the per-frame cap stops a huge dump rendering as one slab. The loop
-// is gated on backlog, not isRunning, so a stream that completes mid-reveal
-// keeps draining its tail instead of snapping.
-const REVEAL_DRAIN_MS = 500
-const REVEAL_MAX_CHARS_PER_FRAME = 30
+// Streaming text follows provider delivery rather than a character animation.
+// The previous reveal loop added a 500ms drain target and capped each frame at
+// 30 characters. Large chunks could therefore remain hidden after completion.
+// DeferStreamingText handles render scheduling without imposing a display rate.
+// This also avoids repeatedly parsing partial prefixes of an unchanged chunk.
+// Both message-part and explicit-text surfaces use the same deferred pipeline,
+// so a completed response has no separate animation backlog to drain.
 
-function useSmoothReveal(text: string, isRunning: boolean): string {
-  const [displayed, setDisplayed] = useState(isRunning ? '' : text)
-  const targetRef = useRef(text)
-  const shownRef = useRef(displayed)
-  const frameRef = useRef<number | null>(null)
-  const lastTickRef = useRef(0)
+// Non-extending changes (regenerate / branch / history swap) pass through as
+// replacements rather than restarting an animation from an empty string.
 
-  shownRef.current = displayed
-  targetRef.current = text
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-
-    // Non-extending change (regenerate / branch / history swap): restart from
-    // empty while streaming, else snap to the replacement.
-    if (!text.startsWith(shownRef.current)) {
-      shownRef.current = isRunning ? '' : text
-      setDisplayed(shownRef.current)
-    }
-
-    if (shownRef.current.length >= text.length || frameRef.current !== null) {
-      return
-    }
-
-    lastTickRef.current = performance.now()
-
-    const tick = () => {
-      const now = performance.now()
-      const dt = now - lastTickRef.current
-      lastTickRef.current = now
-
-      const remaining = targetRef.current.length - shownRef.current.length
-      const add = Math.min(remaining, REVEAL_MAX_CHARS_PER_FRAME, Math.max(1, Math.ceil((remaining * dt) / REVEAL_DRAIN_MS)))
-      shownRef.current = targetRef.current.slice(0, shownRef.current.length + add)
-      setDisplayed(shownRef.current)
-
-      frameRef.current = shownRef.current.length < targetRef.current.length ? requestAnimationFrame(tick) : null
-    }
-
-    frameRef.current = requestAnimationFrame(tick)
-  }, [text, isRunning])
-
-  useEffect(
-    () => () => {
-      if (frameRef.current !== null && typeof window !== 'undefined') {
-        cancelAnimationFrame(frameRef.current)
-      }
-    },
-    []
-  )
-
-  return displayed
-}
-
-// Re-publish the part context with a smooth character-reveal, above
-// DeferStreamingText so the reveal feeds the deferred markdown pipeline. Status
-// stays running while revealing so the caret persists past the underlying part
-// settling.
-function SmoothStreamingText({ children }: { children: ReactNode }) {
-  const { text, status } = useMessagePartText()
-  const isRunning = status.type === 'running'
-  const revealed = useSmoothReveal(text, isRunning)
-
-  return (
-    <TextMessagePartProvider isRunning={isRunning || revealed !== text} text={revealed}>
-      {children}
-    </TextMessagePartProvider>
-  )
-}
+// Re-publish the part context only for React's deferred markdown rendering.
+// Provider status stays authoritative instead of marking settled output as
+// running until a character animation finishes. Input and scrolling can still
+// take priority over expensive markdown work through the scheduler below.
 
 /**
  * Re-publish the active message-part context with React's `useDeferredValue`
@@ -483,11 +417,9 @@ interface MarkdownTextContentProps extends MarkdownTextSurfaceProps {
 export function MarkdownTextContent({ isRunning, text, ...surfaceProps }: MarkdownTextContentProps) {
   return (
     <TextMessagePartProvider isRunning={isRunning} text={text}>
-      <SmoothStreamingText>
-        <DeferStreamingText>
-          <MarkdownTextSurface {...surfaceProps} />
-        </DeferStreamingText>
-      </SmoothStreamingText>
+      <DeferStreamingText>
+        <MarkdownTextSurface {...surfaceProps} />
+      </DeferStreamingText>
     </TextMessagePartProvider>
   )
 }

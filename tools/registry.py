@@ -20,8 +20,10 @@ import json
 import logging
 import threading
 import time
+from functools import lru_cache
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Set
+from unicodedata import normalize
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +48,25 @@ def _module_registers_tools(module_path: Path) -> bool:
     to call ``registry.register()`` inside a function are not picked up.
     """
     try:
+        module_path = module_path.resolve()
+        stat = module_path.stat()
+        return _module_registers_tools_cached(
+            module_path, stat.st_mtime_ns, stat.st_ctime_ns, stat.st_size,
+        )
+    except OSError:
+        return False
+
+
+@lru_cache(maxsize=256)
+def _module_registers_tools_cached(
+    module_path: Path, mtime_ns: int, ctime_ns: int, size: int,
+) -> bool:
+    try:
         source = module_path.read_text(encoding="utf-8")
+        if "registry" not in source or "register" not in source:
+            normalized = normalize("NFKC", source)
+            if "registry" not in normalized or "register" not in normalized:
+                return False
         tree = ast.parse(source, filename=str(module_path))
     except (OSError, SyntaxError):
         return False

@@ -1367,3 +1367,23 @@ not the specific names.
 
 Reviewers should reject new change-detector tests; authors should convert
 them into invariants before re-requesting review.
+
+### Local latency verification
+
+The current `scripts/run_tests.sh` uses per-file subprocesses, not xdist or
+per-test subprocesses. The script accepts `-j 8` before the paths. Pytest flags
+follow a literal `--`. This replaces the older runner details above.
+
+```bash
+scripts/run_tests.sh -j 8 tests/run_agent/test_request_connection_reuse.py tests/run_agent/test_tool_latency.py -- -q
+.venv/bin/python scripts/benchmark_latency.py --runs 7 --startup
+npm run test:ui --workspace apps/desktop -- src/components/assistant-ui/markdown-latency.test.tsx src/components/assistant-ui/streaming.test.tsx
+npm run typecheck --workspace apps/desktop
+```
+
+The benchmark uses a temporary home and excludes provider credentials. Its
+measurements cover local overhead, not cloud inference or network latency.
+The connection tests use a local HTTP server and real SDK clients. They cover
+request reuse, cancellation, config changes, cleanup, and stable conversation
+prefixes. The pinned OpenAI SDK closes some SSE connections at `[DONE]`, so
+client reuse does not guarantee socket reuse for streaming responses.
