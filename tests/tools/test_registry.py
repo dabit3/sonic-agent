@@ -289,6 +289,39 @@ class TestCheckFnExceptionHandling:
 
 
 class TestBuiltinDiscovery:
+    def test_unchanged_modules_are_not_reparsed(self, tmp_path):
+        import ast
+
+        module = tmp_path / "tool.py"
+        module.write_text("registry.register(name='first')\n", encoding="utf-8")
+        with patch("tools.registry.ast.parse", wraps=ast.parse) as parse:
+            assert _module_registers_tools(module)
+            assert _module_registers_tools(module)
+        assert parse.call_count == 1
+
+    def test_discovery_cache_tracks_edits_and_recreated_files(self, tmp_path):
+        module = tmp_path / "tool.py"
+        module.write_text("VALUE = 1\n", encoding="utf-8")
+        assert not _module_registers_tools(module)
+        module.write_text("registry.register(name='changed')\n", encoding="utf-8")
+        assert _module_registers_tools(module)
+        module.unlink()
+        assert not _module_registers_tools(module)
+        module.write_text("def helper():\n    registry.register()\n", encoding="utf-8")
+        assert not _module_registers_tools(module)
+
+    def test_discovery_retains_ast_validation(self, tmp_path):
+        module = tmp_path / "tool.py"
+        for source, expected in (
+            ('"registry.register()"\n', False),
+            ("if True:\n    registry.register()\n", False),
+            ("registry \\\n    . register()\n", True),
+            ("registry.register(\n", False),
+            ("\uff52\uff45\uff47\uff49\uff53\uff54\uff52\uff59.register()\n", True),
+        ):
+            module.write_text(source, encoding="utf-8")
+            assert _module_registers_tools(module) is expected
+
     def test_discovers_all_real_self_registering_builtin_tool_modules(self):
         tools_dir = Path(__file__).resolve().parents[2] / "tools"
         expected = [

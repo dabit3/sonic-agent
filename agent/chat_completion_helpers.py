@@ -162,7 +162,7 @@ def interruptible_api_call(agent, api_kwargs: dict):
         # #29507: dispatch on the calling thread.
         #
         # When ``_call`` (the worker) reaches its ``finally`` it owns the
-        # close and we pop + fully close as before. When a *stranger* thread
+        # release: recycle a healthy client or close it. When a *stranger* thread
         # (the interrupt-check loop, the stale-call detector) drives the
         # close, only shut the sockets down so the worker's blocked
         # ``recv``/``send`` unwinds with an ``EPIPE`` / EOF — and let the
@@ -180,15 +180,15 @@ def interruptible_api_call(agent, api_kwargs: dict):
                 and owner_tid != threading.get_ident()
             )
             if not stranger_thread:
-                # Owning thread (or no recorded owner) → pop and fully close.
+                # Owning thread (or no recorded owner) → pop and release.
                 request_client_holder["client"] = None
                 request_client_holder["owner_tid"] = None
-        if request_client is None:
-            return
-        if stranger_thread:
-            agent._abort_request_openai_client(request_client, reason=reason)
-        else:
-            agent._close_request_openai_client(request_client, reason=reason)
+            if request_client is None:
+                return
+            if stranger_thread:
+                agent._abort_request_openai_client(request_client, reason=reason)
+            else:
+                agent._close_request_openai_client(request_client, reason=reason)
 
     def _call():
         try:
@@ -251,7 +251,11 @@ def interruptible_api_call(agent, api_kwargs: dict):
                 return
             result["error"] = e
         finally:
-            _close_request_client_once("request_complete")
+            reusable = (
+                result["response"] is not None and result["error"] is None
+                and not _request_cancelled["value"] and not agent._interrupt_requested
+            )
+            _close_request_client_once("request_complete" if reusable else "request_failed")
 
     # ── Stale-call timeout (mirrors streaming stale detector) ────────
     # Non-streaming calls return nothing until the full response is
@@ -1726,12 +1730,12 @@ def interruptible_streaming_api_call(agent, api_kwargs: dict, *, on_first_delta=
             if not stranger_thread:
                 request_client_holder["client"] = None
                 request_client_holder["owner_tid"] = None
-        if request_client is None:
-            return
-        if stranger_thread:
-            agent._abort_request_openai_client(request_client, reason=reason)
-        else:
-            agent._close_request_openai_client(request_client, reason=reason)
+            if request_client is None:
+                return
+            if stranger_thread:
+                agent._abort_request_openai_client(request_client, reason=reason)
+            else:
+                agent._close_request_openai_client(request_client, reason=reason)
 
     first_delta_fired = {"done": False}
     deltas_were_sent = {"yes": False}  # Track if any deltas were fired (for fallback)
@@ -2505,7 +2509,11 @@ def interruptible_streaming_api_call(agent, api_kwargs: dict, *, on_first_delta=
             result["error"] = e
             return
         finally:
-            _close_request_client_once("stream_request_complete")
+            reusable = (
+                result["response"] is not None and result["error"] is None
+                and not _request_cancelled["value"] and not agent._interrupt_requested
+            )
+            _close_request_client_once("stream_request_complete" if reusable else "stream_request_failed")
 
     # Provider-configured stale timeout takes priority over env default.
     _cfg_stale = get_provider_stale_timeout(agent.provider, agent.model)

@@ -15,7 +15,6 @@ import {
   useDeferredValue,
   useEffect,
   useMemo,
-  useRef,
   useState
 } from 'react'
 
@@ -64,7 +63,7 @@ function preprocessWithTailRepair(text: string): string {
 // `marked` lex of the entire message, ~1.6ms per 28KB) inside a useMemo keyed
 // on the text — but the same text is re-lexed every time a message REMOUNTS
 // (virtualizer scroll, session switch) and whenever multiple surfaces render
-// the same content (deferred + smooth reveal republish). A small module-level
+// the same content (deferred republish). A small module-level
 // LRU keyed by the exact source string removes all of those repeat parses
 // with zero correctness risk (same input → same output). Streaming tail
 // growth misses the cache by design (every flush is a new string) — that
@@ -288,111 +287,21 @@ function MarkdownImage({ className, src, alt, ...props }: ComponentProps<'img'>)
   )
 }
 
-// Steady character-reveal for streaming text: decouples visible cadence from
-// bursty arrival so text flows instead of popping (cf. assistant-ui's useSmooth,
-// reimplemented for a tunable rate). Proportional drain — each frame reveals a
-// slice of the backlog so the reveal converges within ~REVEAL_DRAIN_MS whatever
-// the size; the per-frame cap stops a huge dump rendering as one slab. The loop
-// is gated on backlog, not isRunning, so a stream that completes mid-reveal
-// keeps draining its tail instead of snapping.
-const REVEAL_DRAIN_MS = 500
-const REVEAL_MAX_CHARS_PER_FRAME = 30
-// Floor between reveal commits. Each commit republishes the text context and
-// re-runs the whole Streamdown pipeline (preprocess → remend → lex → micromark
-// on the open block) over the full accumulated text — at raw rAF cadence
-// that's 60 full parses/second and was the dominant streaming cost for
-// reasoning text. ~33ms keeps the reveal visually fluid (2 frames) while
-// halving the parse work.
-const REVEAL_MIN_COMMIT_MS = 33
+// Streaming text follows provider delivery rather than a character animation.
+// The previous reveal loop added a 500ms drain target and capped each frame at
+// 30 characters. Large chunks could therefore remain hidden after completion.
+// DeferStreamingText handles render scheduling without imposing a display rate.
+// This also avoids repeatedly parsing partial prefixes of an unchanged chunk.
+// Both message-part and explicit-text surfaces use the same deferred pipeline,
+// so a completed response has no separate animation backlog to drain.
 
-function useSmoothReveal(text: string, isRunning: boolean): string {
-  const [displayed, setDisplayed] = useState(isRunning ? '' : text)
-  const targetRef = useRef(text)
-  const shownRef = useRef(displayed)
-  const frameRef = useRef<number | null>(null)
-  const lastTickRef = useRef(0)
+// Non-extending changes (regenerate / branch / history swap) pass through as
+// replacements rather than restarting an animation from an empty string.
 
-  shownRef.current = displayed
-  targetRef.current = text
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-
-    // Non-extending change (regenerate / branch / history swap): restart from
-    // empty while streaming, else snap to the replacement.
-    if (!text.startsWith(shownRef.current)) {
-      shownRef.current = isRunning ? '' : text
-      setDisplayed(shownRef.current)
-    }
-
-    if (shownRef.current.length >= text.length || frameRef.current !== null) {
-      return
-    }
-
-    lastTickRef.current = performance.now()
-
-    const tick = () => {
-      const now = performance.now()
-      const dt = now - lastTickRef.current
-
-      // Skip this frame if the floor hasn't elapsed — the backlog math below
-      // is dt-proportional, so delayed commits reveal proportionally more.
-      if (dt < REVEAL_MIN_COMMIT_MS) {
-        frameRef.current = requestAnimationFrame(tick)
-
-        return
-      }
-
-      lastTickRef.current = now
-
-      const remaining = targetRef.current.length - shownRef.current.length
-
-      const add = Math.min(
-        remaining,
-        // dt-scaled so the per-commit cap stays equivalent to the old
-        // per-frame cap at any commit cadence.
-        Math.ceil((REVEAL_MAX_CHARS_PER_FRAME * dt) / 16.7),
-        Math.max(1, Math.ceil((remaining * dt) / REVEAL_DRAIN_MS))
-      )
-
-      shownRef.current = targetRef.current.slice(0, shownRef.current.length + add)
-      setDisplayed(shownRef.current)
-
-      frameRef.current = shownRef.current.length < targetRef.current.length ? requestAnimationFrame(tick) : null
-    }
-
-    frameRef.current = requestAnimationFrame(tick)
-  }, [text, isRunning])
-
-  useEffect(
-    () => () => {
-      if (frameRef.current !== null && typeof window !== 'undefined') {
-        cancelAnimationFrame(frameRef.current)
-      }
-    },
-    []
-  )
-
-  return displayed
-}
-
-// Re-publish the part context with a smooth character-reveal, above
-// DeferStreamingText so the reveal feeds the deferred markdown pipeline. Status
-// stays running while revealing so the caret persists past the underlying part
-// settling.
-function SmoothStreamingText({ children }: { children: ReactNode }) {
-  const { text, status } = useMessagePartText()
-  const isRunning = status.type === 'running'
-  const revealed = useSmoothReveal(text, isRunning)
-
-  return (
-    <TextMessagePartProvider isRunning={isRunning || revealed !== text} text={revealed}>
-      {children}
-    </TextMessagePartProvider>
-  )
-}
+// Re-publish the part context only for React's deferred markdown rendering.
+// Provider status stays authoritative instead of marking settled output as
+// running until a character animation finishes. Input and scrolling can still
+// take priority over expensive markdown work through the scheduler below.
 
 /**
  * Re-publish the active message-part context with React's `useDeferredValue`
@@ -566,11 +475,9 @@ interface MarkdownTextContentProps extends MarkdownTextSurfaceProps {
 export function MarkdownTextContent({ isRunning, text, ...surfaceProps }: MarkdownTextContentProps) {
   return (
     <TextMessagePartProvider isRunning={isRunning} text={text}>
-      <SmoothStreamingText>
-        <DeferStreamingText>
-          <MarkdownTextSurface {...surfaceProps} />
-        </DeferStreamingText>
-      </SmoothStreamingText>
+      <DeferStreamingText>
+        <MarkdownTextSurface {...surfaceProps} />
+      </DeferStreamingText>
     </TextMessagePartProvider>
   )
 }

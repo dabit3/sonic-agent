@@ -632,6 +632,7 @@ class KawaiiSpinner:
         self.spinner_frames = self.SPINNERS.get(spinner_type, self.SPINNERS['dots'])
         self.running = False
         self.thread = None
+        self._stop_event = threading.Event()
         self.frame_idx = 0
         self.start_time = None
         self.last_line_len = 0
@@ -692,8 +693,7 @@ class KawaiiSpinner:
         # Just log the start once and let stop() log the completion.
         if not self._is_tty:
             self._write(f"  [tool] {self.message}", flush=True)
-            while self.running:
-                time.sleep(0.5)
+            self._stop_event.wait()
             return
 
         # When running inside prompt_toolkit's patch_stdout context the CLI
@@ -702,8 +702,7 @@ class KawaiiSpinner:
         # StdoutProxy injects newlines around each flush, so every frame lands
         # on a new line and overwrites the status bar.
         if self._is_patch_stdout_proxy():
-            while self.running:
-                time.sleep(0.1)
+            self._stop_event.wait()
             return
 
         # Cache skin wings at start (avoid per-frame imports)
@@ -712,7 +711,7 @@ class KawaiiSpinner:
 
         while self.running:
             if os.getenv("SONIC_SPINNER_PAUSE"):
-                time.sleep(0.1)
+                self._stop_event.wait(0.1)
                 continue
             frame = self.spinner_frames[self.frame_idx % len(self.spinner_frames)]
             elapsed = time.time() - self.start_time
@@ -725,11 +724,12 @@ class KawaiiSpinner:
             self._write(f"\r{line}{' ' * pad}", end='', flush=True)
             self.last_line_len = len(line)
             self.frame_idx += 1
-            time.sleep(0.12)
+            self._stop_event.wait(0.12)
 
     def start(self):
         if self.running:
             return
+        self._stop_event.clear()
         self.running = True
         self.start_time = time.time()
         self.thread = threading.Thread(target=self._animate, daemon=True)
@@ -758,6 +758,7 @@ class KawaiiSpinner:
 
     def stop(self, final_message: str = None):
         self.running = False
+        self._stop_event.set()
         if self.thread:
             self.thread.join(timeout=0.5)
 

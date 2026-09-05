@@ -357,7 +357,7 @@ class AIAgent:
         args: list[str] | None = None,
         model: str = "",
         max_iterations: int = 90,  # Default tool-calling iterations (shared with subagents)
-        tool_delay: float = 1.0,
+        tool_delay: float = 0.0,
         enabled_toolsets: List[str] = None,
         disabled_toolsets: List[str] = None,
         save_trajectories: bool = False,
@@ -3088,10 +3088,12 @@ class AIAgent:
 
         # Close the OpenAI/httpx client to release sockets immediately.
         try:
-            client = getattr(self, "client", None)
+            with self._openai_client_lock():
+                self._clear_request_clients()
+                client = getattr(self, "client", None)
+                self.client = None
             if client is not None:
                 self._close_openai_client(client, reason="cache_evict", shared=True)
-                self.client = None
         except Exception:
             pass
 
@@ -3144,10 +3146,12 @@ class AIAgent:
 
         # 5. Close the OpenAI/httpx client
         try:
-            client = getattr(self, "client", None)
+            with self._openai_client_lock():
+                self._clear_request_clients()
+                client = getattr(self, "client", None)
+                self.client = None
             if client is not None:
                 self._close_openai_client(client, reason="agent_close", shared=True)
-                self.client = None
         except Exception:
             pass
 
@@ -3463,7 +3467,10 @@ class AIAgent:
             # loopback / local endpoints such as a locally hosted sub2api.
             _proxy = _get_proxy_for_base_url(base_url)
             return _httpx.Client(
-                transport=_httpx.HTTPTransport(socket_options=_sock_opts),
+                transport=_httpx.HTTPTransport(
+                    socket_options=_sock_opts,
+                    limits=_httpx.Limits(max_connections=10, max_keepalive_connections=2, keepalive_expiry=60.0),
+                ),
                 proxy=_proxy,
             )
         except Exception:
@@ -3517,6 +3524,7 @@ class AIAgent:
                     exc,
                 )
                 return False
+            self._clear_request_clients()
             self.client = new_client
         self._close_openai_client(old_client, reason=f"replace:{reason}", shared=True)
         return True
@@ -3598,10 +3606,57 @@ class AIAgent:
             and self._api_kwargs_have_image_parts(api_kwargs or {})
         ):
             request_kwargs["default_headers"] = self._copilot_headers_for_request(is_vision=True)
-        return self._create_openai_client(request_kwargs, reason=reason, shared=False)
+        if "http_client" in request_kwargs:
+            return self._create_openai_client(request_kwargs, reason=reason, shared=False)
+        try:
+            request_key = copy.deepcopy(request_kwargs)
+        except Exception:
+            return self._create_openai_client(request_kwargs, reason=reason, shared=False)
+        with self._openai_client_lock():
+            idle = getattr(self, "_idle_request_client", None)
+            self._idle_request_client = None
+            client = None
+            if idle is not None:
+                if (
+                    idle[0] is primary_client
+                    and idle[1] == request_key
+                    and not self._is_openai_client_closed(idle[2])
+                ):
+                    client = idle[2]
+                else:
+                    self._close_openai_client(idle[2], reason="request_config_changed", shared=False)
+            if client is None:
+                client = self._create_openai_client(request_kwargs, reason=reason, shared=False)
+            from openai import OpenAI as OpenAIClient
+            if isinstance(client, OpenAIClient):
+                leases = getattr(self, "_request_client_leases", None)
+                if leases is None:
+                    leases = self._request_client_leases = {}
+                leases[id(client)] = (primary_client, request_key, client)
+            return client
 
     def _close_request_openai_client(self, client: Any, *, reason: str) -> None:
+        with self._openai_client_lock():
+            lease = getattr(self, "_request_client_leases", {}).pop(id(client), None)
+            if (
+                lease is not None
+                and reason in {"request_complete", "stream_request_complete", "prewarm_complete"}
+                and lease[0] is getattr(self, "client", None)
+                and not self._is_openai_client_closed(lease[0])
+                and not self._is_openai_client_closed(client)
+                and getattr(self, "_idle_request_client", None) is None
+            ):
+                self._idle_request_client = lease
+                return
         self._close_openai_client(client, reason=reason, shared=False)
+
+    def _clear_request_clients(self) -> None:
+        with self._openai_client_lock():
+            idle = getattr(self, "_idle_request_client", None)
+            self._idle_request_client = None
+            getattr(self, "_request_client_leases", {}).clear()
+            if idle is not None:
+                self._close_openai_client(idle[2], reason="request_cache_clear", shared=False)
 
     def _abort_request_openai_client(self, client: Any, *, reason: str) -> None:
         """Cross-thread abort: shut sockets down without releasing FDs.
@@ -3620,7 +3675,9 @@ class AIAgent:
         if client is None:
             return
         try:
-            shutdown_count = self._force_close_tcp_sockets(client)
+            with self._openai_client_lock():
+                getattr(self, "_request_client_leases", {}).pop(id(client), None)
+                shutdown_count = self._force_close_tcp_sockets(client)
             logger.info(
                 "OpenAI client aborted (%s, shared=False, tcp_force_closed=%d, "
                 "deferred_close=stranger_thread) %s",

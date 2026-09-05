@@ -1,7 +1,7 @@
 import { AssistantRuntimeProvider, type ThreadMessage, useExternalStoreRuntime } from '@assistant-ui/react'
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { useEffect, useState } from 'react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { Thread } from './thread'
 
@@ -58,9 +58,9 @@ Element.prototype.animate = function animate() {
   } as unknown as Animation
 }
 
-// jsdom returns 0 for offset*; some layout code reads those to size the
+// jsdom returns 0 for offset*; the virtualizer reads those to size its
 // viewport. Fall through to client* (which tests can override) or a sane
-// default so message rows render with non-zero dimensions.
+// default so virtualized items render.
 function stubOffsetDimension(
   prop: 'offsetHeight' | 'offsetWidth',
   clientProp: 'clientHeight' | 'clientWidth',
@@ -216,32 +216,6 @@ function assistantTodoMessage(
   } as ThreadMessage
 }
 
-function assistantImageMessage(running = false): ThreadMessage {
-  return {
-    id: `assistant-image-${running ? 'running' : 'done'}`,
-    role: 'assistant',
-    content: [
-      {
-        type: 'tool-call',
-        toolCallId: 'image-1',
-        toolName: 'image_generate',
-        args: { prompt: 'draw a cat' },
-        argsText: JSON.stringify({ prompt: 'draw a cat' }),
-        ...(running ? {} : { result: { image: 'https://cdn.example/cat.png', success: true } })
-      }
-    ],
-    status: running ? { type: 'running' } : { type: 'complete', reason: 'stop' },
-    createdAt,
-    metadata: {
-      unstable_state: null,
-      unstable_annotations: [],
-      unstable_data: [],
-      steps: [],
-      custom: {}
-    }
-  } as ThreadMessage
-}
-
 function StreamingHarness() {
   const [messages, setMessages] = useState<ThreadMessage[]>([userMessage()])
   const [isRunning, setIsRunning] = useState(true)
@@ -276,6 +250,20 @@ function StreamingHarness() {
   return (
     <AssistantRuntimeProvider runtime={runtime}>
       <Thread loading={isRunning && messages.at(-1)?.role !== 'assistant' ? 'response' : undefined} />
+    </AssistantRuntimeProvider>
+  )
+}
+
+function StaticThreadHarness() {
+  const runtime = useExternalStoreRuntime<ThreadMessage>({
+    messages: [userMessage(), assistantMessage('complete response', false)],
+    isRunning: false,
+    onNew: async () => {}
+  })
+
+  return (
+    <AssistantRuntimeProvider runtime={runtime}>
+      <Thread />
     </AssistantRuntimeProvider>
   )
 }
@@ -379,6 +367,8 @@ function IntroHarness() {
 }
 
 describe('assistant-ui streaming renderer', () => {
+  afterEach(cleanup)
+
   beforeEach(() => {
     resizeObservers.clear()
   })
@@ -421,11 +411,222 @@ describe('assistant-ui streaming renderer', () => {
     expect(screen.getByRole('alert').textContent).toContain('OpenRouter rejected the request (403).')
   })
 
-  // Scroll behavior (follow-at-bottom, escape-on-scroll-up, re-engage) is owned
-  // by the use-stick-to-bottom library and covered by its own test suite. We
-  // don't re-assert its scrollTop mechanics here — doing so in jsdom (no real
-  // layout, spring animation via rAF) only produces brittle change-detector
-  // tests. The rendering/streaming-content tests below remain the contract.
+  it('does not pull the viewport back down after the user scrolls up during streaming', async () => {
+    const { container } = render(<StreamingHarness />)
+
+    const content = container.querySelector('[data-slot="aui_thread-content"]') as HTMLDivElement
+    const viewport = content.parentElement as HTMLDivElement
+    let scrollHeight = 1_000
+
+    Object.defineProperty(viewport, 'clientHeight', { configurable: true, value: 200 })
+    Object.defineProperty(viewport, 'scrollHeight', {
+      configurable: true,
+      get: () => scrollHeight
+    })
+
+    await wait(80)
+
+    await act(async () => {
+      viewport.scrollTop = 800
+      fireEvent.scroll(viewport)
+    })
+    await wait(0)
+
+    await act(async () => {
+      fireEvent.wheel(viewport, { deltaY: -120 })
+      viewport.scrollTop = 420
+      fireEvent.scroll(viewport)
+    })
+
+    scrollHeight = 1_200
+
+    await act(async () => {
+      for (const observer of resizeObservers) {
+        observer.trigger(1_200)
+      }
+    })
+    await wait(0)
+
+    expect(viewport.scrollTop).toBe(420)
+  })
+
+  it('does not auto-follow idle layout shifts', async () => {
+    const { container } = render(<StaticThreadHarness />)
+
+    const content = container.querySelector('[data-slot="aui_thread-content"]') as HTMLDivElement
+    const viewport = content.parentElement as HTMLDivElement
+    let scrollHeight = 1_000
+
+    Object.defineProperty(viewport, 'clientHeight', { configurable: true, value: 200 })
+    Object.defineProperty(viewport, 'scrollHeight', {
+      configurable: true,
+      get: () => scrollHeight
+    })
+
+    await wait(80)
+
+    await act(async () => {
+      viewport.scrollTop = 420
+      fireEvent.scroll(viewport)
+    })
+
+    scrollHeight = 1_200
+
+    await act(async () => {
+      for (const observer of resizeObservers) {
+        observer.trigger(1_200)
+      }
+    })
+    await wait(0)
+
+    expect(viewport.scrollTop).toBe(420)
+  })
+
+  it('does not follow streaming content growth even while parked at the bottom', async () => {
+    const { container } = render(<StreamingHarness />)
+
+    const content = container.querySelector('[data-slot="aui_thread-content"]') as HTMLDivElement
+    const viewport = content.parentElement as HTMLDivElement
+    let clientHeight = 200
+    let scrollHeight = 1_000
+
+    Object.defineProperty(viewport, 'clientHeight', {
+      configurable: true,
+      get: () => clientHeight
+    })
+    Object.defineProperty(viewport, 'scrollHeight', {
+      configurable: true,
+      get: () => scrollHeight
+    })
+
+    await wait(80)
+
+    // Park the user at the bottom of the current content.
+    await act(async () => {
+      viewport.scrollTop = 800
+      fireEvent.scroll(viewport)
+    })
+
+    clientHeight = 240
+
+    await act(async () => {
+      viewport.scrollTop = 760
+      fireEvent.scroll(viewport)
+    })
+
+    // Content grows as tokens stream in. Streaming auto-follow is removed, so
+    // the viewport must NOT chase the new bottom — it stays where the user
+    // last left it.
+    scrollHeight = 1_200
+
+    await act(async () => {
+      for (const observer of resizeObservers) {
+        observer.trigger(1_200)
+      }
+    })
+    await wait(0)
+
+    expect(viewport.scrollTop).toBe(760)
+  })
+
+  it('honors the first upward wheel scroll even when a programmatic bottom-pin scroll event is still pending', async () => {
+    const { container } = render(<StreamingHarness />)
+
+    const content = container.querySelector('[data-slot="aui_thread-content"]') as HTMLDivElement
+    const viewport = content.parentElement as HTMLDivElement
+    let scrollHeight = 1_000
+
+    Object.defineProperty(viewport, 'clientHeight', { configurable: true, value: 200 })
+    Object.defineProperty(viewport, 'scrollHeight', {
+      configurable: true,
+      get: () => scrollHeight
+    })
+
+    await wait(80)
+    await wait(0)
+
+    await act(async () => {
+      fireEvent.wheel(viewport, { deltaY: -120 })
+      viewport.scrollTop = 420
+      fireEvent.scroll(viewport)
+    })
+
+    scrollHeight = 1_200
+
+    await act(async () => {
+      for (const observer of resizeObservers) {
+        observer.trigger(1_200)
+      }
+    })
+    await wait(0)
+
+    expect(viewport.scrollTop).toBe(420)
+  })
+
+  it('does not snap to the bottom on final code-highlight growth after a run completes', async () => {
+    const { container } = render(<StreamingHarness />)
+
+    const content = container.querySelector('[data-slot="aui_thread-content"]') as HTMLDivElement
+    const viewport = content.parentElement as HTMLDivElement
+    let scrollHeight = 1_000
+
+    Object.defineProperty(viewport, 'clientHeight', { configurable: true, value: 200 })
+    Object.defineProperty(viewport, 'scrollHeight', {
+      configurable: true,
+      get: () => scrollHeight
+    })
+
+    await wait(80)
+
+    await act(async () => {
+      viewport.scrollTop = 800
+      fireEvent.scroll(viewport)
+    })
+
+    await wait(650)
+
+    // Completion re-measures (Shiki highlight) and grows the content. The
+    // post-run bottom lock is removed, so the viewport stays put instead of
+    // snapping to the new bottom.
+    scrollHeight = 1_700
+    await wait(0)
+
+    expect(viewport.scrollTop).toBe(800)
+  })
+
+  it('does not restart bottom-follow after completion when the user scrolled up', async () => {
+    const { container } = render(<StreamingHarness />)
+
+    const content = container.querySelector('[data-slot="aui_thread-content"]') as HTMLDivElement
+    const viewport = content.parentElement as HTMLDivElement
+    let scrollHeight = 1_000
+
+    Object.defineProperty(viewport, 'clientHeight', { configurable: true, value: 200 })
+    Object.defineProperty(viewport, 'scrollHeight', {
+      configurable: true,
+      get: () => scrollHeight
+    })
+
+    await wait(80)
+
+    await act(async () => {
+      viewport.scrollTop = 800
+      fireEvent.scroll(viewport)
+    })
+
+    await act(async () => {
+      fireEvent.wheel(viewport, { deltaY: -120 })
+      viewport.scrollTop = 420
+      fireEvent.scroll(viewport)
+    })
+
+    await wait(650)
+
+    scrollHeight = 1_700
+    await wait(0)
+
+    expect(viewport.scrollTop).toBe(420)
+  })
 
   it('renders an incomplete streaming fenced code block as a code card', async () => {
     const { container } = render(<RunningMessageHarness message={assistantMessage('```ts\nconst answer = 42\n')} />)
@@ -441,19 +642,17 @@ describe('assistant-ui streaming renderer', () => {
   it('renders an incomplete streaming reasoning fenced code block as a code card', async () => {
     const { container } = render(<RunningReasoningHarness />)
     const ui = within(container)
-    const thinkingToggle = ui.getByRole('button', { name: /thinking/i })
+    const disclosure = ui.getByRole('button', { name: /thinking/i })
 
-    if (thinkingToggle.getAttribute('aria-expanded') !== 'true') {
-      fireEvent.click(thinkingToggle)
+    if (disclosure.getAttribute('aria-expanded') !== 'true') {
+      fireEvent.click(disclosure)
     }
 
     await waitFor(() => {
       expect(container.querySelector('[data-slot="code-card"]')).toBeTruthy()
     })
 
-    await waitFor(() => {
-      expect(container.querySelector('[data-slot="aui_reasoning-text"]')?.textContent).toContain('const answer = 42')
-    })
+    expect(container.querySelector('[data-slot="aui_reasoning-text"]')?.textContent).toContain('const answer = 42')
     expect(container.textContent).not.toContain('```ts')
   })
 
@@ -505,17 +704,5 @@ describe('assistant-ui streaming renderer', () => {
     )
 
     expect(container.querySelector('[data-slot="aui_todo-hoisted"]')).toBeNull()
-  })
-
-  it('renders completed image generation results in the tool slot', async () => {
-    const { container } = render(<MessageHarness message={assistantImageMessage()} />)
-
-    await waitFor(() => {
-      expect(screen.getByRole('img', { name: 'Generated image' }).getAttribute('src')).toBe(
-        'https://cdn.example/cat.png'
-      )
-    })
-    expect(container.querySelector('[data-slot="aui_generated-image"]')).toBeTruthy()
-    expect(screen.queryByRole('status', { name: /rendering image/i })).toBeNull()
   })
 })

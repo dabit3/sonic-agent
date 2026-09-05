@@ -53,18 +53,27 @@ from sonic_constants import get_sonic_home
 from utils import base_url_host_matches
 
 
-def _prewarm_provider_connection(client: Any) -> None:
-    """Open a connection to the provider so the first request skips the
-    DNS + TCP + TLS handshake. Any response (404/405 included) is fine —
-    the point is the warm socket left in the httpx connection pool."""
+def _prewarm_provider_connection(agent: Any) -> None:
+    """Warm an exclusively leased request client, then return it for reuse.
+
+    Any HTTP response is sufficient to establish the connection. A completion
+    that starts before warmup finishes gets its own client without waiting.
+    """
+    client = None
+    reason = "prewarm_failed"
     try:
+        client = agent._create_request_openai_client(reason="prewarm")
         http_client = getattr(client, "_client", None)
         base_url = getattr(client, "base_url", None)
         if http_client is None or not base_url:
             return
         http_client.head(str(base_url), timeout=5)
+        reason = "prewarm_complete"
     except Exception:
         pass
+    finally:
+        if client is not None:
+            agent._close_request_openai_client(client, reason=reason)
 
 
 # Use the same logger name as run_agent so tests patching ``run_agent.logger``
@@ -178,7 +187,7 @@ def init_agent(
     args: list[str] | None = None,
     model: str = "",
     max_iterations: int = 90,  # Default tool-calling iterations (shared with subagents)
-    tool_delay: float = 1.0,
+    tool_delay: float = 0.0,
     enabled_toolsets: List[str] = None,
     disabled_toolsets: List[str] = None,
     save_trajectories: bool = False,
@@ -248,7 +257,7 @@ def init_agent(
         api_mode (str): API mode override: "chat_completions" or "codex_responses"
         model (str): Model name to use (default: "anthropic/claude-opus-4.6")
         max_iterations (int): Maximum number of tool calling iterations (default: 90)
-        tool_delay (float): Delay between tool calls in seconds (default: 1.0)
+        tool_delay (float): Optional delay between tool calls in seconds (default: 0.0)
         enabled_toolsets (List[str]): Only enable tools from these toolsets (optional)
         disabled_toolsets (List[str]): Disable tools from these toolsets (optional)
         save_trajectories (bool): Whether to save conversation trajectories to JSONL files (default: False)
@@ -955,7 +964,7 @@ def init_agent(
             _ra()._tls_prewarm_done.set()
             threading.Thread(
                 target=_prewarm_provider_connection,
-                args=(agent.client,),
+                args=(agent,),
                 daemon=True,
                 name="tls-prewarm",
             ).start()
