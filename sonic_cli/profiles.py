@@ -22,6 +22,7 @@ Usage::
 import json
 import os
 import re
+import shlex
 import shutil
 import stat
 import subprocess
@@ -44,10 +45,10 @@ _PROFILE_DIRS = [
     "plans",
     "workspace",
     "cron",
-    # Per-profile HOME for subprocesses: isolates system tool configs (git,
-    # ssh, gh, npm …) so credentials don't bleed between profiles.  In Docker
-    # this also ensures tool configs land inside the persistent volume.
-    # See sonic_constants.get_subprocess_home() and issue #4426.
+    # Back-compat/Docker HOME for tool subprocesses. Host subprocesses keep
+    # the user's real HOME by default so normal CLI credentials remain visible;
+    # containers still use this directory for persistent HOME state.
+    # See sonic_constants.get_subprocess_home().
     "home",
 ]
 
@@ -421,7 +422,8 @@ def create_wrapper_script(name: str, target: Optional[str] = None) -> Optional[P
     else:
         wrapper_path = wrapper_dir / canon
         try:
-            wrapper_path.write_text(f'#!/bin/sh\nexec sonic -p {profile} "$@"\n')
+            sonic_exe = shutil.which("sonic") or "sonic"
+            wrapper_path.write_text(f'#!/bin/sh\nexec {shlex.quote(sonic_exe)} -p {profile} "$@"\n')
             wrapper_path.chmod(wrapper_path.stat().st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
             return wrapper_path
         except OSError as e:
@@ -451,6 +453,37 @@ def remove_wrapper_script(name: str) -> bool:
             except Exception:
                 pass
     return False
+
+
+def _migrate_profile_config_if_outdated(profile_dir: Path) -> None:
+    """Bring a copied profile config.yaml up to the current schema.
+
+    Profile creation can clone a config file that predates schema tracking (no
+    ``_config_version``) or that is simply older than the running Sonic. If we
+    leave it untouched, the first desktop/doctor view of the new profile shows a
+    scary ``v0 → latest`` warning even though we just created the profile. Scope
+    the normal migration pipeline to the new profile and keep it non-interactive.
+    """
+    config_path = profile_dir / "config.yaml"
+    if not config_path.exists():
+        return
+
+    try:
+        from sonic_constants import reset_sonic_home_override, set_sonic_home_override
+        from sonic_cli.config import check_config_version, migrate_config
+
+        token = set_sonic_home_override(str(profile_dir))
+        try:
+            current_ver, latest_ver = check_config_version()
+            if current_ver < latest_ver:
+                migrate_config(interactive=False, quiet=True)
+        finally:
+            reset_sonic_home_override(token)
+    except Exception:
+        # Profile creation should not fail because an old copied config could
+        # not be migrated. The next `sonic doctor --fix` can still surface the
+        # detailed error in the target profile.
+        pass
 
 
 def find_alias_for_profile(profile_name: str) -> Optional[str]:
@@ -784,9 +817,9 @@ def create_profile(
     Path
         The newly created profile directory.
     """
-    if no_skills and (clone_config or clone_all):
+    if no_skills and (clone_from is not None or clone_config or clone_all):
         raise ValueError(
-            "--no-skills is mutually exclusive with --clone / --clone-all "
+            "--no-skills is mutually exclusive with --clone / --clone-from / --clone-all "
             "(cloning explicitly copies skills from the source profile)."
         )
     canon = normalize_profile_name(name)
@@ -908,6 +941,14 @@ def create_profile(
         except OSError:
             pass  # best-effort — the feature still works via the empty skills/ dir
 
+    # Cloned configs can be older than the running Sonic (or predate schema
+    # tracking entirely). Migrate config-only clones immediately so
+    # desktop/status surfaces don't warn that a just-created profile is
+    # v0/outdated. Leave --clone-all snapshots byte-for-byte apart from the
+    # explicit runtime/history stripping above.
+    if not clone_all:
+        _migrate_profile_config_if_outdated(profile_dir)
+
     # Persist description if the caller provided one. Done last so a
     # partial-create failure doesn't strand a description file in an
     # incomplete profile.
@@ -975,6 +1016,58 @@ def seed_profile_skills(profile_dir: Path, quiet: bool = False) -> Optional[dict
         if not quiet:
             print(f"⚠ Skill seeding failed: {e}")
         return None
+
+
+def backfill_profile_envs(quiet: bool = False) -> List[str]:
+    """Give every named profile that predates per-profile ``.env`` files one.
+
+    Profiles created before the dashboard/CLI started seeding a ``.env``
+    (PR #44792) have none, so once the Channels/Keys endpoints became
+    profile-scoped those profiles stopped inheriting the root install's
+    credentials and showed everything as unconfigured. To avoid breaking
+    anyone on update, copy the DEFAULT install's ``.env`` into each named
+    profile that lacks one — that preserves the effective credentials those
+    profiles were already running with (they previously read the root
+    ``.env`` via the process environment). Users can then diverge per
+    profile from there.
+
+    Falls back to the placeholder header when the default install has no
+    ``.env`` itself. Never overwrites an existing profile ``.env``.
+
+    Returns the list of profile names that received a backfilled ``.env``.
+    """
+    backfilled: List[str] = []
+    profiles_root = _get_profiles_root()
+    if not profiles_root.is_dir():
+        return backfilled
+
+    default_env = _get_default_sonic_home() / ".env"
+
+    for entry in sorted(profiles_root.iterdir()):
+        if not entry.is_dir() or not _PROFILE_ID_RE.match(entry.name):
+            continue
+        if entry.name == "default":
+            continue
+        env_path = entry / ".env"
+        if env_path.exists():
+            continue
+        try:
+            if default_env.is_file():
+                shutil.copy2(default_env, env_path)
+            else:
+                env_path.write_text(
+                    "# Per-profile secrets for this Sonic profile.\n"
+                    "# API keys and tokens set here override the shell environment.\n"
+                    "# Behavioral settings belong in config.yaml, not here.\n",
+                    encoding="utf-8",
+                )
+            os.chmod(str(env_path), 0o600)
+            backfilled.append(entry.name)
+        except OSError as e:
+            if not quiet:
+                print(f"⚠ Could not seed .env for profile '{entry.name}': {e}")
+
+    return backfilled
 
 
 def delete_profile(name: str, yes: bool = False) -> Path:
@@ -1138,10 +1231,16 @@ def _maybe_register_gateway_service(profile_name: str) -> None:
     can re-register manually later via the gateway start command,
     which goes through the same dispatch path.
 
-    Port selection is governed by the profile's ``config.yaml``
-    (``[gateway] port = …``) — there is no Python-side allocator
-    (PR #30136 review item I5 retired the SHA-256-derived range
-    [9200, 9800) because it was dead code through the entire stack).
+    Port selection: each supervised profile gateway loads its own
+    ``SONIC_HOME`` and binds the port resolved by ``gateway/config.py``
+    from that profile's environment — ``API_SERVER_PORT`` (or
+    ``platforms.api_server.extra.port`` in the profile's
+    ``config.yaml``), defaulting to 8642. There is no ``[gateway] port``
+    key and no Python-side allocator (PR #30136 review item I5 retired
+    the SHA-256-derived range [9200, 9800) as dead code), so two
+    profiles that both leave the port at its default will both try to
+    bind 8642 — give each profile a distinct ``API_SERVER_PORT`` in its
+    ``.env``.
 
     Host short-circuit: check ``detect_service_manager()`` first and
     return immediately if it isn't ``"s6"``. This keeps host
@@ -1169,7 +1268,7 @@ def _maybe_register_gateway_service(profile_name: str) -> None:
     if not mgr.supports_runtime_registration():
         return  # host backend; no-op
     try:
-        mgr.register_profile_gateway(profile_name)
+        mgr.register_profile_gateway(profile_name, start_now=False)
     except ValueError:
         # Already registered (e.g. the container-boot reconciler ran
         # first and brought up a stale slot). That's fine.

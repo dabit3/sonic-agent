@@ -1125,6 +1125,14 @@ class PluginManager:
         """
         if self._discovered and not force:
             return
+        # Safe mode (--safe-mode / SONIC_SAFE_MODE=1): troubleshooting run
+        # with all customizations disabled. Skip plugin discovery entirely so
+        # no third-party code (hooks, tools, platforms) loads. Mark as
+        # discovered so callers see a clean empty registry, not a retry loop.
+        if env_var_enabled("SONIC_SAFE_MODE"):
+            logger.info("SONIC_SAFE_MODE=1 — plugin discovery skipped")
+            self._discovered = True
+            return
         if force:
             self._plugins.clear()
             self._hooks.clear()
