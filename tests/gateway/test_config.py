@@ -814,9 +814,9 @@ class TestLoadGatewayConfig:
         assert config.platforms[Platform.TELEGRAM].extra["disable_link_previews"] is True
 
     def test_loads_telegram_rich_messages_from_gateway_platform_extra(self, tmp_path, monkeypatch):
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
-        config_path = hermes_home / "config.yaml"
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        config_path = sonic_home / "config.yaml"
         config_path.write_text(
             "gateway:\n"
             "  platforms:\n"
@@ -826,19 +826,19 @@ class TestLoadGatewayConfig:
             encoding="utf-8",
         )
 
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         config = load_gateway_config()
 
         assert config.platforms[Platform.TELEGRAM].extra["rich_messages"] is False
 
     def test_load_config_default_disables_telegram_rich_messages(self, tmp_path, monkeypatch):
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
 
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
 
         config = load_config()
 

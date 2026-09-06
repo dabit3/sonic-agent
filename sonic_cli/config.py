@@ -944,9 +944,9 @@ DEFAULT_CONFIG = {
         "env_passthrough": [],
         # HOME handling for host tool subprocesses:
         #   auto    — host keeps the real OS-user HOME; containers use
-        #             HERMES_HOME/home for persistent state (default)
+        #             SONIC_HOME/home for persistent state (default)
         #   real    — force the real OS-user HOME
-        #   profile — force HERMES_HOME/home when it exists (old strict
+        #   profile — force SONIC_HOME/home when it exists (old strict
         #             per-profile CLI config isolation)
         "home_mode": "auto",
         # Extra files to source in the login shell when building the
@@ -4858,7 +4858,7 @@ def migrate_config(interactive: bool = True, quiet: bool = False) -> Dict[str, A
     raw_mcp_servers = config.get("mcp_servers")
     if isinstance(raw_mcp_servers, dict):
         try:
-            from hermes_cli.mcp_security import validate_mcp_server_entry as _validate_mcp_server_entry
+            from sonic_cli.mcp_security import validate_mcp_server_entry as _validate_mcp_server_entry
         except Exception:
             _validate_mcp_server_entry = None
         if _validate_mcp_server_entry:

@@ -1271,7 +1271,7 @@ class TestConnectSmtp(unittest.TestCase):
     def _make_adapter(self, port="587"):
         from gateway.config import PlatformConfig
         with patch.dict(os.environ, {
-            "EMAIL_ADDRESS": "hermes@test.com",
+            "EMAIL_ADDRESS": "sonic@test.com",
             "EMAIL_PASSWORD": "secret",
             "EMAIL_IMAP_HOST": "imap.test.com",
             "EMAIL_SMTP_HOST": "smtp.test.com",

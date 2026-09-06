@@ -117,7 +117,7 @@ def test_run_gateway_root_guard_has_escape_hatch(monkeypatch):
 def _clear_supervisor_markers(monkeypatch):
     """Make ``_running_under_gateway_supervisor()`` report a plain shell."""
     monkeypatch.delenv("INVOCATION_ID", raising=False)
-    monkeypatch.delenv("HERMES_S6_SUPERVISED_CHILD", raising=False)
+    monkeypatch.delenv("SONIC_S6_SUPERVISED_CHILD", raising=False)
     # Interactive macOS shells inherit XPC_SERVICE_NAME="0"; launchd jobs get
     # the real label. Default to the shell sentinel so the guard can fire.
     monkeypatch.setenv("XPC_SERVICE_NAME", "0")
@@ -148,7 +148,7 @@ def test_run_gateway_refuses_when_service_supervising(monkeypatch, capsys):
     assert calls == []  # dispatcher never started
     out = capsys.readouterr().out
     assert "already running under systemd (user)" in out
-    assert "hermes gateway restart" in out
+    assert "sonic gateway restart" in out
     assert "--force" in out
 
 
@@ -232,7 +232,7 @@ def test_run_gateway_refuses_existing_process_before_importing_gateway_run(monke
     assert calls == []
     out = capsys.readouterr().out
     assert "Another gateway instance is already running (PID 17907)" in out
-    assert "hermes gateway run --replace" in out
+    assert "sonic gateway run --replace" in out
 
 
 def test_run_gateway_replace_skips_existing_process_preflight(monkeypatch):
@@ -264,9 +264,9 @@ def test_s6_runtime_snapshot_reports_supervised_service(monkeypatch, tmp_path):
             return True
 
     monkeypatch.setattr(gateway, "is_linux", lambda: True)
-    monkeypatch.setattr("hermes_constants.is_container", lambda: True)
-    monkeypatch.setattr("hermes_cli.service_manager.detect_service_manager", lambda: "s6")
-    monkeypatch.setattr("hermes_cli.service_manager.get_service_manager", lambda: FakeS6Manager())
+    monkeypatch.setattr("sonic_constants.is_container", lambda: True)
+    monkeypatch.setattr("sonic_cli.service_manager.detect_service_manager", lambda: "s6")
+    monkeypatch.setattr("sonic_cli.service_manager.get_service_manager", lambda: FakeS6Manager())
     monkeypatch.setattr(gateway, "find_gateway_pids", lambda: [123])
     monkeypatch.setattr(gateway, "_profile_suffix", lambda: "")
 
@@ -283,7 +283,7 @@ def test_running_under_gateway_supervisor_markers(monkeypatch):
     _clear_supervisor_markers(monkeypatch)
     assert gateway._running_under_gateway_supervisor() is False
 
-    monkeypatch.setenv("XPC_SERVICE_NAME", "org.nousresearch.hermes.gateway")
+    monkeypatch.setenv("XPC_SERVICE_NAME", "org.nousresearch.sonic.gateway")
     assert gateway._running_under_gateway_supervisor() is True
 
     monkeypatch.setenv("XPC_SERVICE_NAME", "0")
@@ -291,12 +291,12 @@ def test_running_under_gateway_supervisor_markers(monkeypatch):
     assert gateway._running_under_gateway_supervisor() is True
 
     monkeypatch.delenv("INVOCATION_ID", raising=False)
-    monkeypatch.setenv("HERMES_S6_SUPERVISED_CHILD", "1")
+    monkeypatch.setenv("SONIC_S6_SUPERVISED_CHILD", "1")
     assert gateway._running_under_gateway_supervisor() is True
 
 
 def test_gateway_run_force_flag_survives_parser_extraction():
-    from hermes_cli.subcommands.gateway import build_gateway_parser
+    from sonic_cli.subcommands.gateway import build_gateway_parser
 
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command")

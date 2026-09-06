@@ -133,8 +133,8 @@ export const zh: Translations = {
       approveAction: '批准',
       rejectAction: '拒绝',
       inputTitle: '需要输入',
-      inputBody: 'Hermes 正在等待你的回应。',
-      turnDoneTitle: 'Hermes 已完成',
+      inputBody: 'Sonic 正在等待你的回应。',
+      turnDoneTitle: 'Sonic 已完成',
       turnDoneBody: '回复已就绪。',
       turnErrorTitle: '本轮失败',
       backgroundDoneTitle: '后台任务已完成',
@@ -279,7 +279,7 @@ export const zh: Translations = {
       intro: '原生桌面通知，区别于应用内提示。设置按设备保存，每台电脑各自独立。',
       enableAll: '启用通知',
       enableAllDesc: '总开关。关闭后将静音下方所有通知。',
-      focusedHint: '完成提醒仅在 Hermes 处于后台时触发。',
+      focusedHint: '完成提醒仅在 Sonic 处于后台时触发。',
       kinds: {
         approval: {
           label: '需要批准',
@@ -287,11 +287,11 @@ export const zh: Translations = {
         },
         input: {
           label: '需要输入',
-          description: 'Hermes 提出了问题，或需要密码或密钥。'
+          description: 'Sonic 提出了问题，或需要密码或密钥。'
         },
         turnDone: {
           label: '回复就绪',
-          description: 'Hermes 在后台时完成了一轮对话。'
+          description: 'Sonic 在后台时完成了一轮对话。'
         },
         turnError: {
           label: '本轮失败',
@@ -303,7 +303,7 @@ export const zh: Translations = {
         }
       },
       test: '发送测试通知',
-      testTitle: 'Hermes',
+      testTitle: 'Sonic',
       testBody: '通知工作正常。',
       testSent: '测试已发送。如果没有出现，请检查系统通知权限和专注模式／勿扰模式。',
       testUnsupported: '此系统不支持原生通知。',
@@ -759,7 +759,7 @@ export const zh: Translations = {
       connectAnother: '连接其他提供方',
       otherProviders: '其他提供方',
       removeConfirm: provider => `移除 ${provider}？`,
-      removeExternal: (provider, command) => `${provider} 由 Hermes 外部管理。请使用 ${command} 移除。`,
+      removeExternal: (provider, command) => `${provider} 由 Sonic 外部管理。请使用 ${command} 移除。`,
       removeKeyManaged: provider => `${provider} 由 API 密钥配置。请从 API Keys 中移除。`,
       removedTitle: '账号已移除',
       removedMessage: provider => `${provider} 已移除。`,

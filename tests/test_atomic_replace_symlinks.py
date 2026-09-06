@@ -251,7 +251,7 @@ def test_atomic_replace_real_cross_device(tmp_path: Path) -> None:
     import shutil as _shutil
     import uuid as _uuid
 
-    other_fs_dir = shm / f"hermes-exdev-test-{_uuid.uuid4().hex[:8]}"
+    other_fs_dir = shm / f"sonic-exdev-test-{_uuid.uuid4().hex[:8]}"
     other_fs_dir.mkdir()
     try:
         real = other_fs_dir / "config.yaml"

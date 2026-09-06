@@ -1459,9 +1459,9 @@ def _profile_arg(sonic_home: str | None = None, default_root: str | Path | None 
         sonic_home: Optional explicit SONIC_HOME path. Defaults to the current
             ``get_sonic_home()`` value. Should be passed when generating a
             service definition for a different user (e.g. system service).
-        default_root: Optional Hermes root to compare against. Used when
+        default_root: Optional Sonic root to compare against. Used when
             generating a system service for another user from a sudo/root
-            process, where ``Path.home()`` and ``get_default_hermes_root()``
+            process, where ``Path.home()`` and ``get_default_sonic_root()``
             refer to root but the target profile lives under the service user.
     """
     import re
@@ -1482,14 +1482,14 @@ def _profile_arg(sonic_home: str | None = None, default_root: str | Path | None 
     return ""
 
 
-def _profile_arg_for_target_user(hermes_home: str, target_home_dir: str) -> str:
+def _profile_arg_for_target_user(sonic_home: str, target_home_dir: str) -> str:
     """Return the profile arg for a system service running as another user."""
-    target_root = Path(target_home_dir) / ".hermes"
+    target_root = Path(target_home_dir) / ".sonic"
     try:
-        Path(hermes_home).resolve().relative_to(target_root.resolve())
-        return _profile_arg(hermes_home, default_root=target_root)
+        Path(sonic_home).resolve().relative_to(target_root.resolve())
+        return _profile_arg(sonic_home, default_root=target_root)
     except ValueError:
-        return _profile_arg(hermes_home)
+        return _profile_arg(sonic_home)
 
 
 def get_service_name() -> str:
@@ -3806,11 +3806,11 @@ def _running_under_gateway_supervisor() -> bool:
         marker ``gateway/run.py`` already uses to pick the restart path).
       - launchd sets ``XPC_SERVICE_NAME`` to the job label for jobs it spawns;
         interactive shells inherit the sentinel ``"0"`` instead.
-      - the s6-overlay container longrun exports ``HERMES_S6_SUPERVISED_CHILD``.
+      - the s6-overlay container longrun exports ``SONIC_S6_SUPERVISED_CHILD``.
     """
     if os.environ.get("INVOCATION_ID"):
         return True
-    if os.environ.get("HERMES_S6_SUPERVISED_CHILD"):
+    if os.environ.get("SONIC_S6_SUPERVISED_CHILD"):
         return True
     xpc_service = os.environ.get("XPC_SERVICE_NAME", "")
     if xpc_service and xpc_service != "0":
@@ -3821,7 +3821,7 @@ def _running_under_gateway_supervisor() -> bool:
 def _guard_supervised_gateway_conflict(force: bool = False) -> None:
     """Refuse a foreground gateway when a service manager already supervises one.
 
-    Running ``hermes gateway run [--replace]`` (or the manual-restart fallback)
+    Running ``sonic gateway run [--replace]`` (or the manual-restart fallback)
     from a shell on a systemd/launchd host spawns a second, long-lived
     dispatcher that escapes the service cgroup, survives
     ``systemctl restart``, and becomes a silent concurrent writer on the shared
@@ -3849,7 +3849,7 @@ def _guard_supervised_gateway_conflict(force: bool = False) -> None:
         "  instead:"
     )
     print()
-    print("    hermes gateway restart")
+    print("    sonic gateway restart")
     print()
     print(
         "  Pass --force to start a foreground gateway anyway (not recommended\n"
@@ -3864,10 +3864,10 @@ def _guard_existing_gateway_process_conflict(replace: bool = False) -> None:
     ``gateway.run`` performs the authoritative PID/lock check, but importing it
     is expensive: it pulls in model_tools/plugin discovery first. On small
     instances, a supervisor or dashboard loop repeatedly running bare
-    ``hermes gateway run`` can burn memory/CPU just to fail with "already
+    ``sonic gateway run`` can burn memory/CPU just to fail with "already
     running" after plugin discovery. This cheap PID-file preflight preserves the
     same user-facing contract while avoiding that startup work without scanning
-    unrelated gateway processes from other HERMES_HOME roots.
+    unrelated gateway processes from other SONIC_HOME roots.
     """
     if replace or _running_under_gateway_supervisor():
         return
@@ -3884,9 +3884,9 @@ def _guard_existing_gateway_process_conflict(replace: bool = False) -> None:
     print_error(
         f"Another gateway instance is already running (PID {pid})."
     )
-    print("  Use 'hermes gateway restart' to replace it,")
-    print("  or 'hermes gateway stop' first.")
-    print("  Or use 'hermes gateway run --replace' to auto-replace.")
+    print("  Use 'sonic gateway restart' to replace it,")
+    print("  or 'sonic gateway stop' first.")
+    print("  Or use 'sonic gateway run --replace' to auto-replace.")
     sys.exit(1)
 
 

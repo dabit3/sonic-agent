@@ -919,7 +919,7 @@ gateway:
         rich_messages: true
 ```
 
-This setting is for client-rendering compatibility; Hermes already falls back automatically when Telegram rejects the rich API call. If you only want the legacy "always code-block" table behavior while keeping rich messages enabled, disable table normalization by setting `telegram.pretty_tables: false` in `config.yaml` (default: `true`).
+This setting is for client-rendering compatibility; Sonic already falls back automatically when Telegram rejects the rich API call. If you only want the legacy "always code-block" table behavior while keeping rich messages enabled, disable table normalization by setting `telegram.pretty_tables: false` in `config.yaml` (default: `true`).
 
 **Link previews.** Telegram auto-generates link previews for URLs in bot messages. If you'd rather suppress those (long `/tools` output, agent reply that mentions ten links, etc.):
 

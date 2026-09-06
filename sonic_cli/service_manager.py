@@ -112,7 +112,7 @@ def detect_service_manager() -> ServiceManagerKind:
     # NOT is_container(): the latter only detects Docker/Podman/lxc, so it is
     # False on Fly's Firecracker microVMs even though s6-overlay is PID 1 there.
     # That false negative made the whole s6 dispatch path inert on Fly, so
-    # `hermes gateway start/stop/restart` fell through to host code that spawns
+    # `sonic gateway start/stop/restart` fell through to host code that spawns
     # a foreground gateway competing with the supervised one. _s6_running() is
     # already an s6-overlay-specific signal, so the container gate was redundant.
     if _s6_running():
@@ -339,8 +339,8 @@ def _profile_dir_for_gateway_service(name: str) -> Path:
     """Resolve ``gateway-<profile>`` to its persistent profile directory.
 
     s6 lifecycle commands may be invoked from any active profile, including
-    ``gateway stop --all``. Do not write the caller's HERMES_HOME blindly;
-    derive the shared profile root from the current HERMES_HOME and map the
+    ``gateway stop --all``. Do not write the caller's SONIC_HOME blindly;
+    derive the shared profile root from the current SONIC_HOME and map the
     service suffix to either the root default profile or
     ``<root>/profiles/<profile>``.
     """
@@ -348,11 +348,11 @@ def _profile_dir_for_gateway_service(name: str) -> Path:
 
     profile = name[len(S6_SERVICE_PREFIX):] if name.startswith(S6_SERVICE_PREFIX) else name
     validate_profile_name(profile)
-    hermes_home = Path(os.environ.get("HERMES_HOME", "/opt/data"))
-    if hermes_home.parent.name == "profiles":
-        root = hermes_home.parent.parent
+    sonic_home = Path(os.environ.get("SONIC_HOME", "/opt/data"))
+    if sonic_home.parent.name == "profiles":
+        root = sonic_home.parent.parent
     else:
-        root = hermes_home
+        root = sonic_home
     return root if profile == "default" else root / "profiles" / profile
 
 
@@ -908,7 +908,7 @@ class S6ServiceManager:
         up immediately.  When *start_now* is ``True`` (the default) the
         service starts immediately; when ``False`` a ``down`` marker file
         is written so s6-supervise leaves the service stopped until the
-        user explicitly runs ``hermes -p <profile> gateway start``.
+        user explicitly runs ``sonic -p <profile> gateway start``.
 
         Raises:
             ValueError: if the profile name is invalid or the service

@@ -969,7 +969,7 @@ class TelegramAdapter(BasePlatformAdapter):
         Telegram Desktop 6.9.1 can crash while rendering Bot API 10.1 rich
         messages containing math inside a collapsible details block
         (telegramdesktop/tdesktop#30808). The Bot API accepts the payload, so
-        Hermes must skip rich delivery up front and use the legacy MarkdownV2
+        Sonic must skip rich delivery up front and use the legacy MarkdownV2
         path until affected Desktop clients age out.
         """
         if not content:

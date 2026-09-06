@@ -1432,12 +1432,12 @@ function Install-Venv {
     if (Test-Path "venv") {
         Write-Info "Virtual environment already exists, recreating..."
         # On Windows, native Python extensions (e.g. _bcrypt.pyd) are loaded as
-        # DLLs by any running hermes process. Windows denies deletion of loaded
-        # DLLs, so kill any hermes.exe tree before removing the venv.
+        # DLLs by any running sonic process. Windows denies deletion of loaded
+        # DLLs, so kill any sonic.exe tree before removing the venv.
         if ($env:OS -eq "Windows_NT") {
             $myPid = $PID
-            Write-Info "Stopping any running hermes processes before recreating venv..."
-            & taskkill /F /T /IM hermes.exe /FI "PID ne $myPid" 2>$null | Out-Null
+            Write-Info "Stopping any running sonic processes before recreating venv..."
+            & taskkill /F /T /IM sonic.exe /FI "PID ne $myPid" 2>$null | Out-Null
             Start-Sleep -Milliseconds 800
         }
         Remove-Item -Recurse -Force "venv"

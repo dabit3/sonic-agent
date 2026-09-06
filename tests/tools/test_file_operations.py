@@ -84,10 +84,10 @@ class TestIsWriteDenied:
         "path",
         ["auth.json", "config.yaml", "webhook_subscriptions.json"],
     )
-    def test_hermes_control_files_requested_writable(self, path):
-        from hermes_constants import get_hermes_home
+    def test_sonic_control_files_requested_writable(self, path):
+        from sonic_constants import get_sonic_home
 
-        assert _is_write_denied(str(get_hermes_home() / path)) is False
+        assert _is_write_denied(str(get_sonic_home() / path)) is False
 
     @pytest.mark.parametrize(
         "path",
@@ -130,10 +130,10 @@ class TestIsWriteDenied:
         ["auth.json", "config.yaml", "webhook_subscriptions.json"],
     )
     def test_control_files_requested_writable_in_profile_mode(self, tmp_path, monkeypatch, name):
-        root = tmp_path / "hermes"
+        root = tmp_path / "sonic"
         profile = root / "profiles" / "coder"
         profile.mkdir(parents=True)
-        monkeypatch.setenv("HERMES_HOME", str(profile))
+        monkeypatch.setenv("SONIC_HOME", str(profile))
 
         assert _is_write_denied(str(profile / name)) is False
         assert _is_write_denied(str(root / name)) is False

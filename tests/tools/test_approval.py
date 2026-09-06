@@ -667,7 +667,7 @@ class TestProjectSensitiveCopyPattern:
 
 class TestSensitiveCopyMovePattern:
     """cp/mv/install OVERWRITING ~/.ssh/*, credential files (~/.netrc etc.),
-    shell rc files, or ~/.hermes/config.yaml/.env must require approval — the
+    shell rc files, or ~/.sonic/config.yaml/.env must require approval — the
     tee/redirection forms were already gated (#14639 family / commit 4e9d886d),
     but cp/mv/install on these targets was an unpaired half-door (key implant /
     shell-rc command injection slipped through auto-approve)."""
@@ -689,8 +689,8 @@ class TestSensitiveCopyMovePattern:
         dangerous, key, desc = detect_dangerous_command("cp /tmp/e ~/.bashrc")
         assert dangerous is True
 
-    def test_cp_to_hermes_config(self):
-        dangerous, key, desc = detect_dangerous_command("cp /tmp/evil.yaml ~/.hermes/config.yaml")
+    def test_cp_to_sonic_config(self):
+        dangerous, key, desc = detect_dangerous_command("cp /tmp/evil.yaml ~/.sonic/config.yaml")
         assert dangerous is True
 
     def test_cp_from_ssh_is_safe(self):

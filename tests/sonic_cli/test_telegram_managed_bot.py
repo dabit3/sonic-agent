@@ -324,20 +324,20 @@ class TestSetupTelegramAuto:
         assert callable(_setup_telegram_auto)
 
     def test_setup_result_passes_profile_name_for_profile_home(self, monkeypatch, tmp_path):
-        from hermes_cli import setup
+        from sonic_cli import setup
 
         seen = {}
-        profile_home = tmp_path / ".hermes" / "profiles" / "oracle"
+        profile_home = tmp_path / ".sonic" / "profiles" / "oracle"
         profile_home.mkdir(parents=True)
 
-        monkeypatch.setattr(setup, "get_hermes_home", lambda: profile_home)
+        monkeypatch.setattr(setup, "get_sonic_home", lambda: profile_home)
 
         def fake_auto_setup_telegram_bot_result(*, profile_name=None):
             seen["profile_name"] = profile_name
             return None
 
         monkeypatch.setattr(
-            "hermes_cli.telegram_managed_bot.auto_setup_telegram_bot_result",
+            "sonic_cli.telegram_managed_bot.auto_setup_telegram_bot_result",
             fake_auto_setup_telegram_bot_result,
         )
 
@@ -345,11 +345,11 @@ class TestSetupTelegramAuto:
         assert seen["profile_name"] == "oracle"
 
     def test_profile_name_from_home_path_handles_windows_separators(self):
-        from hermes_cli.setup import _profile_name_from_hermes_home
+        from sonic_cli.setup import _profile_name_from_sonic_home
 
         assert (
-            _profile_name_from_hermes_home(
-                PureWindowsPath(r"C:\Users\test\AppData\Local\hermes\profiles\oracle")
+            _profile_name_from_sonic_home(
+                PureWindowsPath(r"C:\Users\test\AppData\Local\sonic\profiles\oracle")
             )
             == "oracle"
         )

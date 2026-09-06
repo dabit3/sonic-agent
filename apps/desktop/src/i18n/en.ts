@@ -137,8 +137,8 @@ export const en: Translations = {
       approveAction: 'Approve',
       rejectAction: 'Reject',
       inputTitle: 'Input needed',
-      inputBody: 'Hermes is waiting for your response.',
-      turnDoneTitle: 'Hermes finished',
+      inputBody: 'Sonic is waiting for your response.',
+      turnDoneTitle: 'Sonic finished',
       turnDoneBody: 'The response is ready.',
       turnErrorTitle: 'Turn failed',
       backgroundDoneTitle: 'Background task finished',
@@ -284,7 +284,7 @@ export const en: Translations = {
         'Native desktop notifications, separate from in-app toasts. These are device-local — each computer keeps its own settings.',
       enableAll: 'Enable notifications',
       enableAllDesc: 'Master switch. Turn this off to silence every notification below.',
-      focusedHint: 'Completion alerts only fire while Hermes is in the background.',
+      focusedHint: 'Completion alerts only fire while Sonic is in the background.',
       kinds: {
         approval: {
           label: 'Approval needed',
@@ -292,11 +292,11 @@ export const en: Translations = {
         },
         input: {
           label: 'Input needed',
-          description: 'Hermes asked a question or needs a password or secret.'
+          description: 'Sonic asked a question or needs a password or secret.'
         },
         turnDone: {
           label: 'Response ready',
-          description: 'A turn finished while Hermes was in the background.'
+          description: 'A turn finished while Sonic was in the background.'
         },
         turnError: {
           label: 'Turn failed',
@@ -308,7 +308,7 @@ export const en: Translations = {
         }
       },
       test: 'Send test notification',
-      testTitle: 'Hermes',
+      testTitle: 'Sonic',
       testBody: 'Notifications are working.',
       testSent: 'Test sent. If nothing appears, check your OS notification permissions and Focus/Do Not Disturb.',
       testUnsupported: 'This system does not support native notifications.',
@@ -565,7 +565,7 @@ export const en: Translations = {
       connectAnother: 'Connect another provider',
       otherProviders: 'Other providers',
       removeConfirm: provider => `Remove ${provider}?`,
-      removeExternal: (provider, command) => `${provider} is managed outside Hermes. Remove it with ${command}.`,
+      removeExternal: (provider, command) => `${provider} is managed outside Sonic. Remove it with ${command}.`,
       removeKeyManaged: provider => `${provider} is configured from an API key. Remove it from API Keys.`,
       removedTitle: 'Account removed',
       removedMessage: provider => `${provider} was removed.`,

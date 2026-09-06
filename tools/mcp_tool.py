@@ -2677,7 +2677,7 @@ def _interpolate_env_vars(value):
 def _filter_suspicious_mcp_servers(servers: Dict[str, dict]) -> Dict[str, dict]:
     """Drop exfiltration-shaped MCP configs before any stdio spawn path."""
     try:
-        from hermes_cli.mcp_security import validate_mcp_server_entry as _validate_mcp_server_entry
+        from sonic_cli.mcp_security import validate_mcp_server_entry as _validate_mcp_server_entry
     except Exception:
         _validate_mcp_server_entry: Callable[[str, dict[str, Any]], list[str]] | None = None
 

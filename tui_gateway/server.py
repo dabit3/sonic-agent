@@ -4274,7 +4274,7 @@ def _(rid, params: dict) -> dict:
             return _ok(rid, payload)
         try:
             init_home_token = (
-                set_hermes_home_override(str(profile_home))
+                set_sonic_home_override(str(profile_home))
                 if profile_home is not None
                 else None
             )
@@ -4290,7 +4290,7 @@ def _(rid, params: dict) -> dict:
                 )
             finally:
                 if init_home_token is not None:
-                    reset_hermes_home_override(init_home_token)
+                    reset_sonic_home_override(init_home_token)
             if sid in _sessions:
                 if stored_runtime_overrides.get("model_override") is not None:
                     _sessions[sid]["model_override"] = stored_runtime_overrides[

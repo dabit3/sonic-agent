@@ -355,7 +355,7 @@ def _apply_profile_override() -> None:
         return True
 
     def _resolve_sudo_user_profile_env(name: str) -> str | None:
-        """Resolve `sudo hermes -p <name>` against the invoking user's home.
+        """Resolve `sudo sonic -p <name>` against the invoking user's home.
 
         `_apply_profile_override()` runs before argparse, so `--run-as-user`
         is not available yet. For sudo invocations, the best available signal
@@ -377,7 +377,7 @@ def _apply_profile_override() -> None:
         except Exception:
             return None
 
-        candidate = home / ".hermes" / "profiles" / name
+        candidate = home / ".sonic" / "profiles" / name
         try:
             if candidate.is_dir():
                 return str(candidate)

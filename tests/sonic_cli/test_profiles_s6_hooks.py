@@ -116,7 +116,7 @@ def test_register_passes_start_now_false(monkeypatch: pytest.MonkeyPatch) -> Non
     _patch_detect_s6(monkeypatch)
     mgr = _S6Manager()
     monkeypatch.setattr(
-        "hermes_cli.service_manager.get_service_manager", lambda: mgr,
+        "sonic_cli.service_manager.get_service_manager", lambda: mgr,
     )
     _maybe_register_gateway_service("coder")
     assert mgr.last_start_now is False, (

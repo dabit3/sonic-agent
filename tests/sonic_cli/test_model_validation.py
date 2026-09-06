@@ -227,7 +227,7 @@ class TestProviderModelIds:
                 return b'{"data": [{"id": "enterprise-claude"}]}'
 
         with patch(
-            "hermes_cli.config.load_config",
+            "sonic_cli.config.load_config",
             return_value={
                 "model": {
                     "provider": "anthropic",
@@ -236,7 +236,7 @@ class TestProviderModelIds:
                 }
             },
         ), patch(
-            "hermes_cli.models.urllib.request.urlopen",
+            "sonic_cli.models.urllib.request.urlopen",
             return_value=_Resp(),
         ) as mock_urlopen:
             assert provider_model_ids("anthropic") == ["enterprise-claude"]
@@ -247,7 +247,7 @@ class TestProviderModelIds:
 
     def test_custom_provider_passes_anthropic_mode_for_versioned_proxy_catalog(self):
         with patch(
-            "hermes_cli.config.load_config",
+            "sonic_cli.config.load_config",
             return_value={
                 "model": {
                     "provider": "custom",
@@ -256,7 +256,7 @@ class TestProviderModelIds:
                 }
             },
         ), patch(
-            "hermes_cli.models.fetch_api_models",
+            "sonic_cli.models.fetch_api_models",
             return_value=["enterprise-claude"],
         ) as mock_fetch:
             assert provider_model_ids("custom") == ["enterprise-claude"]

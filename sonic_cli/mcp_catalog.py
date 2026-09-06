@@ -730,7 +730,7 @@ def install_entry(entry: CatalogEntry, *, enable: bool = True) -> None:
     server_cfg = _build_server_config(entry, install_dir)
     server_cfg["enabled"] = enable
 
-    from hermes_cli.mcp_config import _save_mcp_server
+    from sonic_cli.mcp_config import _save_mcp_server
 
     if not _save_mcp_server(entry.name, server_cfg):
         raise CatalogError(

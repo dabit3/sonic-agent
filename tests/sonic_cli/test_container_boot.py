@@ -145,7 +145,7 @@ def test_desired_state_running_autostarts_even_if_runtime_failed(tmp_path: Path)
     )
 
     actions = reconcile_profile_gateways(
-        hermes_home=tmp_path, scandir=scandir, dry_run=False,
+        sonic_home=tmp_path, scandir=scandir, dry_run=False,
     )
 
     assert _named_actions(actions) == [ReconcileAction(
@@ -165,7 +165,7 @@ def test_desired_state_stopped_blocks_legacy_running_runtime(tmp_path: Path) -> 
     )
 
     actions = reconcile_profile_gateways(
-        hermes_home=tmp_path, scandir=scandir, dry_run=False,
+        sonic_home=tmp_path, scandir=scandir, dry_run=False,
     )
 
     assert _named_actions(actions) == [ReconcileAction(

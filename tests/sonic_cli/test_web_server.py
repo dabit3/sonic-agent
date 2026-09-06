@@ -1401,7 +1401,7 @@ class TestWebServerEndpoints:
         assert "personal WeChat" in weixin["description"]
         assert "Official Account" not in f"{weixin['name']} {weixin['description']}"
         assert weixin["docs_url"] == (
-            "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/weixin/"
+            "https://lightning-agent.nousresearch.com/docs/user-guide/messaging/weixin/"
         )
 
         fields = {field["key"]: field for field in weixin["env_vars"]}
@@ -1884,7 +1884,7 @@ class TestWebServerEndpoints:
     def test_spa_assets_are_read_as_utf8(self, monkeypatch, tmp_path):
         from fastapi import FastAPI
         from starlette.testclient import TestClient
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         dist = tmp_path / "web_dist"
         assets = dist / "assets"
@@ -1914,7 +1914,7 @@ class TestWebServerEndpoints:
         assert index_resp.status_code == 200
         assert "cafe cafe" in index_resp.text
 
-        css_resp = spa_client.get("/assets/app.css", headers={"x-forwarded-prefix": "/hermes"})
+        css_resp = spa_client.get("/assets/app.css", headers={"x-forwarded-prefix": "/sonic"})
         assert css_resp.status_code == 200
         assert "content: 'cafe';" in css_resp.text
 
@@ -2693,7 +2693,7 @@ class TestNewEndpoints:
         wrapper_dir = tmp_path / "bin"
         wrapper_dir.mkdir()
         monkeypatch.setattr(profiles_mod, "_get_wrapper_dir", lambda: wrapper_dir)
-        monkeypatch.setattr(profiles_mod.shutil, "which", lambda name: "/opt/hermes/bin/hermes")
+        monkeypatch.setattr(profiles_mod.shutil, "which", lambda name: "/opt/sonic/bin/sonic")
 
         resp = self.client.post(
             "/api/profiles",

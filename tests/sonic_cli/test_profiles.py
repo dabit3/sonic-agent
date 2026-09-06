@@ -36,7 +36,7 @@ from sonic_cli.profiles import (
     NO_BUNDLED_SKILLS_MARKER,
     backfill_profile_envs,
 )
-from hermes_cli.config import DEFAULT_CONFIG
+from sonic_cli.config import DEFAULT_CONFIG
 
 
 # ---------------------------------------------------------------------------
@@ -216,7 +216,7 @@ class TestCreateProfile:
 
     def test_clone_config_migrates_legacy_config_version(self, profile_env):
         tmp_path = profile_env
-        default_home = tmp_path / ".hermes"
+        default_home = tmp_path / ".sonic"
         (default_home / "config.yaml").write_text(
             "model:\n  provider: openrouter\n",
             encoding="utf-8",

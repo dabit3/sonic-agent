@@ -183,9 +183,9 @@ terminal:
   cwd: "."  # For local backend: "." = current directory. Ignored for remote backends unless a backend documents otherwise.
   timeout: 180
   # HOME policy for tool subprocesses:
-  #   auto    - default: host uses your real HOME; containers use HERMES_HOME/home
+  #   auto    - default: host uses your real HOME; containers use SONIC_HOME/home
   #   real    - force your real OS-user HOME
-  #   profile - force HERMES_HOME/home for strict per-profile CLI config isolation
+  #   profile - force SONIC_HOME/home for strict per-profile CLI config isolation
   home_mode: "auto"
   docker_mount_cwd_to_workspace: false  # SECURITY: off by default. Opt in to mount the launch cwd into Docker /workspace.
   lifetime_seconds: 300

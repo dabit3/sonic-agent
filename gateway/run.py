@@ -4674,7 +4674,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             # Mark this replay so _handle_message does not queue it again while
             # the restore gate remains closed for any fresh inbound arrivals.
             try:
-                setattr(event, "_hermes_startup_restore_replay", True)
+                setattr(event, "_sonic_startup_restore_replay", True)
             except Exception:
                 pass
             await adapter.handle_message(event)
@@ -6609,7 +6609,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         if (
             getattr(self, "_startup_restore_in_progress", False)
             and not getattr(event, "internal", False)
-            and not getattr(event, "_hermes_startup_restore_replay", False)
+            and not getattr(event, "_sonic_startup_restore_replay", False)
         ):
             self._queue_startup_restore_event(event)
             return None
@@ -14373,7 +14373,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             _cache_lock = getattr(self, "_agent_cache_lock", None)
             _cache = getattr(self, "_agent_cache", None)
 
-            # Detect cross-process writes: when another process (e.g. hermes
+            # Detect cross-process writes: when another process (e.g. sonic
             # dashboard) appends to the same session in the shared SessionDB,
             # the cached agent's in-memory transcript becomes stale.  Compare
             # the session's current message_count against the count recorded

@@ -27,7 +27,7 @@ class TestGetDisabledSkills:
         assert get_disabled_skills(config, platform="telegram") == {"skill-a", "skill-b"}
 
     def test_platform_list_unions_with_global(self):
-        from hermes_cli.skills_config import get_disabled_skills
+        from sonic_cli.skills_config import get_disabled_skills
         config = {"skills": {
             "disabled": ["global-skill"],
             "platform_disabled": {"telegram": []}

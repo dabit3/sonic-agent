@@ -67,9 +67,9 @@ function buildDesktopBackendPath({
   )
 }
 
-function normalizeHermesHomeRoot(hermesHome, { pathModule = pathModuleForPlatform(process.platform) } = {}) {
-  if (!hermesHome) return hermesHome
-  const resolved = pathModule.resolve(String(hermesHome))
+function normalizeSonicHomeRoot(sonicHome, { pathModule = pathModuleForPlatform(process.platform) } = {}) {
+  if (!sonicHome) return sonicHome
+  const resolved = pathModule.resolve(String(sonicHome))
   const parent = pathModule.dirname(resolved)
   if (pathModule.basename(parent).toLowerCase() === 'profiles') {
     return pathModule.dirname(parent)
@@ -107,6 +107,6 @@ module.exports = {
   buildDesktopBackendEnv,
   buildDesktopBackendPath,
   delimiterForPlatform,
-  normalizeHermesHomeRoot,
+  normalizeSonicHomeRoot,
   pathEnvKey
 }

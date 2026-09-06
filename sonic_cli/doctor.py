@@ -559,8 +559,8 @@ def run_doctor(args):
 
     _section("MCP Server Security")
     try:
-        from hermes_cli.config import load_config
-        from hermes_cli.mcp_security import validate_mcp_server_entry
+        from sonic_cli.config import load_config
+        from sonic_cli.mcp_security import validate_mcp_server_entry
 
         servers = load_config().get("mcp_servers") or {}
         suspicious = 0

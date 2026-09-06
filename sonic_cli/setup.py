@@ -1662,10 +1662,10 @@ def _setup_telegram_auto_result():
     return auto_setup_telegram_bot_result(profile_name=profile_name)
 
 
-def _profile_name_from_hermes_home(hermes_home) -> str | None:
-    """Return the active profile name when HERMES_HOME is a profile dir."""
-    if hermes_home.parent.name == "profiles":
-        return hermes_home.name
+def _profile_name_from_sonic_home(sonic_home) -> str | None:
+    """Return the active profile name when SONIC_HOME is a profile dir."""
+    if sonic_home.parent.name == "profiles":
+        return sonic_home.name
     return None
 
 

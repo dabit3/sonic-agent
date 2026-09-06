@@ -58,7 +58,7 @@ jobs:
           fi
           MCP_CATALOG_FILES=$(git diff --name-only "$BASE"..."$HEAD" -- \
             'optional-mcps/**' \
-            'hermes_cli/mcp_catalog.py' || true)
+            'sonic_cli/mcp_catalog.py' || true)
           if [ -n "$MCP_CATALOG_FILES" ]; then
             echo "mcp_catalog=true" >> "$GITHUB_OUTPUT"
           else

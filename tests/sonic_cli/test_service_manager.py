@@ -74,11 +74,11 @@ def test_detect_service_manager_s6_keys_off_s6_running_not_is_container(
 ) -> None:
     """Regression: Fly runs s6-overlay as PID 1 in a Firecracker microVM, which
     is not a Docker/Podman container. Gating s6 detection on is_container() made
-    the dispatch path inert on Fly, so `hermes gateway restart` spawned a
+    the dispatch path inert on Fly, so `sonic gateway restart` spawned a
     foreground gateway that fought the supervised one. Detection must key off
     s6 being PID 1 (`_s6_running`) alone."""
     monkeypatch.setattr(
-        "hermes_cli.service_manager._s6_running", lambda: True,
+        "sonic_cli.service_manager._s6_running", lambda: True,
     )
     assert detect_service_manager() == "s6"
 
@@ -734,11 +734,11 @@ def test_s6_lifecycle_persists_named_profile_desired_state(
 ) -> None:
     import json
 
-    hermes_home = tmp_path / "hermes-home"
-    profile_dir = hermes_home / "profiles" / "coder"
+    sonic_home = tmp_path / "sonic-home"
+    profile_dir = sonic_home / "profiles" / "coder"
     profile_dir.mkdir(parents=True)
     (s6_scandir / "gateway-coder").mkdir()
-    monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
     mgr = S6ServiceManager(scandir=s6_scandir)
     mgr.start("gateway-coder")
@@ -757,14 +757,14 @@ def test_s6_lifecycle_persists_default_profile_desired_state(
 ) -> None:
     import json
 
-    hermes_home = tmp_path / "hermes-home"
-    hermes_home.mkdir()
+    sonic_home = tmp_path / "sonic-home"
+    sonic_home.mkdir()
     (s6_scandir / "gateway-default").mkdir()
-    monkeypatch.setenv("HERMES_HOME", str(hermes_home / "profiles" / "coder"))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home / "profiles" / "coder"))
 
     mgr = S6ServiceManager(scandir=s6_scandir)
     mgr.start("gateway-default")
-    state = json.loads((hermes_home / "gateway_state.json").read_text())
+    state = json.loads((sonic_home / "gateway_state.json").read_text())
     assert state["desired_state"] == "running"
 
 
@@ -1000,27 +1000,27 @@ def test_s6_log_run_chowns_gateways_parent(s6_scandir, fake_subprocess_run) -> N
     Regression guard for #45258: `mkdir -p` creates the gateways/ parent
     root-owned on a root-context boot, and a leaf-only chown leaves it that
     way. Every profile registered later then runs its log service as the
-    dropped hermes user and s6-log crash-loops on `mkdir: Permission denied`.
+    dropped sonic user and s6-log crash-loops on `mkdir: Permission denied`.
     """
     mgr = S6ServiceManager(scandir=s6_scandir)
     mgr.register_profile_gateway("coder")
 
     log_text = (s6_scandir / "gateway-coder" / "log" / "run").read_text()
 
-    parent_chown = 'chown hermes:hermes "$HERMES_HOME/logs/gateways"'
+    parent_chown = 'chown sonic:sonic "$SONIC_HOME/logs/gateways"'
     assert parent_chown in log_text, (
         "log/run must chown the logs/gateways parent so profiles added "
         f"after a root-context boot can create their leaf dirs. Saw: {log_text!r}"
     )
     # Non-recursive on purpose: sibling profile leaf dirs are each managed
     # by their own log/run; a recursive parent chown would race them.
-    assert 'chown -R hermes:hermes "$HERMES_HOME/logs/gateways"' not in log_text
+    assert 'chown -R sonic:sonic "$SONIC_HOME/logs/gateways"' not in log_text
 
     # Ordering: mkdir creates the parent, then the parent chown repairs its
     # ownership, then the leaf chown — all before s6-log execs.
     mkdir_idx = log_text.index('mkdir -p "$log_dir"')
     parent_idx = log_text.index(parent_chown)
-    leaf_idx = log_text.index('chown -R hermes:hermes "$log_dir"')
+    leaf_idx = log_text.index('chown -R sonic:sonic "$log_dir"')
     exec_idx = log_text.index("s6-log 1 ")
     assert mkdir_idx < parent_idx < leaf_idx < exec_idx
 

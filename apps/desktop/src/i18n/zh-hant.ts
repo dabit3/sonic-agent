@@ -133,8 +133,8 @@ export const zhHant = defineLocale({
       approveAction: '核准',
       rejectAction: '拒絕',
       inputTitle: '需要輸入',
-      inputBody: 'Hermes 正在等待你的回應。',
-      turnDoneTitle: 'Hermes 已完成',
+      inputBody: 'Sonic 正在等待你的回應。',
+      turnDoneTitle: 'Sonic 已完成',
       turnDoneBody: '回覆已就緒。',
       turnErrorTitle: '本輪失敗',
       backgroundDoneTitle: '背景工作已完成',
@@ -192,7 +192,7 @@ export const zhHant = defineLocale({
       intro: '原生桌面通知，與應用程式內提示不同。設定會依裝置保存，每台電腦各自獨立。',
       enableAll: '啟用通知',
       enableAllDesc: '總開關。關閉後會靜音下方所有通知。',
-      focusedHint: '完成提醒僅在 Hermes 位於背景時觸發。',
+      focusedHint: '完成提醒僅在 Sonic 位於背景時觸發。',
       kinds: {
         approval: {
           label: '需要核准',
@@ -200,11 +200,11 @@ export const zhHant = defineLocale({
         },
         input: {
           label: '需要輸入',
-          description: 'Hermes 提出了問題，或需要密碼或密鑰。'
+          description: 'Sonic 提出了問題，或需要密碼或密鑰。'
         },
         turnDone: {
           label: '回覆就緒',
-          description: 'Hermes 在背景時完成了一輪對話。'
+          description: 'Sonic 在背景時完成了一輪對話。'
         },
         turnError: {
           label: '本輪失敗',
@@ -216,7 +216,7 @@ export const zhHant = defineLocale({
         }
       },
       test: '傳送測試通知',
-      testTitle: 'Hermes',
+      testTitle: 'Sonic',
       testBody: '通知運作正常。',
       testSent: '測試已傳送。若沒有出現，請檢查系統通知權限與專注模式／勿擾模式。',
       testUnsupported: '此系統不支援原生通知。',
@@ -672,7 +672,7 @@ export const zhHant = defineLocale({
       connectAnother: '連結其他提供方',
       otherProviders: '其他提供方',
       removeConfirm: provider => `移除 ${provider}？`,
-      removeExternal: (provider, command) => `${provider} 由 Hermes 外部管理。請使用 ${command} 移除。`,
+      removeExternal: (provider, command) => `${provider} 由 Sonic 外部管理。請使用 ${command} 移除。`,
       removeKeyManaged: provider => `${provider} 由 API 金鑰設定。請從 API Keys 中移除。`,
       removedTitle: '帳號已移除',
       removedMessage: provider => `${provider} 已移除。`,

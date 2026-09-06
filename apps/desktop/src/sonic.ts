@@ -394,7 +394,7 @@ export function listOAuthProviders(): Promise<OAuthProvidersResponse> {
 }
 
 export function disconnectOAuthProvider(providerId: string): Promise<{ ok: boolean; provider: string }> {
-  return window.hermesDesktop.api<{ ok: boolean; provider: string }>({
+  return window.sonicDesktop.api<{ ok: boolean; provider: string }>({
     ...profileScoped(),
     path: `/api/providers/oauth/${encodeURIComponent(providerId)}`,
     method: 'DELETE'

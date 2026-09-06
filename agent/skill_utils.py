@@ -283,7 +283,7 @@ def _raw_config_cache_clear() -> None:
 def _load_raw_config() -> Dict[str, Any]:
     """Read config.yaml with a shared mtime+size keyed cache.
 
-    This module intentionally avoids importing ``hermes_cli.config`` on the
+    This module intentionally avoids importing ``sonic_cli.config`` on the
     skill prompt/build path. A tiny local cache gives the same repeated-read
     win without pulling the heavier CLI config stack into startup.
     """

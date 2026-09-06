@@ -7,7 +7,7 @@ const {
   appendUniquePathEntries,
   buildDesktopBackendEnv,
   buildDesktopBackendPath,
-  normalizeHermesHomeRoot,
+  normalizeSonicHomeRoot,
   pathEnvKey
 } = require('./backend-env.cjs')
 
@@ -67,18 +67,18 @@ test('buildDesktopBackendEnv extends PYTHONPATH and backend PATH together', () =
   assert.ok(env.PATH.includes('/opt/homebrew/bin'))
 })
 
-test('normalizeHermesHomeRoot maps profile homes back to the global Hermes root', () => {
+test('normalizeSonicHomeRoot maps profile homes back to the global Sonic root', () => {
   assert.equal(
-    normalizeHermesHomeRoot('/Users/test/.hermes/profiles/oracle', { pathModule: path.posix }),
-    '/Users/test/.hermes'
+    normalizeSonicHomeRoot('/Users/test/.sonic/profiles/oracle', { pathModule: path.posix }),
+    '/Users/test/.sonic'
   )
   assert.equal(
-    normalizeHermesHomeRoot('C:\\Users\\test\\AppData\\Local\\hermes\\profiles\\oracle', { pathModule: path.win32 }),
-    'C:\\Users\\test\\AppData\\Local\\hermes'
+    normalizeSonicHomeRoot('C:\\Users\\test\\AppData\\Local\\sonic\\profiles\\oracle', { pathModule: path.win32 }),
+    'C:\\Users\\test\\AppData\\Local\\sonic'
   )
   assert.equal(
-    normalizeHermesHomeRoot('/Users/test/.hermes', { pathModule: path.posix }),
-    '/Users/test/.hermes'
+    normalizeSonicHomeRoot('/Users/test/.sonic', { pathModule: path.posix }),
+    '/Users/test/.sonic'
   )
 })
 

@@ -1982,7 +1982,7 @@ class TestProfileArg:
 
     def test_named_profile_under_target_user_root_returns_flag(self, tmp_path):
         """System installs generated under sudo must compare against target user's root."""
-        target_root = tmp_path / "home" / "alice" / ".hermes"
+        target_root = tmp_path / "home" / "alice" / ".sonic"
         profile_dir = target_root / "profiles" / "mybot"
         profile_dir.mkdir(parents=True)
 
@@ -2037,12 +2037,12 @@ class TestProfileArg:
         """sudo system install must keep the target user's named profile in ExecStart."""
         root_home = tmp_path / "root"
         target_home = tmp_path / "home" / "alice"
-        root_profile = root_home / ".hermes" / "profiles" / "mybot"
+        root_profile = root_home / ".sonic" / "profiles" / "mybot"
         root_profile.mkdir(parents=True)
 
         monkeypatch.setattr(Path, "home", lambda: root_home)
-        monkeypatch.setenv("HERMES_HOME", str(root_profile))
-        monkeypatch.setattr(gateway_cli, "get_hermes_home", lambda: root_profile)
+        monkeypatch.setenv("SONIC_HOME", str(root_profile))
+        monkeypatch.setattr(gateway_cli, "get_sonic_home", lambda: root_profile)
         monkeypatch.setattr(
             gateway_cli,
             "_system_service_identity",
@@ -2053,7 +2053,7 @@ class TestProfileArg:
 
         assert "ExecStart=" in unit
         assert "--profile mybot gateway run" in unit
-        assert f'HERMES_HOME={target_home / ".hermes" / "profiles" / "mybot"}' in unit
+        assert f'SONIC_HOME={target_home / ".sonic" / "profiles" / "mybot"}' in unit
 
     def test_launchd_plist_includes_profile(self, tmp_path, monkeypatch):
         """generate_launchd_plist should include --profile in ProgramArguments for named profiles."""

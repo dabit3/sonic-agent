@@ -115,8 +115,8 @@ _ENDPOINT_MODEL_CACHE_TTL = 300
 
 def _get_model_metadata_cache_path() -> Path:
     """Return path to the OpenRouter model metadata disk cache."""
-    from hermes_constants import get_hermes_home
-    return get_hermes_home() / "cache" / "openrouter_model_metadata.json"
+    from sonic_constants import get_sonic_home
+    return get_sonic_home() / "cache" / "openrouter_model_metadata.json"
 
 
 def _model_metadata_disk_cache_age_seconds() -> Optional[float]:

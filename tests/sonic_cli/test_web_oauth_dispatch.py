@@ -338,7 +338,7 @@ def test_xai_oauth_listed_as_loopback_flow():
 
 
 def test_oauth_catalog_marks_external_providers_not_disconnectable():
-    """External CLI credentials are visible in Accounts but cannot be removed by Hermes."""
+    """External CLI credentials are visible in Accounts but cannot be removed by Sonic."""
     resp = client.get("/api/providers/oauth", headers=HEADERS)
     assert resp.status_code == 200, resp.text
     providers = {p["id"]: p for p in resp.json()["providers"]}
@@ -354,7 +354,7 @@ def test_oauth_catalog_marks_external_providers_not_disconnectable():
 
 def test_external_oauth_disconnect_rejected_before_auth_mutation(monkeypatch):
     """DELETE must not pretend to remove credentials owned by another CLI."""
-    from hermes_cli import auth as auth_mod
+    from sonic_cli import auth as auth_mod
 
     def fail_clear_provider_auth(provider_id=None):
         raise AssertionError("external providers must not reach clear_provider_auth")

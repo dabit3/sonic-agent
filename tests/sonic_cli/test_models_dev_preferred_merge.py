@@ -108,7 +108,7 @@ class TestProviderModelIdsPreferred:
         """Kimi /models can lag inference; live results must not replace curated."""
         with (
             patch(
-                "hermes_cli.auth.resolve_api_key_provider_credentials",
+                "sonic_cli.auth.resolve_api_key_provider_credentials",
                 return_value={"api_key": "sk-test", "base_url": "https://api.moonshot.ai/v1"},
             ),
             patch("providers.base.ProviderProfile.fetch_models", return_value=["kimi-k2.6"]),
@@ -118,7 +118,7 @@ class TestProviderModelIdsPreferred:
 
     def test_kimi_setup_flow_uses_same_coding_plan_catalog(self):
         """The setup wizard must not carry a stale duplicate Kimi model list."""
-        from hermes_cli.model_setup_flows import _model_flow_kimi
+        from sonic_cli.model_setup_flows import _model_flow_kimi
 
         captured = {}
 
@@ -127,10 +127,10 @@ class TestProviderModelIdsPreferred:
             return None
 
         with (
-            patch("hermes_cli.main._prompt_api_key", return_value=("sk-kimi-test", False)),
-            patch("hermes_cli.auth._prompt_model_selection", side_effect=fake_select),
-            patch("hermes_cli.config.get_env_value", return_value=""),
-            patch("hermes_cli.config.save_env_value"),
+            patch("sonic_cli.main._prompt_api_key", return_value=("sk-kimi-test", False)),
+            patch("sonic_cli.auth._prompt_model_selection", side_effect=fake_select),
+            patch("sonic_cli.config.get_env_value", return_value=""),
+            patch("sonic_cli.config.save_env_value"),
         ):
             _model_flow_kimi({}, current_model="")
 

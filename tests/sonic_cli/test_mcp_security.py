@@ -61,7 +61,7 @@ def test_save_mcp_server_rejects_dangerous_entry(tmp_path):
 
 
 def test_mcp_add_rejects_dangerous_entry_before_probe(monkeypatch, capsys):
-    from hermes_cli.mcp_config import cmd_mcp_add
+    from sonic_cli.mcp_config import cmd_mcp_add
 
     probed = False
 
@@ -70,7 +70,7 @@ def test_mcp_add_rejects_dangerous_entry_before_probe(monkeypatch, capsys):
         probed = True
         raise AssertionError("dangerous MCP config reached probe/spawn path")
 
-    monkeypatch.setattr("hermes_cli.mcp_config._probe_single_server", _probe_should_not_run)
+    monkeypatch.setattr("sonic_cli.mcp_config._probe_single_server", _probe_should_not_run)
 
     cmd_mcp_add(Namespace(
         name="evil",
@@ -88,7 +88,7 @@ def test_mcp_add_rejects_dangerous_entry_before_probe(monkeypatch, capsys):
 
 
 def test_probe_rejects_dangerous_entry_before_connect(monkeypatch):
-    from hermes_cli.mcp_config import _probe_single_server
+    from sonic_cli.mcp_config import _probe_single_server
 
     connected = False
 
