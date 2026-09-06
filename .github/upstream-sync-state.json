@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "691ff7c1887de4dac853ac79fee48d681e110de6",
-  "synced_at": "2026-09-04T16:08:11Z",
-  "notes": "Partial sync: batch 7 ports the 80 first-parent commits after b1fe2107, ending at 691ff7c1 (1 commit skipped as already-applied/empty: 6ff39c31ad). Manual conflicts: nix/lib.nix npmDepsHash, uv.lock (pytest-timeout removal), tests/conftest.py (already present). Remaining backlog is approximately 13,360 first-parent commits; each daily run advances the baseline by a reviewable batch."
+  "last_synced_upstream_sha": "c8e5f34f24ac46c55ce29feddf7f77fe0f5f7013",
+  "synced_at": "2026-09-05T16:04:25Z",
+  "notes": "Partial sync: batch 8 ports the 80 first-parent commits after 691ff7c1, ending at c8e5f34f24 (0 skipped). Manual conflicts: nix/lib.nix npmDepsHash, website/static/api/model-catalog.json updated_at, scripts/release.py AUTHOR_MAP."
 }
