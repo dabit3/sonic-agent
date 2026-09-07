@@ -167,7 +167,7 @@ def build_models_payload(
     # aggregator rows honest: they only show models the user can't get
     # from a more-specific provider.  (#45954)
     try:
-        from hermes_cli.providers import is_aggregator as _is_aggregator
+        from sonic_cli.providers import is_aggregator as _is_aggregator
     except Exception:
         _is_aggregator = None  # type: ignore[assignment]
 

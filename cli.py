@@ -5786,7 +5786,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
         if not self._session_db:
             return []
         try:
-            from hermes_cli.session_listing import query_session_listing
+            from sonic_cli.session_listing import query_session_listing
 
             return query_session_listing(
                 self._session_db,

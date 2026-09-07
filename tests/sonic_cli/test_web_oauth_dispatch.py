@@ -35,7 +35,7 @@ HEADERS = {"X-Sonic-Session-Token": _SESSION_TOKEN}
 
 
 def _make_profile_home(tmp_path, monkeypatch, profile="coder"):
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     profile_home = tmp_path / "profiles" / profile
     profile_home.mkdir(parents=True)
     return profile_home
@@ -135,21 +135,21 @@ def test_nous_dashboard_device_flow_ignores_legacy_scope_override(monkeypatch):
 
 
 def test_oauth_provider_status_uses_profile_query(tmp_path, monkeypatch):
-    from hermes_cli import web_server as ws
-    from hermes_constants import get_hermes_home
+    from sonic_cli import web_server as ws
+    from sonic_constants import get_sonic_home
 
     profile_home = _make_profile_home(tmp_path, monkeypatch)
     observed_homes = []
 
     def fake_status():
-        observed_homes.append(get_hermes_home())
+        observed_homes.append(get_sonic_home())
         return {"logged_in": False, "source": None}
 
     fake_catalog = ({
         "id": "fake-oauth",
         "name": "Fake OAuth",
         "flow": "pkce",
-        "cli_command": "hermes auth add fake-oauth",
+        "cli_command": "sonic auth add fake-oauth",
         "docs_url": "https://example.com",
         "status_fn": fake_status,
     },)
@@ -162,7 +162,7 @@ def test_oauth_provider_status_uses_profile_query(tmp_path, monkeypatch):
 
 
 def test_oauth_start_stores_profile_for_background_completion(tmp_path, monkeypatch):
-    from hermes_cli import web_server as ws
+    from sonic_cli import web_server as ws
 
     _make_profile_home(tmp_path, monkeypatch)
     fake_user_code_resp = {
@@ -173,13 +173,13 @@ def test_oauth_start_stores_profile_for_background_completion(tmp_path, monkeypa
         "state": "stub-state",
     }
     with patch(
-        "hermes_cli.auth._minimax_request_user_code",
+        "sonic_cli.auth._minimax_request_user_code",
         return_value=fake_user_code_resp,
     ), patch(
-        "hermes_cli.auth._minimax_pkce_pair",
+        "sonic_cli.auth._minimax_pkce_pair",
         return_value=("verifier-stub", "challenge-stub", "stub-state"),
     ), patch(
-        "hermes_cli.web_server._minimax_poller",
+        "sonic_cli.web_server._minimax_poller",
         return_value=None,
     ):
         resp = client.post(
@@ -276,9 +276,9 @@ def test_codex_dashboard_worker_persists_runtime_provider(tmp_path, monkeypatch)
 
 
 def test_codex_dashboard_worker_persists_inside_session_profile(tmp_path, monkeypatch):
-    from hermes_cli import auth as auth_mod
-    from hermes_cli import web_server as ws
-    from hermes_constants import get_hermes_home
+    from sonic_cli import auth as auth_mod
+    from sonic_cli import web_server as ws
+    from sonic_constants import get_sonic_home
 
     profile_home = _make_profile_home(tmp_path, monkeypatch)
 
@@ -323,7 +323,7 @@ def test_codex_dashboard_worker_persists_inside_session_profile(tmp_path, monkey
     monkeypatch.setattr(
         auth_mod,
         "_save_codex_tokens",
-        lambda tokens: saved_homes.append(get_hermes_home()),
+        lambda tokens: saved_homes.append(get_sonic_home()),
     )
 
     sid, _ = ws._new_oauth_session(

@@ -323,7 +323,7 @@ async def test_slash_command_registration_stays_under_discord_limit(adapter):
         for i in range(200)
     }
 
-    with patch("hermes_cli.plugins.get_plugin_commands", return_value=many_plugins):
+    with patch("sonic_cli.plugins.get_plugin_commands", return_value=many_plugins):
         adapter._register_slash_commands()
 
     tree_names = set(adapter._client.tree.commands.keys())

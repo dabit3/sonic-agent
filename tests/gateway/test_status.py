@@ -644,14 +644,14 @@ class TestScopedLocks:
         PID and start_time as a previous gateway. The start_time check passes,
         but the live process is not a gateway — the lock must be evicted.
         """
-        monkeypatch.setenv("HERMES_GATEWAY_LOCK_DIR", str(tmp_path / "locks"))
+        monkeypatch.setenv("SONIC_GATEWAY_LOCK_DIR", str(tmp_path / "locks"))
         lock_path = tmp_path / "locks" / "telegram-bot-token-2bb80d537b1da3e3.lock"
         lock_path.parent.mkdir(parents=True, exist_ok=True)
         lock_path.write_text(json.dumps({
             "pid": 840,
             "start_time": 123,
-            "kind": "hermes-gateway",
-            "argv": ["/usr/bin/python", "-m", "hermes_cli.main", "gateway", "run"],
+            "kind": "sonic-gateway",
+            "argv": ["/usr/bin/python", "-m", "sonic_cli.main", "gateway", "run"],
         }))
 
         monkeypatch.setattr(status, "_pid_exists", lambda pid: True)

@@ -73,7 +73,7 @@ def _jobs_lock():
     Combines the in-process threading lock (cheap mutual exclusion between
     the gateway's parallel tick threads) with a cross-process advisory file
     lock on ``<cron dir>/.jobs.lock`` (mutual exclusion between the gateway process
-    and standalone ``hermes`` CLI invocations, which previously shared no lock
+    and standalone ``sonic`` CLI invocations, which previously shared no lock
     at all — a `cron pause` could be silently clobbered by a concurrent
     gateway write, leaving a "paused" job still firing).
 

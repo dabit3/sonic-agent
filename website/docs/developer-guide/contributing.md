@@ -42,15 +42,15 @@ We value contributions in this order:
 
 For most contributors, the best development bootstrap is the same path users
 take: run the standard installer, then work inside the repository it cloned.
-The installer creates the Hermes venv, wires the `hermes` command, stamps the
-install method for `hermes update`, and clones the full git project into
-`$HERMES_HOME/hermes-agent` (usually `~/.hermes/hermes-agent`). That keeps your
+The installer creates the Sonic venv, wires the `sonic` command, stamps the
+install method for `sonic update`, and clones the full git project into
+`$SONIC_HOME/sonic-agent` (usually `~/.sonic/sonic-agent`). That keeps your
 development environment on the same layout the CLI, updater, lazy dependency
 installer, gateway, and docs assume.
 
 ```bash
-curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
-cd "${HERMES_HOME:-$HOME/.hermes}/hermes-agent"
+curl -fsSL https://lightning-agent.nousresearch.com/install.sh | bash
+cd "${SONIC_HOME:-$HOME/.sonic}/sonic-agent"
 
 # Add dev/test extras on top of the standard install.
 uv pip install -e ".[all,dev]"
@@ -68,10 +68,10 @@ scripts/run_tests.sh
 
 ### Manual clone fallback
 
-Use this only if you intentionally do not want Hermes' managed install layout
+Use this only if you intentionally do not want Sonic's managed install layout
 (for example, a throwaway clone inside a container or CI job). If you install
-this way, make sure you run the `hermes` entrypoint from this venv; running the
-system `python3 -m hermes_cli.main` can pick up unrelated system Python
+this way, make sure you run the `sonic` entrypoint from this venv; running the
+system `python3 -m sonic_cli.main` can pick up unrelated system Python
 packages.
 
 ```bash
@@ -108,12 +108,12 @@ sonic doctor
 sonic chat -q "Hello"
 ```
 
-If you used the manual clone fallback, run `./hermes` from the checkout or
+If you used the manual clone fallback, run `./sonic` from the checkout or
 symlink this clone's venv explicitly:
 
 ```bash
 mkdir -p ~/.local/bin
-ln -sf "$(pwd)/venv/bin/hermes" ~/.local/bin/hermes
+ln -sf "$(pwd)/venv/bin/sonic" ~/.local/bin/sonic
 ```
 
 ### Run Tests

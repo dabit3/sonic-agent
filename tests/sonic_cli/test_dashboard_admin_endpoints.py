@@ -773,7 +773,7 @@ class TestUpdateCheckEndpoint:
         assert body["behind"] is None
 
     def test_managed_runtime_dashboard_is_not_applyable(self, monkeypatch):
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         monkeypatch.setattr(ws, "_dashboard_local_update_managed_externally", lambda: True)
         monkeypatch.setattr(
@@ -784,7 +784,7 @@ class TestUpdateCheckEndpoint:
             ),
         )
 
-        body = self.client.get("/api/hermes/update/check").json()
+        body = self.client.get("/api/sonic/update/check").json()
         assert body["install_method"] == "managed-runtime"
         assert body["can_apply"] is False
         assert body["update_available"] is False

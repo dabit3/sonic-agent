@@ -96,7 +96,7 @@ def test_get_nous_auth_status_cache_is_scoped_by_auth_file_path(tmp_path, monkey
     profile_a.mkdir(parents=True)
     profile_b.mkdir(parents=True)
 
-    from hermes_cli import auth as auth_mod
+    from sonic_cli import auth as auth_mod
 
     auth_mod.invalidate_nous_auth_status_cache()
 
@@ -109,9 +109,9 @@ def test_get_nous_auth_status_cache_is_scoped_by_auth_file_path(tmp_path, monkey
         return {"logged_in": False, "call": call_count["n"]}
 
     with patch.object(auth_mod, "_compute_nous_auth_status", side_effect=fake_compute):
-        monkeypatch.setenv("HERMES_HOME", str(profile_a))
+        monkeypatch.setenv("SONIC_HOME", str(profile_a))
         first = auth_mod.get_nous_auth_status()
-        monkeypatch.setenv("HERMES_HOME", str(profile_b))
+        monkeypatch.setenv("SONIC_HOME", str(profile_b))
         second = auth_mod.get_nous_auth_status()
 
     assert call_count["n"] == 2

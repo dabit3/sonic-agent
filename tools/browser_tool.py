@@ -1188,7 +1188,7 @@ DEFAULT_SESSION_INACTIVITY_TIMEOUT = int(
 def _get_session_inactivity_timeout() -> int:
     result = env_int("BROWSER_INACTIVITY_TIMEOUT", DEFAULT_SESSION_INACTIVITY_TIMEOUT)
     try:
-        from hermes_cli.config import read_raw_config
+        from sonic_cli.config import read_raw_config
         cfg = read_raw_config()
         val = cfg_get(cfg, "browser", "inactivity_timeout")
         if val is not None:

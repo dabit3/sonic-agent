@@ -2944,10 +2944,10 @@ class GatewaySlashCommandsMixin:
     async def _handle_sessions_command(self, event: MessageEvent) -> str:
         """Handle /sessions — list previous sessions for gateway chats."""
         if not self._session_db:
-            from hermes_state import format_session_db_unavailable
+            from sonic_state import format_session_db_unavailable
             return format_session_db_unavailable(prefix=t("gateway.shared.session_db_unavailable_prefix"))
 
-        from hermes_cli.session_listing import (
+        from sonic_cli.session_listing import (
             format_gateway_session_listing,
             parse_session_listing_args,
             query_session_listing,

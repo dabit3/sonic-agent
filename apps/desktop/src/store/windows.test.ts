@@ -108,7 +108,7 @@ describe('openSessionInNewWindow', () => {
 
 describe('openNewSessionInNewWindow', () => {
   it('no-ops gracefully when the bridge is absent (web fallback)', async () => {
-    delete desktopWindow.hermesDesktop
+    delete desktopWindow.sonicDesktop
 
     await openNewSessionInNewWindow()
 

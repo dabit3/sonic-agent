@@ -245,22 +245,22 @@ class TestWebServerEndpoints:
         assert "version" in data
         assert "sonic_home" in data
         assert "active_sessions" in data
-        assert data["can_update_hermes"] is True
+        assert data["can_update_sonic"] is True
 
     def test_get_status_hides_update_capability_in_managed_runtime(self, monkeypatch):
-        import hermes_cli.web_server as web_server
+        import sonic_cli.web_server as web_server
 
         monkeypatch.setattr(web_server, "_dashboard_local_update_managed_externally", lambda: True)
 
         resp = self.client.get("/api/status")
         assert resp.status_code == 200
-        assert resp.json()["can_update_hermes"] is False
+        assert resp.json()["can_update_sonic"] is False
 
     def test_dashboard_update_capability_detects_generic_container(self, monkeypatch):
-        import hermes_constants
-        import hermes_cli.web_server as web_server
+        import sonic_constants
+        import sonic_cli.web_server as web_server
 
-        monkeypatch.setattr(hermes_constants, "is_container", lambda: True)
+        monkeypatch.setattr(sonic_constants, "is_container", lambda: True)
 
         assert web_server._dashboard_local_update_managed_externally() is True
 

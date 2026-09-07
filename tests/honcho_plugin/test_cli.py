@@ -633,9 +633,9 @@ class TestSetupWizardDeploymentShape:
         the 'configure anyway?' prompt leaves identity mapping untouched."""
         initial_cfg = {
             "apiKey": "***",
-            "hosts": {"hermes": {"peerName": "eri"}},
+            "hosts": {"sonic": {"peerName": "eri"}},
         }
-        answers = ["cloud", "", "eri", "hermetika", "hermes", "n"]
+        answers = ["cloud", "", "eri", "hermetika", "sonic", "n"]
         host = self._run_setup(
             monkeypatch, tmp_path, answers=answers, initial_cfg=initial_cfg,
             gateway_platforms=[],
@@ -649,9 +649,9 @@ class TestSetupWizardDeploymentShape:
         whether the gateway is running; 'no' skips the mapping step."""
         initial_cfg = {
             "apiKey": "***",
-            "hosts": {"hermes": {"peerName": "eri"}},
+            "hosts": {"sonic": {"peerName": "eri"}},
         }
-        answers = ["cloud", "", "eri", "hermetika", "hermes", "n"]
+        answers = ["cloud", "", "eri", "hermetika", "sonic", "n"]
         host = self._run_setup(
             monkeypatch, tmp_path, answers=answers, initial_cfg=initial_cfg,
             gateway_platforms=None,
@@ -662,7 +662,7 @@ class TestSetupWizardDeploymentShape:
         """The [e] escape hatch lets a power user set pinUserPeer + an alias +
         prefix directly, bypassing the intent tree."""
         answers = [
-            "cloud", "", "eri", "hermetika", "hermes",
+            "cloud", "", "eri", "hermetika", "sonic",
             "e",               # tree: edit raw keys
             "false",           # pinUserPeer
             "99887766=eri",    # one alias pair

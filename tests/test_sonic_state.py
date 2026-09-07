@@ -2338,7 +2338,7 @@ class TestSchemaInit:
             conn.set_trace_callback(trace)
             return conn
 
-        monkeypatch.setattr("hermes_state.sqlite3.connect", connect_with_trace)
+        monkeypatch.setattr("sonic_state.sqlite3.connect", connect_with_trace)
         migrated_db = SessionDB(db_path=db_path)
         try:
             assert trigram_content_only_inserts == []

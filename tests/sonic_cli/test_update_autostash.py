@@ -346,7 +346,7 @@ def test_discard_lockfile_churn_skips_lock_when_package_json_dirty(tmp_path):
     (tmp_path / "package.json").write_text('{"dependencies":{"a":"2"}}\n')
     (tmp_path / "package-lock.json").write_text('{"lock":"new"}\n')
 
-    hermes_main._discard_lockfile_churn(["git"], tmp_path)
+    sonic_main._discard_lockfile_churn(["git"], tmp_path)
 
     assert (tmp_path / "package-lock.json").read_text() == '{"lock":"new"}\n'
 
@@ -374,7 +374,7 @@ def test_discard_lockfile_churn_restores_lock_when_package_json_clean(tmp_path):
 
     (tmp_path / "package-lock.json").write_text('{"lock":"runtime-churn"}\n')
 
-    hermes_main._discard_lockfile_churn(["git"], tmp_path)
+    sonic_main._discard_lockfile_churn(["git"], tmp_path)
 
     assert (tmp_path / "package-lock.json").read_text() == '{"lock":"old"}\n'
 

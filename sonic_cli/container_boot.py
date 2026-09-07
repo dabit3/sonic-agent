@@ -208,12 +208,12 @@ def _read_container_argv() -> tuple[str, ...]:
 
 
 def _strip_container_argv_prefix(argv: Sequence[str]) -> list[str]:
-    """Strip the s6/wrapper prefix off PID 1 argv, leaving the hermes args.
+    """Strip the s6/wrapper prefix off PID 1 argv, leaving the sonic args.
 
     The container PID 1 argv looks like
-    ``/init /opt/hermes/docker/main-wrapper.sh <subcommand> [args...]`` and
-    the wrapper re-execs ``hermes <subcommand>``. Peel ``init`` →
-    ``main-wrapper.sh`` → ``hermes`` so callers can match on the bare
+    ``/init /opt/sonic/docker/main-wrapper.sh <subcommand> [args...]`` and
+    the wrapper re-execs ``sonic <subcommand>``. Peel ``init`` →
+    ``main-wrapper.sh`` → ``sonic`` so callers can match on the bare
     subcommand. Shared by the legacy-gateway and dashboard role detectors.
     """
     args = list(argv)
@@ -237,10 +237,10 @@ def _is_legacy_gateway_run_request(argv: Sequence[str]) -> bool:
 def _is_dashboard_container(argv: Sequence[str]) -> bool:
     """Return True when the container's command is the dashboard.
 
-    A dashboard-only container (``hermes dashboard ...``) never spawns or
+    A dashboard-only container (``sonic dashboard ...``) never spawns or
     supervises per-profile gateways — that is the gateway container's job.
     Reconciling profile gateway s6 slots there is not just wasted work: when
-    the gateway and dashboard containers share a bind-mounted HERMES_HOME,
+    the gateway and dashboard containers share a bind-mounted SONIC_HOME,
     both race to ``flock()`` the same ``logs/gateways/<profile>/lock`` files,
     producing "Resource busy" failures and an s6-log restart storm. So the
     dashboard container skips reconciliation entirely.

@@ -868,13 +868,13 @@ async def test_mattermost_top_level_channel_post_is_thread_root():
     adapter = _make_adapter()
     adapter._reply_mode = "thread"
     adapter._bot_user_id = "bot_user_id"
-    adapter._bot_username = "hermes-bot"
+    adapter._bot_username = "sonic-bot"
     adapter.handle_message = AsyncMock()
     post_data = {
         "id": "top_post_123",
         "user_id": "user_123",
         "channel_id": "chan_456",
-        "message": "@hermes-bot start work",
+        "message": "@sonic-bot start work",
         "root_id": "",
     }
     event = {
@@ -899,7 +899,7 @@ async def test_mattermost_dm_post_does_not_seed_thread_root():
     adapter = _make_adapter()
     adapter._reply_mode = "thread"
     adapter._bot_user_id = "bot_user_id"
-    adapter._bot_username = "hermes-bot"
+    adapter._bot_username = "sonic-bot"
     adapter.handle_message = AsyncMock()
     post_data = {
         "id": "dm_post_123",

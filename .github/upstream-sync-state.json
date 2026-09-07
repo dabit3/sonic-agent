@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "b7709672636f5d65f25790514e64aea65d8d9c3a",
-  "synced_at": "2026-09-06T16:50:00Z",
-  "notes": "Partial sync: batch 9 ports the 80 first-parent commits after c8e5f34f24, ending at b7709672 (0 skipped). Manual conflicts: uv.lock x2 (mistralai bump; parallel-web pin revert to 0.4.2), profile subprocess HOME policy refactor (sonic_constants.py, tools/code_execution_tool.py, tools/environments/local.py, tests/test_subprocess_home_isolation.py). Remaining backlog is approximately 13,435 first-parent commits; each daily run advances the baseline by a reviewable batch."
+  "last_synced_upstream_sha": "4d470b3dbb881f31792e5f66b3f5d841bb6d469f",
+  "synced_at": "2026-09-07T16:07:02Z",
+  "notes": "Partial sync: batch 10 ports the 80 first-parent commits after b7709672, ending at 4d470b3d (3 skipped as empty after conflict resolution: 29c6985590 + 45e2f4fdcd nix npmDepsHash refreshes (Sonic keeps its own hash), f7c1cbe66f desktop download links (Sonic links to GitHub releases)). Manual conflicts: scripts/release.py AUTHOR_MAP x4, uv.lock x2 (websockets core dep + setuptools 81.0.0; microsoft-teams-* extra), README*.md contributor quick start (kept Sonic setup-sonic.sh path), website/sidebars.ts. Remaining backlog is approximately 13,800 first-parent commits."
 }

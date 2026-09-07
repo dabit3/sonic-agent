@@ -192,7 +192,7 @@ let gatewaySwitch: Promise<void> | null = null
 // Best-effort: a failed descriptor fetch leaves the prior connection intact for
 // boot/reconnect to resync.
 async function syncConnectionToActiveProfile(profile: string): Promise<void> {
-  const getConnection = window.hermesDesktop?.getConnection
+  const getConnection = window.sonicDesktop?.getConnection
 
   if (!getConnection) {
     return

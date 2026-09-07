@@ -14702,7 +14702,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             # Memory update notifications in chat.  Config: display.memory_notifications
             #   off     — no chat notification (still logged to stdout)
             #   on      — generic "💾 Memory updated" (default)
-            #   verbose — content preview: "💾 Memory ➕ Hermes Repo..."
+            #   verbose — content preview: "💾 Memory ➕ Sonic Repo..."
             _mem_notif = user_config.get("display", {}).get("memory_notifications")
             if isinstance(_mem_notif, bool):
                 _mem_notif = "on" if _mem_notif else "off"

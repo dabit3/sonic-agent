@@ -57,17 +57,17 @@ _nb_get_link_dir() {
     fi
 }
 
-# Redirect a Hermes-managed Node's `npm install -g` to the command link dir
-# (already on PATH) instead of the default $HERMES_HOME/node/bin, which is off
+# Redirect a Sonic-managed Node's `npm install -g` to the command link dir
+# (already on PATH) instead of the default $SONIC_HOME/node/bin, which is off
 # PATH and wiped on every Node upgrade. Scoped to the managed Node via its
 # prefix-local global npmrc; the user's other Node installs / ~/.npmrc are
 # untouched. Idempotent no-op when there's no managed npm.
 _nb_configure_npm_prefix() {
-    [ -x "$HERMES_HOME/node/bin/npm" ] || return 0
+    [ -x "$SONIC_HOME/node/bin/npm" ] || return 0
     local _link_dir
     _link_dir="$(_nb_get_link_dir)"
-    mkdir -p "$HERMES_HOME/node/etc"
-    printf 'prefix=%s\n' "$(dirname "$_link_dir")" > "$HERMES_HOME/node/etc/npmrc"
+    mkdir -p "$SONIC_HOME/node/etc"
+    printf 'prefix=%s\n' "$(dirname "$_link_dir")" > "$SONIC_HOME/node/etc/npmrc"
 }
 
 _nb_node_major() {

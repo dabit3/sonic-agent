@@ -1238,7 +1238,7 @@ def _default_sonic_root_is_opt_data() -> bool:
 
 
 def _dashboard_local_update_managed_externally() -> bool:
-    """Return true when the dashboard should not offer ``hermes update``.
+    """Return true when the dashboard should not offer ``sonic update``.
 
     Containerized dashboards are updated by the outer launcher/image, not by an
     in-browser local update action. Keep this dashboard capability separate
@@ -1246,7 +1246,7 @@ def _dashboard_local_update_managed_externally() -> bool:
     still behave like their actual install method in the CLI.
     """
     try:
-        from hermes_constants import is_container
+        from sonic_constants import is_container
 
         return is_container()
     except Exception:
@@ -1717,7 +1717,7 @@ async def get_status():
         "release_date": __release_date__,
         "config_version": current_ver,
         "latest_config_version": latest_ver,
-        "can_update_hermes": not _dashboard_local_update_managed_externally(),
+        "can_update_sonic": not _dashboard_local_update_managed_externally(),
         "gateway_running": gateway_running,
         "gateway_state": gateway_state,
         "gateway_platforms": gateway_platforms,
@@ -2353,7 +2353,7 @@ async def check_sonic_update(force: bool = False):
             "can_apply": False,
             "update_command": "managed outside dashboard",
             "message": (
-                "Hermes updates are managed outside this dashboard in "
+                "Sonic updates are managed outside this dashboard in "
                 "containerized environments."
             ),
         }
@@ -5307,21 +5307,21 @@ async def disconnect_oauth_provider(
                 detail=f"{provider['name']} cannot be disconnected automatically. {disconnect_hint}",
             )
 
-        # Anthropic clears only the Hermes-managed PKCE file and auth-store entry.
+        # Anthropic clears only the Sonic-managed PKCE file and auth-store entry.
         # The separate claude-code catalog row is external/read-only and rejected
         # above so we never pretend to remove ~/.claude/* credentials owned by the CLI.
         if provider_id == "anthropic":
             cleared = False
             try:
-                from agent.anthropic_adapter import _HERMES_OAUTH_FILE
-                if _HERMES_OAUTH_FILE.exists():
-                    _HERMES_OAUTH_FILE.unlink()
+                from agent.anthropic_adapter import _SONIC_OAUTH_FILE
+                if _SONIC_OAUTH_FILE.exists():
+                    _SONIC_OAUTH_FILE.unlink()
                     cleared = True
             except Exception:
                 pass
             # Also clear the credential pool entry if present.
             try:
-                from hermes_cli.auth import clear_provider_auth
+                from sonic_cli.auth import clear_provider_auth
                 cleared = clear_provider_auth("anthropic") or cleared
             except Exception:
                 pass

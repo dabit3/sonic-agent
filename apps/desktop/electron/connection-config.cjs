@@ -185,7 +185,7 @@ function pathWithGlobalRemoteProfile(path, profile, opts = {}) {
 
   let parsed
   try {
-    parsed = new URL(rawPath, 'http://hermes.local')
+    parsed = new URL(rawPath, 'http://sonic.local')
   } catch {
     return path
   }

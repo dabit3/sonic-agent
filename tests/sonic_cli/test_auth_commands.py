@@ -516,10 +516,10 @@ def test_auth_add_codex_oauth_keeps_distinct_pool_accounts(tmp_path, monkeypatch
 
 
 def test_codex_auth_status_reports_pool_only_credential(tmp_path, monkeypatch):
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
     _write_auth_store(tmp_path, _codex_pool_only_store())
 
-    from hermes_cli.auth import get_codex_auth_status
+    from sonic_cli.auth import get_codex_auth_status
 
     status = get_codex_auth_status()
 
@@ -528,10 +528,10 @@ def test_codex_auth_status_reports_pool_only_credential(tmp_path, monkeypatch):
 
 
 def test_codex_auth_status_reports_pool_only_rate_limit(tmp_path, monkeypatch):
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
     _write_auth_store(tmp_path, _codex_pool_only_store(exhausted=True))
 
-    from hermes_cli.auth import get_codex_auth_status
+    from sonic_cli.auth import get_codex_auth_status
 
     status = get_codex_auth_status()
 
@@ -541,10 +541,10 @@ def test_codex_auth_status_reports_pool_only_rate_limit(tmp_path, monkeypatch):
 
 
 def test_codex_runtime_pool_only_rate_limit_is_not_missing_auth(tmp_path, monkeypatch):
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / "sonic"))
     _write_auth_store(tmp_path, _codex_pool_only_store(exhausted=True))
 
-    from hermes_cli.auth import AuthError, CODEX_RATE_LIMITED_CODE, resolve_codex_runtime_credentials
+    from sonic_cli.auth import AuthError, CODEX_RATE_LIMITED_CODE, resolve_codex_runtime_credentials
 
     with pytest.raises(AuthError) as exc_info:
         resolve_codex_runtime_credentials()

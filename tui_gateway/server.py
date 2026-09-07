@@ -7014,7 +7014,7 @@ def _(rid, params: dict) -> dict:
                         4009,
                         "session busy — /interrupt the current turn before switching models",
                     )
-                from hermes_cli.model_switch import parse_model_flags
+                from sonic_cli.model_switch import parse_model_flags
 
                 parsed_flags = parse_model_flags(value)
                 _model_input, explicit_provider, _persist_global, _force_refresh = parsed_flags

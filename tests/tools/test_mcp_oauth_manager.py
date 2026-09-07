@@ -153,7 +153,7 @@ def test_manager_builds_sonic_provider_subclass(tmp_path, monkeypatch):
 
 def test_manager_fails_fast_noninteractive_without_cached_tokens(tmp_path, monkeypatch):
     """A daemon without cached MCP OAuth tokens must not enter browser auth."""
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     _set_interactive_stdin(monkeypatch, is_tty=False)
     from tools.mcp_oauth import OAuthNonInteractiveError
     from tools.mcp_oauth_manager import MCPOAuthManager

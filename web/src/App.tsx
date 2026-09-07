@@ -903,7 +903,7 @@ function SidebarSystemActions({
   const navigate = useNavigate();
   const { activeAction, isBusy, isRunning, pendingAction, runAction } =
     useSystemActions();
-  const canUpdateHermes = status?.can_update_hermes === true;
+  const canUpdateSonic = status?.can_update_sonic === true;
 
   const items: SystemActionItem[] = [
     {
@@ -914,7 +914,7 @@ function SidebarSystemActions({
       spin: true,
     },
   ];
-  if (canUpdateHermes) {
+  if (canUpdateSonic) {
     items.push({
       action: "update",
       icon: Download,

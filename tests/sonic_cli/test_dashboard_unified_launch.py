@@ -57,7 +57,7 @@ class TestUnifiedDashboardRouting:
         assert opened == ["http://127.0.0.1:9119/?profile=worker_x"]
 
     def test_profile_launch_reexecs_machine_dashboard(self, main_mod, monkeypatch):
-        monkeypatch.delenv("HERMES_HOME", raising=False)
+        monkeypatch.delenv("SONIC_HOME", raising=False)
         monkeypatch.setattr(
             "sonic_cli.profiles.get_active_profile_name", lambda: "worker_x"
         )

@@ -397,7 +397,7 @@ def _gateway_platforms() -> list[str] | None:
     Identity mapping only affects gateway runtime users, so setup gates the
     whole step on this.  Best-effort and dependency-free: the memory plugin
     must not hard-depend on the gateway package, so the import is lazy and
-    guarded (matching the idiom hermes_cli already uses for gateway refs).
+    guarded (matching the idiom sonic_cli already uses for gateway refs).
     """
     try:
         from gateway.config import load_gateway_config
@@ -425,27 +425,27 @@ def _collect_operator_aliases(existing: dict, peer_target: str) -> dict:
 
 
 def _apply_runtime_prefix(
-    hermes_host: dict, current_prefix: str, prefix_from_root: bool, label: str
+    sonic_host: dict, current_prefix: str, prefix_from_root: bool, label: str
 ) -> None:
     """Write a host-level runtimePeerPrefix only when it diverges from an
     inherited root value; otherwise let the root cascade stand."""
     new_prefix = _prompt(label, default=current_prefix or "").strip()
     if new_prefix and not (prefix_from_root and new_prefix == current_prefix):
-        hermes_host["runtimePeerPrefix"] = new_prefix
+        sonic_host["runtimePeerPrefix"] = new_prefix
 
 
-def _echo_identity_mapping(hermes_host: dict) -> None:
+def _echo_identity_mapping(sonic_host: dict) -> None:
     """Show the resulting keys so the operator can verify what was written."""
-    aliases = hermes_host.get("userPeerAliases")
-    prefix = hermes_host.get("runtimePeerPrefix")
+    aliases = sonic_host.get("userPeerAliases")
+    prefix = sonic_host.get("runtimePeerPrefix")
     print("  resolved →")
-    print(f"    pinUserPeer       = {bool(hermes_host.get('pinUserPeer'))}")
+    print(f"    pinUserPeer       = {bool(sonic_host.get('pinUserPeer'))}")
     print(f"    userPeerAliases   = {aliases if aliases else '{}'}")
     print(f"    runtimePeerPrefix = {prefix if prefix else '(none)'}")
 
 
 def _configure_raw_identity_mapping(
-    hermes_host: dict,
+    sonic_host: dict,
     current_pin: bool,
     current_aliases: dict,
     current_prefix: str,
@@ -459,8 +459,8 @@ def _configure_raw_identity_mapping(
         default=str(bool(current_pin)).lower(),
     ).strip().lower()
     pin = pin_in in {"true", "t", "yes", "y", "1"}
-    _scrub_identity_mapping(hermes_host)
-    hermes_host["pinUserPeer"] = pin
+    _scrub_identity_mapping(sonic_host)
+    sonic_host["pinUserPeer"] = pin
     if pin:
         return
     aliases = (
@@ -478,9 +478,9 @@ def _configure_raw_identity_mapping(
             if rid and peer:
                 aliases[rid] = peer
     if aliases:
-        hermes_host["userPeerAliases"] = aliases
+        sonic_host["userPeerAliases"] = aliases
     _apply_runtime_prefix(
-        hermes_host, current_prefix, prefix_from_root,
+        sonic_host, current_prefix, prefix_from_root,
         "runtimePeerPrefix — namespace for unknown IDs (blank for none)",
     )
 
@@ -553,7 +553,7 @@ def cmd_setup(args) -> None:
 
     # Canonicalize any legacy pinPeerName before detection/writes.
     _migrate_pin_key(cfg)
-    _migrate_pin_key(hermes_host)
+    _migrate_pin_key(sonic_host)
 
     # --- 1. Cloud or local? ---
     print("  Deployment:")
@@ -655,7 +655,7 @@ def cmd_setup(args) -> None:
         sonic_host["workspace"] = new_workspace
 
     # --- 3b. Gateway identity mapping ---
-    # These keys only affect the Hermes GATEWAY (Telegram/Discord/Slack/...),
+    # These keys only affect the Sonic GATEWAY (Telegram/Discord/Slack/...),
     # the one entrypoint that supplies a runtime user ID.  CLI/TUI/desktop/ACP
     # sessions have no runtime ID and fall through to peerName, so the step is
     # moot off-gateway — gate it behind detection.
@@ -696,7 +696,7 @@ def cmd_setup(args) -> None:
         run_mapping = True
 
     if run_mapping:
-        peer_target = hermes_host.get("peerName") or current_peer or "user"
+        peer_target = sonic_host.get("peerName") or current_peer or "user"
         default_choice = {"single": "1", "hybrid": "2", "multi": "3"}.get(current_shape, "3")
         print("\n  How should gateway users map to memory peers?")
         print("    [1] just me — every non-agent user collapses to your peer")
@@ -737,10 +737,10 @@ def cmd_setup(args) -> None:
         # Each branch scrubs every peer-mapping key first so a stale alias,
         # prefix, or pin from an earlier run starts clean.
         if shape == "single":
-            _scrub_identity_mapping(hermes_host)
-            hermes_host["pinUserPeer"] = True
+            _scrub_identity_mapping(sonic_host)
+            sonic_host["pinUserPeer"] = True
             print(f"  All non-agent gateway users route to '{peer_target}' (pin overrides aliases).")
-            _echo_identity_mapping(hermes_host)
+            _echo_identity_mapping(sonic_host)
         elif shape == "multi":
             # Preserve operator-curated host-level aliases across multi → multi
             # re-runs.  Root-sourced aliases cascade naturally and are NOT
@@ -750,35 +750,35 @@ def cmd_setup(args) -> None:
                 if isinstance(current_aliases, dict) and not aliases_from_root
                 else {}
             )
-            _scrub_identity_mapping(hermes_host)
-            hermes_host["pinUserPeer"] = False
+            _scrub_identity_mapping(sonic_host)
+            sonic_host["pinUserPeer"] = False
             if prior_aliases:
-                hermes_host["userPeerAliases"] = prior_aliases
+                sonic_host["userPeerAliases"] = prior_aliases
             _apply_runtime_prefix(
-                hermes_host, current_prefix, prefix_from_root,
+                sonic_host, current_prefix, prefix_from_root,
                 "Runtime peer prefix (e.g. 'telegram_', blank for none)",
             )
             print("  Each gateway user → own peer.")
-            _echo_identity_mapping(hermes_host)
+            _echo_identity_mapping(sonic_host)
         elif shape == "hybrid":
             existing_aliases = dict(current_aliases) if isinstance(current_aliases, dict) else {}
-            _scrub_identity_mapping(hermes_host)
-            hermes_host["pinUserPeer"] = False
+            _scrub_identity_mapping(sonic_host)
+            sonic_host["pinUserPeer"] = False
             merged = _collect_operator_aliases(existing_aliases, peer_target)
             if merged:
-                hermes_host["userPeerAliases"] = merged
+                sonic_host["userPeerAliases"] = merged
             _apply_runtime_prefix(
-                hermes_host, current_prefix, prefix_from_root,
+                sonic_host, current_prefix, prefix_from_root,
                 "Runtime peer prefix for unknown users (e.g. 'telegram_', blank for none)",
             )
             print(f"  Your runtime IDs → '{peer_target}', others → own peer.")
-            _echo_identity_mapping(hermes_host)
+            _echo_identity_mapping(sonic_host)
         elif shape == "raw":
             _configure_raw_identity_mapping(
-                hermes_host, current_pin, current_aliases, current_prefix,
+                sonic_host, current_pin, current_aliases, current_prefix,
                 aliases_from_root, prefix_from_root,
             )
-            _echo_identity_mapping(hermes_host)
+            _echo_identity_mapping(sonic_host)
         else:  # skip
             print("  Identity mapping left untouched.")
 

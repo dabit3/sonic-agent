@@ -369,7 +369,7 @@ class TestHandleSessionsCommand:
 
     @pytest.mark.asyncio
     async def test_sessions_command_lists_current_platform_sessions(self, tmp_path):
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
         db = SessionDB(db_path=tmp_path / "state.db")
         db.create_session("tg_session", "telegram")
         db.set_session_title("tg_session", "Telegram Work")
@@ -389,7 +389,7 @@ class TestHandleSessionsCommand:
 
     @pytest.mark.asyncio
     async def test_sessions_all_full_lists_cross_platform_unnamed_sessions(self, tmp_path):
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
         db = SessionDB(db_path=tmp_path / "state.db")
         db.create_session("tg_named", "telegram")
         db.set_session_title("tg_named", "Telegram Work")
@@ -408,7 +408,7 @@ class TestHandleSessionsCommand:
 
     @pytest.mark.asyncio
     async def test_gateway_dispatches_sessions_command(self, tmp_path):
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
         db = SessionDB(db_path=tmp_path / "state.db")
         db.create_session("tg_session", "telegram")
         db.set_session_title("tg_session", "Telegram Work")
