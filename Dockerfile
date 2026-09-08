@@ -10,7 +10,7 @@ FROM node:22-bookworm-slim@sha256:7af03b14a13c8cdd38e45058fd957bf00a72bbe17feac4
 FROM debian:13.4
 
 # Disable Python stdout buffering to ensure logs are printed immediately.
-# Do not write .pyc files at runtime: /opt/hermes is immutable in the
+# Do not write .pyc files at runtime: /opt/sonic is immutable in the
 # published container and writable state belongs under /opt/data.
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1

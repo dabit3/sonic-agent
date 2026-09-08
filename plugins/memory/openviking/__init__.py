@@ -72,7 +72,7 @@ _MEMORY_WRITE_TARGET_SUBDIR_MAP = {
 
 
 def _derive_openviking_user_text(content: Any) -> str:
-    """Strip Hermes slash-skill scaffolding before sending content to OpenViking.
+    """Strip Sonic slash-skill scaffolding before sending content to OpenViking.
 
     Defense-in-depth: MemoryManager already strips skill scaffolding for the
     whole provider fan-out (see ``MemoryManager._strip_skill_scaffolding``), so

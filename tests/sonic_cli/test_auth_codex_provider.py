@@ -1022,7 +1022,7 @@ class _FakeResp:
 
 
 def _patch_httpx_post(monkeypatch, responses):
-    """Patch hermes_cli.auth.httpx.Client so .post() returns queued responses."""
+    """Patch sonic_cli.auth.httpx.Client so .post() returns queued responses."""
     seq = iter(responses)
 
     class _FakeClient:
@@ -1035,12 +1035,12 @@ def _patch_httpx_post(monkeypatch, responses):
         def post(self, *args, **kwargs):
             return next(seq)
 
-    monkeypatch.setattr("hermes_cli.auth.httpx.Client", lambda *a, **k: _FakeClient())
+    monkeypatch.setattr("sonic_cli.auth.httpx.Client", lambda *a, **k: _FakeClient())
 
 
 def test_device_code_login_retries_on_429_then_succeeds(monkeypatch):
     """A transient 429 on the device-code request is retried, not surfaced."""
-    from hermes_cli import auth as auth_mod
+    from sonic_cli import auth as auth_mod
 
     sleeps = []
     monkeypatch.setattr("time.sleep", lambda s: sleeps.append(s))
@@ -1067,7 +1067,7 @@ def test_device_code_login_retries_on_429_then_succeeds(monkeypatch):
 
 def test_device_code_login_persistent_429_raises_rate_limited(monkeypatch):
     """A persistent 429 surfaces a clear rate-limit error, not a bare status."""
-    from hermes_cli import auth as auth_mod
+    from sonic_cli import auth as auth_mod
 
     monkeypatch.setattr("time.sleep", lambda s: None)
     _patch_httpx_post(monkeypatch, [_FakeResp(429, headers={"retry-after": "30"})] * 4)
@@ -1084,7 +1084,7 @@ def test_device_code_login_persistent_429_raises_rate_limited(monkeypatch):
 
 def test_device_code_login_non_429_error_unchanged(monkeypatch):
     """Non-429 failures keep the generic device_code_request_error code."""
-    from hermes_cli import auth as auth_mod
+    from sonic_cli import auth as auth_mod
 
     monkeypatch.setattr("time.sleep", lambda s: None)
     _patch_httpx_post(monkeypatch, [_FakeResp(500)])

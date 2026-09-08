@@ -3,7 +3,7 @@ import type { MutableRefObject } from 'react'
 import { useEffect } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { getSessionMessages } from '@/hermes'
+import { getSessionMessages } from '@/sonic'
 import { $activeGatewayProfile, $newChatProfile } from '@/store/profile'
 import { $currentCwd, $messages, $resumeFailedSessionId, setMessages, setResumeFailedSessionId } from '@/store/session'
 

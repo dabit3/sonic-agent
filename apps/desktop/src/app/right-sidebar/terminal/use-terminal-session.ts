@@ -693,7 +693,7 @@ export function useTerminalSession({ cwd, onAddSelectionToChat }: UseTerminalSes
         return
       }
 
-      void window.hermesDesktop?.terminal?.write(id, `${command}\r`)
+      void window.sonicDesktop?.terminal?.write(id, `${command}\r`)
       $terminalInjection.set(null)
       termRef.current?.focus()
     })

@@ -547,13 +547,13 @@ def test_gui_skips_pack_when_electron_redownload_unrecoverable(tmp_path, monkeyp
     install_ok = subprocess.CompletedProcess(["npm", "ci"], 0)
     pack_fail = subprocess.CompletedProcess(["npm", "run", "pack"], 1)
 
-    with patch("hermes_cli.main.shutil.which", return_value="/usr/bin/npm"), \
-         patch("hermes_cli.main._run_npm_install_deterministic", return_value=install_ok), \
-         patch("hermes_cli.main._desktop_macos_relaunchable_fixup"), \
-         patch("hermes_cli.main._purge_electron_build_cache", return_value=[]), \
-         patch("hermes_cli.main._electron_dist_ok", return_value=False), \
-         patch("hermes_cli.main._redownload_electron_dist", return_value=False), \
-         patch("hermes_cli.main.subprocess.run", side_effect=[pack_fail]) as mock_run, \
+    with patch("sonic_cli.main.shutil.which", return_value="/usr/bin/npm"), \
+         patch("sonic_cli.main._run_npm_install_deterministic", return_value=install_ok), \
+         patch("sonic_cli.main._desktop_macos_relaunchable_fixup"), \
+         patch("sonic_cli.main._purge_electron_build_cache", return_value=[]), \
+         patch("sonic_cli.main._electron_dist_ok", return_value=False), \
+         patch("sonic_cli.main._redownload_electron_dist", return_value=False), \
+         patch("sonic_cli.main.subprocess.run", side_effect=[pack_fail]) as mock_run, \
          pytest.raises(SystemExit) as exc:
         cli_main.cmd_gui(_ns())
 
@@ -651,7 +651,7 @@ def test_redownload_electron_dist_noop_when_present(tmp_path, monkeypatch):
     binp.parent.mkdir(parents=True)
     binp.write_text("", encoding="utf-8")
 
-    with patch("hermes_cli.main.subprocess.run") as mock_run:
+    with patch("sonic_cli.main.subprocess.run") as mock_run:
         assert cli_main._redownload_electron_dist(tmp_path, {}) is True
     mock_run.assert_not_called()
 
@@ -661,8 +661,8 @@ def test_redownload_electron_dist_missing_installer(tmp_path, monkeypatch):
     monkeypatch.setattr(cli_main.sys, "platform", "linux")
     (tmp_path / "node_modules" / "electron").mkdir(parents=True)
 
-    with patch("hermes_cli.main.shutil.which", return_value="/usr/bin/node"), \
-         patch("hermes_cli.main.subprocess.run") as mock_run:
+    with patch("sonic_cli.main.shutil.which", return_value="/usr/bin/node"), \
+         patch("sonic_cli.main.subprocess.run") as mock_run:
         assert cli_main._redownload_electron_dist(tmp_path, {}) is False
     mock_run.assert_not_called()
 
@@ -692,8 +692,8 @@ def test_redownload_electron_dist_runs_installer_with_mirror(tmp_path, monkeypat
         binp.write_text("", encoding="utf-8")
         return subprocess.CompletedProcess(cmd, 0)
 
-    with patch("hermes_cli.main.shutil.which", return_value="/usr/bin/node"), \
-         patch("hermes_cli.main.subprocess.run", side_effect=fake_run):
+    with patch("sonic_cli.main.shutil.which", return_value="/usr/bin/node"), \
+         patch("sonic_cli.main.subprocess.run", side_effect=fake_run):
         ok = cli_main._redownload_electron_dist(
             tmp_path, {"PATH": "/x"}, mirror="https://mirror.example/electron/"
         )
@@ -715,8 +715,8 @@ def test_redownload_electron_dist_returns_false_when_download_fails(tmp_path, mo
     electron.mkdir(parents=True)
     (electron / "install.js").write_text("// stub", encoding="utf-8")
 
-    with patch("hermes_cli.main.shutil.which", return_value="/usr/bin/node"), \
-         patch("hermes_cli.main.subprocess.run",
+    with patch("sonic_cli.main.shutil.which", return_value="/usr/bin/node"), \
+         patch("sonic_cli.main.subprocess.run",
                return_value=subprocess.CompletedProcess(["node"], 1)):
         assert cli_main._redownload_electron_dist(tmp_path, {}) is False
 

@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "4d470b3dbb881f31792e5f66b3f5d841bb6d469f",
-  "synced_at": "2026-09-07T16:07:02Z",
-  "notes": "Partial sync: batch 10 ports the 80 first-parent commits after b7709672, ending at 4d470b3d (3 skipped as empty after conflict resolution: 29c6985590 + 45e2f4fdcd nix npmDepsHash refreshes (Sonic keeps its own hash), f7c1cbe66f desktop download links (Sonic links to GitHub releases)). Manual conflicts: scripts/release.py AUTHOR_MAP x4, uv.lock x2 (websockets core dep + setuptools 81.0.0; microsoft-teams-* extra), README*.md contributor quick start (kept Sonic setup-sonic.sh path), website/sidebars.ts. Remaining backlog is approximately 13,800 first-parent commits."
+  "last_synced_upstream_sha": "c366466d7016aa6d02114d817ade5d8fd80a9b5d",
+  "synced_at": "2026-09-08T17:54:57Z",
+  "notes": "Partial sync: batch 11 ports the 80 first-parent commits after 4d470b3d, ending at c366466d70 (0 skipped). Manual conflicts: website/static/api/model-catalog.json updated_at (kept Sonic's), sonic_cli/model_setup_flows.py xAI default model (kept Sonic live /models discovery, took upstream grok-build-0.1 fallback), agent/curator.py consolidate gate (kept both), scripts/release.py AUTHOR_MAP x3 (union), uv.lock (concurrent-log-handler/portalocker blocks), apps/desktop streaming.test.tsx (kept Sonic scroll tests + upstream dismiss tests). Remaining backlog is approximately 13,880 first-parent commits."
 }

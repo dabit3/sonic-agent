@@ -200,7 +200,7 @@ def get_consolidate() -> bool:
     no aux-model cost. Set ``curator.consolidate: true`` to opt back into the
     LLM pass that merges overlapping skills into class-level umbrellas.
 
-    The explicit ``hermes curator run --consolidate`` flag overrides this for
+    The explicit ``sonic curator run --consolidate`` flag overrides this for
     a single invocation regardless of the config value.
     """
     cfg = _load_config()
@@ -1451,7 +1451,7 @@ def run_curator_review(
     *consolidate* gates the LLM umbrella-building pass. ``None`` (the default)
     reads ``curator.consolidate`` from config (OFF by default). Passing
     ``True``/``False`` overrides the config for this invocation — used by the
-    ``hermes curator run --consolidate`` flag. When consolidation is off, only
+    ``sonic curator run --consolidate`` flag. When consolidation is off, only
     the deterministic inactivity prune runs and the forked aux-model review is
     skipped entirely (no aux-model cost).
 

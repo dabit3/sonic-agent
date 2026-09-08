@@ -1,4 +1,4 @@
-"""Relay/connector support package for the Hermes gateway.
+"""Relay/connector support package for the Sonic gateway.
 
 EXPERIMENTAL. This package implements the gateway side of the "Gateway Gateway"
 relay design: a generic ``RelayAdapter`` plus the wire-serializable
@@ -22,11 +22,11 @@ import os
 def relay_enabled() -> bool:
     """Whether the relay adapter should be registered.
 
-    Off by default. Enabled when ``HERMES_GATEWAY_RELAY=1`` (or true/yes/on).
+    Off by default. Enabled when ``SONIC_GATEWAY_RELAY=1`` (or true/yes/on).
     A config-file gate can be layered on later; the env flag is the minimal
     dark-launch switch so default deployments never register the adapter.
     """
-    return os.environ.get("HERMES_GATEWAY_RELAY", "").strip().lower() in (
+    return os.environ.get("SONIC_GATEWAY_RELAY", "").strip().lower() in (
         "1",
         "true",
         "yes",

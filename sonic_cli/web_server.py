@@ -1624,7 +1624,7 @@ async def get_status(profile: Optional[str] = None):
     # Use the config-only (contextvar) scope, NOT _profile_scope: this handler
     # awaits the remote-health probe, and _profile_scope swaps process-global
     # skills-module attributes that a concurrent request would cross-restore
-    # across that await. Status only resolves get_hermes_home() at call time
+    # across that await. Status only resolves get_sonic_home() at call time
     # (config/env/gateway state), which the task-local contextvar covers.
     if requested_profile and requested_profile.lower() != "current":
         status_scope = _config_profile_scope(requested_profile)
@@ -1711,7 +1711,7 @@ async def get_status(profile: Optional[str] = None):
 
         active_sessions = 0
         try:
-            from hermes_state import SessionDB
+            from sonic_state import SessionDB
             db = SessionDB()
             try:
                 sessions = db.list_sessions_rich(limit=50)
@@ -1727,13 +1727,13 @@ async def get_status(profile: Optional[str] = None):
             pass
 
         # Dashboard auth gate (Phase 7): surface whether the gate is engaged
-        # and which providers are registered so ``hermes status`` and the
+        # and which providers are registered so ``sonic status`` and the
         # SPA's StatusPage can show "OAuth gate ON via Nous Research" or
         # "loopback only — no auth gate" with no extra round trips.
         auth_required = bool(getattr(app.state, "auth_required", False))
         auth_providers: list[str] = []
         try:
-            from hermes_cli.dashboard_auth import list_providers as _list_providers
+            from sonic_cli.dashboard_auth import list_providers as _list_providers
             auth_providers = [p.name for p in _list_providers()]
         except Exception:
             # Module not importable yet (early startup) — leave as [].
@@ -1748,7 +1748,7 @@ async def get_status(profile: Optional[str] = None):
             "release_date": __release_date__,
             "config_version": current_ver,
             "latest_config_version": latest_ver,
-            "can_update_hermes": not _dashboard_local_update_managed_externally(),
+            "can_update_sonic": not _dashboard_local_update_managed_externally(),
             "gateway_running": gateway_running,
             "gateway_state": gateway_state,
             "gateway_platforms": gateway_platforms,
@@ -1771,7 +1771,7 @@ async def get_status(profile: Optional[str] = None):
         # envelope — the same loopback/gated split ``should_require_auth`` draws.
         if not auth_required:
             status.update({
-                "hermes_home": str(get_hermes_home()),
+                "sonic_home": str(get_sonic_home()),
                 "config_path": str(get_config_path()),
                 "env_path": str(get_env_path()),
                 "gateway_pid": gateway_pid,
@@ -5306,11 +5306,11 @@ def _resolve_provider_status(provider_id: str, status_fn) -> Dict[str, Any]:
 def _oauth_provider_disconnect_command(provider: Dict[str, Any]) -> Optional[str]:
     """Shell command that clears an external provider's credentials.
 
-    External providers store their credentials outside Hermes, so the disconnect
+    External providers store their credentials outside Sonic, so the disconnect
     API deliberately refuses them (we never delete files another CLI owns on the
     user's behalf via a silent API call). For the ones we know how to clear we
     instead hand the GUI a command it can *run in the embedded terminal* — the
-    user sees exactly what executes, and Hermes then stops resolving the token.
+    user sees exactly what executes, and Sonic then stops resolving the token.
 
     Claude Code has no scriptable logout (only the interactive ``/logout``), so
     we remove the credential the same way logout does: the macOS Keychain entry
@@ -5334,7 +5334,7 @@ def _oauth_provider_disconnect_hint(provider: Dict[str, Any], status: Dict[str, 
         if _oauth_provider_disconnect_command(provider):
             # The GUI offers a one-click "run in terminal" path; this hint is the
             # fallback wording for surfaces that only show text.
-            return "Managed outside Hermes — run the disconnect command to remove it."
+            return "Managed outside Sonic — run the disconnect command to remove it."
         return "Managed by that provider's CLI; remove it there."
     if status.get("source") == "env_var":
         return "Remove the API key from Settings → Keys instead."
@@ -9516,13 +9516,13 @@ def _config_profile_scope(profile: Optional[str]):
     """Await-safe, config-only profile scope for handlers that ``await``.
 
     Unlike ``_profile_scope`` this touches ONLY the context-local
-    ``set_hermes_home_override`` contextvar — it does NOT swap the
+    ``set_sonic_home_override`` contextvar — it does NOT swap the
     process-global ``skills_tool``/``skill_manager`` module attributes.
     Those globals are shared across all event-loop tasks, so holding them
     across an ``await`` lets a concurrent skills request restore THIS
     request's profile dir on its ``finally`` (cross-contamination). The
     contextvar override is task-local and survives an ``await`` cleanly,
-    which is all endpoints that resolve ``get_hermes_home()`` at call time
+    which is all endpoints that resolve ``get_sonic_home()`` at call time
     (config, env, gateway status) actually need.
 
     None/""/"current" means the dashboard's own profile — no override.
@@ -9532,17 +9532,17 @@ def _config_profile_scope(profile: Optional[str]):
         yield None
         return
 
-    from hermes_constants import (
-        set_hermes_home_override,
-        reset_hermes_home_override,
+    from sonic_constants import (
+        set_sonic_home_override,
+        reset_sonic_home_override,
     )
 
     profile_dir = _resolve_profile_dir(requested)
-    token = set_hermes_home_override(str(profile_dir))
+    token = set_sonic_home_override(str(profile_dir))
     try:
         yield profile_dir
     finally:
-        reset_hermes_home_override(token)
+        reset_sonic_home_override(token)
 
 
 class SkillToggle(BaseModel):

@@ -581,7 +581,7 @@ def test_sync_turn_captures_session_id_before_worker_runs():
     provider._api_key = ""
     provider._account = "acct"
     provider._user = "usr"
-    provider._agent = "hermes"
+    provider._agent = "sonic"
     provider._session_id = "old-sid"
 
     started = threading.Event()
@@ -638,7 +638,7 @@ def test_sync_turn_retries_batch_write_with_fresh_client():
     provider._api_key = ""
     provider._account = "acct"
     provider._user = "usr"
-    provider._agent = "hermes"
+    provider._agent = "sonic"
     provider._session_id = "sid-1"
 
     clients = []
@@ -940,7 +940,7 @@ def test_sync_turn_tracks_writer_under_session_id():
     provider._api_key = ""
     provider._account = "acct"
     provider._user = "usr"
-    provider._agent = "hermes"
+    provider._agent = "sonic"
     provider._session_id = "sid-1"
 
     release = threading.Event()
@@ -986,7 +986,7 @@ def test_on_memory_write_uses_content_write_independent_of_session_rotation():
     provider._api_key = ""
     provider._account = "acct"
     provider._user = "usr"
-    provider._agent = "hermes"
+    provider._agent = "sonic"
     provider._session_id = "old-sid"
 
     in_ctor = threading.Event()
@@ -1024,7 +1024,7 @@ def test_on_memory_write_uses_content_write_independent_of_session_rotation():
     assert captured_payloads[0]["content"] == "remember this"
     assert captured_payloads[0]["mode"] == "create"
     assert captured_payloads[0]["uri"].startswith(
-        "viking://user/usr/agent/hermes/memories/preferences/mem_"
+        "viking://user/usr/agent/sonic/memories/preferences/mem_"
     )
 
 
@@ -1045,7 +1045,7 @@ def test_queue_prefetch_drops_result_when_generation_changed_mid_flight():
     provider._api_key = ""
     provider._account = "acct"
     provider._user = "usr"
-    provider._agent = "hermes"
+    provider._agent = "sonic"
     provider._session_id = "old-sid"
 
     started = threading.Event()
@@ -1095,7 +1095,7 @@ def test_queue_prefetch_sends_limit_not_legacy_top_k():
     provider._api_key = ""
     provider._account = "acct"
     provider._user = "usr"
-    provider._agent = "hermes"
+    provider._agent = "sonic"
 
     captured_payloads = []
 

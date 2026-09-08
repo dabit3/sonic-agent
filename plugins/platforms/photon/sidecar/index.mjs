@@ -90,7 +90,7 @@ if (!projectId || !projectSecret || !sharedToken) {
 }
 
 // Lazy-load spectrum-ts so a missing install fails with a clear message
-// instead of a cryptic module-resolution error during import. Apply Hermes'
+// instead of a cryptic module-resolution error during import. Apply Sonic'
 // pinned-sdk compatibility patch first so existing installs self-heal at
 // runtime, not only during npm postinstall.
 try {

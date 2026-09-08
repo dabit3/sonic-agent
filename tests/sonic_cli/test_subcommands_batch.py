@@ -97,11 +97,11 @@ def test_dashboard_builder_two_handlers():
     assert parser.parse_args(["dashboard", "register"]).func is reg
 
 
-# ── deprecated `hermes login` fails gracefully, not with argparse error ────
+# ── deprecated `sonic login` fails gracefully, not with argparse error ────
 #
-# `hermes login` is a removed command; its handler (`login_command` in
-# `hermes_cli/auth.py`) prints a deprecation notice pointing at `hermes auth` /
-# `hermes model` and exits 0.  Two behavior contracts guard the UX:
+# `sonic login` is a removed command; its handler (`login_command` in
+# `sonic_cli/auth.py`) prints a deprecation notice pointing at `sonic auth` /
+# `sonic model` and exits 0.  Two behavior contracts guard the UX:
 #   1. ANY `--provider <value>` (including ones the user actually wants, like
 #      `anthropic`) must parse and reach the handler — never crash in argparse
 #      with `invalid choice` before the friendly redirect is printed (#24756).
@@ -109,7 +109,7 @@ def test_dashboard_builder_two_handlers():
 
 
 def _login_parser():
-    parser = argparse.ArgumentParser(prog="hermes")
+    parser = argparse.ArgumentParser(prog="sonic")
     sub = parser.add_subparsers(dest="command")
     build_login_parser(sub, cmd_login=_h("login"))
     return parser
@@ -130,13 +130,13 @@ def test_login_accepts_any_provider_value(provider):
 
 
 def test_login_subparser_help_is_suppressed():
-    """The deprecated `login` row must not appear in `hermes --help`.
+    """The deprecated `login` row must not appear in `sonic --help`.
 
     Must hold without leaking argparse's literal `==SUPPRESS==` placeholder,
     which `help=argparse.SUPPRESS` emits for a top-level subparser on 3.12+.
     The fix omits the `help=` kwarg entirely instead.
     """
-    parser = argparse.ArgumentParser(prog="hermes")
+    parser = argparse.ArgumentParser(prog="sonic")
     sub = parser.add_subparsers(dest="command")
     build_login_parser(sub, cmd_login=_h("login"))
     help_text = parser.format_help()

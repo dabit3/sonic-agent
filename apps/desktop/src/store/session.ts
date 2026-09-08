@@ -16,10 +16,10 @@ const WORKSPACE_CWD_KEY = 'sonic.desktop.workspace-cwd'
 // follow across Cmd+N and app restarts instead of snapping back to the default.
 // It's deliberately global (not per-profile): a profile switch force-reseeds to
 // that profile's default, while within a profile new chats keep your last pick.
-const COMPOSER_MODEL_KEY = 'hermes.desktop.composer.model'
-const COMPOSER_PROVIDER_KEY = 'hermes.desktop.composer.provider'
-const COMPOSER_EFFORT_KEY = 'hermes.desktop.composer.reasoning-effort'
-const COMPOSER_FAST_KEY = 'hermes.desktop.composer.fast'
+const COMPOSER_MODEL_KEY = 'sonic.desktop.composer.model'
+const COMPOSER_PROVIDER_KEY = 'sonic.desktop.composer.provider'
+const COMPOSER_EFFORT_KEY = 'sonic.desktop.composer.reasoning-effort'
+const COMPOSER_FAST_KEY = 'sonic.desktop.composer.fast'
 
 let configuredDefaultProjectDir = ''
 

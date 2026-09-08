@@ -332,7 +332,7 @@ function safeEmbeddedImages(text: string) {
 
 function safeDirectiveSegments(text: string): Unstable_DirectiveSegment[] {
   try {
-    return [...hermesDirectiveFormatter.parse(text)]
+    return [...sonicDirectiveFormatter.parse(text)]
   } catch {
     return [{ kind: 'text', text }]
   }

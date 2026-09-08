@@ -1059,7 +1059,7 @@ def test_section3_probes_no_key_endpoint_without_explicit_models(monkeypatch):
     list because section 3 gated probing on ``api_url and api_key``.
     """
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
-    monkeypatch.setattr("hermes_cli.providers.HERMES_OVERLAYS", {})
+    monkeypatch.setattr("sonic_cli.providers.SONIC_OVERLAYS", {})
 
     probed = {}
 
@@ -1069,7 +1069,7 @@ def test_section3_probes_no_key_endpoint_without_explicit_models(monkeypatch):
         probed["api_url"] = api_url
         return ["live-model-1", "live-model-2", "live-model-3"]
 
-    monkeypatch.setattr("hermes_cli.models.fetch_api_models", _fake_fetch)
+    monkeypatch.setattr("sonic_cli.models.fetch_api_models", _fake_fetch)
 
     user_providers = {
         "local-llamacpp": {
@@ -1097,12 +1097,12 @@ def test_section3_skips_probe_when_no_key_but_explicit_models(monkeypatch):
     """A no-key endpoint WITH an explicit models: list is the user narrowing a
     public endpoint to a subset — skip live discovery and keep the list."""
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
-    monkeypatch.setattr("hermes_cli.providers.HERMES_OVERLAYS", {})
+    monkeypatch.setattr("sonic_cli.providers.SONIC_OVERLAYS", {})
 
     def _fail_fetch(api_key, api_url):
         raise AssertionError("should not probe when explicit models are set")
 
-    monkeypatch.setattr("hermes_cli.models.fetch_api_models", _fail_fetch)
+    monkeypatch.setattr("sonic_cli.models.fetch_api_models", _fail_fetch)
 
     user_providers = {
         "public-subset": {

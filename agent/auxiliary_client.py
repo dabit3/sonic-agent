@@ -3140,14 +3140,14 @@ def _try_main_fallback_chain(
     """Try the top-level main-agent fallback chain for an auxiliary call.
 
     ``provider: auto`` auxiliary tasks should respect the user's declared
-    main fallback policy before dropping into Hermes' built-in discovery
+    main fallback policy before dropping into Sonic' built-in discovery
     chain. The top-level chain is read through ``get_fallback_chain`` so
     both modern ``fallback_providers`` and legacy ``fallback_model`` entries
     participate in the same order as the main agent.
     """
     try:
-        from hermes_cli.config import load_config
-        from hermes_cli.fallback_config import get_fallback_chain
+        from sonic_cli.config import load_config
+        from sonic_cli.fallback_config import get_fallback_chain
 
         chain = get_fallback_chain(load_config())
     except Exception as exc:

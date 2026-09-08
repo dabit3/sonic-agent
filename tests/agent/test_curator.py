@@ -642,7 +642,7 @@ def test_run_review_skips_llm_when_consolidate_off(curator_env, monkeypatch):
 
 def test_run_review_consolidate_override_runs_llm(curator_env, monkeypatch):
     """Passing consolidate=True overrides the config default (off) and drives
-    the LLM consolidation pass — mirrors `hermes curator run --consolidate`."""
+    the LLM consolidation pass — mirrors `sonic curator run --consolidate`."""
     c = curator_env["curator"]
     u = curator_env["usage"]
     skills_dir = curator_env["home"] / "skills"

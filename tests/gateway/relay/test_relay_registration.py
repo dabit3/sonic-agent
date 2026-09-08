@@ -17,7 +17,7 @@ from gateway.relay.adapter import RelayAdapter
 @pytest.fixture(autouse=True)
 def _clean_registry(monkeypatch):
     """Ensure each test starts/ends with no 'relay' entry and a clean env."""
-    monkeypatch.delenv("HERMES_GATEWAY_RELAY", raising=False)
+    monkeypatch.delenv("SONIC_GATEWAY_RELAY", raising=False)
     platform_registry.unregister("relay")
     yield
     platform_registry.unregister("relay")
@@ -30,7 +30,7 @@ def test_off_by_default():
 
 
 def test_enabled_by_env_flag(monkeypatch):
-    monkeypatch.setenv("HERMES_GATEWAY_RELAY", "1")
+    monkeypatch.setenv("SONIC_GATEWAY_RELAY", "1")
     assert relay_enabled() is True
     assert register_relay_adapter() is True
     assert platform_registry.is_registered("relay") is True
@@ -51,5 +51,5 @@ def test_create_adapter_yields_relay_adapter():
 
 @pytest.mark.parametrize("val,expected", [("0", False), ("", False), ("true", True), ("ON", True), ("yes", True)])
 def test_flag_parsing(monkeypatch, val, expected):
-    monkeypatch.setenv("HERMES_GATEWAY_RELAY", val)
+    monkeypatch.setenv("SONIC_GATEWAY_RELAY", val)
     assert relay_enabled() is expected

@@ -193,7 +193,7 @@ class TestSessionCompressEvent:
         return compressor
 
     def test_event_emitted_on_compression(self):
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         events = []
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -219,7 +219,7 @@ class TestSessionCompressEvent:
 
     def test_no_callback_is_safe(self):
         """Compression must work when no event_callback is wired."""
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         with tempfile.TemporaryDirectory() as tmpdir:
             db = SessionDB(db_path=Path(tmpdir) / "test.db")
@@ -231,7 +231,7 @@ class TestSessionCompressEvent:
             assert compressed
 
     def test_callback_exception_does_not_break_compression(self):
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         def _boom(event_type, ctx):
             raise RuntimeError("hook exploded")

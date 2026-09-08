@@ -8,9 +8,9 @@ import {
   getAuxiliaryModels,
   getGlobalModelInfo,
   getGlobalModelOptions,
-  getHermesConfigRecord,
+  getSonicConfigRecord,
   getRecommendedDefaultModel,
-  saveHermesConfig,
+  saveSonicConfig,
   setEnvVar,
   setModelAssignment
 } from '@/sonic'
@@ -20,14 +20,14 @@ import { AlertTriangle, Cpu, Loader2 } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { notifyError } from '@/store/notifications'
 import { startManualLocalEndpoint, startManualProviderOAuth } from '@/store/onboarding'
-import type { HermesConfigRecord } from '@/types/hermes'
+import type { SonicConfigRecord } from '@/types/sonic'
 
 import { CONTROL_TEXT } from './constants'
 import { getNested, setNested } from './helpers'
 import { ListRow, LoadingState, Pill, SectionHeading } from './primitives'
 
-// Hermes' reasoning levels (VALID_REASONING_EFFORTS); `none` = thinking off.
-// Empty config = Hermes default (medium), shown as Medium.
+// Sonic' reasoning levels (VALID_REASONING_EFFORTS); `none` = thinking off.
+// Empty config = Sonic default (medium), shown as Medium.
 const EFFORT_VALUES = ['none', 'minimal', 'low', 'medium', 'high', 'xhigh'] as const
 
 // agent.service_tier stores "fast"/"priority"/"on" for fast; anything else is
@@ -117,7 +117,7 @@ export function ModelSettings({ onMainModelChanged }: ModelSettingsProps) {
   const [auxiliary, setAuxiliary] = useState<AuxiliaryModelsResponse | null>(null)
   // Full profile config, kept so the reasoning/speed defaults round-trip
   // (read agent.* → write back the whole record) like the generic config page.
-  const [config, setConfig] = useState<HermesConfigRecord | null>(null)
+  const [config, setConfig] = useState<SonicConfigRecord | null>(null)
   const [applying, setApplying] = useState(false)
   const [editingAuxTask, setEditingAuxTask] = useState<null | string>(null)
   const [auxDraft, setAuxDraft] = useState<{ model: string; provider: string }>({ model: '', provider: '' })
@@ -138,7 +138,7 @@ export function ModelSettings({ onMainModelChanged }: ModelSettingsProps) {
         getGlobalModelInfo(),
         getGlobalModelOptions(),
         getAuxiliaryModels(),
-        getHermesConfigRecord()
+        getSonicConfigRecord()
       ])
 
       setMainModel({ model: modelInfo.model, provider: modelInfo.provider })
@@ -231,7 +231,7 @@ export function ModelSettings({ onMainModelChanged }: ModelSettingsProps) {
       setConfig(next)
 
       try {
-        await saveHermesConfig(next)
+        await saveSonicConfig(next)
       } catch (err) {
         setConfig(prev)
         notifyError(err, m.defaultsFailed)

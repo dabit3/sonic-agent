@@ -12,21 +12,21 @@ from typing import Callable
 def build_login_parser(subparsers, *, cmd_login: Callable) -> None:
     """Attach the deprecated ``login`` subcommand to ``subparsers``.
 
-    ``hermes login`` was removed in favor of ``hermes auth`` / ``hermes model``
-    (the runtime handler in ``hermes_cli/auth.py::login_command`` just prints a
+    ``sonic login`` was removed in favor of ``sonic auth`` / ``sonic model``
+    (the runtime handler in ``sonic_cli/auth.py::login_command`` just prints a
     deprecation message and exits).  The subparser is kept registered so that
-    old scripts/aliases invoking ``hermes login [--flags]`` still receive the
+    old scripts/aliases invoking ``sonic login [--flags]`` still receive the
     actionable deprecation message rather than an argparse ``invalid choice:
     'login'`` error — but:
 
     - The subparser is registered WITHOUT a ``help=`` kwarg so the row is
-      omitted from ``hermes --help`` (argparse only lists subcommands that
+      omitted from ``sonic --help`` (argparse only lists subcommands that
       have a help string).  This hides a command that no longer works (#24756)
       without the ``help=argparse.SUPPRESS`` ``==SUPPRESS==`` leak that
       argparse emits for a top-level subparser on Python 3.12+.
     - ``--provider`` accepts ANY value (no ``choices=``) so that, e.g.,
-      ``hermes login --provider anthropic`` reaches the deprecation handler and
-      gets pointed at ``hermes model`` instead of crashing in argparse with
+      ``sonic login --provider anthropic`` reaches the deprecation handler and
+      gets pointed at ``sonic model`` instead of crashing in argparse with
       ``invalid choice: 'anthropic'`` before the handler can run.
     """
     login_parser = subparsers.add_parser(
@@ -43,7 +43,7 @@ def build_login_parser(subparsers, *, cmd_login: Callable) -> None:
     login_parser.add_argument(
         "--provider",
         default=None,
-        help="(deprecated) Provider name; ignored — see `hermes model`",
+        help="(deprecated) Provider name; ignored — see `sonic model`",
     )
     login_parser.add_argument(
         "--portal-url", help="Portal base URL (default: production portal)"

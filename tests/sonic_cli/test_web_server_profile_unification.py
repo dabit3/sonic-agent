@@ -357,7 +357,7 @@ class TestProfileScopedGateway:
     def test_lifecycle_spawns_with_profile_flag(
         self, client, isolated_profiles, monkeypatch
     ):
-        import hermes_cli.web_server as web_server
+        import sonic_cli.web_server as web_server
 
         calls = []
 
@@ -366,7 +366,7 @@ class TestProfileScopedGateway:
 
         monkeypatch.setattr(
             web_server,
-            "_spawn_hermes_action",
+            "_spawn_sonic_action",
             lambda subcommand, name: calls.append((list(subcommand), name)) or _FakeProc(),
         )
         web_server._ACTION_PROCS.pop("gateway-restart", None)
@@ -385,13 +385,13 @@ class TestProfileScopedGateway:
     def test_status_reads_requested_profile_home(
         self, client, isolated_profiles, monkeypatch
     ):
-        import hermes_cli.web_server as web_server
-        from hermes_constants import get_hermes_home
+        import sonic_cli.web_server as web_server
+        from sonic_constants import get_sonic_home
 
         seen_homes = []
 
         def fake_get_running_pid():
-            seen_homes.append(str(get_hermes_home()))
+            seen_homes.append(str(get_sonic_home()))
             return None
 
         monkeypatch.setattr(web_server, "check_config_version", lambda: (1, 1))
@@ -407,12 +407,12 @@ class TestProfileScopedGateway:
 
         assert resp.status_code == 200
         assert seen_homes[0] == str(isolated_profiles["worker_beta"])
-        assert resp.json()["hermes_home"] == str(isolated_profiles["worker_beta"])
+        assert resp.json()["sonic_home"] == str(isolated_profiles["worker_beta"])
 
     def test_status_uses_runtime_pid_when_profile_pid_file_is_missing(
         self, client, isolated_profiles, monkeypatch
     ):
-        import hermes_cli.web_server as web_server
+        import sonic_cli.web_server as web_server
 
         worker_home = isolated_profiles["worker_beta"]
         (worker_home / ".env").write_text(
@@ -461,7 +461,7 @@ class TestProfileScopedTelegramOnboarding:
         self, client, isolated_profiles, monkeypatch
     ):
         import time
-        import hermes_cli.web_server as web_server
+        import sonic_cli.web_server as web_server
 
         with web_server._telegram_onboarding_lock:
             web_server._telegram_onboarding_pairings.clear()
@@ -483,7 +483,7 @@ class TestProfileScopedTelegramOnboarding:
 
         monkeypatch.setattr(
             web_server,
-            "_spawn_hermes_action",
+            "_spawn_sonic_action",
             lambda subcommand, name: calls.append((list(subcommand), name)) or _FakeProc(),
         )
         web_server._ACTION_PROCS.pop("gateway-restart", None)

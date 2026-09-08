@@ -29,7 +29,7 @@ _SKILL_MULTI_HYPHEN = re.compile(r"-{2,}")
 # ---------------------------------------------------------------------------
 # Skill-scaffolding markers and the canonical extractor.
 #
-# When a user invokes a /skill (or /bundle), Hermes expands the turn into a
+# When a user invokes a /skill (or /bundle), Sonic expands the turn into a
 # model-facing message that embeds the full skill body plus scaffolding. That
 # expanded text is what flows into the agent loop — and into memory providers
 # via MemoryManager. Providers that store or embed the raw user turn (mem0,
@@ -42,7 +42,7 @@ _SKILL_MULTI_HYPHEN = re.compile(r"-{2,}")
 # (``_build_skill_message`` here, ``build_bundle_invocation_message`` in
 # agent/skill_bundles.py). They are co-located with the single-skill builder
 # on purpose, and the bundle markers are asserted against the bundle builder in
-# tests/openviking_plugin/test_openviking.py::test_skill_markers_match_hermes_scaffolding.
+# tests/openviking_plugin/test_openviking.py::test_skill_markers_match_sonic_scaffolding.
 # ---------------------------------------------------------------------------
 _SKILL_INVOCATION_PREFIX = "[IMPORTANT: The user has invoked the "
 _SINGLE_SKILL_MARKER = "The full skill content is loaded below.]"
