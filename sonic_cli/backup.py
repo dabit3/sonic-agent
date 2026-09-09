@@ -64,7 +64,7 @@ _EXCLUDED_NAMES = {
     "cron.pid",
 }
 
-# File names that ``hermes import`` must never overwrite, matched by basename so
+# File names that ``sonic import`` must never overwrite, matched by basename so
 # they're caught for the root profile (``gateway_state.json``) and for named
 # profiles alike (``profiles/<name>/gateway_state.json``).
 #

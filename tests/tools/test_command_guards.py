@@ -245,7 +245,7 @@ class TestCommandAllowlistGlobs:
                                        [{"rule_id": "container_run"}],
                                        "container run"))
     def test_glob_allowlist_bypasses_combined_guard(self, mock_tirith):
-        os.environ["HERMES_INTERACTIVE"] = "1"
+        os.environ["SONIC_INTERACTIVE"] = "1"
         approval_module._permanent_approved.add("podman *")
 
         result = check_all_command_guards(
@@ -257,7 +257,7 @@ class TestCommandAllowlistGlobs:
         mock_tirith.assert_not_called()
 
     def test_glob_allowlist_bypasses_dangerous_pattern_guard(self):
-        os.environ["HERMES_INTERACTIVE"] = "1"
+        os.environ["SONIC_INTERACTIVE"] = "1"
         approval_module._permanent_approved.add("bash -c *")
 
         result = check_dangerous_command("bash -c 'echo ok'", "local")
@@ -265,7 +265,7 @@ class TestCommandAllowlistGlobs:
         assert result["approved"] is True
 
     def test_glob_allowlist_does_not_bypass_hardline_floor(self):
-        os.environ["HERMES_INTERACTIVE"] = "1"
+        os.environ["SONIC_INTERACTIVE"] = "1"
         approval_module._permanent_approved.add("rm *")
 
         result = check_all_command_guards("rm -rf /", "local")
@@ -293,7 +293,7 @@ class TestCommandAllowlistGlobs:
     def test_glob_allowlist_does_not_bypass_compound_shell_commands(
         self, mock_tirith, command
     ):
-        os.environ["HERMES_INTERACTIVE"] = "1"
+        os.environ["SONIC_INTERACTIVE"] = "1"
         approval_module._permanent_approved.add("podman *")
         cb = MagicMock(return_value="once")
 

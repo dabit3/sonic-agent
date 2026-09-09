@@ -183,14 +183,14 @@ class TestComputeRelativeDest:
 
 class TestRmtreeWritableScopeGuard:
     """``_rmtree_writable`` must refuse to remove anything outside
-    ``HERMES_HOME/skills/``.
+    ``SONIC_HOME/skills/``.
 
     The previous implementation called ``shutil.rmtree(path)`` on whatever
     argument the caller passed. If any of the five call sites in
     ``tools/skills_sync.py`` ever computes a path outside the skills
     root — through a bad join, a missing default, a malicious
     bundled-manifest entry, or a stale path in scope after an
-    exception — the result is a silent ``shutil.rmtree(~/.hermes/)``
+    exception — the result is a silent ``shutil.rmtree(~/.sonic/)``
     that destroys the user's ``.env``, ``MEMORY.md``, ``kanban.db``,
     custom skills, scripts, and the rest of the install in one go
     (#48200).
@@ -210,16 +210,16 @@ class TestRmtreeWritableScopeGuard:
             with pytest.raises(ValueError, match="refusing to rmtree"):
                 _rmtree_writable(Path("/"))
 
-    def test_refuses_hermes_home_itself(self, tmp_path):
-        """``~/.hermes/`` itself is what the #48200 wipe destroyed."""
+    def test_refuses_sonic_home_itself(self, tmp_path):
+        """``~/.sonic/`` itself is what the #48200 wipe destroyed."""
         from tools.skills_sync import _rmtree_writable
 
-        hermes = tmp_path / "home"
-        hermes.mkdir()
-        (hermes / "skills").mkdir()
-        with patch("tools.skills_sync.SKILLS_DIR", hermes / "skills"):
+        sonic = tmp_path / "home"
+        sonic.mkdir()
+        (sonic / "skills").mkdir()
+        with patch("tools.skills_sync.SKILLS_DIR", sonic / "skills"):
             with pytest.raises(ValueError, match="refusing to rmtree"):
-                _rmtree_writable(hermes)
+                _rmtree_writable(sonic)
 
     def test_refuses_sibling_directory(self, tmp_path):
         """A directory that is a sibling of SKILLS_DIR (e.g. a wrong
@@ -227,11 +227,11 @@ class TestRmtreeWritableScopeGuard:
         """
         from tools.skills_sync import _rmtree_writable
 
-        hermes = tmp_path / "home"
-        hermes.mkdir()
-        skills = hermes / "skills"
+        sonic = tmp_path / "home"
+        sonic.mkdir()
+        skills = sonic / "skills"
         skills.mkdir()
-        not_skills = hermes / "kanban.db"  # any non-skills path
+        not_skills = sonic / "kanban.db"  # any non-skills path
         not_skills.mkdir()
         with patch("tools.skills_sync.SKILLS_DIR", skills):
             with pytest.raises(ValueError, match="refusing to rmtree"):

@@ -266,7 +266,7 @@ def _responses_tools(tools: Optional[List[Dict[str, Any]]] = None) -> Optional[L
 # Responses ``tools`` array.  These are declared by ``type`` alone (no
 # client-side name/parameters schema) and run server-side — the provider
 # owns the implementation and reports progress via the matching ``*_call``
-# output items.  Hermes injects xAI's native ``web_search`` for the xAI
+# output items.  Sonic injects xAI's native ``web_search`` for the xAI
 # transport (see agent/transports/codex.py); the rest are listed so the
 # preflight validator passes them through rather than rejecting them as
 # "unsupported type".  Mirrors the ``*_call`` item-type set used in

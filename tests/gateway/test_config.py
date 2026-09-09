@@ -317,9 +317,9 @@ class TestLoadGatewayConfig:
         the adapter in the platform_registry is NOT enough — the connect loop
         iterates config.platforms, so an un-enabled RELAY never connects (the
         'relay registered but no inbound' bug)."""
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
         monkeypatch.setenv("GATEWAY_RELAY_URL", "https://connector.example/relay/")
 
         config = load_gateway_config()
@@ -334,9 +334,9 @@ class TestLoadGatewayConfig:
     def test_relay_platform_absent_when_url_unset(self, tmp_path, monkeypatch):
         """No relay URL -> no RELAY platform, so direct/single-tenant gateways
         are unaffected."""
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
         monkeypatch.delenv("GATEWAY_RELAY_URL", raising=False)
 
         config = load_gateway_config()
@@ -345,14 +345,14 @@ class TestLoadGatewayConfig:
 
     def test_relay_platform_enabled_from_config_yaml(self, tmp_path, monkeypatch):
         """gateway.relay_url in config.yaml also enables RELAY (env-less path)."""
-        hermes_home = tmp_path / ".hermes"
-        hermes_home.mkdir()
-        config_path = hermes_home / "config.yaml"
+        sonic_home = tmp_path / ".sonic"
+        sonic_home.mkdir()
+        config_path = sonic_home / "config.yaml"
         config_path.write_text(
             "gateway:\n  platforms:\n    relay:\n      extra:\n        relay_url: https://connector.example/relay\n",
             encoding="utf-8",
         )
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
         monkeypatch.delenv("GATEWAY_RELAY_URL", raising=False)
 
         config = load_gateway_config()

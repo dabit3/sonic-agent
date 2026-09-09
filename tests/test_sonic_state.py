@@ -373,7 +373,7 @@ class TestSessionLifecycle:
             kwargs["factory"] = _NoTrigramConnection
             return real_connect(*args, **kwargs)
 
-        monkeypatch.setattr("hermes_state.sqlite3.connect", connect_without_trigram)
+        monkeypatch.setattr("sonic_state.sqlite3.connect", connect_without_trigram)
         restored = SessionDB(db_path=db_path)
         try:
             assert restored._fts_enabled is True
@@ -414,7 +414,7 @@ class TestSessionLifecycle:
             kwargs["factory"] = _NoTrigramConnection
             return real_connect(*args, **kwargs)
 
-        monkeypatch.setattr("hermes_state.sqlite3.connect", connect_without_trigram)
+        monkeypatch.setattr("sonic_state.sqlite3.connect", connect_without_trigram)
 
         db = SessionDB(db_path=tmp_path / "state.db")
         try:
@@ -461,7 +461,7 @@ class TestSessionLifecycle:
             kwargs["factory"] = _NoTrigramConnection
             return real_connect(*args, **kwargs)
 
-        monkeypatch.setattr("hermes_state.sqlite3.connect", connect_without_trigram)
+        monkeypatch.setattr("sonic_state.sqlite3.connect", connect_without_trigram)
         migrated_db = SessionDB(db_path=db_path)
         try:
             assert migrated_db._fts_enabled is True
@@ -489,7 +489,7 @@ class TestSessionLifecycle:
             kwargs["factory"] = _NoTrigramConnection
             return real_connect(*args, **kwargs)
 
-        monkeypatch.setattr("hermes_state.sqlite3.connect", connect_without_trigram)
+        monkeypatch.setattr("sonic_state.sqlite3.connect", connect_without_trigram)
         db = SessionDB(db_path=db_path)
         try:
             db.create_session(session_id="s1", source="cli")

@@ -118,7 +118,7 @@ renderable inside a terminal.
 
 ## Customizing platform hints
 
-The platform hint (Layer 10 above) is the per-surface guidance Hermes
+The platform hint (Layer 10 above) is the per-surface guidance Sonic
 injects for Telegram, WhatsApp, Slack, CLI, and other platforms — for
 example "you are on a terminal, avoid Markdown." The built-in defaults
 live in `PLATFORM_HINTS` (`agent/system_prompt.py`); plugin-provided

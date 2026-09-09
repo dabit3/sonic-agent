@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "c366466d7016aa6d02114d817ade5d8fd80a9b5d",
-  "synced_at": "2026-09-08T17:54:57Z",
-  "notes": "Partial sync: batch 11 ports the 80 first-parent commits after 4d470b3d, ending at c366466d70 (0 skipped). Manual conflicts: website/static/api/model-catalog.json updated_at (kept Sonic's), sonic_cli/model_setup_flows.py xAI default model (kept Sonic live /models discovery, took upstream grok-build-0.1 fallback), agent/curator.py consolidate gate (kept both), scripts/release.py AUTHOR_MAP x3 (union), uv.lock (concurrent-log-handler/portalocker blocks), apps/desktop streaming.test.tsx (kept Sonic scroll tests + upstream dismiss tests). Remaining backlog is approximately 13,880 first-parent commits."
+  "last_synced_upstream_sha": "a64fc490fe61dfe865e9b189aa5f4c5f1598b285",
+  "synced_at": "2026-09-09T16:06:24Z",
+  "notes": "Partial sync: batch 12 ports the 80 first-parent commits after c366466d, ending at a64fc490 (1 skipped as empty after Sonic-side resolution: 646cd1b43e nix npmDepsHash refresh \u2014 Sonic keeps its own hash). Manual conflicts: sonic_cli/config.py (code-scoped install-method stamp re-applied on top of Sonic speed profile), uv.lock (python-multipart extras + 0.0.20 pin), scripts/release.py AUTHOR_MAP x2. Remaining backlog is approximately 13,980 first-parent commits; each daily run advances the baseline by a reviewable batch."
 }

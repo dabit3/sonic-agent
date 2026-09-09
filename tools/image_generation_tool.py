@@ -903,7 +903,7 @@ def image_generate_tool(
                 f"Model '{meta.get('display', model_id)}' ({model_id}) is not "
                 f"capable of image-to-image / editing. Provide a text-only "
                 f"prompt (omit image_url), or switch to an edit-capable model "
-                f"via `hermes tools` → Image Generation."
+                f"via `sonic tools` → Image Generation."
             )
 
         aspect_lc = (aspect_ratio or DEFAULT_ASPECT_RATIO).lower().strip()
@@ -1355,7 +1355,7 @@ def _dispatch_to_plugin_provider(
                     f"support image-to-image / editing (its generate() "
                     f"signature is out of date with the image_generate schema). "
                     f"Omit image_url for text-to-image, or pick a backend that "
-                    f"supports editing via `hermes tools` → Image Generation."
+                    f"supports editing via `sonic tools` → Image Generation."
                 ),
                 "error_type": "modality_unsupported",
             })
@@ -1427,7 +1427,7 @@ def _handle_image_generate(args, **kw):
 # model up front ("the active model is text-to-image only — image_url will be
 # rejected") saves a wasted turn. Memoized by config.yaml mtime in
 # model_tools.get_tool_definitions(), so it rebuilds when the user switches
-# model/provider via `hermes tools` or `/skills`.
+# model/provider via `sonic tools` or `/skills`.
 
 
 _GENERIC_IMAGE_DESCRIPTION = IMAGE_GENERATE_SCHEMA["description"]
@@ -1449,7 +1449,7 @@ def _active_image_capabilities() -> Dict[str, Any]:
     if configured_provider and configured_provider != "fal":
         try:
             from agent.image_gen_registry import get_provider
-            from hermes_cli.plugins import _ensure_plugins_discovered
+            from sonic_cli.plugins import _ensure_plugins_discovered
 
             _ensure_plugins_discovered()
             provider = get_provider(configured_provider)

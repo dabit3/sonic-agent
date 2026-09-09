@@ -15,7 +15,7 @@ sonic memory setup    # select "openviking"
 ```
 
 The setup can link to an existing `~/.openviking/ovcli.conf`, copy its current
-connection values into Hermes, or create a minimal `ovcli.conf` when one does
+connection values into Sonic, or create a minimal `ovcli.conf` when one does
 not exist.
 
 Or manually:
@@ -34,11 +34,11 @@ All config via environment variables in `.env`:
 | `OPENVIKING_API_KEY` | (none) | User/admin API key for authenticated servers |
 | `OPENVIKING_ACCOUNT` | `default` | Tenant account for local/trusted mode |
 | `OPENVIKING_USER` | `default` | Tenant user for local/trusted mode |
-| `OPENVIKING_AGENT` | `hermes` | Hermes peer ID in OpenViking, used for peer-scoped memories |
+| `OPENVIKING_AGENT` | `sonic` | Sonic peer ID in OpenViking, used for peer-scoped memories |
 
-When `OPENVIKING_API_KEY` is set, Hermes lets OpenViking derive account/user
+When `OPENVIKING_API_KEY` is set, Sonic lets OpenViking derive account/user
 identity from the key. In local or trusted deployments without an API key,
-Hermes sends `OPENVIKING_ACCOUNT` and `OPENVIKING_USER` as identity headers.
+Sonic sends `OPENVIKING_ACCOUNT` and `OPENVIKING_USER` as identity headers.
 
 ## Tools
 

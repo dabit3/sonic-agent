@@ -34,7 +34,7 @@ import os
 from typing import Any, Optional
 
 from tools.registry import registry, tool_error
-from hermes_cli.config import cfg_get, load_config
+from sonic_cli.config import cfg_get, load_config
 
 logger = logging.getLogger(__name__)
 
@@ -846,19 +846,19 @@ def _maybe_auto_subscribe(conn: Any, task_id: str) -> bool:
     Gated by ``kanban.auto_subscribe_on_create`` in config.yaml (default
     True). Disable to mirror pre-feature behaviour, e.g. when the
     originating user/chat opted out via the per-platform notification
-    toggle (see ``hermes dashboard``).
+    toggle (see ``sonic dashboard``).
 
     Subscription paths:
 
-    - **Gateway** (telegram/discord/slack/etc): ``HERMES_SESSION_PLATFORM``
-      and ``HERMES_SESSION_CHAT_ID`` are set in ContextVars by the
+    - **Gateway** (telegram/discord/slack/etc): ``SONIC_SESSION_PLATFORM``
+      and ``SONIC_SESSION_CHAT_ID`` are set in ContextVars by the
       messaging gateway before agent dispatch. The notification poller
       already keys off these, so we just register a row.
 
     - **TUI** (herm desktop / herm TUI): the platform/chat_id ContextVars
       are intentionally cleared (TUI is a single-channel local UI, not
       a multi-tenant chat surface), but the agent subprocess inherits
-      ``HERMES_SESSION_KEY`` from the parent session. We subscribe with
+      ``SONIC_SESSION_KEY`` from the parent session. We subscribe with
       ``platform="tui"`` and ``chat_id=<key>``; the TUI notification
       poller (``tui_gateway/server.py``) reads ``kanban_notify_subs``
       for these rows and posts the completion message into the running
@@ -885,36 +885,36 @@ def _maybe_auto_subscribe(conn: Any, task_id: str) -> bool:
     chat_id = ""
     try:
         from gateway.session_context import get_session_env
-        platform = get_session_env("HERMES_SESSION_PLATFORM", "")
-        chat_id = get_session_env("HERMES_SESSION_CHAT_ID", "")
+        platform = get_session_env("SONIC_SESSION_PLATFORM", "")
+        chat_id = get_session_env("SONIC_SESSION_CHAT_ID", "")
         if not platform or not chat_id:
             # TUI / desktop fallback: platform/chat_id ContextVars are
             # cleared for TUI sessions, but the parent process exports
-            # HERMES_SESSION_KEY into the subprocess env. Treat that
+            # SONIC_SESSION_KEY into the subprocess env. Treat that
             # as a "tui" subscription so the TUI notification poller
             # (tui_gateway/server.py) can pick it up.
             #
-            # HERMES_SESSION_ID is intentionally NOT a fallback here:
+            # SONIC_SESSION_ID is intentionally NOT a fallback here:
             # it is set by ACP / the agent subprocess for telemetry
             # regardless of whether the parent is a TUI or a CLI, so
             # treating it as a notification target would auto-subscribe
             # every CLI invocation, which is exactly the over-eager
             # behaviour that got #19718 reverted upstream. The TUI
-            # poller keys on HERMES_SESSION_KEY.
+            # poller keys on SONIC_SESSION_KEY.
             session_key = (
-                get_session_env("HERMES_SESSION_KEY", "")
-                or os.environ.get("HERMES_SESSION_KEY", "")
+                get_session_env("SONIC_SESSION_KEY", "")
+                or os.environ.get("SONIC_SESSION_KEY", "")
             )
             if not session_key:
                 return False  # CLI / cron / test — no persistent channel
             platform = "tui"
             chat_id = session_key
-        thread_id = get_session_env("HERMES_SESSION_THREAD_ID", "") or None
-        user_id = get_session_env("HERMES_SESSION_USER_ID", "") or None
-        notifier_profile = os.environ.get("HERMES_PROFILE")
+        thread_id = get_session_env("SONIC_SESSION_THREAD_ID", "") or None
+        user_id = get_session_env("SONIC_SESSION_USER_ID", "") or None
+        notifier_profile = os.environ.get("SONIC_PROFILE")
 
         # Lazy-import to keep the module-level dependency light
-        from hermes_cli import kanban_db as _kb
+        from sonic_cli import kanban_db as _kb
         _kb.add_notify_sub(
             conn, task_id=task_id,
             platform=platform, chat_id=chat_id,

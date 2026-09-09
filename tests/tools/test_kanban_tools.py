@@ -1820,8 +1820,8 @@ def test_board_param_in_all_schemas():
 # When a worker calls kanban_create from inside a session that has a
 # persistent delivery channel, the originating session should be
 # subscribed to the new task's completion/block events automatically.
-# - Gateway sessions: HERMES_SESSION_PLATFORM + HERMES_SESSION_CHAT_ID set.
-# - TUI sessions: HERMES_SESSION_KEY (or HERMES_SESSION_ID) set, with
+# - Gateway sessions: SONIC_SESSION_PLATFORM + SONIC_SESSION_CHAT_ID set.
+# - TUI sessions: SONIC_SESSION_KEY (or SONIC_SESSION_ID) set, with
 #   the platform/chat_id ContextVars intentionally empty.
 # - CLI / cron / test sessions: no delivery channel -> no subscription.
 # - Config gate kanban.auto_subscribe_on_create: false -> no subscription
@@ -1829,7 +1829,7 @@ def test_board_param_in_all_schemas():
 # ---------------------------------------------------------------------------
 
 def _list_subs_for_task(task_id):
-    from hermes_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
     conn = kb.connect()
     try:
         return list(kb.list_notify_subs(conn, task_id))
@@ -1860,10 +1860,10 @@ def test_create_subscribes_gateway_session(monkeypatch, worker_env):
     to its own kanban_create result, and the response surfaces the
     ``subscribed`` flag so the orchestrator can react."""
     from tools import kanban_tools as kt
-    monkeypatch.setenv("HERMES_SESSION_PLATFORM", "telegram")
-    monkeypatch.setenv("HERMES_SESSION_CHAT_ID", "chat-42")
-    monkeypatch.setenv("HERMES_SESSION_THREAD_ID", "thread-7")
-    monkeypatch.setenv("HERMES_SESSION_USER_ID", "user-9")
+    monkeypatch.setenv("SONIC_SESSION_PLATFORM", "telegram")
+    monkeypatch.setenv("SONIC_SESSION_CHAT_ID", "chat-42")
+    monkeypatch.setenv("SONIC_SESSION_THREAD_ID", "thread-7")
+    monkeypatch.setenv("SONIC_SESSION_USER_ID", "user-9")
 
     out = kt._handle_create({
         "title": "auto-sub gateway",
@@ -1885,16 +1885,16 @@ def test_create_subscribes_gateway_session(monkeypatch, worker_env):
 
 def test_create_subscribes_tui_session_via_session_key(monkeypatch, worker_env):
     """TUI / desktop sessions don't have a platform/chat_id (single
-    local channel), but the parent process exports HERMES_SESSION_KEY.
+    local channel), but the parent process exports SONIC_SESSION_KEY.
     We should still auto-subscribe, with platform='tui' and
     chat_id=<key>."""
     from tools import kanban_tools as kt
-    monkeypatch.delenv("HERMES_SESSION_PLATFORM", raising=False)
-    monkeypatch.delenv("HERMES_SESSION_CHAT_ID", raising=False)
-    monkeypatch.delenv("HERMES_SESSION_THREAD_ID", raising=False)
-    monkeypatch.delenv("HERMES_SESSION_USER_ID", raising=False)
-    monkeypatch.setenv("HERMES_SESSION_KEY", "tui-session-abc")
-    monkeypatch.delenv("HERMES_SESSION_ID", raising=False)
+    monkeypatch.delenv("SONIC_SESSION_PLATFORM", raising=False)
+    monkeypatch.delenv("SONIC_SESSION_CHAT_ID", raising=False)
+    monkeypatch.delenv("SONIC_SESSION_THREAD_ID", raising=False)
+    monkeypatch.delenv("SONIC_SESSION_USER_ID", raising=False)
+    monkeypatch.setenv("SONIC_SESSION_KEY", "tui-session-abc")
+    monkeypatch.delenv("SONIC_SESSION_ID", raising=False)
 
     out = kt._handle_create({
         "title": "auto-sub tui",
@@ -1915,10 +1915,10 @@ def test_create_does_not_subscribe_in_cli_session(monkeypatch, worker_env):
     """CLI / cron / test sessions have no persistent delivery channel.
     _maybe_auto_subscribe returns False and no row is written."""
     from tools import kanban_tools as kt
-    monkeypatch.delenv("HERMES_SESSION_PLATFORM", raising=False)
-    monkeypatch.delenv("HERMES_SESSION_CHAT_ID", raising=False)
-    monkeypatch.delenv("HERMES_SESSION_KEY", raising=False)
-    monkeypatch.delenv("HERMES_SESSION_ID", raising=False)
+    monkeypatch.delenv("SONIC_SESSION_PLATFORM", raising=False)
+    monkeypatch.delenv("SONIC_SESSION_CHAT_ID", raising=False)
+    monkeypatch.delenv("SONIC_SESSION_KEY", raising=False)
+    monkeypatch.delenv("SONIC_SESSION_ID", raising=False)
 
     out = kt._handle_create({
         "title": "no sub cli",
@@ -1937,16 +1937,16 @@ def test_create_respects_auto_subscribe_on_create_false(monkeypatch, worker_env,
     channel. This is the knob that addresses the upstream design
     concern from PR #19718 (reverted in #19721) — users who want
     explicit kanban_notify-subscribe calls per task get that."""
-    # worker_env already created <tmp>/.hermes; use a fresh sibling
+    # worker_env already created <tmp>/.sonic; use a fresh sibling
     # home to avoid mkdir() colliding with the worker's directory.
-    home = tmp_path / "gate-home" / ".hermes"
+    home = tmp_path / "gate-home" / ".sonic"
     home.mkdir(parents=True)
     (home / "config.yaml").write_text(
         "kanban:\n  auto_subscribe_on_create: false\n"
     )
-    monkeypatch.setenv("HERMES_HOME", str(home))
-    monkeypatch.setenv("HERMES_SESSION_PLATFORM", "discord")
-    monkeypatch.setenv("HERMES_SESSION_CHAT_ID", "channel-1")
+    monkeypatch.setenv("SONIC_HOME", str(home))
+    monkeypatch.setenv("SONIC_SESSION_PLATFORM", "discord")
+    monkeypatch.setenv("SONIC_SESSION_CHAT_ID", "channel-1")
 
     from tools import kanban_tools as kt
     out = kt._handle_create({
@@ -1965,10 +1965,10 @@ def test_create_partial_session_context_no_subscribe(monkeypatch, worker_env):
     Either both are set (gateway) or neither (TUI / CLI); partial is
     ambiguous and the safe default is to skip."""
     from tools import kanban_tools as kt
-    monkeypatch.setenv("HERMES_SESSION_PLATFORM", "slack")
-    monkeypatch.delenv("HERMES_SESSION_CHAT_ID", raising=False)
-    monkeypatch.delenv("HERMES_SESSION_KEY", raising=False)
-    monkeypatch.delenv("HERMES_SESSION_ID", raising=False)
+    monkeypatch.setenv("SONIC_SESSION_PLATFORM", "slack")
+    monkeypatch.delenv("SONIC_SESSION_CHAT_ID", raising=False)
+    monkeypatch.delenv("SONIC_SESSION_KEY", raising=False)
+    monkeypatch.delenv("SONIC_SESSION_ID", raising=False)
 
     out = kt._handle_create({
         "title": "no sub partial",
@@ -1985,10 +1985,10 @@ def test_maybe_auto_subscribe_swallows_add_notify_sub_failure(monkeypatch, worke
     kanban_create. The function returns False and the parent create
     still succeeds with subscribed=False."""
     from tools import kanban_tools as kt
-    monkeypatch.setenv("HERMES_SESSION_PLATFORM", "telegram")
-    monkeypatch.setenv("HERMES_SESSION_CHAT_ID", "chat-42")
+    monkeypatch.setenv("SONIC_SESSION_PLATFORM", "telegram")
+    monkeypatch.setenv("SONIC_SESSION_CHAT_ID", "chat-42")
 
-    from hermes_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
 
     def _boom(*a, **kw):
         raise RuntimeError("simulated DB failure")

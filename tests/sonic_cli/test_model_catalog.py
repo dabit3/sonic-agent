@@ -431,16 +431,16 @@ class TestIntegrationWithModelsModule:
         a ``if max_models`` (falsy) check would conflate ``0`` with unlimited.
         """
         import importlib
-        from hermes_cli import model_catalog
-        from hermes_cli.models import get_curated_nous_model_ids
+        from sonic_cli import model_catalog
+        from sonic_cli.models import get_curated_nous_model_ids
         importlib.reload(model_catalog)
         try:
-            from hermes_cli.model_switch import (
+            from sonic_cli.model_switch import (
                 list_authenticated_providers,
                 list_picker_providers,
             )
 
-            active_home = Path(os.environ["HERMES_HOME"])
+            active_home = Path(os.environ["SONIC_HOME"])
             (active_home / "auth.json").write_text(
                 json.dumps(
                     {
@@ -451,11 +451,11 @@ class TestIntegrationWithModelsModule:
             )
             with patch.object(
                 model_catalog, "_fetch_manifest", return_value=_valid_manifest()
-            ), patch("hermes_cli.models.check_nous_free_tier", return_value=False), patch(
-                "hermes_cli.models.union_with_portal_free_recommendations",
+            ), patch("sonic_cli.models.check_nous_free_tier", return_value=False), patch(
+                "sonic_cli.models.union_with_portal_free_recommendations",
                 side_effect=lambda ids, *a, **k: (ids, {}),
             ), patch(
-                "hermes_cli.models.union_with_portal_paid_recommendations",
+                "sonic_cli.models.union_with_portal_paid_recommendations",
                 side_effect=lambda ids, *a, **k: (ids, {}),
             ):
                 expected = get_curated_nous_model_ids()

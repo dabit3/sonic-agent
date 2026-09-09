@@ -246,7 +246,7 @@ def _trace_key(
 ) -> str:
     """Build a stable in-process trace scope key for one agent turn.
 
-    Older Hermes paths only expose ``task_id``/``session_id``. Newer paths
+    Older Sonic paths only expose ``task_id``/``session_id``. Newer paths
     pass ``turn_id`` and ``api_request_id`` in LLM/tool hooks; when present,
     they must scope trace state so concurrent requests sharing one task/session
     never collide. ``turn_id`` is preferred over ``api_request_id`` so the

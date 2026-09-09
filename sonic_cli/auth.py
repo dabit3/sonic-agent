@@ -8022,7 +8022,7 @@ def step_up_nous_billing_scope(
     returns False.
 
     Reuses the held credential's portal/inference URLs + client_id so the step-up
-    targets the same deployment (incl. a preview via ``HERMES_PORTAL_BASE_URL`` set
+    targets the same deployment (incl. a preview via ``SONIC_PORTAL_BASE_URL`` set
     at the original login). Persists to the auth store + shared store + pool, exactly
     like ``_login_nous`` — but WITHOUT the model picker (this is a scope upgrade, not
     a fresh login).

@@ -1458,7 +1458,7 @@ class TestCuaEnvironmentScrubbing:
     def test_cua_session_sanitizes_provider_env_vars(self):
         """_CuaDriverSession._aenter() must sanitize sensitive env vars.
 
-        The cua-driver MCP subprocess should not inherit Hermes-managed credentials
+        The cua-driver MCP subprocess should not inherit Sonic-managed credentials
         or other sensitive environment variables — only runtime-required vars.
         This is a regression test for issue #37878.
         """

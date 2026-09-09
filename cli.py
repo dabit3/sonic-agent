@@ -1344,7 +1344,7 @@ def _setup_worktree(repo_root: str = None) -> Optional[Dict[str, str]]:
     # it is actively in use.  Fail-soft: a lock failure never blocks the session.
     try:
         subprocess.run(
-            ["git", "worktree", "lock", "--reason", f"hermes pid={os.getpid()}", str(wt_path)],
+            ["git", "worktree", "lock", "--reason", f"sonic pid={os.getpid()}", str(wt_path)],
             capture_output=True, text=True, timeout=10, cwd=repo_root,
         )
         logger.debug("Worktree locked: %s (pid=%s)", wt_path, os.getpid())
@@ -3544,7 +3544,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
                     "this conversation will [bold]NOT be saved[/bold] to disk and "
                     "cannot be resumed later. Searching past sessions is also disabled.\n"
                     f"  Reason: {e}\n"
-                    "  Fix the state.db store (e.g. `hermes update` to rebuild the venv) to restore persistence."
+                    "  Fix the state.db store (e.g. `sonic update` to rebuild the venv) to restore persistence."
                 )
             except Exception:
                 # Never let the warning path itself break startup.
@@ -8602,7 +8602,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
                 _cprint(f"  💳 {_d(_msg)}")
             else:
                 _cprint(f"  💳 {_d('Not logged into Nous Portal.')}")
-                print("  Run `hermes portal` to log in, then /billing.")
+                print("  Run `sonic portal` to log in, then /billing.")
             return
 
         # Any sub-arg is intentionally ignored — always open the menu.
@@ -8849,7 +8849,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
             return
 
         # Submit the charge with a fresh idempotency key (reused on retry).
-        from hermes_cli.nous_billing import (
+        from sonic_cli.nous_billing import (
             BillingError,
             BillingScopeRequired,
             post_charge,
@@ -8877,7 +8877,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
         import time as _time
 
         from agent.billing_view import format_money
-        from hermes_cli.nous_billing import (
+        from sonic_cli.nous_billing import (
             BillingError,
             BillingRateLimited,
             get_charge_status,
@@ -8932,7 +8932,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
 
     def _billing_render_charge_error(self, state, exc):
         """Render a typed BillingError at submit time (pre-poll)."""
-        from hermes_cli.nous_billing import BillingRateLimited
+        from sonic_cli.nous_billing import BillingRateLimited
 
         code = getattr(exc, "error", None)
         portal_url = getattr(exc, "portal_url", None) or getattr(state, "portal_url", None)
@@ -8966,7 +8966,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
         )
         _cprint(f"  {_d(_scope_msg)}")
         if not getattr(self, "_app", None):
-            print("  Run `hermes portal` and approve terminal billing, then retry.")
+            print("  Run `sonic portal` and approve terminal billing, then retry.")
             return
         confirm_choices = [
             ("yes", "Re-authorize now", "open the portal to grant billing access"),
@@ -8982,7 +8982,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
             print("  🟡 Cancelled.")
             return
         try:
-            from hermes_cli.auth import step_up_nous_billing_scope
+            from sonic_cli.auth import step_up_nous_billing_scope
 
             granted = step_up_nous_billing_scope(open_browser=True)
         except Exception as exc:
@@ -9130,7 +9130,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
             print("  🟡 Cancelled.")
             return
 
-        from hermes_cli.nous_billing import (
+        from sonic_cli.nous_billing import (
             BillingError,
             BillingScopeRequired,
             patch_auto_top_up,
@@ -9155,7 +9155,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
         The endpoint requires ``threshold``/``topUpAmount`` in the body even when
         disabling, so we echo back the current values (falling back to 0).
         """
-        from hermes_cli.nous_billing import (
+        from sonic_cli.nous_billing import (
             BillingError,
             BillingScopeRequired,
             patch_auto_top_up,

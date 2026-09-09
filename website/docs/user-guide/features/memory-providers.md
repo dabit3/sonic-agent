@@ -309,7 +309,7 @@ echo "OPENVIKING_API_KEY=..." >> ~/.sonic/.env
 - `viking://` URI scheme for hierarchical knowledge browsing
 
 `OPENVIKING_ACCOUNT` and `OPENVIKING_USER` are used for local/trusted mode.
-`OPENVIKING_AGENT` is Hermes' peer ID in OpenViking for peer-scoped memories.
+`OPENVIKING_AGENT` is Sonic' peer ID in OpenViking for peer-scoped memories.
 
 ---
 

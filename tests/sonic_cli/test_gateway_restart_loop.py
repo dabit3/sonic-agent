@@ -258,9 +258,9 @@ class TestGatewaySelfTargetingGuard:
 # ---------------------------------------------------------------------------
 
 class TestTerminalToolGatewayLifecycleGuard:
-    """terminal_tool must refuse gateway lifecycle commands when _HERMES_GATEWAY=1.
+    """terminal_tool must refuse gateway lifecycle commands when _SONIC_GATEWAY=1.
 
-    Issue #37453: systemctl --user restart hermes-gateway runs as a child of the
+    Issue #37453: systemctl --user restart sonic-gateway runs as a child of the
     gateway process.  When systemd delivers SIGTERM the gateway kills its own
     restart command mid-execution — the service may never restart.  The guard
     must fire before execution, unconditionally (force=True cannot bypass it).
@@ -284,17 +284,17 @@ class TestTerminalToolGatewayLifecycleGuard:
         monkeypatch.setattr(tt, "_task_env_overrides", {})
         monkeypatch.setattr(tt, "_get_env_config", self._minimal_config)
         if inside_gateway:
-            monkeypatch.setenv("_HERMES_GATEWAY", "1")
+            monkeypatch.setenv("_SONIC_GATEWAY", "1")
         else:
-            monkeypatch.delenv("_HERMES_GATEWAY", raising=False)
+            monkeypatch.delenv("_SONIC_GATEWAY", raising=False)
 
     @pytest.mark.parametrize("cmd", [
-        "systemctl restart hermes-gateway",
-        "systemctl --user restart hermes-gateway",
-        "systemctl stop hermes-gateway.service",
-        "hermes gateway restart",
-        "launchctl kickstart gui/501/ai.hermes.gateway",
-        "pkill -f hermes.*gateway",
+        "systemctl restart sonic-gateway",
+        "systemctl --user restart sonic-gateway",
+        "systemctl stop sonic-gateway.service",
+        "sonic gateway restart",
+        "launchctl kickstart gui/501/ai.sonic.gateway",
+        "pkill -f sonic.*gateway",
     ])
     def test_blocks_lifecycle_commands_inside_gateway(self, monkeypatch, cmd):
         import tools.terminal_tool as tt
@@ -310,14 +310,14 @@ class TestTerminalToolGatewayLifecycleGuard:
         self._patch_env(monkeypatch, self._make_fake_env(), inside_gateway=True)
 
         result = json.loads(tt.terminal_tool(
-            command="systemctl restart hermes-gateway", force=True
+            command="systemctl restart sonic-gateway", force=True
         ))
 
         assert result["exit_code"] == 1
         assert "Blocked" in result["error"]
 
     def test_safe_systemctl_commands_pass_through(self, monkeypatch):
-        """Non-hermes systemctl commands must not be blocked by this guard."""
+        """Non-sonic systemctl commands must not be blocked by this guard."""
         import tools.terminal_tool as tt
 
         calls = []
@@ -337,7 +337,7 @@ class TestTerminalToolGatewayLifecycleGuard:
         assert calls == ["systemctl status nginx"]
 
     def test_guard_inactive_outside_gateway(self, monkeypatch):
-        """Without _HERMES_GATEWAY=1 the lifecycle guard must not fire."""
+        """Without _SONIC_GATEWAY=1 the lifecycle guard must not fire."""
         import tools.terminal_tool as tt
 
         calls = []
@@ -351,9 +351,9 @@ class TestTerminalToolGatewayLifecycleGuard:
         self._patch_env(monkeypatch, _FakeEnv(), inside_gateway=False)
         monkeypatch.setattr(tt, "_check_all_guards", lambda cmd, env: {"approved": True})
 
-        result = json.loads(tt.terminal_tool(command="systemctl restart hermes-gateway"))
+        result = json.loads(tt.terminal_tool(command="systemctl restart sonic-gateway"))
 
         # Outside the gateway the lifecycle guard doesn't block — the normal
         # approval flow handles it (here mocked as approved).
         assert result["exit_code"] == 0
-        assert calls == ["systemctl restart hermes-gateway"]
+        assert calls == ["systemctl restart sonic-gateway"]

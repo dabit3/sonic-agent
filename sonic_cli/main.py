@@ -6082,7 +6082,7 @@ def _update_via_zip(args):
         if result.get("user_modified"):
             print(f"  ~ {len(result['user_modified'])} user-modified (kept)")
             print(
-                "    → see them: hermes skills list-modified  "
+                "    → see them: sonic skills list-modified  "
                 "(diff/reset to resume updates)"
             )
         if result.get("cleaned"):
@@ -8127,7 +8127,7 @@ def _run_pre_update_backup(args) -> None:
 
     updates_cfg = cfg.get("updates", {}) if isinstance(cfg, dict) else {}
     # The default config ships with ``pre_update_backup: true`` (see
-    # ``hermes_cli/config.py``). Fall back to true if the key is missing
+    # ``sonic_cli/config.py``). Fall back to true if the key is missing
     # (e.g. a user has an older custom config without the field). The
     # ``False`` default from before #48200 caused silent data loss when
     # an update step computed a wrong path — the cost of a few minutes
@@ -9080,7 +9080,7 @@ def _cmd_update_impl(args, gateway_mode: bool):
             if result.get("user_modified"):
                 print(f"  ~ {len(result['user_modified'])} user-modified (kept)")
                 print(
-                    "    → see them: hermes skills list-modified  "
+                    "    → see them: sonic skills list-modified  "
                     "(diff/reset to resume updates)"
                 )
             if result.get("cleaned"):
@@ -11031,7 +11031,7 @@ def cmd_dashboard_register(args):
 
 def cmd_gateway_enroll(args):
     """Enroll a self-hosted gateway with a relay connector."""
-    from hermes_cli.gateway_enroll import cmd_gateway_enroll as _impl
+    from sonic_cli.gateway_enroll import cmd_gateway_enroll as _impl
 
     _impl(args)
 

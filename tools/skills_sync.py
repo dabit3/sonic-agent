@@ -672,15 +672,15 @@ def _rmtree_writable(path: Path) -> None:
     parent** writable before re-attempting.  See #34860, #34972.
     """
     # Defense in depth (#48200): refuse to rmtree anything outside
-    # ``HERMES_HOME/skills/`` to prevent the catastrophic wipe of
-    # ``~/.hermes/`` (``.env``, ``MEMORY.md``, ``kanban.db``, custom
+    # ``SONIC_HOME/skills/`` to prevent the catastrophic wipe of
+    # ``~/.sonic/`` (``.env``, ``MEMORY.md``, ``kanban.db``, custom
     # skills, scripts, …) that an earlier incident observed. Five call
     # sites in this file invoke this helper; if any one of them ever
     # computes a destination outside the skills root — through a bad
-    # path join, a missing ``HERMES_HOME`` default, a malicious
+    # path join, a missing ``SONIC_HOME`` default, a malicious
     # bundled-manifest entry, or a mid-flight exception that leaves a
     # stale path in scope — this guard turns the resulting
-    # ``shutil.rmtree(~/.hermes)`` into a loud, recoverable ``ValueError``
+    # ``shutil.rmtree(~/.sonic)`` into a loud, recoverable ``ValueError``
     # instead of silently destroying the user's install.
     target = Path(path).resolve()
     skills_root = SKILLS_DIR.resolve()
@@ -689,7 +689,7 @@ def _rmtree_writable(path: Path) -> None:
     # itself must never be removed: a ``dest`` that collapses to
     # ``SKILLS_DIR`` (e.g. a relative path resolving to ``.``) would wipe
     # every installed skill, and its ``.bak`` sibling lands one level up in
-    # ``HERMES_HOME``. Require a strict-child relationship so both escape
+    # ``SONIC_HOME``. Require a strict-child relationship so both escape
     # into the skills root and out of it are refused.
     if skills_root not in target.parents:
         raise ValueError(
@@ -811,7 +811,7 @@ def reset_bundled_skill(name: str, restore: bool = False) -> dict:
 
 
 def _is_tracked_user_modification(origin_hash: str, user_hash: str) -> bool:
-    """Whether an on-disk skill counts as a user modification ``hermes update`` keeps.
+    """Whether an on-disk skill counts as a user modification ``sonic update`` keeps.
 
     Shared by the sync loop (which decides what to skip) and
     ``list_user_modified_bundled_skills`` (which surfaces the names) so the two
@@ -823,7 +823,7 @@ def _is_tracked_user_modification(origin_hash: str, user_hash: str) -> bool:
 
 
 def list_user_modified_bundled_skills() -> List[dict]:
-    """Return the bundled skills that ``hermes update`` keeps because the user
+    """Return the bundled skills that ``sonic update`` keeps because the user
     edited them locally.
 
     A skill counts as user-modified when its on-disk copy no longer matches the
@@ -882,7 +882,7 @@ def diff_bundled_skill(name: str) -> dict:
     """Diff a user's copy of a bundled skill against the current stock version.
 
     Lets a user see exactly what diverged before deciding whether to keep their
-    edits or ``hermes skills reset`` back to upstream.
+    edits or ``sonic skills reset`` back to upstream.
 
     Returns a dict:
         ``ok`` (bool), ``name`` (str), ``found`` (bool — bundled source exists),
@@ -905,7 +905,7 @@ def diff_bundled_skill(name: str) -> dict:
             "diffs": [],
             "message": (
                 f"'{name}' is not a tracked bundled skill (no stock version to "
-                f"diff against). Hub-installed skills use `hermes skills inspect`."
+                f"diff against). Hub-installed skills use `sonic skills inspect`."
             ),
         }
     dest = _compute_relative_dest(bundled_src, bundled_dir)

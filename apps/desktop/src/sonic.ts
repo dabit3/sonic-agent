@@ -342,7 +342,7 @@ export function saveSonicConfig(config: SonicConfigRecord): Promise<{ ok: boolea
 }
 
 export function getMemoryProviderConfig(provider: string): Promise<MemoryProviderConfig> {
-  return window.hermesDesktop.api<MemoryProviderConfig>({
+  return window.sonicDesktop.api<MemoryProviderConfig>({
     path: `/api/memory/providers/${encodeURIComponent(provider)}/config`
   })
 }
@@ -351,7 +351,7 @@ export function saveMemoryProviderConfig(
   provider: string,
   values: Record<string, string>
 ): Promise<{ ok: boolean }> {
-  return window.hermesDesktop.api<{ ok: boolean }>({
+  return window.sonicDesktop.api<{ ok: boolean }>({
     path: `/api/memory/providers/${encodeURIComponent(provider)}/config`,
     method: 'PUT',
     body: { values }

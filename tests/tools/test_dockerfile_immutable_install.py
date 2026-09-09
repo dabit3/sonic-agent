@@ -65,22 +65,22 @@ def test_dockerfile_bakes_code_scoped_install_method_stamp() -> None:
     """The 'docker' install-method stamp is baked next to the code.
 
     detect_install_method() reads the code-scoped stamp
-    (/opt/hermes/.install_method) first; baking it at build time keeps the
+    (/opt/sonic/.install_method) first; baking it at build time keeps the
     published image self-identifying as 'docker' WITHOUT writing into the
-    shared $HERMES_HOME data volume (which a host install may also use).
+    shared $SONIC_HOME data volume (which a host install may also use).
     It must live inside the immutable block so the runtime user can't alter it.
     """
     text = _dockerfile_text()
-    assert "printf 'docker\\n' > /opt/hermes/.install_method" in text
+    assert "printf 'docker\\n' > /opt/sonic/.install_method" in text
 
     immutable_block = re.search(
-        r"RUN mkdir -p /opt/hermes/bin && \\\n"
+        r"RUN mkdir -p /opt/sonic/bin && \\\n"
         r"(?:.*\\\n)+?"
-        r"\s+chmod -R a-w /opt/hermes",
+        r"\s+chmod -R a-w /opt/sonic",
         text,
     )
     assert immutable_block, "immutable block must exist"
     assert ".install_method" in immutable_block.group(0), (
         "the code-scoped install-method stamp must be baked inside the "
-        "immutable /opt/hermes block"
+        "immutable /opt/sonic block"
     )

@@ -735,7 +735,7 @@ def canonical_custom_identity(
        (the one fact that always survives the persistence round-trip when a
        URL was recorded).
     2. ``config_provider`` — the active ``config.model.provider`` (or its
-       ``provider``/``HERMES_INFERENCE_PROVIDER`` equivalent). When the agent
+       ``provider``/``SONIC_INFERENCE_PROVIDER`` equivalent). When the agent
        was built without a base_url on the override (the recurring
        Desktop/TUI regression vector), the configured provider is the only
        durable identity left, so fall back to it when it names a real entry.
@@ -758,7 +758,7 @@ def canonical_custom_identity(
         except Exception:
             candidate = ""
     if not candidate:
-        candidate = os.environ.get("HERMES_INFERENCE_PROVIDER", "").strip()
+        candidate = os.environ.get("SONIC_INFERENCE_PROVIDER", "").strip()
 
     candidate_norm = _normalize_custom_provider_name(candidate)
     # A bare/non-routable candidate cannot heal a bare custom override.

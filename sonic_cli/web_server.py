@@ -62,7 +62,7 @@ from sonic_cli.config import (
     recommended_update_command_for_method,
     redact_key,
 )
-from hermes_cli.memory_providers import (
+from sonic_cli.memory_providers import (
     MemoryProvider,
     ProviderField,
     get_memory_provider,
@@ -3192,7 +3192,7 @@ def _normalize_config_for_web(config: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _memory_provider_config_path(provider: MemoryProvider) -> Path:
-    return get_hermes_home() / provider.name / "config.json"
+    return get_sonic_home() / provider.name / "config.json"
 
 
 def _read_memory_provider_file(provider: MemoryProvider) -> Dict[str, Any]:

@@ -282,14 +282,14 @@ class TestWebServerEndpoints:
         assert fields["mode"]["value"] == "cloud"
         assert {opt["value"] for opt in fields["mode"]["options"]} == {"cloud", "local_external"}
         assert fields["api_url"]["value"] == "https://api.hindsight.vectorize.io"
-        assert fields["bank_id"]["value"] == "hermes"
+        assert fields["bank_id"]["value"] == "sonic"
         assert fields["recall_budget"]["value"] == "mid"
         assert fields["api_key"]["kind"] == "secret"
         assert fields["api_key"]["is_set"] is False
 
     def test_put_memory_provider_config_writes_config_and_secret(self):
-        from hermes_constants import get_hermes_home
-        from hermes_cli.config import load_config, load_env
+        from sonic_constants import get_sonic_home
+        from sonic_cli.config import load_config, load_env
 
         resp = self.client.put(
             "/api/memory/providers/hindsight/config",
@@ -309,7 +309,7 @@ class TestWebServerEndpoints:
         assert load_config()["memory"]["provider"] == "hindsight"
         assert load_env()["HINDSIGHT_API_KEY"] == "hs-test-key"
 
-        config_path = get_hermes_home() / "hindsight" / "config.json"
+        config_path = get_sonic_home() / "hindsight" / "config.json"
         provider_config = json.loads(config_path.read_text(encoding="utf-8"))
         assert provider_config == {
             "mode": "local_external",
@@ -325,7 +325,7 @@ class TestWebServerEndpoints:
                 "values": {
                     "mode": "local_embedded",
                     "api_url": "http://localhost:8888",
-                    "bank_id": "hermes",
+                    "bank_id": "sonic",
                     "recall_budget": "mid",
                 }
             },
@@ -354,7 +354,7 @@ class TestWebServerEndpoints:
                     "mode": "cloud",
                     "api_url": "https://api.hindsight.vectorize.io",
                     "api_key": "secret-value",
-                    "bank_id": "hermes",
+                    "bank_id": "sonic",
                     "recall_budget": "mid",
                 }
             },
@@ -4451,25 +4451,25 @@ class TestDeleteSessionEndpoint:
     """
 
     @pytest.fixture(autouse=True)
-    def _setup_test_client(self, monkeypatch, _isolate_hermes_home):
+    def _setup_test_client(self, monkeypatch, _isolate_sonic_home):
         try:
             from starlette.testclient import TestClient
         except ImportError:
             pytest.skip("fastapi/starlette not installed")
 
-        import hermes_state
-        from hermes_constants import get_hermes_home
-        from hermes_cli.web_server import app, _SESSION_HEADER_NAME, _SESSION_TOKEN
+        import sonic_state
+        from sonic_constants import get_sonic_home
+        from sonic_cli.web_server import app, _SESSION_HEADER_NAME, _SESSION_TOKEN
 
         monkeypatch.setattr(
-            hermes_state, "DEFAULT_DB_PATH", get_hermes_home() / "state.db"
+            sonic_state, "DEFAULT_DB_PATH", get_sonic_home() / "state.db"
         )
 
         self.auth_client = TestClient(app)
         self.auth_client.headers[_SESSION_HEADER_NAME] = _SESSION_TOKEN
 
     def _seed(self, ids):
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         db = SessionDB()
         try:
@@ -4479,7 +4479,7 @@ class TestDeleteSessionEndpoint:
             db.close()
 
     def _exists(self, sid) -> bool:
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         db = SessionDB()
         try:

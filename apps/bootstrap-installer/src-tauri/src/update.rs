@@ -302,7 +302,7 @@ async fn run_update(app: AppHandle) -> Result<()> {
     // (the content-hash stamp makes it a near-no-op when the first actually
     // succeeded). Without this the updater bails here and never reaches the
     // relaunch below — the app updates but doesn't restart. Matches the
-    // retry-once `hermes update` already does above, and `hermes update`'s own
+    // retry-once `sonic update` already does above, and `sonic update`'s own
     // desktop rebuild in cmd_update.
     if rebuild_needs_retry(rebuild.exit_code) {
         emit_log(
@@ -314,7 +314,7 @@ async fn run_update(app: AppHandle) -> Result<()> {
         );
         rebuild = run_streamed(
             &app,
-            &hermes,
+            &sonic,
             &rebuild_args,
             &install_root,
             &child_env,

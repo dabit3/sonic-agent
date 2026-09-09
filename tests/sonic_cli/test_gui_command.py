@@ -586,13 +586,13 @@ def test_gui_install_failure_self_heals_electron_and_continues(tmp_path, monkeyp
     pack_ok = subprocess.CompletedProcess(["npm", "run", "pack"], 0)
     launch_ok = subprocess.CompletedProcess([str(packaged_exe)], 0)
 
-    with patch("hermes_cli.main.shutil.which", return_value="/usr/bin/npm"), \
-         patch("hermes_cli.main._run_npm_install_deterministic", return_value=install_fail), \
-         patch("hermes_cli.main._desktop_linux_sandbox_fixup", return_value=True), \
-         patch("hermes_cli.main._write_desktop_build_stamp"), \
-         patch("hermes_cli.main._electron_dist_ok", return_value=False), \
-         patch("hermes_cli.main._try_redownload_electron_dist", return_value=True) as mock_dl, \
-         patch("hermes_cli.main.subprocess.run", side_effect=[pack_ok, launch_ok]) as mock_run, \
+    with patch("sonic_cli.main.shutil.which", return_value="/usr/bin/npm"), \
+         patch("sonic_cli.main._run_npm_install_deterministic", return_value=install_fail), \
+         patch("sonic_cli.main._desktop_linux_sandbox_fixup", return_value=True), \
+         patch("sonic_cli.main._write_desktop_build_stamp"), \
+         patch("sonic_cli.main._electron_dist_ok", return_value=False), \
+         patch("sonic_cli.main._try_redownload_electron_dist", return_value=True) as mock_dl, \
+         patch("sonic_cli.main.subprocess.run", side_effect=[pack_ok, launch_ok]) as mock_run, \
          pytest.raises(SystemExit) as exc:
         cli_main.cmd_gui(_ns())
 
@@ -613,9 +613,9 @@ def test_gui_install_failure_hard_fails_when_electron_not_staged(tmp_path, monke
 
     install_fail = subprocess.CompletedProcess(["npm", "ci"], 1)
 
-    with patch("hermes_cli.main.shutil.which", return_value="/usr/bin/npm"), \
-         patch("hermes_cli.main._run_npm_install_deterministic", return_value=install_fail), \
-         patch("hermes_cli.main.subprocess.run") as mock_run, \
+    with patch("sonic_cli.main.shutil.which", return_value="/usr/bin/npm"), \
+         patch("sonic_cli.main._run_npm_install_deterministic", return_value=install_fail), \
+         patch("sonic_cli.main.subprocess.run") as mock_run, \
          pytest.raises(SystemExit) as exc:
         cli_main.cmd_gui(_ns())
 
@@ -637,10 +637,10 @@ def test_gui_install_failure_hard_fails_when_electron_dist_exists(tmp_path, monk
 
     install_fail = subprocess.CompletedProcess(["npm", "ci"], 1)
 
-    with patch("hermes_cli.main.shutil.which", return_value="/usr/bin/npm"), \
-         patch("hermes_cli.main._run_npm_install_deterministic", return_value=install_fail), \
-         patch("hermes_cli.main._electron_dist_ok", return_value=True), \
-         patch("hermes_cli.main.subprocess.run") as mock_run, \
+    with patch("sonic_cli.main.shutil.which", return_value="/usr/bin/npm"), \
+         patch("sonic_cli.main._run_npm_install_deterministic", return_value=install_fail), \
+         patch("sonic_cli.main._electron_dist_ok", return_value=True), \
+         patch("sonic_cli.main.subprocess.run") as mock_run, \
          pytest.raises(SystemExit) as exc:
         cli_main.cmd_gui(_ns())
 
