@@ -322,13 +322,29 @@ function shortLabel(type: SonicRefType, id: string): string {
   return tail || id
 }
 
+function safeEmbeddedImages(text: string) {
+  try {
+    return extractEmbeddedImages(text)
+  } catch {
+    return { cleanedText: text, images: [] as string[] }
+  }
+}
+
+function safeDirectiveSegments(text: string): Unstable_DirectiveSegment[] {
+  try {
+    return [...sonicDirectiveFormatter.parse(text)]
+  } catch {
+    return [{ kind: 'text', text }]
+  }
+}
+
 /**
  * Renders text containing Sonic directives (`@file:...`, `@image:...`) as
  * inline chips. Embedded MEDIA images render below as a thumbnail row.
  */
 export function DirectiveContent({ text }: { text: string }) {
-  const { cleanedText, images } = useMemo(() => extractEmbeddedImages(text ?? ''), [text])
-  const segments = useMemo(() => sonicDirectiveFormatter.parse(cleanedText), [cleanedText])
+  const { cleanedText, images } = useMemo(() => safeEmbeddedImages(text ?? ''), [text])
+  const segments = useMemo(() => safeDirectiveSegments(cleanedText), [cleanedText])
 
   return (
     <span className="whitespace-pre-line" data-slot="aui_directive-text">

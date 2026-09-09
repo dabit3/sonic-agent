@@ -378,12 +378,14 @@ class TestCacheDirectoryMounts:
         sonic_home.mkdir()
         (sonic_home / "cache" / "documents").mkdir(parents=True)
         (sonic_home / "cache" / "audio").mkdir(parents=True)
+        (sonic_home / "cache" / "videos").mkdir(parents=True)
         monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         mounts = get_cache_directory_mounts()
         paths = {m["container_path"] for m in mounts}
         assert "/root/.sonic/cache/documents" in paths
         assert "/root/.sonic/cache/audio" in paths
+        assert "/root/.sonic/cache/videos" in paths
 
     def test_skips_nonexistent_dirs(self, tmp_path, monkeypatch):
         """Dirs that don't exist on disk are not returned."""

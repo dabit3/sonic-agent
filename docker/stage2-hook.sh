@@ -28,14 +28,13 @@ as_sonic() { [ "$(id -u)" = 0 ] || { "$@"; return; }; s6-setuidgid sonic "$@"; }
 # arbitrary host UID (the classic `--user $(id -u):$(id -g)` invocation people
 # used in the tini era to make container-written files match their host user).
 #
-# Under s6-overlay this no longer works: the bootstrap (UID remap, volume +
-# build-tree chown, config seeding) all require root, and they're skipped when
-# the container starts non-root. The baked image trees (/opt/data, /opt/sonic/
-# .venv, ui-tui, node_modules) stay owned by the sonic build UID (10000), so an
-# arbitrary `--user` UID can't write them — the runtime then fails with EACCES
-# on a bind mount, or hard-crashes on a named volume (Docker initialises the
-# volume from the image as UID 10000, and the non-root start can't even `cd`
-# into $SONIC_HOME). See #34837 for the supervision-tree side of this.
+# Under s6-overlay this no longer works: the bootstrap (UID remap, data-volume
+# ownership, config seeding) requires root, and it is skipped when the container
+# starts non-root. The baked install tree under /opt/sonic is intentionally
+# root-owned and non-writable; mutable runtime state must live under
+# $SONIC_HOME. An arbitrary `--user` UID therefore cannot repair or populate
+# the data volume, and startup fails with EACCES. See #34837 for the
+# supervision-tree side of this.
 #
 # The supported way to match host-side ownership is to start as root (the image
 # default) and pass SONIC_UID/SONIC_GID — or the PUID/PGID aliases — which the
@@ -53,9 +52,10 @@ if [ "$cur_uid" != 0 ] && [ "$cur_uid" != "$(id -u sonic)" ]; then
 [stage2] ERROR: container started with --user $cur_uid (an arbitrary, non-sonic UID).
 
 This is not supported under the s6-overlay image. The container bootstrap
-(UID remap, volume ownership, dependency installs) needs to start as root,
-and the baked image directories are owned by the sonic user (UID $(id -u sonic)),
-so a pinned --user UID cannot write them — startup will fail.
+(UID remap, data-volume ownership, config seeding) needs to start as root,
+and the baked /opt/sonic install tree is intentionally root-owned and
+non-writable, so a pinned --user UID cannot repair startup state — startup
+will fail.
 
 To make container-written files match your HOST user, DON'T use --user.
 Start the container as root (the default) and pass your host UID/GID instead:
@@ -207,49 +207,13 @@ if [ "$needs_chown" = true ]; then
     done
 fi
 
-# --- Fix ownership of build trees under $INSTALL_DIR ---
-# Sonic-owned trees under $INSTALL_DIR must be re-chowned whenever the
-# runtime sonic UID no longer owns them — otherwise:
-#   - .venv: lazy_deps.py cannot install platform packages (discord.py,
-#     telegram, slack, etc.) with EACCES (#15012, #21100)
-#   - ui-tui: esbuild rebuilds dist/entry.js on every TUI launch (when
-#     the source mtime is newer than dist/ or when SONIC_TUI_FORCE_BUILD
-#     is set) and writes to ui-tui/dist/. Without this chown the new
-#     sonic UID can't write the build output (#28851).
-#   - gateway: Python writes __pycache__ and runtime artifacts beneath the
-#     gateway package on first import. After a UID remap those source-owned
-#     paths still belong to the build-time UID (10000) unless repaired here,
-#     producing EACCES for the supervised gateway (#27221).
-#   - node_modules: root-level dependencies (puppeteer, web tooling)
-#     that runtime code may walk/update.
-# The set mirrors the build-time `chown -R sonic:sonic` line in the
-# Dockerfile — keep them in sync if the Dockerfile chown set changes.
-# These are under $INSTALL_DIR (not $SONIC_HOME), so the bind-mount
-# concern doesn't apply — recursive is fine.
-#
-# This MUST be gated independently of the $SONIC_HOME ownership check
-# above. `usermod -u <new> sonic` re-chowns the sonic home dir
-# ($SONIC_HOME == /opt/data) to the new UID as a side effect, so after a
-# SONIC_UID/PUID remap `stat $SONIC_HOME` always already matches the new
-# UID and `needs_chown` is false — but the build trees under /opt/sonic
-# are NOT touched by usermod and remain owned by the build-time UID
-# (10000). Gating them on $SONIC_HOME ownership (as #35027 did) silently
-# skipped this chown on the common PUID/NAS path, regressing lazy installs
-# and TUI rebuilds. Probe the build trees directly instead: chown only
-# when the venv is not already owned by the runtime sonic UID. Idempotent
-# and skips the expensive recursive chown on every restart once ownership
-# is settled.
-venv_owner=$(stat -c %u "$INSTALL_DIR/.venv" 2>/dev/null || echo "")
-if [ -n "$venv_owner" ] && [ "$venv_owner" != "$actual_sonic_uid" ]; then
-    echo "[stage2] Fixing ownership of build trees under $INSTALL_DIR to sonic ($actual_sonic_uid)"
-    chown -R sonic:sonic \
-        "$INSTALL_DIR/.venv" \
-        "$INSTALL_DIR/ui-tui" \
-        "$INSTALL_DIR/gateway" \
-        "$INSTALL_DIR/node_modules" \
-        2>/dev/null || \
-        echo "[stage2] Warning: chown of build trees failed (rootless container?) — continuing"
-fi
+# --- Immutable install tree ---
+# Do not chown runtime code or dependency trees under $INSTALL_DIR back to the
+# sonic user. Hosted/container instances keep mutable state under
+# $SONIC_HOME (/opt/data) and run with PYTHONDONTWRITEBYTECODE plus
+# SONIC_DISABLE_LAZY_INSTALLS=1. Keeping /opt/sonic root-owned and
+# non-writable prevents an agent session from self-modifying the installed
+# source, venv, TUI bundle, or node_modules and bricking the gateway.
 
 # Always reset ownership of $SONIC_HOME/profiles to sonic on every
 # boot. Profile dirs and files can land owned by root when commands
@@ -316,6 +280,7 @@ as_sonic mkdir -p \
     "$SONIC_HOME/cron" \
     "$SONIC_HOME/sessions" \
     "$SONIC_HOME/logs" \
+    "$SONIC_HOME/logs/gateways" \
     "$SONIC_HOME/hooks" \
     "$SONIC_HOME/memories" \
     "$SONIC_HOME/skills" \
@@ -326,13 +291,25 @@ as_sonic mkdir -p \
     "$SONIC_HOME/pairing" \
     "$SONIC_HOME/platforms/pairing"
 
-# --- Install-method stamp (read by detect_install_method() in sonic status) ---
-# Preserved from the tini-era entrypoint (PR #27843). Must be written as
-# the sonic user so ownership matches the file's documented owner.
-# tee is invoked directly via s6-setuidgid (no `sh -c` wrapper) for the
-# same shell-metacharacter safety described above.
-printf 'docker\n' | as_sonic tee "$SONIC_HOME/.install_method" >/dev/null \
-    || true
+# --- Install-method stamp ---
+# The 'docker' stamp is baked into the immutable install tree at
+# /opt/sonic/.install_method (see Dockerfile), NOT written here into
+# $SONIC_HOME. detect_install_method() reads the code-scoped stamp first.
+#
+# Why we no longer stamp $SONIC_HOME: it is a shared DATA volume, commonly
+# bind-mounted from the host (~/.sonic:/opt/data) and sometimes shared with a
+# host-side Desktop/CLI install. Stamping 'docker' here clobbered that host
+# install's marker, so its in-app updater read 'docker' and refused to run
+# 'sonic update'. To heal homes already poisoned by older images, remove a
+# stale 'docker' stamp from $SONIC_HOME if one is present (the host install's
+# own installer re-creates its code-scoped stamp; a genuine container relies on
+# the baked /opt/sonic stamp, so deleting the data-dir copy is safe).
+if [ -f "$SONIC_HOME/.install_method" ]; then
+    stamped="$(tr -d '[:space:]' < "$SONIC_HOME/.install_method" 2>/dev/null || true)"
+    if [ "$stamped" = "docker" ]; then
+        rm -f "$SONIC_HOME/.install_method" 2>/dev/null || true
+    fi
+fi
 
 # --- Seed config files (only on first boot) ---
 seed_one() {

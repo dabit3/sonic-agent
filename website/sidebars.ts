@@ -149,6 +149,7 @@ const sidebars: SidebarsConfig = {
                   items: [
                     'user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-claude-code',
                     'user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-codex',
+                    'user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-kanban-codex-lane',
                     'user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-opencode',
                     'user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-sonic-agent',
                   ],
@@ -520,6 +521,17 @@ const sidebars: SidebarsConfig = {
                 },
                 {
                   type: 'category',
+                  label: 'payments',
+                  key: 'skills-optional-payments',
+                  collapsed: true,
+                  items: [
+                    'user-guide/skills/optional/payments/payments-mpp-agent',
+                    'user-guide/skills/optional/payments/payments-stripe-link-cli',
+                    'user-guide/skills/optional/payments/payments-stripe-projects',
+                  ],
+                },
+                {
+                  type: 'category',
                   label: 'productivity',
                   key: 'skills-optional-productivity',
                   collapsed: true,
@@ -527,7 +539,7 @@ const sidebars: SidebarsConfig = {
                     'user-guide/skills/optional/productivity/productivity-canvas',
                     'user-guide/skills/optional/productivity/productivity-here-now',
                     'user-guide/skills/optional/productivity/productivity-memento-flashcards',
-                    'user-guide/skills/optional/productivity/productivity-shop-app',
+                    'user-guide/skills/optional/productivity/productivity-shop',
                     'user-guide/skills/optional/productivity/productivity-shopify',
                     'user-guide/skills/optional/productivity/productivity-siyuan',
                     'user-guide/skills/optional/productivity/productivity-telephony',

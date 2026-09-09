@@ -38,7 +38,41 @@ We value contributions in this order:
 | **uv** | Fast Python package manager ([install](https://docs.astral.sh/uv/)) |
 | **Node.js 20+** | Optional — needed for browser tools and WhatsApp bridge (matches root `package.json` engines) |
 
-### Clone and Install
+### Install with the standard installer
+
+For most contributors, the best development bootstrap is the same path users
+take: run the standard installer, then work inside the repository it cloned.
+The installer creates the Sonic venv, wires the `sonic` command, stamps the
+install method for `sonic update`, and clones the full git project into
+`$SONIC_HOME/sonic-agent` (usually `~/.sonic/sonic-agent`). That keeps your
+development environment on the same layout the CLI, updater, lazy dependency
+installer, gateway, and docs assume.
+
+```bash
+curl -fsSL https://lightning-agent.nousresearch.com/install.sh | bash
+cd "${SONIC_HOME:-$HOME/.sonic}/sonic-agent"
+
+# Add dev/test extras on top of the standard install.
+uv pip install -e ".[all,dev]"
+
+# Optional: browser tools / docs site dependencies.
+npm install
+```
+
+After that, create branches and run tests from that checkout:
+
+```bash
+git checkout -b fix/description
+scripts/run_tests.sh
+```
+
+### Manual clone fallback
+
+Use this only if you intentionally do not want Sonic's managed install layout
+(for example, a throwaway clone inside a container or CI job). If you install
+this way, make sure you run the `sonic` entrypoint from this venv; running the
+system `python3 -m sonic_cli.main` can pick up unrelated system Python
+packages.
 
 ```bash
 git clone https://github.com/dabit3/sonic-agent.git
@@ -69,19 +103,23 @@ echo 'OPENROUTER_API_KEY=sk-or-v1-your-key' >> ~/.sonic/.env
 ### Run
 
 ```bash
-# Symlink for global access
-mkdir -p ~/.local/bin
-ln -sf "$(pwd)/venv/bin/sonic" ~/.local/bin/sonic
-
-# Verify
+# The standard installer already put `sonic` on PATH.
 sonic doctor
 sonic chat -q "Hello"
+```
+
+If you used the manual clone fallback, run `./sonic` from the checkout or
+symlink this clone's venv explicitly:
+
+```bash
+mkdir -p ~/.local/bin
+ln -sf "$(pwd)/venv/bin/sonic" ~/.local/bin/sonic
 ```
 
 ### Run Tests
 
 ```bash
-pytest tests/ -v
+scripts/run_tests.sh
 ```
 
 ## Code Style

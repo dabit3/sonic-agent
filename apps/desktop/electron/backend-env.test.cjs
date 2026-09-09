@@ -7,6 +7,7 @@ const {
   appendUniquePathEntries,
   buildDesktopBackendEnv,
   buildDesktopBackendPath,
+  normalizeSonicHomeRoot,
   pathEnvKey
 } = require('./backend-env.cjs')
 
@@ -64,6 +65,21 @@ test('buildDesktopBackendEnv extends PYTHONPATH and backend PATH together', () =
   assert.equal(env.PYTHONPATH, '/repo/sonic-agent:/existing/pythonpath')
   assert.ok(env.PATH.startsWith('/Users/test/.sonic/node/bin:/Users/test/.sonic/sonic-agent/venv/bin:'))
   assert.ok(env.PATH.includes('/opt/homebrew/bin'))
+})
+
+test('normalizeSonicHomeRoot maps profile homes back to the global Sonic root', () => {
+  assert.equal(
+    normalizeSonicHomeRoot('/Users/test/.sonic/profiles/oracle', { pathModule: path.posix }),
+    '/Users/test/.sonic'
+  )
+  assert.equal(
+    normalizeSonicHomeRoot('C:\\Users\\test\\AppData\\Local\\sonic\\profiles\\oracle', { pathModule: path.win32 }),
+    'C:\\Users\\test\\AppData\\Local\\sonic'
+  )
+  assert.equal(
+    normalizeSonicHomeRoot('/Users/test/.sonic', { pathModule: path.posix }),
+    '/Users/test/.sonic'
+  )
 })
 
 test('Windows PATH casing and delimiter are preserved without POSIX sane entries', () => {

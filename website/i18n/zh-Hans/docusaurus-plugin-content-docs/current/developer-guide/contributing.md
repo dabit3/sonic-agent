@@ -38,7 +38,31 @@ description: "如何为 Sonic Agent 做贡献 — 开发环境配置、代码风
 | **uv** | 高速 Python 包管理器（[安装](https://docs.astral.sh/uv/)） |
 | **Node.js 20+** | 可选 — 浏览器工具和 WhatsApp bridge 需要（与根目录 `package.json` engines 字段一致） |
 
-### 克隆与安装
+### 使用标准安装器
+
+对大多数贡献者来说，最好的开发启动方式和用户安装方式相同：运行标准安装器，然后在它克隆出的仓库里开发。安装器会创建 Sonic venv、配置 `sonic` 命令、为 `sonic update` 写入安装方式标记，并把完整 git 项目克隆到 `$SONIC_HOME/sonic-agent`（通常是 `~/.sonic/sonic-agent`）。这样你的开发环境会和 CLI、updater、lazy dependency installer、gateway、docs 默认假设的布局一致。
+
+```bash
+curl -fsSL https://lightning-agent.nousresearch.com/install.sh | bash
+cd "${SONIC_HOME:-$HOME/.sonic}/sonic-agent"
+
+# 在标准安装基础上添加开发/测试 extras。
+uv pip install -e ".[all,dev]"
+
+# 可选：浏览器工具 / docs site dependencies。
+npm install
+```
+
+之后从这个 checkout 创建分支并运行测试：
+
+```bash
+git checkout -b fix/description
+scripts/run_tests.sh
+```
+
+### 手动克隆备用路径
+
+只有在你明确不想使用 Sonic managed install layout 时才使用这种方式（例如容器或 CI job 里的临时 clone）。如果这样安装，请确保运行的是这个 venv 里的 `sonic` entrypoint；运行系统 `python3 -m sonic_cli.main` 可能会加载无关的系统 Python 包。
 
 ```bash
 git clone https://github.com/NousResearch/hermes-agent.git
@@ -69,19 +93,22 @@ echo 'OPENROUTER_API_KEY=sk-or-v1-your-key' >> ~/.sonic/.env
 ### 运行
 
 ```bash
-# 创建全局访问的符号链接
-mkdir -p ~/.local/bin
-ln -sf "$(pwd)/venv/bin/sonic" ~/.local/bin/sonic
-
-# 验证
+# 标准安装器已经把 `sonic` 放到了 PATH 上。
 sonic doctor
 sonic chat -q "Hello"
+```
+
+如果你使用了手动克隆备用路径，可以在 checkout 中运行 `./sonic`，或显式把这个 clone 的 venv 链接到 PATH：
+
+```bash
+mkdir -p ~/.local/bin
+ln -sf "$(pwd)/venv/bin/sonic" ~/.local/bin/sonic
 ```
 
 ### 运行测试
 
 ```bash
-pytest tests/ -v
+scripts/run_tests.sh
 ```
 
 ## 代码风格

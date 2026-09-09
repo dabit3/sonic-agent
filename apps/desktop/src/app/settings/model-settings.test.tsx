@@ -16,6 +16,8 @@ const getAuxiliaryModels = vi.fn()
 const setModelAssignment = vi.fn()
 const getRecommendedDefaultModel = vi.fn()
 const setEnvVar = vi.fn()
+const getSonicConfigRecord = vi.fn()
+const saveSonicConfig = vi.fn()
 const startManualProviderOAuth = vi.fn()
 
 vi.mock('@/sonic', () => ({
@@ -24,7 +26,9 @@ vi.mock('@/sonic', () => ({
   getAuxiliaryModels: () => getAuxiliaryModels(),
   setModelAssignment: (body: unknown) => setModelAssignment(body),
   getRecommendedDefaultModel: (slug: string) => getRecommendedDefaultModel(slug),
-  setEnvVar: (key: string, value: string) => setEnvVar(key, value)
+  setEnvVar: (key: string, value: string) => setEnvVar(key, value),
+  getSonicConfigRecord: () => getSonicConfigRecord(),
+  saveSonicConfig: (config: unknown) => saveSonicConfig(config)
 }))
 
 vi.mock('@/store/onboarding', () => ({
@@ -32,21 +36,29 @@ vi.mock('@/store/onboarding', () => ({
 }))
 
 beforeEach(() => {
-  getGlobalModelInfo.mockResolvedValue({ provider: 'nous', model: 'sonic-4' })
+  getGlobalModelInfo.mockResolvedValue({ provider: 'nous', model: 'hermes-4' })
   getGlobalModelOptions.mockResolvedValue({
     providers: [
-      { name: 'Nous', slug: 'nous', models: ['sonic-4', 'sonic-4-mini'], authenticated: true },
+      {
+        name: 'Nous',
+        slug: 'nous',
+        models: ['hermes-4', 'hermes-4-mini'],
+        authenticated: true,
+        capabilities: { 'hermes-4': { reasoning: true, fast: true } }
+      },
       // An unconfigured api_key provider — surfaced by the full-universe payload.
       { name: 'DeepSeek', slug: 'deepseek', models: [], authenticated: false, auth_type: 'api_key', key_env: 'DEEPSEEK_API_KEY' }
     ]
   })
   getAuxiliaryModels.mockResolvedValue({
-    main: { provider: 'nous', model: 'sonic-4' },
+    main: { provider: 'nous', model: 'hermes-4' },
     tasks: [{ task: 'vision', provider: 'auto', model: '', base_url: '' }]
   })
-  setModelAssignment.mockResolvedValue({ provider: 'nous', model: 'sonic-4', gateway_tools: [] })
+  setModelAssignment.mockResolvedValue({ provider: 'nous', model: 'hermes-4', gateway_tools: [] })
   getRecommendedDefaultModel.mockResolvedValue({ provider: 'deepseek', model: 'deepseek-chat', free_tier: null })
   setEnvVar.mockResolvedValue({ ok: true })
+  getSonicConfigRecord.mockResolvedValue({ agent: { reasoning_effort: 'medium', service_tier: 'normal' } })
+  saveSonicConfig.mockResolvedValue({ ok: true })
 })
 
 afterEach(() => {
@@ -100,6 +112,31 @@ describe('ModelSettings', () => {
     await waitFor(() => expect(setEnvVar).toHaveBeenCalledWith('DEEPSEEK_API_KEY', 'sk-test-123'))
   })
 
+  it('writes the profile default speed (service_tier) when the fast switch is toggled', async () => {
+    await renderModelSettings()
+    await waitFor(() => expect(getSonicConfigRecord).toHaveBeenCalled())
+
+    const fastSwitch = await screen.findByRole('switch')
+    fireEvent.click(fastSwitch)
+
+    await waitFor(() =>
+      expect(saveSonicConfig).toHaveBeenCalledWith(
+        expect.objectContaining({ agent: expect.objectContaining({ service_tier: 'fast' }) })
+      )
+    )
+  })
+
+  it('hides the reasoning/speed defaults when the main model reports no capabilities', async () => {
+    getGlobalModelOptions.mockResolvedValueOnce({
+      providers: [{ name: 'Nous', slug: 'nous', models: ['hermes-4'], authenticated: true, capabilities: { 'hermes-4': { reasoning: false, fast: false } } }]
+    })
+
+    await renderModelSettings()
+    await waitFor(() => expect(getSonicConfigRecord).toHaveBeenCalled())
+
+    expect(screen.queryByRole('switch')).toBeNull()
+  })
+
   it('renders the auxiliary task rows', async () => {
     await renderModelSettings()
 
@@ -116,7 +153,7 @@ describe('ModelSettings', () => {
 
     await waitFor(() =>
       expect(setModelAssignment).toHaveBeenCalledWith({
-        model: 'sonic-4',
+        model: 'hermes-4',
         provider: 'nous',
         scope: 'auxiliary',
         task: 'vision'
@@ -129,7 +166,7 @@ describe('ModelSettings', () => {
       provider: 'openrouter',
       model: 'anthropic/claude-opus-4.7',
       gateway_tools: [],
-      stale_aux: [{ task: 'compression', provider: 'nous', model: 'sonic-4' }]
+      stale_aux: [{ task: 'compression', provider: 'nous', model: 'hermes-4' }]
     })
 
     await renderModelSettings()
@@ -145,7 +182,7 @@ describe('ModelSettings', () => {
 
   it('shows a persistent banner when a loaded aux slot mismatches the main provider', async () => {
     getAuxiliaryModels.mockResolvedValueOnce({
-      main: { provider: 'nous', model: 'sonic-4' },
+      main: { provider: 'nous', model: 'hermes-4' },
       tasks: [{ task: 'curator', provider: 'openrouter', model: 'anthropic/claude-opus-4.7', base_url: '' }]
     })
 

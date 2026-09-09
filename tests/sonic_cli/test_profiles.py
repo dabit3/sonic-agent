@@ -12,6 +12,7 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import pytest
+import yaml
 
 from sonic_cli.profiles import (
     normalize_profile_name,
@@ -33,7 +34,9 @@ from sonic_cli.profiles import (
     seed_profile_skills,
     has_bundled_skills_opt_out,
     NO_BUNDLED_SKILLS_MARKER,
+    backfill_profile_envs,
 )
+from sonic_cli.config import DEFAULT_CONFIG
 
 
 # ---------------------------------------------------------------------------
@@ -205,9 +208,25 @@ class TestCreateProfile:
 
         profile_dir = create_profile("coder", clone_config=True, no_alias=True)
 
-        assert (profile_dir / "config.yaml").read_text() == "model: test"
-        assert (profile_dir / ".env").read_text() == "KEY=val"
+        cloned_config = yaml.safe_load((profile_dir / "config.yaml").read_text())
+        assert cloned_config["_config_version"] == DEFAULT_CONFIG["_config_version"]
+        assert cloned_config["model"] == "test"
+        assert (profile_dir / ".env").read_text().strip() == "KEY=val"
         assert (profile_dir / "SOUL.md").read_text() == "Be helpful."
+
+    def test_clone_config_migrates_legacy_config_version(self, profile_env):
+        tmp_path = profile_env
+        default_home = tmp_path / ".sonic"
+        (default_home / "config.yaml").write_text(
+            "model:\n  provider: openrouter\n",
+            encoding="utf-8",
+        )
+
+        profile_dir = create_profile("coder", clone_config=True, no_alias=True)
+        cloned_config = yaml.safe_load((profile_dir / "config.yaml").read_text())
+
+        assert cloned_config["_config_version"] == DEFAULT_CONFIG["_config_version"]
+        assert cloned_config["model"]["provider"] == "openrouter"
 
     def test_clone_config_copies_source_skills(self, profile_env):
         tmp_path = profile_env
@@ -474,6 +493,60 @@ class TestNoSkillsOptOut:
 
 
 # ===================================================================
+# TestBackfillProfileEnvs
+# ===================================================================
+
+class TestBackfillProfileEnvs:
+    """Tests for backfill_profile_envs() — the `sonic update` pass that
+    gives pre-#44792 profiles (created before .env seeding) their own
+    .env, copied from the default install so credentials don't break."""
+
+    def test_copies_default_env_into_envless_profiles(self, profile_env):
+        import stat
+        tmp_path = profile_env
+        (tmp_path / ".sonic" / ".env").write_text("OPENROUTER_API_KEY=root-key\n")
+        p1 = create_profile("old1", no_alias=True)
+        p2 = create_profile("old2", no_alias=True)
+        # Simulate pre-#44792 profiles: no .env
+        (p1 / ".env").unlink()
+        (p2 / ".env").unlink()
+
+        backfilled = backfill_profile_envs(quiet=True)
+
+        assert sorted(backfilled) == ["old1", "old2"]
+        for p in (p1, p2):
+            assert (p / ".env").read_text() == "OPENROUTER_API_KEY=root-key\n"
+            assert stat.S_IMODE((p / ".env").stat().st_mode) == 0o600
+
+    def test_never_overwrites_existing_profile_env(self, profile_env):
+        tmp_path = profile_env
+        (tmp_path / ".sonic" / ".env").write_text("KEY=root\n")
+        p = create_profile("hasenv", no_alias=True)
+        (p / ".env").write_text("KEY=mine\n")
+
+        backfilled = backfill_profile_envs(quiet=True)
+
+        assert backfilled == []
+        assert (p / ".env").read_text() == "KEY=mine\n"
+
+    def test_placeholder_when_default_has_no_env(self, profile_env):
+        p = create_profile("noroot", no_alias=True)
+        (p / ".env").unlink()
+
+        backfilled = backfill_profile_envs(quiet=True)
+
+        assert backfilled == ["noroot"]
+        content = (p / ".env").read_text(encoding="utf-8")
+        assert all(
+            line.startswith("#") or not line.strip()
+            for line in content.splitlines()
+        )
+
+    def test_no_profiles_root_is_noop(self, profile_env):
+        assert backfill_profile_envs(quiet=True) == []
+
+
+# ===================================================================
 # TestDeleteProfile
 # ===================================================================
 
@@ -705,13 +778,14 @@ class TestWrapperScript:
 
     def test_creates_sh_on_posix(self, profile_env, monkeypatch):
         monkeypatch.setattr("sys.platform", "darwin")
+        monkeypatch.setattr("sonic_cli.profiles.shutil.which", lambda name: "/opt/sonic/bin/sonic")
         from sonic_cli.profiles import create_wrapper_script
         wrapper = create_wrapper_script("mybot")
         assert wrapper is not None
         assert wrapper.name == "mybot"
         content = wrapper.read_text()
         assert content.startswith("#!/bin/sh")
-        assert "sonic -p mybot" in content
+        assert "exec /opt/sonic/bin/sonic -p mybot" in content
 
     def test_creates_bat_on_windows(self, profile_env, monkeypatch):
         monkeypatch.setattr("sys.platform", "win32")
@@ -1397,8 +1471,10 @@ class TestEdgeCases:
         target_dir = create_profile(
             "target", clone_from="source", clone_config=True, no_alias=True,
         )
-        assert (target_dir / "config.yaml").read_text() == "model: cloned"
-        assert (target_dir / ".env").read_text() == "SECRET=yes"
+        cloned_config = yaml.safe_load((target_dir / "config.yaml").read_text())
+        assert cloned_config["_config_version"] == DEFAULT_CONFIG["_config_version"]
+        assert cloned_config["model"] == "cloned"
+        assert (target_dir / ".env").read_text().strip() == "SECRET=yes"
 
     def test_delete_clears_active_profile(self, profile_env):
         """Deleting the active profile resets active to default."""

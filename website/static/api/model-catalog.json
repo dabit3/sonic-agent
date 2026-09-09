@@ -13,10 +13,6 @@
       },
       "models": [
         {
-          "id": "anthropic/claude-fable-5",
-          "description": ""
-        },
-        {
           "id": "anthropic/claude-opus-4.8",
           "description": ""
         },
@@ -85,7 +81,15 @@
           "description": "recommended"
         },
         {
+          "id": "moonshotai/kimi-k2.7-code",
+          "description": ""
+        },
+        {
           "id": "minimax/minimax-m3",
+          "description": ""
+        },
+        {
+          "id": "z-ai/glm-5.2",
           "description": ""
         },
         {
@@ -169,9 +173,6 @@
       },
       "models": [
         {
-          "id": "anthropic/claude-fable-5"
-        },
-        {
           "id": "anthropic/claude-opus-4.8"
         },
         {
@@ -220,7 +221,13 @@
           "id": "moonshotai/kimi-k2.6"
         },
         {
+          "id": "moonshotai/kimi-k2.7-code"
+        },
+        {
           "id": "minimax/minimax-m3"
+        },
+        {
+          "id": "z-ai/glm-5.2"
         },
         {
           "id": "z-ai/glm-5.1"

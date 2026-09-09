@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   touchBackend: profile => ipcRenderer.invoke('sonic:backend:touch', profile),
   getGatewayWsUrl: profile => ipcRenderer.invoke('sonic:gateway:ws-url', profile),
   openSessionWindow: (sessionId, opts) => ipcRenderer.invoke('sonic:window:openSession', sessionId, opts),
+  openNewSessionWindow: () => ipcRenderer.invoke('sonic:window:openNewSession'),
   getBootProgress: () => ipcRenderer.invoke('sonic:boot-progress:get'),
   getConnectionConfig: profile => ipcRenderer.invoke('sonic:connection-config:get', profile),
   saveConnectionConfig: payload => ipcRenderer.invoke('sonic:connection-config:save', payload),
@@ -54,6 +55,7 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   getRecentLogs: () => ipcRenderer.invoke('sonic:logs:recent'),
   readDir: dirPath => ipcRenderer.invoke('sonic:fs:readDir', dirPath),
   gitRoot: startPath => ipcRenderer.invoke('sonic:fs:gitRoot', startPath),
+  worktrees: cwds => ipcRenderer.invoke('sonic:fs:worktrees', cwds),
   terminal: {
     dispose: id => ipcRenderer.invoke('sonic:terminal:dispose', id),
     resize: (id, size) => ipcRenderer.invoke('sonic:terminal:resize', id, size),
@@ -92,6 +94,16 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
     const listener = (_event, payload) => callback(payload)
     ipcRenderer.on('sonic:window-state-changed', listener)
     return () => ipcRenderer.removeListener('sonic:window-state-changed', listener)
+  },
+  onFocusSession: callback => {
+    const listener = (_event, sessionId) => callback(sessionId)
+    ipcRenderer.on('sonic:focus-session', listener)
+    return () => ipcRenderer.removeListener('sonic:focus-session', listener)
+  },
+  onNotificationAction: callback => {
+    const listener = (_event, payload) => callback(payload)
+    ipcRenderer.on('sonic:notification-action', listener)
+    return () => ipcRenderer.removeListener('sonic:notification-action', listener)
   },
   onPreviewFileChanged: callback => {
     const listener = (_event, payload) => callback(payload)
