@@ -1299,6 +1299,57 @@ class TestWebServerEndpoints:
         for key, info in data.items():
             assert info["channel_managed"] is (key in channel_keys)
 
+    def test_get_env_vars_surfaces_catalog_providers(self):
+        """Every keys-tab provider in the unified catalog must appear in /api/env
+        as a provider card, even when it has no hand entry in OPTIONAL_ENV_VARS.
+
+        Regression for the GUI⇄CLI drift: openai-api, kilocode, novita,
+        tencent-tokenhub, copilot were configurable via `sonic model` but
+        invisible in the desktop Providers → API keys tab.
+        """
+        from sonic_cli.provider_catalog import provider_catalog
+
+        data = self.client.get("/api/env").json()
+        for d in provider_catalog():
+            if d.tab != "keys" or not d.api_key_env_vars:
+                continue
+            # The PRIMARY credential var must surface as this provider's card.
+            # (Shared aliases like GITHUB_TOKEN are intentionally left on their
+            # existing tool category and not hijacked — see the copilot test.)
+            primary = d.api_key_env_vars[0]
+            assert primary in data, f"{primary} ({d.slug}) missing from /api/env"
+            info = data[primary]
+            assert info["category"] == "provider"
+            assert info["provider"] == d.slug
+            assert info["provider_label"] == d.label
+
+    def test_get_env_vars_provider_rows_carry_grouping_hints(self):
+        """Provider env rows expose the backend `provider`/`provider_label` the
+        desktop Keys tab groups by (so it no longer relies on prefix guesses)."""
+        data = self.client.get("/api/env").json()
+        # OPENAI_API_KEY is a hand-listed protected var AND a catalog provider;
+        # it must come back tagged to the openai-api provider.
+        assert data["OPENAI_API_KEY"]["provider"] == "openai-api"
+        assert data["OPENAI_API_KEY"]["category"] == "provider"
+
+    def test_get_env_vars_copilot_uses_provider_token_not_shared_github_token(self):
+        """Copilot surfaces as its own provider card via COPILOT_GITHUB_TOKEN;
+        the shared GITHUB_TOKEN keeps its existing (tool) category."""
+        data = self.client.get("/api/env").json()
+        assert data["COPILOT_GITHUB_TOKEN"]["provider"] == "copilot"
+        assert data["COPILOT_GITHUB_TOKEN"]["category"] == "provider"
+        # Shared GITHUB_TOKEN must NOT be hijacked into the copilot provider card.
+        assert data.get("GITHUB_TOKEN", {}).get("provider", "") != "copilot"
+
+    def test_get_env_vars_bedrock_aws_vars_tagged_to_provider(self):
+        """Bedrock (aws_sdk, no api-key) must still appear on the Keys tab: its
+        AWS_REGION/AWS_PROFILE settings are tagged to the bedrock provider card.
+        """
+        data = self.client.get("/api/env").json()
+        assert data["AWS_REGION"]["provider"] == "bedrock"
+        assert data["AWS_REGION"]["category"] == "provider"
+        assert data["AWS_PROFILE"]["provider"] == "bedrock"
+
     def test_platform_scoped_messaging_env_vars_are_channel_managed(self):
         from sonic_cli.web_server import (
             _MESSAGING_KEYS_PAGE_KEYS,
@@ -1552,6 +1603,27 @@ class TestWebServerEndpoints:
         assert telegram["enabled"] is False
         assert any(field["key"] == "TELEGRAM_BOT_TOKEN" and field["required"] for field in telegram["env_vars"])
 
+    def test_slack_messaging_platform_exposes_user_allowlist(self):
+        resp = self.client.get("/api/messaging/platforms")
+
+        assert resp.status_code == 200
+        platforms = resp.json()["platforms"]
+        slack = next(platform for platform in platforms if platform["id"] == "slack")
+        fields = {field["key"]: field for field in slack["env_vars"]}
+
+        assert "allowed Slack member IDs" in slack["description"]
+        assert set(fields) >= {
+            "SLACK_BOT_TOKEN",
+            "SLACK_APP_TOKEN",
+            "SLACK_ALLOWED_USERS",
+        }
+        assert fields["SLACK_ALLOWED_USERS"]["prompt"] == "Allowed Slack member IDs"
+        assert fields["SLACK_ALLOWED_USERS"]["is_password"] is False
+        assert "member IDs" in fields["SLACK_ALLOWED_USERS"]["description"]
+        assert "Bot User OAuth Token" in fields["SLACK_BOT_TOKEN"]["help"]
+        assert "App-Level Tokens" in fields["SLACK_APP_TOKEN"]["help"]
+        assert "Copy member ID" in fields["SLACK_ALLOWED_USERS"]["help"]
+
     def test_weixin_messaging_metadata_describes_personal_ilink_setup(self):
         resp = self.client.get("/api/messaging/platforms")
 
@@ -1627,6 +1699,70 @@ class TestWebServerEndpoints:
         status = self.client.get("/api/messaging/platforms").json()["platforms"]
         telegram = next(platform for platform in status if platform["id"] == "telegram")
         assert telegram["enabled"] is False
+
+    def test_update_messaging_platform_saves_slack_allowed_users(self):
+        from sonic_cli.config import load_env
+
+        resp = self.client.put(
+            "/api/messaging/platforms/slack",
+            json={"env": {"SLACK_ALLOWED_USERS": "U01ABC2DEF3,U04XYZ5LMN6"}},
+        )
+
+        assert resp.status_code == 200
+        assert load_env()["SLACK_ALLOWED_USERS"] == "U01ABC2DEF3,U04XYZ5LMN6"
+
+    def test_update_messaging_platform_rejects_swapped_slack_bot_token(self):
+        resp = self.client.put(
+            "/api/messaging/platforms/slack",
+            json={"env": {"SLACK_BOT_TOKEN": "xapp-wrong-token-type"}},
+        )
+
+        assert resp.status_code == 400
+        assert "xoxb-" in resp.json()["detail"]
+
+    def test_update_messaging_platform_rejects_swapped_slack_app_token(self):
+        resp = self.client.put(
+            "/api/messaging/platforms/slack",
+            json={"env": {"SLACK_APP_TOKEN": "xoxb-wrong-token-type"}},
+        )
+
+        assert resp.status_code == 400
+        assert "xapp-" in resp.json()["detail"]
+
+    def test_update_messaging_platform_rejects_invalid_slack_allowed_users(self):
+        resp = self.client.put(
+            "/api/messaging/platforms/slack",
+            json={"env": {"SLACK_ALLOWED_USERS": "U01ABC2DEF3,not-a-user"}},
+        )
+
+        assert resp.status_code == 400
+        assert "member IDs" in resp.json()["detail"]
+
+    def test_update_messaging_platform_accepts_slack_allowed_users_wildcard(self):
+        # "*" is the gateway's allow-all wildcard (gateway/platforms/slack.py),
+        # so the dashboard must accept it rather than rejecting it as malformed.
+        from sonic_cli.config import load_env
+
+        resp = self.client.put(
+            "/api/messaging/platforms/slack",
+            json={"env": {"SLACK_ALLOWED_USERS": "*"}},
+        )
+
+        assert resp.status_code == 200
+        assert load_env()["SLACK_ALLOWED_USERS"] == "*"
+
+    def test_update_messaging_platform_accepts_slack_allowed_users_trailing_comma(self):
+        # The gateway drops empty entries (gateway/platforms/slack.py), so a
+        # trailing/interior comma must not be rejected by the dashboard.
+        from sonic_cli.config import load_env
+
+        resp = self.client.put(
+            "/api/messaging/platforms/slack",
+            json={"env": {"SLACK_ALLOWED_USERS": "U01ABC2DEF3,,W04XYZ5LMN6,"}},
+        )
+
+        assert resp.status_code == 200
+        assert load_env()["SLACK_ALLOWED_USERS"] == "U01ABC2DEF3,,W04XYZ5LMN6,"
 
     def test_messaging_platform_test_reports_missing_required_setup(self):
         resp = self.client.put("/api/messaging/platforms/discord", json={"enabled": True})
@@ -2104,7 +2240,7 @@ class TestWebServerEndpoints:
 
         resp = self.client.post(
             "/api/model/set",
-            json={"scope": "main", "provider": "nous", "model": "sonic-4"},
+            json={"scope": "main", "provider": "nous", "model": "hermes-4"},
         )
         assert resp.status_code == 200
         data = resp.json()
@@ -2360,7 +2496,7 @@ class TestWebServerEndpoints:
         from sonic_cli.config import load_config, save_config
 
         cfg = load_config()
-        cfg["model"] = {"provider": "nous", "default": "sonic-4"}
+        cfg["model"] = {"provider": "nous", "default": "hermes-4"}
         cfg["auxiliary"] = {
             # Pinned to nous — same as the OLD main, becomes stale after switch.
             "compression": {"provider": "nous", "model": "anthropic/claude-sonnet-4.6"},
@@ -2391,7 +2527,7 @@ class TestWebServerEndpoints:
         from sonic_cli.config import load_config, save_config
 
         cfg = load_config()
-        cfg["model"] = {"provider": "nous", "default": "sonic-4"}
+        cfg["model"] = {"provider": "nous", "default": "hermes-4"}
         cfg["auxiliary"] = {
             "compression": {"provider": "openrouter", "model": "google/gemini-2.5-flash"},
             "vision": {"provider": "auto", "model": ""},
@@ -2420,7 +2556,7 @@ class TestWebServerEndpoints:
 
         resp = self.client.post(
             "/api/model/set",
-            json={"scope": "main", "provider": "nous", "model": "sonic-4"},
+            json={"scope": "main", "provider": "nous", "model": "hermes-4"},
         )
         assert resp.status_code == 200
         data = resp.json()
@@ -5062,6 +5198,7 @@ class TestPtyWebSocket:
 
         _argv, _cwd, env = self.ws_module._resolve_chat_argv()
 
+        assert env["SONIC_TUI_DASHBOARD"] == "1"
         assert env["SONIC_TUI_INLINE"] == "1"
         assert env["SONIC_TUI_DISABLE_MOUSE"] == "1"
 
