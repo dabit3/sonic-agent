@@ -1205,7 +1205,7 @@ def _reload_runtime_env_preserving_config_authority() -> None:
         sonic_home=_sonic_home,
         project_env=Path(__file__).resolve().parents[1] / '.env',
     )
-    _bridge_max_turns_from_config(_hermes_home)
+    _bridge_max_turns_from_config(_sonic_home)
 
 
 def _bridge_max_turns_from_config(home: "Path") -> None:
@@ -1231,7 +1231,7 @@ def _current_max_iterations() -> int:
     """Return the current per-turn iteration budget after runtime env refresh."""
     _reload_runtime_env_preserving_config_authority()
     try:
-        return int(os.getenv("HERMES_MAX_ITERATIONS", "90"))
+        return int(os.getenv("SONIC_MAX_ITERATIONS", "90"))
     except (TypeError, ValueError):
         return 90
 
@@ -1271,7 +1271,7 @@ def _profile_runtime_scope(profile_home: "Path"):
     """Scope config/skills/memory AND credentials to a profile for one turn.
 
     Combines the two seams the multiplexer needs:
-      1. ``set_hermes_home_override`` — redirects ``get_hermes_home()`` (config,
+      1. ``set_sonic_home_override`` — redirects ``get_sonic_home()`` (config,
          skills, memory, SOUL, sessions) to the profile's home. Contextvar, so
          it propagates into the agent worker thread via ``copy_context()``.
       2. ``set_secret_scope`` — installs the profile's ``.env`` secrets as the
@@ -1285,20 +1285,20 @@ def _profile_runtime_scope(profile_home: "Path"):
     returns an isolated dict — which is what keeps subprocesses (MCP, kanban)
     from inheriting cross-profile secrets.
     """
-    from hermes_constants import set_hermes_home_override, reset_hermes_home_override
+    from sonic_constants import set_sonic_home_override, reset_sonic_home_override
     from agent.secret_scope import (
         build_profile_secret_scope,
         set_secret_scope,
         reset_secret_scope,
     )
 
-    home_token = set_hermes_home_override(str(profile_home))
+    home_token = set_sonic_home_override(str(profile_home))
     secret_token = set_secret_scope(build_profile_secret_scope(Path(profile_home)))
     try:
         yield
     finally:
         reset_secret_scope(secret_token)
-        reset_hermes_home_override(home_token)
+        reset_sonic_home_override(home_token)
 
 
 _DOCKER_VOLUME_SPEC_RE = re.compile(r"^(?P<host>.+):(?P<container>/[^:]+?)(?::(?P<options>[^:]+))?$")
@@ -2921,7 +2921,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                 _profile = source.profile
             else:
                 try:
-                    from hermes_cli.profiles import get_active_profile_name
+                    from sonic_cli.profiles import get_active_profile_name
                     _profile = get_active_profile_name() or "default"
                 except Exception:
                     _profile = None
@@ -6691,7 +6691,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         0) unless ``gateway.multiplex_profiles`` is on.
 
         Each profile's adapters are created and connected under that profile's
-        HERMES_HOME + secret scope (``_profile_runtime_scope``), stored in
+        SONIC_HOME + secret scope (``_profile_runtime_scope``), stored in
         ``self._profile_adapters[profile]``, and given a message handler that
         stamps ``source.profile`` before delegating to the shared
         ``_handle_message`` — so the agent turn resolves that profile's config,
@@ -6703,7 +6703,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             return 0
 
         try:
-            from hermes_cli.profiles import profiles_to_serve, get_active_profile_name
+            from sonic_cli.profiles import profiles_to_serve, get_active_profile_name
         except Exception:
             return 0
 
@@ -6736,7 +6736,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                     profile_name, e, exc_info=True,
                 )
 
-        # Record served profiles in runtime status for `hermes status`.
+        # Record served profiles in runtime status for `sonic status`.
         try:
             from gateway.status import write_runtime_status
             served = [active] + sorted(self._profile_adapters.keys())
@@ -6851,7 +6851,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         if not token:
             return None
         import hashlib
-        return hashlib.sha256(("hermes-mux:" + token).encode("utf-8")).hexdigest()[:16]
+        return hashlib.sha256(("sonic-mux:" + token).encode("utf-8")).hexdigest()[:16]
 
     def _create_adapter(
         self, 
@@ -14144,19 +14144,19 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             )
 
     def _resolve_profile_home_for_source(self, source: SessionSource) -> "Path":
-        """Resolve which profile's HERMES_HOME should serve this inbound source.
+        """Resolve which profile's SONIC_HOME should serve this inbound source.
 
         Prefers the profile the source was routed to (``source.profile`` — set
         by the /p/<profile>/ URL prefix or a per-credential adapter), falling
         back to the active profile (the multiplexer's own home).
         """
-        from hermes_cli.profiles import get_active_profile_name, get_profile_dir
+        from sonic_cli.profiles import get_active_profile_name, get_profile_dir
         try:
             name = (source.profile or "").strip() or get_active_profile_name() or "default"
             return get_profile_dir(name)
         except Exception:
-            from hermes_constants import get_hermes_home
-            return get_hermes_home()
+            from sonic_constants import get_sonic_home
+            return get_sonic_home()
 
     async def _run_agent_inner(
         self,

@@ -170,7 +170,7 @@ def looks_like_gateway_command_line(command: str | None) -> bool:
 
     Lifecycle decisions (is the gateway up? did restart relaunch it?) must not
     fire on loose substring matches.  The previous ``"... gateway" in cmdline``
-    test also matched ``hermes_cli.main gateway status`` and even unrelated
+    test also matched ``sonic_cli.main gateway status`` and even unrelated
     processes like ``python -m tui_gateway`` -- which made ``restart()`` race
     against a still-draining old process and ``status``/``start`` report false
     positives.  This requires the actual ``gateway`` subcommand followed by
@@ -179,8 +179,8 @@ def looks_like_gateway_command_line(command: str | None) -> bool:
     word "gateway".
 
     Tokenizes quote-aware (``shlex``) so quoted Windows paths with spaces
-    (``"C:\\Program Files\\...\\hermes-gateway.exe"``) survive, and strips
-    ``--profile``/``-p`` selectors from anywhere in argv -- Hermes's
+    (``"C:\\Program Files\\...\\sonic-gateway.exe"``) survive, and strips
+    ``--profile``/``-p`` selectors from anywhere in argv -- Sonic's
     ``_apply_profile_override`` removes them before argparse, so the profile
     flag (and a profile literally named ``gateway``) can legally appear on
     either side of the ``gateway`` subcommand.
@@ -202,14 +202,14 @@ def looks_like_gateway_command_line(command: str | None) -> bool:
         if token == "gateway/run.py" or token.endswith("/gateway/run.py"):
             return True
         basename = token.rsplit("/", 1)[-1]
-        if basename in ("hermes-gateway", "hermes-gateway.exe"):
+        if basename in ("sonic-gateway", "sonic-gateway.exe"):
             return True
 
     joined = " ".join(tokens)
     has_gateway_entry = (
-        "hermes_cli.main" in joined
-        or "hermes_cli/main.py" in joined
-        or any(t.rsplit("/", 1)[-1] in ("hermes", "hermes.exe") for t in tokens)
+        "sonic_cli.main" in joined
+        or "sonic_cli/main.py" in joined
+        or any(t.rsplit("/", 1)[-1] in ("sonic", "sonic.exe") for t in tokens)
     )
     if not has_gateway_entry:
         return False
@@ -234,7 +234,7 @@ def looks_like_gateway_command_line(command: str | None) -> bool:
         if token != "gateway":
             continue
         if i + 1 >= len(filtered):
-            return True  # bare `hermes gateway` defaults to `run`
+            return True  # bare `sonic gateway` defaults to `run`
         return filtered[i + 1] == "run"
     return False
 
@@ -598,7 +598,7 @@ def write_runtime_status(
         payload["active_agents"] = max(0, int(active_agents))
     if served_profiles is not _UNSET:
         # Profiles this gateway multiplexes (multi-profile mode). Absent/empty
-        # for a single-profile gateway. Lets `hermes status` show per-profile
+        # for a single-profile gateway. Lets `sonic status` show per-profile
         # coverage without a second probe.
         payload["served_profiles"] = list(served_profiles or [])
 

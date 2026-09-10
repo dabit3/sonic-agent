@@ -824,7 +824,7 @@ class SessionStore:
         if source is not None and source.profile:
             return source.profile
         try:
-            from hermes_cli.profiles import get_active_profile_name
+            from sonic_cli.profiles import get_active_profile_name
             return get_active_profile_name() or "default"
         except Exception:
             return None

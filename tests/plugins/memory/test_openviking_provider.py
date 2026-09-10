@@ -2202,7 +2202,7 @@ def test_sync_turn_structured_messages_include_assistant_peer_id():
     provider._api_key = ""
     provider._account = "acct"
     provider._user = "usr"
-    provider._agent = "hermes"
+    provider._agent = "sonic"
     provider._session_id = "sid-structured"
 
     captured = []
@@ -2246,7 +2246,7 @@ def test_sync_turn_structured_messages_include_assistant_peer_id():
         {
             "messages": [
                 {"role": "user", "parts": [{"type": "text", "text": "u"}]},
-                {"role": "assistant", "parts": [{"type": "text", "text": "Looking."}], "peer_id": "hermes"},
+                {"role": "assistant", "parts": [{"type": "text", "text": "Looking."}], "peer_id": "sonic"},
                 {
                     "role": "assistant",
                     "parts": [
@@ -2259,9 +2259,9 @@ def test_sync_turn_structured_messages_include_assistant_peer_id():
                             "tool_status": "completed",
                         }
                     ],
-                    "peer_id": "hermes",
+                    "peer_id": "sonic",
                 },
-                {"role": "assistant", "parts": [{"type": "text", "text": "a"}], "peer_id": "hermes"},
+                {"role": "assistant", "parts": [{"type": "text", "text": "a"}], "peer_id": "sonic"},
             ]
         },
     )]

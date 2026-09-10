@@ -32,7 +32,7 @@ def sonic_home(tmp_path, monkeypatch):
         "2026-04-12 17:00:10 INFO gateway.run: started\n"
     )
     (logs_dir / "gui.log").write_text(
-        "2026-04-12 17:00:12 INFO hermes_cli.web_server: dashboard request\n"
+        "2026-04-12 17:00:12 INFO sonic_cli.web_server: dashboard request\n"
     )
     (logs_dir / "desktop.log").write_text(
         "2026-04-12 17:00:15 INFO desktop: backend spawned\n"

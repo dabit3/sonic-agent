@@ -3858,7 +3858,7 @@ def _guard_named_profile_under_multiplexer(force: bool = False) -> None:
     it is the sole inbound process for EVERY profile on the host. Starting a
     separate gateway for a named profile would double-bind that profile's
     platforms (two pollers on one bot token, port fights). In that mode a
-    named-profile ``hermes gateway run`` is always a misconfiguration, so we
+    named-profile ``sonic gateway run`` is always a misconfiguration, so we
     hard-error with a pointer to the multiplexer. ``--force`` overrides.
 
     Inert unless ALL of: (a) this invocation is a named profile, (b) a default-
@@ -3875,8 +3875,8 @@ def _guard_named_profile_under_multiplexer(force: bool = False) -> None:
         return  # default profile (or unrecognized) — this guard doesn't apply
 
     try:
-        from hermes_constants import get_default_hermes_root
-        default_root = get_default_hermes_root()
+        from sonic_constants import get_default_sonic_root
+        default_root = get_default_sonic_root()
         # (b) Is the default-profile gateway running?
         from gateway.status import get_running_pid as _default_running_pid  # noqa
     except Exception:
@@ -3924,7 +3924,7 @@ def _guard_named_profile_under_multiplexer(force: bool = False) -> None:
     )
     print("  Manage the multiplexer instead (from the default profile):")
     print()
-    print("    hermes gateway restart")
+    print("    sonic gateway restart")
     print()
     print("  Pass --force to start a separate profile gateway anyway (not")
     print("  recommended while the multiplexer is running).")

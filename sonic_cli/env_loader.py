@@ -251,7 +251,7 @@ def load_sonic_dotenv(
 def _apply_managed_env() -> None:
     """Apply the managed-scope .env last, with override, so it beats user/shell.
 
-    Managed scope is machine-global (independent of HERMES_HOME / profile). v1
+    Managed scope is machine-global (independent of SONIC_HOME / profile). v1
     enforcement is "applied last with override=True" — at the end of startup load
     ``os.environ`` holds the managed value for every managed key, beating both the
     user ``.env`` and any pre-existing shell export. This deliberately inverts the
@@ -266,7 +266,7 @@ def _apply_managed_env() -> None:
     error here is swallowed so managed scope can never block startup.
     """
     try:
-        from hermes_cli import managed_scope
+        from sonic_cli import managed_scope
 
         managed_dir = managed_scope.get_managed_dir()
     except Exception:  # noqa: BLE001 — managed scope must never block startup

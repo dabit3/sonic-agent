@@ -109,8 +109,8 @@ export interface EnvVarInfo {
   is_password: boolean
   is_set: boolean
   // Backend-derived provider grouping hints (from the unified provider catalog
-  // in hermes_cli/provider_catalog.py). When present, the Keys tab groups by
-  // this provider identity — the SAME one `hermes model` uses — instead of
+  // in sonic_cli/provider_catalog.py). When present, the Keys tab groups by
+  // this provider identity — the SAME one `sonic model` uses — instead of
   // desktop-only env-var prefix guesses. Empty for non-provider env vars.
   provider?: string
   provider_label?: string

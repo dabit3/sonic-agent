@@ -188,8 +188,8 @@ describe('GatewayClient websocket attach mode', () => {
   })
 
   it('publishes local dashboard-control events to the sidecar websocket', async () => {
-    process.env.HERMES_TUI_GATEWAY_URL = 'ws://gateway.test/api/ws?token=abc'
-    process.env.HERMES_TUI_SIDECAR_URL = 'ws://gateway.test/api/pub?token=abc&channel=demo'
+    process.env.SONIC_TUI_GATEWAY_URL = 'ws://gateway.test/api/ws?token=abc'
+    process.env.SONIC_TUI_SIDECAR_URL = 'ws://gateway.test/api/pub?token=abc&channel=demo'
 
     const gw = new GatewayClient()
     const seen: string[] = []

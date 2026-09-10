@@ -1498,13 +1498,13 @@ class TestProfilesToServe:
         assert len(serve) == 1
         name, home = serve[0]
         assert name == "default"
-        assert home == _get_default_hermes_home()
+        assert home == _get_default_sonic_home()
 
     def test_off_returns_only_active_named(self, profile_env, monkeypatch):
-        # A named profile's gateway runs with HERMES_HOME pointing at the
+        # A named profile's gateway runs with SONIC_HOME pointing at the
         # profile dir; get_active_profile_name() infers the name from there.
         create_profile("coder", no_alias=True)
-        monkeypatch.setenv("HERMES_HOME", str(get_profile_dir("coder")))
+        monkeypatch.setenv("SONIC_HOME", str(get_profile_dir("coder")))
         serve = profiles_to_serve(multiplex=False)
         assert len(serve) == 1
         assert serve[0][0] == "coder"
@@ -1515,7 +1515,7 @@ class TestProfilesToServe:
         create_profile("writer", no_alias=True)
         serve = dict(profiles_to_serve(multiplex=True))
         assert set(serve) == {"default", "coder", "writer"}
-        assert serve["default"] == _get_default_hermes_home()
+        assert serve["default"] == _get_default_sonic_home()
         assert serve["coder"] == get_profile_dir("coder")
 
     def test_on_default_always_first(self, profile_env):

@@ -782,7 +782,7 @@ def list_profiles() -> List[ProfileInfo]:
 
 
 def profiles_to_serve(multiplex: bool) -> List[Tuple[str, Path]]:
-    """Return the ``(profile_name, hermes_home)`` pairs a gateway should serve.
+    """Return the ``(profile_name, sonic_home)`` pairs a gateway should serve.
 
     This is the single chokepoint for "which profiles does the inbound gateway
     handle" so later multiplexing phases never re-derive the set.
@@ -792,20 +792,20 @@ def profiles_to_serve(multiplex: bool) -> List[Tuple[str, Path]]:
       always had. The name is ``"default"`` for the default profile or the
       active named profile's id.
     - ``multiplex=True``: returns the default profile plus every valid named
-      profile under ``profiles/``, each paired with its own HERMES_HOME.
+      profile under ``profiles/``, each paired with its own SONIC_HOME.
 
     Intentionally lightweight (a directory scan + name validation only): no
     per-profile config reads, gateway-running probes, or skill counts like
     :func:`list_profiles`. It runs on gateway startup and must stay cheap.
 
-    The returned ``hermes_home`` is the path to pass to
-    ``set_hermes_home_override`` when scoping a turn to that profile.
+    The returned ``sonic_home`` is the path to pass to
+    ``set_sonic_home_override`` when scoping a turn to that profile.
     """
     active = get_active_profile_name() or "default"
     if not multiplex:
         return [(active, get_profile_dir(active))]
 
-    serve: List[Tuple[str, Path]] = [("default", _get_default_hermes_home())]
+    serve: List[Tuple[str, Path]] = [("default", _get_default_sonic_home())]
 
     profiles_root = _get_profiles_root()
     if profiles_root.is_dir():

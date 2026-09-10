@@ -515,7 +515,7 @@ def test_stale_claim_deferred_when_live_worker_survives_termination(
     in uninterruptible (D) state, where a pending SIGKILL cannot land. The claim
     is held (extended) and retried next tick instead.
     """
-    import hermes_cli.kanban_db as _kb
+    import sonic_cli.kanban_db as _kb
 
     with kb.connect() as conn:
         t = kb.create_task(conn, title="x", assignee="a")
@@ -566,7 +566,7 @@ def test_stale_claim_reclaimed_when_termination_succeeds(
     kanban_home, monkeypatch,
 ):
     """When the worker is actually killed, the claim is released as before."""
-    import hermes_cli.kanban_db as _kb
+    import sonic_cli.kanban_db as _kb
 
     with kb.connect() as conn:
         t = kb.create_task(conn, title="x", assignee="a")
@@ -600,7 +600,7 @@ def test_stale_claim_released_when_worker_not_host_local(
     A claim we cannot manage (different host, or no kill attempted) must still
     be released, otherwise a foreign-host claim could strand a task forever.
     """
-    import hermes_cli.kanban_db as _kb
+    import sonic_cli.kanban_db as _kb
 
     with kb.connect() as conn:
         t = kb.create_task(conn, title="x", assignee="a")
@@ -628,7 +628,7 @@ def test_stale_claim_released_when_worker_not_host_local(
 
 def test_detect_stale_defers_when_live_worker_survives(kanban_home, monkeypatch):
     """detect_stale_running must also hold the claim when the worker survives."""
-    import hermes_cli.kanban_db as _kb
+    import sonic_cli.kanban_db as _kb
 
     with kb.connect() as conn:
         t = kb.create_task(conn, title="wedged", assignee="worker")
