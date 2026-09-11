@@ -169,20 +169,20 @@ class TestShouldExclude:
         ],
     )
     def test_excludes_regeneratable_dependency_and_cache_dirs(self, rel):
-        """Python dep trees and tool caches under HERMES_HOME must be skipped —
+        """Python dep trees and tool caches under SONIC_HOME must be skipped —
         these are what balloon a backup to hundreds of thousands of files."""
-        from hermes_cli.backup import _should_exclude
+        from sonic_cli.backup import _should_exclude
         assert _should_exclude(Path(rel))
 
     def test_does_not_exclude_curator_archive(self):
         """skills/.archive/ holds restorable archived skills and MUST survive
         a backup — it is intentionally NOT in the exclusion set."""
-        from hermes_cli.backup import _should_exclude
+        from sonic_cli.backup import _should_exclude
         assert not _should_exclude(Path("skills/.archive/old-skill/SKILL.md"))
 
     def test_does_not_exclude_legit_files_resembling_cache_names(self):
         """Only directory-component matches are excluded; a normal file is kept."""
-        from hermes_cli.backup import _should_exclude
+        from sonic_cli.backup import _should_exclude
         assert not _should_exclude(Path("skills/my-skill/venv-notes.md"))
         assert not _should_exclude(Path("memories/cache.json"))
 

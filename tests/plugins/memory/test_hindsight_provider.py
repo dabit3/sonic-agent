@@ -98,11 +98,11 @@ def _provider_for_mode(tmp_path, monkeypatch, mode: str):
     config_path.write_text(json.dumps(config))
 
     monkeypatch.setattr(
-        "plugins.memory.hindsight.get_hermes_home", lambda: tmp_path
+        "plugins.memory.hindsight.get_sonic_home", lambda: tmp_path
     )
 
     provider = HindsightMemoryProvider()
-    provider.initialize(session_id="test-session", hermes_home=str(tmp_path), platform="cli")
+    provider.initialize(session_id="test-session", sonic_home=str(tmp_path), platform="cli")
     return provider
 
 

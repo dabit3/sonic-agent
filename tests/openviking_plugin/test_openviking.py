@@ -507,7 +507,7 @@ class TestOpenVikingTurnConversion:
                     "content": json.dumps({
                         "results": [
                             {
-                                "uri": "viking://user/hermes/memories/context",
+                                "uri": "viking://user/sonic/memories/context",
                                 "abstract": "Old OpenViking memory content",
                             }
                         ]
@@ -605,12 +605,12 @@ class TestOpenVikingTurnConversion:
 
         batch = OpenVikingMemoryProvider._messages_to_openviking_batch(
             turn,
-            assistant_peer_id="hermes",
+            assistant_peer_id="sonic",
         )
 
         assert batch == [
             {"role": "user", "parts": [{"type": "text", "text": "hello"}]},
-            {"role": "assistant", "parts": [{"type": "text", "text": "answer"}], "peer_id": "hermes"},
+            {"role": "assistant", "parts": [{"type": "text", "text": "answer"}], "peer_id": "sonic"},
         ]
 
 

@@ -11937,7 +11937,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
                 try:
                     # Picker selections persist by default (same default as
                     # /model <name>); honour model.persist_switch_by_default.
-                    from hermes_cli.model_switch import resolve_persist_behavior
+                    from sonic_cli.model_switch import resolve_persist_behavior
 
                     self._handle_model_picker_selection(
                         persist_global=resolve_persist_behavior(False, False)

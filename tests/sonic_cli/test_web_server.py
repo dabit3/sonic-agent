@@ -1304,10 +1304,10 @@ class TestWebServerEndpoints:
         as a provider card, even when it has no hand entry in OPTIONAL_ENV_VARS.
 
         Regression for the GUI⇄CLI drift: openai-api, kilocode, novita,
-        tencent-tokenhub, copilot were configurable via `hermes model` but
+        tencent-tokenhub, copilot were configurable via `sonic model` but
         invisible in the desktop Providers → API keys tab.
         """
-        from hermes_cli.provider_catalog import provider_catalog
+        from sonic_cli.provider_catalog import provider_catalog
 
         data = self.client.get("/api/env").json()
         for d in provider_catalog():
@@ -1701,7 +1701,7 @@ class TestWebServerEndpoints:
         assert telegram["enabled"] is False
 
     def test_update_messaging_platform_saves_slack_allowed_users(self):
-        from hermes_cli.config import load_env
+        from sonic_cli.config import load_env
 
         resp = self.client.put(
             "/api/messaging/platforms/slack",
@@ -1741,7 +1741,7 @@ class TestWebServerEndpoints:
     def test_update_messaging_platform_accepts_slack_allowed_users_wildcard(self):
         # "*" is the gateway's allow-all wildcard (gateway/platforms/slack.py),
         # so the dashboard must accept it rather than rejecting it as malformed.
-        from hermes_cli.config import load_env
+        from sonic_cli.config import load_env
 
         resp = self.client.put(
             "/api/messaging/platforms/slack",
@@ -1754,7 +1754,7 @@ class TestWebServerEndpoints:
     def test_update_messaging_platform_accepts_slack_allowed_users_trailing_comma(self):
         # The gateway drops empty entries (gateway/platforms/slack.py), so a
         # trailing/interior comma must not be rejected by the dashboard.
-        from hermes_cli.config import load_env
+        from sonic_cli.config import load_env
 
         resp = self.client.put(
             "/api/messaging/platforms/slack",
@@ -2240,7 +2240,7 @@ class TestWebServerEndpoints:
 
         resp = self.client.post(
             "/api/model/set",
-            json={"scope": "main", "provider": "nous", "model": "sonic-4"},
+            json={"scope": "main", "provider": "nous", "model": "hermes-4"},
         )
         assert resp.status_code == 200
         data = resp.json()
@@ -2496,7 +2496,7 @@ class TestWebServerEndpoints:
         from sonic_cli.config import load_config, save_config
 
         cfg = load_config()
-        cfg["model"] = {"provider": "nous", "default": "sonic-4"}
+        cfg["model"] = {"provider": "nous", "default": "hermes-4"}
         cfg["auxiliary"] = {
             # Pinned to nous — same as the OLD main, becomes stale after switch.
             "compression": {"provider": "nous", "model": "anthropic/claude-sonnet-4.6"},
@@ -2527,7 +2527,7 @@ class TestWebServerEndpoints:
         from sonic_cli.config import load_config, save_config
 
         cfg = load_config()
-        cfg["model"] = {"provider": "nous", "default": "sonic-4"}
+        cfg["model"] = {"provider": "nous", "default": "hermes-4"}
         cfg["auxiliary"] = {
             "compression": {"provider": "openrouter", "model": "google/gemini-2.5-flash"},
             "vision": {"provider": "auto", "model": ""},
@@ -2556,7 +2556,7 @@ class TestWebServerEndpoints:
 
         resp = self.client.post(
             "/api/model/set",
-            json={"scope": "main", "provider": "nous", "model": "sonic-4"},
+            json={"scope": "main", "provider": "nous", "model": "hermes-4"},
         )
         assert resp.status_code == 200
         data = resp.json()

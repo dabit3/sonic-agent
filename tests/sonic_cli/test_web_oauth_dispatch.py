@@ -472,11 +472,11 @@ def test_xai_oauth_listed_as_loopback_flow():
 
 def test_accounts_offers_every_oauth_provider_from_catalog():
     """PARITY CONTRACT: every accounts-tab provider in the unified catalog (the
-    `hermes model` universe) must be offered by /api/providers/oauth. This keeps
+    `sonic model` universe) must be offered by /api/providers/oauth. This keeps
     the desktop Accounts tab in lockstep with the CLI picker — no provider the
     CLI can sign into may be missing from the GUI.
     """
-    from hermes_cli.provider_catalog import provider_catalog
+    from sonic_cli.provider_catalog import provider_catalog
 
     resp = client.get("/api/providers/oauth", headers=HEADERS)
     assert resp.status_code == 200, resp.text
@@ -484,7 +484,7 @@ def test_accounts_offers_every_oauth_provider_from_catalog():
     for d in provider_catalog():
         if d.tab == "accounts":
             assert d.slug in offered, (
-                f"{d.slug} is an accounts-tab provider in `hermes model` but is "
+                f"{d.slug} is an accounts-tab provider in `sonic model` but is "
                 f"missing from the desktop Accounts tab (/api/providers/oauth)"
             )
 
@@ -845,10 +845,10 @@ def test_status_falls_through_to_generic_dispatcher_for_catalog_only_provider():
     Providers appended to the Accounts tab from the unified provider_catalog()
     carry status_fn=None and may have no explicit branch in
     _resolve_provider_status. Before the fallthrough they rendered permanently
-    logged-out; now they dispatch to hermes_cli.auth.get_auth_status (the
+    logged-out; now they dispatch to sonic_cli.auth.get_auth_status (the
     canonical slug dispatcher) so membership AND status both auto-extend.
     """
-    import hermes_cli.web_server as ws
+    import sonic_cli.web_server as ws
 
     fake_status = {
         "logged_in": True,
@@ -858,7 +858,7 @@ def test_status_falls_through_to_generic_dispatcher_for_catalog_only_provider():
         "expires_at": "2026-12-01T00:00:00Z",
         "has_refresh_token": True,
     }
-    with patch("hermes_cli.auth.get_auth_status", return_value=fake_status):
+    with patch("sonic_cli.auth.get_auth_status", return_value=fake_status):
         out = ws._resolve_provider_status("some-future-oauth", None)
 
     assert out["logged_in"] is True
@@ -872,10 +872,10 @@ def test_status_falls_through_to_generic_dispatcher_for_catalog_only_provider():
 
 def test_status_hardcoded_branch_wins_over_generic_fallback():
     """An existing hardcoded branch (nous) is unaffected by the fallthrough."""
-    import hermes_cli.web_server as ws
+    import sonic_cli.web_server as ws
 
     with patch(
-        "hermes_cli.auth.get_nous_auth_status",
+        "sonic_cli.auth.get_nous_auth_status",
         return_value={"logged_in": True, "portal_base_url": "https://portal.test"},
     ):
         out = ws._resolve_provider_status("nous", None)
@@ -885,8 +885,8 @@ def test_status_hardcoded_branch_wins_over_generic_fallback():
 
 def test_status_unknown_provider_degrades_to_logged_out():
     """A provider the generic dispatcher can't resolve stays logged-out cleanly."""
-    import hermes_cli.web_server as ws
+    import sonic_cli.web_server as ws
 
-    with patch("hermes_cli.auth.get_auth_status", return_value={"logged_in": False}):
+    with patch("sonic_cli.auth.get_auth_status", return_value={"logged_in": False}):
         out = ws._resolve_provider_status("totally-unknown", None)
     assert out["logged_in"] is False

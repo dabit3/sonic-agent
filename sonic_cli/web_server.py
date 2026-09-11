@@ -3976,7 +3976,7 @@ def _catalog_provider_env_metadata() -> dict:
 
     Returns ``{env_var: {provider, provider_label, description, url, is_password,
     advanced}}`` for every API-key provider in the unified ``provider_catalog()``
-    (i.e. the ``hermes model`` universe). This is what lets the desktop Keys tab
+    (i.e. the ``sonic model`` universe). This is what lets the desktop Keys tab
     render a card for a provider even when its env var was never hand-added to
     ``OPTIONAL_ENV_VARS`` — closing the drift where CLI-configurable providers
     (openai-api, kilocode, novita, tencent-tokenhub, copilot, …) were missing
@@ -3986,7 +3986,7 @@ def _catalog_provider_env_metadata() -> dict:
     this only supplies membership + grouping + sensible fallbacks.
     """
     try:
-        from hermes_cli.provider_catalog import provider_catalog
+        from sonic_cli.provider_catalog import provider_catalog
     except Exception:
         return {}
 
@@ -3995,7 +3995,7 @@ def _catalog_provider_env_metadata() -> dict:
     # promoted into a provider card. Copilot lists GITHUB_TOKEN among its auth
     # aliases, but its provider card uses the provider-owned COPILOT_GITHUB_TOKEN.
     try:
-        from hermes_cli.config import OPTIONAL_ENV_VARS as _OPT
+        from sonic_cli.config import OPTIONAL_ENV_VARS as _OPT
     except Exception:
         _OPT = {}
     _non_provider_keys = {
@@ -4042,7 +4042,7 @@ def _catalog_provider_env_metadata() -> dict:
         # AWS-SDK providers (Bedrock) authenticate via the AWS credential chain
         # rather than a pasted API key, so they have no api_key_env_vars. Tag
         # their AWS_* settings to the provider card so they still appear on the
-        # Keys tab (otherwise Bedrock — a `hermes model` provider — would be
+        # Keys tab (otherwise Bedrock — a `sonic model` provider — would be
         # invisible in the desktop app).
         if d.auth_type == "aws_sdk":
             for aws_var in ("AWS_REGION", "AWS_PROFILE"):
@@ -4086,7 +4086,7 @@ async def get_env_vars(profile: Optional[str] = None):
             "channel_managed": var_name in channel_keys,
             # Provider grouping hints derived from the unified provider catalog
             # so the desktop Keys tab groups by the SAME provider identity the
-            # CLI `hermes model` picker uses (not desktop-only prefix guesses).
+            # CLI `sonic model` picker uses (not desktop-only prefix guesses).
             "provider": cat_meta.get("provider", ""),
             "provider_label": cat_meta.get("provider_label", ""),
         }
@@ -5571,7 +5571,7 @@ def _claude_code_only_status() -> Dict[str, Any]:
 def _gemini_cli_status() -> Dict[str, Any]:
     """Status for the google-gemini-cli OAuth provider (Code Assist login)."""
     try:
-        from hermes_cli import auth as hauth
+        from sonic_cli import auth as hauth
         raw = hauth.get_gemini_oauth_auth_status()
     except Exception as e:
         return {"logged_in": False, "error": str(e)}
@@ -5590,7 +5590,7 @@ def _copilot_acp_status() -> Dict[str, Any]:
 
     There is no cheap programmatic credential probe for the ACP subprocess, so
     this is a read-only "managed by the Copilot CLI" card (like claude-code):
-    Hermes never claims a login state it can't verify.
+    Sonic never claims a login state it can't verify.
     """
     return {
         "logged_in": False,
@@ -5668,7 +5668,7 @@ _OAUTH_PROVIDER_CATALOG: tuple[Dict[str, Any], ...] = (
         "id": "google-gemini-cli",
         "name": "Google Gemini (OAuth + Code Assist)",
         "flow": "external",
-        "cli_command": "hermes auth add google-gemini-cli",
+        "cli_command": "sonic auth add google-gemini-cli",
         "docs_url": "https://ai.google.dev/gemini-api/docs",
         "status_fn": _gemini_cli_status,
     },
@@ -5843,14 +5843,14 @@ def _build_oauth_catalog() -> list[Dict[str, Any]]:
          PKCE card and the synthetic claude-code subscription row, which are not
          catalog providers), and
       2. every accounts-tab provider in the unified ``provider_catalog()`` (the
-         ``hermes model`` universe) — so any OAuth/external provider added as a
+         ``sonic model`` universe) — so any OAuth/external provider added as a
          plugin appears automatically, with sensible defaults, even if no
          explicit card was written for it.
 
     The explicit catalog wins on metadata; the unified catalog guarantees we
     never silently drop a provider the CLI picker offers. Order: explicit cards
     first (their curated order), then any catalog-only providers appended in
-    ``hermes model`` order.
+    ``sonic model`` order.
     """
     rows: list[Dict[str, Any]] = []
     seen: set[str] = set()
@@ -5863,9 +5863,9 @@ def _build_oauth_catalog() -> list[Dict[str, Any]]:
         rows.append(dict(entry))
 
     # 2. Catalog accounts-providers not already covered — keeps the Accounts tab
-    #    in lockstep with the `hermes model` universe (zero-edit for new plugins).
+    #    in lockstep with the `sonic model` universe (zero-edit for new plugins).
     try:
-        from hermes_cli.provider_catalog import provider_catalog
+        from sonic_cli.provider_catalog import provider_catalog
         for d in provider_catalog():
             if d.tab != "accounts" or d.slug in seen:
                 continue
@@ -5874,7 +5874,7 @@ def _build_oauth_catalog() -> list[Dict[str, Any]]:
                 "id": d.slug,
                 "name": d.label,
                 "flow": "external",
-                "cli_command": f"hermes auth add {d.slug}",
+                "cli_command": f"sonic auth add {d.slug}",
                 "docs_url": d.signup_url or "",
                 "status_fn": None,
             })
@@ -5905,7 +5905,7 @@ async def list_oauth_providers(profile: Optional[str] = None):
           has_refresh_token bool
 
     Membership is derived from the unified provider_catalog() so this stays in
-    sync with the `hermes model` picker; _OAUTH_OVERRIDES supplies per-provider
+    sync with the `sonic model` picker; _OAUTH_OVERRIDES supplies per-provider
     flow/status/cli metadata.
     """
     with _profile_scope(profile):

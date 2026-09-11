@@ -380,7 +380,7 @@ def resolve_persist_behavior(is_global: bool, is_session: bool) -> bool:
     if is_global:
         return True
     try:
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
 
         model_cfg = load_config().get("model")
         if isinstance(model_cfg, dict):

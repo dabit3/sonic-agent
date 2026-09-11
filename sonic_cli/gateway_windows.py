@@ -1331,7 +1331,7 @@ def restart() -> None:
     doesn't produce a running gateway.
     """
     _assert_windows()
-    from hermes_cli.gateway import kill_gateway_processes
+    from sonic_cli.gateway import kill_gateway_processes
 
     stop()
 
@@ -1351,5 +1351,5 @@ def restart() -> None:
     if not _wait_for_gateway_ready(timeout_s=15.0):
         raise RuntimeError(
             "Gateway restart did not produce a running gateway process. "
-            "Check logs/gateway.log and run `hermes gateway status`."
+            "Check logs/gateway.log and run `sonic gateway status`."
         )
