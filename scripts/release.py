@@ -1644,6 +1644,8 @@ AUTHOR_MAP = {
     "philip.a.dsouza@gmail.com": "PhilipAD",  # direct email match
     "qs2816661685@gmail.com": "qingshan89",  # PR #46895 co-author (desktop remote artifact download)
     "yspdev@gmail.com": "AJ",  # PR #44510 co-author (desktop named-profile boot loop)
+    "daniel.laforce@argobox.com": "KeyArgo",  # co-author
+    "keyargo@argobox.com": "KeyArgo",  # PR #45638 author
 }
 
 
