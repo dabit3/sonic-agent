@@ -24,7 +24,7 @@ import argparse
 import os
 import subprocess
 
-from hermes_cli.config import clear_model_endpoint_credentials
+from sonic_cli.config import clear_model_endpoint_credentials
 
 
 def _prompt_auth_credentials_choice(title: str) -> str:

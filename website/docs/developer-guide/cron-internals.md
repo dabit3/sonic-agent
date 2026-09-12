@@ -115,7 +115,7 @@ The active provider is chosen by the `cron.provider` config key:
   is byte-identical to the pre-provider behavior.
 - **a named provider** (e.g. `chronos`, a managed-cron provider for
   scale-to-zero deployments) → discovered from `plugins/cron/<name>/` or
-  `$HERMES_HOME/plugins/<name>/`.
+  `$SONIC_HOME/plugins/<name>/`.
 
 If a named provider is missing, fails to load, or reports `is_available() ==
 False`, the resolver falls back to the built-in with a warning — **cron is

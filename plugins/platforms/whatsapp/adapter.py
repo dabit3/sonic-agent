@@ -216,7 +216,7 @@ def check_whatsapp_requirements() -> bool:
     
     WhatsApp requires a Node.js bridge for most implementations.
     """
-    # Prefer Hermes-managed Node/npm so Windows installs are not broken by a
+    # Prefer Sonic-managed Node/npm so Windows installs are not broken by a
     # bad or elevation-triggering system Node on PATH.
     _node = find_node_executable("node")
     if not _node:
@@ -408,7 +408,7 @@ class WhatsAppAdapter(WhatsAppBehaviorMixin, BasePlatformAdapter):
             if not _deps_fresh:
                 print(f"[{self.name}] Installing WhatsApp bridge dependencies...")
                 # Resolve npm path so Windows uses npm.cmd from the
-                # Hermes-managed portable Node before falling back to PATH.
+                # Sonic-managed portable Node before falling back to PATH.
                 _npm_bin = find_node_executable("npm") or "npm"
                 try:
                     # Read timeout from environment variable, default to 300 seconds (5 minutes)
@@ -420,7 +420,7 @@ class WhatsAppAdapter(WhatsAppBehaviorMixin, BasePlatformAdapter):
                         capture_output=True,
                         text=True,
                         timeout=npm_install_timeout,
-                        env=with_hermes_node_path(),
+                        env=with_sonic_node_path(),
                     )
                     if install_result.returncode != 0:
                         print(f"[{self.name}] npm install failed: {install_result.stderr}")
@@ -493,8 +493,8 @@ class WhatsAppAdapter(WhatsAppBehaviorMixin, BasePlatformAdapter):
             # Build bridge subprocess environment.
             # Pass WHATSAPP_REPLY_PREFIX from config.yaml so the Node bridge
             # can use it without the user needing to set a separate env var.
-            # with_hermes_node_path() copies os.environ when called with no arg.
-            bridge_env = with_hermes_node_path()
+            # with_sonic_node_path() copies os.environ when called with no arg.
+            bridge_env = with_sonic_node_path()
             if self._reply_prefix is not None:
                 bridge_env["WHATSAPP_REPLY_PREFIX"] = self._reply_prefix
             # Pass the profile-aware cache directories so the bridge writes
@@ -1206,7 +1206,7 @@ class WhatsAppAdapter(WhatsAppBehaviorMixin, BasePlatformAdapter):
 # per-platform core touchpoints (the Platform.WHATSAPP elif in gateway/run.py,
 # the whatsapp_cfg YAML→env block + _PLATFORM_CONNECTED_CHECKERS entry in
 # gateway/config.py, the _setup_whatsapp wizard + _PLATFORMS["whatsapp"] static
-# dict in hermes_cli/gateway.py, and the _send_whatsapp dispatch in
+# dict in sonic_cli/gateway.py, and the _send_whatsapp dispatch in
 # tools/send_message_tool.py).  WhatsApp auth is handled by the Node.js bridge,
 # so is_connected is always True (matches the legacy checker).
 # ──────────────────────────────────────────────────────────────────────────
@@ -1257,12 +1257,12 @@ async def _standalone_send(
 def interactive_setup() -> None:
     """Guide the user through WhatsApp setup.
 
-    Replaces the central _setup_whatsapp in hermes_cli/gateway.py and the
+    Replaces the central _setup_whatsapp in sonic_cli/gateway.py and the
     static _PLATFORMS["whatsapp"] dict. CLI helpers are lazy-imported so the
     plugin's module-load surface stays minimal.
     """
-    from hermes_cli.config import get_env_value, save_env_value
-    from hermes_cli.cli_output import (
+    from sonic_cli.config import get_env_value, save_env_value
+    from sonic_cli.cli_output import (
         prompt,
         prompt_yes_no,
         print_header,
@@ -1341,7 +1341,7 @@ def _is_connected(config) -> bool:
     bridge token here — so the opt-in flag is the connection signal. The legacy
     built-in path keyed off ``WHATSAPP_ENABLED`` in both the connected-platforms
     check and the setup-status display; returning an unconditional True here
-    would make WhatsApp always show as "configured" in ``hermes setup`` even
+    would make WhatsApp always show as "configured" in ``sonic setup`` even
     when the user never enabled it. #41112.
     """
     extra = getattr(config, "extra", {}) or {}
@@ -1349,10 +1349,10 @@ def _is_connected(config) -> bool:
         # An explicitly-enabled PlatformConfig with seeded extras (e.g. from
         # YAML) counts as configured.
         return True
-    # Read via hermes_cli.gateway.get_env_value (not os.getenv) so setup-status
+    # Read via sonic_cli.gateway.get_env_value (not os.getenv) so setup-status
     # callers that patch get_env_value — and the gateway connected-platforms
     # check — observe the same value. Matches the discord/slack plugin pattern.
-    import hermes_cli.gateway as gateway_mod
+    import sonic_cli.gateway as gateway_mod
     val = (gateway_mod.get_env_value("WHATSAPP_ENABLED") or "").strip().lower()
     return val in {"true", "1", "yes"}
 
@@ -1363,7 +1363,7 @@ def _build_adapter(config):
 
 
 def register(ctx) -> None:
-    """Plugin entry point — called by the Hermes plugin system."""
+    """Plugin entry point — called by the Sonic plugin system."""
     ctx.register_platform(
         name="whatsapp",
         label="WhatsApp",

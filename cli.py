@@ -564,13 +564,13 @@ def load_cli_config() -> Dict[str, Any]:
 
     # Managed scope: overlay administrator-pinned values LAST so they win over
     # the user's config here too. cli.py builds its config independently of
-    # hermes_cli.config._load_config_impl (which has its own managed merge), so
+    # sonic_cli.config._load_config_impl (which has its own managed merge), so
     # without this the entire interactive CLI/TUI surface — skin, display prefs,
     # etc. read from CLI_CONFIG — would silently ignore managed scope while
-    # `hermes config`/`doctor`/guards (which use load_config) honor it. The
+    # `sonic config`/`doctor`/guards (which use load_config) honor it. The
     # shared helper mirrors _load_config_impl (env-only expansion, root-model
     # normalization, leaf-merge) and is fail-open.
-    from hermes_cli import managed_scope
+    from sonic_cli import managed_scope
 
     defaults = managed_scope.apply_managed_overlay(defaults)
 

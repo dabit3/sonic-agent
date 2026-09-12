@@ -876,7 +876,7 @@ async def _send_to_platform(platform, pconfig, chat_id, message, thread_id=None,
     # standalone_sender_fn (plugins/platforms/feishu/adapter.py::_standalone_send). #41112
     if platform == Platform.FEISHU and media_files:
         from gateway.platform_registry import platform_registry as _pr_feishu
-        from hermes_cli.plugins import discover_plugins as _dp_feishu
+        from sonic_cli.plugins import discover_plugins as _dp_feishu
         _dp_feishu()
         _feishu_entry = _pr_feishu.get("feishu")
         if _feishu_entry is None or _feishu_entry.standalone_sender_fn is None:
@@ -1216,7 +1216,7 @@ async def _registry_standalone_send(platform_name, pconfig, chat_id, message, th
     ``_standalone_send`` and is reached via the platform registry.
     """
     from gateway.platform_registry import platform_registry
-    from hermes_cli.plugins import discover_plugins
+    from sonic_cli.plugins import discover_plugins
     discover_plugins()  # idempotent — ensure the entry is registered
     entry = platform_registry.get(platform_name)
     if entry is None or entry.standalone_sender_fn is None:

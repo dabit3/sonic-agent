@@ -5223,7 +5223,7 @@ def _qr_register_inner(
 # per-platform core touchpoints (the Platform.FEISHU elif in gateway/run.py,
 # the feishu_cfg YAML→env block + _PLATFORM_CONNECTED_CHECKERS entry in
 # gateway/config.py, the _setup_feishu wizard + _PLATFORMS["feishu"] static
-# dict in hermes_cli/gateway.py, and the _send_feishu dispatch in
+# dict in sonic_cli/gateway.py, and the _send_feishu dispatch in
 # tools/send_message_tool.py).
 # ──────────────────────────────────────────────────────────────────────────
 
@@ -5250,7 +5250,7 @@ async def _standalone_send(
     (images, video, voice, documents). Replaces the legacy _send_feishu helper.
     """
     if not FEISHU_AVAILABLE:
-        return {"error": "Feishu dependencies not installed. Run: pip install 'hermes-agent[feishu]'"}
+        return {"error": "Feishu dependencies not installed. Run: pip install 'sonic-agent[feishu]'"}
 
     media_files = media_files or []
     try:
@@ -5298,12 +5298,12 @@ async def _standalone_send(
 def interactive_setup() -> None:
     """Interactive setup for Feishu / Lark — scan-to-create or manual creds.
 
-    Replaces the central _setup_feishu in hermes_cli/gateway.py and the static
+    Replaces the central _setup_feishu in sonic_cli/gateway.py and the static
     _PLATFORMS["feishu"] dict. CLI helpers are lazy-imported.
     """
-    from hermes_cli.config import get_env_value, save_env_value
-    from hermes_cli.setup import prompt_choice
-    from hermes_cli.cli_output import (
+    from sonic_cli.config import get_env_value, save_env_value
+    from sonic_cli.setup import prompt_choice
+    from sonic_cli.cli_output import (
         prompt,
         prompt_yes_no,
         print_header,
@@ -5423,7 +5423,7 @@ def interactive_setup() -> None:
         save_env_value("FEISHU_ALLOW_ALL_USERS", "false")
         save_env_value("FEISHU_ALLOWED_USERS", "")
         print_success("DM pairing enabled.")
-        print_info("Unknown users can request access; approve with `hermes pairing approve`.")
+        print_info("Unknown users can request access; approve with `sonic pairing approve`.")
     elif access_idx == 1:
         save_env_value("FEISHU_ALLOW_ALL_USERS", "true")
         save_env_value("FEISHU_ALLOWED_USERS", "")
@@ -5489,7 +5489,7 @@ def _build_adapter(config):
 
 
 def register(ctx) -> None:
-    """Plugin entry point — called by the Hermes plugin system."""
+    """Plugin entry point — called by the Sonic plugin system."""
     ctx.register_platform(
         name="feishu",
         label="Feishu / Lark",
@@ -5498,7 +5498,7 @@ def register(ctx) -> None:
         is_connected=_is_connected,
         validate_config=_is_connected,
         required_env=["FEISHU_APP_ID", "FEISHU_APP_SECRET"],
-        install_hint="pip install 'hermes-agent[feishu]'",
+        install_hint="pip install 'sonic-agent[feishu]'",
         setup_fn=interactive_setup,
         apply_yaml_config_fn=_apply_yaml_config,
         allowed_users_env="FEISHU_ALLOWED_USERS",

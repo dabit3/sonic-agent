@@ -311,9 +311,9 @@ def test_model_flow_nous_prints_subscription_guidance_without_mutating_explicit_
 def test_model_flow_nous_does_not_restore_stale_custom_api_key(tmp_path, monkeypatch):
     import yaml
 
-    config_home = tmp_path / "hermes"
+    config_home = tmp_path / "sonic"
     config_home.mkdir()
-    monkeypatch.setenv("HERMES_HOME", str(config_home))
+    monkeypatch.setenv("SONIC_HOME", str(config_home))
 
     config_path = config_home / "config.yaml"
     config_path.write_text(
@@ -335,39 +335,39 @@ def test_model_flow_nous_does_not_restore_stale_custom_api_key(tmp_path, monkeyp
     selected_model = "deepseek/deepseek-v4-flash"
 
     monkeypatch.setattr(
-        "hermes_cli.auth.get_provider_auth_state",
+        "sonic_cli.auth.get_provider_auth_state",
         lambda provider: {
             "access_token": "nous-token",
             "portal_base_url": "https://portal.example.com",
         },
     )
     monkeypatch.setattr(
-        "hermes_cli.auth.resolve_nous_runtime_credentials",
+        "sonic_cli.auth.resolve_nous_runtime_credentials",
         lambda *args, **kwargs: {
             "base_url": "https://inference-api.nousresearch.com/v1",
             "api_key": "nous-key",
         },
     )
     monkeypatch.setattr(
-        "hermes_cli.models.get_curated_nous_model_ids",
+        "sonic_cli.models.get_curated_nous_model_ids",
         lambda: [selected_model],
     )
-    monkeypatch.setattr("hermes_cli.models.get_pricing_for_provider", lambda provider: {})
-    monkeypatch.setattr("hermes_cli.models.check_nous_free_tier", lambda **kwargs: False)
+    monkeypatch.setattr("sonic_cli.models.get_pricing_for_provider", lambda provider: {})
+    monkeypatch.setattr("sonic_cli.models.check_nous_free_tier", lambda **kwargs: False)
     monkeypatch.setattr(
-        "hermes_cli.models.union_with_portal_paid_recommendations",
+        "sonic_cli.models.union_with_portal_paid_recommendations",
         lambda model_ids, pricing, portal_url: (model_ids, pricing),
     )
     monkeypatch.setattr(
-        "hermes_cli.auth._prompt_model_selection",
+        "sonic_cli.auth._prompt_model_selection",
         lambda *args, **kwargs: selected_model,
     )
     monkeypatch.setattr(
-        "hermes_cli.nous_subscription.prompt_enable_tool_gateway",
+        "sonic_cli.nous_subscription.prompt_enable_tool_gateway",
         lambda config: None,
     )
 
-    hermes_main._model_flow_nous(stale_config, current_model="glm-5.2")
+    sonic_main._model_flow_nous(stale_config, current_model="glm-5.2")
 
     config = yaml.safe_load(config_path.read_text()) or {}
     model = config.get("model")
@@ -381,9 +381,9 @@ def test_model_flow_nous_does_not_restore_stale_custom_api_key(tmp_path, monkeyp
 def _seed_stale_custom_model(tmp_path, monkeypatch):
     import yaml
 
-    config_home = tmp_path / "hermes"
+    config_home = tmp_path / "sonic"
     config_home.mkdir()
-    monkeypatch.setenv("HERMES_HOME", str(config_home))
+    monkeypatch.setenv("SONIC_HOME", str(config_home))
     config_path = config_home / "config.yaml"
     config_path.write_text(
         yaml.safe_dump(
@@ -410,21 +410,21 @@ def test_model_flow_openrouter_clears_stale_custom_key(tmp_path, monkeypatch):
     config_path = _seed_stale_custom_model(tmp_path, monkeypatch)
 
     monkeypatch.setattr(
-        "hermes_cli.main._prompt_api_key",
+        "sonic_cli.main._prompt_api_key",
         lambda *args, **kwargs: ("sk-openrouter", False),
     )
     monkeypatch.setattr(
-        "hermes_cli.models.model_ids",
+        "sonic_cli.models.model_ids",
         lambda **kwargs: ["anthropic/claude-sonnet-4.6"],
     )
-    monkeypatch.setattr("hermes_cli.models.get_pricing_for_provider", lambda *a, **k: {})
+    monkeypatch.setattr("sonic_cli.models.get_pricing_for_provider", lambda *a, **k: {})
     monkeypatch.setattr(
-        "hermes_cli.auth._prompt_model_selection",
+        "sonic_cli.auth._prompt_model_selection",
         lambda *args, **kwargs: "anthropic/claude-sonnet-4.6",
     )
-    monkeypatch.setattr("hermes_cli.auth.deactivate_provider", lambda: None)
+    monkeypatch.setattr("sonic_cli.auth.deactivate_provider", lambda: None)
 
-    hermes_main._model_flow_openrouter({}, current_model="glm-5.2")
+    sonic_main._model_flow_openrouter({}, current_model="glm-5.2")
 
     config = yaml.safe_load(config_path.read_text()) or {}
     model = config["model"]
@@ -440,7 +440,7 @@ def test_model_flow_anthropic_clears_stale_custom_key_and_mode(tmp_path, monkeyp
 
     config_path = _seed_stale_custom_model(tmp_path, monkeypatch)
 
-    monkeypatch.setattr("hermes_cli.auth.get_anthropic_key", lambda: "sk-ant-api03-test")
+    monkeypatch.setattr("sonic_cli.auth.get_anthropic_key", lambda: "sk-ant-api03-test")
     monkeypatch.setattr(
         "agent.anthropic_adapter.read_claude_code_credentials",
         lambda: None,
@@ -450,16 +450,16 @@ def test_model_flow_anthropic_clears_stale_custom_key_and_mode(tmp_path, monkeyp
         lambda creds: False,
     )
     monkeypatch.setattr(
-        "hermes_cli.model_setup_flows._prompt_auth_credentials_choice",
+        "sonic_cli.model_setup_flows._prompt_auth_credentials_choice",
         lambda title: "use",
     )
     monkeypatch.setattr(
-        "hermes_cli.auth._prompt_model_selection",
+        "sonic_cli.auth._prompt_model_selection",
         lambda *args, **kwargs: "claude-sonnet-4-6",
     )
-    monkeypatch.setattr("hermes_cli.auth.deactivate_provider", lambda: None)
+    monkeypatch.setattr("sonic_cli.auth.deactivate_provider", lambda: None)
 
-    hermes_main._model_flow_anthropic({}, current_model="glm-5.2")
+    sonic_main._model_flow_anthropic({}, current_model="glm-5.2")
 
     config = yaml.safe_load(config_path.read_text()) or {}
     model = config["model"]

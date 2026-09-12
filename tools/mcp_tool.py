@@ -1241,7 +1241,7 @@ class ElicitationHandler:
 
     Elicitation lets a server ask the client to collect structured input from
     the user mid-tool-call (e.g. payment authorization, OAuth confirmation).
-    Form-mode elicitations are routed through Hermes' existing approval
+    Form-mode elicitations are routed through Sonic' existing approval
     system (``tools.approval.prompt_dangerous_approval``), which surfaces
     the prompt on whichever surface the active session uses -- CLI, TUI,
     Telegram, Slack, etc. URL-mode elicitations are declined as unsupported.
@@ -1334,7 +1334,7 @@ class ElicitationHandler:
         # normalizes the answer to one of accept / decline / cancel.
         #
         # The recv-loop task that fires this callback does NOT inherit
-        # the agent's contextvars (HERMES_SESSION_PLATFORM etc.). When
+        # the agent's contextvars (SONIC_SESSION_PLATFORM etc.). When
         # the MCP tool wrapper captured the agent's context onto
         # owner._pending_call_context we replay it here via
         # contextvars.Context.run so the gateway-platform detection in
@@ -1446,7 +1446,7 @@ class MCPServerTask:
         # contextvars snapshot of the agent task that's currently in
         # session.call_tool(). The MCP recv loop dispatches incoming
         # elicitation/create requests on a SEPARATE asyncio task whose
-        # context doesn't inherit HERMES_SESSION_PLATFORM, so the
+        # context doesn't inherit SONIC_SESSION_PLATFORM, so the
         # elicitation handler has no way to detect the gateway session
         # that triggered the call. Capturing the agent's context here
         # and replaying it inside the elicitation callback restores
@@ -2186,7 +2186,7 @@ class MCPServerTask:
         # Set up elicitation handler if enabled and SDK types are available.
         # Servers use elicitation/create to ask the client for structured
         # input mid-tool-call (e.g. payment authorization). The handler
-        # routes those requests through Hermes' approval system.
+        # routes those requests through Sonic' approval system.
         elicitation_config = config.get("elicitation", {})
         if elicitation_config.get("enabled", True) and _MCP_ELICITATION_TYPES:
             self._elicitation = ElicitationHandler(self.name, elicitation_config, owner=self)

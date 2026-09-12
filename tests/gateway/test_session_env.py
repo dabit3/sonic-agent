@@ -73,15 +73,15 @@ def test_set_session_env_sets_contextvars(monkeypatch):
 
 
 def test_session_source_uses_contextvars(monkeypatch):
-    monkeypatch.delenv("HERMES_SESSION_SOURCE", raising=False)
+    monkeypatch.delenv("SONIC_SESSION_SOURCE", raising=False)
 
     tokens = set_session_vars(source="tool")
 
-    assert get_session_env("HERMES_SESSION_SOURCE") == "tool"
+    assert get_session_env("SONIC_SESSION_SOURCE") == "tool"
 
     clear_session_vars(tokens)
 
-    assert get_session_env("HERMES_SESSION_SOURCE") == ""
+    assert get_session_env("SONIC_SESSION_SOURCE") == ""
 
 
 def test_clear_session_env_restores_previous_state(monkeypatch):

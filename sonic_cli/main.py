@@ -2491,7 +2491,7 @@ def cmd_whatsapp(args):
                 text=True,
                 encoding="utf-8",
                 errors="replace",
-                env=with_hermes_node_path(),
+                env=with_sonic_node_path(),
             )
         except KeyboardInterrupt:
             print("\n  ✗ Install cancelled")
@@ -2556,7 +2556,7 @@ def cmd_whatsapp(args):
                 str(session_dir),
             ],
             cwd=str(bridge_dir),
-            env=with_hermes_node_path(),
+            env=with_sonic_node_path(),
         )
     except KeyboardInterrupt:
         pass
@@ -4779,7 +4779,7 @@ def _build_web_ui(web_dir: Path, *, fatal: bool = False) -> bool:
             encoding = getattr(sys.stdout, "encoding", None) or "ascii"
             print(text.encode(encoding, errors="replace").decode(encoding, errors="replace"))
 
-    from hermes_constants import find_node_executable, with_hermes_node_path
+    from sonic_constants import find_node_executable, with_sonic_node_path
 
     npm = find_node_executable("npm")
     if not npm:
@@ -4787,7 +4787,7 @@ def _build_web_ui(web_dir: Path, *, fatal: bool = False) -> bool:
             _say("Web UI frontend not built and npm is not available.")
             _say("Install Node.js, then run:  cd web && npm install && npm run build")
         return not fatal
-    build_env = with_hermes_node_path()
+    build_env = with_sonic_node_path()
     _say("→ Building web UI...")
 
     def _relay(result: "subprocess.CompletedProcess") -> None:
@@ -5220,7 +5220,7 @@ def _redownload_electron_dist(
     installer = electron_dir / "install.js"
     if not installer.is_file():
         return False
-    from hermes_constants import find_node_executable, with_hermes_node_path
+    from sonic_constants import find_node_executable, with_sonic_node_path
 
     node = find_node_executable("node")
     if not node:
@@ -5233,7 +5233,7 @@ def _redownload_electron_dist(
     except OSError:
         pass
 
-    dl_env = with_hermes_node_path(env)
+    dl_env = with_sonic_node_path(env)
     if mirror:
         dl_env["ELECTRON_MIRROR"] = mirror
     try:
@@ -5413,10 +5413,10 @@ def cmd_gui(args: argparse.Namespace):
     except Exception:
         pass
 
-    from hermes_constants import find_node_executable, with_hermes_node_path
+    from sonic_constants import find_node_executable, with_sonic_node_path
 
-    # with_hermes_node_path() copies os.environ when called with no arg.
-    env = with_hermes_node_path()
+    # with_sonic_node_path() copies os.environ when called with no arg.
+    env = with_sonic_node_path()
     if getattr(args, "fake_boot", False):
         env["SONIC_DESKTOP_BOOT_FAKE"] = "1"
     if getattr(args, "ignore_existing", False):
@@ -7665,7 +7665,7 @@ def _ensure_uv_for_termux(pip_cmd: list[str]) -> str | None:
 
 
 def _update_node_dependencies() -> None:
-    from hermes_constants import find_node_executable, with_hermes_node_path
+    from sonic_constants import find_node_executable, with_sonic_node_path
 
     npm = find_node_executable("npm")
     if not npm:
@@ -7684,7 +7684,7 @@ def _update_node_dependencies() -> None:
     print("→ Updating Node.js dependencies...")
     extra_args = ["--no-fund", "--no-audit", "--progress=false"]
 
-    nixos_env = with_hermes_node_path(_nixos_build_env())
+    nixos_env = with_sonic_node_path(_nixos_build_env())
 
     # Step 1: root install (no workspace recursion).
     root_args = [*extra_args, "--workspaces=false"]
@@ -9052,7 +9052,7 @@ def _cmd_update_impl(args, gateway_mode: bool):
         # Electron build by ``sonic update``.
         desktop_dir = PROJECT_ROOT / "apps" / "desktop"
         has_desktop_app = _desktop_packaged_executable(desktop_dir) is not None or _desktop_dist_exists(desktop_dir)
-        from hermes_constants import find_node_executable
+        from sonic_constants import find_node_executable
 
         if (desktop_dir / "package.json").exists() and find_node_executable("npm") and has_desktop_app:
             print("→ Checking if desktop app needs rebuilding...")

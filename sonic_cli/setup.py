@@ -2864,7 +2864,7 @@ def run_setup_wizard(args):
             _run_first_time_quick_setup(config, sonic_home, is_existing)
             return
         if setup_mode == 2:
-            _run_blank_slate_setup(config, hermes_home, is_existing)
+            _run_blank_slate_setup(config, sonic_home, is_existing)
             return
 
     # ── Full Setup — run all sections ──

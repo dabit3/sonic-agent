@@ -93,9 +93,9 @@ def _session_source_for_agent(platform: Optional[str]) -> str:
     try:
         from gateway.session_context import get_session_env
 
-        source = get_session_env("HERMES_SESSION_SOURCE", "")
+        source = get_session_env("SONIC_SESSION_SOURCE", "")
     except Exception:
-        source = os.environ.get("HERMES_SESSION_SOURCE", "")
+        source = os.environ.get("SONIC_SESSION_SOURCE", "")
     source = str(source or "").strip()
     if source:
         return source

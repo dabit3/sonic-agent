@@ -206,13 +206,13 @@ def wait_for_mcp_discovery(timeout: "float | None" = None) -> None:
     waited on beyond the bound.  No-op when no discovery thread was started.
 
     The bound comes from ``mcp_discovery_timeout`` in config (shared with the
-    CLI path via ``hermes_cli.mcp_startup``); ``timeout`` overrides it.
+    CLI path via ``sonic_cli.mcp_startup``); ``timeout`` overrides it.
     """
     thread = _mcp_discovery_thread
     if thread is None or not thread.is_alive():
         return
     try:
-        from hermes_cli.mcp_startup import _resolve_discovery_timeout
+        from sonic_cli.mcp_startup import _resolve_discovery_timeout
 
         bound = _resolve_discovery_timeout(timeout)
     except Exception:

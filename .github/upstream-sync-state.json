@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "9a24e41d0f6efa0705fd1b451376d5f42130ea93",
-  "synced_at": "2026-09-11T16:31:41Z",
-  "notes": "Partial sync: batch 13 ports the 80 first-parent commits after a64fc490, ending at 9a24e41d (0 skipped). Manual conflicts: uv.lock (python-multipart 0.0.20->0.0.27 block swap), generated skill docs + website/sidebars.ts for the html-artifact skill add (9362ce25) and its upstream revert (92451151) \u2014 Sonic sidebar kept, nix/lib.nix (upstream importNpmLock replaces npmDepsHash \u2014 no more hash refreshes), scripts/release.py AUTHOR_MAP union. Remaining backlog is approximately 14,400 first-parent commits; each daily run advances the baseline by a reviewable batch."
+  "last_synced_upstream_sha": "ac83365d9602d4a2d4dfd79f221432e599ef95f9",
+  "synced_at": "2026-09-12T16:04:05Z",
+  "notes": "Partial sync: batch 14 ports the 80 first-parent commits after 9a24e41d, ending at ac83365d (0 skipped). Manual conflicts: uv.lock (v0.17.0 version bump applied to Sonic's sonic-agent project block), sonic_cli/setup.py (took upstream's removal of the per-platform _setup_* wizards, which moved into plugins/platforms/*/adapter.py). Remaining backlog is approximately 14,750 first-parent commits; each daily run advances the baseline by a reviewable batch."
 }

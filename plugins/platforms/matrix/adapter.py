@@ -4116,7 +4116,7 @@ class MatrixAdapter(BasePlatformAdapter):
 # register(ctx) entry point plus hook implementations that replace the
 # per-platform core touchpoints (the Platform.MATRIX elif in gateway/run.py,
 # the matrix_cfg YAML→env block in gateway/config.py, the _setup_matrix wizard
-# + _PLATFORMS["matrix"] static dict in hermes_cli/{setup,gateway}.py, and the
+# + _PLATFORMS["matrix"] static dict in sonic_cli/{setup,gateway}.py, and the
 # _send_matrix dispatch in tools/send_message_tool.py).  Matrix uses the
 # generic token/api_key connected check, so no is_connected override is needed.
 # ──────────────────────────────────────────────────────────────────────────
@@ -4149,7 +4149,7 @@ async def _standalone_send(
         token = token or os.getenv("MATRIX_ACCESS_TOKEN", "")
         if not homeserver or not token:
             return {"error": "Matrix not configured (MATRIX_HOMESERVER, MATRIX_ACCESS_TOKEN required)"}
-        txn_id = f"hermes_{int(time.time() * 1000)}_{os.urandom(4).hex()}"
+        txn_id = f"sonic_{int(time.time() * 1000)}_{os.urandom(4).hex()}"
         from urllib.parse import quote
         encoded_room = quote(chat_id, safe="")
         url = f"{homeserver}/_matrix/client/v3/rooms/{encoded_room}/send/m.room.message/{txn_id}"
@@ -4177,12 +4177,12 @@ async def _standalone_send(
 
 
 def interactive_setup() -> None:
-    """Configure Matrix credentials. Replaces hermes_cli/setup.py::_setup_matrix
+    """Configure Matrix credentials. Replaces sonic_cli/setup.py::_setup_matrix
     and the static _PLATFORMS["matrix"] dict. CLI helpers are lazy-imported."""
     import shutil
     import sys as _sys
-    from hermes_cli.config import get_env_value, save_env_value
-    from hermes_cli.cli_output import (
+    from sonic_cli.config import get_env_value, save_env_value
+    from sonic_cli.cli_output import (
         prompt,
         prompt_yes_no,
         print_header,
@@ -4277,7 +4277,7 @@ def interactive_setup() -> None:
         else:
             print_info("⚠️  No allowlist set - anyone who can message the bot can use it!")
 
-        print_info("📬 Home Room: where Hermes delivers cron job results and notifications.")
+        print_info("📬 Home Room: where Sonic delivers cron job results and notifications.")
         print_info("   Room IDs look like !abc123:server (shown in Element room settings)")
         print_info("   You can also set this later by typing /set-home in a Matrix room.")
         home_room = prompt("Home room ID (leave empty to set later with /set-home)")
@@ -4327,7 +4327,7 @@ def _apply_yaml_config(yaml_cfg: dict, matrix_cfg: dict) -> dict | None:
 
 def _is_connected(config) -> bool:
     """Matrix is connected when a homeserver + access token (or password) are
-    configured. Read via hermes_cli.gateway.get_env_value so setup-status
+    configured. Read via sonic_cli.gateway.get_env_value so setup-status
     callers that patch get_env_value observe the same value, and PlatformConfig
     extras (homeserver) are honored too. As a built-in, Matrix used the generic
     token check; as a plugin it needs an explicit is_connected so
@@ -4335,7 +4335,7 @@ def _is_connected(config) -> bool:
     rather than mere SDK presence. #41112.
     """
     extra = getattr(config, "extra", {}) or {}
-    import hermes_cli.gateway as gateway_mod
+    import sonic_cli.gateway as gateway_mod
     homeserver = extra.get("homeserver") or gateway_mod.get_env_value("MATRIX_HOMESERVER") or ""
     token = (
         getattr(config, "token", None)
@@ -4352,7 +4352,7 @@ def _build_adapter(config):
 
 
 def register(ctx) -> None:
-    """Plugin entry point — called by the Hermes plugin system."""
+    """Plugin entry point — called by the Sonic plugin system."""
     ctx.register_platform(
         name="matrix",
         label="Matrix",

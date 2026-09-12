@@ -168,7 +168,7 @@ class TestHandleTitleCommand:
     @pytest.mark.asyncio
     async def test_set_title_propagates_to_telegram_topic_rename(self, tmp_path):
         """/title <name> also renames the visible Telegram topic, not just the DB."""
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
         db = SessionDB(db_path=tmp_path / "state.db")
         db.create_session("test_session_123", "telegram")
 
@@ -187,7 +187,7 @@ class TestHandleTitleCommand:
     @pytest.mark.asyncio
     async def test_show_title_does_not_rename_topic(self, tmp_path):
         """Showing the title (no arg) must not trigger a topic rename."""
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
         db = SessionDB(db_path=tmp_path / "state.db")
         db.create_session("test_session_123", "telegram")
         db.set_session_title("test_session_123", "Existing Title")

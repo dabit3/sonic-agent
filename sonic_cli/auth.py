@@ -6399,7 +6399,7 @@ def _update_config_for_provider(
     # Clear stale endpoint credentials left over from a previous custom provider.
     # Built-in providers resolve credentials from env/auth state, not inline
     # model.api_key.
-    from hermes_cli.config import clear_model_endpoint_credentials
+    from sonic_cli.config import clear_model_endpoint_credentials
 
     clear_model_endpoint_credentials(model_cfg)
 

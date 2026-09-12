@@ -575,18 +575,18 @@ def compress_context(
 
                     set_current_session_id(agent.session_id)
                 except Exception:
-                    os.environ["HERMES_SESSION_ID"] = agent.session_id
+                    os.environ["SONIC_SESSION_ID"] = agent.session_id
                 # The gateway/tools session context (ContextVar + env) and the
                 # logging session context are SEPARATE mechanisms. The call above
                 # moves the former; the ``[session_id]`` tag on log lines comes
-                # from ``hermes_logging._session_context`` (set once per turn in
+                # from ``sonic_logging._session_context`` (set once per turn in
                 # conversation_loop.py). Without this, post-rotation log lines in
                 # the same turn keep the STALE old id while the message/DB/gateway
                 # state carry the new one — breaking log correlation exactly at the
                 # compaction boundary (see #34089). Guarded separately so a logging
                 # failure can never regress the routing update above.
                 try:
-                    from hermes_logging import set_session_context
+                    from sonic_logging import set_session_context
 
                     set_session_context(agent.session_id)
                 except Exception:
@@ -594,7 +594,7 @@ def compress_context(
                 agent._session_db_created = False
                 agent._session_db.create_session(
                     session_id=agent.session_id,
-                    source=agent.platform or os.environ.get("HERMES_SESSION_SOURCE", "cli"),
+                    source=agent.platform or os.environ.get("SONIC_SESSION_SOURCE", "cli"),
                     model=agent.model,
                     model_config=agent._session_init_model_config,
                     parent_session_id=old_session_id,

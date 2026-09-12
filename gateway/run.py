@@ -943,7 +943,7 @@ def _strip_dangling_tool_call_tail(
     """Strip a trailing ``assistant(tool_calls)`` block left with NO answers.
 
     When a tool call itself kills the gateway process (``docker restart``,
-    ``systemctl restart``, ``kill``, ``hermes gateway restart``), the process
+    ``systemctl restart``, ``kill``, ``sonic gateway restart``), the process
     is terminated by SIGKILL *mid-call* — before the tool result is ever
     written and before the orderly shutdown rewind
     (``_drop_trailing_empty_response_scaffolding``) can run.  The last thing
@@ -1275,7 +1275,7 @@ def _bridge_max_turns_from_config(home: "Path") -> None:
         # overlay a managed agent.max_turns / timezone / redact_secrets would be
         # replaced by the user's value after the first turn. Fail-open.
         try:
-            from hermes_cli import managed_scope
+            from sonic_cli import managed_scope
             cfg = managed_scope.apply_managed_overlay(cfg)
         except Exception:
             pass
@@ -1379,10 +1379,10 @@ if _config_path.exists():
         # env vars, so a managed timezone / redact_secrets / max_turns / terminal
         # setting wins over the user's value at the env layer too. This bridge
         # reads config.yaml directly (not via load_config), so without the
-        # overlay every HERMES_*/TERMINAL_* env var below would carry the user's
+        # overlay every SONIC_*/TERMINAL_* env var below would carry the user's
         # value even when an administrator pinned it. Fail-open via the helper.
         try:
-            from hermes_cli import managed_scope
+            from sonic_cli import managed_scope
             _cfg = managed_scope.apply_managed_overlay(_cfg)
         except Exception:
             pass
@@ -2091,7 +2091,7 @@ def _load_gateway_config() -> dict:
     # so the overlay is required on both paths for the gateway to honor pinned
     # values. Helper is fail-open and a no-op when no managed scope exists.
     try:
-        from hermes_cli import managed_scope
+        from sonic_cli import managed_scope
         raw = managed_scope.apply_managed_overlay(raw if isinstance(raw, dict) else {})
     except Exception:
         pass
@@ -17037,7 +17037,7 @@ def _start_cron_ticker(stop_event: threading.Event, adapters=None, loop=None, in
     (``cron.scheduler_provider``); the gateway resolves a provider and runs its
     ``start()`` directly (see ``start_gateway``). This shim runs ONLY the
     built-in in-process tick loop, exactly as before, for any external caller
-    or test that still references this symbol (e.g. hermes_cli/debug.py). It no
+    or test that still references this symbol (e.g. sonic_cli/debug.py). It no
     longer runs gateway housekeeping — that moved to
     ``_start_gateway_housekeeping``.
     """

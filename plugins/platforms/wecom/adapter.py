@@ -1644,7 +1644,7 @@ def qr_scan_for_bot_info(
 # plugin. register() exposes BOTH platforms via the registry, replacing the
 # Platform.WECOM / Platform.WECOM_CALLBACK elifs in gateway/run.py, the
 # _PLATFORM_CONNECTED_CHECKERS entries in gateway/config.py, the _setup_wecom
-# wizard + _PLATFORMS["wecom"] static dict in hermes_cli/gateway.py, and the
+# wizard + _PLATFORMS["wecom"] static dict in sonic_cli/gateway.py, and the
 # _send_wecom dispatch in tools/send_message_tool.py. Env→PlatformConfig
 # seeding stays in core, same as prior migrations.
 # ──────────────────────────────────────────────────────────────────────────
@@ -1692,12 +1692,12 @@ async def _standalone_send(
 def interactive_setup() -> None:
     """Interactive setup for WeCom — QR scan or manual credential input.
 
-    Replaces hermes_cli/gateway.py::_setup_wecom and the static
+    Replaces sonic_cli/gateway.py::_setup_wecom and the static
     _PLATFORMS["wecom"] dict. CLI helpers are lazy-imported.
     """
-    from hermes_cli.config import get_env_value, save_env_value
-    from hermes_cli.setup import prompt_choice
-    from hermes_cli.cli_output import (
+    from sonic_cli.config import get_env_value, save_env_value
+    from sonic_cli.setup import prompt_choice
+    from sonic_cli.cli_output import (
         prompt,
         prompt_yes_no,
         print_header,
@@ -1773,7 +1773,7 @@ def interactive_setup() -> None:
             "How should unauthorized users be handled?",
             [
                 "Enable open access (anyone can message the bot)",
-                "Use DM pairing (unknown users request access, you approve with 'hermes pairing approve')",
+                "Use DM pairing (unknown users request access, you approve with 'sonic pairing approve')",
                 "Disable direct messages",
                 "Skip for now (bot will deny all users until configured)",
             ],
@@ -1786,12 +1786,12 @@ def interactive_setup() -> None:
         elif access_idx == 1:
             save_env_value("WECOM_DM_POLICY", "pairing")
             print_success("DM pairing mode — users will receive a code to request access.")
-            print_info("Approve with: hermes pairing approve <platform> <code>")
+            print_info("Approve with: sonic pairing approve <platform> <code>")
         elif access_idx == 2:
             save_env_value("WECOM_DM_POLICY", "disabled")
             print_warning("Direct messages disabled.")
         else:
-            print_info("Skipped — configure later with 'hermes gateway setup'")
+            print_info("Skipped — configure later with 'sonic gateway setup'")
 
     home = prompt("Home chat ID (optional, for cron/notifications)", password=False)
     if home:
@@ -1837,7 +1837,7 @@ def register(ctx) -> None:
         is_connected=_is_connected,
         validate_config=_is_connected,
         required_env=["WECOM_BOT_ID", "WECOM_SECRET"],
-        install_hint="pip install 'hermes-agent[wecom]'",
+        install_hint="pip install 'sonic-agent[wecom]'",
         setup_fn=interactive_setup,
         allowed_users_env="WECOM_ALLOWED_USERS",
         allow_all_env="WECOM_ALLOW_ALL_USERS",
@@ -1857,7 +1857,7 @@ def register(ctx) -> None:
         is_connected=_callback_is_connected,
         validate_config=_callback_is_connected,
         required_env=["WECOM_CALLBACK_CORP_ID", "WECOM_CALLBACK_CORP_SECRET"],
-        install_hint="pip install 'hermes-agent[wecom]'",
+        install_hint="pip install 'sonic-agent[wecom]'",
         allowed_users_env="WECOM_CALLBACK_ALLOWED_USERS",
         allow_all_env="WECOM_CALLBACK_ALLOW_ALL_USERS",
         emoji="💼",

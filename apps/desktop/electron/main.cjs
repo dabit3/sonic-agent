@@ -151,7 +151,7 @@ if (REMOTE_DISPLAY_REASON) {
   )
 }
 
-ipcMain.handle('hermes:get-remote-display-reason', () => REMOTE_DISPLAY_REASON)
+ipcMain.handle('sonic:get-remote-display-reason', () => REMOTE_DISPLAY_REASON)
 
 // Keep the renderer running at full speed while the window is in the background
 // or occluded. The chat transcript streams to screen through a

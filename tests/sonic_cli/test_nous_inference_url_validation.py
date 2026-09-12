@@ -228,13 +228,13 @@ class TestHealsPoisonedStoredValue:
     """
 
     def test_refresh_resets_rejected_url_to_default(self, monkeypatch):
-        import hermes_cli.auth as auth
+        import sonic_cli.auth as auth
 
         poisoned = "https://stg-inference-api.nousresearch.com/v1"
         state = {
             "access_token": "tok",
             "refresh_token": "rtok",
-            "client_id": "hermes-cli",
+            "client_id": "sonic-cli",
             "portal_base_url": auth.DEFAULT_NOUS_PORTAL_URL,
             "inference_base_url": poisoned,
         }
@@ -265,13 +265,13 @@ class TestHealsPoisonedStoredValue:
 
     def test_refresh_keeps_valid_url(self, monkeypatch):
         """A legitimate allowlisted URL from the Portal is preserved."""
-        import hermes_cli.auth as auth
+        import sonic_cli.auth as auth
 
         good = "https://inference-api.nousresearch.com/v1"
         state = {
             "access_token": "tok",
             "refresh_token": "rtok",
-            "client_id": "hermes-cli",
+            "client_id": "sonic-cli",
             "portal_base_url": auth.DEFAULT_NOUS_PORTAL_URL,
             "inference_base_url": good,
         }

@@ -589,7 +589,7 @@ class GatewayConfig:
         try:
             from gateway.platform_registry import platform_registry
             try:
-                from hermes_cli.plugins import discover_plugins
+                from sonic_cli.plugins import discover_plugins
                 discover_plugins()
             except Exception:
                 pass
@@ -808,10 +808,10 @@ def load_gateway_config() -> GatewayConfig:
 
             # Managed scope: overlay administrator-pinned values so the gateway
             # honors them too. This loader builds its own dict instead of going
-            # through hermes_cli.config.load_config, so without this a managed
+            # through sonic_cli.config.load_config, so without this a managed
             # session_reset / quick_commands / stt / model would be ignored by
             # the messaging gateway. Fail-open via the shared helper.
-            from hermes_cli import managed_scope
+            from sonic_cli import managed_scope
             yaml_cfg = managed_scope.apply_managed_overlay(yaml_cfg)
 
             # Map config.yaml keys → GatewayConfig.from_dict() schema.

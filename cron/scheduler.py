@@ -976,7 +976,7 @@ def _run_job_script(script_path: str) -> tuple[bool, str]:
     (the `memory-watchdog.sh` pattern) without wrapping them in Python.
 
     Subprocess environment is passed through ``_sanitize_subprocess_env`` so
-    provider credentials and other Hermes-managed secrets are not inherited
+    provider credentials and other Sonic-managed secrets are not inherited
     (SECURITY.md §2.3), matching terminal and MCP child processes.
 
     Args:
@@ -1667,7 +1667,7 @@ def run_job(job: dict) -> tuple[bool, str, str, Optional[str]]:
                 # builds its own dict, so overlay managed values via the shared
                 # helper (fail-open, no-op when no managed scope).
                 try:
-                    from hermes_cli import managed_scope
+                    from sonic_cli import managed_scope
                     _cfg = managed_scope.apply_managed_overlay(_cfg)
                 except Exception:
                     pass

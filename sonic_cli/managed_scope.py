@@ -138,8 +138,8 @@ def apply_managed_overlay(config: dict) -> dict:
     """Overlay administrator-pinned config values on top of an already-built dict.
 
     The single, shared way for any config loader that builds its own dict
-    (rather than going through hermes_cli.config.load_config) to honor managed
-    scope. Mirrors hermes_cli.config._load_config_impl's managed merge exactly:
+    (rather than going through sonic_cli.config.load_config) to honor managed
+    scope. Mirrors sonic_cli.config._load_config_impl's managed merge exactly:
 
       * expand the managed config's ``${VAR}`` refs against the PROCESS env only
         (never user-config-defined refs), so a user cannot shadow a managed
@@ -159,7 +159,7 @@ def apply_managed_overlay(config: dict) -> dict:
         if not managed:
             return config
         # Imported lazily to avoid an import cycle (config imports managed_scope).
-        from hermes_cli.config import _deep_merge, _expand_env_vars, _normalize_root_model_keys
+        from sonic_cli.config import _deep_merge, _expand_env_vars, _normalize_root_model_keys
 
         managed_expanded = _normalize_root_model_keys(_expand_env_vars(managed))
         # A bare ``model: x/y`` string in the managed file must merge as

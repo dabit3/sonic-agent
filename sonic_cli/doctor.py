@@ -2180,7 +2180,7 @@ def run_doctor(args):
             with open(_mem_cfg_path, encoding="utf-8") as _f:
                 _raw_cfg = _yaml.safe_load(_f) or {}
             try:
-                from hermes_cli import managed_scope
+                from sonic_cli import managed_scope
                 _raw_cfg = managed_scope.apply_managed_overlay(_raw_cfg)
             except Exception:
                 pass

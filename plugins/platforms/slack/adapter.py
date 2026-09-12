@@ -3826,7 +3826,7 @@ class SlackAdapter(BasePlatformAdapter):
 # the per-platform core touchpoints (the ``Platform.SLACK`` elif in
 # ``gateway/run.py``, the ``slack_cfg`` YAML→env block in ``gateway/config.py``,
 # the ``_setup_slack`` wizard + ``_PLATFORMS["slack"]`` static dict in
-# ``hermes_cli/{setup,gateway}.py``, and the ``_send_slack`` dispatch in
+# ``sonic_cli/{setup,gateway}.py``, and the ``_send_slack`` dispatch in
 # ``tools/send_message_tool.py``).
 # ──────────────────────────────────────────────────────────────────────────
 
@@ -3909,11 +3909,11 @@ def interactive_setup() -> None:
     Mirrors Discord's ``interactive_setup`` shape: lazy-imports CLI helpers so
     the plugin's import surface stays small, generates and writes the Slack app
     manifest, prompts for the bot + app tokens, captures an allowlist, and
-    offers to set a home channel. Replaces ``hermes_cli/setup.py::_setup_slack``.
+    offers to set a home channel. Replaces ``sonic_cli/setup.py::_setup_slack``.
     """
     from pathlib import Path
-    from hermes_cli.config import get_env_value, save_env_value
-    from hermes_cli.cli_output import (
+    from sonic_cli.config import get_env_value, save_env_value
+    from sonic_cli.cli_output import (
         prompt,
         prompt_yes_no,
         print_header,
@@ -3923,18 +3923,18 @@ def interactive_setup() -> None:
     )
 
     def _write_slack_manifest_and_instruct() -> None:
-        """Generate the Slack manifest, write it under HERMES_HOME, and print
+        """Generate the Slack manifest, write it under SONIC_HOME, and print
         paste-into-Slack instructions. Failures are non-fatal."""
         try:
-            from hermes_cli.slack_cli import _build_full_manifest
-            from hermes_constants import get_hermes_home
+            from sonic_cli.slack_cli import _build_full_manifest
+            from sonic_constants import get_sonic_home
             import json as _json
 
             manifest = _build_full_manifest(
-                bot_name="Hermes",
-                bot_description="Your Hermes agent on Slack",
+                bot_name="Sonic",
+                bot_description="Your Sonic agent on Slack",
             )
-            target = Path(get_hermes_home()) / "slack-manifest.json"
+            target = Path(get_sonic_home()) / "slack-manifest.json"
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(
                 _json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
@@ -3947,8 +3947,8 @@ def interactive_setup() -> None:
                 "reinstall if scopes or slash commands changed."
             )
             print_info(
-                "   Re-run `hermes slack manifest --write` anytime to refresh after "
-                "Hermes adds new commands."
+                "   Re-run `sonic slack manifest --write` anytime to refresh after "
+                "Sonic adds new commands."
             )
         except Exception as e:
             print_warning(f"Could not write Slack manifest: {e}")
@@ -3962,7 +3962,7 @@ def interactive_setup() -> None:
             # new commands (e.g. /btw, /stop, ...) get registered in Slack.
             if prompt_yes_no(
                 "Regenerate the Slack app manifest with the latest command "
-                "list? (recommended after `hermes update`)",
+                "list? (recommended after `sonic update`)",
                 True,
             ):
                 _write_slack_manifest_and_instruct()
@@ -3976,7 +3976,7 @@ def interactive_setup() -> None:
     print_info("   3. Install to Workspace: Settings → Install App")
     print_info("   4. After installing, invite the bot to channels: /invite @YourBot")
     print()
-    print_info("   Full guide: https://hermes-agent.nousresearch.com/docs/user-guide/messaging/slack/")
+    print_info("   Full guide: https://lightning-agent.nousresearch.com/docs/user-guide/messaging/slack/")
     print()
 
     # Generate and write manifest up-front so the user can paste it into
@@ -4009,7 +4009,7 @@ def interactive_setup() -> None:
         print_info("   Set SLACK_ALLOW_ALL_USERS=true or GATEWAY_ALLOW_ALL_USERS=true only if you intentionally want open workspace access.")
 
     print()
-    print_info("📬 Home Channel: where Hermes delivers cron job results,")
+    print_info("📬 Home Channel: where Sonic delivers cron job results,")
     print_info("   cross-platform messages, and notifications.")
     print_info("   To get a channel ID: open the channel in Slack, then right-click")
     print_info("   the channel name → Copy link — the ID starts with C (e.g. C01ABC2DE3F).")
@@ -4059,12 +4059,12 @@ def _apply_yaml_config(yaml_cfg: dict, slack_cfg: dict) -> dict | None:
 def _is_connected(config) -> bool:
     """Slack is considered connected when SLACK_BOT_TOKEN is set.
 
-    Looks up via ``hermes_cli.gateway.get_env_value`` at call time (not via the
+    Looks up via ``sonic_cli.gateway.get_env_value`` at call time (not via the
     plugin's own bound import) so tests that patch ``gateway_mod.get_env_value``
     can suppress ambient ``SLACK_BOT_TOKEN`` env vars. Matches what the legacy
     ``Platform.SLACK`` connected-check did before this migration.
     """
-    import hermes_cli.gateway as gateway_mod
+    import sonic_cli.gateway as gateway_mod
 
     return bool((gateway_mod.get_env_value("SLACK_BOT_TOKEN") or "").strip())
 
@@ -4075,7 +4075,7 @@ def _build_adapter(config):
 
 
 def register(ctx) -> None:
-    """Plugin entry point — called by the Hermes plugin system."""
+    """Plugin entry point — called by the Sonic plugin system."""
     ctx.register_platform(
         name="slack",
         label="Slack",
@@ -4083,9 +4083,9 @@ def register(ctx) -> None:
         check_fn=check_slack_requirements,
         is_connected=_is_connected,
         required_env=["SLACK_BOT_TOKEN", "SLACK_APP_TOKEN"],
-        install_hint="pip install 'hermes-agent[slack]'",
-        # Interactive setup wizard — replaces hermes_cli/setup.py::_setup_slack
-        # and the static _PLATFORMS["slack"] dict in hermes_cli/gateway.py.
+        install_hint="pip install 'sonic-agent[slack]'",
+        # Interactive setup wizard — replaces sonic_cli/setup.py::_setup_slack
+        # and the static _PLATFORMS["slack"] dict in sonic_cli/gateway.py.
         setup_fn=interactive_setup,
         # YAML→env config bridge — owns the translation of config.yaml slack:
         # keys (require_mention, strict_mention, allow_bots,

@@ -15,7 +15,7 @@ from sonic_constants import (
     is_container,
     parse_reasoning_effort,
     secure_parent_dir,
-    with_hermes_node_path,
+    with_sonic_node_path,
 )
 
 
@@ -108,39 +108,39 @@ class TestGetSonicHome:
         assert get_sonic_home() == local_appdata / "sonic"
 
 
-class TestHermesManagedNode:
+class TestSonicManagedNode:
     def test_windows_node_dir_prefers_portable_root(self, tmp_path, monkeypatch):
-        home = tmp_path / "hermes"
+        home = tmp_path / "sonic"
         node_dir = home / "node"
         bin_dir = node_dir / "bin"
         node_dir.mkdir(parents=True)
         bin_dir.mkdir()
-        monkeypatch.setattr(hermes_constants.sys, "platform", "win32")
-        monkeypatch.setenv("HERMES_HOME", str(home))
+        monkeypatch.setattr(sonic_constants.sys, "platform", "win32")
+        monkeypatch.setenv("SONIC_HOME", str(home))
 
-        assert iter_hermes_node_dirs() == [node_dir, bin_dir]
+        assert iter_sonic_node_dirs() == [node_dir, bin_dir]
 
     def test_windows_finds_npm_cmd_before_path(self, tmp_path, monkeypatch):
-        home = tmp_path / "hermes"
+        home = tmp_path / "sonic"
         node_dir = home / "node"
         node_dir.mkdir(parents=True)
         npm_cmd = node_dir / "npm.cmd"
         npm_cmd.write_text("@echo off\n")
-        monkeypatch.setattr(hermes_constants.sys, "platform", "win32")
-        monkeypatch.setenv("HERMES_HOME", str(home))
+        monkeypatch.setattr(sonic_constants.sys, "platform", "win32")
+        monkeypatch.setenv("SONIC_HOME", str(home))
 
-        assert find_hermes_node_executable("npm") == str(npm_cmd)
+        assert find_sonic_node_executable("npm") == str(npm_cmd)
 
-    def test_with_hermes_node_path_prepends_existing_managed_dirs(self, tmp_path, monkeypatch):
-        home = tmp_path / "hermes"
+    def test_with_sonic_node_path_prepends_existing_managed_dirs(self, tmp_path, monkeypatch):
+        home = tmp_path / "sonic"
         node_dir = home / "node"
         bin_dir = node_dir / "bin"
         node_dir.mkdir(parents=True)
         bin_dir.mkdir()
-        monkeypatch.setattr(hermes_constants.sys, "platform", "win32")
-        monkeypatch.setenv("HERMES_HOME", str(home))
+        monkeypatch.setattr(sonic_constants.sys, "platform", "win32")
+        monkeypatch.setenv("SONIC_HOME", str(home))
 
-        env = with_hermes_node_path({"PATH": "system-node"})
+        env = with_sonic_node_path({"PATH": "system-node"})
         parts = env["PATH"].split(os.pathsep)
 
         assert parts[:2] == [str(node_dir), str(bin_dir)]

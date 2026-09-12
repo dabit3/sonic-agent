@@ -1113,7 +1113,7 @@ async def test_discord_reply_in_free_channel_triggers_backfill(adapter, monkeypa
     monkeypatch.setenv("DISCORD_AUTO_THREAD", "false")
     adapter.config.extra["history_backfill"] = True
     adapter._fetch_channel_context = AsyncMock(
-        return_value="[Context around the replied-to message]\n[Hermes [bot]] earlier answer"
+        return_value="[Context around the replied-to message]\n[Sonic [bot]] earlier answer"
     )
 
     message = make_message(channel=FakeTextChannel(channel_id=321), content="what about edge cases?")
@@ -1129,7 +1129,7 @@ async def test_discord_reply_in_free_channel_triggers_backfill(adapter, monkeypa
 
     event = adapter.handle_message.await_args.args[0]
     assert event.channel_context == (
-        "[Context around the replied-to message]\n[Hermes [bot]] earlier answer"
+        "[Context around the replied-to message]\n[Sonic [bot]] earlier answer"
     )
 
 

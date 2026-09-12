@@ -891,7 +891,7 @@ class EmailAdapter(BasePlatformAdapter):
 # bundled plugin. register() exposes the platform via the registry, replacing
 # the Platform.EMAIL elif in gateway/run.py, the _PLATFORM_CONNECTED_CHECKERS
 # entry in gateway/config.py, the _PLATFORMS["email"] static dict in
-# hermes_cli/gateway.py, and the _send_email dispatch in
+# sonic_cli/gateway.py, and the _send_email dispatch in
 # tools/send_message_tool.py. EMAIL_* env→PlatformConfig seeding stays in core.
 # ──────────────────────────────────────────────────────────────────────────
 
@@ -928,7 +928,7 @@ async def _standalone_send(
         msg = MIMEText(message, "plain", "utf-8")
         msg["From"] = address
         msg["To"] = chat_id
-        msg["Subject"] = "Hermes Agent"
+        msg["Subject"] = "Sonic Agent"
         msg["Date"] = formatdate(localtime=True)
 
         server = smtplib.SMTP(smtp_host, smtp_port)
@@ -952,7 +952,7 @@ def _is_connected(config) -> bool:
     extra = getattr(config, "extra", {}) or {}
     if extra.get("address"):
         return True
-    import hermes_cli.gateway as gateway_mod
+    import sonic_cli.gateway as gateway_mod
     return bool((gateway_mod.get_env_value("EMAIL_ADDRESS") or "").strip())
 
 
@@ -962,7 +962,7 @@ def _build_adapter(config):
 
 
 def register(ctx) -> None:
-    """Plugin entry point — called by the Hermes plugin system."""
+    """Plugin entry point — called by the Sonic plugin system."""
     ctx.register_platform(
         name="email",
         label="Email",

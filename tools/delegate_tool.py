@@ -2411,7 +2411,7 @@ def delegate_task(
         # child was closed.
         _parent_session_id = getattr(parent_agent, "session_id", None)
         try:
-            from hermes_cli.plugins import invoke_hook as _invoke_hook
+            from sonic_cli.plugins import invoke_hook as _invoke_hook
         except Exception:
             _invoke_hook = None
         # Aggregate child spend here so the parent's footer/UI reflect the true

@@ -3375,7 +3375,7 @@ class APIServerAdapter(BasePlatformAdapter):
         trips NAS's HTTP timeout. The store CAS claim inside fire_due guards
         against double-fire on a NAS/scheduler retry.
         """
-        from hermes_cli.config import cfg_get, load_config
+        from sonic_cli.config import cfg_get, load_config
         from plugins.cron.chronos.verify import get_fire_verifier
 
         auth = request.headers.get("Authorization", "")

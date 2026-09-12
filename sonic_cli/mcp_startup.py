@@ -62,7 +62,7 @@ def _resolve_discovery_timeout(explicit: "float | None") -> float:
     if explicit is not None:
         return explicit
     try:
-        from hermes_cli.config import load_config, DEFAULT_CONFIG
+        from sonic_cli.config import load_config, DEFAULT_CONFIG
 
         default = float(DEFAULT_CONFIG.get("mcp_discovery_timeout", 1.5))
         raw = (load_config() or {}).get("mcp_discovery_timeout", default)

@@ -1063,10 +1063,10 @@ def advance_next_run(job_id: str) -> bool:
 def _machine_id() -> str:
     """Stable-ish identifier for claim attribution/debugging (NOT correctness).
 
-    Uses ``HERMES_MACHINE_ID`` if set, else hostname + pid. The CAS correctness
+    Uses ``SONIC_MACHINE_ID`` if set, else hostname + pid. The CAS correctness
     comes from the file lock + the fresh-claim check, not from this value.
     """
-    explicit = os.getenv("HERMES_MACHINE_ID", "").strip()
+    explicit = os.getenv("SONIC_MACHINE_ID", "").strip()
     if explicit:
         return explicit
     try:
@@ -1105,7 +1105,7 @@ def claim_job_for_fire(job_id: str, *, claim_ttl_seconds: int = 300) -> bool:
                 continue
             if not job.get("enabled", True) or job.get("state") == "paused":
                 return False
-            now = _hermes_now()
+            now = _sonic_now()
             existing = job.get("fire_claim")
             if existing:
                 try:

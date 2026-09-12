@@ -55,7 +55,7 @@ Telegram bots have no real online/offline presence dot — that green dot is a
 surface is the bot's **short description** (the line shown under its name in the
 bot's profile).
 
-Enable `status_indicator` and Hermes sets that short description to **Online**
+Enable `status_indicator` and Sonic sets that short description to **Online**
 when the gateway connects and **Offline** on a clean shutdown:
 
 ```yaml

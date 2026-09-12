@@ -6897,7 +6897,7 @@ class TelegramAdapter(BasePlatformAdapter):
 # replace the per-platform core touchpoints (the Platform.TELEGRAM branch in
 # gateway/run.py, the telegram_cfg YAML→env/extra block in gateway/config.py,
 # the _setup_telegram wizard + _PLATFORMS["telegram"] static dict in
-# hermes_cli/{setup,gateway}.py, and the _send_telegram dispatch in
+# sonic_cli/{setup,gateway}.py, and the _send_telegram dispatch in
 # tools/send_message_tool.py).  Telegram uses the generic token connected
 # check, so no is_connected override is needed.
 # ──────────────────────────────────────────────────────────────────────────
@@ -6908,7 +6908,7 @@ def _resolve_notifications_mode() -> str:
     config.yaml display.platforms.telegram.notifications, defaulting to
     'important'.  Mirrors the post-construction logic that used to live in
     gateway/run.py::_create_adapter()."""
-    mode = os.getenv("HERMES_TELEGRAM_NOTIFICATIONS", "")
+    mode = os.getenv("SONIC_TELEGRAM_NOTIFICATIONS", "")
     if not mode:
         try:
             from gateway.config import load_gateway_config
@@ -6952,7 +6952,7 @@ def _is_connected(config) -> bool:
     """
     token = getattr(config, "token", None)
     if not token:
-        import hermes_cli.gateway as gateway_mod
+        import sonic_cli.gateway as gateway_mod
         token = gateway_mod.get_env_value("TELEGRAM_BOT_TOKEN") or ""
     return bool(str(token).strip())
 
@@ -6994,9 +6994,9 @@ def interactive_setup() -> None:
     Delegates to the existing CLI setup helpers (managed-bot QR onboarding,
     token validation, allowlist capture) via lazy import so the full wizard
     behavior is preserved without duplicating ~150 lines. Replaces the
-    _PLATFORMS["telegram"] static dict dispatch in hermes_cli/gateway.py.
+    _PLATFORMS["telegram"] static dict dispatch in sonic_cli/gateway.py.
     """
-    from hermes_cli import setup as _setup_mod
+    from sonic_cli import setup as _setup_mod
     _setup_mod._setup_telegram()
 
 
@@ -7096,7 +7096,7 @@ def _apply_yaml_config(yaml_cfg: dict, telegram_cfg: dict) -> dict | None:
 
 
 def register(ctx) -> None:
-    """Plugin entry point — called by the Hermes plugin system."""
+    """Plugin entry point — called by the Sonic plugin system."""
     ctx.register_platform(
         name="telegram",
         label="Telegram",
@@ -7104,7 +7104,7 @@ def register(ctx) -> None:
         check_fn=check_telegram_requirements,
         is_connected=_is_connected,
         required_env=["TELEGRAM_BOT_TOKEN"],
-        install_hint="pip install 'hermes-agent[telegram]'",
+        install_hint="pip install 'sonic-agent[telegram]'",
         setup_fn=interactive_setup,
         apply_yaml_config_fn=_apply_yaml_config,
         allowed_users_env="TELEGRAM_ALLOWED_USERS",

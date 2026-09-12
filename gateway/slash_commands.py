@@ -1241,7 +1241,7 @@ class GatewaySlashCommandsMixin:
                                     _persist_model_cfg["base_url"] = result.base_url
                                 if str(result.target_provider or "").strip().lower() != "custom":
                                     clear_model_endpoint_credentials(_persist_model_cfg)
-                                from hermes_cli.config import save_config
+                                from sonic_cli.config import save_config
                                 save_config(_persist_cfg)
                             except Exception as e:
                                 logger.warning("Failed to persist model switch: %s", e)

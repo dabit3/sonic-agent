@@ -168,7 +168,7 @@ def test_setup_gateway_skips_service_install_when_systemctl_missing(monkeypatch,
     # post-config service guidance runs), but stub the migrated plugins'
     # interactive_setup so their wizards don't read real stdin. #41112.
     monkeypatch.setattr(setup_mod, "prompt_checklist", lambda _q, _items, pre=(), **k: list(pre))
-    import hermes_cli.gateway as _gw_mod
+    import sonic_cli.gateway as _gw_mod
     monkeypatch.setattr(_gw_mod, "_configure_platform", lambda *a, **k: None)
     monkeypatch.setattr("platform.system", lambda: "Linux")
 
@@ -213,7 +213,7 @@ def test_setup_gateway_in_container_shows_docker_guidance(monkeypatch, capsys):
     # post-config service guidance runs), but stub the migrated plugins'
     # interactive_setup so their wizards don't read real stdin. #41112.
     monkeypatch.setattr(setup_mod, "prompt_checklist", lambda _q, _items, pre=(), **k: list(pre))
-    import hermes_cli.gateway as _gw_mod
+    import sonic_cli.gateway as _gw_mod
     monkeypatch.setattr(_gw_mod, "_configure_platform", lambda *a, **k: None)
     monkeypatch.setattr("platform.system", lambda: "Linux")
 

@@ -55,7 +55,7 @@ def _resolve_timezone_name() -> str:
             # Managed scope: an administrator can pin ``timezone`` too. Overlay
             # via the shared helper (fail-open) since this reads config.yaml directly.
             try:
-                from hermes_cli import managed_scope
+                from sonic_cli import managed_scope
                 cfg = managed_scope.apply_managed_overlay(cfg)
             except Exception:
                 pass
