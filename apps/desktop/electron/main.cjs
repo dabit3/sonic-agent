@@ -34,6 +34,7 @@ const {
   SESSION_WINDOW_MIN_WIDTH
 } = require('./session-windows.cjs')
 const { canImportSonicCli, verifySonicCli } = require('./backend-probes.cjs')
+const { createLinkTitleWindow } = require('./link-title-window.cjs')
 const { probeGatewayWebSocket } = require('./gateway-ws-probe.cjs')
 const { adoptServedDashboardToken } = require('./dashboard-token.cjs')
 const { waitForDashboardPort } = require('./backend-ready.cjs')
@@ -149,6 +150,8 @@ if (REMOTE_DISPLAY_REASON) {
     `[sonic] remote display detected (${REMOTE_DISPLAY_REASON}); disabling GPU hardware acceleration to prevent flicker`
   )
 }
+
+ipcMain.handle('sonic:get-remote-display-reason', () => REMOTE_DISPLAY_REASON)
 
 // Keep the renderer running at full speed while the window is in the background
 // or occluded. The chat transcript streams to screen through a
@@ -268,6 +271,23 @@ function resolveSonicHome() {
 }
 
 const SONIC_HOME = resolveSonicHome()
+
+function sonicManagedNodePathEntries() {
+  // NOTE: keep this ordering in sync with iter_sonic_node_dirs() in
+  // sonic_constants.py — this Node main process cannot import the Python
+  // module, so the platform-ordering rule is mirrored here.
+  const root = path.join(SONIC_HOME, 'node')
+  const bin = path.join(root, 'bin')
+  const entries = IS_WINDOWS ? [root, bin] : [bin, root]
+  return entries.filter(directoryExists)
+}
+
+function pathWithSonicManagedNode(...entries) {
+  return [...sonicManagedNodePathEntries(), ...entries, process.env.PATH]
+    .filter(Boolean)
+    .join(path.delimiter)
+}
+
 // ACTIVE_SONIC_ROOT — the canonical mutable Sonic install. Same path
 // install.ps1 / install.sh use, so a desktop-only user and a CLI-only user end
 // up with identical layouts and can share one install.
@@ -1827,7 +1847,7 @@ async function applyUpdates(opts = {}) {
       env: {
         ...process.env,
         SONIC_HOME,
-        PATH: [path.join(SONIC_HOME, 'node', 'bin'), venvBin, process.env.PATH].filter(Boolean).join(path.delimiter)
+        PATH: pathWithSonicManagedNode(venvBin)
       },
       detached: true,
       stdio: 'ignore',
@@ -1871,7 +1891,7 @@ async function handOffWindowsBootstrapRecovery(reason) {
     env: {
       ...process.env,
       SONIC_HOME,
-      PATH: [path.join(SONIC_HOME, 'node', 'bin'), venvBin, process.env.PATH].filter(Boolean).join(path.delimiter)
+      PATH: pathWithSonicManagedNode(venvBin)
     },
     detached: true,
     stdio: 'ignore',
@@ -1952,13 +1972,11 @@ async function applyUpdatesPosixInApp() {
   }
 
   // Put the Sonic-managed Node and the venv on PATH so `sonic desktop`'s
-  // npm build can find them on a machine with no system Node.
-  const extraPath = [path.join(SONIC_HOME, 'node', 'bin'), path.join(updateRoot, 'venv', 'bin')]
-    .filter(Boolean)
-    .join(path.delimiter)
+  // npm build can find them on a machine with no system Node. Windows portable
+  // Node lives directly under %LOCALAPPDATA%\sonic\node, not node\bin.
   const env = {
     SONIC_HOME,
-    PATH: [extraPath, process.env.PATH].filter(Boolean).join(path.delimiter)
+    PATH: pathWithSonicManagedNode(path.join(updateRoot, 'venv', 'bin'))
   }
 
   // `sonic update` reaps stale `sonic dashboard` backends (a code update
@@ -2963,20 +2981,7 @@ function runRenderTitleJob(rawUrl) {
     }
 
     try {
-      window = new BrowserWindow({
-        show: false,
-        width: 1280,
-        height: 800,
-        webPreferences: {
-          backgroundThrottling: false,
-          contextIsolation: true,
-          javascript: true,
-          nodeIntegration: false,
-          sandbox: true,
-          session: partitionSession,
-          webSecurity: true
-        }
-      })
+      window = createLinkTitleWindow(BrowserWindow, partitionSession)
     } catch {
       return finish('')
     }
