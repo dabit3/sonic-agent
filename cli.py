@@ -6936,7 +6936,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
 
         if self.agent is not None:
             try:
-                from hermes_cli.context_switch_guard import merge_preflight_compression_warning
+                from sonic_cli.context_switch_guard import merge_preflight_compression_warning
 
                 merge_preflight_compression_warning(
                     result,
@@ -7215,7 +7215,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
 
         if self.agent is not None:
             try:
-                from hermes_cli.context_switch_guard import merge_preflight_compression_warning
+                from sonic_cli.context_switch_guard import merge_preflight_compression_warning
 
                 merge_preflight_compression_warning(
                     result,

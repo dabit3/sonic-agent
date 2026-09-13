@@ -4287,13 +4287,13 @@ class TestGatewayBusyReadout:
         except ImportError:
             pytest.skip("fastapi/starlette not installed")
 
-        from hermes_cli.web_server import app, _SESSION_HEADER_NAME, _SESSION_TOKEN
+        from sonic_cli.web_server import app, _SESSION_HEADER_NAME, _SESSION_TOKEN
         self.client = TestClient(app)
         self.client.headers[_SESSION_HEADER_NAME] = _SESSION_TOKEN
 
     def test_busy_when_running_with_active_agents(self, monkeypatch):
         """gateway_busy is True iff running AND active_agents > 0."""
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         monkeypatch.setattr(ws, "get_running_pid", lambda: 1234)
         monkeypatch.setattr(ws, "read_runtime_status", lambda: {
@@ -4311,7 +4311,7 @@ class TestGatewayBusyReadout:
 
     def test_idle_running_is_drainable_but_not_busy(self, monkeypatch):
         """A running gateway with zero in-flight turns is drainable, not busy."""
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         monkeypatch.setattr(ws, "get_running_pid", lambda: 1234)
         monkeypatch.setattr(ws, "read_runtime_status", lambda: {
@@ -4329,7 +4329,7 @@ class TestGatewayBusyReadout:
         """While draining, the gateway is not a fresh begin-drain target, and
         busy is False even with a stale active_agents>0 in the file — the state
         gate dominates."""
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         monkeypatch.setattr(ws, "get_running_pid", lambda: 1234)
         monkeypatch.setattr(ws, "read_runtime_status", lambda: {
@@ -4345,7 +4345,7 @@ class TestGatewayBusyReadout:
     def test_down_gateway_degrades_to_safe_falsy(self, monkeypatch):
         """Gateway down (no PID, no remote probe): busy/drainable False,
         active_agents 0 — never a spurious busy that would wedge NAS."""
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         monkeypatch.setattr(ws, "get_running_pid", lambda: None)
         monkeypatch.setattr(ws, "read_runtime_status", lambda: None)
@@ -4361,7 +4361,7 @@ class TestGatewayBusyReadout:
         """A leftover status file claiming running + active_agents>0 must NOT
         read as busy when the live PID probe says the gateway is down. Liveness
         wins over the file."""
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         monkeypatch.setattr(ws, "get_running_pid", lambda: None)
         monkeypatch.setattr(ws, "_GATEWAY_HEALTH_URL", None)
@@ -4382,7 +4382,7 @@ class TestGatewayBusyReadout:
     def test_restart_drain_timeout_surfaced_and_numeric(self, monkeypatch):
         """restart_drain_timeout is present and resolves to a non-negative
         float so NAS can size its poll deadline without out-of-band knowledge."""
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         monkeypatch.setattr(ws, "get_running_pid", lambda: 1234)
         monkeypatch.setattr(ws, "read_runtime_status", lambda: {
@@ -4390,7 +4390,7 @@ class TestGatewayBusyReadout:
             "platforms": {},
             "active_agents": 0,
         })
-        monkeypatch.setenv("HERMES_RESTART_DRAIN_TIMEOUT", "90")
+        monkeypatch.setenv("SONIC_RESTART_DRAIN_TIMEOUT", "90")
 
         data = self.client.get("/api/status").json()
         assert "restart_drain_timeout" in data
@@ -4400,7 +4400,7 @@ class TestGatewayBusyReadout:
     def test_active_agents_unparseable_in_file_degrades_to_zero(self, monkeypatch):
         """A corrupt active_agents value in the status file must not 500 or
         produce a spurious busy — it degrades to 0/not-busy."""
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         monkeypatch.setattr(ws, "get_running_pid", lambda: 1234)
         monkeypatch.setattr(ws, "read_runtime_status", lambda: {

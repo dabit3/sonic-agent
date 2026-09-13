@@ -266,16 +266,16 @@ Check the local git state and summarize what changed recently.
 
 ### Pattern 2: repo-native work record with Open Scaffold
 
-Use [Open Scaffold](https://github.com/graphanov/open-scaffold) when you want Hermes to read a repository's durable AI-work record: mission, plans, evidence notes, handoff packets, and review/gate results. Hermes remains the agent; Open Scaffold remains the repo-local record.
+Use [Open Scaffold](https://github.com/graphanov/open-scaffold) when you want Sonic to read a repository's durable AI-work record: mission, plans, evidence notes, handoff packets, and review/gate results. Sonic remains the agent; Open Scaffold remains the repo-local record.
 
 Add the server for one scaffolded repository:
 
 ```bash
-hermes mcp add open_scaffold --command npx --args -y open-scaffold@latest mcp serve --repo /absolute/path/to/repo
-hermes mcp test open_scaffold
+sonic mcp add open_scaffold --command npx --args -y open-scaffold@latest mcp serve --repo /absolute/path/to/repo
+sonic mcp test open_scaffold
 ```
 
-Then keep the exposed surface read-oriented. Choose `select` in the `hermes mcp add` prompt, or edit `config.yaml` afterward:
+Then keep the exposed surface read-oriented. Choose `select` in the `sonic mcp add` prompt, or edit `config.yaml` afterward:
 
 ```yaml
 mcp_servers:
@@ -311,8 +311,8 @@ Inspect the active plans and evidence notes, then say whether this repo is ready
 Boundary notes:
 
 - Open Scaffold MCP is local-first and read-only by default.
-- Its write tools require the server to be started with `--allow-write`; do not enable that until you explicitly want Hermes to mutate `.osc` files.
-- Open Scaffold records and gates work; it does not authorize Hermes to merge, publish, deploy, or spawn runtimes.
+- Its write tools require the server to be started with `--allow-write`; do not enable that until you explicitly want Sonic to mutate `.osc` files.
+- Open Scaffold records and gates work; it does not authorize Sonic to merge, publish, deploy, or spawn runtimes.
 - Pin `open-scaffold@<version>` instead of `@latest` if you need reproducible tool schemas.
 
 ### Pattern 3: GitHub triage assistant

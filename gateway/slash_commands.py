@@ -1161,7 +1161,7 @@ class GatewaySlashCommandsMixin:
                             return t("gateway.model.error_prefix", error=result.error_message)
 
                         try:
-                            from hermes_cli.context_switch_guard import (
+                            from sonic_cli.context_switch_guard import (
                                 enrich_model_switch_warnings_for_gateway,
                             )
 
@@ -1364,7 +1364,7 @@ class GatewaySlashCommandsMixin:
             return t("gateway.model.error_prefix", error=result.error_message)
 
         try:
-            from hermes_cli.context_switch_guard import (
+            from sonic_cli.context_switch_guard import (
                 enrich_model_switch_warnings_for_gateway,
             )
 

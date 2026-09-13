@@ -1702,7 +1702,7 @@ class TestRunJobModelResolution:
 
     Issue #23979: a cron job created without an explicit model is stored as
     ``model: null``. At fire time the scheduler must:
-      1. fall back to ``HERMES_MODEL`` env if set,
+      1. fall back to ``SONIC_MODEL`` env if set,
       2. else fall back to config.yaml ``model.default`` if set,
       3. else fail fast with an actionable error — never let an empty string
          reach the provider where it surfaces as an opaque 400.
@@ -1716,18 +1716,18 @@ class TestRunJobModelResolution:
     }
 
     def test_null_job_model_falls_back_to_env(self, tmp_path, monkeypatch):
-        """``model: null`` on the job uses HERMES_MODEL when set."""
+        """``model: null`` on the job uses SONIC_MODEL when set."""
         (tmp_path / "config.yaml").write_text("")
-        monkeypatch.setenv("HERMES_MODEL", "env-model")
+        monkeypatch.setenv("SONIC_MODEL", "env-model")
 
         job = {"id": "null-model-job", "name": "null model", "prompt": "hi", "model": None}
         fake_db = MagicMock()
 
-        with patch("cron.scheduler._hermes_home", tmp_path), \
+        with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("hermes_state.SessionDB", return_value=fake_db), \
-             patch("hermes_cli.runtime_provider.resolve_runtime_provider",
+             patch("sonic_state.SessionDB", return_value=fake_db), \
+             patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
              patch("run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
@@ -1742,16 +1742,16 @@ class TestRunJobModelResolution:
     def test_null_job_model_falls_back_to_config_default(self, tmp_path, monkeypatch):
         """``model: null`` on the job uses config.yaml model.default when env is empty."""
         (tmp_path / "config.yaml").write_text("model:\n  default: config-default-model\n")
-        monkeypatch.delenv("HERMES_MODEL", raising=False)
+        monkeypatch.delenv("SONIC_MODEL", raising=False)
 
         job = {"id": "cfg-default-job", "name": "cfg default", "prompt": "hi", "model": None}
         fake_db = MagicMock()
 
-        with patch("cron.scheduler._hermes_home", tmp_path), \
+        with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("hermes_state.SessionDB", return_value=fake_db), \
-             patch("hermes_cli.runtime_provider.resolve_runtime_provider",
+             patch("sonic_state.SessionDB", return_value=fake_db), \
+             patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
              patch("run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
@@ -1764,7 +1764,7 @@ class TestRunJobModelResolution:
         assert mock_agent_cls.call_args.kwargs["model"] == "config-default-model"
 
     def test_explicit_null_model_block_in_config_does_not_overwrite_env(self, tmp_path, monkeypatch):
-        """``model: null`` in config.yaml must not overwrite a resolved HERMES_MODEL.
+        """``model: null`` in config.yaml must not overwrite a resolved SONIC_MODEL.
 
         Regression: before #23979 the resolver coerced ``model: null`` to
         ``{}`` only via the ``.get("model", {})`` default — which does not
@@ -1774,16 +1774,16 @@ class TestRunJobModelResolution:
         which returns ``None`` and clobbered ``model``.
         """
         (tmp_path / "config.yaml").write_text("model:\n  default: null\n")
-        monkeypatch.setenv("HERMES_MODEL", "env-model")
+        monkeypatch.setenv("SONIC_MODEL", "env-model")
 
         job = {"id": "null-default-job", "name": "null default", "prompt": "hi", "model": None}
         fake_db = MagicMock()
 
-        with patch("cron.scheduler._hermes_home", tmp_path), \
+        with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("hermes_state.SessionDB", return_value=fake_db), \
-             patch("hermes_cli.runtime_provider.resolve_runtime_provider",
+             patch("sonic_state.SessionDB", return_value=fake_db), \
+             patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
              patch("run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
@@ -1797,16 +1797,16 @@ class TestRunJobModelResolution:
     def test_no_model_anywhere_fails_with_actionable_error(self, tmp_path, monkeypatch):
         """All three sources empty → fail fast with a clear message, not an opaque 400."""
         (tmp_path / "config.yaml").write_text("")
-        monkeypatch.delenv("HERMES_MODEL", raising=False)
+        monkeypatch.delenv("SONIC_MODEL", raising=False)
 
         job = {"id": "no-model-job", "name": "no model anywhere", "prompt": "hi", "model": None}
         fake_db = MagicMock()
 
-        with patch("cron.scheduler._hermes_home", tmp_path), \
+        with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("hermes_state.SessionDB", return_value=fake_db), \
-             patch("hermes_cli.runtime_provider.resolve_runtime_provider",
+             patch("sonic_state.SessionDB", return_value=fake_db), \
+             patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
              patch("run_agent.AIAgent") as mock_agent_cls:
             success, _, _, error = run_job(job)
@@ -1826,16 +1826,16 @@ class TestRunJobModelResolution:
         calls, simulating the storage update flow.
         """
         (tmp_path / "config.yaml").write_text("")
-        monkeypatch.delenv("HERMES_MODEL", raising=False)
+        monkeypatch.delenv("SONIC_MODEL", raising=False)
 
         job = {"id": "updated-model-job", "name": "updated", "prompt": "hi", "model": "first-model"}
         fake_db = MagicMock()
 
-        with patch("cron.scheduler._hermes_home", tmp_path), \
+        with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("hermes_state.SessionDB", return_value=fake_db), \
-             patch("hermes_cli.runtime_provider.resolve_runtime_provider",
+             patch("sonic_state.SessionDB", return_value=fake_db), \
+             patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
              patch("run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
@@ -1852,16 +1852,16 @@ class TestRunJobModelResolution:
     def test_config_model_as_plain_string(self, tmp_path, monkeypatch):
         """config.yaml ``model:`` given as a bare string is used directly."""
         (tmp_path / "config.yaml").write_text("model: string-form-model\n")
-        monkeypatch.delenv("HERMES_MODEL", raising=False)
+        monkeypatch.delenv("SONIC_MODEL", raising=False)
 
         job = {"id": "string-cfg-job", "name": "string cfg", "prompt": "hi", "model": None}
         fake_db = MagicMock()
 
-        with patch("cron.scheduler._hermes_home", tmp_path), \
+        with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("hermes_state.SessionDB", return_value=fake_db), \
-             patch("hermes_cli.runtime_provider.resolve_runtime_provider",
+             patch("sonic_state.SessionDB", return_value=fake_db), \
+             patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
              patch("run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
@@ -1876,22 +1876,22 @@ class TestRunJobModelResolution:
     def test_config_model_alias_key_resolves(self, tmp_path, monkeypatch):
         """A ``model: {model: ...}`` alias key resolves like the CLI sibling.
 
-        ``hermes_cli/oneshot.py``, ``fallback_cmd.py`` and ``prompt_size.py``
+        ``sonic_cli/oneshot.py``, ``fallback_cmd.py`` and ``prompt_size.py``
         all accept ``model.model`` as an alias for ``model.default``. The cron
         resolver mirrors that so a config that works in the CLI also works in
         cron.
         """
         (tmp_path / "config.yaml").write_text("model:\n  model: alias-key-model\n")
-        monkeypatch.delenv("HERMES_MODEL", raising=False)
+        monkeypatch.delenv("SONIC_MODEL", raising=False)
 
         job = {"id": "alias-job", "name": "alias", "prompt": "hi", "model": None}
         fake_db = MagicMock()
 
-        with patch("cron.scheduler._hermes_home", tmp_path), \
+        with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("hermes_state.SessionDB", return_value=fake_db), \
-             patch("hermes_cli.runtime_provider.resolve_runtime_provider",
+             patch("sonic_state.SessionDB", return_value=fake_db), \
+             patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
              patch("run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
@@ -1906,16 +1906,16 @@ class TestRunJobModelResolution:
     def test_corrupt_config_yaml_does_not_crash_with_job_model(self, tmp_path, monkeypatch):
         """A malformed config.yaml degrades gracefully when the job has a model."""
         (tmp_path / "config.yaml").write_text("{{{invalid yaml!!!")
-        monkeypatch.delenv("HERMES_MODEL", raising=False)
+        monkeypatch.delenv("SONIC_MODEL", raising=False)
 
         job = {"id": "corrupt-job", "name": "corrupt", "prompt": "hi", "model": "explicit-model"}
         fake_db = MagicMock()
 
-        with patch("cron.scheduler._hermes_home", tmp_path), \
+        with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("hermes_state.SessionDB", return_value=fake_db), \
-             patch("hermes_cli.runtime_provider.resolve_runtime_provider",
+             patch("sonic_state.SessionDB", return_value=fake_db), \
+             patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
              patch("run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()

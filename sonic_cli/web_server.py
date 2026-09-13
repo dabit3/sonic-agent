@@ -1856,10 +1856,10 @@ async def get_status(profile: Optional[str] = None):
         )
         # Resolved drain timeout (seconds) so NAS can size its poll deadline
         # without out-of-band knowledge.  Reuse the single resolver
-        # (HERMES_RESTART_DRAIN_TIMEOUT env → config agent.restart_drain_timeout
+        # (SONIC_RESTART_DRAIN_TIMEOUT env → config agent.restart_drain_timeout
         # → default) rather than re-deriving the precedence chain here.
         try:
-            from hermes_cli.gateway import _get_restart_drain_timeout
+            from sonic_cli.gateway import _get_restart_drain_timeout
 
             restart_drain_timeout = _get_restart_drain_timeout()
         except ImportError:

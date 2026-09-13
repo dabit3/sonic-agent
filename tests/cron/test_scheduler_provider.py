@@ -481,9 +481,9 @@ def test_cron_status_reports_alive_but_failing(tmp_path, monkeypatch, capsys):
     """cron_status warns when the ticker is alive (fresh heartbeat) but no tick
     has succeeded recently (#32612: alive-but-failing must not look healthy)."""
     import cron.jobs as jobs
-    from hermes_cli import cron as cron_cli
+    from sonic_cli import cron as cron_cli
 
-    monkeypatch.setattr("hermes_cli.gateway.find_gateway_pids", lambda: [4321])
+    monkeypatch.setattr("sonic_cli.gateway.find_gateway_pids", lambda: [4321])
     monkeypatch.setattr(jobs, "get_ticker_heartbeat_age", lambda: 5.0)      # fresh
     monkeypatch.setattr(jobs, "get_ticker_success_age", lambda: 9_999.0)    # stale
     monkeypatch.setattr("cron.jobs.list_jobs", lambda **k: [])
@@ -496,9 +496,9 @@ def test_cron_status_reports_alive_but_failing(tmp_path, monkeypatch, capsys):
 
 def test_cron_status_healthy_when_both_fresh(tmp_path, monkeypatch, capsys):
     import cron.jobs as jobs
-    from hermes_cli import cron as cron_cli
+    from sonic_cli import cron as cron_cli
 
-    monkeypatch.setattr("hermes_cli.gateway.find_gateway_pids", lambda: [4321])
+    monkeypatch.setattr("sonic_cli.gateway.find_gateway_pids", lambda: [4321])
     monkeypatch.setattr(jobs, "get_ticker_heartbeat_age", lambda: 5.0)
     monkeypatch.setattr(jobs, "get_ticker_success_age", lambda: 5.0)
     monkeypatch.setattr("cron.jobs.list_jobs", lambda **k: [])
@@ -510,9 +510,9 @@ def test_cron_status_healthy_when_both_fresh(tmp_path, monkeypatch, capsys):
 
 def test_cron_status_reports_stalled_when_no_heartbeat(tmp_path, monkeypatch, capsys):
     import cron.jobs as jobs
-    from hermes_cli import cron as cron_cli
+    from sonic_cli import cron as cron_cli
 
-    monkeypatch.setattr("hermes_cli.gateway.find_gateway_pids", lambda: [4321])
+    monkeypatch.setattr("sonic_cli.gateway.find_gateway_pids", lambda: [4321])
     monkeypatch.setattr(jobs, "get_ticker_heartbeat_age", lambda: 9_999.0)  # dead
     monkeypatch.setattr(jobs, "get_ticker_success_age", lambda: 9_999.0)
     monkeypatch.setattr("cron.jobs.list_jobs", lambda **k: [])

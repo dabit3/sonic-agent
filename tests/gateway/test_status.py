@@ -1129,7 +1129,7 @@ class TestActiveAgentsTurnBoundaryWrite:
     not clobber it."""
 
     def test_active_agents_only_write_preserves_gateway_state(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
 
         # Lifecycle transition sets running.
         status.write_runtime_status(gateway_state="running", active_agents=0)
@@ -1147,7 +1147,7 @@ class TestActiveAgentsTurnBoundaryWrite:
     def test_active_agents_only_write_preserves_draining_state(self, tmp_path, monkeypatch):
         """Same invariant while draining — a turn finishing mid-drain (count
         falling) must not flip the state back to running."""
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
 
         status.write_runtime_status(gateway_state="draining", active_agents=3)
         status.write_runtime_status(active_agents=2)
@@ -1157,7 +1157,7 @@ class TestActiveAgentsTurnBoundaryWrite:
         assert rec["gateway_state"] == "draining"
 
     def test_active_agents_clamped_non_negative(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
         status.write_runtime_status(gateway_state="running", active_agents=-5)
         assert status.read_runtime_status()["active_agents"] == 0
 class TestGatewayBusyDerivation:

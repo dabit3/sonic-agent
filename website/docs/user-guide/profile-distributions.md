@@ -70,7 +70,7 @@ Not a fit:
 - **You want to share memories / sessions / conversation history.** Those are user data, not distribution content. Never shipped.
 
 :::caution
-**Hermes does not control git.** The file exclusions described on this page are applied by the **installer** when someone runs `hermes profile install` or `hermes profile update`. They are **not** applied when you run `git add` or `git commit`.
+**Sonic does not control git.** The file exclusions described on this page are applied by the **installer** when someone runs `sonic profile install` or `sonic profile update`. They are **not** applied when you run `git add` or `git commit`.
 :::
 
 ## The lifecycle: author to installer to update
@@ -126,7 +126,7 @@ That's the whole manifest. Every field except `name` has a sensible default.
 Do this **before** running `git init` or `git add`. If you have already chatted with the profile, run setup, or otherwise used it, the directory now contains files you must not ship: `.env`, `auth.json`, `memories/`, `sessions/`, `state.db*`, `logs/`, and more. 
 :::
 
-Create `~/.hermes/profiles/research-bot/.gitignore` with at minimum:
+Create `~/.sonic/profiles/research-bot/.gitignore` with at minimum:
 
 ```gitignore
 # Credentials & secrets — NEVER commit
@@ -138,7 +138,7 @@ auth.json
 state.db
 state.db-shm
 state.db-wal
-hermes_state.db
+sonic_state.db
 response_store.db
 response_store.db-shm
 response_store.db-wal
@@ -165,7 +165,7 @@ browser_screenshots/
 cache/
 
 # Infrastructure (should not be in profile dir, but safe to exclude)
-hermes-agent/
+sonic-agent/
 .worktrees/
 profiles/
 bin/
@@ -181,7 +181,7 @@ backups/
 
 # Logs
 errors.log
-.hermes_history
+.sonic_history
 ```
 
 This mirrors the [hard-excluded paths](#whats-not-in-a-distribution-ever) that the installer strips on its end. Anything else you want to keep out of the repo (scratch files, large assets, local-only skills) should also go in here.

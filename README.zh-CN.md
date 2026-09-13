@@ -5,7 +5,7 @@
 # Sonic Agent ☤
 
 <p align="center">
-  <a href="https://lightning-agent.nousresearch.com/docs/"><img src="https://img.shields.io/badge/Docs-sonic--agent.nousresearch.com-FFD700?style=for-the-badge" alt="Documentation"></a>
+  <a href="https://lightning-agent.nousresearch.com/docs/"><img src="https://img.shields.io/badge/Docs-lightning--agent.nousresearch.com-FFD700?style=for-the-badge" alt="Documentation"></a>
   <a href="https://discord.gg/NousResearch"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://github.com/dabit3/sonic-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
   <a href="https://nousresearch.com"><img src="https://img.shields.io/badge/Built%20by-Nous%20Research-blueviolet?style=for-the-badge" alt="Built by Nous Research"></a>
@@ -41,9 +41,9 @@ curl -fsSL https://raw.githubusercontent.com/dabit3/sonic-agent/main/scripts/ins
 >
 > **Windows：** 在 PowerShell 中运行：
 > ```powershell
-> iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+> iex (irm https://lightning-agent.nousresearch.com/install.ps1)
 > ```
-> 安装完成后，可能需要重启终端，然后运行 `hermes` 开始对话。
+> 安装完成后，可能需要重启终端，然后运行 `sonic` 开始对话。
 
 安装后：
 

@@ -877,10 +877,10 @@ sonic config set auxiliary.vision.model <model_name>
 ---
 ### Context window shows wrong size
 
-If Hermes reports a smaller context window than your local model supports
+If Sonic reports a smaller context window than your local model supports
 (e.g., 128k when llama-server has `-c 262144`):
 
-**Check if `model.context_length` is explicitly set.** Hermes uses a
+**Check if `model.context_length` is explicitly set.** Sonic uses a
 multi-source resolution chain (highest priority first):
 
 1. `model.context_length` in config.yaml — **blocks auto-detection if set**

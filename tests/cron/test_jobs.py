@@ -852,9 +852,9 @@ class TestGetDueJobs:
     def test_cron_next_run_offset_migration_is_rescheduled_not_fired(self, tmp_cron_dir, monkeypatch):
         current_tz = timezone(timedelta(hours=2))
         now = datetime(2026, 5, 19, 13, 2, 0, tzinfo=current_tz)
-        monkeypatch.setattr("cron.jobs._hermes_now", lambda: now)
+        monkeypatch.setattr("cron.jobs._sonic_now", lambda: now)
 
-        # A 21:00 cron was stored while Hermes/system local time was UTC+10.
+        # A 21:00 cron was stored while Sonic/system local time was UTC+10.
         # After the host moves to UTC+02, that absolute timestamp converts to
         # 13:00+02.  At 13:02+02 the old code considered it due and fired, even
         # though the user's local wall-clock cron intent is still 21:00.
@@ -887,7 +887,7 @@ class TestGetDueJobs:
     def test_cron_offset_migration_does_not_repair_already_passed_wall_time(self, tmp_cron_dir, monkeypatch):
         current_tz = timezone(timedelta(hours=2))
         now = datetime(2026, 5, 19, 13, 2, 0, tzinfo=current_tz)
-        monkeypatch.setattr("cron.jobs._hermes_now", lambda: now)
+        monkeypatch.setattr("cron.jobs._sonic_now", lambda: now)
 
         save_jobs(
             [{
@@ -922,7 +922,7 @@ class TestGetDueJobs:
         """Guard must NOT over-fire: a due cron in the SAME offset fires normally."""
         current_tz = timezone(timedelta(hours=2))
         now = datetime(2026, 5, 19, 21, 0, 30, tzinfo=current_tz)
-        monkeypatch.setattr("cron.jobs._hermes_now", lambda: now)
+        monkeypatch.setattr("cron.jobs._sonic_now", lambda: now)
         save_jobs([{
             "id": "cron-same-tz", "name": "same tz", "prompt": "...",
             "schedule": {"kind": "cron", "expr": "0 21 * * 2", "display": "0 21 * * 2"},
@@ -948,7 +948,7 @@ class TestGetDueJobs:
         """
         current_tz = timezone(timedelta(hours=2))
         now = datetime(2026, 5, 19, 13, 2, 0, tzinfo=current_tz)
-        monkeypatch.setattr("cron.jobs._hermes_now", lambda: now)
+        monkeypatch.setattr("cron.jobs._sonic_now", lambda: now)
         save_jobs([{
             "id": "interval-stale-tz", "name": "interval", "prompt": "...",
             "schedule": {"kind": "interval", "minutes": 60, "display": "every 1h"},
@@ -972,7 +972,7 @@ class TestGetDueJobs:
         the repair path — it falls through to the existing due/fast-forward logic."""
         current_tz = timezone(timedelta(hours=2))
         now = datetime(2026, 5, 19, 13, 0, 0, tzinfo=current_tz)
-        monkeypatch.setattr("cron.jobs._hermes_now", lambda: now)
+        monkeypatch.setattr("cron.jobs._sonic_now", lambda: now)
         save_jobs([{
             "id": "cron-wall-equal", "name": "wall equal", "prompt": "...",
             "schedule": {"kind": "cron", "expr": "0 13 * * 2", "display": "0 13 * * 2"},

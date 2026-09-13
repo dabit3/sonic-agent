@@ -4860,7 +4860,7 @@ def _resolve_worktree_workspace(
     worktree task under a meaningful, board-owned repo — ``<repo>/.worktrees/
     <task-id>`` — instead of silently landing under the dispatcher's current
     working directory (which is whatever directory the gateway happened to be
-    launched from, e.g. the Hermes checkout). If no anchor is configured
+    launched from, e.g. the Sonic checkout). If no anchor is configured
     anywhere, we fail loudly rather than guess.
     """
     branch_name = (task.branch_name or "").strip() or f"wt/{task.id}"
@@ -4935,13 +4935,13 @@ def resolve_workspace(task: Task, *, board: Optional[str] = None) -> Path:
       root.  Users who want a kanban-root-relative workspace should
       compute the absolute path themselves.
     - ``worktree``: a real linked git worktree. If ``workspace_path`` names
-      a repo root, Hermes treats it as an anchor and materializes a linked
+      a repo root, Sonic treats it as an anchor and materializes a linked
       worktree at ``<repo>/.worktrees/<task-id>``. If ``workspace_path`` names
-      a concrete target path, Hermes creates/reuses that linked worktree. With
-      no ``workspace_path``, Hermes anchors on the board's ``default_workdir``
+      a concrete target path, Sonic creates/reuses that linked worktree. With
+      no ``workspace_path``, Sonic anchors on the board's ``default_workdir``
       and materializes ``<repo>/.worktrees/<task-id>`` per task; if no
       ``default_workdir`` is configured it raises rather than guessing from the
-      dispatcher's CWD. When ``branch_name`` is empty, Hermes uses
+      dispatcher's CWD. When ``branch_name`` is empty, Sonic uses
       ``wt/<task-id>``.
 
     Persist the resolved path back to the task row via ``set_workspace_path``

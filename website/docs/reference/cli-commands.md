@@ -234,7 +234,7 @@ Options:
 | `--all` | On `start` / `restart` / `stop`: act on **every profile's** gateway, not just the active `SONIC_HOME`. Useful if you run multiple profiles side-by-side and want to restart them all after `sonic update`. |
 | `--no-supervise` | On `run`: inside the s6-overlay Docker image, opt out of auto-supervision and use pre-s6 foreground semantics — gateway runs as the container's main process with no auto-restart. No-op outside the s6 image. Equivalent to setting `SONIC_GATEWAY_NO_SUPERVISE=1`. |
 
-`hermes gateway enroll` accepts `--token`, `--connector-url`, and `--gateway-id`. It exchanges the enrollment token with the connector and writes the resulting `GATEWAY_RELAY_ID`, `GATEWAY_RELAY_SECRET`, `GATEWAY_RELAY_DELIVERY_KEY`, and optional `GATEWAY_RELAY_URL` values to the active profile's `.env`.
+`sonic gateway enroll` accepts `--token`, `--connector-url`, and `--gateway-id`. It exchanges the enrollment token with the connector and writes the resulting `GATEWAY_RELAY_ID`, `GATEWAY_RELAY_SECRET`, `GATEWAY_RELAY_DELIVERY_KEY`, and optional `GATEWAY_RELAY_URL` values to the active profile's `.env`.
 
 :::tip WSL users
 Use `sonic gateway run` instead of `sonic gateway start` — WSL's systemd support is unreliable. Wrap it in tmux for persistence: `tmux new -s sonic 'sonic gateway run'`. See [WSL FAQ](/reference/faq#wsl-gateway-keeps-disconnecting-or-sonic-gateway-start-fails) for details.

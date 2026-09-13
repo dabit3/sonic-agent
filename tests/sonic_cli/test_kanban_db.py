@@ -2220,7 +2220,7 @@ def test_dispatch_worktree_task_persists_materialized_workspace_and_branch(kanba
     repo = tmp_path / "repo"
     _init_git_repo(repo)
     kb.create_board("worktree-board", default_workdir=str(repo))
-    import hermes_cli.profiles as profiles
+    import sonic_cli.profiles as profiles
     monkeypatch.setattr(profiles, "profile_exists", lambda _name: True)
     spawns: list[tuple[str, str]] = []
 
@@ -2259,7 +2259,7 @@ def test_dispatch_worktree_task_rerun_reuses_existing_linked_worktree_and_branch
     repo = tmp_path / "repo"
     _init_git_repo(repo)
     kb.create_board("worktree-rerun-board", default_workdir=str(repo))
-    import hermes_cli.profiles as profiles
+    import sonic_cli.profiles as profiles
     monkeypatch.setattr(profiles, "profile_exists", lambda _name: True)
     spawns: list[tuple[str, str]] = []
 
