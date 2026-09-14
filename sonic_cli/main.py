@@ -1654,7 +1654,7 @@ def _restore_tui_workspace(tui_dir: Path) -> bool:
     """Try to restore a missing ``ui-tui/`` from git, returning True on success.
 
     On Windows an antivirus / NTFS filter driver can leave tracked ``ui-tui/``
-    files deleted in the working tree after ``hermes update`` (HEAD stays
+    files deleted in the working tree after ``sonic update`` (HEAD stays
     intact; the files just vanish — see issue #49145). Those files are tracked,
     so ``git restore`` puts them back deterministically. Best-effort: returns
     False (rather than raising) when git is unavailable, this isn't a checkout,
@@ -1690,19 +1690,19 @@ def _ensure_tui_workspace(tui_dir: Path) -> None:
         return
 
     if _restore_tui_workspace(tui_dir):
-        if not os.environ.get("HERMES_QUIET"):
+        if not os.environ.get("SONIC_QUIET"):
             print(f"Restored missing TUI workspace: {tui_dir}")
         return
 
     print(
-        "Error: the TUI workspace is missing from this Hermes checkout.\n"
+        "Error: the TUI workspace is missing from this Sonic checkout.\n"
         f"Expected directory: {tui_dir}\n"
-        "This usually means `hermes update` left tracked ui-tui files deleted.\n"
+        "This usually means `sonic update` left tracked ui-tui files deleted.\n"
         "Recovery:\n"
-        "  1. From the Hermes checkout, run `git restore -- ui-tui`\n"
+        "  1. From the Sonic checkout, run `git restore -- ui-tui`\n"
         "  2. Run `npm install --silent --no-fund --no-audit --progress=false`\n"
-        "  3. Retry `hermes --tui`\n"
-        "If the checkout is still inconsistent, run `hermes update --force`.",
+        "  3. Retry `sonic --tui`\n"
+        "If the checkout is still inconsistent, run `sonic update --force`.",
         file=sys.stderr,
     )
     sys.exit(1)
@@ -6020,8 +6020,8 @@ def _atomic_replace_dir(src: str, dst: str) -> None:
     fully succeeds do we swap it in. A failure during staging raises with the
     original *dst* still intact.
     """
-    staging = f"{dst}.hermes-update-staging"
-    backup = f"{dst}.hermes-update-old"
+    staging = f"{dst}.sonic-update-staging"
+    backup = f"{dst}.sonic-update-old"
     # Clear any leftovers from a previously-interrupted update.
     for leftover in (staging, backup):
         if os.path.exists(leftover):
@@ -8448,7 +8448,7 @@ def _pause_windows_gateways_for_update() -> dict | None:
     # Snapshot each unmapped gateway's command line *before* we force-kill it,
     # so ``_resume_windows_gateways_after_update`` can respawn it by replaying
     # its own argv. Unmapped gateways are ones with no profile→PID-file mapping
-    # — e.g. a Windows Scheduled Task running ``pythonw.exe -m hermes_cli.main
+    # — e.g. a Windows Scheduled Task running ``pythonw.exe -m sonic_cli.main
     # gateway run``. Without this snapshot they were force-killed and never
     # restarted (the "Restart manually after update" dead-end from #50090).
     unmapped: list[dict] = []

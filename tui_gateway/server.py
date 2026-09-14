@@ -435,7 +435,7 @@ def _finalize_session(session: dict | None, end_reason: str = "tui_close") -> No
     # the user Ctrl‑C's mid‑turn.
     if agent is not None:
         try:
-            from hermes_cli.plugins import invoke_hook
+            from sonic_cli.plugins import invoke_hook
 
             invoke_hook(
                 "on_session_end",

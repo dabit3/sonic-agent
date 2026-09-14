@@ -481,7 +481,7 @@ class TestSessionRetirementOnRunAgent:
 
 class TestCodexToolProgressBridge:
     """#38835: Codex app-server item/started notifications must surface as
-    Hermes tool-progress so gateways show verbose breadcrumbs on this route."""
+    Sonic tool-progress so gateways show verbose breadcrumbs on this route."""
 
     def test_mapper_command_execution(self):
         from agent.codex_runtime import _codex_note_to_tool_progress

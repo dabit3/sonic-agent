@@ -5491,7 +5491,7 @@ def _normalize_root_model_keys(config: Dict[str, Any]) -> Dict[str, Any]:
     confusion on subsequent loads.
 
     Also aliases ``api_base`` → ``base_url`` (issue #8919). ``api_base`` is the
-    intuitive name OpenAI-SDK / LiteLLM users reach for, and ``hermes config set``
+    intuitive name OpenAI-SDK / LiteLLM users reach for, and ``sonic config set``
     blindly accepts any dotted key — so ``model.api_base`` got written, confirmed,
     and then silently ignored by the runtime resolver (which reads only
     ``model.base_url``), causing requests to fall back to OpenRouter. We migrate
@@ -6866,7 +6866,7 @@ def set_config_value(key: str, value: str):
 
     _set_nested(user_config, key, value)
     # Normalize the api_base → base_url alias at set-time too (issue #8919),
-    # so a fresh `hermes config set model.api_base ...` lands on the canonical
+    # so a fresh `sonic config set model.api_base ...` lands on the canonical
     # key the runtime resolver actually reads, instead of being silently
     # ignored. Mirrors the load-time migration in _normalize_root_model_keys.
     _alias_norm = key.strip().lower()
@@ -6886,7 +6886,7 @@ def set_config_value(key: str, value: str):
         save_env_value(env_var, _terminal_env_value(value))
 
     # Mask the echoed value when the (possibly nested) key is credential-shaped
-    # — e.g. `hermes config set model.api_key cfut_...` routes to config.yaml
+    # — e.g. `sonic config set model.api_key cfut_...` routes to config.yaml
     # (lowercase, so it misses the .env api_keys list above) and would otherwise
     # print the raw secret to the terminal.
     _leaf_key = key.rsplit(".", 1)[-1].lower()

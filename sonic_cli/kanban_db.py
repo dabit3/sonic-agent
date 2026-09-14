@@ -113,13 +113,13 @@ def _fire_kanban_lifecycle_hook(event: str, task_id: str, **fields: Any) -> None
     a plugin raising, import error) is swallowed — a misbehaving observer must
     never break a board state transition.
 
-    ``profile_name`` is resolved from the active HERMES_HOME so dispatcher- and
+    ``profile_name`` is resolved from the active SONIC_HOME so dispatcher- and
     worker-side hooks both carry the right profile without the caller plumbing
     it through.
     """
     try:
-        from hermes_cli.plugins import invoke_hook
-        from hermes_cli.profiles import get_active_profile_name
+        from sonic_cli.plugins import invoke_hook
+        from sonic_cli.profiles import get_active_profile_name
         try:
             profile_name = get_active_profile_name()
         except Exception:
@@ -1317,7 +1317,7 @@ def _dispatch_tick_lock(db_path: Path):
     may proceed with the tick, or ``False`` when another process already
     holds it (the caller should skip the tick this round).
 
-    Motivation (issue #35240): a ``hermes gateway run --replace`` /
+    Motivation (issue #35240): a ``sonic gateway run --replace`` /
     ``gateway restart`` invoked from a shell on a systemd/launchd host can
     leave an orphan gateway whose dispatcher escapes the service cgroup,
     survives ``systemctl restart``, and becomes a *second* long-lived
@@ -1609,7 +1609,7 @@ def connect(
     # first-open work (header validation, integrity probe, schema + additive
     # migrations) is already done and cached in _INITIALIZED_PATHS. Acquiring
     # the cross-process init lock on every connect is what let a single stalled
-    # holder (e.g. an external `hermes kanban list` mid-integrity-probe) block
+    # holder (e.g. an external `sonic kanban list` mid-integrity-probe) block
     # the long-lived gateway dispatcher's next-tick connect() forever — an
     # unbounded flock with no timeout, no LOCK_NB, no recovery (#36644). On the
     # steady-state path there is nothing for the cross-process lock to protect
@@ -1621,7 +1621,7 @@ def connect(
         try:
             conn.row_factory = sqlite3.Row
             with _INIT_LOCK:
-                from hermes_state import apply_wal_with_fallback
+                from sonic_state import apply_wal_with_fallback
                 apply_wal_with_fallback(conn, db_label=f"kanban.db ({path.name})")
                 conn.execute("PRAGMA synchronous=FULL")
                 conn.execute("PRAGMA wal_autocheckpoint=100")

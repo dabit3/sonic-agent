@@ -81,7 +81,7 @@ _SESSION_MESSAGE_ID: ContextVar = ContextVar("SONIC_SESSION_MESSAGE_ID", default
 # and any contextvar-unaware path keep working. Stateless adapters opt OUT by
 # setting ``supports_async_delivery = False`` on the adapter class; the gateway
 # propagates that into this contextvar at session-bind time.
-_SESSION_ASYNC_DELIVERY: ContextVar = ContextVar("HERMES_SESSION_ASYNC_DELIVERY", default=_UNSET)
+_SESSION_ASYNC_DELIVERY: ContextVar = ContextVar("SONIC_SESSION_ASYNC_DELIVERY", default=_UNSET)
 
 # Cron auto-delivery vars — set per-job in run_job() so concurrent jobs
 # don't clobber each other's delivery targets.

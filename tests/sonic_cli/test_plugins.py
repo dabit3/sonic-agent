@@ -1870,7 +1870,7 @@ class TestPluginDebugLogging:
 
 
 class TestPluginContextProfileName:
-    """ctx.profile_name resolves from HERMES_HOME in every context."""
+    """ctx.profile_name resolves from SONIC_HOME in every context."""
 
     def _ctx(self):
         mgr = PluginManager()
@@ -1878,27 +1878,27 @@ class TestPluginContextProfileName:
         return PluginContext(manifest, mgr)
 
     def test_default_profile(self, tmp_path, monkeypatch):
-        """HERMES_HOME at the root resolves to 'default'."""
-        home = tmp_path / ".hermes"
+        """SONIC_HOME at the root resolves to 'default'."""
+        home = tmp_path / ".sonic"
         home.mkdir()
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
-        monkeypatch.setenv("HERMES_HOME", str(home))
+        monkeypatch.setenv("SONIC_HOME", str(home))
         assert self._ctx().profile_name == "default"
 
     def test_named_profile(self, tmp_path, monkeypatch):
-        """HERMES_HOME under profiles/<name> resolves to that name."""
-        prof = tmp_path / ".hermes" / "profiles" / "coder"
+        """SONIC_HOME under profiles/<name> resolves to that name."""
+        prof = tmp_path / ".sonic" / "profiles" / "coder"
         prof.mkdir(parents=True)
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
-        monkeypatch.setenv("HERMES_HOME", str(prof))
+        monkeypatch.setenv("SONIC_HOME", str(prof))
         assert self._ctx().profile_name == "coder"
 
     def test_works_without_cli_ref(self, tmp_path, monkeypatch):
         """profile_name does not depend on _cli_ref (None in worker sessions)."""
-        prof = tmp_path / ".hermes" / "profiles" / "worker1"
+        prof = tmp_path / ".sonic" / "profiles" / "worker1"
         prof.mkdir(parents=True)
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
-        monkeypatch.setenv("HERMES_HOME", str(prof))
+        monkeypatch.setenv("SONIC_HOME", str(prof))
         ctx = self._ctx()
         assert ctx._manager._cli_ref is None
         assert ctx.profile_name == "worker1"

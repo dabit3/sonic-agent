@@ -360,8 +360,8 @@
       if (!/^(https?:\/\/|mailto:)/i.test(href)) return "";
       return ` href="${escapeAttribute(href)}" target="_blank" rel="noopener noreferrer"`;
     }
-    if (tag === "pre" && /\sclass=(["'])hermes-kanban-md-code\1/i.test(attrs)) {
-      return ' class="hermes-kanban-md-code"';
+    if (tag === "pre" && /\sclass=(["'])sonic-kanban-md-code\1/i.test(attrs)) {
+      return ' class="sonic-kanban-md-code"';
     }
     return "";
   }

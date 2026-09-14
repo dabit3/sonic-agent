@@ -2074,14 +2074,14 @@ def _prune_stale_seeded_entries(
         # var this call must NOT delete the on-disk entry for every other
         # process — that destructive read is the bug behind #9331. Only prune
         # an env source when ``prune_env_sources`` is explicitly requested
-        # (e.g. an `hermes auth` command that confirmed the source is gone).
+        # (e.g. an `sonic auth` command that confirmed the source is gone).
         if entry.source.startswith("env:"):
             return prune_env_sources
-        # File-backed singletons (device-code OAuth, claude_code) and Hermes
+        # File-backed singletons (device-code OAuth, claude_code) and Sonic
         # PKCE should disappear from the pool when their backing file is gone.
         return (
             is_borrowed_credential_source(entry.source, entry.provider)
-            or entry.source == "hermes_pkce"
+            or entry.source == "sonic_pkce"
         )
 
     retained = [

@@ -146,14 +146,14 @@ def _start_desktop_cron_ticker(stop_event: "threading.Event", interval: int = 60
 
 def _warm_gateway_module() -> None:
     try:
-        import hermes_cli.gateway  # noqa: F401
+        import sonic_cli.gateway  # noqa: F401
     except Exception:
         pass
 
 
 def _resolve_restart_drain_timeout() -> float:
     try:
-        from hermes_cli.gateway import _get_restart_drain_timeout
+        from sonic_cli.gateway import _get_restart_drain_timeout
         return _get_restart_drain_timeout()
     except ImportError:
         from gateway.restart import DEFAULT_GATEWAY_RESTART_DRAIN_TIMEOUT

@@ -591,7 +591,7 @@ class TestRootLevelProviderOverride:
 
     def test_normalize_model_api_base_aliases_to_base_url(self):
         """model.api_base is migrated to model.base_url (issue #8919)."""
-        from hermes_cli.config import _normalize_root_model_keys
+        from sonic_cli.config import _normalize_root_model_keys
 
         config = {
             "model": {
@@ -607,7 +607,7 @@ class TestRootLevelProviderOverride:
 
     def test_normalize_api_base_does_not_override_base_url(self):
         """An explicit model.base_url is never overridden by api_base."""
-        from hermes_cli.config import _normalize_root_model_keys
+        from sonic_cli.config import _normalize_root_model_keys
 
         config = {
             "model": {

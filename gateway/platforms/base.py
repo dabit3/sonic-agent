@@ -594,7 +594,7 @@ def get_inbound_media_max_bytes() -> int:
     unreadable — falls back to the default.
     """
     try:
-        from hermes_cli.config import load_config as _load_config
+        from sonic_cli.config import load_config as _load_config
         cfg = _load_config()
     except Exception:
         return DEFAULT_INBOUND_MEDIA_MAX_BYTES
@@ -2034,7 +2034,7 @@ class BasePlatformAdapter(ABC):
     # the watcher/drain loops). False for stateless request/response adapters
     # (the API server): every route closes its channel when the turn ends, so
     # there is nowhere to push a later completion. The gateway propagates this
-    # into the ``HERMES_SESSION_ASYNC_DELIVERY`` contextvar at session-bind
+    # into the ``SONIC_SESSION_ASYNC_DELIVERY`` contextvar at session-bind
     # time; tools read it via ``async_delivery_supported()`` and refuse to make
     # a delivery promise they can't keep. A new stateless adapter only needs to
     # set this to False to stay correct-by-default.

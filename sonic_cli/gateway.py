@@ -610,7 +610,7 @@ def _capture_gateway_argv(pid: int) -> list[str] | None:
     """Return the live argv of a running gateway process, or ``None``.
 
     Used to respawn gateways that have no profile→PID-file mapping (e.g. a
-    Windows Scheduled Task running ``pythonw.exe -m hermes_cli.main gateway
+    Windows Scheduled Task running ``pythonw.exe -m sonic_cli.main gateway
     run``). ``_pause_windows_gateways_for_update`` force-kills such gateways
     before mutating the venv; without their original command line we cannot
     bring them back, so we snapshot it here before the kill.
@@ -652,7 +652,7 @@ def launch_detached_gateway_restart_by_cmdline(
 
     Companion to ``launch_detached_profile_gateway_restart`` for gateways that
     have no profile→PID-file mapping (Scheduled-Task / manually-launched
-    ``gateway run`` whose HERMES_HOME or argv doesn't match a known profile).
+    ``gateway run`` whose SONIC_HOME or argv doesn't match a known profile).
     Uses the identical detached-watcher mechanism; only the respawn argv
     differs (the process's own argv instead of a profile-derived one).
     """

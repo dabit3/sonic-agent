@@ -1600,7 +1600,7 @@ class TestQuickSnapshot:
     # need explicit regression tests because they validate independent
     # traversal vectors.
 
-    def test_restore_rejects_snapshot_id_traversal(self, hermes_home):
+    def test_restore_rejects_snapshot_id_traversal(self, sonic_home):
         """restore_quick_snapshot must reject snapshot_id values that
         contain path separators, POSIX traversal entries, or are empty.
         These are rejected on the input string before any filesystem
@@ -1609,7 +1609,7 @@ class TestQuickSnapshot:
 
         Regression for the path-traversal surface where ``root /
         snapshot_id`` could resolve above the snapshots root."""
-        from hermes_cli.backup import restore_quick_snapshot
+        from sonic_cli.backup import restore_quick_snapshot
 
         hostile_ids = [
             "../../etc",                # parent traversal
@@ -1622,18 +1622,18 @@ class TestQuickSnapshot:
         ]
         for hostile in hostile_ids:
             assert restore_quick_snapshot(
-                hostile, hermes_home=hermes_home
+                hostile, sonic_home=sonic_home
             ) is False, f"hostile snapshot_id was not rejected: {hostile!r}"
 
-    def test_restore_rejects_manifest_rel_traversal(self, hermes_home):
+    def test_restore_rejects_manifest_rel_traversal(self, sonic_home):
         """A snapshot whose manifest.json contains a rel path that escapes
         the snapshot directory (e.g. ``../../outside.txt``) must skip that
-        entry rather than restoring outside HERMES_HOME."""
-        from hermes_cli.backup import create_quick_snapshot, restore_quick_snapshot
+        entry rather than restoring outside SONIC_HOME."""
+        from sonic_cli.backup import create_quick_snapshot, restore_quick_snapshot
 
-        snap_id = create_quick_snapshot(hermes_home=hermes_home)
+        snap_id = create_quick_snapshot(sonic_home=sonic_home)
         assert snap_id is not None
-        snap_dir = hermes_home / "state-snapshots" / snap_id
+        snap_dir = sonic_home / "state-snapshots" / snap_id
 
         # Inject a traversal entry into manifest.json AND seed the source
         # file outside the snapshot directory so a vulnerable implementation
@@ -1651,16 +1651,16 @@ class TestQuickSnapshot:
         escape_src.write_text("pwned-source")
 
         # Pre-condition: the destination must not exist before restore.
-        escape_dst = hermes_home.parent.parent / "outside.txt"
+        escape_dst = sonic_home.parent.parent / "outside.txt"
         assert not escape_dst.exists()
 
         # Restore should succeed for legitimate files but skip the hostile
         # entry. We don't assert on the return value (other legitimate
         # entries may still restore); we assert on the file-system effect.
-        restore_quick_snapshot(snap_id, hermes_home=hermes_home)
+        restore_quick_snapshot(snap_id, sonic_home=sonic_home)
 
         assert not escape_dst.exists(), (
-            f"manifest rel traversal escaped HERMES_HOME: {escape_dst} exists"
+            f"manifest rel traversal escaped SONIC_HOME: {escape_dst} exists"
         )
 
         # Cleanup the seeded escape source so the test is hermetic.
@@ -2155,32 +2155,32 @@ class TestRestoreCronJobsIfEmptied:
 # ---------------------------------------------------------------------------
 # Memory-provider external paths (~/.honcho, ~/.hindsight, ...) — captured via
 # MemoryProvider.backup_paths() and restored to their original home-relative
-# location, NOT under HERMES_HOME. (backup/import cycle data-loss fix)
+# location, NOT under SONIC_HOME. (backup/import cycle data-loss fix)
 # ---------------------------------------------------------------------------
 
 class TestMemoryProviderExternalPaths:
-    def _make_min_tree(self, hermes_home: Path) -> None:
-        hermes_home.mkdir(parents=True, exist_ok=True)
-        (hermes_home / "config.yaml").write_text("model:\n  provider: openrouter\n")
-        (hermes_home / ".env").write_text("OPENROUTER_API_KEY=sk-test\n")
-        (hermes_home / "state.db").write_bytes(b"x")
+    def _make_min_tree(self, sonic_home: Path) -> None:
+        sonic_home.mkdir(parents=True, exist_ok=True)
+        (sonic_home / "config.yaml").write_text("model:\n  provider: openrouter\n")
+        (sonic_home / ".env").write_text("OPENROUTER_API_KEY=sk-test\n")
+        (sonic_home / "state.db").write_bytes(b"x")
 
     def test_backup_captures_external_paths_under_external_prefix(self, tmp_path, monkeypatch):
         """Provider state under ~/.honcho is archived beneath _external/,
         encoded relative to the home directory."""
-        hermes_home = tmp_path / ".hermes"
-        self._make_min_tree(hermes_home)
-        # External provider state living OUTSIDE HERMES_HOME.
+        sonic_home = tmp_path / ".sonic"
+        self._make_min_tree(sonic_home)
+        # External provider state living OUTSIDE SONIC_HOME.
         honcho = tmp_path / ".honcho"
         honcho.mkdir()
         (honcho / "config.json").write_text('{"peer":"alice"}')
         (honcho / "sub").mkdir()
         (honcho / "sub" / "x.json").write_text('{"a":1}')
 
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
 
-        import hermes_cli.backup as backup_mod
+        import sonic_cli.backup as backup_mod
         monkeypatch.setattr(
             backup_mod, "_collect_memory_provider_external_paths", lambda: [honcho]
         )
@@ -2198,16 +2198,16 @@ class TestMemoryProviderExternalPaths:
     def test_backup_skips_external_paths_outside_home(self, tmp_path, monkeypatch):
         """A declared path outside the home dir is not portable and must be
         skipped, never archived."""
-        hermes_home = tmp_path / ".hermes"
-        self._make_min_tree(hermes_home)
+        sonic_home = tmp_path / ".sonic"
+        self._make_min_tree(sonic_home)
         outside = tmp_path.parent / "outside-home-secret"
         outside.mkdir(exist_ok=True)
         (outside / "leak.json").write_text('{"secret":1}')
 
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
 
-        import hermes_cli.backup as backup_mod
+        import sonic_cli.backup as backup_mod
         monkeypatch.setattr(
             backup_mod, "_collect_memory_provider_external_paths", lambda: [outside]
         )
@@ -2223,12 +2223,12 @@ class TestMemoryProviderExternalPaths:
         outside.rmdir()
 
     def test_import_restores_external_to_home_relative_location(self, tmp_path, monkeypatch):
-        """_external/ members restore to ~/<relpath>, not under HERMES_HOME,
+        """_external/ members restore to ~/<relpath>, not under SONIC_HOME,
         and credential-shaped files get 0600."""
         dst_home = tmp_path / "dst"
         dst_home.mkdir()
-        hermes_home = dst_home / ".hermes"
-        hermes_home.mkdir()
+        sonic_home = dst_home / ".sonic"
+        sonic_home.mkdir()
 
         zip_path = tmp_path / "backup.zip"
         with zipfile.ZipFile(zip_path, "w") as zf:
@@ -2237,10 +2237,10 @@ class TestMemoryProviderExternalPaths:
             zf.writestr("state.db", "")
             zf.writestr("_external/.honcho/config.json", '{"peer":"bob"}')
 
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
         monkeypatch.setattr(Path, "home", lambda: dst_home)
 
-        from hermes_cli.backup import run_import
+        from sonic_cli.backup import run_import
         run_import(Namespace(zipfile=str(zip_path), force=True))
 
         restored = dst_home / ".honcho" / "config.json"
@@ -2248,15 +2248,15 @@ class TestMemoryProviderExternalPaths:
         assert restored.read_text() == '{"peer":"bob"}'
         # Credential-shaped file tightened.
         assert (restored.stat().st_mode & 0o777) == 0o600
-        # External state did NOT leak into HERMES_HOME.
-        assert not (hermes_home / "_external").exists()
+        # External state did NOT leak into SONIC_HOME.
+        assert not (sonic_home / "_external").exists()
 
     def test_import_blocks_external_path_traversal(self, tmp_path, monkeypatch):
         """A malicious _external/ member that escapes the home dir is blocked."""
         dst_home = tmp_path / "dst"
         dst_home.mkdir()
-        hermes_home = dst_home / ".hermes"
-        hermes_home.mkdir()
+        sonic_home = dst_home / ".sonic"
+        sonic_home.mkdir()
         sentinel = tmp_path / "PWNED"
 
         zip_path = tmp_path / "backup.zip"
@@ -2266,10 +2266,10 @@ class TestMemoryProviderExternalPaths:
             zf.writestr("state.db", "")
             zf.writestr("_external/../../PWNED", "pwned")
 
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
         monkeypatch.setattr(Path, "home", lambda: dst_home)
 
-        from hermes_cli.backup import run_import
+        from sonic_cli.backup import run_import
         run_import(Namespace(zipfile=str(zip_path), force=True))
 
         assert not sentinel.exists()

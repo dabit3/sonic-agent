@@ -1405,7 +1405,7 @@ class TestConnectionConfigResolution(unittest.TestCase):
         from gateway.config import PlatformConfig
         from plugins.platforms.email.adapter import EmailAdapter
         with patch.dict(os.environ, {
-            "EMAIL_ADDRESS": "  hermes@test.com\n",
+            "EMAIL_ADDRESS": "  sonic@test.com\n",
             "EMAIL_PASSWORD": "secret",
             "EMAIL_IMAP_HOST": " imap.test.com ",
             "EMAIL_SMTP_HOST": "smtp.test.com\n",
@@ -1413,16 +1413,16 @@ class TestConnectionConfigResolution(unittest.TestCase):
             adapter = EmailAdapter(PlatformConfig(enabled=True))
         self.assertEqual(adapter._imap_host, "imap.test.com")
         self.assertEqual(adapter._smtp_host, "smtp.test.com")
-        self.assertEqual(adapter._address, "hermes@test.com")
+        self.assertEqual(adapter._address, "sonic@test.com")
 
     def test_falls_back_to_platform_config_extra(self):
         """When env vars are absent, settings come from PlatformConfig.extra —
-        the same dict gateway.config populates and `hermes config show` reads."""
+        the same dict gateway.config populates and `sonic config show` reads."""
         from gateway.config import PlatformConfig
         from plugins.platforms.email.adapter import EmailAdapter
         cfg = PlatformConfig(enabled=True)
         cfg.extra.update({
-            "address": "hermes@test.com",
+            "address": "sonic@test.com",
             "imap_host": "imap.test.com",
             "smtp_host": "smtp.test.com",
         })
@@ -1433,7 +1433,7 @@ class TestConnectionConfigResolution(unittest.TestCase):
             adapter = EmailAdapter(cfg)
         self.assertEqual(adapter._imap_host, "imap.test.com")
         self.assertEqual(adapter._smtp_host, "smtp.test.com")
-        self.assertEqual(adapter._address, "hermes@test.com")
+        self.assertEqual(adapter._address, "sonic@test.com")
 
     def test_connect_aborts_without_attempting_imap_when_host_missing(self):
         """A missing host returns False without the cryptic DNS error, and marks
@@ -1442,7 +1442,7 @@ class TestConnectionConfigResolution(unittest.TestCase):
         from gateway.config import PlatformConfig
         from plugins.platforms.email.adapter import EmailAdapter
         with patch.dict(os.environ, {
-            "EMAIL_ADDRESS": "hermes@test.com",
+            "EMAIL_ADDRESS": "sonic@test.com",
             "EMAIL_PASSWORD": "secret",
             "EMAIL_IMAP_HOST": "",
             "EMAIL_SMTP_HOST": "smtp.test.com",
@@ -1476,7 +1476,7 @@ class TestConnectionConfigResolution(unittest.TestCase):
         """The connected check passes only when all four settings are non-blank."""
         from plugins.platforms.email.adapter import check_email_requirements
         with patch.dict(os.environ, {
-            "EMAIL_ADDRESS": "hermes@test.com", "EMAIL_PASSWORD": "secret",
+            "EMAIL_ADDRESS": "sonic@test.com", "EMAIL_PASSWORD": "secret",
             "EMAIL_IMAP_HOST": "imap.test.com", "EMAIL_SMTP_HOST": "smtp.test.com",
         }, clear=False):
             self.assertTrue(check_email_requirements())

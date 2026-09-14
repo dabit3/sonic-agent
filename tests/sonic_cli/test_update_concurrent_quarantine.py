@@ -483,7 +483,7 @@ def test_pause_windows_gateways_for_update_stops_profile_and_unmapped_pids(
     monkeypatch.setattr(
         gateway_mod,
         "_capture_gateway_argv",
-        lambda pid: ["pythonw.exe", "-m", "hermes_cli.main", "gateway", "run"]
+        lambda pid: ["pythonw.exe", "-m", "sonic_cli.main", "gateway", "run"]
         if pid == 202
         else None,
     )
@@ -504,7 +504,7 @@ def test_pause_windows_gateways_for_update_stops_profile_and_unmapped_pids(
         "unmapped": [
             {
                 "pid": 202,
-                "argv": ["pythonw.exe", "-m", "hermes_cli.main", "gateway", "run"],
+                "argv": ["pythonw.exe", "-m", "sonic_cli.main", "gateway", "run"],
             }
         ],
     }
@@ -562,7 +562,7 @@ def test_resume_windows_gateways_after_update_respawns_unmapped_by_cmdline(
 ):
     """Unmapped gateways (no profile→PID-file mapping, e.g. a Scheduled Task)
     are respawned by replaying the argv snapshotted before the force-kill."""
-    import hermes_cli.gateway as gateway_mod
+    import sonic_cli.gateway as gateway_mod
 
     by_cmdline = []
     monkeypatch.setattr(
@@ -576,7 +576,7 @@ def test_resume_windows_gateways_after_update_respawns_unmapped_by_cmdline(
         lambda profile, old_pid: True,
     )
 
-    scheduled_argv = ["pythonw.exe", "-m", "hermes_cli.main", "gateway", "run"]
+    scheduled_argv = ["pythonw.exe", "-m", "sonic_cli.main", "gateway", "run"]
     token = {
         "resume_needed": True,
         "profiles": {},

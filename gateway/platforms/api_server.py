@@ -827,7 +827,7 @@ class APIServerAdapter(BasePlatformAdapter):
         """
         default = 10
         try:
-            from hermes_cli.config import cfg_get, load_config
+            from sonic_cli.config import cfg_get, load_config
 
             raw = cfg_get(
                 load_config(),

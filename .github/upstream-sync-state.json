@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "9f67ba1b0182db31c0bcd08718f681a074373c16",
-  "synced_at": "2026-09-13T16:30:00Z",
-  "notes": "Partial sync: batch 15 ports the 80 first-parent commits after ac83365d, ending at 9f67ba1b (0 skipped). Manual conflicts: website/sidebars.ts (ours), website/docs/user-guide/configuration.md and zh-Hans docker.md (upstream rewrite taken + rebranded). Remaining backlog is approximately 14,900 first-parent commits; each daily run advances the baseline by a reviewable batch."
+  "last_synced_upstream_sha": "87ab37338150183f3187e93afb49aab108f8a9cd",
+  "synced_at": "2026-09-14T16:20:00Z",
+  "notes": "Partial sync: batch 16 ports the 80 first-parent commits after 9f67ba1b, ending at 87ab3733 (0 skipped). No manual conflicts; scripts/release.py AUTHOR_MAP auto-unioned once; ~25 commits auto-resolved where Sonic side was the rebranded base. Remaining backlog is approximately 15,200 first-parent commits; each daily run advances the baseline by a reviewable batch."
 }

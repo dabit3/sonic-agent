@@ -124,7 +124,7 @@ _IMPORT_SKIP_NAMES = {
 # zipfile.open() drops Unix mode bits on extract; restore tightens these to 0600.
 _SECRET_FILE_NAMES = {".env", "auth.json", "state.db"}
 
-# Reserved archive subtree for provider state that lives OUTSIDE HERMES_HOME
+# Reserved archive subtree for provider state that lives OUTSIDE SONIC_HOME
 # (e.g. ~/.honcho, ~/.hindsight). The active memory provider declares these via
 # MemoryProvider.backup_paths(); they're stored under this prefix encoded
 # relative to the user's home directory, and restored to their original
@@ -134,7 +134,7 @@ _EXTERNAL_PREFIX = "_external/"
 
 def _collect_memory_provider_external_paths() -> List[Path]:
     """Return existing absolute paths the active memory provider stores
-    outside HERMES_HOME, resolved from config only (no network, no init).
+    outside SONIC_HOME, resolved from config only (no network, no init).
 
     Reads ``memory.provider`` from config, loads just that provider, and asks
     it for ``backup_paths()``. Returns an empty list when no external provider
@@ -346,7 +346,7 @@ def run_backup(args) -> None:
             files_to_add.append((fpath, rel))
 
     # External memory-provider state (e.g. ~/.honcho, ~/.hindsight) lives
-    # outside HERMES_HOME, so the walk above never sees it. Ask the active
+    # outside SONIC_HOME, so the walk above never sees it. Ask the active
     # provider for its declared paths and stage them under the reserved
     # ``_external/`` arc prefix, encoded relative to the user's home dir.
     # Only paths under home are captured (security + portability); anything
@@ -438,7 +438,7 @@ def run_backup(args) -> None:
     if external_to_add:
         print(
             f"\n  Included {len(external_to_add)} memory-provider file(s) "
-            f"stored outside {display_hermes_home()}."
+            f"stored outside {display_sonic_home()}."
         )
 
     if skipped_external:
@@ -582,7 +582,7 @@ def run_import(args) -> None:
         for member in members:
             # External memory-provider state captured under the reserved
             # ``_external/`` arc prefix restores to its original home-relative
-            # location (e.g. ~/.honcho/config.json), NOT under HERMES_HOME.
+            # location (e.g. ~/.honcho/config.json), NOT under SONIC_HOME.
             if member.startswith(_EXTERNAL_PREFIX):
                 ext_rel = member[len(_EXTERNAL_PREFIX):]
                 if not ext_rel:
@@ -663,7 +663,7 @@ def run_import(args) -> None:
         if restored_external:
             print(
                 f"\n  Restored {restored_external} memory-provider file(s) to "
-                f"their original location(s) outside {display_hermes_home()}."
+                f"their original location(s) outside {display_sonic_home()}."
             )
 
         if errors:

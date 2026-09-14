@@ -2,7 +2,7 @@ const _READY_RE = /^SONIC_DASHBOARD_READY port=(\d+)/m
 
 // The announcement clock starts the instant the backend process is spawned —
 // before uvicorn binds its socket. On a cold install the child must first
-// compile and import the whole `hermes_cli.main` → `web_server` → FastAPI/
+// compile and import the whole `sonic_cli.main` → `web_server` → FastAPI/
 // uvicorn chain, and on Windows real-time AV (Defender) scans every freshly
 // written `.pyc`. That pre-bind cost can run 30-60s on a slow disk, so a tight
 // 45s deadline kills a *healthy but still-starting* backend and respawns it,
@@ -15,12 +15,12 @@ const MIN_PORT_ANNOUNCE_TIMEOUT_MS = 45_000
 
 /**
  * Resolve the port-announcement deadline. Honors the
- * HERMES_DESKTOP_PORT_ANNOUNCE_TIMEOUT_MS env override (for users on slow
+ * SONIC_DESKTOP_PORT_ANNOUNCE_TIMEOUT_MS env override (for users on slow
  * disks / aggressive AV who need an even longer cold-start window), clamped
  * to a sane floor so a bad value can't make boot flakier than the default.
  */
 function resolvePortAnnounceTimeoutMs(env = process.env) {
-  const parsed = Number(env.HERMES_DESKTOP_PORT_ANNOUNCE_TIMEOUT_MS)
+  const parsed = Number(env.SONIC_DESKTOP_PORT_ANNOUNCE_TIMEOUT_MS)
   if (Number.isFinite(parsed) && parsed > 0) {
     return Math.max(MIN_PORT_ANNOUNCE_TIMEOUT_MS, Math.round(parsed))
   }

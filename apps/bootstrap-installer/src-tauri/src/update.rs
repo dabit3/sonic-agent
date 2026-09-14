@@ -1050,7 +1050,7 @@ mod tests {
     fn update_marker_guard_writes_then_removes_on_drop() {
         let dir = unique_tmp_dir("marker-guard");
         std::fs::create_dir_all(&dir).unwrap();
-        let marker = dir.join(".hermes-update-in-progress");
+        let marker = dir.join(".sonic-update-in-progress");
 
         {
             let _g = UpdateMarkerGuard::acquire(marker.clone());
@@ -1076,7 +1076,7 @@ mod tests {
     fn update_marker_guard_drop_is_quiet_when_already_gone() {
         let dir = unique_tmp_dir("marker-guard-gone");
         std::fs::create_dir_all(&dir).unwrap();
-        let marker = dir.join(".hermes-update-in-progress");
+        let marker = dir.join(".sonic-update-in-progress");
 
         let guard = UpdateMarkerGuard::acquire(marker.clone());
         // Simulate an external cleanup (e.g. the desktop pruned a marker it

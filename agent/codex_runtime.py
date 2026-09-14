@@ -26,12 +26,12 @@ logger = logging.getLogger(__name__)
 
 
 def _codex_note_to_tool_progress(note: dict) -> tuple[str, str, dict] | None:
-    """Map a Codex app-server ``item/started`` notification to a Hermes
+    """Map a Codex app-server ``item/started`` notification to a Sonic
     tool-progress event ``(tool_name, preview, args)``.
 
     The Codex app-server runtime processes ``item/started`` notifications for
     command execution, file changes, and MCP/dynamic tool calls, but never
-    surfaced them as Hermes tool-progress events — so gateways (Telegram, etc.)
+    surfaced them as Sonic tool-progress events — so gateways (Telegram, etc.)
     showed no verbose "running X" breadcrumbs on this route while every other
     provider did (#38835). Returns None for items that aren't tool-shaped.
     """
@@ -261,7 +261,7 @@ def run_codex_app_server_turn(
             approval_callback = None
 
         def _on_codex_event(note: dict) -> None:
-            # Bridge Codex app-server item/started notifications to Hermes
+            # Bridge Codex app-server item/started notifications to Sonic
             # tool-progress so gateways show verbose "running X" breadcrumbs
             # on this route too (#38835).
             progress_callback = getattr(agent, "tool_progress_callback", None)
