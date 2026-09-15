@@ -506,7 +506,7 @@ class ProcessRegistry:
         config is unreadable, so callers always get a sane number.
         """
         try:
-            from hermes_cli.config import read_raw_config, cfg_get, DEFAULT_CONFIG
+            from sonic_cli.config import read_raw_config, cfg_get, DEFAULT_CONFIG
             cfg = read_raw_config()
             val = cfg_get(cfg, "terminal", "daemon_term_grace_seconds")
             if val is None:

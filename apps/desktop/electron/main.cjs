@@ -2119,7 +2119,7 @@ async function applyUpdatesPosixInApp() {
     return { ok: false, backendUpdated: true, error: 'desktop rebuild failed' }
   }
 
-  // Linux in-app update terminal state (#45205). `hermes desktop --build-only`
+  // Linux in-app update terminal state (#45205). `sonic desktop --build-only`
   // rebuilds the unpacked app in place under apps/desktop/release/<plat>-unpacked.
   // We can only HONESTLY relaunch into the new GUI when the *running* binary IS
   // that rebuilt one — i.e. execPath lives under release/<plat>-unpacked. The
@@ -2157,7 +2157,7 @@ async function applyUpdatesPosixInApp() {
     const outcome = decideRelaunchOutcome({ underUnpacked, sandboxOk })
 
     if (outcome === 'relaunch') {
-      emitUpdateProgress({ stage: 'restart', message: 'Restarting Hermes…', percent: 100 })
+      emitUpdateProgress({ stage: 'restart', message: 'Restarting Sonic…', percent: 100 })
       // Preserve launch context across the re-exec: replay the original args
       // (filtered of Electron internals) and the env/cwd that define which
       // backend/profile/root this instance talks to. Without this the
@@ -2171,7 +2171,7 @@ async function applyUpdatesPosixInApp() {
         env: relaunchEnv,
         cwd: process.cwd()
       })
-      const scriptPath = path.join(app.getPath('temp'), `hermes-desktop-update-${Date.now()}.sh`)
+      const scriptPath = path.join(app.getPath('temp'), `sonic-desktop-update-${Date.now()}.sh`)
       try {
         fs.writeFileSync(scriptPath, relaunchScript, { mode: 0o755 })
         const child = spawn('/bin/bash', [scriptPath], { detached: true, stdio: 'ignore' })
@@ -2189,7 +2189,7 @@ async function applyUpdatesPosixInApp() {
           backendUpdated: true,
           guiUpdated: false,
           manualRestart: true,
-          message: 'Backend updated. Quit and reopen Hermes to load the new version.'
+          message: 'Backend updated. Quit and reopen Sonic to load the new version.'
         }
       }
     }
@@ -2199,7 +2199,7 @@ async function applyUpdatesPosixInApp() {
         stage: 'guiSkew',
         message:
           'Backend updated, but the desktop app package was not changed. ' +
-          'Update or reinstall the Hermes desktop app to match.',
+          'Update or reinstall the Sonic desktop app to match.',
         percent: 100
       })
       rememberLog(
@@ -2223,7 +2223,7 @@ async function applyUpdatesPosixInApp() {
       sandboxBlocked: true,
       message:
         'Backend updated. The rebuilt app can’t relaunch automatically ' +
-        '(sandbox helper needs root). Quit and reopen Hermes to finish.'
+        '(sandbox helper needs root). Quit and reopen Sonic to finish.'
     }
   }
 

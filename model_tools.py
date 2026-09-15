@@ -396,8 +396,8 @@ def _compute_tool_definitions(
     if disabled_toolsets:
         for toolset_name in disabled_toolsets:
             if validate_toolset(toolset_name):
-                if toolset_name.startswith("hermes-"):
-                    # Platform bundles (hermes-*) include _HERMES_CORE_TOOLS, so
+                if toolset_name.startswith("sonic-"):
+                    # Platform bundles (sonic-*) include _SONIC_CORE_TOOLS, so
                     # subtracting the whole bundle would strip core tools shared
                     # by other enabled toolsets and empty the tool list (#33924).
                     # Subtract only the bundle's non-core delta; keep core.

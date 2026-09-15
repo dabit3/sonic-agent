@@ -617,7 +617,7 @@ Discord's per-upload size limit depends on the server's boost tier (25 MB free, 
 
 ## Receiving Arbitrary File Types
 
-Any file type a user uploads is accepted. Authorization to message the agent is the gate — not the file extension. Every upload is downloaded, cached under `~/.hermes/cache/documents/`, and surfaced to the agent as a `DOCUMENT`-typed message event so it can inspect the file with `terminal` (`ffprobe`, `unzip`, `file`, `strings`, etc.) or `read_file`.
+Any file type a user uploads is accepted. Authorization to message the agent is the gate — not the file extension. Every upload is downloaded, cached under `~/.sonic/cache/documents/`, and surfaced to the agent as a `DOCUMENT`-typed message event so it can inspect the file with `terminal` (`ffprobe`, `unzip`, `file`, `strings`, etc.) or `read_file`.
 
 - Known types (PDF, docx/xlsx/pptx, zip, images/audio/video, etc.) keep their precise MIME.
 - Unknown types fall back to the upload's reported content type, or `application/octet-stream` when none is given.

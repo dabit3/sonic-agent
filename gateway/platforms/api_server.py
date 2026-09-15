@@ -4451,7 +4451,7 @@ class APIServerAdapter(BasePlatformAdapter):
 
             # Refuse to start network-accessible with a placeholder or weak key.
             # Ported from openclaw/openclaw#64586; entropy floor raised to 16 in
-            # the June 2026 hermes-0day hardening (an 8-char key dispatching
+            # the June 2026 sonic-0day hardening (an 8-char key dispatching
             # terminal-capable agent work on a public bind is brute-forceable).
             if is_network_accessible(self._host) and self._api_key:
                 try:
@@ -4474,13 +4474,13 @@ class APIServerAdapter(BasePlatformAdapter):
             # Loud warning when a network-accessible API server runs against an
             # unsandboxed local terminal backend. The API server can drive the
             # agent's terminal/file tools as the host user; on a public bind
-            # that is the exact surface the hermes-0day campaign abused to write
-            # ~/.hermes/config.yaml and plant persistence. Sandboxing (Docker /
+            # that is the exact surface the sonic-0day campaign abused to write
+            # ~/.sonic/config.yaml and plant persistence. Sandboxing (Docker /
             # remote backend) contains the blast radius. Warn, don't refuse —
             # the operator may have an external firewall / strong key.
             if is_network_accessible(self._host):
                 try:
-                    from hermes_cli.config import load_config as _load_cfg
+                    from sonic_cli.config import load_config as _load_cfg
                     _backend = (
                         ((_load_cfg() or {}).get("terminal") or {}).get(
                             "backend", "local"

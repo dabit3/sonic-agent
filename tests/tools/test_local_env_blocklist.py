@@ -382,16 +382,16 @@ class TestSanePathIncludesHomebrew:
     """Verify _SANE_PATH includes macOS Homebrew directories."""
 
     @pytest.fixture(autouse=True)
-    def _disable_hermes_bin_injection(self):
+    def _disable_sonic_bin_injection(self):
         """These tests assert the sane-path merge in isolation. Disable the
-        hermes-install-dir prepend (a separate concern, covered by
-        TestHermesBinDirOnPath) so a real ``hermes`` on the test runner's PATH
+        sonic-install-dir prepend (a separate concern, covered by
+        TestSonicBinDirOnPath) so a real ``sonic`` on the test runner's PATH
         doesn't shift the asserted PATH layout."""
         from tools.environments import local as local_mod
-        saved = local_mod._HERMES_BIN_DIR
-        local_mod._HERMES_BIN_DIR = None  # resolved -> no dir to inject
+        saved = local_mod._SONIC_BIN_DIR
+        local_mod._SONIC_BIN_DIR = None  # resolved -> no dir to inject
         yield
-        local_mod._HERMES_BIN_DIR = saved
+        local_mod._SONIC_BIN_DIR = saved
 
     def test_sane_path_includes_homebrew_bin(self):
         from tools.environments.local import _SANE_PATH
@@ -487,38 +487,38 @@ class TestSanePathIncludesHomebrew:
         assert "PATH" not in result
 
 
-class TestHermesBinDirOnPath:
-    """The hermes install dir is reachable in the terminal subshell PATH.
+class TestSonicBinDirOnPath:
+    """The sonic install dir is reachable in the terminal subshell PATH.
 
-    Plugins shelling out to bare ``hermes`` via the terminal tool must work
-    even when the gateway was launched without the hermes install dir on
+    Plugins shelling out to bare ``sonic`` via the terminal tool must work
+    even when the gateway was launched without the sonic install dir on
     PATH (systemd, service managers, cron). See the discussion that motivated
-    _resolve_hermes_bin_dir / _prepend_hermes_bin_dir.
+    _resolve_sonic_bin_dir / _prepend_sonic_bin_dir.
     """
 
     def _reset_cache(self):
         from tools.environments import local as local_mod
-        local_mod._HERMES_BIN_DIR = local_mod._SENTINEL
+        local_mod._SONIC_BIN_DIR = local_mod._SENTINEL
 
     def test_resolves_via_which(self, monkeypatch):
         from tools.environments import local as local_mod
         self._reset_cache()
         monkeypatch.setattr(local_mod.shutil, "which",
-                            lambda name: "/opt/hermes/bin/hermes" if name == "hermes" else None)
-        monkeypatch.setattr(local_mod.os.path, "isdir", lambda p: p == "/opt/hermes/bin")
-        assert local_mod._resolve_hermes_bin_dir() == "/opt/hermes/bin"
+                            lambda name: "/opt/sonic/bin/sonic" if name == "sonic" else None)
+        monkeypatch.setattr(local_mod.os.path, "isdir", lambda p: p == "/opt/sonic/bin")
+        assert local_mod._resolve_sonic_bin_dir() == "/opt/sonic/bin"
 
     def test_resolves_via_sys_executable_dir(self, monkeypatch, tmp_path):
         from tools.environments import local as local_mod
         self._reset_cache()
         venv_bin = tmp_path / "venv" / "bin"
         venv_bin.mkdir(parents=True)
-        (venv_bin / "hermes").write_text("#!/bin/sh\n")
+        (venv_bin / "sonic").write_text("#!/bin/sh\n")
         monkeypatch.setattr(local_mod.shutil, "which", lambda name: None)
         monkeypatch.setattr(local_mod.sys, "argv", ["python"])
         monkeypatch.setattr(local_mod.sys, "executable", str(venv_bin / "python"))
         monkeypatch.setattr(local_mod, "_IS_WINDOWS", False)
-        assert local_mod._resolve_hermes_bin_dir() == str(venv_bin)
+        assert local_mod._resolve_sonic_bin_dir() == str(venv_bin)
 
     def test_returns_none_when_unresolvable(self, monkeypatch):
         from tools.environments import local as local_mod
@@ -526,40 +526,40 @@ class TestHermesBinDirOnPath:
         monkeypatch.setattr(local_mod.shutil, "which", lambda name: None)
         monkeypatch.setattr(local_mod.sys, "argv", ["python"])
         monkeypatch.setattr(local_mod.sys, "executable", "/nonexistent/python")
-        assert local_mod._resolve_hermes_bin_dir() is None
+        assert local_mod._resolve_sonic_bin_dir() is None
 
     def test_prepend_adds_missing_dir_at_front(self, monkeypatch):
         from tools.environments import local as local_mod
         self._reset_cache()
-        local_mod._HERMES_BIN_DIR = "/opt/hermes/bin"
-        out = local_mod._prepend_hermes_bin_dir("/usr/bin:/bin")
-        assert out.split(os.pathsep)[0] == "/opt/hermes/bin"
+        local_mod._SONIC_BIN_DIR = "/opt/sonic/bin"
+        out = local_mod._prepend_sonic_bin_dir("/usr/bin:/bin")
+        assert out.split(os.pathsep)[0] == "/opt/sonic/bin"
         assert "/usr/bin" in out.split(os.pathsep)
 
     def test_prepend_is_idempotent(self, monkeypatch):
         from tools.environments import local as local_mod
         self._reset_cache()
-        local_mod._HERMES_BIN_DIR = "/opt/hermes/bin"
-        once = local_mod._prepend_hermes_bin_dir("/usr/bin:/bin")
-        twice = local_mod._prepend_hermes_bin_dir(once)
+        local_mod._SONIC_BIN_DIR = "/opt/sonic/bin"
+        once = local_mod._prepend_sonic_bin_dir("/usr/bin:/bin")
+        twice = local_mod._prepend_sonic_bin_dir(once)
         assert twice == once
-        assert once.split(os.pathsep).count("/opt/hermes/bin") == 1
+        assert once.split(os.pathsep).count("/opt/sonic/bin") == 1
 
     def test_prepend_noop_when_unresolved(self, monkeypatch):
         from tools.environments import local as local_mod
         self._reset_cache()
-        local_mod._HERMES_BIN_DIR = None
-        assert local_mod._prepend_hermes_bin_dir("/usr/bin:/bin") == "/usr/bin:/bin"
+        local_mod._SONIC_BIN_DIR = None
+        assert local_mod._prepend_sonic_bin_dir("/usr/bin:/bin") == "/usr/bin:/bin"
 
-    def test_make_run_env_injects_hermes_bin_dir(self, monkeypatch):
-        """A gateway env missing the hermes dir gets it back in the subshell PATH."""
+    def test_make_run_env_injects_sonic_bin_dir(self, monkeypatch):
+        """A gateway env missing the sonic dir gets it back in the subshell PATH."""
         from tools.environments import local as local_mod
         from tools.environments.local import _make_run_env
         self._reset_cache()
-        local_mod._HERMES_BIN_DIR = "/opt/hermes/bin"
+        local_mod._SONIC_BIN_DIR = "/opt/sonic/bin"
         monkeypatch.setattr(local_mod, "_IS_WINDOWS", False)
         with patch.dict(os.environ, {"PATH": "/usr/bin:/bin"}, clear=True):
             result = _make_run_env({})
         entries = result["PATH"].split(os.pathsep)
-        assert entries[0] == "/opt/hermes/bin"
+        assert entries[0] == "/opt/sonic/bin"
         assert "/usr/bin" in entries

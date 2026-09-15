@@ -97,7 +97,7 @@ class TestCreateSession:
             raising=False,
         )
         monkeypatch.setattr(
-            "hermes_cli.config.load_config",
+            "sonic_cli.config.load_config",
             lambda: {
                 "model": {
                     "default": "fake-model",
@@ -107,7 +107,7 @@ class TestCreateSession:
             },
         )
         monkeypatch.setattr(
-            "hermes_cli.runtime_provider.resolve_runtime_provider",
+            "sonic_cli.runtime_provider.resolve_runtime_provider",
             lambda requested=None: {
                 "provider": requested,
                 "api_mode": "codex_app_server",

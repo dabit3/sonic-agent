@@ -31,7 +31,7 @@ def _hermetic_container_argv(monkeypatch: pytest.MonkeyPatch) -> None:
 
     ``_read_container_argv()`` walks the entire ``/proc`` table looking for
     a process whose argv contains ``main-wrapper.sh`` (the s6-overlay v3
-    fallback). On a host that is *also* running hermes containers, those
+    fallback). On a host that is *also* running sonic containers, those
     containers' ``main-wrapper.sh`` processes are visible in the host's
     ``/proc`` (shared PID view), so the scan would pick up a foreign
     ``gateway run`` argv and make ``_maybe_migrate_legacy_gateway_run_state``
@@ -43,7 +43,7 @@ def _hermetic_container_argv(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch ``_read_container_argv`` themselves (both override this).
     """
     monkeypatch.setattr(
-        "hermes_cli.container_boot._read_container_argv",
+        "sonic_cli.container_boot._read_container_argv",
         lambda: (),
     )
 
@@ -804,7 +804,7 @@ def test_is_dashboard_container_true_for_dashboard_argv(
             "-e",
             "/run/s6/basedir/scripts/rc.init",
             "top",
-            "/opt/hermes/docker/main-wrapper.sh",
+            "/opt/sonic/docker/main-wrapper.sh",
             "gateway",
             "run",
         ),
@@ -865,11 +865,11 @@ def test_main_skips_reconcile_in_dashboard_container_s6v3(
     reconciled, and it started its own gateway-default (dual Telegram
     getUpdates 409). Asserting the slot is absent proves the skip fires.
     """
-    from hermes_cli import container_boot
+    from sonic_cli import container_boot
 
     scandir = tmp_path / "run-service"; scandir.mkdir()
     _make_profile(tmp_path, "worker", state="running")
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     monkeypatch.setenv("S6_PROFILE_GATEWAY_SCANDIR", str(scandir))
     monkeypatch.setattr(
         container_boot,
@@ -879,7 +879,7 @@ def test_main_skips_reconcile_in_dashboard_container_s6v3(
             "-e",
             "/run/s6/basedir/scripts/rc.init",
             "top",
-            "/opt/hermes/docker/main-wrapper.sh",
+            "/opt/sonic/docker/main-wrapper.sh",
             "dashboard",
             "--host",
             "0.0.0.0",

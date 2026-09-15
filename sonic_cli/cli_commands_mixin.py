@@ -1981,7 +1981,7 @@ class CLICommandsMixin:
             "#! Compose your prompt below. Lines starting with '#!' are ignored.\n"
             "#! Save and quit to send; leave empty to cancel.\n\n"
         )
-        fd, path = tempfile.mkstemp(suffix=".md", prefix="hermes_prompt_")
+        fd, path = tempfile.mkstemp(suffix=".md", prefix="sonic_prompt_")
         try:
             with os.fdopen(fd, "w", encoding="utf-8") as fh:
                 fh.write(header)
@@ -2099,7 +2099,7 @@ class CLICommandsMixin:
             /timestamps status    → show current state
         """
         from cli import _cprint, save_config_value
-        from hermes_cli.colors import Colors as _Colors
+        from sonic_cli.colors import Colors as _Colors
 
         arg = ""
         try:

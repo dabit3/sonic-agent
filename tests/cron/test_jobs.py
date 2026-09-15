@@ -717,20 +717,20 @@ class TestGetDueJobs:
         the 150s grace for a 5m interval. The job must be returned as due (run
         once) AND have next_run_at fast-forwarded (so accumulated missed slots
         don't all fire)."""
-        from cron.jobs import _ensure_aware, _hermes_now
+        from cron.jobs import _ensure_aware, _sonic_now
         job = create_job(prompt="Long job", schedule="every 5m")
         jobs = load_jobs()
         # 11 minutes ago: > grace (150s for a 5m interval) — the "still running" miss.
-        stale = (_hermes_now() - timedelta(minutes=11)).isoformat()
+        stale = (_sonic_now() - timedelta(minutes=11)).isoformat()
         jobs[0]["next_run_at"] = stale
-        jobs[0]["last_run_at"] = (_hermes_now() - timedelta(minutes=1)).isoformat()
+        jobs[0]["last_run_at"] = (_sonic_now() - timedelta(minutes=1)).isoformat()
         save_jobs(jobs)
 
         due = get_due_jobs()
         assert [j["id"] for j in due] == [job["id"]], "long-execution job was skipped (perpetual-defer bug)"
         # next_run_at fast-forwarded into the future (no burst of missed slots).
         nxt = _ensure_aware(datetime.fromisoformat(get_job(job["id"])["next_run_at"]))
-        assert nxt > _hermes_now()
+        assert nxt > _sonic_now()
 
 
     def test_stale_repeat_limited_job_consumes_one_run_on_catchup(self, tmp_cron_dir, monkeypatch):
@@ -738,11 +738,11 @@ class TestGetDueJobs:
         fires ONCE on catch-up and consumes one of its runs (it is no longer
         silently skipped). Pins the documented repeat-count interaction so it
         isn't changed accidentally."""
-        from cron.jobs import _hermes_now
+        from cron.jobs import _sonic_now
         job = create_job(prompt="Limited", schedule="every 5m", repeat=3)
         jobs = load_jobs()
-        jobs[0]["next_run_at"] = (_hermes_now() - timedelta(minutes=11)).isoformat()
-        jobs[0]["last_run_at"] = (_hermes_now() - timedelta(minutes=11)).isoformat()
+        jobs[0]["next_run_at"] = (_sonic_now() - timedelta(minutes=11)).isoformat()
+        jobs[0]["last_run_at"] = (_sonic_now() - timedelta(minutes=11)).isoformat()
         save_jobs(jobs)
 
         # The stale job is returned to fire once (not skipped).

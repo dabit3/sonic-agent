@@ -17447,16 +17447,16 @@ async def start_gateway(config: Optional[GatewayConfig] = None, replace: bool = 
     # so operators get the "you're exposed" signal the June 2026 MCP-config
     # persistence campaign victims never had.
     try:
-        from hermes_cli.security_audit_startup import log_startup_security_warnings
+        from sonic_cli.security_audit_startup import log_startup_security_warnings
 
         _audit_cfg = None
         try:
-            from hermes_cli.config import read_raw_config
+            from sonic_cli.config import read_raw_config
 
             _audit_cfg = read_raw_config()
         except Exception:
             _audit_cfg = None
-        log_startup_security_warnings(hermes_home=_hermes_home, config=_audit_cfg)
+        log_startup_security_warnings(sonic_home=_sonic_home, config=_audit_cfg)
     except Exception as _audit_exc:
         logger.debug("Startup security audit failed (non-fatal): %s", _audit_exc)
 
@@ -17667,7 +17667,7 @@ async def start_gateway(config: Optional[GatewayConfig] = None, replace: bool = 
     atexit.register(release_gateway_runtime_lock)
 
     try:
-        from hermes_cli.nous_auth_keepalive import start_nous_auth_keepalive
+        from sonic_cli.nous_auth_keepalive import start_nous_auth_keepalive
 
         start_nous_auth_keepalive()
     except Exception as exc:
@@ -17730,7 +17730,7 @@ async def start_gateway(config: Optional[GatewayConfig] = None, replace: bool = 
     await runner.wait_for_shutdown()
 
     try:
-        from hermes_cli.nous_auth_keepalive import stop_nous_auth_keepalive
+        from sonic_cli.nous_auth_keepalive import stop_nous_auth_keepalive
 
         stop_nous_auth_keepalive()
     except Exception:

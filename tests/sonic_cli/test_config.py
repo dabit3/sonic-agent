@@ -257,7 +257,7 @@ class TestSaveAndLoadRoundtrip:
             assert reloaded["terminal"]["timeout"] == 999
 
     def test_write_platform_config_field_coerces_nested_platform_maps(self, tmp_path):
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             (tmp_path / "config.yaml").write_text(
                 "model: test/custom-model\nplatforms: not-a-map\n",
                 encoding="utf-8",

@@ -68,7 +68,7 @@ sonic memory setup        # select "honcho" — runs the Honcho-specific post-se
 
 The legacy `sonic honcho setup` command still works (it now redirects to `sonic memory setup`), but is only registered after Honcho is selected as the active memory provider.
 
-**Config:** `$SONIC_HOME/honcho.json` (profile-local) or `~/.honcho/config.json` (global). Resolution order: `$SONIC_HOME/honcho.json` > `~/.sonic/honcho.json` > `~/.honcho/config.json`. See the [config reference](https://github.com/NousResearch/hermes-agent/blob/main/plugins/memory/honcho/README.md) and the [Honcho integration guide](https://docs.honcho.dev/v3/guides/integrations/sonic).
+**Config:** `$SONIC_HOME/honcho.json` (profile-local) or `~/.honcho/config.json` (global). Resolution order: `$SONIC_HOME/honcho.json` > `~/.sonic/honcho.json` > `~/.honcho/config.json`. See the [config reference](https://github.com/dabit3/sonic-agent/blob/main/plugins/memory/honcho/README.md) and the [Honcho integration guide](https://docs.honcho.dev/v3/guides/integrations/sonic).
 
 <details>
 <summary>Full config reference</summary>
@@ -270,7 +270,7 @@ Off-gateway these keys do nothing. `sonic memory setup` only prompts for them wh
 
 </details>
 
-See the [config reference](https://github.com/NousResearch/hermes-agent/blob/main/plugins/memory/honcho/README.md) and [Honcho integration guide](https://docs.honcho.dev/v3/guides/integrations/sonic).
+See the [config reference](https://github.com/dabit3/sonic-agent/blob/main/plugins/memory/honcho/README.md) and [Honcho integration guide](https://docs.honcho.dev/v3/guides/integrations/sonic).
 
 
 ---

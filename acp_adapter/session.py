@@ -619,7 +619,7 @@ class SessionManager:
         agent = AIAgent(**kwargs)
         # Codex app-server sessions are spawned lazily on the first turn. Stamp
         # the ACP workspace onto the agent so the Codex runtime starts from the
-        # editor/session cwd instead of the Hermes daemon's process cwd.
+        # editor/session cwd instead of the Sonic daemon's process cwd.
         agent.session_cwd = cwd
         # ACP stdio transport requires stdout to remain protocol-only JSON-RPC.
         # Route any incidental human-readable agent output to stderr instead.

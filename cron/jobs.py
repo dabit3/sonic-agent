@@ -632,8 +632,8 @@ def _warn_if_orphaned_profile_store() -> None:
     if _WARNED_ORPHAN_STORE:
         return
     try:
-        active = get_hermes_home().resolve()
-        if active == HERMES_DIR:
+        active = get_sonic_home().resolve()
+        if active == SONIC_DIR:
             return  # not in a profile; nothing could be orphaned
         legacy = active / "cron" / "jobs.json"
         if legacy.exists():

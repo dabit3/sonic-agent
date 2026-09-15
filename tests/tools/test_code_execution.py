@@ -175,7 +175,7 @@ class TestExecuteCodeRemoteTempDir(unittest.TestCase):
         self.assertNotIn("mkdir -p /tmp/sonic_exec_", mkdir_cmd)
 
     def test_timezone_shell_quoted_in_remote_execution(self):
-        """HERMES_TIMEZONE must be shell-quoted in remote env_prefix to prevent injection."""
+        """SONIC_TIMEZONE must be shell-quoted in remote env_prefix to prevent injection."""
         class FakeEnv:
             def __init__(self):
                 self.commands = []
@@ -203,7 +203,7 @@ class TestExecuteCodeRemoteTempDir(unittest.TestCase):
              patch("tools.code_execution_tool._ship_file_to_remote"), \
              patch("tools.code_execution_tool.threading.Thread",
                    return_value=fake_thread), \
-             patch.dict(os.environ, {"HERMES_TIMEZONE": malicious_tz}):
+             patch.dict(os.environ, {"SONIC_TIMEZONE": malicious_tz}):
             result = json.loads(_execute_remote("print('hello')", "task-1", ["terminal"]))
 
         self.assertEqual(result["status"], "success")

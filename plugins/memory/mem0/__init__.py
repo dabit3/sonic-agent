@@ -52,7 +52,7 @@ _CLIENT_ERROR_TYPES = ("MemoryNotFoundError", "ValidationError")
 # that legacy mem0.json files written by the setup wizard (which historically
 # wrote this exact placeholder) still allow gateway-native ids to flow
 # through instead of silently overriding them with the placeholder.
-_DEFAULT_USER_ID = "hermes-user"
+_DEFAULT_USER_ID = "sonic-user"
 
 
 def _is_client_error(exc: Exception) -> bool:
@@ -245,9 +245,9 @@ class Mem0MemoryProvider(MemoryProvider):
             {"key": "rerank", "description": "Enable reranking for recall", "default": "true", "choices": ["true", "false"]},
         ]
 
-    def post_setup(self, hermes_home: str, config: dict) -> None:
+    def post_setup(self, sonic_home: str, config: dict) -> None:
         from ._setup import post_setup
-        post_setup(hermes_home, config)
+        post_setup(sonic_home, config)
 
     def _create_backend(self):
         try:

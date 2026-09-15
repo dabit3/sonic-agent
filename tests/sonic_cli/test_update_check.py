@@ -138,9 +138,9 @@ def test_check_via_local_git_shallow_clone_behind_reports_no_count(tmp_path):
     compare tip SHAs and return UPDATE_AVAILABLE_NO_COUNT instead, and must
     never run ``git rev-list --count``.
     """
-    import hermes_cli.banner as banner
+    import sonic_cli.banner as banner
 
-    repo_dir = tmp_path / "hermes-agent"
+    repo_dir = tmp_path / "sonic-agent"
     repo_dir.mkdir()
     (repo_dir / ".git").mkdir()
 
@@ -162,7 +162,7 @@ def test_check_via_local_git_shallow_clone_behind_reports_no_count(tmp_path):
             raise AssertionError("shallow path must not count across the boundary")
         raise AssertionError(f"unexpected git command: {cmd!r}")
 
-    with patch("hermes_cli.banner.subprocess.run", side_effect=fake_run):
+    with patch("sonic_cli.banner.subprocess.run", side_effect=fake_run):
         result = banner._check_via_local_git(repo_dir)
 
     assert result == banner.UPDATE_AVAILABLE_NO_COUNT
@@ -172,9 +172,9 @@ def test_check_via_local_git_shallow_clone_behind_reports_no_count(tmp_path):
 
 def test_check_via_local_git_shallow_clone_up_to_date(tmp_path):
     """Shallow clone whose tip matches upstream reports up-to-date (0)."""
-    import hermes_cli.banner as banner
+    import sonic_cli.banner as banner
 
-    repo_dir = tmp_path / "hermes-agent"
+    repo_dir = tmp_path / "sonic-agent"
     repo_dir.mkdir()
     (repo_dir / ".git").mkdir()
 
@@ -191,7 +191,7 @@ def test_check_via_local_git_shallow_clone_up_to_date(tmp_path):
             return MagicMock(returncode=0, stdout="same-sha\n")
         raise AssertionError(f"unexpected git command: {cmd!r}")
 
-    with patch("hermes_cli.banner.subprocess.run", side_effect=fake_run):
+    with patch("sonic_cli.banner.subprocess.run", side_effect=fake_run):
         result = banner._check_via_local_git(repo_dir)
 
     assert result == 0
@@ -199,9 +199,9 @@ def test_check_via_local_git_shallow_clone_up_to_date(tmp_path):
 
 def test_check_via_local_git_full_clone_keeps_exact_count(tmp_path):
     """Full (non-shallow) clones keep the exact rev-list count path."""
-    import hermes_cli.banner as banner
+    import sonic_cli.banner as banner
 
-    repo_dir = tmp_path / "hermes-agent"
+    repo_dir = tmp_path / "sonic-agent"
     repo_dir.mkdir()
     (repo_dir / ".git").mkdir()
 
@@ -216,7 +216,7 @@ def test_check_via_local_git_full_clone_keeps_exact_count(tmp_path):
             return MagicMock(returncode=0, stdout="7\n")
         raise AssertionError(f"unexpected git command: {cmd!r}")
 
-    with patch("hermes_cli.banner.subprocess.run", side_effect=fake_run):
+    with patch("sonic_cli.banner.subprocess.run", side_effect=fake_run):
         result = banner._check_via_local_git(repo_dir)
 
     assert result == 7

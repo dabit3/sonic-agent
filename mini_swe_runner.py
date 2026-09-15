@@ -670,7 +670,7 @@ def main(
     """
     print("🚀 Mini-SWE Runner with Sonic Trajectory Format")
     print("=" * 60)
-    
+
     # Configure root logging at the entry point (not in library __init__).
     logging.basicConfig(
         level=logging.DEBUG if verbose else logging.INFO,

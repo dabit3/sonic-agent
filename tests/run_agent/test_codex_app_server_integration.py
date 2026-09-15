@@ -296,7 +296,7 @@ class TestRunConversationCodexPath:
     def test_gateway_terminal_cwd_seeds_codex_thread_cwd(self, monkeypatch, tmp_path):
         """Gateway sessions set TERMINAL_CWD without stamping agent.session_cwd.
         Codex app-server must still start in that configured workspace instead
-        of falling back to the Hermes daemon process cwd."""
+        of falling back to the Sonic daemon process cwd."""
         from agent.transports.codex_app_server_session import (
             CodexAppServerSession, TurnResult,
         )

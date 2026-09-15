@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "87ab37338150183f3187e93afb49aab108f8a9cd",
-  "synced_at": "2026-09-14T16:20:00Z",
-  "notes": "Partial sync: batch 16 ports the 80 first-parent commits after 9f67ba1b, ending at 87ab3733 (0 skipped). No manual conflicts; scripts/release.py AUTHOR_MAP auto-unioned once; ~25 commits auto-resolved where Sonic side was the rebranded base. Remaining backlog is approximately 15,200 first-parent commits; each daily run advances the baseline by a reviewable batch."
+  "last_synced_upstream_sha": "86e4521cb1d924436a07a3cf48d0afc440e305dc",
+  "synced_at": "2026-09-15T16:05:34Z",
+  "notes": "Partial sync: batch 17 ports the 80 first-parent commits after 87ab3733, ending at 86e4521cb1d924436a07a3cf48d0afc440e305dc (skipped: none). Manual conflicts: kanban skill-fold docs kept upstream injected-guidance design with Sonic links; Google OAuth provider removal kept Sonic speed-profile config; shallow-clone update logic kept with Sonic banner branding. Remaining backlog approximately 15.8k first-parent commits."
 }

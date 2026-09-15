@@ -89,7 +89,7 @@ def test_loopback_host_header_validation_still_enforced(client_loopback):
     ("localhost", False, False),
     ("::1",       False, False),
     # --insecure (allow_public=True) NO LONGER bypasses the gate on a public
-    # bind (June 2026 hermes-0day hardening). Non-loopback always requires auth.
+    # bind (June 2026 sonic-0day hardening). Non-loopback always requires auth.
     ("0.0.0.0",   True,  True),
     ("0.0.0.0",   False, True),
     ("192.168.1.5", False, True),
@@ -183,7 +183,7 @@ def test_start_server_insecure_public_no_longer_bypasses_gate(monkeypatch):
     June 2026 hardening: --insecure no longer disables auth. With no providers
     registered, the bind fails closed (SystemExit) and auth_required is True.
     """
-    from hermes_cli.dashboard_auth import clear_providers
+    from sonic_cli.dashboard_auth import clear_providers
     clear_providers()
     _stub_uvicorn_run(monkeypatch)
     web_server.app.state.auth_required = None
@@ -307,7 +307,7 @@ def test_start_server_insecure_public_engages_gate_and_fails_closed(monkeypatch)
     auth as of the June 2026 hardening, so a public bind with no provider
     refuses to start.
     """
-    from hermes_cli.dashboard_auth import clear_providers
+    from sonic_cli.dashboard_auth import clear_providers
 
     clear_providers()
     _stub_uvicorn_run(monkeypatch)

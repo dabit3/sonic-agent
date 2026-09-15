@@ -8139,7 +8139,7 @@ def _cmd_update_check(branch: str = "main", *, branch_explicit: bool = False):
             print("✓ Already up to date.")
         else:
             print(f"⚕ Update available (behind {compare_branch}).")
-            from hermes_cli.config import recommended_update_command
+            from sonic_cli.config import recommended_update_command
 
             print(f"  Run '{recommended_update_command()}' to install.")
         return
@@ -11034,7 +11034,7 @@ def _maybe_setup_dashboard_auth_interactively(args) -> None:
     ``DashboardAuthProvider`` is registered. Rather than greet an interactive
     operator with that hard error, prompt them to set up the bundled
     username/password provider on the spot — or point them at
-    ``hermes dashboard register`` for OAuth.
+    ``sonic dashboard register`` for OAuth.
 
     No-ops (so the existing fail-closed ``SystemExit`` remains the backstop)
     when:
@@ -11045,14 +11045,14 @@ def _maybe_setup_dashboard_auth_interactively(args) -> None:
     host = getattr(args, "host", "127.0.0.1") or "127.0.0.1"
 
     try:
-        from hermes_cli.web_server import should_require_auth
+        from sonic_cli.web_server import should_require_auth
         if not should_require_auth(host):
             return  # loopback bind — gate never engages
     except Exception:
         return  # if we can't tell, defer to start_server's own gate
 
     try:
-        from hermes_cli.dashboard_auth import list_providers
+        from sonic_cli.dashboard_auth import list_providers
         if list_providers():
             return  # a provider is already configured/registered
     except Exception:
@@ -11075,7 +11075,7 @@ def _maybe_setup_dashboard_auth_interactively(args) -> None:
     print()
     print("  How do you want to authenticate the dashboard?")
     print("    [1] Username & password (quickest; for a trusted LAN / VPN)")
-    print("    [2] OAuth via Nous Portal (run `hermes dashboard register`)")
+    print("    [2] OAuth via Nous Portal (run `sonic dashboard register`)")
     print("    [3] Cancel")
     print()
 
@@ -11090,10 +11090,10 @@ def _maybe_setup_dashboard_auth_interactively(args) -> None:
         print(
             "  Run this on the host where the dashboard lives, then start "
             "the dashboard again:\n"
-            "    hermes dashboard register\n"
+            "    sonic dashboard register\n"
             "  It provisions a Nous Portal OAuth client and writes "
-            "HERMES_DASHBOARD_OAUTH_CLIENT_ID into ~/.hermes/.env for you.\n"
-            "  Docs: https://hermes-agent.nousresearch.com/docs/"
+            "SONIC_DASHBOARD_OAUTH_CLIENT_ID into ~/.sonic/.env for you.\n"
+            "  Docs: https://lightning-agent.nousresearch.com/docs/"
             "user-guide/features/web-dashboard#authentication-gated-mode"
         )
         sys.exit(0)
@@ -11133,7 +11133,7 @@ def _maybe_setup_dashboard_auth_interactively(args) -> None:
     secret = secrets.token_urlsafe(32)
 
     try:
-        from hermes_cli.config import load_config, save_config
+        from sonic_cli.config import load_config, save_config
 
         cfg = load_config()
         dash = cfg.setdefault("dashboard", {})
@@ -11152,7 +11152,7 @@ def _maybe_setup_dashboard_auth_interactively(args) -> None:
     # Re-run plugin discovery so the basic provider registers from the
     # just-written config before start_server's gate check runs.
     try:
-        from hermes_cli.plugins import discover_plugins
+        from sonic_cli.plugins import discover_plugins
 
         discover_plugins(force=True)
     except Exception as exc:
@@ -11434,7 +11434,7 @@ def cmd_logs(args):
 def _build_provider_choices() -> list[str]:
     """Build the --provider choices list from CANONICAL_PROVIDERS + 'auto'."""
     try:
-        from hermes_cli.models import CANONICAL_PROVIDERS as _cp
+        from sonic_cli.models import CANONICAL_PROVIDERS as _cp
         return ["auto"] + [p.slug for p in _cp]
     except Exception:
         # Fallback: static list guarantees the CLI always works

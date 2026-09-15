@@ -667,7 +667,7 @@ def _pool_runtime_base_url(entry: Any, fallback: str = "") -> str:
 
 def _nous_min_key_ttl_seconds() -> int:
     try:
-        return max(60, int(os.getenv("HERMES_NOUS_MIN_KEY_TTL_SECONDS", "1800")))
+        return max(60, int(os.getenv("SONIC_NOUS_MIN_KEY_TTL_SECONDS", "1800")))
     except (TypeError, ValueError):
         return 1800
 
@@ -1348,7 +1348,7 @@ def _nous_base_url() -> str:
 def _resolve_nous_pool_runtime_api(*, force_refresh: bool = False) -> Optional[tuple[str, str]]:
     """Resolve Nous auxiliary credentials from the selected pool entry."""
     try:
-        from hermes_cli.auth import _agent_key_is_usable
+        from sonic_cli.auth import _agent_key_is_usable
 
         pool = load_pool("nous")
     except Exception as exc:

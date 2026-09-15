@@ -313,7 +313,7 @@ class NonChunkingAdapter:
 @pytest.mark.asyncio
 async def test_long_output_truncated_for_non_chunking_adapter(tmp_path, monkeypatch):
     """Non-chunking adapters receive truncated content with a footer + file save."""
-    monkeypatch.setattr("gateway.delivery.get_hermes_home", lambda: tmp_path)
+    monkeypatch.setattr("gateway.delivery.get_sonic_home", lambda: tmp_path)
     adapter = NonChunkingAdapter()
     router = DeliveryRouter(GatewayConfig(), adapters={Platform.DISCORD: adapter})
     target = DeliveryTarget.parse("discord:123")
@@ -334,7 +334,7 @@ async def test_long_output_truncated_for_non_chunking_adapter(tmp_path, monkeypa
 @pytest.mark.asyncio
 async def test_long_output_preserved_for_chunking_adapter(tmp_path, monkeypatch):
     """Chunking adapters (splits_long_messages=True) receive the FULL content."""
-    monkeypatch.setattr("gateway.delivery.get_hermes_home", lambda: tmp_path)
+    monkeypatch.setattr("gateway.delivery.get_sonic_home", lambda: tmp_path)
     adapter = ChunkingAdapter()
     router = DeliveryRouter(GatewayConfig(), adapters={Platform.DISCORD: adapter})
     target = DeliveryTarget.parse("discord:123")
@@ -354,7 +354,7 @@ async def test_long_output_preserved_for_chunking_adapter(tmp_path, monkeypatch)
 @pytest.mark.asyncio
 async def test_short_output_never_truncated(tmp_path, monkeypatch):
     """Output under the limit passes through untouched for any adapter."""
-    monkeypatch.setattr("gateway.delivery.get_hermes_home", lambda: tmp_path)
+    monkeypatch.setattr("gateway.delivery.get_sonic_home", lambda: tmp_path)
     adapter = NonChunkingAdapter()
     router = DeliveryRouter(GatewayConfig(), adapters={Platform.DISCORD: adapter})
     target = DeliveryTarget.parse("discord:123")
@@ -369,9 +369,9 @@ async def test_short_output_never_truncated(tmp_path, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_env_override_changes_truncation_threshold(tmp_path, monkeypatch):
-    """HERMES_DELIVERY_MAX_PLATFORM_OUTPUT env var overrides the default 4000."""
-    monkeypatch.setattr("gateway.delivery.get_hermes_home", lambda: tmp_path)
-    monkeypatch.setenv("HERMES_DELIVERY_MAX_PLATFORM_OUTPUT", "200")
+    """SONIC_DELIVERY_MAX_PLATFORM_OUTPUT env var overrides the default 4000."""
+    monkeypatch.setattr("gateway.delivery.get_sonic_home", lambda: tmp_path)
+    monkeypatch.setenv("SONIC_DELIVERY_MAX_PLATFORM_OUTPUT", "200")
     adapter = NonChunkingAdapter()
     router = DeliveryRouter(GatewayConfig(), adapters={Platform.DISCORD: adapter})
     target = DeliveryTarget.parse("discord:123")
@@ -390,9 +390,9 @@ async def test_env_override_changes_truncation_threshold(tmp_path, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_env_override_disable_truncation(tmp_path, monkeypatch):
-    """Setting HERMES_DELIVERY_MAX_PLATFORM_OUTPUT=0 disables truncation entirely."""
-    monkeypatch.setattr("gateway.delivery.get_hermes_home", lambda: tmp_path)
-    monkeypatch.setenv("HERMES_DELIVERY_MAX_PLATFORM_OUTPUT", "0")
+    """Setting SONIC_DELIVERY_MAX_PLATFORM_OUTPUT=0 disables truncation entirely."""
+    monkeypatch.setattr("gateway.delivery.get_sonic_home", lambda: tmp_path)
+    monkeypatch.setenv("SONIC_DELIVERY_MAX_PLATFORM_OUTPUT", "0")
     adapter = NonChunkingAdapter()
     router = DeliveryRouter(GatewayConfig(), adapters={Platform.DISCORD: adapter})
     target = DeliveryTarget.parse("discord:123")
@@ -415,7 +415,7 @@ async def test_env_override_disable_truncation(tmp_path, monkeypatch):
 async def test_audit_save_failure_does_not_break_chunking_delivery(tmp_path, monkeypatch):
     """If the audit save fails (disk full, permissions), chunking adapters
     still receive the full content — the save is best-effort."""
-    monkeypatch.setattr("gateway.delivery.get_hermes_home", lambda: tmp_path)
+    monkeypatch.setattr("gateway.delivery.get_sonic_home", lambda: tmp_path)
 
     adapter = ChunkingAdapter()
     router = DeliveryRouter(GatewayConfig(), adapters={Platform.DISCORD: adapter})
@@ -447,8 +447,8 @@ async def test_audit_save_failure_does_not_break_non_chunking_delivery(tmp_path,
     real failure. But if content exceeds the audit threshold AND truncation
     is disabled (max_output=0), the caught Step 1 failure lets delivery
     proceed."""
-    monkeypatch.setattr("gateway.delivery.get_hermes_home", lambda: tmp_path)
-    monkeypatch.setenv("HERMES_DELIVERY_MAX_PLATFORM_OUTPUT", "0")
+    monkeypatch.setattr("gateway.delivery.get_sonic_home", lambda: tmp_path)
+    monkeypatch.setenv("SONIC_DELIVERY_MAX_PLATFORM_OUTPUT", "0")
 
     adapter = NonChunkingAdapter()
     router = DeliveryRouter(GatewayConfig(), adapters={Platform.DISCORD: adapter})

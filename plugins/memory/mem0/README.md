@@ -125,7 +125,7 @@ Circuit breaker tripped after 5 consecutive failures. Resets after 2 minutes.
 
 ```bash
 # If using local Qdrant, check the storage path is writable:
-ls -la ~/.hermes/mem0_qdrant
+ls -la ~/.sonic/mem0_qdrant
 
 # If using Qdrant server, check it's reachable:
 curl http://localhost:6333/healthz
@@ -149,4 +149,4 @@ curl http://localhost:11434/api/tags
 
 - `mem0_add` stores verbatim (no extraction). Use `sync_turn` for LLM extraction.
 - Search uses semantic matching — try broader queries.
-- Check `user_id` matches between sessions (`$HERMES_HOME/mem0.json`).
+- Check `user_id` matches between sessions (`$SONIC_HOME/mem0.json`).

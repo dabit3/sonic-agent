@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 # Default cap before gateway-level truncation of cron output for platform
 # delivery.  Telegram's hard API limit is 4096; the 200-char headroom covers
 # the "full output saved to …" footer appended on truncation.  Override via
-# the HERMES_DELIVERY_MAX_PLATFORM_OUTPUT env var.  Adapters that split long
+# the SONIC_DELIVERY_MAX_PLATFORM_OUTPUT env var.  Adapters that split long
 # messages natively (BasePlatformAdapter.splits_long_messages) bypass this
 # entirely — the adapter chunks in its own send() and the full output is
 # preserved.
@@ -33,17 +33,17 @@ _DEFAULT_MAX_PLATFORM_OUTPUT = 4000
 def _max_platform_output() -> int:
     """Max chars before gateway-level truncation of cron output.
 
-    ``HERMES_DELIVERY_MAX_PLATFORM_OUTPUT`` env var overrides the default
+    ``SONIC_DELIVERY_MAX_PLATFORM_OUTPUT`` env var overrides the default
     (4000).  Non-int or negative values fall back to the default with a
     warning.
     """
-    env = os.getenv("HERMES_DELIVERY_MAX_PLATFORM_OUTPUT")
+    env = os.getenv("SONIC_DELIVERY_MAX_PLATFORM_OUTPUT")
     if env is not None:
         try:
             return max(0, int(env.strip()))
         except ValueError:
             logger.warning(
-                "HERMES_DELIVERY_MAX_PLATFORM_OUTPUT=%r is not an int; "
+                "SONIC_DELIVERY_MAX_PLATFORM_OUTPUT=%r is not an int; "
                 "using default %d",
                 env, _DEFAULT_MAX_PLATFORM_OUTPUT,
             )
@@ -353,7 +353,7 @@ class DeliveryRouter:
         #      max_output is truncated with a footer pointing to the saved
         #      file.  Chunking-capable adapters (splits_long_messages=True)
         #      receive the full payload and split natively in their send().
-        #      Setting HERMES_DELIVERY_MAX_PLATFORM_OUTPUT=0 disables
+        #      Setting SONIC_DELIVERY_MAX_PLATFORM_OUTPUT=0 disables
         #      truncation entirely (the user takes responsibility for platform
         #      API limits), but the audit save in step 1 still fires.
         max_output = _max_platform_output()
@@ -390,7 +390,7 @@ class DeliveryRouter:
                 # Non-chunking adapter — truncate with footer.
                 if saved_path is None:
                     # Content exceeded max_output but not the audit threshold
-                    # (e.g. HERMES_DELIVERY_MAX_PLATFORM_OUTPUT=200).  Save
+                    # (e.g. SONIC_DELIVERY_MAX_PLATFORM_OUTPUT=200).  Save
                     # anyway since we're about to truncate.
                     saved_path = self._save_full_output(content, job_id)
                 footer = f"\n\n... [truncated, full output saved to {saved_path}]"
