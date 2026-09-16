@@ -244,9 +244,9 @@ class TestCmdStatus:
             enabled = True
             api_key = "hch-at-deadbeef"
             workspace_id = "claude-code"
-            host = "hermes"
+            host = "sonic"
             base_url = None
-            ai_peer = "hermes"
+            ai_peer = "sonic"
             peer_name = "eri"
             recall_mode = "hybrid"
             user_observe_me = True
@@ -261,11 +261,11 @@ class TestCmdStatus:
             reasoning_heuristic = True
             raw = {
                 "hosts": {
-                    "hermes": {
+                    "sonic": {
                         "apiKey": "hch-at-deadbeef",
                         "oauth": {
                             "refreshToken": "hch-rt-x",
-                            "clientId": "hermes-agent",
+                            "clientId": "sonic-agent",
                             "tokenEndpoint": "https://api.honcho.dev/oauth/token",
                             "expiresAt": 9999999999,
                         },
@@ -274,7 +274,7 @@ class TestCmdStatus:
             }
 
             def resolve_session_name(self):
-                return "hermes"
+                return "sonic"
 
         monkeypatch.setattr(honcho_cli, "_read_config", lambda: {})
         monkeypatch.setattr(honcho_cli, "_config_path", lambda: cfg_path)
@@ -291,7 +291,7 @@ class TestCmdStatus:
         honcho_cli.cmd_status(SimpleNamespace(all=False))
 
         out = capsys.readouterr().out
-        assert "Auth:           OAuth (hermes-agent" in out
+        assert "Auth:           OAuth (sonic-agent" in out
         assert "API key:" not in out
 
 

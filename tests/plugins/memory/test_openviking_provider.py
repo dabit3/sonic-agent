@@ -1468,7 +1468,7 @@ def test_get_tool_schemas_includes_narrow_forget_tool():
 
 
 def test_handle_tool_call_forget_deletes_exact_memory_file_uri():
-    uri = "viking://user/peers/hermes/memories/preferences/mem_abc123.md"
+    uri = "viking://user/peers/sonic/memories/preferences/mem_abc123.md"
     provider = OpenVikingMemoryProvider()
     provider._client = MagicMock()
     provider._client.delete.return_value = {
@@ -1540,7 +1540,7 @@ def test_handle_tool_call_forget_allows_non_generated_dot_md_memory_file():
     "viking://resources/project/doc.md",
     "viking://resources/project/memories/mem_abc123.md",
     "viking://memories/preferences/mem_abc123.md",
-    "viking://agent/hermes/memories/preferences/mem_abc123.md",
+    "viking://agent/sonic/memories/preferences/mem_abc123.md",
     "viking://user/skills/example/SKILL.md",
     "viking://user/sessions/session-1/messages.jsonl",
     "viking://user/memories/preferences/",
@@ -1564,7 +1564,7 @@ def test_viking_client_delete_uses_identity_headers(monkeypatch):
         api_key="test-key",
         account="acct",
         user="alice",
-        agent="hermes",
+        agent="sonic",
     )
     captured = {}
 
@@ -1587,7 +1587,7 @@ def test_viking_client_delete_uses_identity_headers(monkeypatch):
     assert captured["url"] == "https://example.com/api/v1/fs"
     assert captured["kwargs"]["params"] == {"uri": "viking://user/memories/x.md"}
     assert captured["kwargs"]["headers"]["Authorization"] == "Bearer test-key"
-    assert captured["kwargs"]["headers"]["X-OpenViking-Actor-Peer"] == "hermes"
+    assert captured["kwargs"]["headers"]["X-OpenViking-Actor-Peer"] == "sonic"
 
 
 def test_viking_client_upload_temp_file_uses_multipart_identity_headers(tmp_path, monkeypatch):
@@ -2777,7 +2777,7 @@ def test_shutdown_waits_for_memory_write_worker(monkeypatch):
     provider._api_key = ""
     provider._account = "acct"
     provider._user = "usr"
-    provider._agent = "hermes"
+    provider._agent = "sonic"
 
     worker_started = threading.Event()
     release_worker = threading.Event()
@@ -2832,8 +2832,8 @@ def test_on_memory_write_ignores_non_add_actions(action, content, monkeypatch):
     provider._api_key = ""
     provider._account = "acct"
     provider._user = "usr"
-    provider._agent = "hermes"
-    uri = "viking://user/peers/hermes/memories/preferences/mem_abc123.md"
+    provider._agent = "sonic"
+    uri = "viking://user/peers/sonic/memories/preferences/mem_abc123.md"
     spawned = []
 
     class StubThread:

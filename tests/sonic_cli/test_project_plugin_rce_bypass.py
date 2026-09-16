@@ -234,14 +234,14 @@ class TestDiscoveryScrubsApiField:
         assert entry["has_api"] is False
 
     def test_project_safe_api_path_is_scrubbed(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path / "home"))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path / "home"))
         (tmp_path / "home").mkdir()
-        monkeypatch.setenv("HERMES_ENABLE_PROJECT_PLUGINS", "1")
+        monkeypatch.setenv("SONIC_ENABLE_PROJECT_PLUGINS", "1")
         cwd = tmp_path / "project"
         cwd.mkdir()
         monkeypatch.chdir(cwd)
         dashboard = _write_plugin_manifest(
-            cwd / ".hermes" / "plugins",
+            cwd / ".sonic" / "plugins",
             "safe-project",
             {
                 "name": "safe-project",
@@ -258,10 +258,10 @@ class TestDiscoveryScrubsApiField:
         assert entry["has_api"] is False
 
     def test_bundled_safe_api_path_survives(self, tmp_path, monkeypatch):
-        hermes_home = tmp_path / "home"
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
-        hermes_home.mkdir()
-        monkeypatch.setenv("HERMES_BUNDLED_PLUGINS", str(tmp_path / "bundled"))
+        sonic_home = tmp_path / "home"
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
+        sonic_home.mkdir()
+        monkeypatch.setenv("SONIC_BUNDLED_PLUGINS", str(tmp_path / "bundled"))
         dashboard = _write_plugin_manifest(
             tmp_path / "bundled",
             "safe-bundled",
@@ -280,10 +280,10 @@ class TestDiscoveryScrubsApiField:
         assert entry["has_api"] is True
 
     def test_user_plugin_does_not_shadow_bundled_backend(self, tmp_path, monkeypatch):
-        hermes_home = tmp_path / "home"
-        monkeypatch.setenv("HERMES_HOME", str(hermes_home))
-        hermes_home.mkdir()
-        monkeypatch.setenv("HERMES_BUNDLED_PLUGINS", str(tmp_path / "bundled"))
+        sonic_home = tmp_path / "home"
+        monkeypatch.setenv("SONIC_HOME", str(sonic_home))
+        sonic_home.mkdir()
+        monkeypatch.setenv("SONIC_BUNDLED_PLUGINS", str(tmp_path / "bundled"))
 
         bundled_dashboard = _write_plugin_manifest(
             tmp_path / "bundled",
@@ -297,7 +297,7 @@ class TestDiscoveryScrubsApiField:
         )
         (bundled_dashboard / "api.py").write_text("router = None\n")
         _write_plugin_manifest(
-            hermes_home / "plugins",
+            sonic_home / "plugins",
             "shadowed",
             {
                 "name": "shadowed",

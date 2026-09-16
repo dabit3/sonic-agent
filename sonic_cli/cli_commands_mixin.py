@@ -1913,7 +1913,7 @@ class CLICommandsMixin:
         # lines (verify:, constraints:, boundaries:, stop when:) are parsed
         # into a completion contract; the remaining prose is the headline.
         # A plain free-form goal with no such lines behaves exactly as before.
-        from hermes_cli.goals import parse_contract
+        from sonic_cli.goals import parse_contract
 
         headline, contract = parse_contract(arg)
         goal_text = headline or arg
@@ -1946,7 +1946,7 @@ class CLICommandsMixin:
         set it as the active goal. Falls back to a bare goal if the aux model
         can't produce a contract."""
         from cli import _DIM, _RST, _cprint
-        from hermes_cli.goals import draft_contract
+        from sonic_cli.goals import draft_contract
 
         mgr = self._get_goal_manager()
         if mgr is None:

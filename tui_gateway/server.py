@@ -393,7 +393,7 @@ def _transfer_active_session_slot(
     if lease is None:
         return True
     try:
-        from hermes_cli.active_sessions import transfer_active_session
+        from sonic_cli.active_sessions import transfer_active_session
 
         if transfer_active_session(
             lease,
@@ -6919,7 +6919,7 @@ def _run_prompt_submit(rid, sid: str, session: dict, text: Any) -> None:
                         )
                         if goal_mgr.is_active():
                             try:
-                                from hermes_cli.goals import gather_background_processes as _gather_bg
+                                from sonic_cli.goals import gather_background_processes as _gather_bg
                                 _bg_procs = _gather_bg()
                             except Exception:
                                 _bg_procs = None

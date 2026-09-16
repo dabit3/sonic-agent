@@ -8449,7 +8449,7 @@ def _pause_windows_gateways_for_update() -> dict | None:
         # the update so an installed gateway is actually up post-update. Users
         # who run gateway-less (no autostart entry) get nothing forced on them.
         try:
-            from hermes_cli import gateway_windows
+            from sonic_cli import gateway_windows
 
             if gateway_windows.is_installed():
                 return {
@@ -8550,7 +8550,7 @@ def _cold_start_windows_gateway_after_update() -> None:
     is installed, signalling the user wants a gateway. Unlike the relaunch
     paths — which watch an old PID and respawn once it exits — this is a direct
     fresh spawn via the same windowless ``pythonw`` + breakaway path that
-    ``hermes gateway start`` uses (``gateway_windows._spawn_detached``).
+    ``sonic gateway start`` uses (``gateway_windows._spawn_detached``).
 
     Best-effort and idempotent: re-checks that nothing is running first so a
     concurrent start (e.g. the autostart entry firing) can't produce a
@@ -8559,8 +8559,8 @@ def _cold_start_windows_gateway_after_update() -> None:
     if not _is_windows():
         return
     try:
-        from hermes_cli import gateway_windows
-        from hermes_cli.gateway import find_gateway_pids
+        from sonic_cli import gateway_windows
+        from sonic_cli.gateway import find_gateway_pids
     except Exception as exc:
         logger.debug("Could not load Windows gateway cold-start helpers: %s", exc)
         return
@@ -12454,7 +12454,7 @@ def main():
             "enable the Computer Use toolset, and is a stable target\n"
             "for re-running the install if it didn't fire (e.g. when\n"
             "toggling the toolset on a returning-user setup).\n\n"
-            "Use `hermes computer-use doctor` to run cua-driver's\n"
+            "Use `sonic computer-use doctor` to run cua-driver's\n"
             "`health_report` MCP tool and surface its check matrix\n"
             "(TCC, bundle identity, version, platform support, ...)\n"
             "in human-readable form."
@@ -12521,7 +12521,7 @@ def main():
         description=(
             "Computer Use drives the Mac through cua-driver, whose TCC grants\n"
             "attach to cua-driver's own identity (com.trycua.driver) — not the\n"
-            "terminal or the Hermes app. `status` reports the driver's grant\n"
+            "terminal or the Sonic app. `status` reports the driver's grant\n"
             "state; `grant` launches CuaDriver via LaunchServices so the macOS\n"
             "permission dialog is attributed to the process that does the work."
         ),
@@ -12552,8 +12552,8 @@ def main():
         if action == "status":
             import shutil
             import subprocess
-            from hermes_cli.tools_config import _cua_driver_cmd
-            # Honor HERMES_CUA_DRIVER_CMD for local-build testing — same
+            from sonic_cli.tools_config import _cua_driver_cmd
+            # Honor SONIC_CUA_DRIVER_CMD for local-build testing — same
             # resolver `install_cua_driver` and the runtime backend use,
             # so `status` reports what `computer_use` will actually invoke.
             driver_cmd = _cua_driver_cmd()
@@ -12561,7 +12561,7 @@ def main():
             if path:
                 version = ""
                 try:
-                    from hermes_cli.tools_config import _cua_driver_env
+                    from sonic_cli.tools_config import _cua_driver_env
                     version = subprocess.run(
                         [path, "--version"],
                         capture_output=True, text=True, timeout=5,
@@ -12615,7 +12615,7 @@ def main():
                     print(f"Computer Use is not supported on {st['platform']}.")
                     sys.exit(1)
                 if not st["installed"]:
-                    print("cua-driver: not installed. Run: hermes computer-use install")
+                    print("cua-driver: not installed. Run: sonic computer-use install")
                     sys.exit(1)
                 glyph = lambda v: "✅" if v is True else ("❌" if v is False else "•")  # noqa: E731
                 print(f"cua-driver: {st['version'] or 'installed'} ({st['platform']})")
@@ -12623,7 +12623,7 @@ def main():
                     print(f"  {glyph(st['accessibility'])} Accessibility")
                     print(f"  {glyph(st['screen_recording'])} Screen Recording")
                     if not st["ready"]:
-                        print("  Grant: hermes computer-use permissions grant")
+                        print("  Grant: sonic computer-use permissions grant")
                 else:  # no TCC model — readiness is driver health
                     print(f"  {glyph(st['ready'])} driver health (no permission toggles on {st['platform']})")
                 for c in st["checks"]:

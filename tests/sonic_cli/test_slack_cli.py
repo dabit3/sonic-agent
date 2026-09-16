@@ -55,7 +55,7 @@ class TestSlackFullManifest:
 
     def test_no_assistant_omits_assistant_pieces(self):
         manifest = _build_full_manifest(
-            "Hermes", "Your Hermes agent on Slack", include_assistant=False
+            "Sonic", "Your Sonic agent on Slack", include_assistant=False
         )
 
         # assistant_view feature is gone -> Slack renders a flat DM, not the
@@ -69,7 +69,7 @@ class TestSlackFullManifest:
     def test_no_assistant_preserves_core_surface(self):
         """Dropping assistant mode must NOT strip the regular messaging surface."""
         manifest = _build_full_manifest(
-            "Hermes", "Your Hermes agent on Slack", include_assistant=False
+            "Sonic", "Your Sonic agent on Slack", include_assistant=False
         )
 
         # Flat DM still needs the Messages tab writable.

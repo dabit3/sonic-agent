@@ -53,7 +53,7 @@ Works identically on the CLI and every gateway platform (Telegram, Discord, Slac
 
 ## Completion contracts
 
-A bare `/goal <text>` works fine, but a *vague* goal makes for vague judging — the judge can only check what you told it to want. Codex's `/goal` guidance makes the same point: a durable objective works best when it names **what done means, how to prove it, what not to break, what's in scope, and when to stop**. Hermes adapts this as an optional **completion contract** layered on top of the existing goal loop.
+A bare `/goal <text>` works fine, but a *vague* goal makes for vague judging — the judge can only check what you told it to want. Codex's `/goal` guidance makes the same point: a durable objective works best when it names **what done means, how to prove it, what not to break, what's in scope, and when to stop**. Sonic adapts this as an optional **completion contract** layered on top of the existing goal loop.
 
 A contract has five fields, all optional:
 
@@ -63,19 +63,19 @@ A contract has five fields, all optional:
 | `verification` | The specific test / command / artifact that *proves* the outcome. |
 | `constraints` | What must not change or regress. |
 | `boundaries` | Which files, dirs, tools, or systems are in scope. |
-| `stop_when` | The condition under which Hermes should stop and ask for input. |
+| `stop_when` | The condition under which Sonic should stop and ask for input. |
 
 When a contract is set, both prompts change: the **continuation prompt** tells the agent to target the verification surface and respect the constraints, and the **judge prompt** decides `done` *only when the verification criterion is met with concrete evidence* (a command result, file excerpt, test output) — not a loose "looks done" claim. This directly tightens the most common `/goal` failure mode (premature completion or endless over-continuation on an underspecified objective).
 
 ### Two ways to set a contract
 
-**1. Let Hermes draft it** (recommended — adapted from Codex's "let the agent draft the goal" tip):
+**1. Let Sonic draft it** (recommended — adapted from Codex's "let the agent draft the goal" tip):
 
 ```
 /goal draft Migrate the auth service from session cookies to JWT
 ```
 
-Hermes expands your one-liner into a full contract via the `goal_judge` auxiliary model, sets it, and shows you the result so you can review or tighten any field. If the aux model is unavailable, it falls back to a plain free-form goal — drafting never blocks setting a goal.
+Sonic expands your one-liner into a full contract via the `goal_judge` auxiliary model, sets it, and shows you the result so you can review or tighten any field. If the aux model is unavailable, it falls back to a plain free-form goal — drafting never blocks setting a goal.
 
 **2. Write it inline** with `field: value` lines:
 

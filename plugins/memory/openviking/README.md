@@ -60,22 +60,22 @@ canonical user-scoped form such as
 `viking://user/default/peers/${OPENVIKING_AGENT}/memories/...` in API-key mode.
 Explicit remembers do not depend on session commit extraction.
 
-Hermes built-in `memory` tool additions are mirrored to OpenViking after the
+Sonic built-in `memory` tool additions are mirrored to OpenViking after the
 local memory operation succeeds:
 
-| Hermes action | OpenViking operation |
+| Sonic action | OpenViking operation |
 |---------------|----------------------|
 | `add` | `content/write` with `mode=create` under the configured peer memory namespace |
 
-Built-in `replace` and `remove` operations are not mirrored because Hermes
+Built-in `replace` and `remove` operations are not mirrored because Sonic
 native memory entries do not yet carry stable OpenViking file URIs. Use
 `viking_forget` when the user explicitly asks to delete a specific OpenViking
 memory URI.
 
 `viking_forget` is intentionally narrow. It only accepts concrete user memory
 file URIs, such as
-`viking://user/peers/hermes/memories/preferences/mem_abc123.md` or the canonical
-`viking://user/default/peers/hermes/memories/preferences/mem_abc123.md`. Files
+`viking://user/peers/sonic/memories/preferences/mem_abc123.md` or the canonical
+`viking://user/default/peers/sonic/memories/preferences/mem_abc123.md`. Files
 directly under `memories/`, such as `viking://user/default/memories/profile.md`,
 are also allowed because OpenViking supports them. The tool rejects directories,
 resources, skills, sessions, generated summary files, and URIs with query

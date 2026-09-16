@@ -2843,8 +2843,8 @@ DEFAULT_CONFIG = {
     # Computer Use (cua-driver) toolset settings.
     "computer_use": {
         # cua-driver ships with anonymous usage telemetry (PostHog) ENABLED
-        # by default upstream. Hermes disables it for our users unless they
-        # explicitly opt in here. When false (default), Hermes sets
+        # by default upstream. Sonic disables it for our users unless they
+        # explicitly opt in here. When false (default), Sonic sets
         # CUA_DRIVER_RS_TELEMETRY_ENABLED=0 in the cua-driver child env for
         # every invocation (MCP backend, status, doctor, install). Set true
         # to let cua-driver use its own default (telemetry on).

@@ -88,7 +88,7 @@ def _build_full_manifest(
 
     if include_assistant:
         features["assistant_view"] = {
-            "assistant_description": "Chat with Hermes in threads and DMs.",
+            "assistant_description": "Chat with Sonic in threads and DMs.",
         }
         bot_scopes.append("assistant:write")
         bot_events.extend(

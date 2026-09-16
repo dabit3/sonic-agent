@@ -630,7 +630,7 @@ def cmd_setup(args) -> None:
         # Detect an existing OAuth grant so re-running setup reflects it instead
         # of looking like a fresh connect.
         from plugins.memory.honcho.oauth import OAuthCredential
-        existing_oauth = OAuthCredential.from_host_block(hermes_host)
+        existing_oauth = OAuthCredential.from_host_block(sonic_host)
 
         print("\n  Auth method:")
         if existing_oauth is not None:

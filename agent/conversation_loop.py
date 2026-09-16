@@ -4077,7 +4077,7 @@ def run_conversation(
                 try:
                     # Persist the assistant tool-call turn before any tool
                     # side effects run. If a destructive tool restarts or
-                    # terminates Hermes mid-turn, resume logic still sees the
+                    # terminates Sonic mid-turn, resume logic still sees the
                     # exact tool-call block that already executed.
                     agent._flush_messages_to_session_db(messages, conversation_history)
                 except Exception as exc:

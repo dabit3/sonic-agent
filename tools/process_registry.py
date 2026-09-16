@@ -1058,7 +1058,7 @@ class ProcessRegistry:
     def is_session_waiting(self, session_id: str) -> bool:
         """Whether a goal loop parked on this session should still be parked.
 
-        Used by the goal-loop wait barrier (``hermes_cli.goals``) to support
+        Used by the goal-loop wait barrier (``sonic_cli.goals``) to support
         waiting on a process's OWN trigger, not just its exit. A session is
         "still waiting" when:
           - it is still running, AND

@@ -10701,7 +10701,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             return
 
         try:
-            from hermes_cli.goals import gather_background_processes as _gather_bg
+            from sonic_cli.goals import gather_background_processes as _gather_bg
             _bg_procs = _gather_bg()
         except Exception:
             _bg_procs = None

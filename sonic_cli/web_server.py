@@ -235,7 +235,7 @@ def _get_chat_argv_lock(app: "FastAPI") -> asyncio.Lock:
 app = FastAPI(title="Sonic Agent", version=__version__, lifespan=_lifespan)
 
 # Memory-provider OAuth connect routes live in the memory layer, not here.
-from hermes_cli.memory_oauth import router as _memory_oauth_router  # noqa: E402
+from sonic_cli.memory_oauth import router as _memory_oauth_router  # noqa: E402
 
 app.include_router(_memory_oauth_router)
 
@@ -1329,13 +1329,13 @@ def _dashboard_local_update_managed_externally() -> bool:
     still behave like their actual install method in the CLI.
 
     However, when the install method is ``git`` (a bind-mounted checkout inside
-    a container — e.g. the hermes-webui image sharing the Hermes source tree),
-    the dashboard's ``hermes update`` button is the correct update path and
+    a container — e.g. the sonic-webui image sharing the Sonic source tree),
+    the dashboard's ``sonic update`` button is the correct update path and
     should not be suppressed. Other containerized install methods remain
     externally managed unless their apply path is proven safe inside the
     running container filesystem.
     """
-    if _default_hermes_root_is_opt_data():
+    if _default_sonic_root_is_opt_data():
         return True
     try:
         from sonic_constants import is_container
@@ -10682,7 +10682,7 @@ async def run_toolset_post_setup(
 #
 # cua-driver runs on macOS, Windows, and Linux. The desktop card reflects
 # per-OS readiness: on macOS the Accessibility + Screen Recording TCC grants
-# (which attach to cua-driver's OWN identity, com.trycua.driver — not Hermes,
+# (which attach to cua-driver's OWN identity, com.trycua.driver — not Sonic,
 # so no app entitlement is involved); elsewhere, driver health from
 # `cua-driver doctor`. The grant flow is macOS-only (no TCC toggles to request
 # on Windows/Linux).
@@ -10705,7 +10705,7 @@ async def get_computer_use_status(profile: Optional[str] = None):
 
 @app.post("/api/tools/computer-use/permissions/grant")
 async def grant_computer_use_permissions(profile: Optional[str] = None):
-    """Spawn ``hermes computer-use permissions grant`` as a background action.
+    """Spawn ``sonic computer-use permissions grant`` as a background action.
 
     macOS-only: ``cua-driver permissions grant`` launches CuaDriver via
     LaunchServices so the TCC dialog is attributed to com.trycua.driver, then
@@ -10719,7 +10719,7 @@ async def grant_computer_use_permissions(profile: Optional[str] = None):
             detail="Computer Use permission grants are a macOS concept.",
         )
     try:
-        proc = _spawn_hermes_action(
+        proc = _spawn_sonic_action(
             _profile_cli_args(profile)
             + ["computer-use", "permissions", "grant"],
             "computer-use-grant",
@@ -12291,7 +12291,7 @@ def _discover_dashboard_plugins() -> list:
     search_dirs = [
         (bundled_root / "memory", "bundled"),
         (bundled_root, "bundled"),
-        (get_hermes_home() / "plugins", "user"),
+        (get_sonic_home() / "plugins", "user"),
     ]
     # GHSA-5qr3-c538-wm9j (#29156): the previous ``os.environ.get(...)``
     # check treated *any* non-empty string as truthy, so ``=0``, ``=false``,

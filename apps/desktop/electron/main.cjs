@@ -6025,7 +6025,7 @@ ipcMain.handle('sonic:openExternal', (_event, url) => {
   }
 })
 
-ipcMain.handle('hermes:openPreviewInBrowser', async (_event, url) => {
+ipcMain.handle('sonic:openPreviewInBrowser', async (_event, url) => {
   if (!(await openPreviewInBrowser(url))) {
     throw new Error('Invalid preview URL')
   }

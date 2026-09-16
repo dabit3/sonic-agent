@@ -78,7 +78,7 @@ reference material — into a reusable skill, without hand-writing the
 `SKILL.md`. It is open-ended: point it at *anything you can describe* and the
 agent gathers the material with the tools it already has, then authors a skill
 that follows the [house authoring standards](#skillmd-format) (≤60-char
-description, the standard section order, Hermes-tool framing, no invented
+description, the standard section order, Sonic-tool framing, no invented
 commands).
 
 ```bash

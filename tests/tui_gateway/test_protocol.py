@@ -787,10 +787,10 @@ def test_session_resume_reuses_live_agent_after_compression_rotation(server, mon
 def test_sync_session_key_after_compress_reanchors_active_session_lease(
     server, monkeypatch, tmp_path
 ):
-    home = tmp_path / ".hermes"
-    monkeypatch.setenv("HERMES_HOME", str(home))
+    home = tmp_path / ".sonic"
+    monkeypatch.setenv("SONIC_HOME", str(home))
 
-    from hermes_cli.active_sessions import (
+    from sonic_cli.active_sessions import (
         active_session_registry_snapshot,
         try_acquire_active_session,
     )

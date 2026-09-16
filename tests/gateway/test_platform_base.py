@@ -968,7 +968,7 @@ class TestMediaDeliveryDefaultMode:
         assert BasePlatformAdapter.validate_media_delivery_path(str(config_file)) is None
 
     def test_denylist_blocks_google_token_default_mode(self, tmp_path, monkeypatch):
-        """Integration credentials at the HERMES_HOME root (google_token.json)
+        """Integration credentials at the SONIC_HOME root (google_token.json)
         must never be deliverable, even though they aren't the historically
         enumerated .env/auth.json/config.yaml files. Regression for a
         refreshed google_token.json being auto-attached to a Slack reply
@@ -977,13 +977,13 @@ class TestMediaDeliveryDefaultMode:
         self._patch_roots(monkeypatch)
 
         fake_home = tmp_path / "home"
-        hermes_dir = fake_home / ".hermes"
-        hermes_dir.mkdir(parents=True)
-        token = hermes_dir / "google_token.json"
+        sonic_dir = fake_home / ".sonic"
+        sonic_dir.mkdir(parents=True)
+        token = sonic_dir / "google_token.json"
         token.write_text('{"access_token": "***", "refresh_token": "***"}')
         monkeypatch.setenv("HOME", str(fake_home))
-        monkeypatch.setattr("gateway.platforms.base._HERMES_HOME", hermes_dir)
-        monkeypatch.setattr("gateway.platforms.base._HERMES_ROOT", hermes_dir)
+        monkeypatch.setattr("gateway.platforms.base._SONIC_HOME", sonic_dir)
+        monkeypatch.setattr("gateway.platforms.base._SONIC_ROOT", sonic_dir)
 
         assert BasePlatformAdapter.validate_media_delivery_path(str(token)) is None
 
@@ -995,74 +995,74 @@ class TestMediaDeliveryDefaultMode:
         over recency trust.
         """
         self._patch_roots(monkeypatch)  # zero cache allowlist, strict mode on
-        monkeypatch.setenv("HERMES_MEDIA_TRUST_RECENT_FILES", "1")
-        monkeypatch.setenv("HERMES_MEDIA_TRUST_RECENT_SECONDS", "600")
+        monkeypatch.setenv("SONIC_MEDIA_TRUST_RECENT_FILES", "1")
+        monkeypatch.setenv("SONIC_MEDIA_TRUST_RECENT_SECONDS", "600")
 
         fake_home = tmp_path / "home"
-        hermes_dir = fake_home / ".hermes"
-        hermes_dir.mkdir(parents=True)
-        token = hermes_dir / "google_token.json"
+        sonic_dir = fake_home / ".sonic"
+        sonic_dir.mkdir(parents=True)
+        token = sonic_dir / "google_token.json"
         token.write_text('{"access_token": "***"}')  # mtime = now → "recent"
         monkeypatch.setenv("HOME", str(fake_home))
-        monkeypatch.setattr("gateway.platforms.base._HERMES_HOME", hermes_dir)
-        monkeypatch.setattr("gateway.platforms.base._HERMES_ROOT", hermes_dir)
+        monkeypatch.setattr("gateway.platforms.base._SONIC_HOME", sonic_dir)
+        monkeypatch.setattr("gateway.platforms.base._SONIC_ROOT", sonic_dir)
 
         assert BasePlatformAdapter.validate_media_delivery_path(str(token)) is None
 
     def test_denylist_blocks_pairing_directory_contents(self, tmp_path, monkeypatch):
-        """Files under ~/.hermes/pairing/ (platform pairing tokens) are
+        """Files under ~/.sonic/pairing/ (platform pairing tokens) are
         credential material and must not be deliverable.
         """
         self._patch_roots(monkeypatch)
 
         fake_home = tmp_path / "home"
-        hermes_dir = fake_home / ".hermes"
-        pairing = hermes_dir / "pairing"
+        sonic_dir = fake_home / ".sonic"
+        pairing = sonic_dir / "pairing"
         pairing.mkdir(parents=True)
         token = pairing / "telegram-approved.json"
         token.write_text('{"approved": ["123"]}')
         monkeypatch.setenv("HOME", str(fake_home))
-        monkeypatch.setattr("gateway.platforms.base._HERMES_HOME", hermes_dir)
-        monkeypatch.setattr("gateway.platforms.base._HERMES_ROOT", hermes_dir)
+        monkeypatch.setattr("gateway.platforms.base._SONIC_HOME", sonic_dir)
+        monkeypatch.setattr("gateway.platforms.base._SONIC_ROOT", sonic_dir)
 
         assert BasePlatformAdapter.validate_media_delivery_path(str(token)) is None
 
-    def test_hermes_cache_still_delivers_under_denied_home(self, tmp_path, monkeypatch):
+    def test_sonic_cache_still_delivers_under_denied_home(self, tmp_path, monkeypatch):
         """The targeted credential denylist must not break legitimate cache
         deliveries: a generated artifact under the allowlisted cache root is
         matched before the denylist and still delivers.
         """
         fake_home = tmp_path / "home"
-        hermes_dir = fake_home / ".hermes"
-        cache_dir = hermes_dir / "cache" / "documents"
+        sonic_dir = fake_home / ".sonic"
+        cache_dir = sonic_dir / "cache" / "documents"
         cache_dir.mkdir(parents=True)
         artifact = cache_dir / "report.pdf"
         artifact.write_bytes(b"%PDF-1.4")
         self._patch_roots(monkeypatch, cache_dir)
         monkeypatch.setenv("HOME", str(fake_home))
-        monkeypatch.setattr("gateway.platforms.base._HERMES_HOME", hermes_dir)
-        monkeypatch.setattr("gateway.platforms.base._HERMES_ROOT", hermes_dir)
+        monkeypatch.setattr("gateway.platforms.base._SONIC_HOME", sonic_dir)
+        monkeypatch.setattr("gateway.platforms.base._SONIC_ROOT", sonic_dir)
 
         assert BasePlatformAdapter.validate_media_delivery_path(str(artifact)) == str(artifact.resolve())
 
-    def test_denylist_blocks_non_cache_file_under_hermes_home(self, tmp_path, monkeypatch):
-        """A non-credential file the agent wrote directly under ~/.hermes
+    def test_denylist_blocks_non_cache_file_under_sonic_home(self, tmp_path, monkeypatch):
+        """A non-credential file the agent wrote directly under ~/.sonic
         (not in a cache subdir) is still deliverable via recency trust — we
         did NOT blanket-deny the tree (per #32090/#34425). This guards against
         accidentally re-introducing the rejected whole-tree deny.
         """
         self._patch_roots(monkeypatch)  # strict mode on
-        monkeypatch.setenv("HERMES_MEDIA_TRUST_RECENT_FILES", "1")
-        monkeypatch.setenv("HERMES_MEDIA_TRUST_RECENT_SECONDS", "600")
+        monkeypatch.setenv("SONIC_MEDIA_TRUST_RECENT_FILES", "1")
+        monkeypatch.setenv("SONIC_MEDIA_TRUST_RECENT_SECONDS", "600")
 
         fake_home = tmp_path / "home"
-        hermes_dir = fake_home / ".hermes"
-        hermes_dir.mkdir(parents=True)
-        artifact = hermes_dir / "adhoc_report.pdf"
+        sonic_dir = fake_home / ".sonic"
+        sonic_dir.mkdir(parents=True)
+        artifact = sonic_dir / "adhoc_report.pdf"
         artifact.write_bytes(b"%PDF-1.4")  # fresh mtime
         monkeypatch.setenv("HOME", str(fake_home))
-        monkeypatch.setattr("gateway.platforms.base._HERMES_HOME", hermes_dir)
-        monkeypatch.setattr("gateway.platforms.base._HERMES_ROOT", hermes_dir)
+        monkeypatch.setattr("gateway.platforms.base._SONIC_HOME", sonic_dir)
+        monkeypatch.setattr("gateway.platforms.base._SONIC_ROOT", sonic_dir)
 
         assert BasePlatformAdapter.validate_media_delivery_path(str(artifact)) == str(artifact.resolve())
 

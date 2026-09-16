@@ -114,8 +114,8 @@ def test_active_session_registry_prunes_dead_pids(tmp_path, monkeypatch):
 
 
 def test_transfer_active_session_reanchors_existing_lease(tmp_path, monkeypatch):
-    home = tmp_path / ".hermes"
-    monkeypatch.setenv("HERMES_HOME", str(home))
+    home = tmp_path / ".sonic"
+    monkeypatch.setenv("SONIC_HOME", str(home))
 
     lease, message = active_sessions.try_acquire_active_session(
         session_id="session-old",

@@ -1845,7 +1845,7 @@ class GatewaySlashCommandsMixin:
                 return "Usage: /goal draft <objective in plain language>"
             try:
                 import asyncio
-                from hermes_cli.goals import draft_contract
+                from sonic_cli.goals import draft_contract
 
                 draft_contract_obj = await asyncio.get_running_loop().run_in_executor(
                     None, draft_contract, objective
@@ -1859,7 +1859,7 @@ class GatewaySlashCommandsMixin:
             # Inline `field: value` lines parse into a completion contract;
             # the remaining prose is the goal headline. Plain free-form goals
             # (no such lines) behave exactly as before.
-            from hermes_cli.goals import parse_contract
+            from sonic_cli.goals import parse_contract
 
             headline, parsed = parse_contract(args)
             args = headline or args

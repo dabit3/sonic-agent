@@ -11,9 +11,9 @@ that instructs the live agent to:
      (``read_file`` / ``search_files`` for dirs, ``web_extract`` for URLs, the
      current conversation for "what I just did", the user's text for pasted
      material).
-  2. Author a single ``SKILL.md`` via ``skill_manage`` that follows the Hermes
+  2. Author a single ``SKILL.md`` via ``skill_manage`` that follows the Sonic
      skill-authoring standards (description <=60 chars, the modern section
-     order, Hermes-tool framing, no invented commands).
+     order, Sonic-tool framing, no invented commands).
 
 There is no separate distillation engine and no model-tool footprint: the
 agent does the work with its existing toolset, so this works identically on
@@ -25,10 +25,10 @@ gateway ``/learn``, the dashboard "Learn a skill" panel) calls
 from __future__ import annotations
 
 # The house-style rules, distilled from AGENTS.md "Skill authoring standards
-# (HARDLINE)" and the hermes-agent-dev new-skill salvage reference. Embedded in
+# (HARDLINE)" and the sonic-agent-dev new-skill salvage reference. Embedded in
 # the prompt so the agent authors skills the way a maintainer would by hand.
 _AUTHORING_STANDARDS = """\
-Follow the Hermes skill-authoring standards exactly:
+Follow the Sonic skill-authoring standards exactly:
 
 Frontmatter:
 - name: lowercase-hyphenated, <=64 chars, no spaces.
@@ -37,20 +37,20 @@ Frontmatter:
   comprehensive, seamless, advanced). Do NOT repeat the skill name. If the
   description contains a colon, wrap the whole value in double quotes.
 - version: 0.1.0
-- metadata.hermes.tags: a few Capitalized, Relevant, Tags.
+- metadata.sonic.tags: a few Capitalized, Relevant, Tags.
 
 Body section order (omit a section only if it genuinely has no content):
 1. "# <Human Title>" then a 2-3 sentence intro: what it does, what it does NOT
    do, and the key dependency stance (e.g. "stdlib only").
 2. "## When to Use" — bullet list of concrete trigger phrases.
 3. "## Prerequisites" — exact env vars, install steps, credentials.
-4. "## How to Run" — the canonical invocation, framed through Hermes tools.
+4. "## How to Run" — the canonical invocation, framed through Sonic tools.
 5. "## Quick Reference" — a flat command/endpoint list, no narration.
 6. "## Procedure" — numbered steps with copy-paste-exact commands.
 7. "## Pitfalls" — known limits, rate limits, things that look broken but aren't.
 8. "## Verification" — a single command/check that proves the skill worked.
 
-Hermes-tool framing (this is what makes it a skill, not shell docs):
+Sonic-tool framing (this is what makes it a skill, not shell docs):
 - Frame running scripts as "invoke through the `terminal` tool".
 - Use `read_file` (not cat/head/tail), `search_files` (not grep/find/ls),
   `patch` (not sed/awk), `web_extract` (not curl-to-scrape),
