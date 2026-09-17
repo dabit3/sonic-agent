@@ -365,3 +365,56 @@ class WhatsAppBehaviorMixin:
             result = result.replace(f"{_CODE_PH}{i}\x00", code)
 
         return result
+
+
+# ---------------------------------------------------------------------------
+# Shared bridge directory resolution for CLI and adapter
+# ---------------------------------------------------------------------------
+
+def resolve_whatsapp_bridge_dir() -> Path:
+    """Resolve the WhatsApp bridge directory, mirroring to SONIC_HOME if needed.
+
+    When the install tree is read-only (e.g., Docker /opt/sonic), this function
+    mirrors the bridge source to a writable SONIC_HOME location and returns that
+    path. This ensures npm install works in Docker environments.
+
+    Returns the resolved bridge directory path.
+    """
+    import shutil
+    from pathlib import Path as _Path
+
+    # Default location in install tree (may be read-only)
+    from sonic_constants import get_sonic_home
+    install_bridge = _Path(__file__).resolve().parents[2] / "scripts" / "whatsapp-bridge"
+
+    # Try SONIC_HOME location first
+    sonic_home = get_sonic_home()
+    sonic_home_bridge = sonic_home / "scripts" / "whatsapp-bridge"
+
+    # Check if install dir is writable
+    try:
+        test_file = install_bridge / ".write_test"
+        test_file.touch()
+        test_file.unlink()
+        install_writable = True
+    except (OSError, PermissionError):
+        install_writable = False
+
+    if install_writable:
+        return install_bridge
+
+    # Install dir is read-only, mirror to SONIC_HOME if needed
+    if sonic_home_bridge.exists():
+        return sonic_home_bridge
+
+    # Mirror the bridge source to SONIC_HOME
+    try:
+        sonic_home_bridge.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(
+            install_bridge,
+            sonic_home_bridge,
+            dirs_exist_ok=False,
+        )
+        return sonic_home_bridge
+    except Exception:
+        return install_bridge

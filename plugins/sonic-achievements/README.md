@@ -2,7 +2,7 @@
 
 > **Bundled with Sonic Agent.** Originally authored by [@PCinkusz](https://github.com/PCinkusz) at https://github.com/PCinkusz/sonic-achievements — vendored into `plugins/sonic-achievements/` so it ships with the dashboard out-of-the-box and stays in lockstep with Sonic feature changes. Upstream repo remains the staging ground for new badges and UI iteration.
 >
-> When Sonic is installed via `pip install sonic-agent` or cloned from source, this plugin auto-registers as a dashboard tab on first `sonic dashboard` launch. No separate install step. See [Built-in Plugins → sonic-achievements](../../website/docs/user-guide/features/built-in-plugins.md) in the main docs.
+> When Sonic is installed via the install script or cloned from source, this plugin auto-registers as a dashboard tab on first `sonic dashboard` launch. No separate install step. See [Built-in Plugins → sonic-achievements](../../website/docs/user-guide/features/built-in-plugins.md) in the main docs.
 
 Achievement system for the Sonic Dashboard: collectible, tiered badges generated from real local Sonic session history.
 

@@ -27,6 +27,7 @@ const sidebars: SidebarsConfig = {
         'user-guide/windows-native',
         'user-guide/windows-wsl-quickstart',
         'user-guide/configuration',
+        'user-guide/managed-scope',
         'user-guide/configuring-models',
         {
           type: 'category',
@@ -102,6 +103,7 @@ const sidebars: SidebarsConfig = {
             'user-guide/features/vision',
             'user-guide/features/image-generation',
             'user-guide/features/spotify',
+            'user-guide/features/pets',
             'user-guide/features/tts',
             'user-guide/features/deliverable-mode',
           ],
@@ -189,16 +191,6 @@ const sidebars: SidebarsConfig = {
                 },
                 {
                   type: 'category',
-                  label: 'devops',
-                  key: 'skills-bundled-devops',
-                  collapsed: true,
-                  items: [
-                    'user-guide/skills/bundled/devops/devops-kanban-orchestrator',
-                    'user-guide/skills/bundled/devops/devops-kanban-worker',
-                  ],
-                },
-                {
-                  type: 'category',
                   label: 'dogfood',
                   key: 'skills-bundled-dogfood',
                   collapsed: true,
@@ -277,6 +269,7 @@ const sidebars: SidebarsConfig = {
                     'user-guide/skills/bundled/productivity/productivity-nano-pdf',
                     'user-guide/skills/bundled/productivity/productivity-notion',
                     'user-guide/skills/bundled/productivity/productivity-ocr-and-documents',
+                    'user-guide/skills/bundled/productivity/productivity-petdex',
                     'user-guide/skills/bundled/productivity/productivity-powerpoint',
                     'user-guide/skills/bundled/productivity/productivity-teams-meeting-pipeline',
                   ],

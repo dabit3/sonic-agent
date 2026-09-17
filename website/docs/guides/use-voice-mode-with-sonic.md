@@ -61,19 +61,19 @@ If that is not solid yet, fix text mode first.
 ### CLI microphone + playback
 
 ```bash
-pip install "sonic-agent[voice]"
+cd ~/.sonic/sonic-agent && uv pip install -e ".[voice]"
 ```
 
 ### Messaging platforms
 
 ```bash
-pip install "sonic-agent[messaging]"
+cd ~/.sonic/sonic-agent && uv pip install -e ".[messaging]"
 ```
 
 ### Premium ElevenLabs TTS
 
 ```bash
-pip install "sonic-agent[tts-premium]"
+cd ~/.sonic/sonic-agent && uv pip install -e ".[tts-premium]"
 ```
 
 ### Local NeuTTS (optional)
@@ -85,7 +85,7 @@ python -m pip install -U neutts[all]
 ### Everything
 
 ```bash
-pip install "sonic-agent[all]"
+cd ~/.sonic/sonic-agent && uv pip install -e ".[all]"
 ```
 
 ## Step 3: install system dependencies

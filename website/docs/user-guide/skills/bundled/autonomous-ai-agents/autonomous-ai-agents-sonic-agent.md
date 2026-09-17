@@ -343,7 +343,6 @@ The registry of record is `sonic_cli/commands.py` — every consumer
 /commands [page]     Browse all commands (gateway)
 /usage               Token usage
 /insights [days]     Usage analytics
-/gquota              Show Google Gemini Code Assist quota usage (CLI)
 /status              Session info (gateway)
 /profile             Active profile info
 /debug               Upload debug report (system info + logs) and get shareable links
@@ -360,7 +359,7 @@ The registry of record is `sonic_cli/commands.py` — every consumer
 
 ```
 ~/.sonic/config.yaml       Main configuration
-~/.sonic/.env              API keys and secrets
+~/.sonic/.env              API keys and secrets (under $SONIC_HOME if set)
 $SONIC_HOME/skills/        Installed skills
 ~/.sonic/sessions/         Gateway routing index, request dumps, *.jsonl transcripts (and optional per-session JSON snapshots when sessions.write_json_snapshots: true)
 ~/.sonic/state.db          Canonical session store (SQLite + FTS5)
@@ -377,7 +376,7 @@ Edit with `sonic config edit` or `sonic config set section.key value`.
 
 | Section | Key options |
 |---------|-------------|
-| `model` | `default`, `provider`, `base_url`, `api_key`, `context_length` |
+| `model` | `default`, `provider`, `base_url`, `api_key`, `context_length` (explicit override; clear to `""` for auto-detect from server `/v1/models`) |
 | `agent` | `max_turns` (90), `tool_use_enforcement` |
 | `terminal` | `backend` (local/docker/ssh/modal), `cwd`, `timeout` (180) |
 | `compression` | `enabled`, `threshold` (0.50), `target_ratio` (0.20) |
@@ -875,6 +874,22 @@ sonic config set auxiliary.vision.model <model_name>
 ```
 
 ---
+### Context window shows wrong size
+
+If Sonic reports a smaller context window than your local model supports
+(e.g., 128k when llama-server has `-c 262144`):
+
+**Check if `model.context_length` is explicitly set.** Sonic uses a
+multi-source resolution chain (highest priority first):
+
+1. `model.context_length` in config.yaml — **blocks auto-detection if set**
+2. Custom provider per-model setting
+3. Persistent cache (survives restarts)
+4. `/v1/models` endpoint from your server — auto-detected when nothing
+   above overrides it
+
+**Fix:** Clear the override so auto-detection falls through:
+
 
 ## Where to Find Things
 
@@ -927,7 +942,7 @@ sonic-agent/
 ```
 <!-- ascii-guard-ignore-end -->
 
-Config: `~/.sonic/config.yaml` (settings), `~/.sonic/.env` (API keys).
+Config: `~/.sonic/config.yaml` (settings), `~/.sonic/.env` (API keys) — both under `$SONIC_HOME` when it is set.
 
 ### Adding a Tool (3 files)
 

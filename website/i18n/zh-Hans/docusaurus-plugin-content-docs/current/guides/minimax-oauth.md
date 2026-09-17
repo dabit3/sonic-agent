@@ -217,7 +217,7 @@ auth 存储中没有 `minimax-oauth` 的凭据。您尚未登录，或凭据文�
 要移除已存储的 MiniMax OAuth 凭据：
 
 ```bash
-sonic auth remove minimax-oauth
+sonic auth logout minimax-oauth
 ```
 
 ## 另请参阅

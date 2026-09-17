@@ -766,7 +766,7 @@ class TestNpmBareSpawnsResolved:
         [
             "sonic_cli/tools_config.py",
             "sonic_cli/doctor.py",
-            "gateway/platforms/whatsapp.py",
+            "plugins/platforms/whatsapp/adapter.py",
             "tools/browser_tool.py",
         ],
     )

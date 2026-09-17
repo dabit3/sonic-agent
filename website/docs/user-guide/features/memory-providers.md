@@ -61,6 +61,8 @@ AI-native cross-session user modeling with dialectic reasoning, session-scoped c
 - `dialecticCadence` — how often the dialectic LLM fires (LLM call frequency)
 - `dialecticDepth` — how many `.chat()` passes per dialectic invocation (1–3, depth of reasoning)
 
+The auto-injected dialectic also scales its reasoning level by query length (longer query → deeper reasoning, capped at `reasoningLevelCap`); see [Query-Adaptive Reasoning Level](./honcho.md#query-adaptive-reasoning-level).
+
 **Setup Wizard:**
 ```bash
 sonic memory setup        # select "honcho" — runs the Honcho-specific post-setup
@@ -68,7 +70,7 @@ sonic memory setup        # select "honcho" — runs the Honcho-specific post-se
 
 The legacy `sonic honcho setup` command still works (it now redirects to `sonic memory setup`), but is only registered after Honcho is selected as the active memory provider.
 
-**Config:** `$SONIC_HOME/honcho.json` (profile-local) or `~/.honcho/config.json` (global). Resolution order: `$SONIC_HOME/honcho.json` > `~/.sonic/honcho.json` > `~/.honcho/config.json`. See the [config reference](https://github.com/NousResearch/hermes-agent/blob/main/plugins/memory/honcho/README.md) and the [Honcho integration guide](https://docs.honcho.dev/v3/guides/integrations/sonic).
+**Config:** `$SONIC_HOME/honcho.json` (profile-local) or `~/.honcho/config.json` (global). Resolution order: `$SONIC_HOME/honcho.json` > `~/.sonic/honcho.json` > `~/.honcho/config.json`. See the [config reference](https://github.com/dabit3/sonic-agent/blob/main/plugins/memory/honcho/README.md) and the [Honcho integration guide](https://docs.honcho.dev/v3/guides/integrations/sonic).
 
 <details>
 <summary>Full config reference</summary>
@@ -270,7 +272,7 @@ Off-gateway these keys do nothing. `sonic memory setup` only prompts for them wh
 
 </details>
 
-See the [config reference](https://github.com/NousResearch/hermes-agent/blob/main/plugins/memory/honcho/README.md) and [Honcho integration guide](https://docs.honcho.dev/v3/guides/integrations/sonic).
+See the [config reference](https://github.com/dabit3/sonic-agent/blob/main/plugins/memory/honcho/README.md) and [Honcho integration guide](https://docs.honcho.dev/v3/guides/integrations/sonic).
 
 
 ---
@@ -315,31 +317,55 @@ echo "OPENVIKING_API_KEY=..." >> ~/.sonic/.env
 
 ### Mem0
 
-Server-side LLM fact extraction with semantic search, reranking, and automatic deduplication.
+Server-side LLM fact extraction with semantic search, reranking, and automatic deduplication. Supports both Mem0 Platform (cloud) and OSS (self-hosted) modes.
 
 | | |
 |---|---|
 | **Best for** | Hands-off memory management — Mem0 handles extraction automatically |
-| **Requires** | `pip install mem0ai` + API key |
-| **Data storage** | Mem0 Cloud |
-| **Cost** | Mem0 pricing |
+| **Requires** | `pip install mem0ai` + API key (platform) or LLM/vector store (OSS) |
+| **Data storage** | Mem0 Cloud (platform) or self-hosted (OSS) |
+| **Cost** | Mem0 pricing (platform) / free (OSS) |
 
-**Tools:** `mem0_profile` (all stored memories), `mem0_search` (semantic search + reranking), `mem0_conclude` (store verbatim facts)
+**Tools (5):** `mem0_list` (list all memories, paginated), `mem0_search` (semantic search with reranking in platform mode), `mem0_add` (store verbatim facts), `mem0_update` (update by ID), `mem0_delete` (delete by ID)
 
-**Setup:**
+**Setup (Platform):**
 ```bash
-sonic memory setup    # select "mem0"
+sonic memory setup    # select "mem0" → "Platform"
 # Or manually:
 sonic config set memory.provider mem0
 echo "MEM0_API_KEY=your-key" >> ~/.sonic/.env
 ```
 
-**Config:** `$SONIC_HOME/mem0.json`
+**Setup (OSS):**
+```bash
+sonic memory setup    # select "mem0" → "Open Source (self-hosted)"
+# Or via flags:
+sonic memory setup mem0 --mode oss --oss-llm openai --oss-llm-key sk-... --oss-vector qdrant
+```
+
+Preview without writing files:
+```bash
+sonic memory setup mem0 --mode oss --oss-llm-key sk-... --dry-run
+```
+
+**Config:** `$SONIC_HOME/mem0.json` (behavioral settings). Only the secret `MEM0_API_KEY` belongs in `~/.sonic/.env`.
 
 | Key | Default | Description |
 |-----|---------|-------------|
+| `mode` | `platform` | `platform` (Mem0 Cloud) or `oss` (self-hosted) |
 | `user_id` | `sonic-user` | User identifier |
 | `agent_id` | `sonic` | Agent identifier |
+| `rerank` | `true` | Rerank search results for relevance (platform mode only) |
+
+**OSS supported providers:**
+
+| Component | Providers |
+|-----------|-----------|
+| LLM | openai, ollama |
+| Embedder | openai, ollama |
+| Vector Store | qdrant (local/server), pgvector |
+
+**Switching modes:** Re-run `sonic memory setup mem0 --mode <platform|oss>` or edit `mem0.json` directly.
 
 ---
 
@@ -569,7 +595,7 @@ sonic memory setup
 |----------|---------|------|-------|-------------|----------------|
 | **Honcho** | Cloud | Paid | 5 | `honcho-ai` | Dialectic user modeling + session-scoped context |
 | **OpenViking** | Self-hosted | Free | 5 | `openviking` + server | Filesystem hierarchy + tiered loading |
-| **Mem0** | Cloud | Paid | 3 | `mem0ai` | Server-side LLM extraction |
+| **Mem0** | Cloud/Self-hosted | Free/Paid | 5 | `mem0ai` | Server-side LLM extraction + OSS mode |
 | **Hindsight** | Cloud/Local | Free/Paid | 3 | `hindsight-client` | Knowledge graph + reflect synthesis |
 | **Holographic** | Local | Free | 2 | None | HRR algebra + trust scoring |
 | **RetainDB** | Cloud | $20/mo | 5 | `requests` | Delta compression |

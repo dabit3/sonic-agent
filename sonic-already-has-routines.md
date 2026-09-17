@@ -127,7 +127,7 @@ A nightly backlog triage on Sonnet costs roughly $0.02-0.05. A monitoring check 
 Sonic Agent is open source and free. The automation infrastructure — cron scheduler, webhook platform, skill system, multi-platform delivery — is built in.
 
 ```bash
-pip install sonic-agent
+curl -fsSL https://sonic-agent.nousresearch.com/install.sh | bash
 sonic setup
 ```
 

@@ -243,12 +243,12 @@ If a model is genuinely unavailable, [open an issue](https://github.com/NousRese
 
 - `model.provider` set to `openrouter`/`anthropic`/etc. instead of `nous`
 - An OAuth refresh failure that fell back to a different configured provider
-- Multiple Sonic profiles where you're using the wrong one (check `sonic profile current`)
+- Multiple Sonic profiles where you're using the wrong one (check `sonic profile list`)
 
 ### Want to revoke and start clean
 
 ```bash
-sonic auth remove nous       # wipes the local refresh token
+sonic auth logout nous       # wipes the local refresh token
 # Then re-run setup or remove the subscription from the Portal web UI
 ```
 

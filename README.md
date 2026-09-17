@@ -5,6 +5,7 @@
   <a href="https://github.com/NousResearch/hermes-agent"><img src="https://img.shields.io/badge/Fork%20of-Sonic%20Agent-blueviolet?style=for-the-badge" alt="Fork of Hermes Agent"></a>
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/Lang-中文-red?style=for-the-badge" alt="中文"></a>
   <a href="README.ur-pk.md"><img src="https://img.shields.io/badge/Lang-اردو-green?style=for-the-badge" alt="اردو"></a>
+  <a href="README.es.md"><img src="https://img.shields.io/badge/Lang-Español-orange?style=for-the-badge" alt="Español"></a>
 </p>
 
 > Sonic Agent is a fork of [Sonic Agent](https://github.com/NousResearch/hermes-agent) from [Nous Research](https://nousresearch.com). This fork is tuned for one property: speed. It optimizes startup time, time to first token, and streaming speed. In some cases it removes features to get this speed. The upstream documentation is at [lightning-agent.nousresearch.com/docs](https://lightning-agent.nousresearch.com/docs/).
@@ -82,6 +83,41 @@ After the installation:
 source ~/.bashrc    # reload shell (or: source ~/.zshrc)
 sonic              # start chatting
 ```
+
+### Troubleshooting
+
+#### Windows Defender or antivirus flags `uv.exe` as malware
+
+If your antivirus (Bitdefender, Windows Defender, etc.) quarantines `uv.exe` from the Sonic `bin` folder (`%LOCALAPPDATA%\sonic\bin\uv.exe`), this is a **false positive**. The file is Astral's `uv` — the Rust Python package manager Sonic bundles to manage its Python environment. ML-based antivirus engines commonly flag unsigned Rust binaries that download and install packages.
+
+**To verify your copy is authentic:**
+
+```powershell
+# Install GitHub CLI if needed
+winget install --id GitHub.cli
+
+# Login to GitHub
+gh auth login
+
+# Run verification
+$uv = "$env:LOCALAPPDATA\sonic\bin\uv.exe"
+$ver = (& $uv --version).Split(' ')[1]
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$zip = "$env:TEMP\uv.zip"
+Invoke-WebRequest "https://github.com/astral-sh/uv/releases/download/$ver/uv-x86_64-pc-windows-msvc.zip" -OutFile $zip -UseBasicParsing
+gh attestation verify $zip --repo astral-sh/uv
+Expand-Archive $zip "$env:TEMP\uv_x" -Force
+(Get-FileHash "$env:TEMP\uv_x\uv.exe").Hash -eq (Get-FileHash $uv).Hash
+```
+
+If attestation says "Verification succeeded" and the last line prints `True`, you're good.
+
+**To whitelist Sonic:**
+- **Windows Defender:** Run PowerShell as Admin → `Add-MpPreference -ExclusionPath "$env:LOCALAPPDATA\sonic\bin"`
+- **Bitdefender:** Add an exception in the Bitdefender console (Protection > Antivirus > Settings > Manage Exceptions)
+- Whitelist the **folder**, not the file hash — Sonic updates `uv` and the hash changes every version
+
+For more context, see the upstream Astral reports: [astral-sh/uv#13553](https://github.com/astral-sh/uv/issues/13553), [astral-sh/uv#15011](https://github.com/astral-sh/uv/issues/15011), [astral-sh/uv#10079](https://github.com/astral-sh/uv/issues/10079).
 
 ---
 

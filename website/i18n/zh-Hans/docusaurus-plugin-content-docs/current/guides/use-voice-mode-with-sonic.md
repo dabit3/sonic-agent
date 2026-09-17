@@ -57,19 +57,19 @@ What tools do you have available?
 ### CLI 麦克风 + 播放
 
 ```bash
-pip install "sonic-agent[voice]"
+cd ~/.sonic/sonic-agent && uv pip install -e ".[voice]"
 ```
 
 ### 消息平台
 
 ```bash
-pip install "sonic-agent[messaging]"
+cd ~/.sonic/sonic-agent && uv pip install -e ".[messaging]"
 ```
 
 ### 高级 ElevenLabs TTS
 
 ```bash
-pip install "sonic-agent[tts-premium]"
+cd ~/.sonic/sonic-agent && uv pip install -e ".[tts-premium]"
 ```
 
 ### 本地 NeuTTS（可选）
@@ -81,7 +81,7 @@ python -m pip install -U neutts[all]
 ### 全部安装
 
 ```bash
-pip install "sonic-agent[all]"
+cd ~/.sonic/sonic-agent && uv pip install -e ".[all]"
 ```
 
 ## 第三步：安装系统依赖

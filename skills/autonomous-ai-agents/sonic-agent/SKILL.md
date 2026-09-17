@@ -1,7 +1,7 @@
 ---
 name: sonic-agent
 description: "Configure, extend, or contribute to Sonic Agent."
-version: 2.1.0
+version: 2.2.0
 author: Sonic Agent + Teknium
 license: MIT
 platforms: [linux, macos, windows]
@@ -30,6 +30,16 @@ People use Sonic for software development, research, system administration, data
 **This skill helps you work with Sonic Agent effectively** — setting it up, configuring features, spawning additional agent instances, troubleshooting issues, finding the right commands and settings, and understanding how the system works when you need to extend or contribute to it.
 
 **Docs:** https://lightning-agent.nousresearch.com/docs/
+
+## Scope & Verification
+
+This skill is a concise operating guide, not the complete source of truth for every Sonic feature. If a Sonic feature, command, or setting is not mentioned here, do not treat that absence as evidence that it does not exist. Check the live repository and official docs before giving a negative answer.
+
+Good verification targets:
+
+- CLI commands: `sonic --help`, `sonic <command> --help`, and `sonic_cli/main.py`
+- User documentation: https://lightning-agent.nousresearch.com/docs/
+- Source tree: https://github.com/NousResearch/hermes-agent
 
 ## Quick Start
 
@@ -326,7 +336,6 @@ The registry of record is `sonic_cli/commands.py` — every consumer
 /commands [page]     Browse all commands (gateway)
 /usage               Token usage
 /insights [days]     Usage analytics
-/gquota              Show Google Gemini Code Assist quota usage (CLI)
 /status              Session info (gateway)
 /profile             Active profile info
 /debug               Upload debug report (system info + logs) and get shareable links
@@ -446,6 +455,55 @@ Full enumeration lives in `toolsets.py` as the `TOOLSETS` dict; `_SONIC_CORE_TOO
 Tool changes take effect on `/reset` (new session). They do NOT apply mid-conversation to preserve prompt caching.
 
 ---
+
+## Project Context Files
+
+Sonic injects project-level instructions into the system prompt by reading context files from the working directory. The discovery order is **first match wins** — only one project context source is loaded per session.
+
+| File (in priority order) | Discovery | Use when |
+|---|---|---|
+| `.sonic.md` / `SONIC.md` | Walks parents up to the git root, stops at git root | You want hierarchical project rules (root + per-package overrides) |
+| `AGENTS.md` / `agents.md` | **Cwd only** — subdirectory and parent copies are ignored | You want portable agent instructions that work the same in Sonic, Claude Code, Codex, etc. |
+| `CLAUDE.md` / `claude.md` | Cwd only | Same as AGENTS.md, Claude-flavored |
+| `.cursorrules` / `.cursor/rules/*.mdc` | Cwd only | Migrating from Cursor |
+
+`SOUL.md` (in `$SONIC_HOME`) is independent and always loaded when present — it sets the agent's identity, not project rules.
+
+### Pick the right one
+
+- **Use `.sonic.md`** when you want Sonic-specific behavior that lives above the cwd (root + subtree), or when you want rules to inherit from a parent directory. The parent walk stops at the git root, so a home-level `.sonic.md` won't leak into every project (a git repo's root is the boundary).
+- **Use `AGENTS.md`** when the same project will also be worked on by other agents (Codex, Claude Code, OpenCode). Those tools all have their own conventions for `AGENTS.md`, and the "cwd only" contract keeps the file portable.
+- **Don't put project rules in `~/.sonic/AGENTS.md`** (or any other home-level location). When Sonic runs with that directory as cwd, the file loads — but only for that one directory. For cross-project context, use `SOUL.md` (in `$SONIC_HOME`, identity-only) or install a skill via `sonic skills install`.
+
+### Size and truncation
+
+Each context file is capped at 20,000 characters. Files longer than that get **head + tail** truncated (the middle is dropped, with a `[...truncated...]` marker). For large project rules, prefer splitting into multiple skills over cramming one file.
+
+### Security
+
+All context files pass through the threat-pattern scanner before reaching the system prompt. Patterns matching prompt injection or promptware are replaced with a `[BLOCKED: ...]` placeholder. This means an `AGENTS.md` containing obvious injection attempts won't reach the model — the scanner blocks the content, not the file, so the rest of the file still loads.
+
+### Disable for one session
+
+`sonic --ignore-rules` skips auto-injection of all project context files (`.sonic.md`, `AGENTS.md`, `CLAUDE.md`, `.cursorrules`) **and** `SOUL.md` identity, plus user config, plugins, and MCP servers. Use it to isolate whether a problem is your setup or Sonic itself.
+
+### Example: a small `.sonic.md`
+
+```markdown
+# My Project
+
+Sonic: when working in this repo, follow these rules.
+
+## Build
+- Always run `make test` before declaring a change done.
+- Use `uv run` for Python, not `pip install`.
+
+## Style
+- Prefer `pathlib.Path` over `os.path`.
+- No `print()` in production code — use the `logger`.
+```
+
+That file at `/home/me/projects/myrepo/.sonic.md` is auto-loaded when Sonic runs in any subdirectory of `/home/me/projects/myrepo`, but not when it runs in `/home/me/other-project`.
 
 ## Security & Privacy Toggles
 
