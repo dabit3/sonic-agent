@@ -67,7 +67,7 @@ def _warn_if_gateway_not_running() -> None:
     at create/list time, when the user is right there, prevents it.
     """
     try:
-        from hermes_cli.gateway import find_gateway_pids
+        from sonic_cli.gateway import find_gateway_pids
 
         if find_gateway_pids():
             return
@@ -76,9 +76,9 @@ def _warn_if_gateway_not_running() -> None:
         return
 
     print(color("  ⚠  Gateway is not running — jobs won't fire automatically.", Colors.YELLOW))
-    print(color("     Start it with: hermes gateway install", Colors.DIM))
-    print(color("                    sudo hermes gateway install --system  # Linux servers", Colors.DIM))
-    print(color("     Check status:  hermes cron status", Colors.DIM))
+    print(color("     Start it with: sonic gateway install", Colors.DIM))
+    print(color("                    sudo sonic gateway install --system  # Linux servers", Colors.DIM))
+    print(color("     Check status:  sonic cron status", Colors.DIM))
 
 
 def cron_list(show_all: bool = False):

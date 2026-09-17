@@ -81,9 +81,9 @@ Notes:
 
 ### Command menu priority and cap (Optional)
 
-Hermes registers its command menu automatically when the Telegram gateway starts. The menu is built from the central slash-command registry plus eligible plugin/skill commands, then capped so Telegram accepts the payload reliably. The default cap is 60 commands — enough to keep all built-in commands plus common skill commands visible.
+Sonic registers its command menu automatically when the Telegram gateway starts. The menu is built from the central slash-command registry plus eligible plugin/skill commands, then capped so Telegram accepts the payload reliably. The default cap is 60 commands — enough to keep all built-in commands plus common skill commands visible.
 
-If you have local or plugin commands that should stay visible in Telegram's `/` picker, prioritize them in `~/.hermes/config.yaml`:
+If you have local or plugin commands that should stay visible in Telegram's `/` picker, prioritize them in `~/.sonic/config.yaml`:
 
 ```yaml
 platforms:
@@ -96,13 +96,13 @@ platforms:
           - my_plugin_command
 ```
 
-`priority_mode` controls how your list combines with Hermes' built-in priority list:
+`priority_mode` controls how your list combines with Sonic' built-in priority list:
 
-- `prepend`: put your commands first, then Hermes defaults
-- `append`: keep Hermes defaults first, then your commands
+- `prepend`: put your commands first, then Sonic defaults
+- `append`: keep Sonic defaults first, then your commands
 - `replace`: use only your list for priority ordering
 
-Telegram allows up to 100 BotCommands, but large command payloads can fail. Hermes defaults to 60 for reliability and clamps configured values to `1..100`; use `/commands` for the full command list.
+Telegram allows up to 100 BotCommands, but large command payloads can fail. Sonic defaults to 60 for reliability and clamps configured values to `1..100`; use `/commands` for the full command list.
 
 ## Step 3: Privacy Mode (Critical for Groups)
 

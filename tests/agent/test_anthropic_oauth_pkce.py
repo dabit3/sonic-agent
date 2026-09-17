@@ -156,7 +156,7 @@ def test_login_token_exchange_uses_platform_claude_host(monkeypatch, tmp_path):
     fresh login impossible (issue #45250 / #49821). The refresh path already
     iterates the new host first — the login path must do the same.
     """
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
 
     captured_token: Dict[str, Any] = {}
     captured_url: Dict[str, str] = {}
@@ -176,9 +176,9 @@ def test_login_token_exchange_uses_platform_claude_host(monkeypatch, tmp_path):
 
     monkeypatch.setattr(builtins, "input", fake_input)
 
-    from agent.anthropic_adapter import run_hermes_oauth_login_pure
+    from agent.anthropic_adapter import run_sonic_oauth_login_pure
 
-    result = run_hermes_oauth_login_pure()
+    result = run_sonic_oauth_login_pure()
 
     assert result is not None, "login should succeed against the live host"
     assert captured_token["url"] == "https://platform.claude.com/v1/oauth/token", (
@@ -194,7 +194,7 @@ def test_login_token_exchange_falls_back_to_console_host(monkeypatch, tmp_path):
     """
     import urllib.request
 
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
 
     captured_url: Dict[str, str] = {}
     _patch_oauth_flow(
@@ -242,9 +242,9 @@ def test_login_token_exchange_falls_back_to_console_host(monkeypatch, tmp_path):
 
     monkeypatch.setattr(builtins, "input", fake_input)
 
-    from agent.anthropic_adapter import run_hermes_oauth_login_pure
+    from agent.anthropic_adapter import run_sonic_oauth_login_pure
 
-    result = run_hermes_oauth_login_pure()
+    result = run_sonic_oauth_login_pure()
 
     assert result is not None, "login should succeed via the console fallback"
     assert attempts == [

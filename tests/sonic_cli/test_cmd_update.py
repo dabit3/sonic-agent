@@ -117,7 +117,7 @@ class TestCmdUpdateTermuxUvBootstrap:
     def test_termux_uv_bootstrap_uses_binary_only_install(
         self, mock_run, _mock_which, monkeypatch
     ):
-        from hermes_cli import main as hm
+        from sonic_cli import main as hm
 
         mock_run.return_value = subprocess.CompletedProcess([], 1, stdout="", stderr="")
         monkeypatch.setattr(hm, "_is_termux_env", lambda env=None: True)
@@ -141,13 +141,13 @@ class TestCmdUpdateTermuxUvBootstrap:
     @patch("subprocess.run")
     def test_termux_reuses_existing_path_uv_without_pip(self, mock_run, monkeypatch):
         """A uv already on PATH (e.g. ``pkg install uv``) is reused before pip runs."""
-        from hermes_cli import main as hm
+        from sonic_cli import main as hm
 
         pkg_uv = "/data/data/com.termux/files/usr/bin/uv"
         monkeypatch.setattr(hm, "_is_termux_env", lambda env=None: True)
-        # Production resolve_uv only checks $HERMES_HOME/bin/uv; model an empty
+        # Production resolve_uv only checks $SONIC_HOME/bin/uv; model an empty
         # managed dir so the PATH probe is what surfaces the packaged uv.
-        monkeypatch.setattr("hermes_cli.managed_uv.resolve_uv", lambda: None)
+        monkeypatch.setattr("sonic_cli.managed_uv.resolve_uv", lambda: None)
         monkeypatch.setattr("shutil.which", lambda name: pkg_uv if name == "uv" else None)
 
         uv_bin = hm._ensure_uv_for_termux(["/termux/python", "-m", "pip"])

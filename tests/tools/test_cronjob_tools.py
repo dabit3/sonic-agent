@@ -516,10 +516,10 @@ class TestLocalDeliveryNotice:
         monkeypatch.setattr("cron.jobs.OUTPUT_DIR", tmp_path / "cron" / "output")
         # Default: no session origin (the TUI/CLI condition).
         for var in (
-            "HERMES_SESSION_PLATFORM",
-            "HERMES_SESSION_CHAT_ID",
-            "HERMES_SESSION_THREAD_ID",
-            "HERMES_SESSION_CHAT_NAME",
+            "SONIC_SESSION_PLATFORM",
+            "SONIC_SESSION_CHAT_ID",
+            "SONIC_SESSION_THREAD_ID",
+            "SONIC_SESSION_CHAT_NAME",
         ):
             monkeypatch.delenv(var, raising=False)
         from gateway.session_context import clear_session_vars, set_session_vars

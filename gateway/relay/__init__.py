@@ -167,7 +167,7 @@ def relay_wake_url() -> Optional[str]:
     delivery-leg backlog. The value's *source* differs by deployment but the code
     path is uniform: a managed/NAS container has ``GATEWAY_RELAY_WAKE_URL`` stamped
     in (NAS knows the Fly autostart / dashboard hostname); a self-hosted operator
-    sets it explicitly (or passes ``--wake-url`` to ``hermes gateway enroll``).
+    sets it explicitly (or passes ``--wake-url`` to ``sonic gateway enroll``).
 
     Gateway-asserted but safely scoped: the org/tenant stays token-verified, so a
     dishonest gateway can only register a wake target for ITS OWN instance — the

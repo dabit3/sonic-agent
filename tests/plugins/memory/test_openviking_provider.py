@@ -1600,7 +1600,7 @@ def test_viking_client_post_allows_per_request_timeout(monkeypatch):
         api_key="test-key",
         account="acct",
         user="alice",
-        agent="hermes",
+        agent="sonic",
     )
     captured = {}
 
@@ -2952,7 +2952,7 @@ def test_prefetch_uses_session_search_when_session_id_available(monkeypatch):
                 "result": {
                     "memories": [
                         {
-                            "uri": "viking://user/peers/hermes/memories/events/mem_1.md",
+                            "uri": "viking://user/peers/sonic/memories/events/mem_1.md",
                             "score": 0.9,
                             "abstract": "session-aware memory",
                         },
@@ -3002,7 +3002,7 @@ def test_prefetch_falls_back_to_find_when_session_search_fails(monkeypatch):
                 "result": {
                     "memories": [
                         {
-                            "uri": "viking://user/peers/hermes/memories/events/mem_2.md",
+                            "uri": "viking://user/peers/sonic/memories/events/mem_2.md",
                             "score": 0.8,
                             "abstract": "non-session fallback",
                         },
@@ -3078,7 +3078,7 @@ def test_prefetch_reads_l2_content_and_ignores_skills_by_default(monkeypatch):
                 "result": {
                     "memories": [
                         {
-                            "uri": "viking://user/peers/hermes/memories/events/mem_3.md",
+                            "uri": "viking://user/peers/sonic/memories/events/mem_3.md",
                             "score": 0.9,
                             "level": 2,
                             "category": "events",
@@ -3107,7 +3107,7 @@ def test_prefetch_reads_l2_content_and_ignores_skills_by_default(monkeypatch):
     assert captured_reads == [
         (
             "/api/v1/content/read",
-            {"uri": "viking://user/peers/hermes/memories/events/mem_3.md"},
+            {"uri": "viking://user/peers/sonic/memories/events/mem_3.md"},
         )
     ]
     assert "full memory content" in context
@@ -3129,7 +3129,7 @@ def test_prefetch_reads_empty_abstract_content_within_budget(monkeypatch):
                 "result": {
                     "memories": [
                         {
-                            "uri": "viking://user/peers/hermes/memories/one.md",
+                            "uri": "viking://user/peers/sonic/memories/one.md",
                             "score": 0.9,
                             "abstract": "",
                         },
@@ -3149,10 +3149,10 @@ def test_prefetch_reads_empty_abstract_content_within_budget(monkeypatch):
     context = provider.prefetch("anything")
 
     assert [params["uri"] for _path, params in captured_reads] == [
-        "viking://user/peers/hermes/memories/one.md",
+        "viking://user/peers/sonic/memories/one.md",
     ]
     assert (
-        "content for viking://user/peers/hermes/memories/one.md"
+        "content for viking://user/peers/sonic/memories/one.md"
         in context
     )
 
@@ -3171,7 +3171,7 @@ def test_prefetch_caps_full_content_reads(monkeypatch):
                 "result": {
                     "memories": [
                         {
-                            "uri": f"viking://user/peers/hermes/memories/events/mem_{idx}.md",
+                            "uri": f"viking://user/peers/sonic/memories/events/mem_{idx}.md",
                             "score": 0.9 - (idx * 0.01),
                             "level": 2,
                             "category": "events",
@@ -3194,8 +3194,8 @@ def test_prefetch_caps_full_content_reads(monkeypatch):
     context = provider.prefetch("anything")
 
     assert len(captured_reads) == 2
-    assert "full content for viking://user/peers/hermes/memories/events/mem_0.md" in context
-    assert "full content for viking://user/peers/hermes/memories/events/mem_1.md" in context
+    assert "full content for viking://user/peers/sonic/memories/events/mem_0.md" in context
+    assert "full content for viking://user/peers/sonic/memories/events/mem_1.md" in context
     assert "short abstract 2" in context
 
 
@@ -3215,7 +3215,7 @@ def test_prefetch_uses_bounded_http_timeouts(monkeypatch):
                 "result": {
                     "memories": [
                         {
-                            "uri": "viking://user/peers/hermes/memories/events/mem_timeout.md",
+                            "uri": "viking://user/peers/sonic/memories/events/mem_timeout.md",
                             "score": 0.9,
                             "level": 2,
                             "category": "events",

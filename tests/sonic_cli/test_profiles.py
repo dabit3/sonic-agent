@@ -1458,10 +1458,10 @@ class TestEdgeCases:
         """
         import os
         import gateway.status as gw_status
-        from hermes_cli.profiles import _check_gateway_running
+        from sonic_cli.profiles import _check_gateway_running
 
         tmp_path = profile_env
-        default_home = tmp_path / ".hermes"
+        default_home = tmp_path / ".sonic"
         default_home.mkdir(parents=True, exist_ok=True)
 
         # Write a realistic gateway_state.json pointing at THIS live process with
@@ -1471,8 +1471,8 @@ class TestEdgeCases:
             json.dumps(
                 {
                     "pid": live_pid,
-                    "kind": "hermes-gateway",
-                    "argv": ["hermes", "gateway", "run"],
+                    "kind": "sonic-gateway",
+                    "argv": ["sonic", "gateway", "run"],
                     "start_time": gw_status._get_process_start_time(live_pid),
                     "gateway_state": "running",
                     "active_agents": 0,
@@ -1491,17 +1491,17 @@ class TestEdgeCases:
         """A gateway_state.json with state 'stopped' must NOT be reported running,
         even when the recorded PID happens to be alive."""
         import os
-        from hermes_cli.profiles import _check_gateway_running
+        from sonic_cli.profiles import _check_gateway_running
 
         tmp_path = profile_env
-        default_home = tmp_path / ".hermes"
+        default_home = tmp_path / ".sonic"
         default_home.mkdir(parents=True, exist_ok=True)
         (default_home / "gateway_state.json").write_text(
             json.dumps(
                 {
                     "pid": os.getpid(),
-                    "kind": "hermes-gateway",
-                    "argv": ["hermes", "gateway", "run"],
+                    "kind": "sonic-gateway",
+                    "argv": ["sonic", "gateway", "run"],
                     "gateway_state": "stopped",
                 }
             ),

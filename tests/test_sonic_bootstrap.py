@@ -315,84 +315,84 @@ class TestEntryPointsImportBootstrap:
 
 class TestHardenImportPath:
     """harden_import_path() must keep a same-named package in the launch
-    directory from shadowing Hermes's own top-level modules — covering both
+    directory from shadowing Sonic's own top-level modules — covering both
     the relative ('' / '.') and absolute-path forms the cwd can take on
     sys.path (issue #51286)."""
 
     def _run(self, hb, path_seed, env=None):
         original = sys.path[:]
-        original_env = os.environ.get("HERMES_PYTHON_SRC_ROOT")
+        original_env = os.environ.get("SONIC_PYTHON_SRC_ROOT")
         try:
             sys.path[:] = path_seed
             if env is not None:
-                os.environ["HERMES_PYTHON_SRC_ROOT"] = env
-            elif "HERMES_PYTHON_SRC_ROOT" in os.environ:
-                del os.environ["HERMES_PYTHON_SRC_ROOT"]
-            hb.harden_import_path(src_root="/opt/hermes")
+                os.environ["SONIC_PYTHON_SRC_ROOT"] = env
+            elif "SONIC_PYTHON_SRC_ROOT" in os.environ:
+                del os.environ["SONIC_PYTHON_SRC_ROOT"]
+            hb.harden_import_path(src_root="/opt/sonic")
             return sys.path[:]
         finally:
             sys.path[:] = original
             if original_env is None:
-                os.environ.pop("HERMES_PYTHON_SRC_ROOT", None)
+                os.environ.pop("SONIC_PYTHON_SRC_ROOT", None)
             else:
-                os.environ["HERMES_PYTHON_SRC_ROOT"] = original_env
+                os.environ["SONIC_PYTHON_SRC_ROOT"] = original_env
 
     def test_relative_cwd_forms_removed(self):
         hb = _fresh_import()
-        result = self._run(hb, ["", ".", "/opt/hermes", "/usr/lib/python"])
+        result = self._run(hb, ["", ".", "/opt/sonic", "/usr/lib/python"])
         assert "" not in result
         assert "." not in result
 
     def test_src_root_forced_to_front(self):
         hb = _fresh_import()
-        result = self._run(hb, ["", "/opt/hermes", "/usr/lib/python"])
-        assert result[0] == "/opt/hermes"
+        result = self._run(hb, ["", "/opt/sonic", "/usr/lib/python"])
+        assert result[0] == "/opt/sonic"
 
     def test_absolute_cwd_path_loses_to_src_root(self):
         # The real #51286 bug: the launch dir is present as its own absolute
         # path (venv activation / a project on PYTHONPATH), ahead of the
-        # Hermes root.  The guard must relocate Hermes to the front.
+        # Sonic root.  The guard must relocate Sonic to the front.
         hb = _fresh_import()
-        result = self._run(hb, ["/home/user/tg-ws-proxy", "/opt/hermes"])
-        assert result[0] == "/opt/hermes"
+        result = self._run(hb, ["/home/user/tg-ws-proxy", "/opt/sonic"])
+        assert result[0] == "/opt/sonic"
         # The cwd absolute path may still appear (it can hold legit deps),
-        # but only AFTER the Hermes root.
-        assert result.index("/opt/hermes") < result.index("/home/user/tg-ws-proxy")
+        # but only AFTER the Sonic root.
+        assert result.index("/opt/sonic") < result.index("/home/user/tg-ws-proxy")
 
     def test_src_root_not_duplicated(self):
         hb = _fresh_import()
-        result = self._run(hb, ["/opt/hermes", "/opt/hermes", ""])
-        assert result.count("/opt/hermes") == 1
+        result = self._run(hb, ["/opt/sonic", "/opt/sonic", ""])
+        assert result.count("/opt/sonic") == 1
 
     def test_env_var_used_when_no_arg(self):
         hb = _fresh_import()
         original = sys.path[:]
-        original_env = os.environ.get("HERMES_PYTHON_SRC_ROOT")
+        original_env = os.environ.get("SONIC_PYTHON_SRC_ROOT")
         try:
             sys.path[:] = ["", "/cwd/proj", "/usr/lib"]
-            os.environ["HERMES_PYTHON_SRC_ROOT"] = "/env/hermes"
+            os.environ["SONIC_PYTHON_SRC_ROOT"] = "/env/sonic"
             hb.harden_import_path()
-            assert sys.path[0] == "/env/hermes"
+            assert sys.path[0] == "/env/sonic"
         finally:
             sys.path[:] = original
             if original_env is None:
-                os.environ.pop("HERMES_PYTHON_SRC_ROOT", None)
+                os.environ.pop("SONIC_PYTHON_SRC_ROOT", None)
             else:
-                os.environ["HERMES_PYTHON_SRC_ROOT"] = original_env
+                os.environ["SONIC_PYTHON_SRC_ROOT"] = original_env
 
     def test_defaults_to_module_dir(self):
         # With neither arg nor env var, the helper anchors on the bootstrap
         # module's own directory — the repo root for shipped entry points.
         hb = _fresh_import()
         original = sys.path[:]
-        original_env = os.environ.get("HERMES_PYTHON_SRC_ROOT")
+        original_env = os.environ.get("SONIC_PYTHON_SRC_ROOT")
         try:
             sys.path[:] = ["", "/somewhere/else"]
-            os.environ.pop("HERMES_PYTHON_SRC_ROOT", None)
+            os.environ.pop("SONIC_PYTHON_SRC_ROOT", None)
             hb.harden_import_path()
             expected = os.path.dirname(os.path.abspath(hb.__file__))
             assert sys.path[0] == expected
         finally:
             sys.path[:] = original
             if original_env is not None:
-                os.environ["HERMES_PYTHON_SRC_ROOT"] = original_env
+                os.environ["SONIC_PYTHON_SRC_ROOT"] = original_env

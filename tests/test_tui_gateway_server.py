@@ -2959,7 +2959,7 @@ def test_setup_runtime_check_rejects_implicit_bedrock_when_unconfigured(monkeypa
 
 def test_setup_runtime_check_honors_requested_provider(monkeypatch):
     """Onboarding must be able to validate the provider the user just connected."""
-    monkeypatch.setattr("hermes_cli.main._has_any_provider_configured", lambda: True)
+    monkeypatch.setattr("sonic_cli.main._has_any_provider_configured", lambda: True)
 
     def fake_resolve(requested=None, **kwargs):
         if requested == "nous":
@@ -2975,7 +2975,7 @@ def test_setup_runtime_check_honors_requested_provider(monkeypatch):
         }
 
     monkeypatch.setattr(
-        "hermes_cli.runtime_provider.resolve_runtime_provider",
+        "sonic_cli.runtime_provider.resolve_runtime_provider",
         fake_resolve,
     )
 
@@ -8045,10 +8045,10 @@ def test_persist_model_switch_preserves_sibling_model_keys(tmp_path, monkeypatch
         "agent:\n"
         "  system_prompt: keepme\n"
     )
-    # save_config_value() resolves the config path from cli._hermes_home, which
-    # is captured at import time — patch it directly (set_hermes_home_override
+    # save_config_value() resolves the config path from cli._sonic_home, which
+    # is captured at import time — patch it directly (set_sonic_home_override
     # does NOT affect this snapshot).
-    monkeypatch.setattr(cli, "_hermes_home", tmp_path)
+    monkeypatch.setattr(cli, "_sonic_home", tmp_path)
 
     result = types.SimpleNamespace(
         new_model="new-model", target_provider="anthropic", base_url=None
@@ -8080,7 +8080,7 @@ def test_persist_model_switch_clears_stale_base_url(tmp_path, monkeypatch):
         "  provider: custom:mylocal\n"
         "  base_url: http://localhost:1234/v1\n"
     )
-    monkeypatch.setattr(cli, "_hermes_home", tmp_path)
+    monkeypatch.setattr(cli, "_sonic_home", tmp_path)
 
     # Switch to a native provider with no base_url.
     result = types.SimpleNamespace(

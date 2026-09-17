@@ -207,7 +207,7 @@ def test_docker_config_migrate_restores_backups_when_version_does_not_advance(
 def test_docker_config_migrate_second_boot_preserves_env_byte_for_byte(tmp_path: Path) -> None:
     """Regression for #51579: booting ``gateway run`` twice (i.e. a host
     reboot under ``--restart unless-stopped``) must not strip or rewrite
-    ``$HERMES_HOME/.env``. The first boot migrates the stale config and bumps
+    ``$SONIC_HOME/.env``. The first boot migrates the stale config and bumps
     ``_config_version``; the second boot must be a no-op that leaves ``.env``
     byte-identical to what the user supplied.
 

@@ -15,7 +15,7 @@ import { PetSprite } from './pet-sprite'
 
 // v2: positions are now top/left anchored (v1 stored bottom-anchored values,
 // which dragged inverted). Bumping the key discards stale v1 coordinates.
-const POSITION_KEY = 'hermes.desktop.pet-position.v2'
+const POSITION_KEY = 'sonic.desktop.pet-position.v2'
 
 interface Point {
   x: number
@@ -211,7 +211,7 @@ export function FloatingPet() {
     const rect = el.getBoundingClientRect()
 
     // Shift-click pops the pet out into a free-floating desktop overlay (it can
-    // leave the window and stays visible while Hermes is minimized) instead of
+    // leave the window and stays visible while Sonic is minimized) instead of
     // starting an in-window drag. Primary window only — the overlay is anchored
     // to it.
     if (e.shiftKey && !isSecondaryWindow()) {

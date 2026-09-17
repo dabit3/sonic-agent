@@ -284,7 +284,7 @@ the wake SIGNAL so a future scale-to-zero behaviour layer can rely on "buffered
 
 - **Registration.** The gateway registers a **wake URL** at enroll/provision —
   any reachable URL the connector can GET to wake it (a Fly autostart hostname,
-  a dashboard host). Self-hosted: `hermes gateway enroll --wake-url <url>` (or
+  a dashboard host). Self-hosted: `sonic gateway enroll --wake-url <url>` (or
   `GATEWAY_RELAY_WAKE_URL` / `gateway.relay_wake_url`). Managed/NAS: stamped into
   the container env beside `GATEWAY_RELAY_URL`. Forwarded in the
   `/relay/provision` body as `wakeUrl` and stored per-instance on the connector's

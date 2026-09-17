@@ -136,7 +136,7 @@ function scheduleStreamRestart() {
     }
     console.error(
       `photon-sidecar: upstream stream degraded for ${degradedForMs}ms; ` +
-        "exiting so Hermes can restart the Photon adapter"
+        "exiting so Sonic can restart the Photon adapter"
     );
     process.exit(75);
   }, STREAM_DEGRADED_RESTART_MS + 1000);
@@ -470,7 +470,7 @@ function inboundStreamErrorMessage(e) {
   let out = "photon-sidecar: inbound stream errored — restarting: " + msg;
 
   // The Spectrum SDK surfaces Photon cloud CatchUpEvents failures as an
-  // iMessage internal error. Local Hermes allowlists cannot cause or fix this:
+  // iMessage internal error. Local Sonic allowlists cannot cause or fix this:
   // inbound messages stop before they reach the gateway. Add an explicit hint
   // so operators know to retry/restart or escalate to Photon support instead
   // of chasing PHOTON_ALLOWED_USERS / pairing configuration.
@@ -484,7 +484,7 @@ function inboundStreamErrorMessage(e) {
   ) {
     out +=
       " | Photon Spectrum CatchUpEvents returned an internal server error; " +
-      "this is upstream of Hermes, so inbound iMessages may not be delivered " +
+      "this is upstream of Sonic, so inbound iMessages may not be delivered " +
       "until Photon recovers or the stream is re-established.";
   }
   return out;

@@ -176,12 +176,12 @@ class TestGatewayPidState:
 
     def test_get_running_pid_accepts_no_supervisor_restart_runtime(self, tmp_path, monkeypatch):
         """WSL/no-systemd restart fallback runs the gateway in a restart argv process."""
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
         pid_path = tmp_path / "gateway.pid"
         record = {
             "pid": os.getpid(),
-            "kind": "hermes-gateway",
-            "argv": ["python", "-m", "hermes_cli.main", "gateway", "restart"],
+            "kind": "sonic-gateway",
+            "argv": ["python", "-m", "sonic_cli.main", "gateway", "restart"],
             "start_time": 123,
         }
         pid_path.write_text(json.dumps(record))
@@ -191,7 +191,7 @@ class TestGatewayPidState:
         monkeypatch.setattr(
             status,
             "_read_process_cmdline",
-            lambda pid: "python -m hermes_cli.main gateway restart",
+            lambda pid: "python -m sonic_cli.main gateway restart",
         )
 
         assert status.acquire_gateway_runtime_lock() is True
@@ -202,13 +202,13 @@ class TestGatewayPidState:
 
     def test_get_running_pid_falls_back_to_no_supervisor_runtime_state(self, tmp_path, monkeypatch):
         """A live gateway_state.json PID should keep status accurate without a pidfile."""
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
         state_path = tmp_path / "gateway_state.json"
         state_path.write_text(json.dumps({
             "gateway_state": "running",
             "pid": os.getpid(),
-            "kind": "hermes-gateway",
-            "argv": ["python", "-m", "hermes_cli.main", "gateway", "restart"],
+            "kind": "sonic-gateway",
+            "argv": ["python", "-m", "sonic_cli.main", "gateway", "restart"],
             "start_time": 123,
         }))
 
@@ -217,7 +217,7 @@ class TestGatewayPidState:
         monkeypatch.setattr(
             status,
             "_read_process_cmdline",
-            lambda pid: "python -m hermes_cli.main gateway restart",
+            lambda pid: "python -m sonic_cli.main gateway restart",
         )
 
         assert status.get_running_pid() == os.getpid()

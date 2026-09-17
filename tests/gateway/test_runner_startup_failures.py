@@ -490,7 +490,7 @@ async def test_runner_exits_with_ex_config_on_nonretryable_startup_error(monkeyp
     """Non-retryable startup errors (token collision, no platforms) must
     set exit_code to 78 (EX_CONFIG) so the s6 finish script can translate
     it to exit 125 (permanent failure).  See #51228."""
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     config = GatewayConfig(
         platforms={
             Platform.DISCORD: PlatformConfig(enabled=True, token="***")
@@ -520,7 +520,7 @@ async def test_start_gateway_propagates_fatal_config_exit_code(monkeypatch, tmp_
     requests a clean exit, but start_gateway()'s clean-exit branch used to
     `return True` before the SystemExit(exit_code) site, so main() exited 0
     and s6 crash-looped anyway (#51228)."""
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
 
     class _FatalConfigRunner:
         def __init__(self, config):
@@ -538,8 +538,8 @@ async def test_start_gateway_propagates_fatal_config_exit_code(monkeypatch, tmp_
 
     monkeypatch.setattr("gateway.status.get_running_pid", lambda: None)
     monkeypatch.setattr("tools.skills_sync.sync_skills", lambda quiet=True: None)
-    monkeypatch.setattr("hermes_logging.setup_logging", lambda hermes_home, mode: tmp_path)
-    monkeypatch.setattr("hermes_logging._add_rotating_handler", lambda *args, **kwargs: None)
+    monkeypatch.setattr("sonic_logging.setup_logging", lambda sonic_home, mode: tmp_path)
+    monkeypatch.setattr("sonic_logging._add_rotating_handler", lambda *args, **kwargs: None)
     monkeypatch.setattr("gateway.run.GatewayRunner", _FatalConfigRunner)
 
     from gateway.run import start_gateway

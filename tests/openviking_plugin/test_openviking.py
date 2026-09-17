@@ -116,7 +116,7 @@ def make_prefetch_provider(monkeypatch, responses, **env):
     provider._endpoint = "http://openviking.test"
     provider._account = "default"
     provider._user = "default"
-    provider._agent = "hermes"
+    provider._agent = "sonic"
     provider._session_id = "session-test"
     return provider
 
@@ -764,10 +764,10 @@ class TestOpenVikingRead:
     def test_read_accepts_uri_batch_and_caps_batch_full_content(self):
         provider = OpenVikingMemoryProvider()
         uris = [
-            "viking://user/hermes/memories/a.md",
-            "viking://user/hermes/memories/b.md",
-            "viking://user/hermes/memories/c.md",
-            "viking://user/hermes/memories/d.md",
+            "viking://user/sonic/memories/a.md",
+            "viking://user/sonic/memories/b.md",
+            "viking://user/sonic/memories/c.md",
+            "viking://user/sonic/memories/d.md",
         ]
         provider._client = FakeVikingClient(
             {
@@ -804,8 +804,8 @@ class TestOpenVikingRead:
 
     def test_read_deduplicates_uri_batch_and_keeps_errors_per_uri(self):
         provider = OpenVikingMemoryProvider()
-        ok_uri = "viking://user/hermes/memories/ok.md"
-        bad_uri = "viking://user/hermes/memories/bad.md"
+        ok_uri = "viking://user/sonic/memories/ok.md"
+        bad_uri = "viking://user/sonic/memories/bad.md"
         provider._client = FakeVikingClient(
             {
                 (
@@ -1003,7 +1003,7 @@ class TestOpenVikingAutoRecallPrefetch:
                             "result": {
                                 "memories": [
                                     {
-                                        "uri": "viking://user/peers/hermes/memories/e2e-full.md",
+                                        "uri": "viking://user/peers/sonic/memories/e2e-full.md",
                                         "score": 0.9,
                                         "level": 2,
                                         "category": "events",
@@ -1035,7 +1035,7 @@ class TestOpenVikingAutoRecallPrefetch:
         monkeypatch.setenv("OPENVIKING_ENDPOINT", endpoint)
         monkeypatch.setenv("OPENVIKING_ACCOUNT", "acct")
         monkeypatch.setenv("OPENVIKING_USER", "user")
-        monkeypatch.setenv("OPENVIKING_AGENT", "hermes")
+        monkeypatch.setenv("OPENVIKING_AGENT", "sonic")
 
         provider = OpenVikingMemoryProvider()
         try:
@@ -1050,7 +1050,7 @@ class TestOpenVikingAutoRecallPrefetch:
         assert block.startswith("## OpenViking Context\n")
         assert "E2E full L2 memory content." in block
         assert "E2E abstract should not be injected." not in block
-        assert records["reads"] == ["viking://user/peers/hermes/memories/e2e-full.md"]
+        assert records["reads"] == ["viking://user/peers/sonic/memories/e2e-full.md"]
         assert len(records["searches"]) == 1
         assert records["searches"][0]["context_type"] == "memory"
         assert records["searches"][0]["session_id"] == "e2e-session"
@@ -1063,7 +1063,7 @@ class TestOpenVikingAutoRecallPrefetch:
             {key.lower(): value for key, value in headers.items()}
             for headers in records["headers"]
         ]
-        assert all(headers.get("x-openviking-actor-peer") == "hermes" for headers in normalized_headers)
+        assert all(headers.get("x-openviking-actor-peer") == "sonic" for headers in normalized_headers)
         assert all(headers.get("x-openviking-account") == "acct" for headers in normalized_headers)
         assert all(headers.get("x-openviking-user") == "user" for headers in normalized_headers)
 
@@ -1078,7 +1078,7 @@ class TestOpenVikingAutoRecallPrefetch:
                 "result": {
                     "memories": [
                         {
-                            "uri": "viking://user/peers/hermes/memories/caroline.md",
+                            "uri": "viking://user/peers/sonic/memories/caroline.md",
                             "score": 0.9,
                             "level": 1,
                             "category": "profile",
@@ -1105,7 +1105,7 @@ class TestOpenVikingAutoRecallPrefetch:
                 "result": {
                     "memories": [
                         {
-                            "uri": "viking://user/peers/hermes/memories/caroline.md",
+                            "uri": "viking://user/peers/sonic/memories/caroline.md",
                             "score": 0.9,
                             "level": 1,
                             "category": "profile",
@@ -1123,7 +1123,7 @@ class TestOpenVikingAutoRecallPrefetch:
                 "result": {
                     "memories": [
                         {
-                            "uri": "viking://user/peers/hermes/memories/melanie-race.md",
+                            "uri": "viking://user/peers/sonic/memories/melanie-race.md",
                             "score": 0.9,
                             "level": 1,
                             "category": "events",
@@ -1151,14 +1151,14 @@ class TestOpenVikingAutoRecallPrefetch:
                 "result": {
                     "memories": [
                         {
-                            "uri": "viking://user/peers/hermes/memories/keep.md",
+                            "uri": "viking://user/peers/sonic/memories/keep.md",
                             "score": 0.22,
                             "level": 1,
                             "category": "preferences",
                             "abstract": "Keep this relevant memory.",
                         },
                         {
-                            "uri": "viking://user/peers/hermes/memories/drop.md",
+                            "uri": "viking://user/peers/sonic/memories/drop.md",
                             "score": 0.12,
                             "level": 1,
                             "category": "preferences",
@@ -1191,14 +1191,14 @@ class TestOpenVikingAutoRecallPrefetch:
                 "result": {
                     "memories": [
                         {
-                            "uri": "viking://user/peers/hermes/memories/too-large.md",
+                            "uri": "viking://user/peers/sonic/memories/too-large.md",
                             "score": 0.9,
                             "level": 1,
                             "category": "memory",
                             "abstract": long_memory,
                         },
                         {
-                            "uri": "viking://user/peers/hermes/memories/small.md",
+                            "uri": "viking://user/peers/sonic/memories/small.md",
                             "score": 0.8,
                             "level": 1,
                             "category": "memory",
@@ -1226,7 +1226,7 @@ class TestOpenVikingAutoRecallPrefetch:
                 "result": {
                     "memories": [
                         {
-                            "uri": "viking://user/peers/hermes/memories/full.md",
+                            "uri": "viking://user/peers/sonic/memories/full.md",
                             "score": 0.9,
                             "level": 2,
                             "category": "events",
@@ -1235,7 +1235,7 @@ class TestOpenVikingAutoRecallPrefetch:
                     ]
                 }
             },
-            ("/api/v1/content/read", "viking://user/peers/hermes/memories/full.md"): {
+            ("/api/v1/content/read", "viking://user/peers/sonic/memories/full.md"): {
                 "result": {"content": "Full L2 memory content."}
             },
         }
@@ -1248,7 +1248,7 @@ class TestOpenVikingAutoRecallPrefetch:
         assert (
             "get",
             "/api/v1/content/read",
-            {"uri": "viking://user/peers/hermes/memories/full.md"},
+            {"uri": "viking://user/peers/sonic/memories/full.md"},
         ) in FakeRecallClient.calls
 
     def test_prefetch_prefer_abstract_does_not_read_l2_content(self, monkeypatch):
@@ -1257,7 +1257,7 @@ class TestOpenVikingAutoRecallPrefetch:
                 "result": {
                     "memories": [
                         {
-                            "uri": "viking://user/peers/hermes/memories/full.md",
+                            "uri": "viking://user/peers/sonic/memories/full.md",
                             "score": 0.9,
                             "level": 2,
                             "category": "events",

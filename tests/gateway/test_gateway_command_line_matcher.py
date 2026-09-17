@@ -64,6 +64,6 @@ def test_rejects_non_gateway_run(cmd):
 
 
 def test_runtime_matcher_accepts_no_supervisor_restart_process():
-    assert matches("python -m hermes_cli.main gateway restart") is False
-    assert matches_runtime("python -m hermes_cli.main gateway restart") is True
-    assert matches_runtime("python -m hermes_cli.main gateway status") is False
+    assert matches("python -m sonic_cli.main gateway restart") is False
+    assert matches_runtime("python -m sonic_cli.main gateway restart") is True
+    assert matches_runtime("python -m sonic_cli.main gateway status") is False

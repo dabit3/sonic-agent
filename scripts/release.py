@@ -45,6 +45,7 @@ ACP_REGISTRY_MANIFEST = REPO_ROOT / "acp_registry" / "agent.json"
 
 # Auto-extracted from noreply emails + manual overrides
 AUTHOR_MAP = {
+    "SJWATTS89@OUTLOOK.COM": "lEWFkRAD",  # PR #45610 (Windows scheduled task reboot survival)
     "bedirhan@codeway.co": "bedirhancode",
     "info@aminvakil.com": "aminvakil",
     "nikpolale@gmail.com": "polnikale",
@@ -114,7 +115,7 @@ AUTHOR_MAP = {
     "konsisumer@users.noreply.github.com": "konsisumer",
     "raysun12142006@gmail.com": "yanxue06",
     "zhuhaoyu0909@icloud.com": "underthestars-zhy",
-    "github@nadyahermes.anonaddy.com": "ruangraung",
+    "github@nadyasonic.anonaddy.com": "ruangraung",
     "alberto.regalado@ymail.com": "ARegalado1",
     "alchemistchaos@protonmail.com": "AlchemistChaos",  # co-author only
     "gilad@smiti.ai": "giladbau",
@@ -1409,7 +1410,7 @@ AUTHOR_MAP = {
     "charliekerfoot@gmail.com": "CharlieKerfoot",  # PR #18951
     # Debug share upload-time redaction (May 2026)
     "dhuysamen@gmail.com": "GodsBoy",  # PR #19318
-    "github@nadyahermes.anonaddy.com": "ruangraung",  # PR #42308
+    "github@nadyasonic.anonaddy.com": "ruangraung",  # PR #42308
     "andyfieb@gmail.com": "mollusk",  # PR #44493 (desktop assistant-ui recovery)
     "kyssta69@gmail.com": "kyssta-exe",  # PR #44282 (Windows dashboard re-exec)
     "loongfay@foxmail.com": "loongfay",  # PR #43508 (Yuanbao wechat forward msg)

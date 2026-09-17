@@ -135,7 +135,7 @@ def test_registered_profile_has_finish_script(tmp_path: Path) -> None:
     _make_profile(tmp_path, "coder", state="running")
 
     reconcile_profile_gateways(
-        hermes_home=tmp_path, scandir=scandir, dry_run=False,
+        sonic_home=tmp_path, scandir=scandir, dry_run=False,
     )
 
     finish = scandir / "gateway-coder" / "finish"

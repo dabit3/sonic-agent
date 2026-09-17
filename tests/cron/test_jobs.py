@@ -111,20 +111,20 @@ class TestParseSchedule:
             parse_schedule("99 99 99 99 99")
 
     def test_naive_iso_anchors_to_configured_tz_not_server_local(self, monkeypatch):
-        """A naive ISO timestamp must be interpreted in the CONFIGURED Hermes
+        """A naive ISO timestamp must be interpreted in the CONFIGURED Sonic
         timezone, NOT the server's local timezone (#51021).
 
         Regression: when the configured zone differs from the server's local
         zone (common on cloud hosts running UTC), parse_schedule used
         ``dt.astimezone()`` (server-local), baking in the wrong offset. The
-        due-check compares against ``_hermes_now()`` (configured zone), so the
+        due-check compares against ``_sonic_now()`` (configured zone), so the
         stored instant landed hours off the user's wall-clock intent — far
         enough that one-shots never became due. This asserts the parsed offset
         matches the configured-now offset, the invariant that keeps the stored
         instant on the same clock the scheduler checks against.
         """
         configured_now = datetime(2026, 6, 22, 20, 0, 0, tzinfo=timezone(timedelta(hours=5, minutes=30)))
-        monkeypatch.setattr("cron.jobs._hermes_now", lambda: configured_now)
+        monkeypatch.setattr("cron.jobs._sonic_now", lambda: configured_now)
 
         result = parse_schedule("2026-06-22T20:07:00")  # naive, user wall-clock
 
@@ -141,7 +141,7 @@ class TestParseSchedule:
 
 class TestNaiveScheduleTimezoneDivergence:
     """End-to-end: a one-shot created with a naive recent-past timestamp must
-    become due even when the configured Hermes timezone differs from the
+    become due even when the configured Sonic timezone differs from the
     server's local timezone. Before #51021 the naive value was anchored to
     server-local, so the job never fired."""
 
@@ -150,7 +150,7 @@ class TestNaiveScheduleTimezoneDivergence:
         # zone is irrelevant to the parse now — that is the whole point.
         configured = timezone(timedelta(hours=5, minutes=30))
         now = datetime(2026, 6, 22, 20, 7, 30, tzinfo=configured)
-        monkeypatch.setattr("cron.jobs._hermes_now", lambda: now)
+        monkeypatch.setattr("cron.jobs._sonic_now", lambda: now)
 
         # 30s ago in the configured wall clock, supplied as a NAIVE string.
         naive_str = (now - timedelta(seconds=30)).replace(tzinfo=None).isoformat()

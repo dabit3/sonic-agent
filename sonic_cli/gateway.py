@@ -1349,7 +1349,7 @@ def _reap_unsupervised_gateway_orphans() -> bool:
     """Kill no-supervisor gateway orphans the pidfile/runtime record can't see.
 
     On WSL/no-systemd hosts the manual restart fallback runs the gateway
-    in-process under a ``gateway restart`` argv (hermes_cli/gateway.py restart
+    in-process under a ``gateway restart`` argv (sonic_cli/gateway.py restart
     branch → ``run_gateway()``). If its pidfile or runtime record goes missing
     or stale, ``get_running_pid()`` returns ``None`` even though a live orphan
     still holds the webhook port, so a follow-up restart stacks a duplicate on

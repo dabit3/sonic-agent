@@ -9,7 +9,7 @@ import { $awaitingResponse, $busy } from '@/store/session'
  *
  * Shift-clicking the in-window pet "pops it out" into a transparent,
  * always-on-top OS window (created in electron/main.cjs) that can leave the
- * app's bounds and stays visible while Hermes is minimized. That window carries
+ * app's bounds and stays visible while Sonic is minimized. That window carries
  * NO gateway connection — this renderer remains the single source of truth and
  * pushes the live pet state to it over IPC. Control flows back (pop the pet back
  * in, submit a composer message) via `onControl`.
@@ -58,8 +58,8 @@ export type PetOverlayControl =
 
 // Persisted across restarts: was the pet popped out, and where on the desktop
 // did the user leave it. Keyed v1; bump if the bounds shape ever changes.
-const OVERLAY_ACTIVE_KEY = 'hermes.desktop.pet-overlay-active.v1'
-const OVERLAY_BOUNDS_KEY = 'hermes.desktop.pet-overlay-bounds.v1'
+const OVERLAY_ACTIVE_KEY = 'sonic.desktop.pet-overlay-active.v1'
+const OVERLAY_BOUNDS_KEY = 'sonic.desktop.pet-overlay-bounds.v1'
 
 export const $petOverlayActive = atom(storedBoolean(OVERLAY_ACTIVE_KEY, false))
 
@@ -119,7 +119,7 @@ function currentPayload(): PetOverlayStatePayload {
 }
 
 function pushNow(): void {
-  window.hermesDesktop?.petOverlay?.pushState(currentPayload())
+  window.sonicDesktop?.petOverlay?.pushState(currentPayload())
 }
 
 /**
@@ -128,7 +128,7 @@ function pushNow(): void {
  * pet reopens exactly where the user left it.
  */
 function openOverlay(request: PetOverlayOpenRequest): void {
-  const api = window.hermesDesktop?.petOverlay
+  const api = window.sonicDesktop?.petOverlay
 
   if (!api || stateUnsubs.length) {
     return
@@ -187,7 +187,7 @@ export function popOutPet(petRect: PetOverlayBounds): void {
  * in-window pet rather than spawning an orphan window at the origin.
  */
 export function restorePetOverlay(): void {
-  if (!window.hermesDesktop?.petOverlay || !$petOverlayActive.get() || stateUnsubs.length) {
+  if (!window.sonicDesktop?.petOverlay || !$petOverlayActive.get() || stateUnsubs.length) {
     return
   }
 
@@ -210,7 +210,7 @@ export function popInPet(): void {
 
   stateUnsubs = []
   $petOverlayActive.set(false)
-  void window.hermesDesktop?.petOverlay?.close()
+  void window.sonicDesktop?.petOverlay?.close()
 }
 
 /** Register the handler that turns an overlay composer submit into a real send. */
@@ -228,7 +228,7 @@ export function setPetOverlayOpenAppHandler(fn: (() => void) | null): void {
  * — a second call while already wired is a no-op.
  */
 export function initPetOverlayBridge(): () => void {
-  const api = window.hermesDesktop?.petOverlay
+  const api = window.sonicDesktop?.petOverlay
 
   if (!api || controlUnsub) {
     return () => {}

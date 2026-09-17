@@ -360,9 +360,9 @@ def parse_schedule(schedule: str) -> Dict[str, Any]:
             # Make naive timestamps timezone-aware at parse time so the stored
             # value doesn't depend on the system timezone matching at check time.
             #
-            # Anchor to the CONFIGURED Hermes timezone, not the server's local
+            # Anchor to the CONFIGURED Sonic timezone, not the server's local
             # timezone. The due-check (`get_due_jobs`) compares `next_run_at`
-            # against `hermes_time.now()`, which uses the configured zone. If a
+            # against `sonic_time.now()`, which uses the configured zone. If a
             # naive "20:07" were interpreted as server-local (e.g. UTC) while
             # now() runs in Asia/Kolkata, the stored instant would land hours
             # off from the user's wall-clock intent — far enough that one-shots
@@ -370,8 +370,8 @@ def parse_schedule(schedule: str) -> Dict[str, Any]:
             # the configured zone makes "20:07" mean 20:07 on the same clock the
             # scheduler checks against (#51021).
             if dt.tzinfo is None:
-                hermes_tz = _hermes_now().tzinfo
-                dt = dt.replace(tzinfo=hermes_tz)
+                sonic_tz = _sonic_now().tzinfo
+                dt = dt.replace(tzinfo=sonic_tz)
             return {
                 "kind": "once",
                 "run_at": dt.isoformat(),
@@ -746,15 +746,15 @@ def _resolve_default_model_snapshot() -> Optional[str]:
     """
     try:
         import yaml
-        from hermes_cli.config import _expand_env_vars
+        from sonic_cli.config import _expand_env_vars
 
-        cfg_path = get_hermes_home() / "config.yaml"
+        cfg_path = get_sonic_home() / "config.yaml"
         if not cfg_path.exists():
             return None
         with cfg_path.open(encoding="utf-8") as f:
             cfg = yaml.safe_load(f) or {}
         try:
-            from hermes_cli import managed_scope
+            from sonic_cli import managed_scope
             cfg = managed_scope.apply_managed_overlay(cfg)
         except Exception:
             pass
@@ -908,7 +908,7 @@ def create_job(
     if not normalized_no_agent:
         if normalized_provider is None:
             try:
-                from hermes_cli.runtime_provider import resolve_runtime_provider
+                from sonic_cli.runtime_provider import resolve_runtime_provider
                 _runtime_kwargs = {"requested": None}
                 if normalized_base_url:
                     _runtime_kwargs["explicit_base_url"] = normalized_base_url

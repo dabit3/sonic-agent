@@ -1158,7 +1158,7 @@ class TestTelegramMenuCommands:
     def test_configured_priority_prepends_plugin_commands(self, tmp_path, monkeypatch):
         """Configured Telegram priorities keep local/plugin commands visible."""
         from unittest.mock import patch
-        import hermes_cli.plugins as plugins_mod
+        import sonic_cli.plugins as plugins_mod
 
         plugin_dir = tmp_path / "plugins" / "cmd-plugin"
         plugin_dir.mkdir(parents=True, exist_ok=True)
@@ -1181,7 +1181,7 @@ class TestTelegramMenuCommands:
             "        priority:\n"
             "          - lcm\n"
         )
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
 
         with patch.object(plugins_mod, "_plugin_manager", None):
             menu, _hidden = telegram_menu_commands(max_commands=30)
@@ -1193,7 +1193,7 @@ class TestTelegramMenuCommands:
     def test_configured_priority_append_keeps_defaults_before_user_priority(self, tmp_path, monkeypatch):
         """append mode preserves built-in defaults ahead of configured names."""
         from unittest.mock import patch
-        import hermes_cli.plugins as plugins_mod
+        import sonic_cli.plugins as plugins_mod
 
         plugin_dir = tmp_path / "plugins" / "cmd-plugin"
         plugin_dir.mkdir(parents=True, exist_ok=True)
@@ -1216,7 +1216,7 @@ class TestTelegramMenuCommands:
             "        priority:\n"
             "          - lcm\n"
         )
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
 
         with patch.object(plugins_mod, "_plugin_manager", None):
             menu, _hidden = telegram_menu_commands(max_commands=30)
@@ -1235,7 +1235,7 @@ class TestTelegramMenuCommands:
             "          - status\n"
             "          - help\n"
         )
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
 
         menu, _hidden = telegram_menu_commands(max_commands=5)
         names = [name for name, _desc in menu]
@@ -1243,7 +1243,7 @@ class TestTelegramMenuCommands:
         assert names[:2] == ["status", "help"]
 
     def test_telegram_menu_max_commands_uses_config_with_safe_bounds(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
 
         assert telegram_menu_max_commands() == 60
 
@@ -1284,7 +1284,7 @@ class TestTelegramMenuCommands:
         assert telegram_menu_max_commands() == 60
 
     def test_telegram_menu_ignores_undocumented_command_menu_paths(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
         (tmp_path / "config.yaml").write_text(
             "telegram:\n"
             "  command_menu:\n"
