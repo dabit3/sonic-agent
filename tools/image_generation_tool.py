@@ -1466,7 +1466,7 @@ def _maybe_route_managed_krea(
 
     try:
         from agent.image_gen_registry import get_provider
-        from hermes_cli.plugins import _ensure_plugins_discovered
+        from sonic_cli.plugins import _ensure_plugins_discovered
 
         _ensure_plugins_discovered()
         provider = get_provider("krea")

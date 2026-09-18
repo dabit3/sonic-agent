@@ -98,22 +98,22 @@ def test_dockerfile_redirects_lazy_installs_to_durable_target() -> None:
     target = "/opt/data/lazy-packages"
 
     # The redirect target must be set AND must live under the data volume,
-    # never under the immutable /opt/hermes tree.
-    assert f"ENV HERMES_LAZY_INSTALL_TARGET={target}" in text
+    # never under the immutable /opt/sonic tree.
+    assert f"ENV SONIC_LAZY_INSTALL_TARGET={target}" in text
     assert target.startswith("/opt/data/"), "target must be on the durable volume"
-    assert "ENV HERMES_LAZY_INSTALL_TARGET=/opt/hermes" not in text
+    assert "ENV SONIC_LAZY_INSTALL_TARGET=/opt/sonic" not in text
 
     # The seal flag must still be present — the redirect rides on top of it,
     # it does not replace it.
-    assert "ENV HERMES_DISABLE_LAZY_INSTALLS=1" in text
+    assert "ENV SONIC_DISABLE_LAZY_INSTALLS=1" in text
 
     # stage2-hook must seed + chown the target dir so first-use installs
-    # succeed as the unprivileged hermes runtime user.
+    # succeed as the unprivileged sonic runtime user.
     stage2 = (REPO_ROOT / "docker" / "stage2-hook.sh").read_text()
-    assert '"$HERMES_HOME/lazy-packages"' in stage2, (
+    assert '"$SONIC_HOME/lazy-packages"' in stage2, (
         "stage2-hook.sh must create the lazy-packages dir on the data volume"
     )
     assert "lazy-packages" in stage2.split("for sub in", 1)[1].split(";", 1)[0], (
         "lazy-packages must be in the per-boot chown subdir list so it stays "
-        "hermes-owned"
+        "sonic-owned"
     )

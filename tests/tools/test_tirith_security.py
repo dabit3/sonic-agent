@@ -1469,7 +1469,7 @@ class TestMkdtempOSErrorNoSpace:
                    side_effect=OSError(28, "No space left on device")), \
              patch("tools.tirith_security.shutil.which",
                    return_value=None), \
-             patch("tools.tirith_security._hermes_bin_dir",
+             patch("tools.tirith_security._sonic_bin_dir",
                    return_value="/nonexistent"), \
              patch("tools.tirith_security._is_install_failed_on_disk",
                    return_value=False), \

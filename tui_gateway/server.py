@@ -754,7 +754,7 @@ def _reap_idle_sessions() -> None:
 # mid-build / live-transport one. 0/null disables.
 def _max_live_sessions() -> int:
     try:
-        from hermes_cli.active_sessions import coerce_max_concurrent_sessions
+        from sonic_cli.active_sessions import coerce_max_concurrent_sessions
 
         cfg = _load_cfg() or {}
         raw = cfg.get("max_live_sessions")
@@ -5982,7 +5982,7 @@ def _pet_config_scale() -> float:
     from agent.pet import constants
 
     try:
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
 
         cfg = load_config()
         display = cfg.get("display", {}) if isinstance(cfg.get("display"), dict) else {}
@@ -6040,7 +6040,7 @@ def _pet_active_selection():
     from agent.pet import constants, store
 
     try:
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
 
         cfg = load_config()
         display = cfg.get("display", {}) if isinstance(cfg.get("display"), dict) else {}
@@ -6423,7 +6423,7 @@ def _(rid, params: dict) -> dict:
         # in config so surfaces don't point at the old (now-missing) directory.
         if new_slug != slug:
             try:
-                from hermes_cli.pets import _rename_active_if
+                from sonic_cli.pets import _rename_active_if
 
                 _rename_active_if(slug, new_slug)
             except Exception as exc:  # noqa: BLE001 - rename already succeeded
@@ -6507,9 +6507,9 @@ def _(rid, params: dict) -> dict:
 
 def _pet_gen_root():
     """Profile-scoped staging dir for in-progress generation drafts."""
-    from hermes_constants import get_hermes_home
+    from sonic_constants import get_sonic_home
 
-    root = get_hermes_home() / "cache" / "pet-gen"
+    root = get_sonic_home() / "cache" / "pet-gen"
     root.mkdir(parents=True, exist_ok=True)
     return root
 
@@ -6559,7 +6559,7 @@ _PET_REFERENCE_MIME_EXT = {
 try:
     _PET_REFERENCE_MAX_BYTES = max(
         1,
-        int(os.environ.get("HERMES_PET_REFERENCE_MAX_BYTES") or str(16 * 1024 * 1024)),
+        int(os.environ.get("SONIC_PET_REFERENCE_MAX_BYTES") or str(16 * 1024 * 1024)),
     )
 except (TypeError, ValueError):
     _PET_REFERENCE_MAX_BYTES = 16 * 1024 * 1024

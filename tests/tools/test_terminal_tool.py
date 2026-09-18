@@ -286,7 +286,7 @@ def test_invalidate_cached_sudo_on_auth_failure_keeps_env_password(monkeypatch):
 
 def test_transform_sudo_command_pipes_one_password_line_per_invocation(monkeypatch):
     monkeypatch.setenv("SUDO_PASSWORD", "testpass")
-    monkeypatch.delenv("HERMES_INTERACTIVE", raising=False)
+    monkeypatch.delenv("SONIC_INTERACTIVE", raising=False)
 
     transformed, sudo_stdin = terminal_tool._transform_sudo_command(
         "sudo true && sudo whoami"

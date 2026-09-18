@@ -371,7 +371,7 @@ describe('applyBackendUpdate recovery', () => {
   })
 
   it('surfaces backend update action log lines while the action is running', async () => {
-    updateHermesSpy.mockResolvedValue({ ok: true, name: 'update', pid: 1 })
+    updateSonicSpy.mockResolvedValue({ ok: true, name: 'update', pid: 1 })
     getActionStatusSpy
       .mockResolvedValueOnce({
         exit_code: null,
@@ -381,13 +381,13 @@ describe('applyBackendUpdate recovery', () => {
         running: true
       })
       .mockRejectedValueOnce(new Error('ECONNREFUSED'))
-    checkHermesUpdateSpy.mockResolvedValue({
+    checkSonicUpdateSpy.mockResolvedValue({
       install_method: 'git',
       current_version: '0.16.0',
       behind: 0,
       update_available: false,
       can_apply: true,
-      update_command: 'hermes update',
+      update_command: 'sonic update',
       message: null
     })
 

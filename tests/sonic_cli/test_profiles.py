@@ -1490,7 +1490,7 @@ class TestEdgeCases:
         # runs the gateway with no profile flag).
         with patch("gateway.status.get_running_pid", return_value=None), patch(
             "gateway.status._read_process_cmdline",
-            return_value="hermes gateway run --replace",
+            return_value="sonic gateway run --replace",
         ):
             assert _check_gateway_running(default_home) is True
 
@@ -1520,7 +1520,7 @@ class TestEdgeCases:
 
     def test_gateway_running_check_rejects_pid_reused_by_other_profile(self, profile_env):
         """Regression (user report): the dashboard showed a NAMED profile's
-        gateway green while ``hermes -p <name> gateway status`` showed it
+        gateway green while ``sonic -p <name> gateway status`` showed it
         stopped.
 
         Per-profile Docker supervision: a named profile (``coder``) left a
@@ -1530,17 +1530,17 @@ class TestEdgeCases:
         profile's command line, so a recycled PID hosting another profile's
         gateway is not reported running for ``coder``.
         """
-        from hermes_cli.profiles import _check_gateway_running
+        from sonic_cli.profiles import _check_gateway_running
 
         tmp_path = profile_env
-        coder_home = tmp_path / ".hermes" / "profiles" / "coder"
+        coder_home = tmp_path / ".sonic" / "profiles" / "coder"
         coder_home.mkdir(parents=True, exist_ok=True)
         (coder_home / "gateway_state.json").write_text(
             json.dumps(
                 {
                     "pid": 139,
-                    "kind": "hermes-gateway",
-                    "argv": ["hermes", "gateway", "run"],
+                    "kind": "sonic-gateway",
+                    "argv": ["sonic", "gateway", "run"],
                     "gateway_state": "running",
                     "active_agents": 0,
                 }
@@ -1555,24 +1555,24 @@ class TestEdgeCases:
             "gateway.status._pid_exists", return_value=True
         ), patch("gateway.status._get_process_start_time", return_value=None), patch(
             "gateway.status._read_process_cmdline",
-            return_value="hermes gateway run --replace",
+            return_value="sonic gateway run --replace",
         ):
             assert _check_gateway_running(coder_home) is False
 
     def test_gateway_running_check_detects_matching_named_profile(self, profile_env):
         """A genuinely-live named gateway (``-p coder`` on its command line) is
         still reported running for that profile."""
-        from hermes_cli.profiles import _check_gateway_running
+        from sonic_cli.profiles import _check_gateway_running
 
         tmp_path = profile_env
-        coder_home = tmp_path / ".hermes" / "profiles" / "coder"
+        coder_home = tmp_path / ".sonic" / "profiles" / "coder"
         coder_home.mkdir(parents=True, exist_ok=True)
         (coder_home / "gateway_state.json").write_text(
             json.dumps(
                 {
                     "pid": 139,
-                    "kind": "hermes-gateway",
-                    "argv": ["hermes", "gateway", "run"],
+                    "kind": "sonic-gateway",
+                    "argv": ["sonic", "gateway", "run"],
                     "start_time": 1000,
                     "gateway_state": "running",
                     "active_agents": 0,
@@ -1585,7 +1585,7 @@ class TestEdgeCases:
             "gateway.status._pid_exists", return_value=True
         ), patch("gateway.status._get_process_start_time", return_value=1000), patch(
             "gateway.status._read_process_cmdline",
-            return_value="hermes -p coder gateway run --replace",
+            return_value="sonic -p coder gateway run --replace",
         ):
             assert _check_gateway_running(coder_home) is True
 

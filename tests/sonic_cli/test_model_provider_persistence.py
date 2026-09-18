@@ -421,17 +421,17 @@ class TestZaiEndpointPicker:
 
     def test_select_coding_plan_global_endpoint(self, config_home, monkeypatch):
         """Selecting Coding Plan Global should save the coding base URL."""
-        from hermes_cli.auth import ZAI_ENDPOINTS
-        from hermes_cli.main import _model_flow_api_key_provider
-        from hermes_cli.config import load_config
+        from sonic_cli.auth import ZAI_ENDPOINTS
+        from sonic_cli.main import _model_flow_api_key_provider
+        from sonic_cli.config import load_config
 
         coding_url = ZAI_ENDPOINTS[2][1]  # coding-global
         monkeypatch.setenv("GLM_API_KEY", "test-key")
 
         # Index 2 = Coding Plan Global in ZAI_ENDPOINTS
-        with patch("hermes_cli.main._prompt_provider_choice", return_value=2), \
-             patch("hermes_cli.auth._prompt_model_selection", return_value="glm-5.2"), \
-             patch("hermes_cli.auth.deactivate_provider"), \
+        with patch("sonic_cli.main._prompt_provider_choice", return_value=2), \
+             patch("sonic_cli.auth._prompt_model_selection", return_value="glm-5.2"), \
+             patch("sonic_cli.auth.deactivate_provider"), \
              patch("builtins.input", return_value=""):
             _model_flow_api_key_provider(load_config(), "zai", "old-model")
 
@@ -440,16 +440,16 @@ class TestZaiEndpointPicker:
 
     def test_select_china_endpoint(self, config_home, monkeypatch):
         """Selecting China should save the bigmodel.cn base URL."""
-        from hermes_cli.auth import ZAI_ENDPOINTS
-        from hermes_cli.main import _model_flow_api_key_provider
-        from hermes_cli.config import load_config
+        from sonic_cli.auth import ZAI_ENDPOINTS
+        from sonic_cli.main import _model_flow_api_key_provider
+        from sonic_cli.config import load_config
 
         cn_url = ZAI_ENDPOINTS[1][1]  # "https://open.bigmodel.cn/api/paas/v4"
         monkeypatch.setenv("GLM_API_KEY", "test-key")
 
-        with patch("hermes_cli.main._prompt_provider_choice", return_value=1), \
-             patch("hermes_cli.auth._prompt_model_selection", return_value="glm-5"), \
-             patch("hermes_cli.auth.deactivate_provider"), \
+        with patch("sonic_cli.main._prompt_provider_choice", return_value=1), \
+             patch("sonic_cli.auth._prompt_model_selection", return_value="glm-5"), \
+             patch("sonic_cli.auth.deactivate_provider"), \
              patch("builtins.input", return_value=""):
             _model_flow_api_key_provider(load_config(), "zai", "old-model")
 
@@ -458,16 +458,16 @@ class TestZaiEndpointPicker:
 
     def test_select_custom_proxy_url(self, config_home, monkeypatch):
         """Selecting Custom proxy should prompt for a URL and save it."""
-        from hermes_cli.main import _model_flow_api_key_provider
-        from hermes_cli.config import load_config, get_env_value
+        from sonic_cli.main import _model_flow_api_key_provider
+        from sonic_cli.config import load_config, get_env_value
 
         monkeypatch.setenv("GLM_API_KEY", "test-key")
 
-        from hermes_cli.auth import ZAI_ENDPOINTS
+        from sonic_cli.auth import ZAI_ENDPOINTS
         custom_idx = len(ZAI_ENDPOINTS)  # last option = custom proxy
-        with patch("hermes_cli.main._prompt_provider_choice", return_value=custom_idx), \
-             patch("hermes_cli.auth._prompt_model_selection", return_value="glm-5"), \
-             patch("hermes_cli.auth.deactivate_provider"), \
+        with patch("sonic_cli.main._prompt_provider_choice", return_value=custom_idx), \
+             patch("sonic_cli.auth._prompt_model_selection", return_value="glm-5"), \
+             patch("sonic_cli.auth.deactivate_provider"), \
              patch("builtins.input", return_value="https://proxy.example.com/glm/v4"):
             _model_flow_api_key_provider(load_config(), "zai", "old-model")
 
@@ -476,17 +476,17 @@ class TestZaiEndpointPicker:
 
     def test_custom_proxy_rejects_invalid_url(self, config_home, monkeypatch, capsys):
         """Custom proxy must start with http:// or https://."""
-        from hermes_cli.main import _model_flow_api_key_provider
-        from hermes_cli.config import load_config
+        from sonic_cli.main import _model_flow_api_key_provider
+        from sonic_cli.config import load_config
 
         monkeypatch.setenv("GLM_API_KEY", "test-key")
         monkeypatch.delenv("GLM_BASE_URL", raising=False)
-        from hermes_cli.auth import ZAI_ENDPOINTS
+        from sonic_cli.auth import ZAI_ENDPOINTS
         custom_idx = len(ZAI_ENDPOINTS)
 
-        with patch("hermes_cli.main._prompt_provider_choice", return_value=custom_idx), \
-             patch("hermes_cli.auth._prompt_model_selection", return_value="glm-5"), \
-             patch("hermes_cli.auth.deactivate_provider"), \
+        with patch("sonic_cli.main._prompt_provider_choice", return_value=custom_idx), \
+             patch("sonic_cli.auth._prompt_model_selection", return_value="glm-5"), \
+             patch("sonic_cli.auth.deactivate_provider"), \
              patch("builtins.input", return_value="not-a-url"):
             _model_flow_api_key_provider(load_config(), "zai", "old-model")
 
@@ -498,16 +498,16 @@ class TestZaiEndpointPicker:
 
     def test_cancel_keeps_existing_base_url(self, config_home, monkeypatch):
         """Cancelling the picker should not change the base URL."""
-        from hermes_cli.main import _model_flow_api_key_provider
-        from hermes_cli.config import load_config, get_env_value
+        from sonic_cli.main import _model_flow_api_key_provider
+        from sonic_cli.config import load_config, get_env_value
 
         monkeypatch.setenv("GLM_API_KEY", "test-key")
         monkeypatch.setenv("GLM_BASE_URL", "https://existing.example/v4")
 
         # _prompt_provider_choice returns None on cancel
-        with patch("hermes_cli.main._prompt_provider_choice", return_value=None), \
-             patch("hermes_cli.auth._prompt_model_selection", return_value="glm-5"), \
-             patch("hermes_cli.auth.deactivate_provider"), \
+        with patch("sonic_cli.main._prompt_provider_choice", return_value=None), \
+             patch("sonic_cli.auth._prompt_model_selection", return_value="glm-5"), \
+             patch("sonic_cli.auth.deactivate_provider"), \
              patch("builtins.input", return_value=""):
             _model_flow_api_key_provider(load_config(), "zai", "old-model")
 
@@ -517,8 +517,8 @@ class TestZaiEndpointPicker:
 
     def test_current_endpoint_is_default_choice(self, config_home, monkeypatch):
         """When a known endpoint is already active, it should be the default."""
-        from hermes_cli.auth import ZAI_ENDPOINTS
-        from hermes_cli.model_setup_flows import _select_zai_endpoint
+        from sonic_cli.auth import ZAI_ENDPOINTS
+        from sonic_cli.model_setup_flows import _select_zai_endpoint
 
         coding_url = ZAI_ENDPOINTS[2][1]  # coding-global
 
@@ -529,7 +529,7 @@ class TestZaiEndpointPicker:
             captured["choices"] = choices
             return default
 
-        with patch("hermes_cli.main._prompt_provider_choice", side_effect=fake_choice):
+        with patch("sonic_cli.main._prompt_provider_choice", side_effect=fake_choice):
             result = _select_zai_endpoint(coding_url)
 
         # Default should point at index 2 (coding-global)
@@ -538,8 +538,8 @@ class TestZaiEndpointPicker:
 
     def test_custom_url_active_defaults_to_custom_option(self, config_home, monkeypatch):
         """When a non-standard URL is active, Custom proxy should be default."""
-        from hermes_cli.auth import ZAI_ENDPOINTS
-        from hermes_cli.model_setup_flows import _select_zai_endpoint
+        from sonic_cli.auth import ZAI_ENDPOINTS
+        from sonic_cli.model_setup_flows import _select_zai_endpoint
 
         custom_url = "https://my-proxy.example.com/v4"
         # 4 official endpoints → custom is index 4
@@ -551,7 +551,7 @@ class TestZaiEndpointPicker:
             captured["default"] = default
             return default
 
-        with patch("hermes_cli.main._prompt_provider_choice", side_effect=fake_choice), \
+        with patch("sonic_cli.main._prompt_provider_choice", side_effect=fake_choice), \
              patch("builtins.input", return_value=""):
             _select_zai_endpoint(custom_url)
 

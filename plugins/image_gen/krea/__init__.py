@@ -473,7 +473,7 @@ class KreaImageGenProvider(ImageGenProvider):
                         f"Model '{model_id}' may not be enabled/priced on the "
                         "Nous Portal's Krea gateway. Set KREA_API_KEY to use "
                         "Krea directly, or pick a different model via "
-                        "`hermes tools` → Image Generation."
+                        "`sonic tools` → Image Generation."
                     )
                 )
                 return error_response(

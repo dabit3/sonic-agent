@@ -18,12 +18,12 @@ _MAX_CHANGED_PATHS_IN_NUDGE = 8
 
 def verify_on_stop_enabled(config: dict[str, Any] | None = None) -> bool:
     """Return whether edit -> verify-before-finish behavior is enabled."""
-    env = os.environ.get("HERMES_VERIFY_ON_STOP")
+    env = os.environ.get("SONIC_VERIFY_ON_STOP")
     if env is not None:
         return env.strip().lower() not in {"0", "false", "no", "off"}
     if config is None:
         try:
-            from hermes_cli.config import load_config
+            from sonic_cli.config import load_config
 
             config = load_config()
         except Exception:
@@ -145,7 +145,7 @@ def build_verify_on_stop_nudge(
         command_instruction = (
             "No canonical test/lint/build command was detected. Create a focused "
             f"temporary verification script under `{temp_dir}` using an OS-safe "
-            "`tempfile` path with a `hermes-verify-` filename prefix, run it "
+            "`tempfile` path with a `sonic-verify-` filename prefix, run it "
             "against the changed behavior, clean it up when possible, and "
             "summarize it explicitly as ad-hoc verification rather than suite "
             "green."

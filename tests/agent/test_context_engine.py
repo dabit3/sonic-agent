@@ -321,8 +321,8 @@ class TestInitAgentDoesNotMutatePluginSingleton:
     """
 
     def test_child_init_does_not_corrupt_parent_singleton(self, monkeypatch):
-        import hermes_cli.plugins as plugins_mod
-        from hermes_cli.plugins import PluginManager
+        import sonic_cli.plugins as plugins_mod
+        from sonic_cli.plugins import PluginManager
 
         # Register a "parent" engine as the global plugin singleton, sized for
         # a 1M-context model (DeepSeek-style), threshold 20% => 200K.
@@ -337,7 +337,7 @@ class TestInitAgentDoesNotMutatePluginSingleton:
             # singleton, deepcopy it, then mutate the copy via update_model with
             # a SMALLER child context (MiniMax-style 204800).
             import copy
-            from hermes_cli.plugins import get_plugin_context_engine
+            from sonic_cli.plugins import get_plugin_context_engine
 
             _candidate = get_plugin_context_engine()
             assert _candidate is singleton

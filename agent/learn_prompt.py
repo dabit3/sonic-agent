@@ -72,7 +72,7 @@ Body section order (omit a section only if it genuinely has no content):
 
 Sonic-tool framing (this is what makes it a skill, not shell docs):
 - Frame running scripts as "invoke through the `terminal` tool".
-- Reference Hermes tools by name in backticks: `terminal`, `read_file`,
+- Reference Sonic tools by name in backticks: `terminal`, `read_file`,
   `write_file`, `search_files`, `patch`, `web_extract`, `web_search`,
   `vision_analyze`, `browser_navigate`, `delegate_task`, `image_generate`,
   `text_to_speech`, `cronjob`, `memory`, `skill_view`, `execute_code`.

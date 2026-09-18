@@ -2230,14 +2230,14 @@ def _select_zai_endpoint(current_base: str) -> str:
 
     Offers the four official Z.AI endpoints (Global, China, Coding Plan
     Global, Coding Plan China) plus a custom-proxy option.  The list is
-    sourced from ``ZAI_ENDPOINTS`` in ``hermes_cli.auth`` so it stays in
+    sourced from ``ZAI_ENDPOINTS`` in ``sonic_cli.auth`` so it stays in
     sync with the probe list.
 
     Returns the selected base URL.  Falls back to *current_base* on cancel
     or error.
     """
-    from hermes_cli.main import _prompt_provider_choice
-    from hermes_cli.auth import ZAI_ENDPOINTS
+    from sonic_cli.main import _prompt_provider_choice
+    from sonic_cli.auth import ZAI_ENDPOINTS
 
     # Build label + URL pairs from the shared endpoint list.
     options = [(label, url) for _, url, _, label in ZAI_ENDPOINTS]

@@ -332,7 +332,7 @@ class TestEnvOverrideWins:
         return {
             "access_token": "tok",
             "refresh_token": "rtok",
-            "client_id": "hermes-cli",
+            "client_id": "sonic-cli",
             "portal_base_url": auth.DEFAULT_NOUS_PORTAL_URL,
             "inference_base_url": stored,
             "agent_key": "ak-123",
@@ -342,7 +342,7 @@ class TestEnvOverrideWins:
         """The exact regression: a prod-pinned stored value (the state a
         staging login lands in after the heal) must NOT shadow the env
         override on the steady-state read path."""
-        import hermes_cli.auth as auth
+        import sonic_cli.auth as auth
 
         state = self._base_state(auth, auth.DEFAULT_NOUS_INFERENCE_URL)
         self._patch_no_refresh(monkeypatch, auth, state)
@@ -358,7 +358,7 @@ class TestEnvOverrideWins:
     def test_no_refresh_env_override_not_persisted(self, monkeypatch):
         """The env override is a runtime overlay: it must never be written
         back into the stored state (auth.json)."""
-        import hermes_cli.auth as auth
+        import sonic_cli.auth as auth
 
         state = self._base_state(auth, auth.DEFAULT_NOUS_INFERENCE_URL)
         self._patch_no_refresh(monkeypatch, auth, state)
@@ -373,7 +373,7 @@ class TestEnvOverrideWins:
 
     def test_no_refresh_no_env_uses_stored_default(self, monkeypatch):
         """With no env override, the validated stored value is used."""
-        import hermes_cli.auth as auth
+        import sonic_cli.auth as auth
 
         state = self._base_state(auth, auth.DEFAULT_NOUS_INFERENCE_URL)
         self._patch_no_refresh(monkeypatch, auth, state)
@@ -386,7 +386,7 @@ class TestEnvOverrideWins:
         """A poisoned stored staging host (persisted before the allowlist)
         still heals to the default when no env override is present — the
         #50265 no-refresh-read-path heal, folded in here."""
-        import hermes_cli.auth as auth
+        import sonic_cli.auth as auth
 
         state = self._base_state(auth, self.STAGING)
         self._patch_no_refresh(monkeypatch, auth, state)
@@ -402,7 +402,7 @@ class TestEnvOverrideWins:
         """On the refresh path: env override is used for the returned/client
         URL, but the PERSISTED stored value is the validated network one
         (production default when the Portal hands back a rejected host)."""
-        import hermes_cli.auth as auth
+        import sonic_cli.auth as auth
 
         state = self._base_state(auth, auth.DEFAULT_NOUS_INFERENCE_URL)
         self._patch_no_refresh(monkeypatch, auth, state)
@@ -443,7 +443,7 @@ class TestProxyAdapterEnvOverride:
         resolution consults the env override before the network validator,
         so a staging override survives the defense-in-depth re-validation."""
         from pathlib import Path
-        import hermes_cli.proxy.adapters.nous_portal as _nous_adapter
+        import sonic_cli.proxy.adapters.nous_portal as _nous_adapter
 
         source = Path(_nous_adapter.__file__).read_text(encoding="utf-8")
         assert "_nous_inference_env_override()" in source, (

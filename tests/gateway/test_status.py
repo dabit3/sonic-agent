@@ -371,8 +371,8 @@ class TestGatewayRuntimeStatus:
             "pid": 132,
             "start_time": 123,
             "gateway_state": "running",
-            "kind": "hermes-gateway",
-            "argv": ["/opt/hermes/.venv/bin/hermes", "gateway", "run", "--replace"],
+            "kind": "sonic-gateway",
+            "argv": ["/opt/sonic/.venv/bin/sonic", "gateway", "run", "--replace"],
         }
 
         monkeypatch.setattr(status, "_pid_exists", lambda pid: True)
@@ -387,8 +387,8 @@ class TestGatewayRuntimeStatus:
             "pid": 132,
             "start_time": 123,
             "gateway_state": "running",
-            "kind": "hermes-gateway",
-            "argv": ["/opt/hermes/.venv/bin/hermes", "gateway", "run", "--replace"],
+            "kind": "sonic-gateway",
+            "argv": ["/opt/sonic/.venv/bin/sonic", "gateway", "run", "--replace"],
         }
 
         monkeypatch.setattr(status, "_pid_exists", lambda pid: True)
@@ -403,7 +403,7 @@ class TestGatewayRuntimeStatus:
 
         Per-profile Docker supervision: ``coder``'s gateway died leaving a
         ``gateway_state=running`` record at PID 139.  The OS then recycled 139
-        onto the live *default* gateway (``hermes gateway run``).  The recorded
+        onto the live *default* gateway (``sonic gateway run``).  The recorded
         ``start_time`` is absent (older state file), so the start-time PID-reuse
         guard does not catch it.  Without the profile scope the live command
         line still ``looks_like_gateway`` and ``coder`` is wrongly reported up.
@@ -411,8 +411,8 @@ class TestGatewayRuntimeStatus:
         payload = {
             "pid": 139,
             "gateway_state": "running",
-            "kind": "hermes-gateway",
-            "argv": ["hermes", "gateway", "run"],
+            "kind": "sonic-gateway",
+            "argv": ["sonic", "gateway", "run"],
         }
         coder_home = Path("/opt/data/profiles/coder")
 
@@ -420,7 +420,7 @@ class TestGatewayRuntimeStatus:
         monkeypatch.setattr(status, "_get_process_start_time", lambda pid: None)
         # PID 139 is now the live DEFAULT gateway (bare, no -p coder).
         monkeypatch.setattr(
-            status, "_read_process_cmdline", lambda pid: "hermes gateway run --replace"
+            status, "_read_process_cmdline", lambda pid: "sonic gateway run --replace"
         )
 
         assert (
@@ -434,8 +434,8 @@ class TestGatewayRuntimeStatus:
         payload = {
             "pid": 139,
             "gateway_state": "running",
-            "kind": "hermes-gateway",
-            "argv": ["hermes", "gateway", "run"],
+            "kind": "sonic-gateway",
+            "argv": ["sonic", "gateway", "run"],
             "start_time": 1000,
         }
         coder_home = Path("/opt/data/profiles/coder")
@@ -443,9 +443,9 @@ class TestGatewayRuntimeStatus:
         monkeypatch.setattr(status, "_pid_exists", lambda pid: True)
         monkeypatch.setattr(status, "_get_process_start_time", lambda pid: 1000)
         for cmdline in (
-            "hermes -p coder gateway run --replace",
-            "/opt/hermes/.venv/bin/hermes --profile coder gateway run --replace",
-            "hermes_home=/opt/data/profiles/coder hermes gateway run --replace",
+            "sonic -p coder gateway run --replace",
+            "/opt/sonic/.venv/bin/sonic --profile coder gateway run --replace",
+            "sonic_home=/opt/data/profiles/coder sonic gateway run --replace",
         ):
             monkeypatch.setattr(status, "_read_process_cmdline", lambda pid, c=cmdline: c)
             assert (
@@ -460,15 +460,15 @@ class TestGatewayRuntimeStatus:
         payload = {
             "pid": 139,
             "gateway_state": "running",
-            "kind": "hermes-gateway",
-            "argv": ["hermes", "gateway", "run"],
+            "kind": "sonic-gateway",
+            "argv": ["sonic", "gateway", "run"],
         }
         default_home = Path("/opt/data")
 
         monkeypatch.setattr(status, "_pid_exists", lambda pid: True)
         monkeypatch.setattr(status, "_get_process_start_time", lambda pid: None)
         monkeypatch.setattr(
-            status, "_read_process_cmdline", lambda pid: "hermes -p coder gateway run --replace"
+            status, "_read_process_cmdline", lambda pid: "sonic -p coder gateway run --replace"
         )
 
         assert (
@@ -477,13 +477,13 @@ class TestGatewayRuntimeStatus:
         )
 
     def test_runtime_status_running_pid_default_profile_accepts_bare_cmdline(self, monkeypatch):
-        """The default/root gateway (bare ``hermes gateway run``) is reported
+        """The default/root gateway (bare ``sonic gateway run``) is reported
         running for the default profile."""
         payload = {
             "pid": 139,
             "gateway_state": "running",
-            "kind": "hermes-gateway",
-            "argv": ["hermes", "gateway", "run"],
+            "kind": "sonic-gateway",
+            "argv": ["sonic", "gateway", "run"],
             "start_time": 1000,
         }
         default_home = Path("/opt/data")
@@ -491,7 +491,7 @@ class TestGatewayRuntimeStatus:
         monkeypatch.setattr(status, "_pid_exists", lambda pid: True)
         monkeypatch.setattr(status, "_get_process_start_time", lambda pid: 1000)
         monkeypatch.setattr(
-            status, "_read_process_cmdline", lambda pid: "hermes gateway run --replace"
+            status, "_read_process_cmdline", lambda pid: "sonic gateway run --replace"
         )
 
         assert (
@@ -506,8 +506,8 @@ class TestGatewayRuntimeStatus:
         payload = {
             "pid": 139,
             "gateway_state": "running",
-            "kind": "hermes-gateway",
-            "argv": ["hermes", "gateway", "run"],
+            "kind": "sonic-gateway",
+            "argv": ["sonic", "gateway", "run"],
             "start_time": 1000,
         }
         coder_home = Path("/opt/data/profiles/coder")

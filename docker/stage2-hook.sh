@@ -217,11 +217,11 @@ fi
 #
 # Lazy-installable optional backends (Firecrawl, Exa, Feishu, etc.) cannot
 # install into the sealed venv, so they are redirected to the writable
-# $HERMES_HOME/lazy-packages dir on the data volume (Dockerfile sets
-# HERMES_LAZY_INSTALL_TARGET). That dir is appended to the END of sys.path,
+# $SONIC_HOME/lazy-packages dir on the data volume (Dockerfile sets
+# SONIC_LAZY_INSTALL_TARGET). That dir is appended to the END of sys.path,
 # so a package installed there can only ADD modules — it can never shadow or
 # break a core module, which is what keeps the sealed-venv guarantee intact
-# even though installs are re-enabled. The dir is seeded + chowned to hermes
+# even though installs are re-enabled. The dir is seeded + chowned to sonic
 # in the mkdir/chown blocks above so first-use installs succeed as the
 # unprivileged runtime user, and it persists across container recreates /
 # image updates (an ABI stamp wipes it if a rebuild bumps the interpreter).

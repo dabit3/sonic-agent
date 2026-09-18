@@ -310,7 +310,7 @@ Opt-in, **default off**. Enable globally in config, or per-job via the `cronjob`
 tool's `attach_to_session` (which overrides the global setting for that one job):
 
 ```yaml
-# ~/.hermes/config.yaml
+# ~/.sonic/config.yaml
 cron:
   mirror_delivery: false   # set true to make cron deliveries continuable
 ```

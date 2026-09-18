@@ -614,7 +614,7 @@ class TestManagedKreaRouting:
             "agent.image_gen_registry.get_provider", lambda name: fake_provider
         )
         monkeypatch.setattr(
-            "hermes_cli.plugins._ensure_plugins_discovered", lambda *a, **k: None
+            "sonic_cli.plugins._ensure_plugins_discovered", lambda *a, **k: None
         )
 
         out = image_tool._maybe_route_managed_krea("a cat", "portrait")

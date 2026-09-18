@@ -27,9 +27,9 @@ Security model:
 * **Venv-scoped by default.** Installs target ``sys.executable`` in the
   active venv. We never touch the system Python.
 * **Durable-target mode (immutable images).** When the deployment seals the
-  agent's own venv (the Docker image sets ``HERMES_DISABLE_LAZY_INSTALLS=1``
-  and makes ``/opt/hermes`` read-only), setting
-  ``HERMES_LAZY_INSTALL_TARGET`` redirects lazy installs to a writable
+  agent's own venv (the Docker image sets ``SONIC_DISABLE_LAZY_INSTALLS=1``
+  and makes ``/opt/sonic`` read-only), setting
+  ``SONIC_LAZY_INSTALL_TARGET`` redirects lazy installs to a writable
   directory on the durable data volume (e.g. ``/opt/data/lazy-packages``).
   That directory is **appended to the end of ``sys.path``** — never
   prepended, never exported via ``PYTHONPATH`` — so the agent's own
@@ -38,7 +38,7 @@ Security model:
   a module the core already ships. The worst a bad/incompatible backend
   package can do is fail to import and report itself unavailable — the agent
   core stays healthy. This is the structural guarantee that a lazily
-  installed package cannot brick Hermes, which is what made it safe to seal
+  installed package cannot brick Sonic, which is what made it safe to seal
   the venv in the first place. Compiled-wheel safety across image rebuilds
   is handled by an ABI/Python-version stamp on the target subdir (see
   :func:`_ensure_target_ready`).
@@ -267,7 +267,7 @@ class _InstallResult:
 # not user-facing config: the user-facing knob remains
 # security.allow_lazy_installs in config.yaml. When unset, lazy installs go
 # into the active venv as before.
-_LAZY_TARGET_ENV = "HERMES_LAZY_INSTALL_TARGET"
+_LAZY_TARGET_ENV = "SONIC_LAZY_INSTALL_TARGET"
 
 # Name of the stamp file written into the target dir recording the Python
 # X.Y + ABI it was populated for. If a container rebuild bumps the
@@ -398,7 +398,7 @@ def _allow_lazy_installs() -> bool:
     1. ``security.allow_lazy_installs: false`` in config.yaml is an absolute
        opt-out — it disables installs in BOTH venv-scoped and durable-target
        modes. This is the user-facing kill switch.
-    2. ``HERMES_DISABLE_LAZY_INSTALLS=1`` seals the *agent venv* (set by the
+    2. ``SONIC_DISABLE_LAZY_INSTALLS=1`` seals the *agent venv* (set by the
        immutable Docker image). It blocks venv-scoped installs — UNLESS a
        durable install target is configured, in which case installs are
        redirected there (a path that structurally cannot break the sealed
@@ -422,7 +422,7 @@ def _allow_lazy_installs() -> bool:
     # (2) Sealed-venv env var: blocks ONLY when there is no safe durable
     # target to redirect into. With a target set, the install goes to the
     # data volume (append-only on sys.path), so the seal is preserved.
-    if os.environ.get("HERMES_DISABLE_LAZY_INSTALLS") == "1":
+    if os.environ.get("SONIC_DISABLE_LAZY_INSTALLS") == "1":
         return _lazy_install_target() is not None
 
     return True
@@ -566,7 +566,7 @@ def _core_constraints_file() -> Optional[Path]:
             lines.append(f"{name}=={ver}")
         if not lines:
             return None
-        fd, path = tempfile.mkstemp(prefix="hermes-core-constraints-", suffix=".txt")
+        fd, path = tempfile.mkstemp(prefix="sonic-core-constraints-", suffix=".txt")
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write("\n".join(sorted(lines)) + "\n")
         return Path(path)

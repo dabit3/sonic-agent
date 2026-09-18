@@ -1063,7 +1063,7 @@ class CLICommandsMixin:
         from agent.pet import store
         from agent.pet.generate import orchestrate
         from agent.pet.generate.imagegen import GenerationError
-        from hermes_cli.pets import _set_active
+        from sonic_cli.pets import _set_active
 
         parts = cmd.split(maxsplit=1)
         concept = parts[1].strip() if len(parts) > 1 else ""

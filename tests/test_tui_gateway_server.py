@@ -6151,9 +6151,9 @@ def test_session_most_recent_handles_db_unavailable(monkeypatch):
 
 
 def test_verification_status_returns_recorded_evidence(tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
-    token = set_hermes_home_override(home)
+    token = set_sonic_home_override(home)
     project = tmp_path / "project"
     project.mkdir()
     (project / "package.json").write_text(
@@ -6180,7 +6180,7 @@ def test_verification_status_returns_recorded_evidence(tmp_path):
             }
         )
     finally:
-        reset_hermes_home_override(token)
+        reset_sonic_home_override(token)
 
     verification = resp["result"]["verification"]
     assert verification["status"] == "passed"
@@ -6189,9 +6189,9 @@ def test_verification_status_returns_recorded_evidence(tmp_path):
 
 
 def test_verification_status_outside_workspace_is_not_applicable(tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
-    token = set_hermes_home_override(home)
+    token = set_sonic_home_override(home)
     try:
         resp = server.handle_request(
             {
@@ -6201,7 +6201,7 @@ def test_verification_status_outside_workspace_is_not_applicable(tmp_path):
             }
         )
     finally:
-        reset_hermes_home_override(token)
+        reset_sonic_home_override(token)
 
     assert resp["result"]["verification"]["status"] == "not_applicable"
 

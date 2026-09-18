@@ -425,7 +425,7 @@ def _rename_active_if(old_slug: str, new_slug: str) -> bool:
     """
     if not new_slug or old_slug == new_slug:
         return False
-    from hermes_cli.config import load_config, save_config
+    from sonic_cli.config import load_config, save_config
 
     cfg = load_config()
     pet = cfg.setdefault("display", {}).setdefault("pet", {})
