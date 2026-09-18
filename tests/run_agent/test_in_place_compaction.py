@@ -184,9 +184,9 @@ class TestInPlaceCompaction:
             assert calls["n"] == 1
 
 
-class TestRotationStillDefault:
+class TestRotationFallbackWhenFlagOff:
     def test_rotation_when_flag_off(self):
-        """Regression guard: flag off => legacy rotation is unchanged."""
+        """Rotation remains available as the opt-out fallback."""
         from sonic_state import SessionDB
         from agent.conversation_compression import compress_context
 
@@ -247,10 +247,10 @@ class TestInPlaceSignalForGateway:
 
 
 class TestInPlaceConfigDefault:
-    def test_flag_defaults_off(self):
+    def test_flag_defaults_on(self):
         from sonic_cli.config import DEFAULT_CONFIG
 
-        assert DEFAULT_CONFIG["compression"].get("in_place") is False
+        assert DEFAULT_CONFIG["compression"].get("in_place") is True
 
 
 class TestCompactedTurnsStaySearchable:
@@ -313,4 +313,3 @@ class TestCompactedTurnsStaySearchable:
                 "ZEBRAWORD", role_filter=["user", "assistant"], include_inactive=True
             )
             assert len(recovered) == 1
-

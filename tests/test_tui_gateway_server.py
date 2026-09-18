@@ -1001,8 +1001,11 @@ def test_session_resume_follows_compression_tip(monkeypatch, tmp_path):
     )
 
     try:
+        # eager_build: this asserts the synchronously-built agent binds to the
+        # resolved tip (captured["agent_session_id"]); the compression-tip
+        # resolution itself runs before the build and is mode-agnostic.
         resp = server.handle_request(
-            {"id": "1", "method": "session.resume", "params": {"session_id": "parent_root"}}
+            {"id": "1", "method": "session.resume", "params": {"session_id": "parent_root", "eager_build": True}}
         )
     finally:
         db.close()
@@ -1049,8 +1052,11 @@ def test_session_resume_passes_stored_runtime_to_agent(monkeypatch):
 
     monkeypatch.setattr(server, "_init_session", fake_init_session)
 
+    # eager_build: this asserts the synchronous build contract (stored runtime
+    # overrides reach _make_agent, info comes from _session_info). The deferred
+    # default restores the same overrides via _start_agent_build off-thread.
     resp = server.handle_request(
-        {"id": "1", "method": "session.resume", "params": {"session_id": "stored-session"}}
+        {"id": "1", "method": "session.resume", "params": {"session_id": "stored-session", "eager_build": True}}
     )
 
     assert resp["result"]["info"] == {"model": "gpt-5.4", "provider": "openai-codex"}
@@ -1137,11 +1143,13 @@ def test_session_resume_profile_uses_profile_db_cwd(monkeypatch, tmp_path):
     monkeypatch.setattr(approval, "load_permanent_allowlist", lambda: None)
 
     try:
+        # eager_build: asserts the synchronous build receives the profile's db
+        # (the deferred default builds with the same db via _start_agent_build).
         resp = server.handle_request(
             {
                 "id": "1",
                 "method": "session.resume",
-                "params": {"session_id": target, "profile": "worker"},
+                "params": {"session_id": target, "profile": "worker", "eager_build": True},
             }
         )
 
@@ -6137,6 +6145,65 @@ def test_session_most_recent_handles_db_unavailable(monkeypatch):
     )
 
     assert resp["result"]["session_id"] is None
+
+
+# ── verification.status ──────────────────────────────────────────────
+
+
+def test_verification_status_returns_recorded_evidence(tmp_path):
+    home = tmp_path / ".sonic"
+    home.mkdir()
+    token = set_sonic_home_override(home)
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / "package.json").write_text(
+        json.dumps({"scripts": {"test": "vitest"}}),
+        encoding="utf-8",
+    )
+    (project / "pnpm-lock.yaml").write_text("", encoding="utf-8")
+    try:
+        from agent.verification_evidence import record_terminal_result
+
+        record_terminal_result(
+            command="pnpm run test",
+            cwd=project,
+            session_id="sid",
+            exit_code=0,
+            output="green",
+        )
+
+        resp = server.handle_request(
+            {
+                "id": "1",
+                "method": "verification.status",
+                "params": {"cwd": str(project), "session_id": "sid"},
+            }
+        )
+    finally:
+        reset_sonic_home_override(token)
+
+    verification = resp["result"]["verification"]
+    assert verification["status"] == "passed"
+    assert verification["evidence"]["canonical_command"] == "pnpm run test"
+    assert verification["evidence"]["scope"] == "full"
+
+
+def test_verification_status_outside_workspace_is_not_applicable(tmp_path):
+    home = tmp_path / ".sonic"
+    home.mkdir()
+    token = set_sonic_home_override(home)
+    try:
+        resp = server.handle_request(
+            {
+                "id": "1",
+                "method": "verification.status",
+                "params": {"cwd": str(tmp_path), "session_id": "sid"},
+            }
+        )
+    finally:
+        reset_sonic_home_override(token)
+
+    assert resp["result"]["verification"]["status"] == "not_applicable"
 
 
 # ── browser.manage ───────────────────────────────────────────────────
