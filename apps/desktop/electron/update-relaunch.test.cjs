@@ -62,7 +62,10 @@ test('resolveUnpackedRelease is null for AppImage / .deb / .rpm / dev / unresolv
   assert.equal(resolveUnpackedRelease('/usr/lib/sonic/sonic', ROOT, 'linux'), null)
   assert.equal(resolveUnpackedRelease('/opt/Sonic/sonic', ROOT, 'linux'), null)
   // dev electron
-  assert.equal(resolveUnpackedRelease('/home/u/.sonic/sonic-agent/node_modules/electron/dist/electron', ROOT, 'linux'), null)
+  assert.equal(
+    resolveUnpackedRelease('/home/u/.sonic/sonic-agent/node_modules/electron/dist/electron', ROOT, 'linux'),
+    null
+  )
   // empty / missing
   assert.equal(resolveUnpackedRelease('', ROOT, 'linux'), null)
   assert.equal(resolveUnpackedRelease(path.join(UNPACKED, 'sonic'), '', 'linux'), null)

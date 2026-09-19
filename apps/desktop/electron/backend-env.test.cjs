@@ -76,10 +76,7 @@ test('normalizeSonicHomeRoot maps profile homes back to the global Sonic root', 
     normalizeSonicHomeRoot('C:\\Users\\test\\AppData\\Local\\sonic\\profiles\\oracle', { pathModule: path.win32 }),
     'C:\\Users\\test\\AppData\\Local\\sonic'
   )
-  assert.equal(
-    normalizeSonicHomeRoot('/Users/test/.sonic', { pathModule: path.posix }),
-    '/Users/test/.sonic'
-  )
+  assert.equal(normalizeSonicHomeRoot('/Users/test/.sonic', { pathModule: path.posix }), '/Users/test/.sonic')
 })
 
 test('Windows PATH casing and delimiter are preserved without POSIX sane entries', () => {
@@ -104,8 +101,5 @@ test('Windows PATH casing and delimiter are preserved without POSIX sane entries
 })
 
 test('appendUniquePathEntries drops empty entries and keeps first occurrence', () => {
-  assert.equal(
-    appendUniquePathEntries([':/a::/b', ['/a', '/c']], { delimiter: ':' }),
-    '/a:/b:/c'
-  )
+  assert.equal(appendUniquePathEntries([':/a::/b', ['/a', '/c']], { delimiter: ':' }), '/a:/b:/c')
 })

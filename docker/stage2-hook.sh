@@ -181,6 +181,45 @@ done
 # The canonical list of sonic-owned subdirs is the same one the s6-setuidgid
 # mkdir -p block below seeds. Keep them in sync if the seed list changes.
 actual_sonic_uid=$(id -u sonic)
+
+path_has_symlink_component() {
+    path="$1"
+    root="${2:-$SONIC_HOME}"
+    while [ -n "$path" ] && [ "$path" != "/" ]; do
+        if [ -L "$path" ]; then
+            return 0
+        fi
+        if [ "$path" = "$root" ]; then
+            break
+        fi
+        parent="$(dirname "$path")"
+        if [ "$parent" = "$path" ]; then
+            break
+        fi
+        path="$parent"
+    done
+    return 1
+}
+
+refuse_symlinked_path() {
+    action="$1"
+    target="$2"
+    if path_has_symlink_component "$target"; then
+        echo "[stage2] Warning: refusing $action through symlinked path $target — continuing"
+        return 0
+    fi
+    return 1
+}
+
+chown_sonic_tree() {
+    target="$1"
+    if refuse_symlinked_path "recursive chown" "$target"; then
+        return 0
+    fi
+    chown -R sonic:sonic "$target" 2>/dev/null || \
+        echo "[stage2] Warning: chown $target failed (rootless container?) — continuing"
+}
+
 needs_chown=false
 if [ "$(stat -c %u "$SONIC_HOME" 2>/dev/null)" != "$actual_sonic_uid" ]; then
     needs_chown=true
@@ -194,15 +233,18 @@ if [ "$needs_chown" = true ]; then
     # Top-level $SONIC_HOME: chown the directory itself (not its contents)
     # so sonic can mkdir new subdirs but bind-mounted host files keep
     # their existing ownership.
-    chown sonic:sonic "$SONIC_HOME" 2>/dev/null || \
-        echo "[stage2] Warning: chown $SONIC_HOME failed (rootless container?) — continuing"
+    if refuse_symlinked_path "chown" "$SONIC_HOME"; then
+        :
+    else
+        chown sonic:sonic "$SONIC_HOME" 2>/dev/null || \
+            echo "[stage2] Warning: chown $SONIC_HOME failed (rootless container?) — continuing"
+    fi
     # Sonic-owned subdirs: recursive chown is safe here because these are
     # created and managed exclusively by sonic (see the s6-setuidgid mkdir
     # -p block below for the canonical list).
     for sub in cron sessions logs hooks memories skills skins plans workspace home profiles pairing platforms/pairing lazy-packages; do
         if [ -e "$SONIC_HOME/$sub" ]; then
-            chown -R sonic:sonic "$SONIC_HOME/$sub" 2>/dev/null || \
-                echo "[stage2] Warning: chown $SONIC_HOME/$sub failed (rootless container?) — continuing"
+            chown_sonic_tree "$SONIC_HOME/$sub"
         fi
     done
 fi
@@ -234,7 +276,7 @@ fi
 # the profiles dir. Idempotent; skipped on rootless containers where
 # chown would fail.
 if [ -d "$SONIC_HOME/profiles" ]; then
-    chown -R sonic:sonic "$SONIC_HOME/profiles" 2>/dev/null || true
+    chown_sonic_tree "$SONIC_HOME/profiles"
 fi
 
 # Always reset ownership of $SONIC_HOME/cron on every boot for the same
@@ -242,7 +284,7 @@ fi
 # (jobs.json) must stay readable by the unprivileged sonic runtime even
 # after root-context maintenance commands or scheduler writes.
 if [ -d "$SONIC_HOME/cron" ]; then
-    chown -R sonic:sonic "$SONIC_HOME/cron" 2>/dev/null || true
+    chown_sonic_tree "$SONIC_HOME/cron"
 fi
 
 # Reset ownership of sonic-owned top-level state files on every boot.
@@ -268,7 +310,11 @@ for f in \
     gateway.pid gateway.lock gateway_state.json processes.json \
     active_profile; do
     if [ -e "$SONIC_HOME/$f" ]; then
-        chown sonic:sonic "$SONIC_HOME/$f" 2>/dev/null || true
+        if refuse_symlinked_path "chown" "$SONIC_HOME/$f"; then
+            :
+        else
+            chown sonic:sonic "$SONIC_HOME/$f" 2>/dev/null || true
+        fi
     fi
 done
 
@@ -276,8 +322,12 @@ done
 # Ensure config.yaml is readable by the sonic runtime user even if it
 # was edited on the host after initial ownership setup.
 if [ -f "$SONIC_HOME/config.yaml" ]; then
-    chown sonic:sonic "$SONIC_HOME/config.yaml" 2>/dev/null || true
-    chmod 640 "$SONIC_HOME/config.yaml" 2>/dev/null || true
+    if refuse_symlinked_path "chown/chmod" "$SONIC_HOME/config.yaml"; then
+        :
+    else
+        chown sonic:sonic "$SONIC_HOME/config.yaml" 2>/dev/null || true
+        chmod 640 "$SONIC_HOME/config.yaml" 2>/dev/null || true
+    fi
 fi
 
 # --- Seed directory structure as sonic user ---
@@ -328,7 +378,11 @@ seed_one() {
     dest=$1
     src=$2
     if [ ! -f "$SONIC_HOME/$dest" ] && [ -f "$INSTALL_DIR/$src" ]; then
-        as_sonic cp "$INSTALL_DIR/$src" "$SONIC_HOME/$dest"
+        if refuse_symlinked_path "seed" "$SONIC_HOME/$dest"; then
+            :
+        else
+            as_sonic cp "$INSTALL_DIR/$src" "$SONIC_HOME/$dest"
+        fi
     fi
 }
 seed_one ".env" ".env.example"
@@ -339,8 +393,12 @@ seed_one "SOUL.md" "docker/SOUL.md"
 # unconditionally (not only on first-seed) so a host-mounted .env that was
 # created with a permissive umask gets tightened on every container start.
 if [ -f "$SONIC_HOME/.env" ]; then
-    chown sonic:sonic "$SONIC_HOME/.env" 2>/dev/null || true
-    chmod 600 "$SONIC_HOME/.env" 2>/dev/null || true
+    if refuse_symlinked_path "chown/chmod" "$SONIC_HOME/.env"; then
+        :
+    else
+        chown sonic:sonic "$SONIC_HOME/.env" 2>/dev/null || true
+        chmod 600 "$SONIC_HOME/.env" 2>/dev/null || true
+    fi
 fi
 
 # --- Migrate persisted config schema ---
@@ -358,9 +416,13 @@ fi
 # pre-s6 entrypoint — the [ ! -f ] guard is critical to avoid clobbering
 # rotated refresh tokens on container restart.
 if [ ! -f "$SONIC_HOME/auth.json" ] && [ -n "${SONIC_AUTH_JSON_BOOTSTRAP:-}" ]; then
-    printf '%s' "$SONIC_AUTH_JSON_BOOTSTRAP" > "$SONIC_HOME/auth.json"
-    chown sonic:sonic "$SONIC_HOME/auth.json" 2>/dev/null || true
-    chmod 600 "$SONIC_HOME/auth.json"
+    if refuse_symlinked_path "seed" "$SONIC_HOME/auth.json"; then
+        :
+    else
+        printf '%s' "$SONIC_AUTH_JSON_BOOTSTRAP" > "$SONIC_HOME/auth.json"
+        chown sonic:sonic "$SONIC_HOME/auth.json" 2>/dev/null || true
+        chmod 600 "$SONIC_HOME/auth.json"
+    fi
 fi
 
 # gateway_state.json: declare the gateway's INITIAL supervised state on a
@@ -390,9 +452,13 @@ fi
 # bogus state the reconciler would treat as "no prior state" anyway.
 if [ ! -f "$SONIC_HOME/gateway_state.json" ] && \
         [ "${SONIC_GATEWAY_BOOTSTRAP_STATE:-}" = "running" ]; then
-    printf '{"gateway_state":"running"}\n' > "$SONIC_HOME/gateway_state.json"
-    chown sonic:sonic "$SONIC_HOME/gateway_state.json" 2>/dev/null || true
-    chmod 644 "$SONIC_HOME/gateway_state.json"
+    if refuse_symlinked_path "seed" "$SONIC_HOME/gateway_state.json"; then
+        :
+    else
+        printf '{"gateway_state":"running"}\n' > "$SONIC_HOME/gateway_state.json"
+        chown sonic:sonic "$SONIC_HOME/gateway_state.json" 2>/dev/null || true
+        chmod 644 "$SONIC_HOME/gateway_state.json"
+    fi
 fi
 
 # --- Sync bundled skills ---

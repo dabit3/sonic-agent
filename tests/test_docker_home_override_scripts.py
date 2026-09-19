@@ -85,7 +85,9 @@ def test_stage2_hook_repairs_profiles_and_cron_ownership_on_every_boot() -> None
     text = STAGE2_HOOK.read_text(encoding="utf-8")
 
     assert 'if [ -d "$SONIC_HOME/profiles" ]; then' in text
-    assert 'chown -R sonic:sonic "$SONIC_HOME/profiles" 2>/dev/null || true' in text
+    assert 'chown_sonic_tree "$SONIC_HOME/profiles"' in text
+    assert 'chown -R sonic:sonic "$SONIC_HOME/profiles" 2>/dev/null || true' not in text
 
     assert 'if [ -d "$SONIC_HOME/cron" ]; then' in text
-    assert 'chown -R sonic:sonic "$SONIC_HOME/cron" 2>/dev/null || true' in text
+    assert 'chown_sonic_tree "$SONIC_HOME/cron"' in text
+    assert 'chown -R sonic:sonic "$SONIC_HOME/cron" 2>/dev/null || true' not in text

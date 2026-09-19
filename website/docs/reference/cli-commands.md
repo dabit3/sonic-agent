@@ -39,6 +39,7 @@ sonic [global-options] <command> [subcommand/options]
 |---------|---------|
 | `sonic chat` | Interactive or one-shot chat with the agent. |
 | `sonic model` | Interactively choose the default provider and model. |
+| `sonic moa` | Configure named Mixture of Agents presets used by `/moa`. |
 | `sonic fallback` | Manage fallback providers tried when the primary model errors. |
 | `sonic gateway` | Run or manage the messaging gateway service. |
 | `sonic proxy` | Local OpenAI-compatible proxy that attaches OAuth provider credentials. See [Subscription Proxy](../user-guide/features/subscription-proxy.md). |
@@ -1118,6 +1119,18 @@ The curator is an auxiliary-model background task that periodically reviews agen
 On a fresh install the first scheduled pass is deferred by one full `interval_hours` (7 days by default) — the gateway will not curate immediately on the first tick after `sonic update`. Use `sonic curator run --dry-run` to preview before that happens.
 
 See [Curator](../user-guide/features/curator.md) for behavior and config.
+
+## `sonic moa`
+
+Configure named Mixture of Agents presets used by the `/moa` slash command.
+
+```bash
+sonic moa list
+sonic moa configure [name]
+sonic moa delete <name>
+```
+
+`sonic moa configure` reuses Sonic' provider → model picker for each reference model and the aggregator. A preset is an execution-mode configuration, not a primary model or provider.
 
 ## `sonic fallback`
 

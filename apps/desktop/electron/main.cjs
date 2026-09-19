@@ -21,7 +21,6 @@ const crypto = require('node:crypto')
 const fs = require('node:fs')
 const http = require('node:http')
 const https = require('node:https')
-const net = require('node:net')
 const path = require('node:path')
 const { pathToFileURL } = require('node:url')
 const { execFileSync, spawn } = require('node:child_process')
@@ -38,11 +37,13 @@ const { canImportSonicCli, verifySonicCli } = require('./backend-probes.cjs')
 const { createLinkTitleWindow } = require('./link-title-window.cjs')
 const { probeGatewayWebSocket } = require('./gateway-ws-probe.cjs')
 const { adoptServedDashboardToken } = require('./dashboard-token.cjs')
-const { waitForDashboardPort } = require('./backend-ready.cjs')
+const { waitForDashboardPortAnnouncement } = require('./backend-ready.cjs')
 const { serializeJsonBody, setJsonRequestHeaders } = require('./oauth-net-request.cjs')
 const { fetchMarketplaceThemes, searchMarketplaceThemes } = require('./vscode-marketplace.cjs')
 const { buildDesktopBackendEnv, normalizeSonicHomeRoot } = require('./backend-env.cjs')
 const { readWindowsUserEnvVar } = require('./windows-user-env.cjs')
+const { readWslWindowsClipboardImage } = require('./wsl-clipboard-image.cjs')
+const { nativeOverlayWidth: computeNativeOverlayWidth } = require('./titlebar-overlay-width.cjs')
 const { readDirForIpc } = require('./fs-read-dir.cjs')
 const { readLiveUpdateMarker } = require('./update-marker.cjs')
 const {
@@ -55,7 +56,23 @@ const {
   buildRelaunchScript
 } = require('./update-relaunch.cjs')
 const { gitRootForIpc } = require('./git-root.cjs')
-const { worktreesForIpc } = require('./git-worktrees.cjs')
+const { addWorktree, listBranches, listWorktrees, removeWorktree, switchBranch } = require('./git-worktree-ops.cjs')
+const {
+  fileDiffVsHead,
+  repoStatus,
+  reviewCommit,
+  reviewCommitContext,
+  reviewCreatePr,
+  reviewDiff,
+  reviewList,
+  reviewPush,
+  reviewRevParse,
+  reviewRevert,
+  reviewShipInfo,
+  reviewStage,
+  reviewUnstage
+} = require('./git-review-ops.cjs')
+const { scanGitRepos } = require('./git-repo-scan.cjs')
 const { OFFICIAL_REPO_HTTPS_URL, isOfficialSshRemote } = require('./update-remote.cjs')
 const { resolveBehindCount, shouldCountCommits } = require('./update-count.cjs')
 const { runRebuildWithRetry } = require('./update-rebuild.cjs')
@@ -168,6 +185,16 @@ if (REMOTE_DISPLAY_REASON) {
   console.log(
     `[sonic] remote display detected (${REMOTE_DISPLAY_REASON}); disabling GPU hardware acceleration to prevent flicker`
   )
+}
+
+// WSLg: Chromium blocklists the Mesa vGPU → software compositing → typing lag.
+// /dev/dxg means a real GPU is available; un-blocklist it. Skipped when a remote
+// display already forced software (SSH'd-into-WSL).
+if (IS_WSL && !REMOTE_DISPLAY_REASON && fs.existsSync('/dev/dxg')) {
+  app.commandLine.appendSwitch('ignore-gpu-blocklist')
+  app.commandLine.appendSwitch('enable-gpu-rasterization')
+  app.commandLine.appendSwitch('enable-zero-copy')
+  console.log('[sonic] WSL GPU passthrough (/dev/dxg) detected; enabling GPU acceleration')
 }
 
 ipcMain.handle('sonic:get-remote-display-reason', () => REMOTE_DISPLAY_REASON)
@@ -302,9 +329,7 @@ function sonicManagedNodePathEntries() {
 }
 
 function pathWithSonicManagedNode(...entries) {
-  return [...sonicManagedNodePathEntries(), ...entries, process.env.PATH]
-    .filter(Boolean)
-    .join(path.delimiter)
+  return [...sonicManagedNodePathEntries(), ...entries, process.env.PATH].filter(Boolean).join(path.delimiter)
 }
 
 // ACTIVE_SONIC_ROOT — the canonical mutable Sonic install. Same path
@@ -382,14 +407,10 @@ const WINDOW_BUTTON_POSITION = {
   x: 24,
   y: TITLEBAR_HEIGHT / 2 - MACOS_TRAFFIC_LIGHTS_HEIGHT / 2
 }
-// Width Electron reserves for the Windows/Linux native min/max/close cluster
-// when `titleBarOverlay` is enabled. The OS paints these buttons in the
-// top-right corner of the renderer; we have to leave that much room on the
-// right edge so our system tools (file browser, haptics, settings) don't sit
-// underneath them. macOS uses left-side traffic lights instead and reports a
-// position via getWindowButtonPosition(), so this width is non-zero only on
-// non-macOS platforms.
-const NATIVE_OVERLAY_BUTTON_WIDTH = 144
+// Right-edge window-control reservation lives in titlebar-overlay-width.cjs
+// (pure + unit-testable); computeNativeOverlayWidth() applies it per platform.
+// It's only the pre-layout fallback — the renderer measures the exact overlay
+// width live via the Window Controls Overlay API.
 const APP_ICON_PATHS = [
   path.join(APP_ROOT, 'public', 'apple-touch-icon.png'),
   path.join(APP_ROOT, 'dist', 'apple-touch-icon.png'),
@@ -503,25 +524,48 @@ function getWindowBackgroundColor() {
   return nativeTheme.shouldUseDarkColors ? '#111111' : '#f7f7f7'
 }
 
+// Transparent WCO — renderer chrome shows through. rgba(0,0,0,0) can fall back
+// to GetFrameColor() on some Electron builds; rgba(1,0,0,0) is the escape hatch.
+const TITLEBAR_OVERLAY_COLOR = 'rgba(1, 0, 0, 0)'
+
 function getTitleBarOverlayOptions() {
   if (IS_MAC) {
     return { height: TITLEBAR_HEIGHT }
   }
 
-  if (rendererTitleBarTheme) {
-    return {
-      color: rendererTitleBarTheme.background,
-      height: TITLEBAR_HEIGHT,
-      symbolColor: rendererTitleBarTheme.foreground
-    }
+  // Windows + WSLg paint WCO natively; plain Linux disables it (frameless hidden
+  // titlebar still applies).
+  if (!IS_WINDOWS && !IS_WSL) {
+    return false
   }
 
-  const useDarkColors = nativeTheme.shouldUseDarkColors
-
   return {
-    color: useDarkColors ? '#111111' : '#f7f7f7',
+    color: TITLEBAR_OVERLAY_COLOR,
     height: TITLEBAR_HEIGHT,
-    symbolColor: useDarkColors ? '#f7f7f7' : '#242424'
+    symbolColor:
+      rendererTitleBarTheme && isHexColor(rendererTitleBarTheme.foreground)
+        ? rendererTitleBarTheme.foreground
+        : nativeTheme.shouldUseDarkColors
+          ? '#f7f7f7'
+          : '#242424'
+  }
+}
+
+// Push refreshed overlay options to a live window after a theme/appearance
+// change. No-op only on plain (non-WSL) Linux, where getTitleBarOverlayOptions()
+// returns false; the try/catch additionally guards builds where
+// setTitleBarOverlay isn't supported.
+function applyTitleBarOverlay(win) {
+  const options = getTitleBarOverlayOptions()
+  if (!options || typeof options !== 'object') {
+    return
+  }
+
+  try {
+    win?.setTitleBarOverlay?.(options)
+  } catch {
+    // Overlay not supported on this platform/build — leave the frameless
+    // titlebar as-is.
   }
 }
 
@@ -744,6 +788,9 @@ let rendererReloadTimes = []
 // instead of re-running install.ps1 in a hot loop. Cleared explicitly by
 // the renderer's "Reload and retry" path or by quitting the app.
 let bootstrapFailure = null
+// Latched non-bootstrap backend spawn failure — stops getConnection() from
+// respawning sonic dashboard children in a tight loop while boot is broken.
+let backendStartFailure = null
 // Active first-launch install, so the renderer's Cancel button (and app quit)
 // can abort the in-flight install.sh/ps1 instead of leaving it running.
 let bootstrapAbortController = null
@@ -1254,6 +1301,36 @@ function isCommandScript(command) {
   return IS_WINDOWS && /\.(cmd|bat)$/i.test(command || '')
 }
 
+function unwrapWindowsVenvSonicCommand(command, dashboardArgs) {
+  if (!IS_WINDOWS || !command || isCommandScript(command)) return null
+
+  const resolved = path.resolve(String(command))
+  if (!/^sonic(?:\.exe)?$/i.test(path.basename(resolved))) return null
+
+  const scriptsDir = path.dirname(resolved)
+  if (path.basename(scriptsDir).toLowerCase() !== 'scripts') return null
+
+  const venvRoot = path.dirname(scriptsDir)
+  const python = getNoConsoleVenvPython(venvRoot)
+  if (!fileExists(python)) return null
+
+  const root = path.dirname(venvRoot)
+  return {
+    label: `existing Sonic no-console Python at ${python}`,
+    command: python,
+    args: ['-m', 'sonic_cli.main', ...dashboardArgs],
+    bootstrap: false,
+    env: buildDesktopBackendEnv({
+      sonicHome: SONIC_HOME,
+      pythonPathEntries: [...(directoryExists(root) ? [root] : []), ...getVenvSitePackagesEntries(venvRoot)],
+      venvRoot
+    }),
+    kind: 'python',
+    readyFile: true,
+    shell: false
+  }
+}
+
 function normalizeExecutablePathForCompare(commandPath) {
   if (!commandPath) return null
 
@@ -1474,6 +1551,97 @@ function getVenvPython(venvRoot) {
   return path.join(venvRoot, IS_WINDOWS ? path.join('Scripts', 'python.exe') : path.join('bin', 'python'))
 }
 
+function readVenvHome(venvRoot) {
+  try {
+    const cfg = fs.readFileSync(path.join(venvRoot, 'pyvenv.cfg'), 'utf8')
+    const match = cfg.match(/^home\s*=\s*(.+?)\s*$/im)
+    return match ? match[1].trim() : null
+  } catch {
+    return null
+  }
+}
+
+function getNoConsoleVenvPython(venvRoot) {
+  if (!IS_WINDOWS) return getVenvPython(venvRoot)
+
+  // Prefer the venv's own pythonw shim — it carries pyvenv.cfg / site-packages
+  // wiring. Falling back to the base uv/python.org pythonw.exe skips the venv
+  // and breaks imports (yaml, sonic_cli, …) even when PYTHONPATH is patched.
+  const venvPythonw = path.join(venvRoot, 'Scripts', 'pythonw.exe')
+  if (fileExists(venvPythonw)) return venvPythonw
+
+  const baseHome = readVenvHome(venvRoot)
+  if (baseHome) {
+    const basePythonw = path.join(baseHome, 'pythonw.exe')
+    if (fileExists(basePythonw)) return basePythonw
+  }
+
+  return venvPythonw
+}
+
+function toNoConsolePython(pythonPath) {
+  if (!IS_WINDOWS || !pythonPath) return pythonPath
+
+  const resolved = String(pythonPath)
+  if (/pythonw\.exe$/i.test(resolved)) return resolved
+
+  if (/python\.exe$/i.test(resolved)) {
+    const pythonw = path.join(path.dirname(resolved), 'pythonw.exe')
+    if (fileExists(pythonw)) return pythonw
+  }
+
+  return pythonPath
+}
+
+function applyWindowsNoConsoleSpawnHints(backend) {
+  if (!IS_WINDOWS || !backend?.command) return backend
+
+  const usesSonicModule =
+    backend.kind === 'python' ||
+    (Array.isArray(backend.args) && backend.args[0] === '-m' && backend.args[1] === 'sonic_cli.main')
+
+  if (!usesSonicModule) return backend
+
+  backend.command = toNoConsolePython(backend.command)
+  if (/pythonw\.exe$/i.test(path.basename(String(backend.command || '')))) {
+    backend.readyFile = true
+  }
+
+  return backend
+}
+
+function getVenvSitePackagesEntries(venvRoot) {
+  const entries = []
+  if (!venvRoot) return entries
+
+  if (IS_WINDOWS) {
+    const sitePackages = path.join(venvRoot, 'Lib', 'site-packages')
+    if (directoryExists(sitePackages)) entries.push(sitePackages)
+    return entries
+  }
+
+  const version = (() => {
+    try {
+      const cfg = fs.readFileSync(path.join(venvRoot, 'pyvenv.cfg'), 'utf8')
+      const match = cfg.match(/^version_info\s*=\s*(\d+\.\d+)/im)
+      return match ? match[1].trim() : null
+    } catch {
+      return null
+    }
+  })()
+  if (version) {
+    const sitePackages = path.join(venvRoot, 'lib', `python${version}`, 'site-packages')
+    if (directoryExists(sitePackages)) entries.push(sitePackages)
+  }
+  return entries
+}
+
+function makeDashboardReadyFile() {
+  const dir = path.join(app.getPath('userData'), 'backend-ready')
+  fs.mkdirSync(dir, { recursive: true })
+  return path.join(dir, `dashboard-${process.pid}-${Date.now()}-${crypto.randomBytes(6).toString('hex')}.json`)
+}
+
 // resolveGitBinary — locate git.exe on Windows. A fresh installer-driven
 // install only has PortableGit under %LOCALAPPDATA%\sonic\git (never on
 // PATH), so a bare spawn('git') ENOENTs and self-update checks fail with
@@ -1501,6 +1669,30 @@ function resolveGitBinary() {
 
   _gitBinaryCache = candidates.find(fileExists) || findOnPath('git') || 'git'
   return _gitBinaryCache
+}
+
+// resolveGhBinary — locate the GitHub CLI. GUI-launched apps get a minimal PATH
+// that omits Homebrew (/opt/homebrew/bin, /usr/local/bin) where `gh` usually
+// lives, so a bare spawn('gh') ENOENTs even though `gh` works in the user's
+// terminal. Check the common install locations first, then PATH. Cached.
+let _ghBinaryCache = null
+function resolveGhBinary() {
+  if (_ghBinaryCache) return _ghBinaryCache
+
+  const candidates = []
+
+  if (IS_WINDOWS) {
+    candidates.push(path.join(process.env['ProgramFiles'] || 'C:\\Program Files', 'GitHub CLI', 'gh.exe'))
+    if (process.env.LOCALAPPDATA) {
+      candidates.push(path.join(process.env.LOCALAPPDATA, 'Microsoft', 'WinGet', 'Links', 'gh.exe'))
+    }
+  } else {
+    const home = app.getPath('home')
+    candidates.push('/opt/homebrew/bin/gh', '/usr/local/bin/gh', '/usr/bin/gh', path.join(home, '.local', 'bin', 'gh'))
+  }
+
+  _ghBinaryCache = candidates.find(fileExists) || findOnPath('gh') || 'gh'
+  return _ghBinaryCache
 }
 
 function recentSonicLog() {
@@ -1982,7 +2174,8 @@ async function applyUpdates(opts = {}) {
 
     emitUpdateProgress({
       stage: 'restart',
-      message: 'Updating Sonic — this window will close and the updater will open. Don’t reopen Sonic yourself; it restarts automatically when the update finishes.',
+      message:
+        'Updating Sonic — this window will close and the updater will open. Don’t reopen Sonic yourself; it restarts automatically when the update finishes.',
       percent: 100
     })
     repairMacUpdaterHelper(updater)
@@ -2065,7 +2258,9 @@ async function handOffWindowsBootstrapRecovery(reason) {
   })
   child.unref()
 
-  rememberLog(`[bootstrap] handed off ${reason} recovery to updater: ${updater} ${updaterArgs.join(' ')}; exiting desktop to release app.asar`)
+  rememberLog(
+    `[bootstrap] handed off ${reason} recovery to updater: ${updater} ${updaterArgs.join(' ')}; exiting desktop to release app.asar`
+  )
   // Same dwell as the in-app update hand-off (#50419): give the updater's
   // window time to appear before we vanish, so the recovery doesn't look like
   // a crash and provoke a mid-recovery relaunch.
@@ -2590,20 +2785,24 @@ function createPythonBackend(root, label, dashboardArgs, options = {}) {
   const python = findPythonForRoot(root)
   if (!python) return null
 
-  return {
+  const venvRoot = path.join(root, 'venv')
+  const venvPython = getVenvPython(venvRoot)
+  const command = IS_WINDOWS && fileExists(venvPython) ? getNoConsoleVenvPython(venvRoot) : toNoConsolePython(python)
+
+  return applyWindowsNoConsoleSpawnHints({
     kind: 'python',
     label,
-    command: python,
+    command,
     args: ['-m', 'sonic_cli.main', ...dashboardArgs],
     env: buildDesktopBackendEnv({
       sonicHome: SONIC_HOME,
       pythonPathEntries: [root],
-      venvRoot: path.join(root, 'venv')
+      venvRoot
     }),
     root,
     bootstrap: Boolean(options.bootstrap),
     shell: false
-  }
+  })
 }
 
 // createActiveBackend — build a backend pointing at ACTIVE_SONIC_ROOT, the
@@ -2612,11 +2811,12 @@ function createPythonBackend(root, label, dashboardArgs, options = {}) {
 // ensureRuntime() to create / refresh it before launch.
 function createActiveBackend(dashboardArgs) {
   const venvPython = getVenvPython(VENV_ROOT)
+  const command = fileExists(venvPython) ? getNoConsoleVenvPython(VENV_ROOT) : toNoConsolePython(findSystemPython())
 
-  return {
+  return applyWindowsNoConsoleSpawnHints({
     kind: 'python',
     label: `Sonic at ${ACTIVE_SONIC_ROOT}`,
-    command: fileExists(venvPython) ? venvPython : findSystemPython(),
+    command,
     args: ['-m', 'sonic_cli.main', ...dashboardArgs],
     env: buildDesktopBackendEnv({
       sonicHome: SONIC_HOME,
@@ -2626,7 +2826,7 @@ function createActiveBackend(dashboardArgs) {
     root: ACTIVE_SONIC_ROOT,
     bootstrap: true,
     shell: false
-  }
+  })
 }
 
 function resolveSonicBackend(dashboardArgs) {
@@ -2687,6 +2887,11 @@ function resolveSonicBackend(dashboardArgs) {
     }
 
     if (sonicCommand) {
+      const unwrapped = unwrapWindowsVenvSonicCommand(sonicCommand, dashboardArgs)
+      if (unwrapped) {
+        return unwrapped
+      }
+
       // Smoke-test the candidate before trusting it. A `sonic` shim
       // left behind by a half-uninstalled pip install (or a venv
       // entry-point pointing at a deleted interpreter) still resolves
@@ -2696,15 +2901,17 @@ function resolveSonicBackend(dashboardArgs) {
       // and lets the resolver fall through to step 6 / bootstrap.
       const shellForProbe = isCommandScript(sonicCommand)
       if (verifySonicCli(sonicCommand, { shell: shellForProbe })) {
-        return {
-          label: `existing Sonic CLI at ${sonicCommand}`,
-          command: sonicCommand,
-          args: dashboardArgs,
-          bootstrap: false,
-          env: {},
-          kind: 'command',
-          shell: shellForProbe
-        }
+        return (
+          unwrapWindowsVenvSonicCommand(sonicCommand, dashboardArgs) || {
+            label: `existing Sonic CLI at ${sonicCommand}`,
+            command: sonicCommand,
+            args: dashboardArgs,
+            bootstrap: false,
+            env: {},
+            kind: 'command',
+            shell: shellForProbe
+          }
+        )
       }
       rememberLog(
         `Ignoring existing Sonic CLI at ${sonicCommand}: --version probe failed; falling through to bootstrap.`
@@ -2726,15 +2933,15 @@ function resolveSonicBackend(dashboardArgs) {
     // failure, fall through to step 6 so the bootstrap runner pulls
     // a uv-managed 3.11 into %LOCALAPPDATA%\sonic\sonic-agent\venv.
     if (canImportSonicCli(python)) {
-      return {
+      return applyWindowsNoConsoleSpawnHints({
         kind: 'python',
         label: `installed sonic_cli module via ${python}`,
-        command: python,
+        command: toNoConsolePython(python),
         args: ['-m', 'sonic_cli.main', ...dashboardArgs],
         bootstrap: false,
         env: {},
         shell: false
-      }
+      })
     }
     rememberLog(`Ignoring system Python ${python}: sonic_cli is not importable; falling through to bootstrap.`)
   }
@@ -2768,7 +2975,7 @@ function resolveSonicBackend(dashboardArgs) {
 async function ensureRuntime(backend) {
   if (!backend.bootstrap) {
     await advanceBootProgress('runtime.external', `Using ${backend.label}`, 32)
-    return backend
+    return applyWindowsNoConsoleSpawnHints(backend)
   }
 
   // backend.kind === 'bootstrap-needed' means resolveSonicBackend couldn't
@@ -2784,7 +2991,9 @@ async function ensureRuntime(backend) {
     rememberLog('[bootstrap] no Sonic install found; starting first-launch bootstrap')
 
     if (await handOffWindowsBootstrapRecovery('bootstrap-needed')) {
-      const handoffError = new Error('Sonic recovery was handed off to Sonic Setup. The desktop will restart when recovery completes.')
+      const handoffError = new Error(
+        'Sonic recovery was handed off to Sonic Setup. The desktop will restart when recovery completes.'
+      )
       handoffError.isBootstrapFailure = true
       handoffError.bootstrapHandedOff = true
       bootstrapFailure = handoffError
@@ -2908,7 +3117,7 @@ async function ensureRuntime(backend) {
     )
   }
 
-  backend.command = venvPython
+  backend.command = getNoConsoleVenvPython(VENV_ROOT)
   backend.label = `Sonic at ${ACTIVE_SONIC_ROOT} (venv: ${VENV_ROOT})`
   updateBootProgress({
     phase: 'runtime.ready',
@@ -2917,9 +3126,8 @@ async function ensureRuntime(backend) {
     running: true,
     error: null
   })
-  return backend
+  return applyWindowsNoConsoleSpawnHints(backend)
 }
-
 
 function fetchJson(url, token, options = {}) {
   return new Promise((resolve, reject) => {
@@ -3579,11 +3787,7 @@ function getWindowButtonPosition() {
 }
 
 function getNativeOverlayWidth() {
-  // macOS reports traffic-light coords via windowButtonPosition; the
-  // titlebarOverlay there doesn't reserve right-edge space. Windows/Linux
-  // render the native window-controls overlay on the right, so the renderer
-  // needs to inset its right cluster by this much to clear them.
-  return IS_MAC ? 0 : NATIVE_OVERLAY_BUTTON_WIDTH
+  return computeNativeOverlayWidth({ isWindows: IS_WINDOWS, isWsl: IS_WSL })
 }
 
 function getWindowState() {
@@ -4831,6 +5035,7 @@ function resetBootProgressForReconnect() {
 
 function resetSonicConnection() {
   connectionPromise = null
+  backendStartFailure = null
 
   if (sonicProcess && !sonicProcess.killed) {
     sonicProcess.kill('SIGTERM')
@@ -4992,6 +5197,7 @@ async function spawnPoolBackend(profile, entry) {
   const backend = await ensureRuntime(resolveSonicBackend(dashboardArgs))
   const sonicCwd = resolveSonicCwd()
   const webDist = resolveWebDist()
+  const readyFile = backend.readyFile ? makeDashboardReadyFile() : null
 
   rememberLog(`Starting Sonic backend for profile "${profile}" via ${backend.label}`)
 
@@ -5012,7 +5218,8 @@ async function spawnPoolBackend(profile, entry) {
         // Marks this dashboard backend as desktop-spawned so it runs the cron
         // scheduler tick loop (the gateway isn't running under the app).
         SONIC_DESKTOP: '1',
-        SONIC_WEB_DIST: webDist
+        SONIC_WEB_DIST: webDist,
+        ...(readyFile ? { SONIC_DESKTOP_READY_FILE: readyFile } : {})
       },
       shell: backend.shell,
       stdio: ['ignore', 'pipe', 'pipe']
@@ -5045,7 +5252,10 @@ async function spawnPoolBackend(profile, entry) {
   })
 
   // Discover the ephemeral port the child bound to
-  const port = await Promise.race([waitForDashboardPort(child), startFailed])
+  const port = await Promise.race([waitForDashboardPortAnnouncement(child, { readyFile }), startFailed])
+  if (readyFile) {
+    fs.unlink(readyFile, () => {})
+  }
   entry.port = port
 
   const baseUrl = `http://127.0.0.1:${port}`
@@ -5158,6 +5368,9 @@ async function startSonic() {
   if (bootstrapFailure) {
     throw bootstrapFailure
   }
+  if (backendStartFailure) {
+    throw backendStartFailure
+  }
   if (connectionPromise) return connectionPromise
 
   connectionPromise = (async () => {
@@ -5211,6 +5424,7 @@ async function startSonic() {
     const backend = await ensureRuntime(resolveSonicBackend(dashboardArgs))
     const sonicCwd = resolveSonicCwd()
     const webDist = resolveWebDist()
+    const readyFile = backend.readyFile ? makeDashboardReadyFile() : null
 
     await advanceBootProgress('backend.spawn', `Starting Sonic backend via ${backend.label}`, 84)
     rememberLog(`Starting Sonic backend via ${backend.label}`)
@@ -5237,7 +5451,8 @@ async function startSonic() {
           // Marks this dashboard backend as desktop-spawned so it runs the cron
           // scheduler tick loop (the gateway isn't running under the app).
           SONIC_DESKTOP: '1',
-          SONIC_WEB_DIST: webDist
+          SONIC_WEB_DIST: webDist,
+          ...(readyFile ? { SONIC_DESKTOP_READY_FILE: readyFile } : {})
         },
         shell: backend.shell,
         stdio: ['ignore', 'pipe', 'pipe']
@@ -5293,12 +5508,19 @@ async function startSonic() {
 
     await advanceBootProgress('backend.port', 'Waiting for Sonic backend to launch', 86)
     // Discover the ephemeral port the child bound to
-    const port = await Promise.race([waitForDashboardPort(sonicProcess), backendStartFailed])
+    const port = await Promise.race([
+      waitForDashboardPortAnnouncement(sonicProcess, { readyFile }),
+      backendStartFailed
+    ])
+    if (readyFile) {
+      fs.unlink(readyFile, () => {})
+    }
 
     const baseUrl = `http://127.0.0.1:${port}`
     await advanceBootProgress('backend.wait', 'Waiting for Sonic backend to become ready', 90)
     await Promise.race([waitForSonic(baseUrl, token), backendStartFailed])
     backendReady = true
+    backendStartFailure = null
     const authToken = await adoptServedDashboardToken(baseUrl, token, {
       // The exit/error handlers null sonicProcess when the child dies.
       childAlive: () => sonicProcess !== null && sonicProcess.exitCode === null && !sonicProcess.killed,
@@ -5324,6 +5546,7 @@ async function startSonic() {
     }
   })().catch(error => {
     const message = error instanceof Error ? error.message : String(error)
+    backendStartFailure = error instanceof Error ? error : new Error(message)
     updateBootProgress(
       {
         error: message,
@@ -5623,7 +5846,7 @@ function createWindow() {
     if (!nativeThemeListenerInstalled) {
       nativeThemeListenerInstalled = true
       nativeTheme.on('updated', () => {
-        mainWindow?.setTitleBarOverlay?.(getTitleBarOverlayOptions())
+        applyTitleBarOverlay(mainWindow)
       })
     }
   }
@@ -5807,19 +6030,32 @@ ipcMain.handle('sonic:pet-overlay:close', async () => {
 
   return { ok: true }
 })
-// Drag: the overlay reports a new absolute screen position (it already knows the
-// pointer's screen coords), we just move the window.
+// Drag/resize: the overlay reports new absolute screen bounds (it already knows
+// the pointer's screen coords). Drag keeps the size constant; the wheel-to-scale
+// gesture grows/shrinks it so the sprite is never cropped by the window edge.
+// The window is created non-resizable (no stray edge-drag on the transparent
+// frameless panel), which on Windows/Linux also blocks programmatic setBounds
+// sizing — so briefly flip resizable on whenever the size actually changes.
 ipcMain.on('sonic:pet-overlay:set-bounds', (_event, bounds) => {
   if (!petOverlayWindow || petOverlayWindow.isDestroyed() || !bounds) {
     return
   }
 
-  petOverlayWindow.setBounds({
-    x: Math.round(bounds.x),
-    y: Math.round(bounds.y),
-    width: Math.max(80, Math.round(bounds.width)),
-    height: Math.max(80, Math.round(bounds.height))
-  })
+  const win = petOverlayWindow
+  const width = Math.max(80, Math.round(bounds.width))
+  const height = Math.max(80, Math.round(bounds.height))
+  const [curW, curH] = win.getSize()
+  const resizing = width !== curW || height !== curH
+
+  if (resizing && !win.isResizable()) {
+    win.setResizable(true)
+  }
+
+  win.setBounds({ x: Math.round(bounds.x), y: Math.round(bounds.y), width, height })
+
+  if (resizing) {
+    win.setResizable(false)
+  }
 })
 // Click-through: the overlay window is a full rectangle but only the pet pixels
 // should be interactive. The renderer toggles this as the cursor enters/leaves
@@ -5889,6 +6125,7 @@ ipcMain.handle('sonic:bootstrap:reset', async () => {
   rememberLog('[bootstrap] reset requested by renderer; clearing latched failure')
   await teardownPrimaryBackendAndWait()
   bootstrapFailure = null
+  backendStartFailure = null
   bootstrapState = {
     active: false,
     manifest: null,
@@ -5915,6 +6152,7 @@ ipcMain.handle('sonic:bootstrap:repair', async () => {
     rememberLog(`[bootstrap] failed to remove marker during repair: ${error.message}`)
   }
   bootstrapFailure = null
+  backendStartFailure = null
   resetSonicConnection()
   return { ok: true }
 })
@@ -6283,11 +6521,21 @@ ipcMain.handle('sonic:saveImageBuffer', async (_event, payload) => {
 
 ipcMain.handle('sonic:saveClipboardImage', async () => {
   const image = clipboard.readImage()
-  if (!image || image.isEmpty()) {
-    return ''
+  if (image && !image.isEmpty()) {
+    return writeComposerImage(image.toPNG(), '.png')
   }
 
-  return writeComposerImage(image.toPNG(), '.png')
+  // WSL2/WSLg doesn't bridge clipboard *images* from the Windows host to the
+  // Linux clipboard Electron reads, so a host screenshot looks empty above.
+  // Pull it straight off the Windows clipboard via PowerShell as a fallback.
+  if (IS_WSL) {
+    const png = readWslWindowsClipboardImage()
+    if (png) {
+      return writeComposerImage(png, '.png')
+    }
+  }
+
+  return ''
 })
 
 ipcMain.handle('sonic:normalizePreviewTarget', (_event, target, baseDir) =>
@@ -6307,7 +6555,7 @@ ipcMain.on('sonic:titlebar-theme', (_event, payload) => {
     background: payload.background,
     foreground: payload.foreground
   }
-  mainWindow?.setTitleBarOverlay?.(getTitleBarOverlayOptions())
+  applyTitleBarOverlay(mainWindow)
 })
 
 // Pin the native appearance to the app theme (see NATIVE_THEME_CONFIG_PATH).
@@ -6596,7 +6844,160 @@ ipcMain.handle('sonic:fs:readDir', async (_event, dirPath) => readDirForIpc(dirP
 
 ipcMain.handle('sonic:fs:gitRoot', async (_event, startPath) => gitRootForIpc(startPath))
 
-ipcMain.handle('sonic:fs:worktrees', async (_event, cwds) => worktreesForIpc(cwds))
+// Reveal a path in the OS file manager (Finder / Explorer / Files).
+ipcMain.handle('sonic:fs:reveal', async (_event, targetPath) => {
+  const target = String(targetPath || '').trim()
+
+  if (!target) {
+    return false
+  }
+
+  try {
+    shell.showItemInFolder(target)
+
+    return true
+  } catch {
+    return false
+  }
+})
+
+// Rename a file/folder in place. The renderer passes the existing path + a new
+// base name; the destination is resolved in the SAME parent dir so a rename can
+// never move the item elsewhere or traverse out. Rejects on a name collision.
+ipcMain.handle('sonic:fs:rename', async (_event, targetPath, newName) => {
+  const src = String(targetPath || '').trim()
+  const name = String(newName || '').trim()
+
+  if (!src || !name || name === '.' || name === '..' || name.includes('/') || name.includes('\\')) {
+    throw new Error('Invalid rename')
+  }
+
+  const dst = path.join(path.dirname(src), name)
+
+  if (dst === src) {
+    return { path: dst }
+  }
+
+  if (fs.existsSync(dst)) {
+    throw new Error(`"${name}" already exists`)
+  }
+
+  await fs.promises.rename(src, dst)
+
+  return { path: dst }
+})
+
+// Write a small UTF-8 text file (e.g. a project's IDEA.md at creation). The path
+// is hardened (resolveRequestedPathForIpc) and the parent must already exist —
+// this never creates directory trees or escapes the allowed roots, and content
+// is size-capped so it can't be abused as a bulk-write primitive.
+ipcMain.handle('sonic:fs:writeText', async (_event, filePath, content) => {
+  const raw = String(filePath || '').trim()
+
+  if (!raw) {
+    throw new Error('Invalid path')
+  }
+
+  const text = String(content ?? '')
+
+  if (text.length > 1_000_000) {
+    throw new Error('Content too large')
+  }
+
+  const resolved = resolveRequestedPathForIpc(expandUserPath(raw), { purpose: 'Write text file' })
+
+  if (!directoryExists(path.dirname(resolved))) {
+    throw new Error('Parent directory does not exist')
+  }
+
+  await fs.promises.writeFile(resolved, text, 'utf8')
+
+  return { path: resolved }
+})
+
+// Move a file/folder to the OS trash (recoverable) — the VS Code "Delete"
+// default. `shell.trashItem` routes to Finder/Explorer/Files trash per platform.
+ipcMain.handle('sonic:fs:trash', async (_event, targetPath) => {
+  const target = String(targetPath || '').trim()
+
+  if (!target) {
+    throw new Error('Invalid delete')
+  }
+
+  await shell.trashItem(target)
+
+  return true
+})
+
+// Git-driven worktree management ("Start work" flow). Errors surface to the
+// renderer as rejected promises so it can toast a friendly message.
+ipcMain.handle('sonic:git:worktreeList', async (_event, repoPath) => listWorktrees(repoPath, resolveGitBinary()))
+
+ipcMain.handle('sonic:git:worktreeAdd', async (_event, repoPath, options) =>
+  addWorktree(repoPath, options || {}, resolveGitBinary())
+)
+
+ipcMain.handle('sonic:git:worktreeRemove', async (_event, repoPath, worktreePath, options) =>
+  removeWorktree(repoPath, worktreePath, options || {}, resolveGitBinary())
+)
+
+ipcMain.handle('sonic:git:branchSwitch', async (_event, repoPath, branch) =>
+  switchBranch(repoPath, branch, resolveGitBinary())
+)
+
+ipcMain.handle('sonic:git:branchList', async (_event, repoPath) => listBranches(repoPath, resolveGitBinary()))
+
+// Compact repo status (branch, ahead/behind, change counts + files) for the
+// composer coding rail. Returns null on a non-repo / remote backend so the rail
+// hides cleanly rather than erroring.
+ipcMain.handle('sonic:git:repoStatus', async (_event, repoPath) => repoStatus(repoPath, resolveGitBinary()))
+
+// Codex-style review pane: list changed files for a scope, fetch one file's
+// unified diff, and stage / unstage / revert. Reads return empty on failure;
+// mutations reject so the renderer can toast.
+ipcMain.handle('sonic:git:review:list', async (_event, repoPath, scope, baseRef) =>
+  reviewList(repoPath, scope, baseRef, resolveGitBinary())
+)
+ipcMain.handle('sonic:git:review:diff', async (_event, repoPath, filePath, scope, baseRef, staged) =>
+  reviewDiff(repoPath, filePath, scope, baseRef, staged, resolveGitBinary())
+)
+// Working-tree-vs-HEAD diff for one file (the preview's "show the diff" view).
+ipcMain.handle('sonic:git:fileDiff', async (_event, repoPath, filePath) =>
+  fileDiffVsHead(repoPath, filePath, resolveGitBinary())
+)
+ipcMain.handle('sonic:git:review:stage', async (_event, repoPath, filePath) =>
+  reviewStage(repoPath, filePath ?? null, resolveGitBinary())
+)
+ipcMain.handle('sonic:git:review:unstage', async (_event, repoPath, filePath) =>
+  reviewUnstage(repoPath, filePath ?? null, resolveGitBinary())
+)
+ipcMain.handle('sonic:git:review:revert', async (_event, repoPath, filePath) =>
+  reviewRevert(repoPath, filePath ?? null, resolveGitBinary())
+)
+ipcMain.handle('sonic:git:review:revParse', async (_event, repoPath, ref) =>
+  reviewRevParse(repoPath, ref, resolveGitBinary())
+)
+ipcMain.handle('sonic:git:review:commit', async (_event, repoPath, message, push) =>
+  reviewCommit(repoPath, message, Boolean(push), resolveGitBinary())
+)
+ipcMain.handle('sonic:git:review:commitContext', async (_event, repoPath) =>
+  reviewCommitContext(repoPath, resolveGitBinary())
+)
+ipcMain.handle('sonic:git:review:push', async (_event, repoPath) => reviewPush(repoPath, resolveGitBinary()))
+ipcMain.handle('sonic:git:review:shipInfo', async (_event, repoPath) => reviewShipInfo(repoPath, resolveGhBinary()))
+ipcMain.handle('sonic:git:review:createPr', async (_event, repoPath) =>
+  reviewCreatePr(repoPath, resolveGitBinary(), resolveGhBinary())
+)
+
+// Repo-first project discovery: scan bounded roots for git repos (pure fs walk,
+// no native addon). Never throws to the renderer — failures yield an empty list.
+ipcMain.handle('sonic:git:scanRepos', async (_event, roots, options) => {
+  try {
+    return await scanGitRepos(roots || [], options || {})
+  } catch {
+    return []
+  }
+})
 
 ipcMain.handle('sonic:terminal:start', async (event, payload = {}) => {
   if (!nodePty) {

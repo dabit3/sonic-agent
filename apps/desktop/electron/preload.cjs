@@ -82,7 +82,35 @@ contextBridge.exposeInMainWorld('sonicDesktop', {
   getRecentLogs: () => ipcRenderer.invoke('sonic:logs:recent'),
   readDir: dirPath => ipcRenderer.invoke('sonic:fs:readDir', dirPath),
   gitRoot: startPath => ipcRenderer.invoke('sonic:fs:gitRoot', startPath),
-  worktrees: cwds => ipcRenderer.invoke('sonic:fs:worktrees', cwds),
+  revealPath: targetPath => ipcRenderer.invoke('sonic:fs:reveal', targetPath),
+  renamePath: (targetPath, newName) => ipcRenderer.invoke('sonic:fs:rename', targetPath, newName),
+  writeTextFile: (filePath, content) => ipcRenderer.invoke('sonic:fs:writeText', filePath, content),
+  trashPath: targetPath => ipcRenderer.invoke('sonic:fs:trash', targetPath),
+  git: {
+    worktreeList: repoPath => ipcRenderer.invoke('sonic:git:worktreeList', repoPath),
+    worktreeAdd: (repoPath, options) => ipcRenderer.invoke('sonic:git:worktreeAdd', repoPath, options),
+    worktreeRemove: (repoPath, worktreePath, options) =>
+      ipcRenderer.invoke('sonic:git:worktreeRemove', repoPath, worktreePath, options),
+    branchSwitch: (repoPath, branch) => ipcRenderer.invoke('sonic:git:branchSwitch', repoPath, branch),
+    branchList: repoPath => ipcRenderer.invoke('sonic:git:branchList', repoPath),
+    repoStatus: repoPath => ipcRenderer.invoke('sonic:git:repoStatus', repoPath),
+    fileDiff: (repoPath, filePath) => ipcRenderer.invoke('sonic:git:fileDiff', repoPath, filePath),
+    scanRepos: (roots, options) => ipcRenderer.invoke('sonic:git:scanRepos', roots, options),
+    review: {
+      list: (repoPath, scope, baseRef) => ipcRenderer.invoke('sonic:git:review:list', repoPath, scope, baseRef),
+      diff: (repoPath, filePath, scope, baseRef, staged) =>
+        ipcRenderer.invoke('sonic:git:review:diff', repoPath, filePath, scope, baseRef, staged),
+      stage: (repoPath, filePath) => ipcRenderer.invoke('sonic:git:review:stage', repoPath, filePath),
+      unstage: (repoPath, filePath) => ipcRenderer.invoke('sonic:git:review:unstage', repoPath, filePath),
+      revert: (repoPath, filePath) => ipcRenderer.invoke('sonic:git:review:revert', repoPath, filePath),
+      revParse: (repoPath, ref) => ipcRenderer.invoke('sonic:git:review:revParse', repoPath, ref),
+      commit: (repoPath, message, push) => ipcRenderer.invoke('sonic:git:review:commit', repoPath, message, push),
+      commitContext: repoPath => ipcRenderer.invoke('sonic:git:review:commitContext', repoPath),
+      push: repoPath => ipcRenderer.invoke('sonic:git:review:push', repoPath),
+      shipInfo: repoPath => ipcRenderer.invoke('sonic:git:review:shipInfo', repoPath),
+      createPr: repoPath => ipcRenderer.invoke('sonic:git:review:createPr', repoPath)
+    }
+  },
   terminal: {
     dispose: id => ipcRenderer.invoke('sonic:terminal:dispose', id),
     resize: (id, size) => ipcRenderer.invoke('sonic:terminal:resize', id, size),
