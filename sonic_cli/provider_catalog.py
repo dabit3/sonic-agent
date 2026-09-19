@@ -111,16 +111,27 @@ def provider_catalog() -> list[ProviderDescriptor]:
     except Exception:
         OPTIONAL_ENV_VARS = {}
 
+    # Sonic overlays carry auth_type for providers that have no registry/profile
+    # entry of their own — notably the ``moa`` virtual provider (auth_type
+    # "virtual"), which has no real credential and no network endpoint.
+    try:
+        from sonic_cli.providers import SONIC_OVERLAYS
+    except Exception:
+        SONIC_OVERLAYS = {}
+
     out: list[ProviderDescriptor] = []
     for order, entry in enumerate(CANONICAL_PROVIDERS):
         slug = entry.slug
         cfg = PROVIDER_REGISTRY.get(slug)
         prof = profiles.get(slug)
+        overlay = SONIC_OVERLAYS.get(slug)
 
-        # auth_type: registry is authoritative; fall back to profile, then api_key.
+        # auth_type: registry is authoritative; fall back to profile, then the
+        # Sonic overlay (e.g. moa → "virtual"), then api_key.
         auth_type = (
             (getattr(cfg, "auth_type", "") if cfg else "")
             or (getattr(prof, "auth_type", "") if prof else "")
+            or (getattr(overlay, "auth_type", "") if overlay else "")
             or "api_key"
         )
 

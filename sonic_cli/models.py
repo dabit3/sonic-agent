@@ -218,6 +218,7 @@ class _LazyProviderModels(dict):
 
 
 _PROVIDER_MODELS: dict[str, list[str]] = _LazyProviderModels({
+    "moa": ["default"],
     "nous": [
         # Anthropic
         "anthropic/claude-opus-4.8",
@@ -1059,6 +1060,7 @@ class ProviderEntry(NamedTuple):
 CANONICAL_PROVIDERS: list[ProviderEntry] = [
     ProviderEntry("nous",           "Nous Portal",              "Nous Portal (Everything your agent needs, 300+ models with bundled tool use)"),
     ProviderEntry("openrouter",     "OpenRouter",               "OpenRouter (Pay-per-use API aggregator)"),
+    ProviderEntry("moa",            "Mixture of Agents",        "Mixture of Agents (named presets; aggregator acts after reference models)"),
     ProviderEntry("novita",         "NovitaAI",                 "NovitaAI (Cloud: Model API, Agent Sandbox, GPU Cloud)"),
     ProviderEntry("lmstudio",       "LM Studio",                "LM Studio (Local desktop app with built-in model server)"),
     ProviderEntry("anthropic",      "Anthropic",                "Anthropic (Claude models via API key or Claude Code)"),
@@ -3745,6 +3747,24 @@ def validate_requested_model(
             "recognized": False,
             "message": "Model name cannot be empty.",
         }
+
+    if normalized == "moa":
+        try:
+            from sonic_cli.config import load_config
+            from sonic_cli.moa_config import normalize_moa_config
+
+            cfg = normalize_moa_config(load_config().get("moa") or {})
+            if requested in cfg["presets"]:
+                return {"accepted": True, "persist": True, "recognized": True, "message": None}
+            return {
+                "accepted": False, "persist": False, "recognized": False,
+                "message": f"MoA preset `{requested}` was not found. Run `sonic moa list`.",
+            }
+        except Exception as exc:
+            return {
+                "accepted": False, "persist": False, "recognized": False,
+                "message": f"Could not read MoA presets: {exc}",
+            }
 
     if any(ch.isspace() for ch in requested):
         return {
