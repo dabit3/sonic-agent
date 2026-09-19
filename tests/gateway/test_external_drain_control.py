@@ -2,12 +2,12 @@
 
 Task 2.2/2.3. Two layers:
   * drain_control.py — the presence-based marker contract (write/clear/read,
-    HERMES_HOME-scoped, never-raises).
+    SONIC_HOME-scoped, never-raises).
   * GatewayRunner enter/exit/watcher + the new-turn accept gate — the
     reversible state machine driven by the marker.
 
 Mocked tests are necessary-not-sufficient here (the HARD live-validation gate,
-Q-B, exercises a real `hermes gateway run`); these lock the unit contract.
+Q-B, exercises a real `sonic gateway run`); these lock the unit contract.
 """
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ from tests.gateway.restart_test_helpers import make_restart_runner, make_restart
 
 @pytest.fixture
 def home(tmp_path, monkeypatch):
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     return tmp_path
 
 
@@ -54,7 +54,7 @@ class TestMarkerContract:
         # idempotent: clearing again is a no-op, returns False
         assert dc.clear_drain_request() is False
 
-    def test_path_respects_hermes_home(self, home):
+    def test_path_respects_sonic_home(self, home):
         assert dc.drain_request_path() == home / ".drain_request.json"
 
     def test_corrupt_marker_reads_as_present_contentless(self, home):

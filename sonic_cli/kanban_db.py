@@ -88,7 +88,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable, Optional
 
-from hermes_cli.sqlite_util import add_column_if_missing as _add_column_if_missing
+from sonic_cli.sqlite_util import add_column_if_missing as _add_column_if_missing
 from toolsets import get_toolset_names
 
 _log = logging.getLogger(__name__)
@@ -1069,7 +1069,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     workspace_kind       TEXT NOT NULL DEFAULT 'scratch',
     workspace_path       TEXT,
     branch_name          TEXT,
-    -- Optional link to a first-class Project (hermes_cli/projects_db). When set,
+    -- Optional link to a first-class Project (sonic_cli/projects_db). When set,
     -- the task's worktree is anchored under the project's primary repo with a
     -- deterministic branch name instead of a random wt/<task-id> fallback.
     project_id           TEXT,
@@ -2384,7 +2384,7 @@ def create_task(
         project_id = str(project_id).strip() or None
     if project_id:
         try:
-            from hermes_cli import projects_db as _pdb
+            from sonic_cli import projects_db as _pdb
 
             with _pdb.connect_closing() as _pconn:
                 project_obj = _pdb.get_project(_pconn, project_id)

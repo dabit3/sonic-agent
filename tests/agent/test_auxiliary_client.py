@@ -2165,7 +2165,7 @@ class TestAuxiliaryFallbackLayering:
         )
 
     def test_fallback_entry_openai_codex_uses_oauth_pool_without_inline_key(self):
-        """Configured Codex fallback resolves through Hermes auth / credential pool."""
+        """Configured Codex fallback resolves through Sonic auth / credential pool."""
         from agent.auxiliary_client import _resolve_fallback_entry
 
         pool_entry = MagicMock()
@@ -4513,7 +4513,7 @@ class TestCompressionFallbackContextFilter:
             return {"tiny-16k": 16_384, "huge-1m": 1_048_576}.get(model, 256_000)
 
         monkeypatch.setattr(
-            "hermes_cli.fallback_config.get_fallback_chain",
+            "sonic_cli.fallback_config.get_fallback_chain",
             lambda cfg: chain,
         )
 

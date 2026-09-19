@@ -707,7 +707,7 @@ def test_load_enabled_toolsets_folds_project_into_focus_posture(monkeypatch):
     # Focus-mode coding posture returns before the config fallback, but it's
     # still a GUI-only resolver — `project` must come along so the desktop keeps
     # the project tools while sitting in a repo.
-    monkeypatch.delenv("HERMES_TUI_TOOLSETS", raising=False)
+    monkeypatch.delenv("SONIC_TUI_TOOLSETS", raising=False)
 
     import agent.coding_context as cc
 
@@ -8321,7 +8321,7 @@ class TestResolveRuntimeWithFallback:
         """When primary resolve succeeds, return its result directly."""
         expected = {"provider": "openai", "api_key": "tok"}
         monkeypatch.setattr(
-            "hermes_cli.runtime_provider.resolve_runtime_provider",
+            "sonic_cli.runtime_provider.resolve_runtime_provider",
             lambda **kw: expected,
         )
         result = server._resolve_runtime_with_fallback({"requested": "openai"})
@@ -8329,7 +8329,7 @@ class TestResolveRuntimeWithFallback:
 
     def test_auth_error_tries_fallback_chain(self, monkeypatch):
         """On AuthError from primary, walk fallback_providers chain."""
-        from hermes_cli.auth import AuthError
+        from sonic_cli.auth import AuthError
 
         fallback_runtime = {"provider": "deepseek", "api_key": "fb-tok"}
 
@@ -8339,7 +8339,7 @@ class TestResolveRuntimeWithFallback:
             return fallback_runtime
 
         monkeypatch.setattr(
-            "hermes_cli.runtime_provider.resolve_runtime_provider",
+            "sonic_cli.runtime_provider.resolve_runtime_provider",
             fake_resolve,
         )
         monkeypatch.setattr(
@@ -8354,13 +8354,13 @@ class TestResolveRuntimeWithFallback:
 
     def test_auth_error_all_fallbacks_fail_raises(self, monkeypatch):
         """When all fallbacks also fail, re-raise the original AuthError."""
-        from hermes_cli.auth import AuthError
+        from sonic_cli.auth import AuthError
 
         def fake_resolve(**kwargs):
             raise AuthError("No credentials for " + str(kwargs.get("requested")))
 
         monkeypatch.setattr(
-            "hermes_cli.runtime_provider.resolve_runtime_provider",
+            "sonic_cli.runtime_provider.resolve_runtime_provider",
             fake_resolve,
         )
         monkeypatch.setattr(
@@ -8377,7 +8377,7 @@ class TestResolveRuntimeWithFallback:
 
     def test_auth_error_skips_non_dict_entries(self, monkeypatch):
         """Fallback chain entries that are not dicts are skipped."""
-        from hermes_cli.auth import AuthError
+        from sonic_cli.auth import AuthError
 
         fallback_runtime = {"provider": "anthropic", "api_key": "ant-tok"}
 
@@ -8387,7 +8387,7 @@ class TestResolveRuntimeWithFallback:
             return fallback_runtime
 
         monkeypatch.setattr(
-            "hermes_cli.runtime_provider.resolve_runtime_provider",
+            "sonic_cli.runtime_provider.resolve_runtime_provider",
             fake_resolve,
         )
         monkeypatch.setattr(
@@ -8408,7 +8408,7 @@ class TestResolveRuntimeWithFallback:
         provider when the primary provider raises AuthError."""
         import types
 
-        from hermes_cli.auth import AuthError
+        from sonic_cli.auth import AuthError
 
         captured = {}
         fallback_runtime = {"provider": "deepseek", "api_key": "fb-tok"}
@@ -8422,9 +8422,9 @@ class TestResolveRuntimeWithFallback:
             captured.update(kwargs)
             return types.SimpleNamespace(model=kwargs.get("model"))
 
-        monkeypatch.delenv("HERMES_MODEL", raising=False)
-        monkeypatch.delenv("HERMES_INFERENCE_MODEL", raising=False)
-        monkeypatch.delenv("HERMES_TUI_PROVIDER", raising=False)
+        monkeypatch.delenv("SONIC_MODEL", raising=False)
+        monkeypatch.delenv("SONIC_INFERENCE_MODEL", raising=False)
+        monkeypatch.delenv("SONIC_TUI_PROVIDER", raising=False)
         monkeypatch.setattr(
             server,
             "_load_cfg",
@@ -8436,7 +8436,7 @@ class TestResolveRuntimeWithFallback:
             },
         )
         monkeypatch.setattr(
-            "hermes_cli.runtime_provider.resolve_runtime_provider",
+            "sonic_cli.runtime_provider.resolve_runtime_provider",
             fake_resolve,
         )
         monkeypatch.setattr("run_agent.AIAgent", fake_agent)

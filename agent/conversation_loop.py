@@ -527,7 +527,7 @@ def run_conversation(
     """
     if moa_config is None:
         try:
-            from hermes_cli.moa_config import decode_moa_turn
+            from sonic_cli.moa_config import decode_moa_turn
 
             _decoded_message, _decoded_moa_config = decode_moa_turn(user_message)
             if _decoded_moa_config is not None:
@@ -3605,8 +3605,8 @@ def run_conversation(
                         agent._vprint(
                             f"{agent.log_prefix}      1. Set "
                             f"`providers.{_provider}.models.{_model}.stale_timeout_seconds: 900` "
-                            f"in `~/.hermes/config.yaml` to extend the per-call "
-                            f"timeout. (Hermes's built-in floor is 600s for "
+                            f"in `~/.sonic/config.yaml` to extend the per-call "
+                            f"timeout. (Sonic's built-in floor is 600s for "
                             f"known reasoning models — if you still see this "
                             f"after raising, the upstream cap is even shorter.)",
                             force=True,

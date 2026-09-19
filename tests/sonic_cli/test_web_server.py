@@ -446,7 +446,7 @@ class TestWebServerEndpoints:
         assert set(data["aggregator"]) == {"provider", "model"}
 
     def test_put_moa_models_persists_provider_model_slots(self):
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
 
         payload = {
             "reference_models": [

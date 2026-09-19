@@ -347,7 +347,7 @@ export function useComposerActions({ activeSessionId, currentCwd, requestGateway
       attachToMain(baseAttachment)
 
       try {
-        const previewUrl = await window.hermesDesktop?.readFileDataUrl(filePath)
+        const previewUrl = await window.sonicDesktop?.readFileDataUrl(filePath)
 
         if (previewUrl) {
           addComposerAttachment({ ...baseAttachment, previewUrl })

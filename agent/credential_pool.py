@@ -465,7 +465,7 @@ def _write_through_provider_state_to_global_root(
     the profile store (the caller already saved that). Swallows all errors — a
     failed write-through degrades to the pre-existing behavior (root stale), it
     must never break the profile's own successful save. Mirrors
-    ``hermes_cli.auth._write_through_xai_oauth_to_global_root`` (which covers
+    ``sonic_cli.auth._write_through_xai_oauth_to_global_root`` (which covers
     the non-pool xAI refresh path) for the credential-pool refresh path.
     """
     try:
@@ -476,13 +476,13 @@ def _write_through_provider_state_to_global_root(
         # Classic mode (profile == root); the profile save already hit root.
         return
     # Seat belt: under pytest, refuse to write the real user's
-    # ~/.hermes/auth.json even when HERMES_HOME points at a profile path
+    # ~/.sonic/auth.json even when SONIC_HOME points at a profile path
     # (mirrors the read-side guard in _load_global_auth_store). Uses the
     # unmodified HOME env, not Path.home() which fixtures may monkeypatch.
     if os.environ.get("PYTEST_CURRENT_TEST"):
         real_home_env = os.environ.get("HOME", "")
         if real_home_env:
-            real_root = Path(real_home_env) / ".hermes" / "auth.json"
+            real_root = Path(real_home_env) / ".sonic" / "auth.json"
             try:
                 if global_path.resolve(strict=False) == real_root.resolve(strict=False):
                     return
@@ -867,7 +867,7 @@ class CredentialPool:
                 # profile reading the stale root grant dies with
                 # refresh_token_reused / invalid_grant once its access token
                 # expires. This mirrors the xAI write-through in
-                # hermes_cli.auth._save_xai_oauth_tokens (#43589); the pool
+                # sonic_cli.auth._save_xai_oauth_tokens (#43589); the pool
                 # refresh path is the Codex/xAI analog reported in #48415.
                 _wt_provider_id = {
                     "nous": "nous",

@@ -174,17 +174,17 @@ def test_skill_config_raw_cache_invalidates_on_config_edit(tmp_path, monkeypatch
 def test_is_external_skill_path_matches_configured_external_dir(tmp_path, monkeypatch):
     from agent import skill_utils
 
-    hermes_home = tmp_path / ".hermes"
-    local_skills = hermes_home / "skills"
+    sonic_home = tmp_path / ".sonic"
+    local_skills = sonic_home / "skills"
     external = tmp_path / "external-skills"
     local_skills.mkdir(parents=True)
     external.mkdir()
-    (hermes_home / "config.yaml").write_text(
+    (sonic_home / "config.yaml").write_text(
         f"skills:\n  external_dirs:\n    - {external}\n",
         encoding="utf-8",
     )
 
-    monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
     skill_utils._external_dirs_cache_clear()
 
     assert is_external_skill_path(external / "team-skill" / "SKILL.md") is True

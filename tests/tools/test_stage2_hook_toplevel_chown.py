@@ -56,7 +56,7 @@ def _toplevel_chown_loop(text: str) -> str:
 
 def _path_guard_functions(text: str) -> str:
     start = text.index("path_has_symlink_component() {")
-    end = text.index("\n\nchown_hermes_tree() {", start)
+    end = text.index("\n\nchown_sonic_tree() {", start)
     return text[start:end]
 
 
@@ -154,7 +154,7 @@ def test_loop_skips_symlinked_allowlisted_file(stage2_text: str, tmp_path: Path)
     log = tmp_path / "chown.log"
     script = (
         "set -e\n"
-        f'HERMES_HOME="{home}"\n'
+        f'SONIC_HOME="{home}"\n'
         f"{_path_guard_functions(stage2_text)}\n"
         f'chown() {{ for a in "$@"; do :; done; echo "${{a##*/}}" >> "{log}"; }}\n'
         + block
@@ -172,7 +172,7 @@ def test_loop_skips_allowlisted_file_under_symlinked_home(
     stage2_text: str,
     tmp_path: Path,
 ) -> None:
-    """A symlinked $HERMES_HOME must not let file chown reach its target."""
+    """A symlinked $SONIC_HOME must not let file chown reach its target."""
     bash = shutil.which("bash")
     if bash is None:
         pytest.skip("bash not available")
@@ -190,7 +190,7 @@ def test_loop_skips_allowlisted_file_under_symlinked_home(
     log = tmp_path / "chown.log"
     script = (
         "set -e\n"
-        f'HERMES_HOME="{linked_home}"\n'
+        f'SONIC_HOME="{linked_home}"\n'
         f"{_path_guard_functions(stage2_text)}\n"
         f'chown() {{ for a in "$@"; do :; done; echo "${{a##*/}}" >> "{log}"; }}\n'
         + block
@@ -200,7 +200,7 @@ def test_loop_skips_allowlisted_file_under_symlinked_home(
 
     proc = subprocess.run([bash, str(script_path)], capture_output=True, text=True)
     assert proc.returncode == 0, proc.stderr
-    assert not log.exists(), "must not chown files through symlinked HERMES_HOME"
+    assert not log.exists(), "must not chown files through symlinked SONIC_HOME"
     assert "refusing chown through symlinked path" in proc.stdout
 
 

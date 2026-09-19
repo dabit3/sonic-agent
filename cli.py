@@ -8417,7 +8417,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
         elif canonical == "goal":
             self._handle_goal_command(cmd_original)
         elif canonical == "moa":
-            from hermes_cli.moa_config import (
+            from sonic_cli.moa_config import (
                 exact_moa_preset_name,
                 moa_usage,
                 normalize_moa_config,

@@ -328,7 +328,7 @@ def _make_sonic_provider_class() -> Optional[type]:
             registration. This addresses the recurring manual-reset ritual in
             GH#36767 for the auto-detectable subset (token-endpoint rejection);
             the browser-side "Redirect URI Mismatch" case has no HTTP signal
-            and is handled by ``hermes mcp reauth``.
+            and is handled by ``sonic mcp reauth``.
 
             Conservative by construction — acts ONLY when all hold:
               * status is 400/401,
@@ -345,10 +345,10 @@ def _make_sonic_provider_class() -> Optional[type]:
             preemptive refresh — but only when ``token_endpoint`` was
             discovered (``_initialize`` prefetches it on cold-load). If that
             discovery was skipped, the guard returns early and the user falls
-            back to ``hermes mcp reauth``.
+            back to ``sonic mcp reauth``.
             """
             try:
-                if self._hermes_preregistered:
+                if self._sonic_preregistered:
                     return
                 status = getattr(response, "status_code", None)
                 if status not in (400, 401):
@@ -373,8 +373,8 @@ def _make_sonic_provider_class() -> Optional[type]:
                     return
 
                 storage = self.context.storage
-                from tools.mcp_oauth import HermesTokenStorage
-                if isinstance(storage, HermesTokenStorage):
+                from tools.mcp_oauth import SonicTokenStorage
+                if isinstance(storage, SonicTokenStorage):
                     storage.poison_client_registration()
                 # Drop the in-memory client so the SDK re-registers next flow.
                 self.context.client_info = None
@@ -382,7 +382,7 @@ def _make_sonic_provider_class() -> Optional[type]:
             except Exception as exc:  # pragma: no cover — defensive, must not throw
                 logger.debug(
                     "MCP OAuth '%s': invalid_client detection failed (non-fatal): %s",
-                    self._hermes_server_name, exc,
+                    self._sonic_server_name, exc,
                 )
 
         async def async_auth_flow(self, request):  # type: ignore[override]

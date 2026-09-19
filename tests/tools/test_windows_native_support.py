@@ -941,7 +941,7 @@ class TestGatewayDetachedWatcherWindowsFlags:
 
         Static check — the watcher source is built at import time and embedded
         verbatim in the module text.  The literal Win32 bits live in
-        hermes_cli._subprocess_compat; the watcher must call that helper from
+        sonic_cli._subprocess_compat; the watcher must call that helper from
         inside the inlined payload so runtime behavior keeps the breakaway bit.
 
         The bit was added to the inlined payload by PR #40909.  This test
@@ -955,7 +955,7 @@ class TestGatewayDetachedWatcherWindowsFlags:
         end = text.find(").strip()", idx)
         assert end != -1, "watcher block end not found"
         block = text[idx:end]
-        assert "from hermes_cli._subprocess_compat import" in block
+        assert "from sonic_cli._subprocess_compat import" in block
         assert "windows_detach_flags" in block
         assert "windows_detach_flags()" in block, (
             "Inlined respawn watcher must call windows_detach_flags() for the "

@@ -3710,7 +3710,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
     def _log_scale_to_zero_not_armed_reason(self) -> None:
         """Log why the idle watcher did NOT arm — but only for an OPTED-IN instance.
 
-        A non-opted instance (no HERMES_SCALE_TO_ZERO stamp) not arming is the normal
+        A non-opted instance (no SONIC_SCALE_TO_ZERO stamp) not arming is the normal
         case and must stay silent. When the Labs stamp IS set but the watcher still
         didn't arm, that's the surprising case worth one INFO line so "why won't it
         suspend/wake?" is a log grep, not a box-dive.
@@ -5312,7 +5312,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             watcher = textwrap.dedent(
                 """
                 import os, subprocess, sys, time
-                from hermes_cli._subprocess_compat import windows_detach_flags_without_breakaway
+                from sonic_cli._subprocess_compat import windows_detach_flags_without_breakaway
                 pid = int(sys.argv[1])
                 cmd = sys.argv[2:]
                 deadline = time.monotonic() + 120
@@ -8732,13 +8732,13 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             return await self._handle_goal_command(event)
 
         if canonical == "moa":
-            from hermes_cli.moa_config import (
+            from sonic_cli.moa_config import (
                 exact_moa_preset_name,
                 moa_usage,
                 normalize_moa_config,
                 resolve_moa_preset,
             )
-            from hermes_cli.config import load_config
+            from sonic_cli.config import load_config
 
             moa_payload = event.get_command_args().strip()
             try:

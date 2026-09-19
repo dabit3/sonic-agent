@@ -211,8 +211,8 @@ def _write_moa_config(home, text):
     cfg_path.write_text(text)
 
 
-def test_moa_bare_switches_to_default_preset_model(server, session, hermes_home):
-    _write_moa_config(hermes_home, """
+def test_moa_bare_switches_to_default_preset_model(server, session, sonic_home):
+    _write_moa_config(sonic_home, """
 moa:
   default_preset: default
   presets:
@@ -232,8 +232,8 @@ moa:
     assert s["model_override"]["model"] == "default"
 
 
-def test_moa_exact_preset_switches_to_named_preset_model(server, session, hermes_home):
-    _write_moa_config(hermes_home, """
+def test_moa_exact_preset_switches_to_named_preset_model(server, session, sonic_home):
+    _write_moa_config(sonic_home, """
 moa:
   default_preset: default
   presets:
@@ -253,8 +253,8 @@ moa:
     assert s["model_override"]["model"] == "review"
 
 
-def test_moa_non_preset_returns_one_shot_send(server, session, hermes_home):
-    _write_moa_config(hermes_home, """
+def test_moa_non_preset_returns_one_shot_send(server, session, sonic_home):
+    _write_moa_config(sonic_home, """
 moa:
   default_preset: default
   presets:

@@ -1617,11 +1617,11 @@ def _get_platform_tools(
         enabled_toolsets -= disabled_set
 
     # #38798: if this platform was explicitly configured but every toolset name
-    # is invalid (e.g. a migration or hand-edit left `hermes` instead of
-    # `hermes-cli`), resolve_toolset() returns [] for each and the platform ends
+    # is invalid (e.g. a migration or hand-edit left `sonic` instead of
+    # `sonic-cli`), resolve_toolset() returns [] for each and the platform ends
     # up with no native tools — silently, with no error. Surface it at the point
     # tools are resolved for a session so an already-corrupted config is caught
-    # at runtime, not only during the next `hermes update`/`hermes doctor`.
+    # at runtime, not only during the next `sonic update`/`sonic doctor`.
     _explicit = platform_toolsets.get(platform)
     if isinstance(_explicit, list) and _explicit:
         from toolsets import validate_toolset
@@ -1635,7 +1635,7 @@ def _get_platform_tools(
             _warned_invalid_platform_toolsets.add(platform)
             logger.warning(
                 "platform '%s' has no valid toolsets configured (unknown "
-                "name(s): %s) - tools will be unavailable. Run `hermes tools` "
+                "name(s): %s) - tools will be unavailable. Run `sonic tools` "
                 "to reconfigure. See issue #38798.",
                 platform,
                 ", ".join(_named),

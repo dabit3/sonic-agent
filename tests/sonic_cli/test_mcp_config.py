@@ -773,10 +773,10 @@ class TestMcpReauth:
         })
         visited = []
         monkeypatch.setattr(
-            "hermes_cli.mcp_config._reauth_oauth_server",
+            "sonic_cli.mcp_config._reauth_oauth_server",
             lambda name, cfg: visited.append(name) or True,
         )
-        from hermes_cli.mcp_config import cmd_mcp_reauth
+        from sonic_cli.mcp_config import cmd_mcp_reauth
 
         cmd_mcp_reauth(_make_args(name=None, all=True))
         out = capsys.readouterr().out
@@ -791,10 +791,10 @@ class TestMcpReauth:
             "b": {"url": "https://b.example.com/mcp", "auth": "oauth"},
         })
         monkeypatch.setattr(
-            "hermes_cli.mcp_config._reauth_oauth_server",
+            "sonic_cli.mcp_config._reauth_oauth_server",
             lambda name, cfg: name == "a",  # only 'a' succeeds
         )
-        from hermes_cli.mcp_config import cmd_mcp_reauth
+        from sonic_cli.mcp_config import cmd_mcp_reauth
 
         cmd_mcp_reauth(_make_args(name=None, all=True))
         out = capsys.readouterr().out
@@ -805,10 +805,10 @@ class TestMcpReauth:
         _seed_config(tmp_path, {"localstdio": {"command": "foo"}})
         called = []
         monkeypatch.setattr(
-            "hermes_cli.mcp_config._reauth_oauth_server",
+            "sonic_cli.mcp_config._reauth_oauth_server",
             lambda name, cfg: called.append(name) or True,
         )
-        from hermes_cli.mcp_config import cmd_mcp_reauth
+        from sonic_cli.mcp_config import cmd_mcp_reauth
 
         cmd_mcp_reauth(_make_args(name=None, all=True))
         out = capsys.readouterr().out
@@ -822,10 +822,10 @@ class TestMcpReauth:
         })
         visited = []
         monkeypatch.setattr(
-            "hermes_cli.mcp_config._reauth_oauth_server",
+            "sonic_cli.mcp_config._reauth_oauth_server",
             lambda name, cfg: visited.append(name) or True,
         )
-        from hermes_cli.mcp_config import cmd_mcp_reauth
+        from sonic_cli.mcp_config import cmd_mcp_reauth
 
         cmd_mcp_reauth(_make_args(name="gh", all=False))
         assert visited == ["gh"]
@@ -834,7 +834,7 @@ class TestMcpReauth:
         _seed_config(tmp_path, {
             "gh": {"url": "https://gh.example.com/mcp", "auth": "oauth"},
         })
-        from hermes_cli.mcp_config import cmd_mcp_reauth
+        from sonic_cli.mcp_config import cmd_mcp_reauth
 
         cmd_mcp_reauth(_make_args(name=None, all=False))
         out = capsys.readouterr().out
@@ -844,7 +844,7 @@ class TestMcpReauth:
         _seed_config(tmp_path, {
             "gh": {"url": "https://gh.example.com/mcp", "auth": "oauth"},
         })
-        from hermes_cli.mcp_config import cmd_mcp_reauth
+        from sonic_cli.mcp_config import cmd_mcp_reauth
 
         cmd_mcp_reauth(_make_args(name="ghost", all=False))
         out = capsys.readouterr().out

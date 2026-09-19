@@ -34,7 +34,7 @@ import time
 import urllib.error
 import urllib.parse
 
-from hermes_cli._subprocess_compat import windows_detach_flags, windows_hide_flags
+from sonic_cli._subprocess_compat import windows_detach_flags, windows_hide_flags
 import urllib.request
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -522,7 +522,7 @@ async def _token_auth_seam(request: Request, call_next):
     cookie/session gates skip enforcement. Non-token routes pass straight
     through untouched.
     """
-    from hermes_cli.dashboard_auth.token_auth import token_auth_middleware
+    from sonic_cli.dashboard_auth.token_auth import token_auth_middleware
     return await token_auth_middleware(request, call_next)
 
 
@@ -1834,7 +1834,7 @@ class FsWriteText(BaseModel):
 async def fs_write_text(payload: FsWriteText):
     """Overwrite (or create) a UTF-8 text file for the in-app spot editor.
 
-    Mirrors the local Electron ``hermes:fs:writeText`` hardening: the path is
+    Mirrors the local Electron ``sonic:fs:writeText`` hardening: the path is
     resolved + validated by ``_fs_path``, the parent directory must already
     exist (we never build directory trees), only regular files may be replaced,
     and the payload is size-capped. The write is staged to a sibling temp file
@@ -1863,7 +1863,7 @@ async def fs_write_text(payload: FsWriteText):
     if not target.parent.is_dir():
         raise HTTPException(status_code=400, detail="Parent directory does not exist")
 
-    tmp = target.with_name(f".{target.name}.hermes-tmp-{os.getpid()}")
+    tmp = target.with_name(f".{target.name}.sonic-tmp-{os.getpid()}")
     try:
         tmp.write_text(text, encoding="utf-8")
         os.replace(tmp, target)
@@ -3988,7 +3988,7 @@ def get_auxiliary_models(profile: Optional[str] = None):
 def get_moa_models(profile: Optional[str] = None):
     """Return the configured Mixture-of-Agents provider/model slots."""
     try:
-        from hermes_cli.moa_config import normalize_moa_config
+        from sonic_cli.moa_config import normalize_moa_config
 
         with _profile_scope(profile):
             cfg = load_config()
@@ -4004,7 +4004,7 @@ def get_moa_models(profile: Optional[str] = None):
 def set_moa_models(body: MoaConfigPayload, profile: Optional[str] = None):
     """Persist the Mixture-of-Agents provider/model slots."""
     try:
-        from hermes_cli.moa_config import normalize_moa_config
+        from sonic_cli.moa_config import normalize_moa_config
 
         with _profile_scope(body.profile or profile):
             cfg = load_config()
@@ -11576,7 +11576,7 @@ def _resolve_chat_argv(
     dashboard's ``/api/pub`` endpoint (see :func:`pub_ws`).
 
     `active_session_file` (when set) is forwarded as
-    ``HERMES_TUI_ACTIVE_SESSION_FILE``. The TUI writes the current session id
+    ``SONIC_TUI_ACTIVE_SESSION_FILE``. The TUI writes the current session id
     there whenever it creates/resumes/switches sessions, giving the dashboard a
     small cross-process breadcrumb for reconnecting after an unexpected browser
     WebSocket close.
@@ -11629,7 +11629,7 @@ def _resolve_chat_argv(
         env["SONIC_TUI_SIDECAR_URL"] = sidecar_url
 
     if active_session_file:
-        env["HERMES_TUI_ACTIVE_SESSION_FILE"] = active_session_file
+        env["SONIC_TUI_ACTIVE_SESSION_FILE"] = active_session_file
 
     # Profile-scoped chats must NOT attach to the dashboard's in-memory
     # gateway — it runs under the dashboard's own profile. Without the
@@ -11771,7 +11771,7 @@ def _active_session_file_for_channel(app: "FastAPI", channel: str) -> Path:
     if existing is not None:
         return existing
 
-    fd, raw_path = tempfile.mkstemp(prefix="hermes-pty-active-", suffix=".json")
+    fd, raw_path = tempfile.mkstemp(prefix="sonic-pty-active-", suffix=".json")
     os.close(fd)
     path = Path(raw_path)
     files[channel] = path
@@ -13186,10 +13186,10 @@ def _write_dashboard_ready_file(actual_port: int) -> None:
 
     Windows Desktop can launch dashboard backends with ``pythonw.exe`` to avoid
     console flashes. That path cannot rely on stdout for the port announcement,
-    so Electron passes ``HERMES_DESKTOP_READY_FILE`` and waits for this JSON.
+    so Electron passes ``SONIC_DESKTOP_READY_FILE`` and waits for this JSON.
     Normal CLI/dashboard launches still use the stdout READY line below.
     """
-    target = os.environ.get("HERMES_DESKTOP_READY_FILE")
+    target = os.environ.get("SONIC_DESKTOP_READY_FILE")
     if not target:
         return
 

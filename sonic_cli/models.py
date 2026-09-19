@@ -3750,15 +3750,15 @@ def validate_requested_model(
 
     if normalized == "moa":
         try:
-            from hermes_cli.config import load_config
-            from hermes_cli.moa_config import normalize_moa_config
+            from sonic_cli.config import load_config
+            from sonic_cli.moa_config import normalize_moa_config
 
             cfg = normalize_moa_config(load_config().get("moa") or {})
             if requested in cfg["presets"]:
                 return {"accepted": True, "persist": True, "recognized": True, "message": None}
             return {
                 "accepted": False, "persist": False, "recognized": False,
-                "message": f"MoA preset `{requested}` was not found. Run `hermes moa list`.",
+                "message": f"MoA preset `{requested}` was not found. Run `sonic moa list`.",
             }
         except Exception as exc:
             return {

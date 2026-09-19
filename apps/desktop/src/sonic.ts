@@ -752,14 +752,14 @@ export function getAuxiliaryModels(): Promise<AuxiliaryModelsResponse> {
 }
 
 export function getMoaModels(): Promise<MoaConfigResponse> {
-  return window.hermesDesktop.api<MoaConfigResponse>({
+  return window.sonicDesktop.api<MoaConfigResponse>({
     ...profileScoped(),
     path: '/api/model/moa'
   })
 }
 
 export function saveMoaModels(body: MoaConfigResponse): Promise<MoaConfigResponse & { ok: boolean }> {
-  return window.hermesDesktop.api<MoaConfigResponse & { ok: boolean }>({
+  return window.sonicDesktop.api<MoaConfigResponse & { ok: boolean }>({
     ...profileScoped(),
     path: '/api/model/moa',
     method: 'PUT',

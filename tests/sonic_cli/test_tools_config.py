@@ -61,29 +61,29 @@ def test_agent_disabled_toolsets_with_explicit_platform_config():
 
 def test_all_invalid_platform_toolsets_logs_runtime_warning(caplog):
     """#38798: an explicit platform config whose toolset names are all invalid
-    (e.g. 'hermes' instead of 'hermes-cli') must warn at resolve time so an
+    (e.g. 'sonic' instead of 'sonic-cli') must warn at resolve time so an
     already-corrupted config is caught at runtime, not just during migration."""
-    import hermes_cli.tools_config as _tc
+    import sonic_cli.tools_config as _tc
     # The runtime warning fires once per platform per process; clear the guard
     # so this test is deterministic regardless of prior resolutions.
     _tc._warned_invalid_platform_toolsets.discard("cli")
-    config = {"platform_toolsets": {"cli": ["hermes"]}}
+    config = {"platform_toolsets": {"cli": ["sonic"]}}
 
-    with caplog.at_level(logging.WARNING, logger="hermes_cli.tools_config"):
+    with caplog.at_level(logging.WARNING, logger="sonic_cli.tools_config"):
         _get_platform_tools(config, "cli")
 
     warnings = [r.getMessage() for r in caplog.records if r.levelno >= logging.WARNING]
-    assert any("#38798" in m and "hermes" in m for m in warnings), warnings
+    assert any("#38798" in m and "sonic" in m for m in warnings), warnings
 
 
 def test_invalid_platform_toolsets_runtime_warning_fires_once(caplog):
     """The runtime warning is deduped per platform — a persistently-corrupt
     config must not spam an identical warning on every tool resolution."""
-    import hermes_cli.tools_config as _tc
+    import sonic_cli.tools_config as _tc
     _tc._warned_invalid_platform_toolsets.discard("cli")
-    config = {"platform_toolsets": {"cli": ["hermes"]}}
+    config = {"platform_toolsets": {"cli": ["sonic"]}}
 
-    with caplog.at_level(logging.WARNING, logger="hermes_cli.tools_config"):
+    with caplog.at_level(logging.WARNING, logger="sonic_cli.tools_config"):
         _get_platform_tools(config, "cli")
         _get_platform_tools(config, "cli")
         _get_platform_tools(config, "cli")
@@ -94,9 +94,9 @@ def test_invalid_platform_toolsets_runtime_warning_fires_once(caplog):
 
 def test_valid_platform_toolsets_no_runtime_warning(caplog):
     """A correctly-configured platform must not emit the #38798 warning."""
-    config = {"platform_toolsets": {"cli": ["hermes-cli"]}}
+    config = {"platform_toolsets": {"cli": ["sonic-cli"]}}
 
-    with caplog.at_level(logging.WARNING, logger="hermes_cli.tools_config"):
+    with caplog.at_level(logging.WARNING, logger="sonic_cli.tools_config"):
         _get_platform_tools(config, "cli")
 
     assert not any("#38798" in r.getMessage() for r in caplog.records)
@@ -106,9 +106,9 @@ def test_partially_valid_platform_toolsets_no_runtime_warning(caplog):
     """When at least one configured toolset is valid, tools still resolve, so
     the runtime zero-tools warning must not fire (the migration-time check still
     flags the individual bad name)."""
-    config = {"platform_toolsets": {"cli": ["hermes-cli", "bogus"]}}
+    config = {"platform_toolsets": {"cli": ["sonic-cli", "bogus"]}}
 
-    with caplog.at_level(logging.WARNING, logger="hermes_cli.tools_config"):
+    with caplog.at_level(logging.WARNING, logger="sonic_cli.tools_config"):
         _get_platform_tools(config, "cli")
 
     assert not any("#38798" in r.getMessage() for r in caplog.records)

@@ -15,7 +15,7 @@ share one definition and can never disagree.
 
 Contract (presence-based, mirroring ``.restart_notify.json``):
 
-  * begin-drain  → write ``{HERMES_HOME}/.drain_request.json`` with
+  * begin-drain  → write ``{SONIC_HOME}/.drain_request.json`` with
     ``{"action": "drain", "requested_at": <iso>, "principal": <str>}``.
   * cancel-drain → remove the marker.
   * The gateway watcher treats **presence** of the marker as "external drain
@@ -34,7 +34,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
-from hermes_constants import get_hermes_home
+from sonic_constants import get_sonic_home
 from utils import atomic_json_write
 
 _log = logging.getLogger(__name__)
@@ -43,8 +43,8 @@ _DRAIN_REQUEST_FILENAME = ".drain_request.json"
 
 
 def drain_request_path(home: Optional[Path] = None) -> Path:
-    """Absolute path to the drain-request marker, respecting HERMES_HOME."""
-    base = home if home is not None else get_hermes_home()
+    """Absolute path to the drain-request marker, respecting SONIC_HOME."""
+    base = home if home is not None else get_sonic_home()
     return Path(base) / _DRAIN_REQUEST_FILENAME
 
 

@@ -518,7 +518,7 @@ def _resolve_for_skill_ownership(path) -> Path:
 def is_external_skill_path(path) -> bool:
     """Return True when ``path`` lives under a configured external skills dir.
 
-    ``skills.external_dirs`` are externally owned: Hermes can discover and view
+    ``skills.external_dirs`` are externally owned: Sonic can discover and view
     their skills, and foreground user-directed tool calls may still edit them,
     but autonomous lifecycle maintenance must treat them as read-only. This
     helper centralizes the ownership boundary so curator/reporting/tool paths do

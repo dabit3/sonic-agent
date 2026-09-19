@@ -573,10 +573,10 @@ def _normalize_command_for_detection(command: str) -> str:
     # Normalize Unicode (fullwidth Latin, halfwidth Katakana, etc.)
     command = unicodedata.normalize('NFKC', command)
     # Fold absolute home / active-profile-home prefixes into their canonical
-    # ~/ and ~/.hermes/ forms so static user-sensitive patterns catch
+    # ~/ and ~/.sonic/ forms so static user-sensitive patterns catch
     # /home/alice/.bashrc and C:\Users\alice\.bashrc the same way they catch
     # ~/.bashrc. Resolve at detection time (not via an import-time snapshot) so
-    # it tracks HOME / HERMES_HOME even when those are set after this module is
+    # it tracks HOME / SONIC_HOME even when those are set after this module is
     # imported — as the hermetic test conftest and profile/session launchers do.
     #
     # This MUST run before the backslash-escape strip below: on Windows the home
@@ -584,10 +584,10 @@ def _normalize_command_for_detection(command: str) -> str:
     # would otherwise dissolve (-> C:Usersalice) and make the fold impossible.
     # The fold matches either separator, so POSIX paths are unaffected by order.
     #
-    # Fold the (more specific) Hermes home first: on Windows it nests under the
-    # user home (C:\Users\alice\AppData\...\hermes), so folding the user home
-    # first would eat the prefix the Hermes-home fold needs.
-    command = _rewrite_resolved_hermes_home(command)
+    # Fold the (more specific) Sonic home first: on Windows it nests under the
+    # user home (C:\Users\alice\AppData\...\sonic), so folding the user home
+    # first would eat the prefix the Sonic-home fold needs.
+    command = _rewrite_resolved_sonic_home(command)
     command = _rewrite_resolved_user_home(command)
     # Strip shell backslash-escapes: r\m → rm. Prevents \-injection bypass.
     command = re.sub(r'\\([^\n])', r'\1', command)

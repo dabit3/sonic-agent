@@ -5356,7 +5356,7 @@ def migrate_config(interactive: bool = True, quiet: bool = False) -> Dict[str, A
     # error or warning. Surface it loudly instead. See #38798.
     try:
         from toolsets import validate_toolset
-        from hermes_cli.toolset_validation import validate_platform_toolsets
+        from sonic_cli.toolset_validation import validate_platform_toolsets
 
         ts_warnings = validate_platform_toolsets(
             read_raw_config().get("platform_toolsets"), validate_toolset
@@ -6249,7 +6249,7 @@ def save_config(config: Dict[str, Any]):
 
 
 def _parse_env_value(raw_value: str) -> str:
-    """Parse the small .env value subset Hermes writes itself."""
+    """Parse the small .env value subset Sonic writes itself."""
     value = raw_value.strip()
     if len(value) >= 2 and value[0] == value[-1] == '"':
         quoted = value[1:-1]

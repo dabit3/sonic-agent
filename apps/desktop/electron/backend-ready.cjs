@@ -131,7 +131,7 @@ function waitForDashboardReadyFile(readyFile, child, timeoutMs = resolvePortAnno
 
     function onExit(code, signal) {
       cleanup()
-      reject(new Error(`Hermes backend: exited before port announcement (${signal || code})`))
+      reject(new Error(`Sonic backend: exited before port announcement (${signal || code})`))
     }
 
     function onError(err) {
@@ -141,7 +141,7 @@ function waitForDashboardReadyFile(readyFile, child, timeoutMs = resolvePortAnno
 
     const timer = setTimeout(() => {
       cleanup()
-      reject(new Error(`Timed out waiting for Hermes backend port announcement (${timeoutMs}ms)`))
+      reject(new Error(`Timed out waiting for Sonic backend port announcement (${timeoutMs}ms)`))
     }, timeoutMs)
 
     child.on('exit', onExit)

@@ -575,7 +575,7 @@ export interface SonicGitWorktree {
 // A local branch as offered by the "convert a branch into a worktree" picker.
 // `checkedOut` means selecting opens that checkout; `isDefault` means selecting
 // switches the main checkout instead of creating `.worktrees/main`.
-export interface HermesGitBranch {
+export interface SonicGitBranch {
   name: string
   checkedOut: boolean
   isDefault: boolean
@@ -584,7 +584,7 @@ export interface HermesGitBranch {
 
 // A single changed path from `git status --porcelain=v2`, classified by state
 // so the coding rail / switcher can group + open the right diff.
-export interface HermesRepoStatusFile {
+export interface SonicRepoStatusFile {
   path: string
   staged: boolean
   unstaged: boolean
@@ -594,7 +594,7 @@ export interface HermesRepoStatusFile {
 
 // Compact working-tree status for the composer coding rail (parsed from
 // `git status --porcelain=v2 --branch`).
-export interface HermesRepoStatus {
+export interface SonicRepoStatus {
   branch: null | string
   // The repo's trunk ("main" / "master" / …), so the UI can offer "branch off
   // the default" from anywhere. Null when no trunk is detected.
@@ -613,16 +613,16 @@ export interface HermesRepoStatus {
   added: number
   removed: number
   // Capped changed-file list (REPO_STATUS_FILE_CAP) for the diff/open actions.
-  files: HermesRepoStatusFile[]
+  files: SonicRepoStatusFile[]
 }
 
 // Diff scope for the review pane, mirroring Codex: uncommitted working-tree
 // changes, all changes vs the branch base, or everything since the current
 // turn began.
-export type HermesReviewScope = 'branch' | 'lastTurn' | 'uncommitted'
+export type SonicReviewScope = 'branch' | 'lastTurn' | 'uncommitted'
 
 // One changed file in the review pane (status letter, +/- lines, staged flag).
-export interface HermesReviewFile {
+export interface SonicReviewFile {
   path: string
   added: number
   removed: number
@@ -631,15 +631,15 @@ export interface HermesReviewFile {
   staged: boolean
 }
 
-export interface HermesReviewList {
-  files: HermesReviewFile[]
+export interface SonicReviewList {
+  files: SonicReviewFile[]
   // The resolved base ref the scope diffed against (branch merge-base / turn
   // baseline), or null for the uncommitted scope.
   base: null | string
 }
 
 // The branch's PR (if any) as reported by `gh pr view`.
-export interface HermesReviewPr {
+export interface SonicReviewPr {
   url: string
   state: string
   number: number
@@ -647,9 +647,9 @@ export interface HermesReviewPr {
 
 // gh availability/auth + the current branch's PR — drives the review pane's PR
 // button (disabled when gh isn't ready, "Open PR" vs "Create PR" otherwise).
-export interface HermesReviewShipInfo {
+export interface SonicReviewShipInfo {
   ghReady: boolean
-  pr: HermesReviewPr | null
+  pr: SonicReviewPr | null
 }
 
 export interface SonicReadDirEntry {

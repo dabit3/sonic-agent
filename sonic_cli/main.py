@@ -4259,7 +4259,7 @@ def cmd_kanban(args):
 
 def cmd_project(args):
     """Manage projects (named, multi-folder workspaces)."""
-    from hermes_cli.projects_cmd import projects_command
+    from sonic_cli.projects_cmd import projects_command
 
     return projects_command(args)
 
@@ -12121,7 +12121,7 @@ def main():
     # =========================================================================
     build_model_parser(subparsers, cmd_model=cmd_model)
 
-    from hermes_cli.moa_cmd import cmd_moa
+    from sonic_cli.moa_cmd import cmd_moa
 
     moa_parser = subparsers.add_parser(
         "moa",
@@ -12352,7 +12352,7 @@ def main():
     # =========================================================================
     # project command — named, multi-folder workspaces
     # =========================================================================
-    from hermes_cli.projects_cmd import build_parser as _build_project_parser
+    from sonic_cli.projects_cmd import build_parser as _build_project_parser
 
     project_parser = _build_project_parser(subparsers)
     project_parser.set_defaults(func=cmd_project)

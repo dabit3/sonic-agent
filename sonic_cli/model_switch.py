@@ -846,8 +846,8 @@ def switch_model(
         target_provider = pdef.id
         if target_provider == "moa" and not new_model:
             try:
-                from hermes_cli.config import load_config
-                from hermes_cli.moa_config import normalize_moa_config
+                from sonic_cli.config import load_config
+                from sonic_cli.moa_config import normalize_moa_config
 
                 new_model = normalize_moa_config(load_config().get("moa") or {})["default_preset"]
             except Exception:
@@ -935,8 +935,8 @@ def switch_model(
     # =================================================================
     else:
         try:
-            from hermes_cli.config import load_config
-            from hermes_cli.moa_config import exact_moa_preset_name, normalize_moa_config
+            from sonic_cli.config import load_config
+            from sonic_cli.moa_config import exact_moa_preset_name, normalize_moa_config
 
             _moa_cfg = normalize_moa_config(load_config().get("moa") or {})
             _moa_match = exact_moa_preset_name(_moa_cfg, raw_input)

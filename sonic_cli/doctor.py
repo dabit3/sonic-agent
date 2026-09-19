@@ -1208,7 +1208,7 @@ def run_doctor(args):
             # through the triggers. `_db_opens_cleanly` now drives a rolled-back
             # write so this otherwise-silent corruption class is surfaced (and
             # repaired in place with --fix).
-            from hermes_state import _db_opens_cleanly, repair_state_db_schema
+            from sonic_state import _db_opens_cleanly, repair_state_db_schema
 
             _write_reason = _db_opens_cleanly(state_db_path)
             if _write_reason is not None:
@@ -1239,8 +1239,8 @@ def run_doctor(args):
                         )
                 else:
                     issues.append(
-                        "state.db FTS write corruption — run 'hermes doctor --fix' "
-                        "(or 'hermes sessions repair') to rebuild the FTS index"
+                        "state.db FTS write corruption — run 'sonic doctor --fix' "
+                        "(or 'sonic sessions repair') to rebuild the FTS index"
                     )
         except Exception as e:
             from sonic_state import is_malformed_db_error, repair_state_db_schema

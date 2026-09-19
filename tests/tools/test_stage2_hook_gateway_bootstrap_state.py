@@ -163,11 +163,11 @@ def test_does_not_seed_gateway_state_through_symlink(
 
     script = (
         "set -e\n"
-        f'HERMES_HOME="{home}"\n'
+        f'SONIC_HOME="{home}"\n'
         f"{_path_guard_functions(stage2_text)}\n"
         "chown() { :; }\n"
         "chmod() { :; }\n"
-        'export HERMES_GATEWAY_BOOTSTRAP_STATE="running"\n'
+        'export SONIC_GATEWAY_BOOTSTRAP_STATE="running"\n'
         + block
     )
     script_path = tmp_path / "harness.sh"
@@ -201,11 +201,11 @@ def test_does_not_seed_auth_json_through_symlink(
 
     script = (
         "set -e\n"
-        f'HERMES_HOME="{home}"\n'
+        f'SONIC_HOME="{home}"\n'
         f"{_path_guard_functions(stage2_text)}\n"
         "chown() { :; }\n"
         "chmod() { :; }\n"
-        'export HERMES_AUTH_JSON_BOOTSTRAP="{\\"ok\\": true}"\n'
+        'export SONIC_AUTH_JSON_BOOTSTRAP="{\\"ok\\": true}"\n'
         + block
     )
     script_path = tmp_path / "harness.sh"

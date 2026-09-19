@@ -528,7 +528,7 @@ export function StatusRule({
     subagentCount === 1 ? '↩ resumes when subagent finishes' : `↩ resumes when ${subagentCount} subagents finish`
 
   const showResumeHint = !busy && subagentCount > 0 && fits(SEP + stringWidth(resumeHintText))
-  // Dev-gated readout (HERMES_DEV_CREDITS), lowest priority,
+  // Dev-gated readout (SONIC_DEV_CREDITS), lowest priority,
   // so it consumes tail budget LAST and drops first on a narrow terminal.
   const showDevCredits = !!devCreditsText && fits(SEP + stringWidth(devCreditsText))
 

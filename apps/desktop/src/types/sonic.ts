@@ -547,7 +547,7 @@ export interface ProfileSetupCommand {
 
 // ── Projects ───────────────────────────────────────────────────────────────
 // A first-class, per-profile, human-named workspace spanning one or more
-// folders. Mirrors hermes_cli/projects_db.Project.to_dict().
+// folders. Mirrors sonic_cli/projects_db.Project.to_dict().
 export interface ProjectFolder {
   path: string
   label: null | string

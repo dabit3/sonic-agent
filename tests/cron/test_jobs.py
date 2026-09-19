@@ -1295,7 +1295,7 @@ class TestCronOutputRetention:
             datetime(2026, 6, 25, 10, 0, 0, tzinfo=timezone.utc) + timedelta(seconds=i)
             for i in range(8)
         )
-        monkeypatch.setattr("cron.jobs._hermes_now", lambda: next(seq))
+        monkeypatch.setattr("cron.jobs._sonic_now", lambda: next(seq))
         for _ in range(8):
             save_job_output("job1", "report")
         files = sorted(_job_output_dir("job1").glob("*.md"))
@@ -1304,13 +1304,13 @@ class TestCronOutputRetention:
     def test_cron_output_keep_reads_config(self, monkeypatch):
         import cron.jobs as jobs
         monkeypatch.setattr(
-            "hermes_cli.config.load_config", lambda: {"cron": {"output_retention": 7}}
+            "sonic_cli.config.load_config", lambda: {"cron": {"output_retention": 7}}
         )
         assert jobs._cron_output_keep() == 7
 
     def test_cron_output_keep_defaults_on_bad_config(self, monkeypatch):
         import cron.jobs as jobs
         monkeypatch.setattr(
-            "hermes_cli.config.load_config", lambda: {"cron": {"output_retention": "oops"}}
+            "sonic_cli.config.load_config", lambda: {"cron": {"output_retention": "oops"}}
         )
         assert jobs._cron_output_keep() == jobs._CRON_OUTPUT_DEFAULT_KEEP

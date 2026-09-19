@@ -358,7 +358,7 @@ class TestSaveEnvValueSecure:
         """Regression test for #30355."""
         from dotenv import dotenv_values
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}, clear=False):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}, clear=False):
             os.environ.pop("ANTHROPIC_TOKEN", None)
             token = "sk-ant-oat01-abc#xyz#more"
             save_env_value("ANTHROPIC_TOKEN", token)
@@ -373,7 +373,7 @@ class TestSaveEnvValueSecure:
     def test_save_env_value_hash_value_round_trips_quotes_and_backslashes(self, tmp_path):
         from dotenv import dotenv_values
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}, clear=False):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}, clear=False):
             os.environ.pop("ANTHROPIC_TOKEN", None)
             token = 'abc"def\\ghi#jkl'
             save_env_value("ANTHROPIC_TOKEN", token)
@@ -388,7 +388,7 @@ class TestSaveEnvValueSecure:
     def test_save_env_value_updates_hash_value_with_quotes(self, tmp_path):
         from dotenv import dotenv_values
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}, clear=False):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}, clear=False):
             os.environ.pop("ANTHROPIC_TOKEN", None)
             save_env_value("ANTHROPIC_TOKEN", "old-token")
 

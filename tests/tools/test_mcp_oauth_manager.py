@@ -204,7 +204,7 @@ def _provider_with_token_endpoint(tmp_path, oauth_config, token_endpoint, monkey
 
 def test_invalid_client_at_token_endpoint_poisons(tmp_path, monkeypatch):
     """400 invalid_client on the token endpoint deletes the dead client.json."""
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     d = tmp_path / "mcp-tokens"
     d.mkdir(parents=True)
     (d / "srv.client.json").write_text('{"client_id": "dead"}')
@@ -226,7 +226,7 @@ def test_invalid_client_at_token_endpoint_poisons(tmp_path, monkeypatch):
 
 def test_invalid_client_at_other_endpoint_is_ignored(tmp_path, monkeypatch):
     """An invalid_client body from a non-token endpoint must not poison."""
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     d = tmp_path / "mcp-tokens"
     d.mkdir(parents=True)
     (d / "srv.client.json").write_text('{"client_id": "live"}')
@@ -244,7 +244,7 @@ def test_invalid_client_at_other_endpoint_is_ignored(tmp_path, monkeypatch):
 
 
 def test_success_response_is_ignored(tmp_path, monkeypatch):
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     d = tmp_path / "mcp-tokens"
     d.mkdir(parents=True)
     (d / "srv.client.json").write_text('{"client_id": "live"}')
@@ -263,7 +263,7 @@ def test_success_response_is_ignored(tmp_path, monkeypatch):
 
 def test_preregistered_client_is_never_poisoned(tmp_path, monkeypatch):
     """A config-supplied client_id is never auto-deleted (re-reg can't help)."""
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     provider = _provider_with_token_endpoint(
         tmp_path, {"client_id": "from-config"}, "https://idp.example.com/oauth/token", monkeypatch
     )
@@ -282,7 +282,7 @@ def test_preregistered_client_is_never_poisoned(tmp_path, monkeypatch):
 
 def test_invalid_client_metadata_does_not_trip(tmp_path, monkeypatch):
     """RFC 7591 `invalid_client_metadata` must NOT be mistaken for invalid_client."""
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     d = tmp_path / "mcp-tokens"
     d.mkdir(parents=True)
     (d / "srv.client.json").write_text('{"client_id": "live"}')
@@ -317,7 +317,7 @@ def test_bridge_forwards_requests_and_poisons_on_token_endpoint_400(
     genuinely fragile part. A patched SDK base generator stands in for the
     real OAuth flow so we control exactly which response the bridge sees.
     """
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
     token_ep = "https://idp.example.com/oauth/token"
     d = tmp_path / "mcp-tokens"
     d.mkdir(parents=True)

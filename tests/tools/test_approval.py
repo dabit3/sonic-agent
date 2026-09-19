@@ -739,16 +739,16 @@ class TestSensitiveInPlaceEditPattern:
 
 
 class TestWindowsAbsolutePathFolding:
-    """Windows absolute home / Hermes-home prefixes must fold to ~/ and
-    ~/.hermes/ in dangerous-command detection.
+    """Windows absolute home / Sonic-home prefixes must fold to ~/ and
+    ~/.sonic/ in dangerous-command detection.
 
     Regression: on native Windows the home prefix uses backslash separators
     (``C:\\Users\\alice\\.ssh\\authorized_keys``). Detection stripped backslash
     escapes *before* folding, dissolving those separators, so writes to startup,
-    SSH, and Hermes config/env files returned "safe" without an approval prompt.
-    The OS-specific ``Path.home()`` / ``get_hermes_home()`` tests above only
+    SSH, and Sonic config/env files returned "safe" without an approval prompt.
+    The OS-specific ``Path.home()`` / ``get_sonic_home()`` tests above only
     exercise this branch on a Windows host; these monkeypatch a Windows-style
-    HOME/HERMES_HOME so the fold is verified on the POSIX CI runner too."""
+    HOME/SONIC_HOME so the fold is verified on the POSIX CI runner too."""
 
     def test_windows_home_bashrc_folds(self, monkeypatch):
         monkeypatch.setenv("HOME", r"C:\Users\tester")
@@ -776,13 +776,13 @@ class TestWindowsAbsolutePathFolding:
         assert dangerous is True
         assert key is not None
 
-    def test_windows_hermes_home_config_folds(self, monkeypatch):
-        # Hermes home nests under the user home on Windows; it must fold before
+    def test_windows_sonic_home_config_folds(self, monkeypatch):
+        # Sonic home nests under the user home on Windows; it must fold before
         # the user-home rewrite eats its prefix.
         monkeypatch.setenv("HOME", r"C:\Users\tester")
-        monkeypatch.setenv("HERMES_HOME", r"C:\Users\tester\.hermes")
+        monkeypatch.setenv("SONIC_HOME", r"C:\Users\tester\.sonic")
         dangerous, key, _ = detect_dangerous_command(
-            r"sed -i 's/manual/off/' C:\Users\tester\.hermes\config.yaml"
+            r"sed -i 's/manual/off/' C:\Users\tester\.sonic\config.yaml"
         )
         assert dangerous is True
         assert key is not None

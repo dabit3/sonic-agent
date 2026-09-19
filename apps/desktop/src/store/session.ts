@@ -23,7 +23,7 @@ const COMPOSER_FAST_KEY = 'sonic.desktop.composer.fast'
 
 // The last chat the user had open, so a relaunch lands back on it instead of an
 // empty new-chat. Stored (not runtime) id — the route is keyed by stored id.
-const LAST_SESSION_KEY = 'hermes.desktop.lastSessionId'
+const LAST_SESSION_KEY = 'sonic.desktop.lastSessionId'
 
 export const getRememberedSessionId = (): null | string => storedString(LAST_SESSION_KEY)
 export const setRememberedSessionId = (id: null | string) => persistString(LAST_SESSION_KEY, id)

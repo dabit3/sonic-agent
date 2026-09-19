@@ -670,8 +670,8 @@ def _reauth_oauth_server(name: str, server_config: dict) -> bool:
 
     Wipes cached OAuth state (disk + in-process MCPOAuthManager cache),
     re-probes to trigger the browser flow, and verifies a token actually
-    landed before reporting success. Shared by ``hermes mcp login`` and
-    ``hermes mcp reauth`` so both behave identically for a single server.
+    landed before reporting success. Shared by ``sonic mcp login`` and
+    ``sonic mcp reauth`` so both behave identically for a single server.
     """
     url = server_config.get("url")
     if not url:
@@ -764,8 +764,8 @@ def cmd_mcp_login(args):
 def cmd_mcp_reauth(args):
     """Re-authenticate one OAuth MCP server, or all of them sequentially.
 
-    ``hermes mcp reauth <name>`` re-auths a single server (same as ``login``).
-    ``hermes mcp reauth --all`` discovers every ``auth: oauth`` server in
+    ``sonic mcp reauth <name>`` re-auths a single server (same as ``login``).
+    ``sonic mcp reauth --all`` discovers every ``auth: oauth`` server in
     config and re-auths them ONE AT A TIME.
 
     Serial-by-design: a human can only complete one browser OAuth flow at a
@@ -800,7 +800,7 @@ def cmd_mcp_reauth(args):
 
     if not name:
         _error("Specify a server name, or use --all to re-auth every OAuth server.")
-        _info("Usage: hermes mcp reauth <name>   |   hermes mcp reauth --all")
+        _info("Usage: sonic mcp reauth <name>   |   sonic mcp reauth --all")
         return
     if name not in servers:
         _error(f"Server '{name}' not found in config.")

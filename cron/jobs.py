@@ -1498,7 +1498,7 @@ def _get_due_jobs_locked() -> List[Dict[str, Any]]:
 
 
 # Per-run cron output (`cron/output/<job>/<timestamp>.md`) is written once per
-# execution. Unlike the quick-snapshot store (`hermes_cli.backup`, capped at 20)
+# execution. Unlike the quick-snapshot store (`sonic_cli.backup`, capped at 20)
 # it had no retention, so a frequently-scheduled job on a long-running deploy
 # accumulated one file per run forever and could fill the disk (#52383). Keep the
 # most recent N files per job; a non-positive value disables pruning (opt-out).
@@ -1508,7 +1508,7 @@ _CRON_OUTPUT_DEFAULT_KEEP = 50
 def _cron_output_keep() -> int:
     """Resolve the per-job output-file retention cap from config (``cron.output_retention``)."""
     try:
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
         cfg = load_config() or {}
         cron_cfg = cfg.get("cron", {}) if isinstance(cfg, dict) else {}
         return int(cron_cfg.get("output_retention", _CRON_OUTPUT_DEFAULT_KEEP))
@@ -1519,7 +1519,7 @@ def _cron_output_keep() -> int:
 def _prune_job_output(job_output_dir: Path, keep: int) -> int:
     """Remove the oldest ``*.md`` run-output files beyond *keep*. Returns count deleted.
 
-    Mirrors the quick-snapshot retention in ``hermes_cli.backup._prune_quick_snapshots``:
+    Mirrors the quick-snapshot retention in ``sonic_cli.backup._prune_quick_snapshots``:
     output filenames are timestamp-based (``%Y-%m-%d_%H-%M-%S.md``) so a reverse
     lexical sort orders newest-first, and everything past *keep* is the tail to
     drop. A non-positive *keep* disables pruning. Pruning failures are swallowed

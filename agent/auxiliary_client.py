@@ -5660,7 +5660,7 @@ def call_llm(
                     raise RuntimeError(
                         f"Provider '{_explicit}' is set in config.yaml but no API key "
                         f"was found. Set the {_explicit.upper()}_API_KEY environment "
-                        f"variable, or switch to a different provider with `hermes model`."
+                        f"variable, or switch to a different provider with `sonic model`."
                     )
             # For auto/custom with no credentials, try the full auto chain
             # rather than hardcoding OpenRouter (which may be depleted).
@@ -6194,7 +6194,7 @@ async def async_call_llm(
                     raise RuntimeError(
                         f"Provider '{_explicit}' is set in config.yaml but no API key "
                         f"was found. Set the {_explicit.upper()}_API_KEY environment "
-                        f"variable, or switch to a different provider with `hermes model`."
+                        f"variable, or switch to a different provider with `sonic model`."
                     )
             if client is None and not resolved_base_url:
                 logger.info("Auxiliary %s: provider %s unavailable, trying auto-detection chain",

@@ -789,7 +789,7 @@ let rendererReloadTimes = []
 // the renderer's "Reload and retry" path or by quitting the app.
 let bootstrapFailure = null
 // Latched non-bootstrap backend spawn failure — stops getConnection() from
-// respawning hermes dashboard children in a tight loop while boot is broken.
+// respawning sonic dashboard children in a tight loop while boot is broken.
 let backendStartFailure = null
 // Active first-launch install, so the renderer's Cancel button (and app quit)
 // can abort the in-flight install.sh/ps1 instead of leaving it running.
@@ -1301,11 +1301,11 @@ function isCommandScript(command) {
   return IS_WINDOWS && /\.(cmd|bat)$/i.test(command || '')
 }
 
-function unwrapWindowsVenvHermesCommand(command, dashboardArgs) {
+function unwrapWindowsVenvSonicCommand(command, dashboardArgs) {
   if (!IS_WINDOWS || !command || isCommandScript(command)) return null
 
   const resolved = path.resolve(String(command))
-  if (!/^hermes(?:\.exe)?$/i.test(path.basename(resolved))) return null
+  if (!/^sonic(?:\.exe)?$/i.test(path.basename(resolved))) return null
 
   const scriptsDir = path.dirname(resolved)
   if (path.basename(scriptsDir).toLowerCase() !== 'scripts') return null
@@ -1316,12 +1316,12 @@ function unwrapWindowsVenvHermesCommand(command, dashboardArgs) {
 
   const root = path.dirname(venvRoot)
   return {
-    label: `existing Hermes no-console Python at ${python}`,
+    label: `existing Sonic no-console Python at ${python}`,
     command: python,
-    args: ['-m', 'hermes_cli.main', ...dashboardArgs],
+    args: ['-m', 'sonic_cli.main', ...dashboardArgs],
     bootstrap: false,
     env: buildDesktopBackendEnv({
-      hermesHome: HERMES_HOME,
+      sonicHome: SONIC_HOME,
       pythonPathEntries: [...(directoryExists(root) ? [root] : []), ...getVenvSitePackagesEntries(venvRoot)],
       venvRoot
     }),
@@ -1566,7 +1566,7 @@ function getNoConsoleVenvPython(venvRoot) {
 
   // Prefer the venv's own pythonw shim — it carries pyvenv.cfg / site-packages
   // wiring. Falling back to the base uv/python.org pythonw.exe skips the venv
-  // and breaks imports (yaml, hermes_cli, …) even when PYTHONPATH is patched.
+  // and breaks imports (yaml, sonic_cli, …) even when PYTHONPATH is patched.
   const venvPythonw = path.join(venvRoot, 'Scripts', 'pythonw.exe')
   if (fileExists(venvPythonw)) return venvPythonw
 
@@ -1596,11 +1596,11 @@ function toNoConsolePython(pythonPath) {
 function applyWindowsNoConsoleSpawnHints(backend) {
   if (!IS_WINDOWS || !backend?.command) return backend
 
-  const usesHermesModule =
+  const usesSonicModule =
     backend.kind === 'python' ||
-    (Array.isArray(backend.args) && backend.args[0] === '-m' && backend.args[1] === 'hermes_cli.main')
+    (Array.isArray(backend.args) && backend.args[0] === '-m' && backend.args[1] === 'sonic_cli.main')
 
-  if (!usesHermesModule) return backend
+  if (!usesSonicModule) return backend
 
   backend.command = toNoConsolePython(backend.command)
   if (/pythonw\.exe$/i.test(path.basename(String(backend.command || '')))) {

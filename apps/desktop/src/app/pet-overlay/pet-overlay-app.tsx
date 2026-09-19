@@ -290,7 +290,7 @@ export function PetOverlayApp() {
   const onScale = useCallback((next: number, anchor: PetZoomAnchor) => {
     zoomAnchorRef.current = anchor
     setPetInfo({ ...$petInfo.get(), scale: next })
-    window.hermesDesktop?.petOverlay?.control({ scale: next, type: 'scale' })
+    window.sonicDesktop?.petOverlay?.control({ scale: next, type: 'scale' })
   }, [])
 
   usePetZoomGesture(petRef, onScale, Boolean(info.enabled && info.spritesheetBase64))
@@ -338,8 +338,8 @@ export function PetOverlayApp() {
       y: Math.round(window.screenY + ay - (ay - (curH - PET_PADDING_BOTTOM)) * ratio - (height - PET_PADDING_BOTTOM))
     }
 
-    window.hermesDesktop?.petOverlay?.setBounds(bounds)
-    window.hermesDesktop?.petOverlay?.control({ bounds, type: 'bounds' })
+    window.sonicDesktop?.petOverlay?.setBounds(bounds)
+    window.sonicDesktop?.petOverlay?.control({ bounds, type: 'bounds' })
   }, [info.enabled, info.spritesheetBase64, info.scale, info.frameW, info.frameH])
 
   if (!info.enabled || !info.spritesheetBase64) {

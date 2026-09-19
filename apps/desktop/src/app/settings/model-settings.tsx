@@ -8,7 +8,7 @@ import {
   getAuxiliaryModels,
   getGlobalModelInfo,
   getGlobalModelOptions,
-  getHermesConfigRecord,
+  getSonicConfigRecord,
   getMoaModels,
   getRecommendedDefaultModel,
   saveSonicConfig,

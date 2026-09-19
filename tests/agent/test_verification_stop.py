@@ -67,9 +67,9 @@ def test_verify_on_stop_config_can_disable(clear_verify_env):
 
 
 def test_verify_on_stop_off_on_gateway_messaging_platform(clear_verify_env):
-    # The gateway binds the platform value to HERMES_SESSION_PLATFORM and leaves
-    # HERMES_SESSION_SOURCE empty, so a real Telegram turn must default OFF.
-    clear_verify_env.setenv("HERMES_SESSION_PLATFORM", "telegram")
+    # The gateway binds the platform value to SONIC_SESSION_PLATFORM and leaves
+    # SONIC_SESSION_SOURCE empty, so a real Telegram turn must default OFF.
+    clear_verify_env.setenv("SONIC_SESSION_PLATFORM", "telegram")
     assert verify_on_stop_enabled({"agent": {}}) is False
 
 
@@ -78,43 +78,43 @@ def test_verify_on_stop_off_on_gateway_messaging_platform(clear_verify_env):
     ["discord", "whatsapp_cloud", "signal", "slack", "matrix", "email", "sms"],
 )
 def test_verify_on_stop_off_for_each_messaging_platform(clear_verify_env, platform):
-    clear_verify_env.setenv("HERMES_SESSION_PLATFORM", platform)
+    clear_verify_env.setenv("SONIC_SESSION_PLATFORM", platform)
     assert verify_on_stop_enabled({"agent": {}}) is False
 
 
 def test_verify_on_stop_messaging_platform_is_case_insensitive(clear_verify_env):
-    clear_verify_env.setenv("HERMES_SESSION_PLATFORM", "  Telegram  ")
+    clear_verify_env.setenv("SONIC_SESSION_PLATFORM", "  Telegram  ")
     assert verify_on_stop_enabled({"agent": {}}) is False
 
 
-def test_verify_on_stop_uses_hermes_platform_override(clear_verify_env):
-    # HERMES_PLATFORM mirrors the sibling platform resolution and also flags a
+def test_verify_on_stop_uses_sonic_platform_override(clear_verify_env):
+    # SONIC_PLATFORM mirrors the sibling platform resolution and also flags a
     # messaging surface.
-    clear_verify_env.setenv("HERMES_PLATFORM", "discord")
+    clear_verify_env.setenv("SONIC_PLATFORM", "discord")
     assert verify_on_stop_enabled({"agent": {}}) is False
 
 
 @pytest.mark.parametrize("source", ["cli", "tui", "desktop", "codex", "local"])
 def test_verify_on_stop_on_for_interactive_surfaces(clear_verify_env, source):
-    # CLI/TUI/desktop set HERMES_SESSION_SOURCE; these are coding surfaces -> ON.
-    clear_verify_env.setenv("HERMES_SESSION_SOURCE", source)
+    # CLI/TUI/desktop set SONIC_SESSION_SOURCE; these are coding surfaces -> ON.
+    clear_verify_env.setenv("SONIC_SESSION_SOURCE", source)
     assert verify_on_stop_enabled({"agent": {}}) is True
 
 
 @pytest.mark.parametrize("platform", ["api_server", "webhook", "msgraph_webhook"])
 def test_verify_on_stop_on_for_programmatic_surfaces(clear_verify_env, platform):
-    clear_verify_env.setenv("HERMES_SESSION_PLATFORM", platform)
+    clear_verify_env.setenv("SONIC_SESSION_PLATFORM", platform)
     assert verify_on_stop_enabled({"agent": {}}) is True
 
 
 def test_env_forces_verify_on_stop_on_for_messaging(clear_verify_env):
-    clear_verify_env.setenv("HERMES_SESSION_PLATFORM", "telegram")
-    clear_verify_env.setenv("HERMES_VERIFY_ON_STOP", "1")
+    clear_verify_env.setenv("SONIC_SESSION_PLATFORM", "telegram")
+    clear_verify_env.setenv("SONIC_VERIFY_ON_STOP", "1")
     assert verify_on_stop_enabled({"agent": {}}) is True
 
 
 def test_config_forces_verify_on_stop_on_for_messaging(clear_verify_env):
-    clear_verify_env.setenv("HERMES_SESSION_PLATFORM", "telegram")
+    clear_verify_env.setenv("SONIC_SESSION_PLATFORM", "telegram")
     assert verify_on_stop_enabled({"agent": {"verify_on_stop": True}}) is True
 
 
@@ -123,9 +123,9 @@ def test_verify_on_stop_default_path_through_load_config(tmp_path, clear_verify_
     # resolves through load_config() + DEFAULT_CONFIG. The "auto" sentinel must
     # reach the surface-aware default rather than being shadowed by a static
     # True. This is the path the unit-level tests above cannot exercise.
-    clear_verify_env.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    clear_verify_env.setenv("SONIC_HOME", str(tmp_path / ".sonic"))
 
-    from hermes_cli.config import load_config
+    from sonic_cli.config import load_config
 
     merged = load_config()
     assert merged["agent"]["verify_on_stop"] == "auto"
@@ -134,7 +134,7 @@ def test_verify_on_stop_default_path_through_load_config(tmp_path, clear_verify_
     assert verify_on_stop_enabled() is True
 
     # A messaging platform resolves OFF, proving the sentinel flows through.
-    clear_verify_env.setenv("HERMES_SESSION_PLATFORM", "telegram")
+    clear_verify_env.setenv("SONIC_SESSION_PLATFORM", "telegram")
     assert verify_on_stop_enabled() is False
 
 

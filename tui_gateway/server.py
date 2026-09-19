@@ -2486,9 +2486,9 @@ def _load_enabled_toolsets() -> list[str] | None:
             print(fallback_notice, file=sys.stderr, flush=True)
         if not enabled:
             return None
-        # The desktop Project tools are off _HERMES_CORE_TOOLS (every other
+        # The desktop Project tools are off _SONIC_CORE_TOOLS (every other
         # platform would carry their schema for nothing), so the platform
-        # recovery above — which keys off hermes-cli's tool universe — can't
+        # recovery above — which keys off sonic-cli's tool universe — can't
         # surface them. This resolver runs ONLY in the desktop/TUI gateway, so
         # folding in the `project` toolset here is the gate that exposes them on
         # exactly the surface that can follow a project move.
@@ -4094,12 +4094,12 @@ def _resolve_runtime_with_fallback(
     """Resolve runtime provider with init-time fallback on auth failure.
 
     Mirrors the fallback pattern in ``cron/scheduler.py`` and
-    ``hermes_cli/cli_agent_setup_mixin.py``: when the primary provider
+    ``sonic_cli/cli_agent_setup_mixin.py``: when the primary provider
     raises ``AuthError``, walk the configured ``fallback_providers`` /
     ``fallback_model`` chain before giving up.
     """
-    from hermes_cli.auth import AuthError
-    from hermes_cli.runtime_provider import resolve_runtime_provider
+    from sonic_cli.auth import AuthError
+    from sonic_cli.runtime_provider import resolve_runtime_provider
 
     kwargs = resolve_kwargs or {}
     try:
@@ -10095,7 +10095,7 @@ class _NoProject(Exception):
 
 
 def _projects_payload(conn) -> dict:
-    from hermes_cli import projects_db as pdb
+    from sonic_cli import projects_db as pdb
 
     return {
         "projects": [p.to_dict() for p in pdb.list_projects(conn, include_archived=True)],
@@ -10115,7 +10115,7 @@ def _projects_method(name: str):
         @method(name)
         def handler(rid, params: dict) -> dict:
             try:
-                from hermes_cli import projects_db as pdb
+                from sonic_cli import projects_db as pdb
 
                 with pdb.connect_closing() as conn:
                     return fn(rid, params, pdb, conn)
@@ -10239,26 +10239,26 @@ def _(rid, params, pdb, conn) -> dict:
 
 def _is_repo_junk(root: str) -> bool:
     """A git root we never auto-surface as a project: the bare home dir or
-    anything under HERMES_HOME (~/.hermes by default) — config/sessions/skills,
+    anything under SONIC_HOME (~/.sonic by default) — config/sessions/skills,
     not a workspace. User-created projects pointing there are still honored."""
     if not root:
         return True
 
-    from hermes_constants import get_hermes_home
+    from sonic_constants import get_sonic_home
 
     real = os.path.realpath(root)
     home = os.path.realpath(os.path.expanduser("~"))
-    hermes_home = os.path.realpath(str(get_hermes_home()))
+    sonic_home = os.path.realpath(str(get_sonic_home()))
 
-    return real == home or real == hermes_home or real.startswith(hermes_home + os.sep)
+    return real == home or real == sonic_home or real.startswith(sonic_home + os.sep)
 
 
 def _discover_repos_payload(db, *, conn=None, backfill: bool = True) -> list[dict]:
     """Merge filesystem-scanned repos (cached) with session-derived repo roots.
 
     Repo-first: the disk scan (persisted by `projects.record_repos`) surfaces
-    repos even with zero hermes sessions. Session-derived roots cover repos
-    outside the scan roots. Both are junk-filtered (hermes home subtree + bare
+    repos even with zero sonic sessions. Session-derived roots cover repos
+    outside the scan roots. Both are junk-filtered (sonic home subtree + bare
     home) and carry their session totals for the overview.
 
     ``conn`` reuses an already-open projects.db connection (the tree path holds
@@ -10300,7 +10300,7 @@ def _discover_repos_payload(db, *, conn=None, backfill: bool = True) -> list[dic
     # Filesystem-scanned roots from the cache (may have zero sessions). Reuse the
     # caller's projects.db connection when given, else open a short-lived one.
     try:
-        from hermes_cli import projects_db as pdb
+        from sonic_cli import projects_db as pdb
 
         def _read(c) -> None:
             for entry in pdb.list_discovered_repos(c):
@@ -10344,7 +10344,7 @@ def _(rid, params: dict) -> dict:
     the merged repo list. The native crawl runs on the desktop (local fs); this
     caches the result so later reads are instant instead of re-walking disk."""
     try:
-        from hermes_cli import projects_db as pdb
+        from sonic_cli import projects_db as pdb
 
         pairs: list[tuple[str, str | None]] = []
         for item in params.get("repos") or []:
@@ -10426,7 +10426,7 @@ def _project_tree_inputs(
     # skips the discovery warm-up below).
     git_probe.warm_roots(s["cwd"] for s in sessions if s.get("cwd"))
 
-    from hermes_cli import projects_db as pdb
+    from sonic_cli import projects_db as pdb
 
     with pdb.connect_closing() as conn:
         projects = [p.to_dict() for p in pdb.list_projects(conn)]
@@ -11212,7 +11212,7 @@ def _(rid, params: dict) -> dict:
         return _ok(rid, {"type": "send", "message": build_learn_prompt(arg)})
     if name == "moa":
         try:
-            from hermes_cli.moa_config import (
+            from sonic_cli.moa_config import (
                 build_moa_turn_prompt, exact_moa_preset_name, moa_usage, normalize_moa_config
             )
 

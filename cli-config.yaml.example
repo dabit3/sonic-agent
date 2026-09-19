@@ -643,7 +643,7 @@ agent:
   # coding surfaces (CLI, TUI, desktop) and programmatic callers, and disables
   # it on conversational messaging surfaces (Telegram, Discord, etc.) where the
   # verification summary would reach a human as chat noise. Set true or false to
-  # force it on or off; the HERMES_VERIFY_ON_STOP env var (1/0) takes precedence.
+  # force it on or off; the SONIC_VERIFY_ON_STOP env var (1/0) takes precedence.
   # verify_on_stop: auto
 
   # Enable verbose logging

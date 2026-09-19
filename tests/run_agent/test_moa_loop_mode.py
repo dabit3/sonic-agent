@@ -11,7 +11,7 @@ def _response(content="done", *, tool_calls=None):
 
 
 def test_moa_virtual_provider_aggregator_is_actor(monkeypatch, tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
     (home / "config.yaml").write_text(
         """
@@ -28,7 +28,7 @@ moa:
 """.strip(),
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_HOME", str(home))
+    monkeypatch.setenv("SONIC_HOME", str(home))
     calls = []
 
     def fake_call_llm(**kwargs):
@@ -65,7 +65,7 @@ def test_reference_messages_strips_system_and_tool_history():
     from agent.moa_loop import _reference_messages
 
     messages = [
-        {"role": "system", "content": "huge hermes system prompt"},
+        {"role": "system", "content": "huge sonic system prompt"},
         {"role": "user", "content": "do the thing"},
         {
             "role": "assistant",
@@ -88,7 +88,7 @@ def test_reference_messages_strips_system_and_tool_history():
 
 
 def test_moa_facade_references_get_trimmed_messages(monkeypatch, tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
     (home / "config.yaml").write_text(
         """
@@ -105,7 +105,7 @@ moa:
 """.strip(),
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_HOME", str(home))
+    monkeypatch.setenv("SONIC_HOME", str(home))
     calls = []
 
     def fake_call_llm(**kwargs):
@@ -136,7 +136,7 @@ moa:
 
 
 def test_moa_disabled_preset_skips_references(monkeypatch, tmp_path):
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
     (home / "config.yaml").write_text(
         """
@@ -154,7 +154,7 @@ moa:
 """.strip(),
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_HOME", str(home))
+    monkeypatch.setenv("SONIC_HOME", str(home))
     calls = []
 
     def fake_call_llm(**kwargs):

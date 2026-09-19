@@ -835,8 +835,8 @@ class TestWaitForCallbackSkipIntegration:
 
 class TestPoisonClientRegistration:
     def test_poison_backs_up_and_removes_client_and_meta(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
-        storage = HermesTokenStorage("srv")
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
+        storage = SonicTokenStorage("srv")
         d = tmp_path / "mcp-tokens"
         d.mkdir(parents=True)
         (d / "srv.json").write_text('{"access_token": "keep-me"}')
@@ -855,6 +855,6 @@ class TestPoisonClientRegistration:
         assert (d / "srv.json").read_text() == '{"access_token": "keep-me"}'
 
     def test_poison_noop_when_no_client_file(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
-        storage = HermesTokenStorage("srv")
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
+        storage = SonicTokenStorage("srv")
         assert storage.poison_client_registration() is False

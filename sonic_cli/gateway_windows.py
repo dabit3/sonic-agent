@@ -39,7 +39,7 @@ import time
 from pathlib import Path
 from xml.sax.saxutils import escape
 
-from hermes_cli._subprocess_compat import (
+from sonic_cli._subprocess_compat import (
     windows_detach_flags,
     windows_detach_flags_without_breakaway,
     windows_hide_flags,
@@ -85,19 +85,19 @@ def _assert_windows() -> None:
         raise RuntimeError("gateway_windows is Windows-only")
 
 
-def _preserve_hermes_home_path(path: str | Path) -> str:
-    """Render Hermes-owned paths under the configured HERMES_HOME spelling.
+def _preserve_sonic_home_path(path: str | Path) -> str:
+    """Render Sonic-owned paths under the configured SONIC_HOME spelling.
 
-    Windows installs may keep ``%LOCALAPPDATA%\\hermes`` as a symlink/junction to
+    Windows installs may keep ``%LOCALAPPDATA%\\sonic`` as a symlink/junction to
     another drive. Runtime state should still identify itself by the configured
     AppData path, so launcher files must not bake in the resolved target when a
-    path lives under HERMES_HOME.
+    path lives under SONIC_HOME.
     """
     candidate = Path(path)
     try:
-        from hermes_cli.config import get_hermes_home
+        from sonic_cli.config import get_sonic_home
 
-        home = Path(get_hermes_home())
+        home = Path(get_sonic_home())
         resolved_home = home.resolve()
         resolved_candidate = candidate.resolve()
         home_key = os.path.normcase(str(resolved_home))
@@ -469,9 +469,9 @@ def _build_gateway_vbs_script(
     # list2cmdline gives CreateProcess-correct quoting for WScript.Shell.Run.
     command_line = subprocess.list2cmdline(prog_args)
 
-    repo_root = _preserve_hermes_home_path(Path(__file__).resolve().parent.parent)
+    repo_root = _preserve_sonic_home_path(Path(__file__).resolve().parent.parent)
     static_pythonpath = os.pathsep.join(
-        [repo_root, *[_preserve_hermes_home_path(entry) for entry in extra_pythonpath]]
+        [repo_root, *[_preserve_sonic_home_path(entry) for entry in extra_pythonpath]]
     )
 
     lines = [
@@ -535,7 +535,7 @@ def _write_task_script() -> Path:
         get_python_path,
     )
 
-    python_path = _preserve_hermes_home_path(get_python_path())
+    python_path = _preserve_sonic_home_path(get_python_path())
     working_dir = _stable_gateway_working_dir(PROJECT_ROOT)
     sonic_home = str(Path(get_sonic_home()))
     profile_arg = _profile_arg(sonic_home)
@@ -782,9 +782,9 @@ def _build_gateway_argv() -> tuple[list[str], str, dict[str, str]]:
     )
 
     python_exe, venv_dir, extra_pythonpath = _resolve_detached_python(
-        _preserve_hermes_home_path(get_python_path())
+        _preserve_sonic_home_path(get_python_path())
     )
-    project_root = _preserve_hermes_home_path(PROJECT_ROOT)
+    project_root = _preserve_sonic_home_path(PROJECT_ROOT)
     working_dir = _stable_gateway_working_dir(PROJECT_ROOT)
     sonic_home = str(Path(get_sonic_home()))
     profile_arg = _profile_arg(sonic_home)
@@ -802,7 +802,7 @@ def _build_gateway_argv() -> tuple[list[str], str, dict[str, str]]:
     }
     _prepend_pythonpath(
         env_overlay,
-        [project_root, *[_preserve_hermes_home_path(entry) for entry in extra_pythonpath]]
+        [project_root, *[_preserve_sonic_home_path(entry) for entry in extra_pythonpath]]
         if extra_pythonpath
         else [project_root],
     )
@@ -1458,7 +1458,7 @@ def _drain_gateway_pid(pid: int, drain_timeout: float) -> bool:
 def _windows_stop_drain_timeout() -> float:
     """Return a bounded Windows gateway stop grace period."""
     try:
-        from hermes_cli.gateway import _get_restart_drain_timeout
+        from sonic_cli.gateway import _get_restart_drain_timeout
 
         configured = float(_get_restart_drain_timeout() or 30.0)
     except Exception:

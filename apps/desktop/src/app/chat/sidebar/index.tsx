@@ -801,7 +801,7 @@ export function ChatSidebar({
   const [scopedRepoWorktrees] = useRepoWorktreeMap(scopedRepoPaths, inEnteredProject)
 
   // Re-probe worktree lanes on out-of-band git changes the renderer can't see.
-  // A turn can `git worktree add/remove` in the terminal (e.g. you ask Hermes to
+  // A turn can `git worktree add/remove` in the terminal (e.g. you ask Sonic to
   // "remove that worktree"), and the window never blurs during an in-app chat,
   // so nothing would otherwise re-run the visual probe. Re-sync when a working
   // session settles (its turn finished) or the window refocuses (an external
@@ -1676,7 +1676,7 @@ interface SidebarSessionsSectionProps {
   projectContent?: SidebarProjectTree
   // Live git lanes (`git worktree list`) for repos in the entered project —
   // a VISUAL enhancer only (empty lanes), never session membership.
-  projectRepoWorktrees?: Record<string, HermesGitWorktree[]>
+  projectRepoWorktrees?: Record<string, SonicGitWorktree[]>
   // Live session cache used for optimistic placement inside entered-project lanes.
   liveSessions?: SessionInfo[]
   // Client-side optimistic eviction layer (deleted/archived ids).

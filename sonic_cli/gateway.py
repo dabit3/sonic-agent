@@ -723,7 +723,7 @@ def _spawn_gateway_restart_watcher(old_pid: int, run_argv: list[str]) -> bool:
         import subprocess
         import sys
         import time
-        from hermes_cli._subprocess_compat import (
+        from sonic_cli._subprocess_compat import (
             windows_detach_flags,
             windows_detach_flags_without_breakaway,
         )

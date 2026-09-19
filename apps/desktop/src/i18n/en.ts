@@ -1314,7 +1314,7 @@ export const en: Translations = {
       copyPath: 'Copy path',
       removeFromSidebar: 'Hide from sidebar',
       createFailed: 'Could not create project',
-      deleteConfirm: 'This removes the saved project from Hermes. Files, git repos, and worktrees stay untouched.',
+      deleteConfirm: 'This removes the saved project from Sonic. Files, git repos, and worktrees stay untouched.',
       startWork: 'New worktree',
       newWorktreeTitle: 'New worktree',
       newWorktreeDesc: 'Name the branch for this worktree.',
@@ -1549,7 +1549,7 @@ export const en: Translations = {
       createPr: 'Create PR',
       openPr: 'Open PR',
       ghMissing: 'Install the GitHub CLI (gh) and sign in to open PRs',
-      agentShip: 'Ask Hermes to open PR',
+      agentShip: 'Ask Sonic to open PR',
       agentShipPrompt:
         'Review the current changes, commit them with a clear conventional-commit message, push the branch, and open a pull request.',
       newBranch: 'New branch',

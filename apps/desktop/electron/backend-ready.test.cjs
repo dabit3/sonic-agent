@@ -131,7 +131,7 @@ test('a late announcement after timeout does not throw (listeners torn down)', a
 // ---------------------------------------------------------------------------
 
 function mkTmpReadyFile() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hermes-ready-test-'))
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sonic-ready-test-'))
   return {
     dir,
     file: path.join(dir, 'ready.json'),

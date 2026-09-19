@@ -47,9 +47,9 @@ def _session_is_messaging_surface() -> bool:
     """Return whether this turn is delivered over a human messaging channel.
 
     The gateway binds the platform value (e.g. ``telegram``) to
-    ``HERMES_SESSION_PLATFORM``; the CLI and TUI set ``HERMES_SESSION_SOURCE``
+    ``SONIC_SESSION_PLATFORM``; the CLI and TUI set ``SONIC_SESSION_SOURCE``
     (e.g. ``cli``, ``tui``) instead. Both are consulted via the session-context
-    helper (with an ``os.environ`` fallback), alongside the ``HERMES_PLATFORM``
+    helper (with an ``os.environ`` fallback), alongside the ``SONIC_PLATFORM``
     override, matching the sibling platform resolution in
     ``agent/skill_commands.py`` and ``agent/prompt_builder.py``. A turn is a
     messaging surface when a resolved identity is present and is not a known
@@ -59,15 +59,15 @@ def _session_is_messaging_surface() -> bool:
         from gateway.session_context import get_session_env
 
         platform = (
-            os.getenv("HERMES_PLATFORM")
-            or get_session_env("HERMES_SESSION_PLATFORM", "")
+            os.getenv("SONIC_PLATFORM")
+            or get_session_env("SONIC_SESSION_PLATFORM", "")
         )
-        source = get_session_env("HERMES_SESSION_SOURCE", "")
+        source = get_session_env("SONIC_SESSION_SOURCE", "")
     except Exception:
-        platform = os.getenv("HERMES_PLATFORM", "") or os.environ.get(
-            "HERMES_SESSION_PLATFORM", ""
+        platform = os.getenv("SONIC_PLATFORM", "") or os.environ.get(
+            "SONIC_SESSION_PLATFORM", ""
         )
-        source = os.environ.get("HERMES_SESSION_SOURCE", "")
+        source = os.environ.get("SONIC_SESSION_SOURCE", "")
     for identity in (platform, source):
         identity = str(identity or "").strip().lower()
         if identity and identity not in _NON_MESSAGING_SESSION_SURFACES:

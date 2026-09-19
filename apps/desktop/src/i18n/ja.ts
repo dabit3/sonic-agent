@@ -1439,7 +1439,7 @@ export const ja = defineLocale({
       removeFromSidebar: 'サイドバーから削除',
       createFailed: 'プロジェクトを作成できませんでした',
       deleteConfirm:
-        'Hermes から保存済みプロジェクトを削除します。ファイル・git リポジトリ・ワークツリーはそのまま残ります。',
+        'Sonic から保存済みプロジェクトを削除します。ファイル・git リポジトリ・ワークツリーはそのまま残ります。',
       startWork: '新しいワークツリー',
       newWorktreeTitle: '新しいワークツリー',
       newWorktreeDesc: 'このワークツリーのブランチ名を入力してください。',
@@ -1671,7 +1671,7 @@ export const ja = defineLocale({
       createPr: 'PR を作成',
       openPr: 'PR を開く',
       ghMissing: 'PR を開くには GitHub CLI (gh) をインストールしてサインインしてください',
-      agentShip: 'Hermes にコミットと PR を任せる',
+      agentShip: 'Sonic にコミットと PR を任せる',
       agentShipPrompt:
         '現在の変更を確認し、分かりやすい Conventional Commits 形式でコミットし、ブランチをプッシュして、プルリクエストを作成してください。',
       newBranch: '新しいブランチ',
