@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "ca82d0accc3689ef7ffc9041acbaaa9d3869ad9d",
-  "synced_at": "2026-09-19T16:04:23Z",
-  "notes": "Partial sync: batch 21 ports the 80 first-parent commits after 2107b860, ending at ca82d0ac (1 skipped: d9bd7ce827, already hand-applied in batch 20; 1 manual conflict in sonic_cli/models.py). Remaining backlog is approximately 17,951 first-parent commits; each daily run advances the baseline by a reviewable batch."
+  "last_synced_upstream_sha": "c655cdf2c193850d5400cd8e6c6862b82be7dab1",
+  "synced_at": "2026-09-20T16:30:00Z",
+  "notes": "Partial sync: batch 22 ports the 80 first-parent commits after ca82d0ac, ending at c655cdf2 (0 skipped; 3 manual conflicts: sonic_cli/gateway.py+test, docs nix-setup/faq, typecheck.yml whitespace). Remaining backlog is approximately 18,678 first-parent commits; each daily run advances the baseline by a reviewable batch."
 }
