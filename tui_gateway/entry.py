@@ -293,7 +293,7 @@ def main():
     if _has_mcp_servers:
         def _discover_mcp_background() -> None:
             try:
-                from hermes_cli.mcp_startup import (
+                from sonic_cli.mcp_startup import (
                     _discover_mcp_tools_without_interactive_oauth,
                 )
 

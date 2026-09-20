@@ -388,19 +388,19 @@ class _SupermemoryClient:
             return
 
 
-def _resolve_container_tag_for_setup(hermes_home: str, *, identity: str = "default") -> str:
-    config = _load_supermemory_config(hermes_home)
+def _resolve_container_tag_for_setup(sonic_home: str, *, identity: str = "default") -> str:
+    config = _load_supermemory_config(sonic_home)
     env_tag = os.environ.get("SUPERMEMORY_CONTAINER_TAG", "").strip()
     raw_tag = env_tag or config["container_tag"]
     return _sanitize_tag(raw_tag.replace("{identity}", identity))
 
 
-def _probe_supermemory_connection(api_key: str, hermes_home: str, *, identity: str = "default") -> dict:
-    config = _load_supermemory_config(hermes_home)
+def _probe_supermemory_connection(api_key: str, sonic_home: str, *, identity: str = "default") -> dict:
+    config = _load_supermemory_config(sonic_home)
     status = {
         "ok": False,
         "error": "",
-        "container_tag": _resolve_container_tag_for_setup(hermes_home, identity=identity),
+        "container_tag": _resolve_container_tag_for_setup(sonic_home, identity=identity),
         "profile_facts": 0,
         "auto_recall": bool(config["auto_recall"]),
         "auto_capture": bool(config["auto_capture"]),
@@ -559,19 +559,19 @@ class SupermemoryMemoryProvider(MemoryProvider):
         _save_supermemory_config(sanitized, sonic_home)
 
     def get_status_config(self, provider_config: dict) -> dict:
-        from hermes_constants import get_hermes_home
+        from sonic_constants import get_sonic_home
 
         del provider_config
-        hermes_home = str(get_hermes_home())
+        sonic_home = str(get_sonic_home())
         api_key = os.environ.get("SUPERMEMORY_API_KEY", "")
-        status = _probe_supermemory_connection(api_key, hermes_home)
+        status = _probe_supermemory_connection(api_key, sonic_home)
         return {"summary": _format_connection_summary(status)}
 
-    def post_setup(self, hermes_home: str, config: dict) -> None:
+    def post_setup(self, sonic_home: str, config: dict) -> None:
         from pathlib import Path
 
-        from hermes_cli.config import save_config
-        from hermes_cli.memory_setup import _prompt, _write_env_vars
+        from sonic_cli.config import save_config
+        from sonic_cli.memory_setup import _prompt, _write_env_vars
 
         print("\n  Configuring supermemory:\n")
         print(f"  Get your API key at {_API_KEY_URL}\n")
@@ -592,7 +592,7 @@ class SupermemoryMemoryProvider(MemoryProvider):
         save_config(config)
 
         if env_writes:
-            _write_env_vars(Path(hermes_home) / ".env", env_writes)
+            _write_env_vars(Path(sonic_home) / ".env", env_writes)
 
         api_key = env_writes.get("SUPERMEMORY_API_KEY") or existing
         # Make the freshly-entered key visible to the connection probe below.
@@ -601,7 +601,7 @@ class SupermemoryMemoryProvider(MemoryProvider):
         if api_key and os.environ.get("SUPERMEMORY_API_KEY") != api_key:
             os.environ["SUPERMEMORY_API_KEY"] = api_key
 
-        status = _probe_supermemory_connection(api_key, hermes_home)
+        status = _probe_supermemory_connection(api_key, sonic_home)
         print(f"\n  {_format_connection_summary(status)}")
         print("\n  Memory provider: supermemory")
         print("  Activation saved to config.yaml")

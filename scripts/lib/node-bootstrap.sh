@@ -230,16 +230,16 @@ _nb_install_bundled_node() {
 }
 
 # ---------------------------------------------------------------------------
-# Heal a broken Hermes-managed Node tree (partial upgrade / missing lib/)
+# Heal a broken Sonic-managed Node tree (partial upgrade / missing lib/)
 # ---------------------------------------------------------------------------
 
 _nb_managed_tool_broken() {
     local tool="$1"
     local probe
     for probe in \
-        "$HERMES_HOME/node/bin/$tool" \
-        "$HERMES_HOME/node/${tool}.exe" \
-        "$HERMES_HOME/node/$tool"; do
+        "$SONIC_HOME/node/bin/$tool" \
+        "$SONIC_HOME/node/${tool}.exe" \
+        "$SONIC_HOME/node/$tool"; do
         if [ -x "$probe" ] || [ -f "$probe" ]; then
             if ! "$probe" --version >/dev/null 2>&1; then
                 return 0
@@ -261,14 +261,14 @@ _nb_managed_node_needs_heal() {
 
 # Redownload the pinned nodejs.org tarball when a managed tree exists but
 # node/npm/npx fail a --version probe. No-op when the tree is healthy or
-# absent. Used by hermes_constants.find_hermes_node_executable() and safe
+# absent. Used by sonic_constants.find_sonic_node_executable() and safe
 # to call from install reruns.
 heal_managed_node() {
-    [ -d "$HERMES_HOME/node" ] || return 1
+    [ -d "$SONIC_HOME/node" ] || return 1
     if ! _nb_managed_node_needs_heal; then
         return 0
     fi
-    _nb_log "Hermes-managed Node is broken — redownloading to $HERMES_HOME/node/..."
+    _nb_log "Sonic-managed Node is broken — redownloading to $SONIC_HOME/node/..."
     _nb_install_bundled_node
 }
 

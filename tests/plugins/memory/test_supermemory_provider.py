@@ -454,13 +454,13 @@ def test_get_config_schema_minimal():
 def test_format_connection_summary_ok():
     summary = _format_connection_summary({
         "ok": True,
-        "container_tag": "hermes_coder",
+        "container_tag": "sonic_coder",
         "profile_facts": 12,
         "auto_recall": True,
         "auto_capture": False,
     })
     assert "✓ Connected" in summary
-    assert "container: hermes_coder" in summary
+    assert "container: sonic_coder" in summary
     assert "12 profile facts" in summary
     assert "auto_recall on" in summary
     assert "auto_capture off" in summary
@@ -469,7 +469,7 @@ def test_format_connection_summary_ok():
 def test_format_connection_summary_single_fact_and_error():
     one = _format_connection_summary({
         "ok": True,
-        "container_tag": "hermes",
+        "container_tag": "sonic",
         "profile_facts": 1,
         "auto_recall": True,
         "auto_capture": True,
@@ -480,19 +480,19 @@ def test_format_connection_summary_single_fact_and_error():
     err = _format_connection_summary({
         "ok": False,
         "error": "invalid API key",
-        "container_tag": "hermes",
+        "container_tag": "sonic",
         "auto_recall": True,
         "auto_capture": True,
     })
     assert "✗ invalid API key" in err
-    assert "container: hermes" in err
+    assert "container: sonic" in err
 
 
 def test_probe_supermemory_connection_missing_key(tmp_path):
     status = _probe_supermemory_connection("", str(tmp_path))
     assert status["ok"] is False
     assert status["error"] == "SUPERMEMORY_API_KEY not set"
-    assert status["container_tag"] == "hermes"
+    assert status["container_tag"] == "sonic"
 
 
 def _stub_supermemory_importable(monkeypatch):
@@ -526,7 +526,7 @@ def test_probe_supermemory_connection_success(monkeypatch, tmp_path):
         def get_profile(self, query=None, *, container_tag=None):
             return {
                 "static": ["Prefers TypeScript"],
-                "dynamic": ["", "Working on Hermes"],
+                "dynamic": ["", "Working on Sonic"],
                 "search_results": [],
             }
 
@@ -555,27 +555,27 @@ def test_get_status_config_returns_summary(monkeypatch, tmp_path):
     monkeypatch.setenv("SUPERMEMORY_API_KEY", "test-key")
     monkeypatch.setattr("plugins.memory.supermemory._SupermemoryClient", FakeClient)
     monkeypatch.setattr(
-        "hermes_constants.get_hermes_home",
+        "sonic_constants.get_sonic_home",
         lambda: tmp_path,
     )
     result = SupermemoryMemoryProvider().get_status_config({})
     assert "summary" in result
     assert "✓ Connected" in result["summary"]
-    assert "container: hermes" in result["summary"]
+    assert "container: sonic" in result["summary"]
 
 
 def test_post_setup_writes_config_and_prints_summary(monkeypatch, tmp_path, capsys):
     config: dict = {"memory": {}}
     monkeypatch.setenv("SUPERMEMORY_API_KEY", "")
     monkeypatch.setattr(
-        "hermes_cli.memory_setup._prompt",
+        "sonic_cli.memory_setup._prompt",
         lambda label, secret=True, default=None: "new-api-key",
     )
     monkeypatch.setattr(
         "plugins.memory.supermemory._probe_supermemory_connection",
-        lambda api_key, hermes_home, **kwargs: {
+        lambda api_key, sonic_home, **kwargs: {
             "ok": True,
-            "container_tag": "hermes",
+            "container_tag": "sonic",
             "profile_facts": 3,
             "auto_recall": True,
             "auto_capture": True,
@@ -587,7 +587,7 @@ def test_post_setup_writes_config_and_prints_summary(monkeypatch, tmp_path, caps
     def fake_save_config(cfg):
         saved.update(cfg)
 
-    monkeypatch.setattr("hermes_cli.config.save_config", fake_save_config)
+    monkeypatch.setattr("sonic_cli.config.save_config", fake_save_config)
 
     SupermemoryMemoryProvider().post_setup(str(tmp_path), config)
 

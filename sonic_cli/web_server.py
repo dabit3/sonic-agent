@@ -4751,7 +4751,7 @@ _PLATFORM_OVERRIDES: dict[str, dict[str, Any]] = {
     },
     "google_chat": {
         "name": "Google Chat",
-        "description": "Connect Hermes to Google Chat via Cloud Pub/Sub.",
+        "description": "Connect Sonic to Google Chat via Cloud Pub/Sub.",
         "docs_url": "https://hermes-agent.nousresearch.com/docs/user-guide/messaging/google_chat",
     },
     "wecom": {
@@ -8057,15 +8057,15 @@ def _call_cron_for_profile(target_profile: Optional[str], func_name: str, *args,
     profile_name, home = _cron_profile_home(target_profile)
     with _CRON_PROFILE_LOCK:
         from cron import jobs as cron_jobs
-        from hermes_constants import (
-            reset_hermes_home_override,
-            set_hermes_home_override,
+        from sonic_constants import (
+            reset_sonic_home_override,
+            set_sonic_home_override,
         )
 
         old_cron_dir = cron_jobs.CRON_DIR
         old_jobs_file = cron_jobs.JOBS_FILE
         old_output_dir = cron_jobs.OUTPUT_DIR
-        token = set_hermes_home_override(str(home))
+        token = set_sonic_home_override(str(home))
         cron_jobs.CRON_DIR = home / "cron"
         cron_jobs.JOBS_FILE = cron_jobs.CRON_DIR / "jobs.json"
         cron_jobs.OUTPUT_DIR = cron_jobs.CRON_DIR / "output"
@@ -8075,7 +8075,7 @@ def _call_cron_for_profile(target_profile: Optional[str], func_name: str, *args,
             cron_jobs.CRON_DIR = old_cron_dir
             cron_jobs.JOBS_FILE = old_jobs_file
             cron_jobs.OUTPUT_DIR = old_output_dir
-            reset_hermes_home_override(token)
+            reset_sonic_home_override(token)
 
     if isinstance(result, list):
         return [_annotate_cron_job(j, profile_name, home) for j in result]

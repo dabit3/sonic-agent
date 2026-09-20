@@ -287,7 +287,7 @@ def _candidate_node_command_names(command: str) -> list[str]:
     return [f"{base}.cmd", f"{base}.exe", base]
 
 
-_HERMES_NODE_TARGET_MAJOR = int(os.environ.get("HERMES_NODE_TARGET_MAJOR", "22"))
+_SONIC_NODE_TARGET_MAJOR = int(os.environ.get("SONIC_NODE_TARGET_MAJOR", "22"))
 _managed_node_heal_attempted = False
 _NODE_BOOTSTRAP_SCRIPT = Path(__file__).resolve().parent / "scripts" / "lib" / "node-bootstrap.sh"
 
@@ -458,8 +458,8 @@ def find_sonic_node_executable(command: str) -> str | None:
                 if node_tool_runnable(resolved):
                     return resolved
                 broken_present = True
-    if broken_present and heal_hermes_managed_node():
-        for directory in iter_hermes_node_dirs():
+    if broken_present and heal_sonic_managed_node():
+        for directory in iter_sonic_node_dirs():
             for name in names:
                 candidate = directory / name
                 if candidate.is_file() and (

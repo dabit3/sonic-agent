@@ -737,7 +737,7 @@ def _spawn_gateway_restart_watcher(old_pid: int, run_argv: list[str]) -> bool:
     respawn_env_overlay: dict[str, str] = {}
     if sys.platform == "win32":
         try:
-            from hermes_cli.gateway_windows import (
+            from sonic_cli.gateway_windows import (
                 windowless_gateway_restart_spec,
             )
 
@@ -792,8 +792,8 @@ def _spawn_gateway_restart_watcher(old_pid: int, run_argv: list[str]) -> bool:
             "stderr": subprocess.DEVNULL,
         }}
         # Anchor the respawned gateway at the stable working dir and overlay
-        # the env (VIRTUAL_ENV / PYTHONPATH / HERMES_HOME) the windowless
-        # base interpreter needs to import hermes_cli.  Empty on POSIX, where
+        # the env (VIRTUAL_ENV / PYTHONPATH / SONIC_HOME) the windowless
+        # base interpreter needs to import sonic_cli.  Empty on POSIX, where
         # the venv python resolves imports without help.
         if _respawn_cwd:
             _popen_kwargs["cwd"] = _respawn_cwd
@@ -3508,7 +3508,7 @@ def _launchctl_domain_unsupported(returncode: int) -> bool:
 
 
 def _launchd_unsupported_marker_path() -> Path:
-    return get_hermes_home() / ".gateway-launchd-unsupported"
+    return get_sonic_home() / ".gateway-launchd-unsupported"
 
 
 def _write_launchd_unsupported_marker() -> None:
@@ -4099,14 +4099,14 @@ def launchd_status(deep: bool = False):
     # unmanageable domain).  A PID in the output confirms a live process.
     launchd_pid = _parse_launchd_pid_from_list_output(list_output) if service_listed else None
 
-    # Hermes PID tracking — may be a detached fallback process spawned when
+    # Sonic PID tracking — may be a detached fallback process spawned when
     # launchd cannot manage the domain on this host.
     from gateway.status import get_running_pid
     fallback_pid = get_running_pid(cleanup_stale=False)
 
     # Avoid double-counting: when launchd IS supervising, fallback_pid and
     # launchd_pid point at the same process (the gateway writes both the
-    # launchd PID and the Hermes PID file).
+    # launchd PID and the Sonic PID file).
     if launchd_pid is not None and fallback_pid == launchd_pid:
         fallback_pid = None
 
@@ -4134,10 +4134,10 @@ def launchd_status(deep: bool = False):
             print("  launchd cannot manage the gateway on this macOS version.")
             if fallback_pid:
                 print(f"✓ Detached fallback process is running (PID {fallback_pid})")
-                print("  Cron jobs will fire. Stop with: hermes gateway stop")
+                print("  Cron jobs will fire. Stop with: sonic gateway stop")
             else:
                 print("✗ No fallback process is running")
-                print("  Run: hermes gateway start")
+                print("  Run: sonic gateway start")
             print("  ⚠ Auto-start at login and auto-restart on crash are NOT available.")
         else:
             print("✓ Gateway service is registered with launchd")

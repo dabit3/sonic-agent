@@ -765,8 +765,8 @@ _QUICK_STATE_FILES = (
     # Per-profile user-created stores that live outside the git checkout and
     # are therefore destroyed if the update flow removes/replaces the file and
     # the post-update schema-init re-creates an empty one (issue #52889). All
-    # are at $HERMES_HOME/<name> for the default/root profile; on non-root
-    # profiles the real path is outside HERMES_HOME and the entry is silently
+    # are at $SONIC_HOME/<name> for the default/root profile; on non-root
+    # profiles the real path is outside SONIC_HOME and the entry is silently
     # skipped (best-effort, same as the pairing stores). SQLite DBs are copied
     # WAL-safely via _safe_copy_db.
     "projects.db",                      # per-profile project store

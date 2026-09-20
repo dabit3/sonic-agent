@@ -1030,7 +1030,7 @@ class TestGatewayDetachedWatcherWindowsFlags:
         the inlined respawn ``Popen``.
         """
         root = Path(__file__).resolve().parents[2]
-        text = (root / "hermes_cli" / "gateway.py").read_text(encoding="utf-8")
+        text = (root / "sonic_cli" / "gateway.py").read_text(encoding="utf-8")
         assert "windowless_gateway_restart_spec" in text, (
             "_spawn_gateway_restart_watcher must rewrite the respawn argv via "
             "gateway_windows.windowless_gateway_restart_spec so the gateway "
@@ -1042,14 +1042,14 @@ class TestGatewayDetachedWatcherWindowsFlags:
         block = text[idx:end]
         # The inlined respawn must apply the cwd + env overlay the base
         # interpreter needs — without them the windowless pythonw can't
-        # import hermes_cli.
+        # import sonic_cli.
         assert '_popen_kwargs["cwd"]' in block, (
             "Inlined respawn must set cwd from the windowless spec so the "
             "base interpreter starts in the stable gateway working dir."
         )
         assert '_popen_kwargs["env"]' in block, (
             "Inlined respawn must overlay env (VIRTUAL_ENV / PYTHONPATH / "
-            "HERMES_HOME) so the windowless base pythonw resolves hermes_cli."
+            "SONIC_HOME) so the windowless base pythonw resolves sonic_cli."
         )
 
 
@@ -1058,9 +1058,9 @@ class TestWindowlessGatewayRestartSpec:
     converts a console-python gateway argv into a windowless pythonw one."""
 
     def test_noop_on_non_windows(self):
-        import hermes_cli.gateway_windows as gw
+        import sonic_cli.gateway_windows as gw
 
-        argv = ["/path/venv/bin/python", "-m", "hermes_cli.main", "gateway", "run"]
+        argv = ["/path/venv/bin/python", "-m", "sonic_cli.main", "gateway", "run"]
         with mock.patch.object(gw.sys, "platform", "linux"):
             new_argv, cwd, env = gw.windowless_gateway_restart_spec(list(argv))
         assert new_argv == argv
@@ -1068,7 +1068,7 @@ class TestWindowlessGatewayRestartSpec:
         assert env == {}
 
     def test_empty_argv_is_safe(self):
-        import hermes_cli.gateway_windows as gw
+        import sonic_cli.gateway_windows as gw
 
         new_argv, cwd, env = gw.windowless_gateway_restart_spec([])
         assert new_argv == []
@@ -1078,21 +1078,21 @@ class TestWindowlessGatewayRestartSpec:
     def test_windows_rewrites_to_pythonw_and_preserves_tail(self):
         """On Windows the interpreter is swapped for its windowless sibling
         while every subsequent argument is preserved verbatim."""
-        import hermes_cli.gateway_windows as gw
+        import sonic_cli.gateway_windows as gw
 
         # Pre-import on the (Linux) host so the function's lazy
-        # ``from hermes_cli.gateway import PROJECT_ROOT`` resolves from
+        # ``from sonic_cli.gateway import PROJECT_ROOT`` resolves from
         # sys.modules instead of re-importing under the win32 platform
         # patch below — a fresh import would run gateway/status.py's
         # ``if sys.platform == "win32": import msvcrt`` branch and crash on
         # Linux CI with ModuleNotFoundError.
-        import hermes_cli.config  # noqa: F401
-        import hermes_cli.gateway  # noqa: F401
+        import sonic_cli.config  # noqa: F401
+        import sonic_cli.gateway  # noqa: F401
 
         argv = [
             "C:/venv/Scripts/python.exe",
             "-m",
-            "hermes_cli.main",
+            "sonic_cli.main",
             "--profile",
             "work",
             "gateway",
@@ -1103,22 +1103,22 @@ class TestWindowlessGatewayRestartSpec:
         def fake_resolve(python_exe):
             return ("C:/base/pythonw.exe", Path("C:/venv"), ["C:/venv/Lib/site-packages"])
 
-        # Mock get_hermes_home too: the real one calls Path.resolve(), which
+        # Mock get_sonic_home too: the real one calls Path.resolve(), which
         # consults sysconfig and raises ModuleNotFoundError under the win32
         # platform patch on a Linux host.
         with mock.patch.object(gw.sys, "platform", "win32"), mock.patch.object(
             gw, "_resolve_detached_python", side_effect=fake_resolve
         ), mock.patch.object(
-            gw, "_stable_gateway_working_dir", return_value="C:/hermes"
+            gw, "_stable_gateway_working_dir", return_value="C:/sonic"
         ), mock.patch(
-            "hermes_cli.config.get_hermes_home", return_value="C:/hermes"
+            "sonic_cli.config.get_sonic_home", return_value="C:/sonic"
         ):
             new_argv, cwd, env = gw.windowless_gateway_restart_spec(list(argv))
 
         assert new_argv[0] == "C:/base/pythonw.exe"
         # Everything after the interpreter is byte-for-byte preserved.
         assert new_argv[1:] == argv[1:]
-        assert cwd == "C:/hermes"
+        assert cwd == "C:/sonic"
         assert env["VIRTUAL_ENV"] == str(Path("C:/venv"))
         assert "PYTHONPATH" in env
         assert "site-packages" in env["PYTHONPATH"]

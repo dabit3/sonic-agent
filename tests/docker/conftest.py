@@ -227,7 +227,7 @@ def poll_container(
     *,
     deadline_s: float = 30.0,
     interval_s: float = 0.5,
-    user: str = "hermes",
+    user: str = "sonic",
 ) -> tuple[bool, str]:
     """Repeatedly run ``probe`` inside the container until it exits 0 or
     ``deadline_s`` elapses.

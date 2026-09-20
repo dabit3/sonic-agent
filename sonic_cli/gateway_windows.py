@@ -827,10 +827,10 @@ def windowless_gateway_restart_spec(
     a clean start: swap the interpreter for the windowless ``pythonw.exe``
     (base interpreter for uv venvs) and return the cwd + env overlay
     (VIRTUAL_ENV, PYTHONPATH) the base interpreter needs to resolve the
-    ``hermes_cli`` package without the venv launcher's site config.
+    ``sonic_cli`` package without the venv launcher's site config.
 
     Returns ``(new_argv, working_dir, env_overlay)``.  ``new_argv``
-    preserves every argument after the interpreter (``-m hermes_cli.main
+    preserves every argument after the interpreter (``-m sonic_cli.main
     [--profile X] gateway run [--replace]``) verbatim.  On non-Windows, or
     if ``run_argv`` doesn't start with a resolvable python, the argv is
     returned unchanged with an empty overlay.
@@ -840,8 +840,8 @@ def windowless_gateway_restart_spec(
     if sys.platform != "win32":
         return run_argv, "", {}
 
-    from hermes_cli.config import get_hermes_home
-    from hermes_cli.gateway import PROJECT_ROOT
+    from sonic_cli.config import get_sonic_home
+    from sonic_cli.gateway import PROJECT_ROOT
 
     python_exe = run_argv[0]
     rest = run_argv[1:]
@@ -862,17 +862,17 @@ def windowless_gateway_restart_spec(
     working_dir = _stable_gateway_working_dir(PROJECT_ROOT)
     project_root = str(PROJECT_ROOT)
     try:
-        hermes_home = str(Path(get_hermes_home()).resolve())
+        sonic_home = str(Path(get_sonic_home()).resolve())
     except Exception:
-        hermes_home = ""
+        sonic_home = ""
 
     env_overlay: dict[str, str] = {
         "PYTHONIOENCODING": "utf-8",
-        "HERMES_GATEWAY_DETACHED": "1",
+        "SONIC_GATEWAY_DETACHED": "1",
         "VIRTUAL_ENV": str(venv_dir),
     }
-    if hermes_home:
-        env_overlay["HERMES_HOME"] = hermes_home
+    if sonic_home:
+        env_overlay["SONIC_HOME"] = sonic_home
     _prepend_pythonpath(
         env_overlay,
         [project_root, *extra_pythonpath] if extra_pythonpath else [project_root],

@@ -1751,7 +1751,7 @@ class TestWebServerEndpoints:
         # plugin registry. The override must still supply a docs link so the
         # Channels page renders a working "Open setup guide" button instead of
         # an empty href (which resolves to the packaged app's own index.html).
-        from hermes_cli.web_server import _build_catalog_entry
+        from sonic_cli.web_server import _build_catalog_entry
 
         teams = _build_catalog_entry("teams")
         assert teams["docs_url"] == (
@@ -1763,7 +1763,7 @@ class TestWebServerEndpoints:
         # the plugin registry. The override must supply a docs link so the
         # Channels page renders a working "Open setup guide" button instead of
         # an empty href (which resolves to the packaged app's own index.html).
-        from hermes_cli.web_server import _build_catalog_entry
+        from sonic_cli.web_server import _build_catalog_entry
 
         google_chat = _build_catalog_entry("google_chat")
         assert google_chat["name"] == "Google Chat"

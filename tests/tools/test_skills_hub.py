@@ -1649,15 +1649,15 @@ class TestGithubProviderLabeling:
 
 
 def _make_index_source(skills):
-    """Build a HermesIndexSource pre-loaded with a fixed skill list."""
-    from tools.skills_hub import HermesIndexSource
-    src = HermesIndexSource(auth=GitHubAuth())
+    """Build a SonicIndexSource pre-loaded with a fixed skill list."""
+    from tools.skills_hub import SonicIndexSource
+    src = SonicIndexSource(auth=GitHubAuth())
     src._index = {"skills": skills}
     src._loaded = True
     return src
 
 
-class TestHermesIndexSearch:
+class TestSonicIndexSearch:
     def test_search_matches_identifier_and_provider(self):
         # NVIDIA skill whose name/description does NOT contain "nvidia" — only
         # the identifier and the provider label do. The old substring-only
@@ -1751,7 +1751,7 @@ class TestProviderFilter:
         other = SkillMeta(name="cuda-clone", description="gpu", source="clawhub",
                           identifier="clawhub/cuda-clone", trust_level="community")
         src = MagicMock()
-        src.source_id.return_value = "hermes-index"
+        src.source_id.return_value = "sonic-index"
         src.is_available = True
         src.search.return_value = [nv, other]
         results = unified_search("cuda", [src], source_filter="nvidia", limit=25)

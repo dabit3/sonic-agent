@@ -274,7 +274,7 @@ function MarkdownLink({ children, className, href, ...props }: ComponentProps<'a
 
   // Bare autolink → inline rich embed when a provider matches. Labeled links
   // (`[watch](url)`) stay plain. Desktop only (webview / iframe renderers).
-  if (window.hermesDesktop && text && normalizeExternalUrl(text) === target) {
+  if (window.sonicDesktop && text && normalizeExternalUrl(text) === target) {
     const embed = detectEmbed(target)
 
     if (embed) {

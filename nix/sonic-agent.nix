@@ -224,7 +224,7 @@ stdenv.mkDerivation (finalAttrs: {
       export SONIC_PYTHON=${sonicVenv}/bin/python3
     '';
 
-    devDeps = runtimeDeps ++ [ (mkHermesVenv (extraDependencyGroups ++ [ "dev" ])) ];
+    devDeps = runtimeDeps ++ [ (mkSonicVenv (extraDependencyGroups ++ [ "dev" ])) ];
   };
 
   meta = with lib; {

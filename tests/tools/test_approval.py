@@ -1122,44 +1122,44 @@ class TestPgrepKillExpansion:
         assert dangerous is False
 
     def test_kill_dollar_pidof_detected(self):
-        """`kill $(pidof hermes)` is the BSD/Linux equivalent of the
+        """`kill $(pidof sonic)` is the BSD/Linux equivalent of the
         pgrep expansion and bypasses the pkill/killall name pattern
         in the same way. See issue #33071."""
-        cmd = "kill -TERM $(pidof hermes_cli.main)"
+        cmd = "kill -TERM $(pidof sonic_cli.main)"
         dangerous, _, desc = detect_dangerous_command(cmd)
         assert dangerous is True
         assert "pidof" in desc.lower() or "pgrep" in desc.lower()
 
     def test_kill_backtick_pidof_detected(self):
-        cmd = "kill -9 `pidof hermes`"
+        cmd = "kill -9 `pidof sonic`"
         dangerous, _, _ = detect_dangerous_command(cmd)
         assert dangerous is True
 
 
 class TestLaunchctlGatewayLifecycle:
-    """launchctl stop/kickstart/bootout/unload against the Hermes service
-    label achieves the same effect as `hermes gateway stop|restart` and
+    """launchctl stop/kickstart/bootout/unload against the Sonic service
+    label achieves the same effect as `sonic gateway stop|restart` and
     must require the same approval. See issue #33071.
     """
 
-    def test_launchctl_stop_hermes_detected(self):
-        cmd = "launchctl stop ai.hermes.gateway"
+    def test_launchctl_stop_sonic_detected(self):
+        cmd = "launchctl stop ai.sonic.gateway"
         dangerous, _, desc = detect_dangerous_command(cmd)
         assert dangerous is True
-        assert "launchd" in desc.lower() or "hermes" in desc.lower()
+        assert "launchd" in desc.lower() or "sonic" in desc.lower()
 
-    def test_launchctl_kickstart_hermes_detected(self):
-        cmd = "launchctl kickstart -k system/ai.hermes.gateway"
+    def test_launchctl_kickstart_sonic_detected(self):
+        cmd = "launchctl kickstart -k system/ai.sonic.gateway"
         dangerous, _, _ = detect_dangerous_command(cmd)
         assert dangerous is True
 
-    def test_launchctl_bootout_hermes_detected(self):
-        cmd = "launchctl bootout system/ai.hermes.gateway"
+    def test_launchctl_bootout_sonic_detected(self):
+        cmd = "launchctl bootout system/ai.sonic.gateway"
         dangerous, _, _ = detect_dangerous_command(cmd)
         assert dangerous is True
 
-    def test_launchctl_unload_hermes_detected(self):
-        cmd = "launchctl unload ~/Library/LaunchAgents/ai.hermes.gateway.plist"
+    def test_launchctl_unload_sonic_detected(self):
+        cmd = "launchctl unload ~/Library/LaunchAgents/ai.sonic.gateway.plist"
         dangerous, _, _ = detect_dangerous_command(cmd)
         assert dangerous is True
 
@@ -1170,7 +1170,7 @@ class TestLaunchctlGatewayLifecycle:
         assert dangerous is False
 
     def test_launchctl_stop_unrelated_not_flagged(self):
-        """`launchctl stop` on a non-Hermes label is out of scope for the
+        """`launchctl stop` on a non-Sonic label is out of scope for the
         gateway-lifecycle guard."""
         cmd = "launchctl stop com.example.unrelated"
         dangerous, _, _ = detect_dangerous_command(cmd)

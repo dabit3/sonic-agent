@@ -1135,11 +1135,11 @@ def test_current_custom_model_is_surfaced_in_builtin_provider_row(monkeypatch):
     current provider's list.
     """
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
-    monkeypatch.setattr("hermes_cli.providers.HERMES_OVERLAYS", {})
+    monkeypatch.setattr("sonic_cli.providers.SONIC_OVERLAYS", {})
     monkeypatch.setenv("OPENROUTER_API_KEY", "sk-test")
     # Pin a small curated catalog so the assertion is deterministic.
     monkeypatch.setattr(
-        "hermes_cli.models.cached_provider_model_ids",
+        "sonic_cli.models.cached_provider_model_ids",
         lambda slug, **kw: ["anthropic/claude-opus-4.8", "openai/gpt-5.5"]
         if slug == "openrouter"
         else [],
@@ -1163,11 +1163,11 @@ def test_current_custom_model_not_leaked_into_other_provider_rows(monkeypatch):
     """The current model is only injected into the CURRENT provider's row,
     never into other providers (which can't serve it)."""
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
-    monkeypatch.setattr("hermes_cli.providers.HERMES_OVERLAYS", {})
+    monkeypatch.setattr("sonic_cli.providers.SONIC_OVERLAYS", {})
     monkeypatch.setenv("OPENROUTER_API_KEY", "sk-test")
     monkeypatch.setenv("NOUS_API_KEY", "sk-test")
     monkeypatch.setattr(
-        "hermes_cli.models.cached_provider_model_ids",
+        "sonic_cli.models.cached_provider_model_ids",
         lambda slug, **kw: ["curated/one"],
     )
 

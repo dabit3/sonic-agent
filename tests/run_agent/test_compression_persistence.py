@@ -138,7 +138,7 @@ class TestFlushAfterCompression:
         the compacted dicts again, doubling live context.
         """
         from agent.conversation_compression import conversation_history_after_compression
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         with tempfile.TemporaryDirectory() as tmpdir:
             db_path = Path(tmpdir) / "test.db"

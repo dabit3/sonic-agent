@@ -208,7 +208,7 @@ describe('checkBackendUpdates', () => {
 
   it('preserves backend update_available when the backend cannot count commits', async () => {
     setRemote(true)
-    checkHermesUpdateSpy.mockResolvedValue({
+    checkSonicUpdateSpy.mockResolvedValue({
       install_method: 'nixos',
       current_version: '0.16.0',
       behind: -1,

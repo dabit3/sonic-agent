@@ -58,7 +58,7 @@ def _wait_for_gateway_or_exit(
     CMD process (not supervised by s6).  Under CI load the gateway can
     take well over 6s to finish Python imports and reach the gateway
     entrypoint — a fixed ``time.sleep(6)`` races.  Polling for
-    ``pgrep -f 'hermes.*gateway'`` (the gateway is running) or
+    ``pgrep -f 'sonic.*gateway'`` (the gateway is running) or
     ``docker inspect`` returning ``exited`` is both faster on quick
     machines and flake-free on slow ones.
     """
@@ -75,7 +75,7 @@ def _wait_for_gateway_or_exit(
             # Check if the gateway process is actually running in the
             # foreground (the no-supervise path).  If it is, we're done.
             pgrep = docker_exec_sh(
-                container, "pgrep -f 'hermes.*gateway' >/dev/null 2>&1",
+                container, "pgrep -f 'sonic.*gateway' >/dev/null 2>&1",
             )
             if pgrep.returncode == 0:
                 return "running"
@@ -105,12 +105,12 @@ def test_gateway_run_redirects_to_supervised(
 
     # Wait for the redirect breadcrumb to appear in docker logs.
     # Under heavy parallel load (32-way docker test fan-out), the CMD
-    # process (main-wrapper.sh → python → hermes gateway run) can take
+    # process (main-wrapper.sh → python → sonic gateway run) can take
     # well over 5s to reach the redirect logic. The breadcrumb is the
     # definitive signal that the redirect fired — polling for it is
     # both faster on quick machines and flake-free on slow ones.
     # Under heavy parallel docker load (32-way fan-out), the CMD process
-    # (main-wrapper.sh → python → hermes gateway run) can take well over
+    # (main-wrapper.sh → python → sonic gateway run) can take well over
     # 30s to import the codebase, load config, and reach the redirect
     # logic. 60s matches the deadline other boot-readiness polls use.
     logs = wait_for_docker_logs(
@@ -147,8 +147,8 @@ def test_gateway_run_redirects_to_supervised(
     # The CMD process (PID under /init that the wrapper exec'd into)
     # should be sleeping, not the gateway. We count `sleep infinity`
     # processes parented to the CMD wrapper (main-wrapper.sh / rc.init
-    # top), NOT the static main-hermes service's sleep — a bare grep
-    # for `sleep infinity` would false-positive on the main-hermes
+    # top), NOT the static main-sonic service's sleep — a bare grep
+    # for `sleep infinity` would false-positive on the main-sonic
     # sleep and pass even before the redirect fires.
     r = docker_exec_sh(
         container_name,
@@ -424,7 +424,7 @@ def test_supervised_gateway_stdout_reaches_docker_logs(
     """
     start_container(built_image, container_name, cmd="gateway run")
 
-    # Poll docker logs for the banner glyph (⚕) or "Hermes Gateway
+    # Poll docker logs for the banner glyph (⚕) or "Sonic Gateway
     # Starting" — the gateway's rich-console startup banner. A fixed
     # sleep(8) races under CI parallel docker test fan-out: the
     # supervised gateway can take well over 8s to finish imports +

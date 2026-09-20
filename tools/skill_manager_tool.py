@@ -269,7 +269,7 @@ def _background_review_write_guard(
                     f"Refusing background curator {action} for pinned skill "
                     f"'{name}': pinned skills are off-limits to autonomous "
                     "maintenance. Ask the user to run "
-                    f"`hermes curator unpin {name}` if they want it changed."
+                    f"`sonic curator unpin {name}` if they want it changed."
                 ),
             }
     except Exception:

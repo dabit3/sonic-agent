@@ -21,10 +21,10 @@ You can select a preset through the normal model picker surfaces:
 /model review --provider moa
 ```
 
-MoA presets are selectable on **every Hermes surface**, because MoA is a normal provider in the model system:
+MoA presets are selectable on **every Sonic surface**, because MoA is a normal provider in the model system:
 
 - **CLI / gateway / TUI `/model`** — `/model <preset> --provider moa`, or `/model --provider moa` for the default preset. A bare `/model <preset>` also works when the name exactly matches a configured preset.
-- **`hermes model`** and the **Dashboard model picker** — a `Mixture of Agents` provider row appears with your preset names as its models.
+- **`sonic model`** and the **Dashboard model picker** — a `Mixture of Agents` provider row appears with your preset names as its models.
 - **Desktop GUI app** — the model dropdown shows an `MoA presets` section; selecting one (`MoA: <preset>`) switches the active model to that preset. The Desktop settings panel also creates and edits presets.
 
 Configured presets therefore show up wherever you would pick any other model.
@@ -108,9 +108,9 @@ sonic moa delete review
 
 ## Benchmarks
 
-On HermesBench, a two-model MoA preset — `claude-opus-4.8` aggregating over a `gpt-5.5` reference — outscores either model run on its own:
+On SonicBench, a two-model MoA preset — `claude-opus-4.8` aggregating over a `gpt-5.5` reference — outscores either model run on its own:
 
-| Model | HermesBench score |
+| Model | SonicBench score |
 |---|---|
 | **Opus aggregator (opus-4.8 + gpt-5.5 reference) — MoA** | **0.8202** |
 | `anthropic/claude-opus-4.8` | 0.7607 |
@@ -127,7 +127,7 @@ Both internal call types cache normally:
 - **Reference models** receive a trimmed, deterministic view of the conversation (system prompt and tool transcript stripped — see the loop above). Because that view is a stable function of the stable history, a reference model's prompt prefix repeats across iterations and caches normally. References are short advisory calls with no tools.
 - **The aggregator** is the acting model. The reference outputs are appended to the *end* of the latest user turn as private guidance. Because that text sits at the tail — below the entire stable prefix (system prompt + prior history) — it does not invalidate any cached prefix: the aggregator gets a cache hit on everything above the injection, and only the freshly appended tail is new. That is exactly how every normal turn behaves, where each new user message is also uncached tail tokens.
 
-So MoA does not sacrifice prompt caching on either call type. Its only real cost is the extra reference calls per iteration — you pay for multiple model perspectives, not for broken caches. The long-lived conversation prefix shared with the rest of Hermes is fully intact.
+So MoA does not sacrifice prompt caching on either call type. Its only real cost is the extra reference calls per iteration — you pay for multiple model perspectives, not for broken caches. The long-lived conversation prefix shared with the rest of Sonic is fully intact.
 
 ## Notes
 

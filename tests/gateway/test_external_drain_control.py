@@ -92,7 +92,7 @@ class TestInstantiationEpoch:
 
     def test_marker_from_prior_instantiation_reads_as_absent(self, home, monkeypatch):
         # THE NS-570 REGRESSION. A begin-drain marker written by a PREVIOUS
-        # container/VM instantiation survives on the durable HERMES_HOME volume
+        # container/VM instantiation survives on the durable SONIC_HOME volume
         # across a machine restart. The freshly-restarted gateway (new epoch)
         # must treat it as absent, NOT re-engage drain.
         monkeypatch.setattr(dc, "current_instantiation_epoch", lambda: "epoch-OLD")

@@ -80,7 +80,7 @@ class TestSafeWriteRoot:
 
 
 class TestMultipleSafeWriteRoots:
-    """HERMES_WRITE_SAFE_ROOT with multiple colon-separated directories."""
+    """SONIC_WRITE_SAFE_ROOT with multiple colon-separated directories."""
 
     def test_write_inside_first_root_allowed(self, tmp_path: Path, monkeypatch):
         root_a = tmp_path / "workspace_a"
@@ -89,7 +89,7 @@ class TestMultipleSafeWriteRoots:
         os.makedirs(child.parent, exist_ok=True)
         os.makedirs(root_b, exist_ok=True)
 
-        monkeypatch.setenv("HERMES_WRITE_SAFE_ROOT", f"{root_a}{os.pathsep}{root_b}")
+        monkeypatch.setenv("SONIC_WRITE_SAFE_ROOT", f"{root_a}{os.pathsep}{root_b}")
         assert _is_write_denied(str(child)) is False
 
     def test_write_inside_second_root_allowed(self, tmp_path: Path, monkeypatch):
@@ -99,7 +99,7 @@ class TestMultipleSafeWriteRoots:
         os.makedirs(child.parent, exist_ok=True)
         os.makedirs(root_a, exist_ok=True)
 
-        monkeypatch.setenv("HERMES_WRITE_SAFE_ROOT", f"{root_a}{os.pathsep}{root_b}")
+        monkeypatch.setenv("SONIC_WRITE_SAFE_ROOT", f"{root_a}{os.pathsep}{root_b}")
         assert _is_write_denied(str(child)) is False
 
     def test_write_outside_all_roots_denied(self, tmp_path: Path, monkeypatch):
@@ -110,7 +110,7 @@ class TestMultipleSafeWriteRoots:
         os.makedirs(root_b, exist_ok=True)
         os.makedirs(outside.parent, exist_ok=True)
 
-        monkeypatch.setenv("HERMES_WRITE_SAFE_ROOT", f"{root_a}{os.pathsep}{root_b}")
+        monkeypatch.setenv("SONIC_WRITE_SAFE_ROOT", f"{root_a}{os.pathsep}{root_b}")
         assert _is_write_denied(str(outside)) is True
 
     def test_trailing_separator_ignored(self, tmp_path: Path, monkeypatch):
@@ -118,7 +118,7 @@ class TestMultipleSafeWriteRoots:
         inside = root / "file.txt"
         os.makedirs(root, exist_ok=True)
 
-        monkeypatch.setenv("HERMES_WRITE_SAFE_ROOT", f"{root}{os.pathsep}")
+        monkeypatch.setenv("SONIC_WRITE_SAFE_ROOT", f"{root}{os.pathsep}")
         assert _is_write_denied(str(inside)) is False
 
     def test_leading_separator_ignored(self, tmp_path: Path, monkeypatch):
@@ -126,7 +126,7 @@ class TestMultipleSafeWriteRoots:
         inside = root / "file.txt"
         os.makedirs(root, exist_ok=True)
 
-        monkeypatch.setenv("HERMES_WRITE_SAFE_ROOT", f"{os.pathsep}{root}")
+        monkeypatch.setenv("SONIC_WRITE_SAFE_ROOT", f"{os.pathsep}{root}")
         assert _is_write_denied(str(inside)) is False
 
     def test_double_separator_ignored(self, tmp_path: Path, monkeypatch):
@@ -135,14 +135,14 @@ class TestMultipleSafeWriteRoots:
         os.makedirs(root_a, exist_ok=True)
         os.makedirs(root_b, exist_ok=True)
 
-        monkeypatch.setenv("HERMES_WRITE_SAFE_ROOT", f"{root_a}{os.pathsep}{os.pathsep}{root_b}")
+        monkeypatch.setenv("SONIC_WRITE_SAFE_ROOT", f"{root_a}{os.pathsep}{os.pathsep}{root_b}")
         # Both roots should still be active
         assert _is_write_denied(str(root_a / "file.txt")) is False
         assert _is_write_denied(str(root_b / "file.txt")) is False
 
     def test_all_separators_yields_empty_set(self, tmp_path: Path, monkeypatch):
         target = tmp_path / "regular.txt"
-        monkeypatch.setenv("HERMES_WRITE_SAFE_ROOT", os.pathsep * 3)
+        monkeypatch.setenv("SONIC_WRITE_SAFE_ROOT", os.pathsep * 3)
         assert _is_write_denied(str(target)) is False
 
     def test_static_deny_still_wins_with_multiple_roots(self, tmp_path: Path, monkeypatch):
@@ -151,7 +151,7 @@ class TestMultipleSafeWriteRoots:
         os.makedirs(root, exist_ok=True)
 
         monkeypatch.setenv(
-            "HERMES_WRITE_SAFE_ROOT",
+            "SONIC_WRITE_SAFE_ROOT",
             f"{root}{os.pathsep}{os.path.expanduser('~')}",
         )
         assert _is_write_denied(os.path.expanduser("~/.ssh/id_rsa")) is True
@@ -162,7 +162,7 @@ class TestMultipleSafeWriteRoots:
         os.makedirs(root, exist_ok=True)
 
         monkeypatch.setenv(
-            "HERMES_WRITE_SAFE_ROOT",
+            "SONIC_WRITE_SAFE_ROOT",
             f"{root}{os.pathsep}{root}",
         )
         assert _is_write_denied(str(inside)) is False

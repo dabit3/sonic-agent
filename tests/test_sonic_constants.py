@@ -180,15 +180,15 @@ class TestSonicManagedNode:
         monkeypatch.setattr(sonic_constants.sys, "platform", "win32")
         monkeypatch.setenv("SONIC_HOME", str(home))
         monkeypatch.setenv("PATH", str(bin_dir))
-        monkeypatch.setattr(hermes_constants, "_managed_node_heal_attempted", False)
-        monkeypatch.setattr(hermes_constants, "heal_hermes_managed_node", lambda: False)
+        monkeypatch.setattr(sonic_constants, "_managed_node_heal_attempted", False)
+        monkeypatch.setattr(sonic_constants, "heal_sonic_managed_node", lambda: False)
         monkeypatch.setattr(
             sonic_constants,
             "node_tool_runnable",
             lambda path: False,
         )
 
-        assert hermes_managed_node_tree_present() is True
+        assert sonic_managed_node_tree_present() is True
         assert find_node_executable("npm") is None
         assert find_node_executable("npm") != str(path_npm)
 
@@ -210,7 +210,7 @@ class TestSonicManagedNode:
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX shell stubs; Windows uses .cmd shims")
 class TestNodeToolRunnable:
-    """node_tool_runnable() rejects broken Hermes-managed npm/node wrappers."""
+    """node_tool_runnable() rejects broken Sonic-managed npm/node wrappers."""
 
     def _stub(self, tmp_path, name, body, mode=0o755):
         path = tmp_path / name
@@ -243,9 +243,9 @@ class TestNodeToolRunnable:
         system_bin.mkdir()
         self._stub(system_bin, "npm", "#!/bin/sh\necho '11.10.0'\nexit 0\n")
 
-        monkeypatch.setenv("HERMES_HOME", str(profile_home))
+        monkeypatch.setenv("SONIC_HOME", str(profile_home))
         monkeypatch.setenv("PATH", str(system_bin))
-        monkeypatch.setattr(hermes_constants, "_managed_node_heal_attempted", False)
+        monkeypatch.setattr(sonic_constants, "_managed_node_heal_attempted", False)
 
         def _heal():
             heal_called["value"] = True
@@ -253,7 +253,7 @@ class TestNodeToolRunnable:
             broken_npm.chmod(0o755)
             return True
 
-        monkeypatch.setattr(hermes_constants, "heal_hermes_managed_node", _heal)
+        monkeypatch.setattr(sonic_constants, "heal_sonic_managed_node", _heal)
 
         resolved = find_node_executable("npm")
         assert heal_called["value"] is True
@@ -271,18 +271,18 @@ class TestNodeToolRunnable:
         system_bin.mkdir()
         good_npm = self._stub(system_bin, "npm", "#!/bin/sh\necho '11.10.0'\nexit 0\n")
 
-        monkeypatch.setenv("HERMES_HOME", str(profile_home))
+        monkeypatch.setenv("SONIC_HOME", str(profile_home))
         monkeypatch.setenv("PATH", str(system_bin))
-        monkeypatch.setattr(hermes_constants, "_managed_node_heal_attempted", False)
+        monkeypatch.setattr(sonic_constants, "_managed_node_heal_attempted", False)
 
         def _heal():
             broken_npm.write_text(healed_npm.read_text())
             broken_npm.chmod(0o755)
             return True
 
-        monkeypatch.setattr(hermes_constants, "heal_hermes_managed_node", _heal)
+        monkeypatch.setattr(sonic_constants, "heal_sonic_managed_node", _heal)
 
-        assert find_hermes_node_executable("npm") == str(healed_npm)
+        assert find_sonic_node_executable("npm") == str(healed_npm)
         assert find_node_executable("npm") == str(healed_npm)
         assert find_node_executable("npm") != str(good_npm)
 
@@ -296,10 +296,10 @@ class TestNodeToolRunnable:
         system_bin.mkdir()
         self._stub(system_bin, "npm", "#!/bin/sh\necho '11.10.0'\nexit 0\n")
 
-        monkeypatch.setenv("HERMES_HOME", str(profile_home))
+        monkeypatch.setenv("SONIC_HOME", str(profile_home))
         monkeypatch.setenv("PATH", str(system_bin))
-        monkeypatch.setattr(hermes_constants, "_managed_node_heal_attempted", False)
-        monkeypatch.setattr(hermes_constants, "heal_hermes_managed_node", lambda: False)
+        monkeypatch.setattr(sonic_constants, "_managed_node_heal_attempted", False)
+        monkeypatch.setattr(sonic_constants, "heal_sonic_managed_node", lambda: False)
 
         assert find_node_executable("npm") is None
 
@@ -313,7 +313,7 @@ class TestNodeToolRunnable:
         system_bin.mkdir()
         self._stub(system_bin, "npm", "#!/bin/sh\necho '11.10.0'\nexit 0\n")
 
-        monkeypatch.setenv("HERMES_HOME", str(profile_home))
+        monkeypatch.setenv("SONIC_HOME", str(profile_home))
         monkeypatch.setenv("PATH", str(system_bin))
 
         assert find_node_executable("npm") == str(managed_npm)
@@ -612,8 +612,8 @@ class TestAgentBrowserRunnable:
         assert agent_browser_runnable("/usr/local/bin/npx agent-browser") is True
 
 
-class TestGetHermesDir:
-    """Tests for ``get_hermes_dir(new_subpath, old_name)``.
+class TestGetSonicDir:
+    """Tests for ``get_sonic_dir(new_subpath, old_name)``.
 
     Contract: prefer the legacy ``<old_name>/`` location, but only when
     it has content. An empty legacy stub must fall through to the new
@@ -622,11 +622,11 @@ class TestGetHermesDir:
     """
 
     def _set_home(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+        monkeypatch.setenv("SONIC_HOME", str(tmp_path))
 
     def test_neither_exists_returns_new(self, tmp_path, monkeypatch):
         self._set_home(tmp_path, monkeypatch)
-        result = get_hermes_dir("platforms/pairing", "pairing")
+        result = get_sonic_dir("platforms/pairing", "pairing")
         assert result == tmp_path / "platforms/pairing"
 
     def test_legacy_populated_returns_legacy(self, tmp_path, monkeypatch):
@@ -634,7 +634,7 @@ class TestGetHermesDir:
         legacy = tmp_path / "image_cache"
         legacy.mkdir()
         (legacy / "cached.png").write_bytes(b"x")
-        result = get_hermes_dir("cache/images", "image_cache")
+        result = get_sonic_dir("cache/images", "image_cache")
         assert result == legacy
 
     def test_legacy_populated_with_subdir_returns_legacy(self, tmp_path, monkeypatch):
@@ -643,7 +643,7 @@ class TestGetHermesDir:
         legacy = tmp_path / "matrix" / "store"
         legacy.mkdir(parents=True)
         (legacy / "session").mkdir()  # subdir, not a file
-        result = get_hermes_dir("platforms/matrix/store", "matrix/store")
+        result = get_sonic_dir("platforms/matrix/store", "matrix/store")
         assert result == legacy
 
     def test_legacy_empty_returns_new(self, tmp_path, monkeypatch):
@@ -661,7 +661,7 @@ class TestGetHermesDir:
         new = tmp_path / "platforms" / "pairing"
         new.mkdir(parents=True)
         (new / "telegram-approved.json").write_text("[]")
-        result = get_hermes_dir("platforms/pairing", "pairing")
+        result = get_sonic_dir("platforms/pairing", "pairing")
         assert result == new
 
     def test_legacy_empty_and_new_missing_returns_new(self, tmp_path, monkeypatch):
@@ -675,7 +675,7 @@ class TestGetHermesDir:
         self._set_home(tmp_path, monkeypatch)
         legacy = tmp_path / "audio_cache"
         legacy.mkdir()
-        result = get_hermes_dir("cache/audio", "audio_cache")
+        result = get_sonic_dir("cache/audio", "audio_cache")
         assert result == tmp_path / "cache/audio"
 
     def test_legacy_is_file_treated_as_content(self, tmp_path, monkeypatch):
@@ -687,7 +687,7 @@ class TestGetHermesDir:
         self._set_home(tmp_path, monkeypatch)
         legacy = tmp_path / "image_cache"
         legacy.write_bytes(b"sentinel")
-        result = get_hermes_dir("cache/images", "image_cache")
+        result = get_sonic_dir("cache/images", "image_cache")
         assert result == legacy
 
     def test_unreadable_legacy_dir_kept(self, tmp_path, monkeypatch):
@@ -711,7 +711,7 @@ class TestGetHermesDir:
             return real_iterdir(self)
 
         monkeypatch.setattr(Path, "iterdir", boom)
-        result = get_hermes_dir(
+        result = get_sonic_dir(
             "platforms/whatsapp/session", "whatsapp/session"
         )
         assert result == legacy
@@ -743,7 +743,7 @@ class TestGetHermesDir:
             return real_lstat(self)
 
         monkeypatch.setattr(Path, "lstat", boom)
-        result = get_hermes_dir("platforms/pairing", "pairing")
+        result = get_sonic_dir("platforms/pairing", "pairing")
         assert result == legacy
 
     def test_dangling_legacy_symlink_returns_new(self, tmp_path, monkeypatch):
@@ -761,7 +761,7 @@ class TestGetHermesDir:
         new = tmp_path / "platforms" / "pairing"
         new.mkdir(parents=True)
         (new / "discord-approved.json").write_text("[]")
-        result = get_hermes_dir("platforms/pairing", "pairing")
+        result = get_sonic_dir("platforms/pairing", "pairing")
         assert result == new
 
     def test_symlink_to_populated_dir_returns_legacy(self, tmp_path, monkeypatch):
@@ -772,7 +772,7 @@ class TestGetHermesDir:
         (real / "cached.png").write_bytes(b"x")
         legacy = tmp_path / "image_cache"
         legacy.symlink_to(real)
-        result = get_hermes_dir("cache/images", "image_cache")
+        result = get_sonic_dir("cache/images", "image_cache")
         assert result == legacy
 
     def test_symlink_to_empty_dir_returns_new(self, tmp_path, monkeypatch):
@@ -782,5 +782,5 @@ class TestGetHermesDir:
         empty.mkdir()
         legacy = tmp_path / "audio_cache"
         legacy.symlink_to(empty)
-        result = get_hermes_dir("cache/audio", "audio_cache")
+        result = get_sonic_dir("cache/audio", "audio_cache")
         assert result == tmp_path / "cache/audio"

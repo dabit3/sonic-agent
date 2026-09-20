@@ -110,7 +110,7 @@ async def test_list_cron_jobs_specific_profile_filters_results(isolated_profiles
 async def test_create_cron_job_normalizes_representative_core_fields(
     isolated_profiles, tmp_path
 ):
-    from hermes_cli import web_server
+    from sonic_cli import web_server
 
     scripts_dir = isolated_profiles["worker_alpha"] / "scripts"
     scripts_dir.mkdir()
@@ -161,7 +161,7 @@ async def test_cron_mutation_without_profile_finds_named_profile_job(isolated_pr
 
 @pytest.mark.asyncio
 async def test_update_cron_job_normalizes_dashboard_core_fields(isolated_profiles, tmp_path):
-    from hermes_cli import web_server
+    from sonic_cli import web_server
 
     scripts_dir = isolated_profiles["worker_alpha"] / "scripts"
     scripts_dir.mkdir()
@@ -197,7 +197,7 @@ async def test_update_cron_job_normalizes_dashboard_core_fields(isolated_profile
 async def test_create_cron_job_rejects_script_outside_profile_scripts(
     isolated_profiles, tmp_path
 ):
-    from hermes_cli import web_server
+    from sonic_cli import web_server
 
     outside = tmp_path / "outside.py"
     outside.write_text("print('nope')\n", encoding="utf-8")
@@ -218,7 +218,7 @@ async def test_create_cron_job_rejects_script_outside_profile_scripts(
 
 @pytest.mark.asyncio
 async def test_create_cron_job_rejects_empty_agent_job(isolated_profiles):
-    from hermes_cli import web_server
+    from sonic_cli import web_server
 
     with pytest.raises(HTTPException) as exc:
         await web_server.create_cron_job(
@@ -232,7 +232,7 @@ async def test_create_cron_job_rejects_empty_agent_job(isolated_profiles):
 
 @pytest.mark.asyncio
 async def test_update_cron_job_no_agent_reuses_existing_script(isolated_profiles):
-    from hermes_cli import web_server
+    from sonic_cli import web_server
 
     scripts_dir = isolated_profiles["worker_alpha"] / "scripts"
     scripts_dir.mkdir()
@@ -258,7 +258,7 @@ async def test_update_cron_job_no_agent_reuses_existing_script(isolated_profiles
 
 @pytest.mark.asyncio
 async def test_dashboard_cron_rejects_missing_context_from(isolated_profiles):
-    from hermes_cli import web_server
+    from sonic_cli import web_server
 
     with pytest.raises(HTTPException) as create_exc:
         await web_server.create_cron_job(
@@ -298,7 +298,7 @@ async def test_dashboard_cron_rejects_missing_context_from(isolated_profiles):
 
 @pytest.mark.asyncio
 async def test_dashboard_cron_context_from_is_profile_scoped(isolated_profiles):
-    from hermes_cli import web_server
+    from sonic_cli import web_server
 
     default_job = web_server._call_cron_for_profile(
         "default",
@@ -342,7 +342,7 @@ async def test_update_cron_job_refreshes_snapshots_when_unpinning(
     isolated_profiles,
     monkeypatch,
 ):
-    from hermes_cli import runtime_provider, web_server
+    from sonic_cli import runtime_provider, web_server
 
     monkeypatch.setattr(
         runtime_provider,
@@ -385,7 +385,7 @@ async def test_dashboard_cron_noop_inference_fields_keep_existing_snapshots(
     isolated_profiles,
     monkeypatch,
 ):
-    from hermes_cli import runtime_provider, web_server
+    from sonic_cli import runtime_provider, web_server
 
     current_provider = {"name": "initial-provider"}
     monkeypatch.setattr(
@@ -435,7 +435,7 @@ async def test_update_cron_job_clears_snapshots_for_no_agent(
     isolated_profiles,
     monkeypatch,
 ):
-    from hermes_cli import runtime_provider, web_server
+    from sonic_cli import runtime_provider, web_server
 
     monkeypatch.setattr(
         runtime_provider,
