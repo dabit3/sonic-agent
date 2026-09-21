@@ -246,21 +246,21 @@ class TestActiveVenvMarkerStripping:
     VIRTUAL_ENV (and possibly CONDA_PREFIX). If those leak into commands the
     agent runs against ANOTHER Python project, ``uv``/``poetry`` treat the
     inherited value as the active environment and build that project's deps
-    into the Hermes venv path instead of the project's own ``.venv`` —
-    silently clobbering the Hermes environment (and, when the other project
-    pins a different Python, breaking the gateway outright). The Hermes venv
+    into the Sonic venv path instead of the project's own ``.venv`` —
+    silently clobbering the Sonic environment (and, when the other project
+    pins a different Python, breaking the gateway outright). The Sonic venv
     stays reachable via PATH, so stripping the markers is safe.
     """
 
     def test_virtualenv_marker_stripped_end_to_end(self):
         result_env = _run_with_env(extra_os_env={
-            "VIRTUAL_ENV": "/home/user/.hermes/hermes-agent/venv",
+            "VIRTUAL_ENV": "/home/user/.sonic/sonic-agent/venv",
         })
         assert "VIRTUAL_ENV" not in result_env
 
     def test_conda_prefix_marker_stripped_end_to_end(self):
         result_env = _run_with_env(extra_os_env={
-            "CONDA_PREFIX": "/opt/conda/envs/hermes",
+            "CONDA_PREFIX": "/opt/conda/envs/sonic",
         })
         assert "CONDA_PREFIX" not in result_env
 

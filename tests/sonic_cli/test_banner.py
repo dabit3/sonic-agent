@@ -284,9 +284,9 @@ def test_build_welcome_banner_moa_provider_shows_preset_and_aggregator(tmp_path,
     """With provider='moa', the banner renders the preset + aggregator, not a bare slug."""
     import yaml
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
-    monkeypatch.setenv("HERMES_HOME", str(home))
+    monkeypatch.setenv("SONIC_HOME", str(home))
     (home / "config.yaml").write_text(
         yaml.safe_dump(
             {
@@ -330,8 +330,8 @@ def test_build_welcome_banner_moa_provider_shows_preset_and_aggregator(tmp_path,
 
 def test_build_welcome_banner_non_moa_unchanged(tmp_path, monkeypatch):
     """A normal provider still renders the bare model slug, no MoA prefix."""
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
-    (tmp_path / ".hermes").mkdir()
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / ".sonic"))
+    (tmp_path / ".sonic").mkdir()
 
     with (
         patch.object(model_tools, "check_tool_availability", return_value=([], [])),

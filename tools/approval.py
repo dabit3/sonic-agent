@@ -1608,7 +1608,7 @@ def check_all_command_guards(command: str, env_type: str,
         # normal approval flow.  Fixes #20733.
         _tirith_fail_open = True  # safe default if config is unreadable
         try:
-            from hermes_cli.config import load_config as _load_cfg
+            from sonic_cli.config import load_config as _load_cfg
             _sec = (_load_cfg() or {}).get("security", {}) or {}
             _tirith_enabled = _sec.get("tirith_enabled", True)
             if _tirith_enabled:

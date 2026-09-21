@@ -909,7 +909,7 @@ async def _send_to_platform(platform, pconfig, chat_id, message, thread_id=None,
     # endpoint so images/videos/audio arrive as native bubbles, not documents. #41112
     if platform == Platform.WHATSAPP and media_files:
         from gateway.platform_registry import platform_registry as _pr_wa
-        from hermes_cli.plugins import discover_plugins as _dp_wa
+        from sonic_cli.plugins import discover_plugins as _dp_wa
         _dp_wa()
         _wa_entry = _pr_wa.get("whatsapp")
         if _wa_entry is None or _wa_entry.standalone_sender_fn is None:

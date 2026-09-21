@@ -3636,8 +3636,8 @@ def _resolve_auto(
     # with that real provider+model. Mirrors the MoA context-length resolution.
     if main_provider == "moa":
         try:
-            from hermes_cli.config import load_config
-            from hermes_cli.moa_config import resolve_moa_preset
+            from sonic_cli.config import load_config
+            from sonic_cli.moa_config import resolve_moa_preset
 
             _preset = resolve_moa_preset(load_config().get("moa") or {}, main_model)
             _agg = _preset.get("aggregator") or {}

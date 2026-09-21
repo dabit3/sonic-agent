@@ -659,8 +659,8 @@ def build_welcome_banner(console: "Console", model: str, cwd: str,
         preset_name = model
         agg_label = ""
         try:
-            from hermes_cli.config import load_config
-            from hermes_cli.moa_config import normalize_moa_config
+            from sonic_cli.config import load_config
+            from sonic_cli.moa_config import normalize_moa_config
 
             _moa = normalize_moa_config(load_config().get("moa") or {})
             _preset = _moa.get("presets", {}).get(preset_name)

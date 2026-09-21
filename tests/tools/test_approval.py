@@ -1859,9 +1859,9 @@ class TestTirithImportErrorFailOpenPolicy:
         }
         real_import = builtins.__import__
         with _patch("builtins.__import__", side_effect=self._make_failing_import(real_import)):
-            with _patch("hermes_cli.config.load_config", return_value=cfg):
+            with _patch("sonic_cli.config.load_config", return_value=cfg):
                 with _patch("tools.approval.detect_dangerous_command", return_value=(False, None, None)):
-                    with mock_patch.dict("os.environ", {"HERMES_INTERACTIVE": "1"}, clear=False):
+                    with mock_patch.dict("os.environ", {"SONIC_INTERACTIVE": "1"}, clear=False):
                         result = check_all_command_guards("echo hello", "local")
 
         assert result.get("approved") is True
@@ -1884,9 +1884,9 @@ class TestTirithImportErrorFailOpenPolicy:
 
         real_import = builtins.__import__
         with _patch("builtins.__import__", side_effect=self._make_failing_import(real_import)):
-            with _patch("hermes_cli.config.load_config", return_value=cfg):
+            with _patch("sonic_cli.config.load_config", return_value=cfg):
                 with _patch("tools.approval.detect_dangerous_command", return_value=(False, None, None)):
-                    with mock_patch.dict("os.environ", {"HERMES_INTERACTIVE": "1"}, clear=False):
+                    with mock_patch.dict("os.environ", {"SONIC_INTERACTIVE": "1"}, clear=False):
                         result = check_all_command_guards(
                             "echo hello",
                             "local",
@@ -1915,9 +1915,9 @@ class TestTirithImportErrorFailOpenPolicy:
         }
         real_import = builtins.__import__
         with _patch("builtins.__import__", side_effect=self._make_failing_import(real_import)):
-            with _patch("hermes_cli.config.load_config", return_value=cfg):
+            with _patch("sonic_cli.config.load_config", return_value=cfg):
                 with _patch("tools.approval.detect_dangerous_command", return_value=(False, None, None)):
-                    with mock_patch.dict("os.environ", {"HERMES_INTERACTIVE": "1"}, clear=False):
+                    with mock_patch.dict("os.environ", {"SONIC_INTERACTIVE": "1"}, clear=False):
                         result = check_all_command_guards("echo hello", "local")
 
         assert result.get("approved") is True

@@ -189,7 +189,7 @@ def test_half_open_probe_on_dead_session_requests_reconnect(monkeypatch, tmp_pat
     the breaker every cooldown forever; the fix signals ``_reconnect_event``
     so the parked task revives and rebuilds the transport.
     """
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
 
     from tools import mcp_tool
     from tools.mcp_tool import _make_tool_handler
@@ -230,7 +230,7 @@ def test_half_open_dead_session_recovers_after_reconnect(monkeypatch, tmp_path):
     the run loop), the next call must go straight through — proving the wedge
     is escapable, not just deferred.
     """
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
 
     from tools import mcp_tool
     from tools.mcp_tool import _make_tool_handler
@@ -363,7 +363,7 @@ def test_run_loop_parks_instead_of_exiting_then_revives(monkeypatch, tmp_path):
     """
     import asyncio
 
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path))
 
     from tools import mcp_tool
     from tools.mcp_tool import MCPServerTask

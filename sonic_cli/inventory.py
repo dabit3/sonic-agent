@@ -446,7 +446,7 @@ def _moa_provider_row(current_provider: str = "") -> dict | None:
     """Build the virtual ``moa`` provider row for model pickers.
 
     Shared by the CLI inventory (:func:`build_models_payload`) and the gateway
-    picker path (:func:`hermes_cli.model_switch.list_picker_providers`) so the
+    picker path (:func:`sonic_cli.model_switch.list_picker_providers`) so the
     row shape stays in one place. Returns ``None`` when no MoA presets exist.
     """
     try:

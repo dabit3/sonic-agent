@@ -2287,7 +2287,7 @@ def _prepend_moa_picker_provider(providers: List[dict], current_provider: str = 
     builder so the row shape stays defined in one place.
     """
     try:
-        from hermes_cli.inventory import _moa_provider_row
+        from sonic_cli.inventory import _moa_provider_row
 
         moa_row = _moa_provider_row(current_provider)
         if moa_row is None:

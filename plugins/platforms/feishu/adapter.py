@@ -1671,7 +1671,7 @@ class FeishuAdapter(BasePlatformAdapter):
             if executor is None or getattr(executor, "_shutdown", False):
                 executor = concurrent.futures.ThreadPoolExecutor(
                     max_workers=10,
-                    thread_name_prefix="hermes-feishu-sdk",
+                    thread_name_prefix="sonic-feishu-sdk",
                 )
                 self._sdk_executor = executor
             return executor

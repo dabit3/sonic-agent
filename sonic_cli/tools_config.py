@@ -576,7 +576,7 @@ TOOL_CATEGORIES = {
 # `vision` is listed here only so it registers as a *configurable* toolset
 # (the value gates the reconfigure menu + the "[no API key]" suffix). Its
 # actual setup runs through `_configure_vision_backend()` — a full
-# provider+model picker like `hermes model` — NOT this single-key prompt, so
+# provider+model picker like `sonic model` — NOT this single-key prompt, so
 # users are never forced onto OpenRouter. `_toolset_has_keys("vision")`
 # resolves via `resolve_vision_provider_client()`, so the tuple below is never
 # prompted or read for vision; it's purely a presence marker.
@@ -880,7 +880,7 @@ def _run_cua_driver_installer(label: str = "Installing", verbose: bool = True) -
         _print_info(f"    {label} cua-driver...")
     driver_cmd = _cua_driver_cmd()
     try:
-        # When not verbose (e.g. `hermes update`'s refresh), capture the
+        # When not verbose (e.g. `sonic update`'s refresh), capture the
         # installer's chatty "Next steps" wall instead of dumping it to the
         # terminal. The combined output is logged so a failure stays
         # debuggable. Verbose installs (interactive `computer-use install`)
@@ -893,9 +893,9 @@ def _run_cua_driver_installer(label: str = "Installing", verbose: bool = True) -
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                 text=True, encoding="utf-8", errors="replace",
             )
-            # Preserve the full installer output. During `hermes update`,
+            # Preserve the full installer output. During `sonic update`,
             # sys.stdout is the mirroring _UpdateOutputStream whose `_log`
-            # handle is ~/.hermes/logs/update.log — write straight to it so
+            # handle is ~/.sonic/logs/update.log — write straight to it so
             # the captured "Next steps" wall is kept in full (success AND
             # failure), without echoing it to the terminal.
             if result.stdout:
@@ -3156,7 +3156,7 @@ def _configure_vision_backend() -> None:
     ``auxiliary.vision.{provider,model,base_url}`` in config.yaml (see
     ``agent/auxiliary_client.resolve_vision_provider_client``). Rather than
     forcing the user onto OpenRouter, let them pick any authenticated
-    provider + model — the same surface as ``hermes model`` — or point at a
+    provider + model — the same surface as ``sonic model`` — or point at a
     custom OpenAI-compatible endpoint. "Auto" leaves the config keys empty so
     the resolver uses the main model / aggregator fallback chain.
     """
@@ -3237,7 +3237,7 @@ def _configure_vision_provider_model(config: dict, vision_cfg: dict) -> None:
     custom id), and persists ``auxiliary.vision.provider`` + ``.model``.
     """
     try:
-        from hermes_cli.model_switch import list_authenticated_providers
+        from sonic_cli.model_switch import list_authenticated_providers
     except Exception as exc:  # pragma: no cover - import guard
         _print_warning(f"  Could not load provider list: {exc}")
         return
@@ -3251,7 +3251,7 @@ def _configure_vision_provider_model(config: dict, vision_cfg: dict) -> None:
     if not providers:
         _print_warning(
             "  No authenticated providers found. Configure a provider first "
-            "with `hermes model`, then re-run this."
+            "with `sonic model`, then re-run this."
         )
         return
 
@@ -3608,7 +3608,7 @@ def _reconfigure_simple_requirements(ts_key: str):
     """Reconfigure simple env var requirements."""
     if ts_key == "vision":
         # Vision has its own provider/model picker (any provider, like
-        # `hermes model`). Run it directly so reconfigure doesn't fall back to
+        # `sonic model`). Run it directly so reconfigure doesn't fall back to
         # the generic single-key prompt (which would re-ask for OPENROUTER_API_KEY).
         _configure_vision_backend()
         return

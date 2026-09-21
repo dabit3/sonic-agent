@@ -52,7 +52,7 @@ def _slot_runtime(slot: dict[str, str]) -> dict[str, Any]:
     model = str(slot.get("model") or "").strip()
     out: dict[str, Any] = {"provider": provider, "model": model}
     try:
-        from hermes_cli.runtime_provider import resolve_runtime_provider
+        from sonic_cli.runtime_provider import resolve_runtime_provider
 
         rt = resolve_runtime_provider(requested=provider, target_model=model)
         resolved_provider = str(rt.get("provider") or provider).strip().lower()

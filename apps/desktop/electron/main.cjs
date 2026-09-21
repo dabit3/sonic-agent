@@ -1567,7 +1567,7 @@ function getNoConsoleVenvPython(venvRoot) {
 
   // Prefer the venv's own pythonw shim — it carries pyvenv.cfg / site-packages
   // wiring. Falling back to the base uv/python.org pythonw.exe skips the venv
-  // and breaks imports (yaml, hermes_cli, …) even when PYTHONPATH is patched.
+  // and breaks imports (yaml, sonic_cli, …) even when PYTHONPATH is patched.
   const venvPythonw = path.join(venvRoot, 'Scripts', 'pythonw.exe')
   if (fileExists(venvPythonw)) return venvPythonw
 

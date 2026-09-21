@@ -197,10 +197,10 @@ _SONIC_PROVIDER_ENV_BLOCKLIST = _build_provider_env_blocklist()
 # VIRTUAL_ENV (and possibly CONDA_PREFIX). If those leak into commands the
 # agent runs against OTHER Python projects, tools like ``uv``/``poetry`` treat
 # the inherited value as the active environment and build/sync that other
-# project's dependencies into the Hermes venv path instead of the project's own
-# ``.venv`` — silently clobbering the Hermes environment (e.g. a project pinned
+# project's dependencies into the Sonic venv path instead of the project's own
+# ``.venv`` — silently clobbering the Sonic environment (e.g. a project pinned
 # to a different Python version overwrites it and breaks the gateway). The
-# Hermes venv stays reachable via PATH (its bin dir is first), so stripping
+# Sonic venv stays reachable via PATH (its bin dir is first), so stripping
 # these markers is safe and only prevents the cross-project clobber (#23473).
 _ACTIVE_VENV_MARKER_VARS = ("VIRTUAL_ENV", "CONDA_PREFIX")
 

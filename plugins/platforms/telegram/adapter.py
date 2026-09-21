@@ -6142,7 +6142,7 @@ class TelegramAdapter(BasePlatformAdapter):
         In some Telegram environments (groups, supergroups where the bot can
         see its own messages), getUpdates returns the bot's own outgoing
         messages as updates.  These must be filtered out so they are not
-        counted as incoming unread messages in the Hermes inbox.
+        counted as incoming unread messages in the Sonic inbox.
         """
         if not self._bot:
             return False
@@ -6178,7 +6178,7 @@ class TelegramAdapter(BasePlatformAdapter):
         # Filter out the bot's own messages (returned by getUpdates in some
         # environments like groups/supergroups where the bot can see its own
         # messages).  Without this, outbound messages are counted as incoming
-        # unread in the Hermes inbox (#52363).
+        # unread in the Sonic inbox (#52363).
         if self._is_own_message(message):
             return False
 

@@ -430,7 +430,7 @@ platforms:
 :::warning
 **HMAC validation authenticates the _sender_, not the _content_.** A valid signature only proves the request came from a party holding the route's secret (e.g. GitHub). It says nothing about who wrote the _business fields_ inside the payload — PR titles, commit messages, issue descriptions, and any other upstream text are authored by arbitrary third parties and must be treated as untrusted.
 
-This is the same trust model that applies to everything the agent reads: web pages, files, and tool output are all untrusted input. Hermes does not — and cannot reliably — sanitize untrusted text with a blocklist; phrasing, encoding, and translation make that trivially bypassable. **The trust boundary is the agent's capability surface, not the input channel.** Harden there:
+This is the same trust model that applies to everything the agent reads: web pages, files, and tool output are all untrusted input. Sonic does not — and cannot reliably — sanitize untrusted text with a blocklist; phrasing, encoding, and translation make that trivially bypassable. **The trust boundary is the agent's capability surface, not the input channel.** Harden there:
 
 - **Sandbox the runtime.** Run the gateway with the Docker or SSH terminal backend (or in a VM) when exposed to the internet, so a hijacked turn cannot touch the host.
 - **Scope the toolset.** Disable `terminal`, `file`, and outbound-action tools on webhook-triggered sessions if the route only needs to read and summarize. Fewer capabilities means a smaller blast radius if a payload field carries injected instructions.

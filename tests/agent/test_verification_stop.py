@@ -68,7 +68,7 @@ def test_verify_on_stop_env_can_disable(clear_verify_env):
 
 def test_verify_on_stop_env_can_enable(clear_verify_env):
     # Env wins over the default-off config.
-    clear_verify_env.setenv("HERMES_VERIFY_ON_STOP", "1")
+    clear_verify_env.setenv("SONIC_VERIFY_ON_STOP", "1")
     assert verify_on_stop_enabled({"agent": {}}) is True
 
 
@@ -152,7 +152,7 @@ def test_verify_on_stop_default_path_through_load_config(tmp_path, clear_verify_
     assert merged["agent"]["verify_on_stop"] is False
 
     # Interactive surface still resolves OFF through the real loader.
-    clear_verify_env.setenv("HERMES_SESSION_SOURCE", "cli")
+    clear_verify_env.setenv("SONIC_SESSION_SOURCE", "cli")
     assert verify_on_stop_enabled() is False
 
     # A messaging platform also resolves OFF.
@@ -305,7 +305,7 @@ def test_nudge_attempts_are_bounded(tmp_path, monkeypatch):
     ],
 )
 def test_doc_only_edit_does_not_nudge(tmp_path, monkeypatch, doc_name):
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / ".sonic"))
     _node_project(tmp_path)
     changed = str(tmp_path / doc_name)
     mark_workspace_edited(session_id="s1", cwd=tmp_path, paths=[changed])
@@ -315,7 +315,7 @@ def test_doc_only_edit_does_not_nudge(tmp_path, monkeypatch, doc_name):
 
 
 def test_mixed_doc_and_code_edit_still_nudges(tmp_path, monkeypatch):
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / ".sonic"))
     _node_project(tmp_path)
     doc = str(tmp_path / "README.md")
     code = str(tmp_path / "src" / "app.ts")

@@ -151,14 +151,14 @@ def _model_flow_moa(config, current_model=""):
     always show the preset list (even when there is only one) so the user sees
     what they are selecting, then print the full preset breakdown on selection.
     """
-    from hermes_cli.auth import _save_model_choice, deactivate_provider
-    from hermes_cli.config import load_config, save_config
-    from hermes_cli.moa_config import normalize_moa_config
+    from sonic_cli.auth import _save_model_choice, deactivate_provider
+    from sonic_cli.config import load_config, save_config
+    from sonic_cli.moa_config import normalize_moa_config
 
     moa = normalize_moa_config(config.get("moa") if isinstance(config, dict) else {})
     presets = moa.get("presets") or {}
     if not presets:
-        print("No MoA presets configured. Run `hermes moa configure <name>` first.")
+        print("No MoA presets configured. Run `sonic moa configure <name>` first.")
         return
 
     names = list(presets.keys())
@@ -177,7 +177,7 @@ def _model_flow_moa(config, current_model=""):
     default_idx = names.index(default_name) if default_name in names else 0
 
     try:
-        from hermes_cli.setup import _curses_prompt_choice
+        from sonic_cli.setup import _curses_prompt_choice
 
         idx = _curses_prompt_choice("Select a Mixture of Agents preset:", rows, default_idx)
     except Exception:

@@ -3127,7 +3127,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         cleanup, so the next start dies with "PID file race lost" (#14128).
 
         Each await is wrapped in the existing per-adapter timeout budget
-        (``HERMES_GATEWAY_ADAPTER_DISCONNECT_TIMEOUT``). On timeout we log
+        (``SONIC_GATEWAY_ADAPTER_DISCONNECT_TIMEOUT``). On timeout we log
         and force forward progress; the loop never hangs regardless of any
         adapter's internal behavior. Never raises.
         """
@@ -13474,7 +13474,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             if executor is None or getattr(executor, "_shutdown", False):
                 executor = concurrent.futures.ThreadPoolExecutor(
                     max_workers=10,
-                    thread_name_prefix="hermes-gateway",
+                    thread_name_prefix="sonic-gateway",
                 )
                 self._executor = executor
             return executor

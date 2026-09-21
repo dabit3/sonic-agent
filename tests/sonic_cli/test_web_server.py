@@ -2922,7 +2922,7 @@ class TestConfigRoundTrip:
         frontend never sends it in PUT bodies. Saving must still preserve
         it on disk — otherwise every dashboard click that saves silently
         wipes the user's custom endpoints."""
-        from hermes_cli.config import load_config, save_config
+        from sonic_cli.config import load_config, save_config
 
         save_config({
             "model": {"default": "test/model", "provider": "custom:myprov"},
@@ -2956,7 +2956,7 @@ class TestConfigRoundTrip:
         round-trip. Deep-merge is required — a shallow merge would drop
         ``agent.<custom_key>`` when the frontend sends a partial ``agent``
         dict containing only schema-known sub-fields."""
-        from hermes_cli.config import load_config, read_raw_config, save_config
+        from sonic_cli.config import load_config, read_raw_config, save_config
 
         # Seed config with a key under `agent` that isn't in the schema.
         # Use a sentinel name to avoid colliding with future schema fields.
@@ -4129,8 +4129,8 @@ class TestDenormalizeProviderSwitch:
     def test_vendor_slug_switches_off_non_aggregator_provider(self):
         """ollama-local + a vendor/model slug → switch to openrouter and drop
         the stale local base_url (the issue's exact repro)."""
-        from hermes_cli.web_server import _denormalize_config_from_web
-        from hermes_cli.config import save_config
+        from sonic_cli.web_server import _denormalize_config_from_web
+        from sonic_cli.config import save_config
 
         save_config({
             "model": {
@@ -4151,8 +4151,8 @@ class TestDenormalizeProviderSwitch:
     def test_unchanged_model_preserves_provider_and_base_url(self):
         """Saving with the model unchanged must never re-detect/overwrite the
         provider — protects unrelated config saves and custom endpoints."""
-        from hermes_cli.web_server import _denormalize_config_from_web
-        from hermes_cli.config import save_config
+        from sonic_cli.web_server import _denormalize_config_from_web
+        from sonic_cli.config import save_config
 
         save_config({
             "model": {
@@ -4170,8 +4170,8 @@ class TestDenormalizeProviderSwitch:
     def test_bare_model_name_change_keeps_local_provider(self):
         """A bare (non-slug) model name gives no provider signal — leave the
         existing provider alone rather than guessing."""
-        from hermes_cli.web_server import _denormalize_config_from_web
-        from hermes_cli.config import save_config
+        from sonic_cli.web_server import _denormalize_config_from_web
+        from sonic_cli.config import save_config
 
         save_config({
             "model": {
@@ -4188,8 +4188,8 @@ class TestDenormalizeProviderSwitch:
 
     def test_same_aggregator_model_swap_keeps_provider(self):
         """Swapping models within an aggregator must not change the provider."""
-        from hermes_cli.web_server import _denormalize_config_from_web
-        from hermes_cli.config import save_config
+        from sonic_cli.web_server import _denormalize_config_from_web
+        from sonic_cli.config import save_config
 
         save_config({
             "model": {"default": "anthropic/claude-opus-4.6", "provider": "openrouter"}
@@ -4203,8 +4203,8 @@ class TestDenormalizeProviderSwitch:
     def test_context_length_override_survives_provider_switch(self):
         """An explicit context-length override must persist alongside a
         provider switch."""
-        from hermes_cli.web_server import _denormalize_config_from_web
-        from hermes_cli.config import save_config
+        from sonic_cli.web_server import _denormalize_config_from_web
+        from sonic_cli.config import save_config
 
         save_config({"model": {"default": "llama3.2", "provider": "ollama-local"}})
 

@@ -4291,7 +4291,7 @@ def _infer_provider_on_model_change(model_val: str, prev_provider: str) -> tuple
     if not name:
         return "", name
     try:
-        from hermes_cli.models import (
+        from sonic_cli.models import (
             _AGGREGATOR_PROVIDERS,
             detect_provider_for_model,
             normalize_provider,

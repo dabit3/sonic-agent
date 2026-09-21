@@ -1600,7 +1600,7 @@ async def test_run_agent_relays_thinking_when_tool_progress_off(monkeypatch, tmp
     callback None and _thinking never relayed — despite the progress queue
     being created for it (needs_progress_queue = tool OR thinking).
     """
-    monkeypatch.setenv("HERMES_TOOL_PROGRESS_MODE", "off")
+    monkeypatch.setenv("SONIC_TOOL_PROGRESS_MODE", "off")
     adapter, result = await _run_with_agent(
         monkeypatch,
         tmp_path,
@@ -1620,7 +1620,7 @@ async def test_run_agent_relays_thinking_when_tool_progress_off(monkeypatch, tmp
 async def test_run_agent_suppresses_thinking_when_thinking_off(monkeypatch, tmp_path):
     """With thinking_progress off and tool_progress off, _thinking is suppressed
     (no callback wired → no relay)."""
-    monkeypatch.setenv("HERMES_TOOL_PROGRESS_MODE", "off")
+    monkeypatch.setenv("SONIC_TOOL_PROGRESS_MODE", "off")
     adapter, result = await _run_with_agent(
         monkeypatch,
         tmp_path,

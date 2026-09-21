@@ -179,7 +179,7 @@ async def test_picker_path_requests_moa_presets(_isolated_config, monkeypatch):
                  "models": ["battle", "smart"], "total_models": 2}]
 
     monkeypatch.setattr(
-        "hermes_cli.model_switch.list_picker_providers",
+        "sonic_cli.model_switch.list_picker_providers",
         _fake_list_picker_providers,
     )
 

@@ -1552,8 +1552,8 @@ class TestMoAContextLength:
             )
 
     def test_moa_resolves_from_aggregator(self, tmp_path, monkeypatch):
-        home = str(tmp_path / ".hermes")
-        monkeypatch.setenv("HERMES_HOME", home)
+        home = str(tmp_path / ".sonic")
+        monkeypatch.setenv("SONIC_HOME", home)
         self._write_moa_config(home, {"provider": "openrouter", "model": "anthropic/claude-opus-4.8"})
 
         # The MoA preset name + virtual base_url would otherwise fall through to
@@ -1565,8 +1565,8 @@ class TestMoAContextLength:
         assert moa_ctx == agg_ctx
 
     def test_moa_config_override_still_wins(self, tmp_path, monkeypatch):
-        home = str(tmp_path / ".hermes")
-        monkeypatch.setenv("HERMES_HOME", home)
+        home = str(tmp_path / ".sonic")
+        monkeypatch.setenv("SONIC_HOME", home)
         self._write_moa_config(home, {"provider": "openrouter", "model": "anthropic/claude-opus-4.8"})
         ctx = get_model_context_length(
             "p", base_url="http://127.0.0.1/v1", provider="moa", config_context_length=500_000

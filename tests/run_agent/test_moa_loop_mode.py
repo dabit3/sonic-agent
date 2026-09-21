@@ -70,7 +70,7 @@ moa:
 
 
 def test_moa_runtime_provider_uses_virtual_endpoint():
-    from hermes_cli.runtime_provider import resolve_runtime_provider
+    from sonic_cli.runtime_provider import resolve_runtime_provider
 
     runtime = resolve_runtime_provider(requested="moa", target_model="review")
 
@@ -87,7 +87,7 @@ def test_moa_does_not_cap_output_tokens(monkeypatch, tmp_path):
     omits the parameter and each model uses its real maximum. Regression for
     the "no limit on MoA models" fix.
     """
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
     (home / "config.yaml").write_text(
         """
@@ -105,7 +105,7 @@ moa:
 """.strip(),
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_HOME", str(home))
+    monkeypatch.setenv("SONIC_HOME", str(home))
     calls = []
 
     def fake_call_llm(**kwargs):
@@ -161,7 +161,7 @@ def test_moa_slots_routed_through_resolve_runtime_provider(monkeypatch):
         }
 
     monkeypatch.setattr(
-        "hermes_cli.runtime_provider.resolve_runtime_provider", fake_resolve
+        "sonic_cli.runtime_provider.resolve_runtime_provider", fake_resolve
     )
 
     rt = moa_loop._slot_runtime({"provider": "minimax", "model": "MiniMax-M2"})
@@ -190,7 +190,7 @@ def test_moa_codex_slot_preserves_provider_identity(monkeypatch):
         }
 
     monkeypatch.setattr(
-        "hermes_cli.runtime_provider.resolve_runtime_provider", fake_resolve
+        "sonic_cli.runtime_provider.resolve_runtime_provider", fake_resolve
     )
 
     rt = moa_loop._slot_runtime({"provider": "openai-codex", "model": "gpt-5.5"})
@@ -207,7 +207,7 @@ def test_moa_slot_runtime_falls_back_on_resolution_error(monkeypatch):
         raise RuntimeError("unknown provider")
 
     monkeypatch.setattr(
-        "hermes_cli.runtime_provider.resolve_runtime_provider", boom
+        "sonic_cli.runtime_provider.resolve_runtime_provider", boom
     )
 
     rt = moa_loop._slot_runtime({"provider": "mystery", "model": "x"})
@@ -402,9 +402,9 @@ moa:
 def test_moa_facade_emits_reference_then_aggregating(monkeypatch, tmp_path):
     """The facade reports each reference's output, then an aggregating signal,
     so frontends can render reference blocks before the aggregator acts."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     _ref_config(home)
-    monkeypatch.setenv("HERMES_HOME", str(home))
+    monkeypatch.setenv("SONIC_HOME", str(home))
 
     def fake_call_llm(**kwargs):
         if kwargs["task"] == "moa_reference":
@@ -439,9 +439,9 @@ def test_moa_facade_caches_references_within_a_turn(monkeypatch, tmp_path):
     view is identical across iterations (tool/tool_call turns are stripped),
     so re-running references would multiply their cost and re-spam the display.
     """
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     _ref_config(home)
-    monkeypatch.setenv("HERMES_HOME", str(home))
+    monkeypatch.setenv("SONIC_HOME", str(home))
 
     ref_runs = []
 
@@ -481,9 +481,9 @@ def test_moa_facade_caches_references_within_a_turn(monkeypatch, tmp_path):
 
 def test_moa_facade_reruns_references_on_new_turn(monkeypatch, tmp_path):
     """A genuinely new user message invalidates the cache and re-runs refs."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     _ref_config(home)
-    monkeypatch.setenv("HERMES_HOME", str(home))
+    monkeypatch.setenv("SONIC_HOME", str(home))
 
     ref_runs = []
 

@@ -477,7 +477,7 @@ def test_gui_retries_pack_once_after_purging_build_cache(tmp_path, monkeypatch):
     # signature the cache purge + retry exist for (#40187). Only the successful
     # retry produces it (via the side_effect below).
     monkeypatch.setattr(cli_main.sys, "platform", "linux")
-    packaged_exe = root / "apps" / "desktop" / "release" / "linux-unpacked" / "hermes"
+    packaged_exe = root / "apps" / "desktop" / "release" / "linux-unpacked" / "sonic"
 
     install_ok = subprocess.CompletedProcess(["npm", "ci"], 0)
     pack_fail = subprocess.CompletedProcess(["npm", "run", "pack"], 1)
@@ -674,7 +674,7 @@ def test_gui_does_not_retry_after_packaged_executable_exists(tmp_path, monkeypat
     Electron-download problem the cache purge + mirror retries exist to repair.
 
     Regression for #40187: a late failure such as macOS code signing leaves
-    Hermes.app/Contents/MacOS/Hermes in place. Re-downloading Electron can't
+    Sonic.app/Contents/MacOS/Sonic in place. Re-downloading Electron can't
     repair a signing failure, so the destructive purge + slow mirror retry must
     be skipped — we fail directly instead of grinding through an identical retry.
     """
@@ -687,12 +687,12 @@ def test_gui_does_not_retry_after_packaged_executable_exists(tmp_path, monkeypat
     install_ok = subprocess.CompletedProcess(["npm", "ci"], 0)
     pack_fail = subprocess.CompletedProcess(["npm", "run", "pack"], 1)
 
-    with patch("hermes_cli.main.shutil.which", return_value="/usr/bin/npm"), \
-         patch("hermes_cli.main._run_npm_install_deterministic", return_value=install_ok), \
-         patch("hermes_cli.main._desktop_macos_relaunchable_fixup"), \
-         patch("hermes_cli.main._purge_electron_build_cache", return_value=[Path("/c/electron.zip")]) as mock_purge, \
-         patch("hermes_cli.main._redownload_electron_dist", return_value=True) as mock_dl, \
-         patch("hermes_cli.main.subprocess.run", return_value=pack_fail) as mock_run, \
+    with patch("sonic_cli.main.shutil.which", return_value="/usr/bin/npm"), \
+         patch("sonic_cli.main._run_npm_install_deterministic", return_value=install_ok), \
+         patch("sonic_cli.main._desktop_macos_relaunchable_fixup"), \
+         patch("sonic_cli.main._purge_electron_build_cache", return_value=[Path("/c/electron.zip")]) as mock_purge, \
+         patch("sonic_cli.main._redownload_electron_dist", return_value=True) as mock_dl, \
+         patch("sonic_cli.main.subprocess.run", return_value=pack_fail) as mock_run, \
          pytest.raises(SystemExit) as exc:
         cli_main.cmd_gui(_ns())
 

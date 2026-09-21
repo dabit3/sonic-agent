@@ -2281,7 +2281,7 @@ class APIServerAdapter(BasePlatformAdapter):
                         "message": err_msg,
                         "type": type(agent_error).__name__ if agent_error else "agent_error",
                     }
-                finish_chunk["hermes"] = {
+                finish_chunk["sonic"] = {
                     "completed": completed,
                     "partial": is_partial,
                     "failed": is_failed,
