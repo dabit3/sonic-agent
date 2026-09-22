@@ -6021,6 +6021,42 @@ def _apply_speed_profile(config: Dict[str, Any]) -> Dict[str, Any]:
     return config
 
 
+def _strip_speed_profile_overlay(
+    config: Dict[str, Any], explicit_paths: Set[Tuple[str, ...]]
+) -> Dict[str, Any]:
+    """Remove values that ``_apply_speed_profile`` injected into a loaded config.
+
+    The speed profile is a runtime overlay, not a user setting: a leaf is
+    dropped only when the user did not set it explicitly and it still equals
+    what the profile would produce, so ``save_config`` never materialises the
+    profile into ``config.yaml`` while genuine edits survive.
+    """
+    speed = config.get("speed")
+    if not isinstance(speed, dict) or not speed.get("enabled", False):
+        return config
+    baseline: Dict[str, Any] = {"speed": copy.deepcopy(speed)}
+    baseline_model = {"max_tokens": None}
+    baseline["model"] = baseline_model
+    derived = _apply_speed_profile(baseline)
+    expected: Dict[Tuple[str, ...], Any] = {}
+    if derived["model"].get("max_tokens") is not None:
+        expected[("model", "max_tokens")] = derived["model"]["max_tokens"]
+    for section, key in (
+        ("agent", "api_max_retries"),
+        ("memory", "nudge_interval"),
+        ("skills", "creation_nudge_interval"),
+    ):
+        sec = derived.get(section)
+        if isinstance(sec, dict) and key in sec:
+            expected[(section, key)] = sec[key]
+    for path, value in expected.items():
+        if path in explicit_paths:
+            continue
+        node = config.get(path[0])
+        if isinstance(node, dict) and node.get(path[1]) == value:
+            node.pop(path[1])
+    return config
+
 
 def load_config() -> Dict[str, Any]:
     """Load configuration from ~/.sonic/config.yaml.
@@ -6400,6 +6436,9 @@ def save_config(
         # ----------------------------------------------------------------
 
         current_normalized = _normalize_root_model_keys(_normalize_max_turns_config(config))
+        current_normalized = _strip_speed_profile_overlay(
+            copy.deepcopy(current_normalized), explicit_raw_paths or set()
+        )
         normalized = current_normalized
         raw_existing = _normalize_root_model_keys(_normalize_max_turns_config(read_raw_config()))
         if raw_existing:

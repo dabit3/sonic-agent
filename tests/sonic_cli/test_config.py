@@ -1424,6 +1424,37 @@ class TestConfigNormalizationDoesNotOverwriteUserValues:
 
         assert raw == {"_config_version": DEFAULT_CONFIG["_config_version"]}
 
+    def test_save_config_does_not_materialize_speed_profile_overlay(self, tmp_path):
+        config_path = tmp_path / "config.yaml"
+        config_path.write_text(
+            yaml.safe_dump(
+                {
+                    "_config_version": DEFAULT_CONFIG["_config_version"],
+                    "model": {"default": "provider/model"},
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
+            loaded = load_config()
+            assert loaded["memory"]["nudge_interval"] == 0
+            assert loaded["model"]["max_tokens"] == DEFAULT_CONFIG["speed"]["max_tokens"]
+            save_config(loaded)
+            raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+            assert raw == {
+                "_config_version": DEFAULT_CONFIG["_config_version"],
+                "model": {"default": "provider/model"},
+            }
+
+            edited = load_config()
+            edited["model"]["max_tokens"] = 1234
+            save_config(edited)
+            raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+
+        assert raw["model"]["max_tokens"] == 1234
+        assert "memory" not in raw
+
     def test_save_config_honors_caller_preserve_keys(self, tmp_path):
         config_path = tmp_path / "config.yaml"
         config_path.write_text(
