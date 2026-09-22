@@ -1175,8 +1175,8 @@ class TestMediaDeliveryDefaultMode:
         assert BasePlatformAdapter.validate_media_delivery_path(str(env_file)) is None
 
     def test_profile_scoped_cache_delivers_under_symlinked_root(self, tmp_path, monkeypatch):
-        """Reopened #31733: a profile gateway whose HERMES_HOME is symlinked
-        under a denied prefix (e.g. /opt/data -> /root/.hermes) emits
+        """Reopened #31733: a profile gateway whose SONIC_HOME is symlinked
+        under a denied prefix (e.g. /opt/data -> /root/.sonic) emits
         profile-scoped paths (``<root>/profiles/<name>/cache/images/x.png``)
         that resolve under ``/root``. ``$HOME`` is NOT that prefix, so the
         root-home exception doesn't fire, and the top-level cache allowlist
@@ -1187,8 +1187,8 @@ class TestMediaDeliveryDefaultMode:
 
         # Stand-in for the literal /root deny prefix in the deployment.
         denied_root = tmp_path / "root"
-        hermes_root = denied_root / ".hermes"
-        prof_cache = hermes_root / "profiles" / "myprof" / "cache" / "images"
+        sonic_root = denied_root / ".sonic"
+        prof_cache = sonic_root / "profiles" / "myprof" / "cache" / "images"
         prof_cache.mkdir(parents=True)
         image = prof_cache / "gen.png"
         image.write_bytes(b"\x89PNG\r\n\x1a\n")
@@ -1202,7 +1202,7 @@ class TestMediaDeliveryDefaultMode:
             (str(denied_root),),
         )
         monkeypatch.setattr(
-            "gateway.platforms.base._HERMES_ROOT", hermes_root
+            "gateway.platforms.base._SONIC_ROOT", sonic_root
         )
 
         assert (
@@ -1218,8 +1218,8 @@ class TestMediaDeliveryDefaultMode:
         self._patch_roots(monkeypatch)
 
         denied_root = tmp_path / "root"
-        hermes_root = denied_root / ".hermes"
-        prof_dir = hermes_root / "profiles" / "myprof"
+        sonic_root = denied_root / ".sonic"
+        prof_dir = sonic_root / "profiles" / "myprof"
         prof_dir.mkdir(parents=True)
         cred = prof_dir / "auth.json"
         cred.write_text("{}")
@@ -1232,7 +1232,7 @@ class TestMediaDeliveryDefaultMode:
             (str(denied_root),),
         )
         monkeypatch.setattr(
-            "gateway.platforms.base._HERMES_ROOT", hermes_root
+            "gateway.platforms.base._SONIC_ROOT", sonic_root
         )
 
         assert BasePlatformAdapter.validate_media_delivery_path(str(cred)) is None

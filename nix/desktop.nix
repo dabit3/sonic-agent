@@ -137,8 +137,8 @@ stdenv.mkDerivation {
     # staged simple-git dep (native-deps/vendor/node_modules/), so it needs the same
     # rewrite — otherwise the require() fallback resolves against the electron
     # dist's resources path and fails to load simple-git (issue #52735).
-    substituteInPlace $out/share/hermes-desktop/electron/git-review-ops.cjs \
-      --replace-fail "process.resourcesPath" "'$out/share/hermes-desktop'"
+    substituteInPlace $out/share/sonic-desktop/electron/git-review-ops.cjs \
+      --replace-fail "process.resourcesPath" "'$out/share/sonic-desktop'"
 
     # Wrap the nixpkgs electron binary to launch our app.  Set
     # SONIC_DESKTOP_SONIC to the absolute path of the nix-built `sonic`

@@ -1364,7 +1364,7 @@ class TestConfigNormalizationDoesNotOverwriteUserValues:
             encoding="utf-8",
         )
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             save_config(load_config())
             raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
 
@@ -1384,7 +1384,7 @@ class TestConfigNormalizationDoesNotOverwriteUserValues:
             encoding="utf-8",
         )
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             save_config(load_config())
             raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
 
@@ -1398,7 +1398,7 @@ class TestConfigNormalizationDoesNotOverwriteUserValues:
             encoding="utf-8",
         )
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             save_config(load_config())
             raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
 
@@ -1418,7 +1418,7 @@ class TestConfigNormalizationDoesNotOverwriteUserValues:
             encoding="utf-8",
         )
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             save_config(load_config())
             raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
 
@@ -1431,7 +1431,7 @@ class TestConfigNormalizationDoesNotOverwriteUserValues:
             encoding="utf-8",
         )
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             config = load_config()
             config.setdefault("agent", {})["max_turns"] = DEFAULT_CONFIG["agent"]["max_turns"]
             save_config(config, preserve_keys={("agent", "max_turns")})
@@ -1458,7 +1458,7 @@ class TestConfigNormalizationDoesNotOverwriteUserValues:
             encoding="utf-8",
         )
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             raw_paths = _explicit_config_paths(read_raw_config())
 
         assert ("memory", "user_char_limit") in raw_paths

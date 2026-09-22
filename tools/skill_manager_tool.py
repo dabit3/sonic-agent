@@ -981,9 +981,9 @@ def _delete_skill(name: str, absorbed_into: Optional[str] = None) -> Dict[str, A
         return {"success": False, "error": unsafe}
 
     # During the curator consolidation pass, a verified consolidation must be
-    # RECOVERABLE: archival into ~/.hermes/skills/.archive/ is documented as
+    # RECOVERABLE: archival into ~/.sonic/skills/.archive/ is documented as
     # the maximum destructive action the curator may take, and
-    # `hermes curator restore` promises the skill can be brought back. Route
+    # `sonic curator restore` promises the skill can be brought back. Route
     # through the recoverable archive primitive instead of permanent rmtree so
     # a misjudged consolidation can be undone (#29912). Foreground,
     # user-directed deletes keep their existing hard-delete semantics.
@@ -1288,7 +1288,7 @@ def skill_manage(
                 bump_patch(name)
             elif action == "delete":
                 # A recoverable curator archive (routed through archive_skill)
-                # keeps its usage record as STATE_ARCHIVED so `hermes curator
+                # keeps its usage record as STATE_ARCHIVED so `sonic curator
                 # status`/`restore` still see it. Only a hard delete forgets.
                 if not result.get("_archived"):
                     forget(name)

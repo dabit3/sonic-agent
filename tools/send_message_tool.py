@@ -1476,7 +1476,7 @@ async def _send_matrix_via_adapter(pconfig, chat_id, message, media_files=None, 
     that exhaust recipient OTKs and silently drop messages (issue #46310).
 
     Falls back to an ephemeral connect/disconnect cycle only when no gateway
-    is running (standalone cron, ``hermes send`` CLI).
+    is running (standalone cron, ``sonic send`` CLI).
     """
     media_files = media_files or []
     metadata = {"thread_id": thread_id} if thread_id else None

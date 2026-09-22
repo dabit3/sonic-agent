@@ -1655,7 +1655,7 @@ def list_authenticated_providers(
             if sonic_id in _MODELS_DEV_PREFERRED:
                 model_ids = _merge_with_models_dev(sonic_id, model_ids)
         total = len(model_ids)
-        if hermes_id in _UNCAPPED_PICKER_PROVIDERS:
+        if sonic_id in _UNCAPPED_PICKER_PROVIDERS:
             top = model_ids  # Aggregator: show full catalog regardless of max_models
         else:
             top = model_ids[:max_models] if max_models is not None else model_ids
@@ -1821,7 +1821,7 @@ def list_authenticated_providers(
                 if sonic_slug in _MODELS_DEV_PREFERRED:
                     model_ids = _merge_with_models_dev(sonic_slug, model_ids)
         total = len(model_ids)
-        if hermes_slug in _UNCAPPED_PICKER_PROVIDERS:
+        if sonic_slug in _UNCAPPED_PICKER_PROVIDERS:
             top = model_ids  # Aggregator: show full catalog regardless of max_models
         else:
             top = model_ids[:max_models] if max_models is not None else model_ids

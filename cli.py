@@ -4022,7 +4022,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
         never prevents the other.
         """
         try:
-            from hermes_cli.curses_ui import flush_stdin
+            from sonic_cli.curses_ui import flush_stdin
             flush_stdin()
         except Exception:
             pass

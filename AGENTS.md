@@ -128,7 +128,7 @@ conservative at the waist.
   and similar "someone else's product" plugins do NOT land under `plugins/` in
   this repo. They place an ongoing maintenance burden on us to keep them working
   against a fast-moving core, for a backend we don't own. Ship them as a
-  **standalone plugin repo** users install into `~/.hermes/plugins/` (or via a
+  **standalone plugin repo** users install into `~/.sonic/plugins/` (or via a
   pip entry point), and promote them in the Nous Research Discord
   (`#plugins-skills-and-skins`). This is a coupling-and-maintenance decision, not
   a quality bar — the plugin can be excellent and still be a close. PRs that add
@@ -799,7 +799,7 @@ same rule applies beyond memory providers. Plugins that integrate
 someone else's product or project — observability/metrics backends,
 vendor SaaS connectors, analytics dashboards, paid-service tie-ins —
 must ship as **standalone plugin repos** that users install into
-`~/.hermes/plugins/` (or via pip entry points). They register through
+`~/.sonic/plugins/` (or via pip entry points). They register through
 the existing plugin discovery path and use the ABCs/hooks/ctx surface
 we expose; nothing special is needed in core. The reason is
 maintenance load: every product we absorb into the tree becomes our

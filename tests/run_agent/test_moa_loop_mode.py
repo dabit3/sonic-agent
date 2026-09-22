@@ -245,7 +245,7 @@ def test_reference_messages_drops_system_but_renders_tools_as_text():
     assert all(m["role"] in ("user", "assistant") for m in view)
     assert all("tool_calls" not in m for m in view)
     # System prompt is gone.
-    assert all("huge hermes system prompt" not in m["content"] for m in view)
+    assert all("huge sonic system prompt" not in m["content"] for m in view)
     # The agent's action and the tool result are PRESERVED as text.
     joined = "\n".join(m["content"] for m in view)
     assert "[called tool: f(" in joined

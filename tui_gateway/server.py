@@ -25,7 +25,7 @@ from sonic_constants import (
 )
 from sonic_cli.env_loader import load_sonic_dotenv
 from utils import is_truthy_value
-from tools.environments.local import hermes_subprocess_env
+from tools.environments.local import sonic_subprocess_env
 from agent.replay_cleanup import sanitize_replay_history
 from tui_gateway import git_probe
 from tui_gateway.transport import (
@@ -286,9 +286,9 @@ class _SlashWorker:
             text=True,
             bufsize=1,
             cwd=os.getcwd(),
-            # slash_worker runs the Hermes agent → needs provider credentials.
+            # slash_worker runs the Sonic agent → needs provider credentials.
             # Tier-1 secrets (gateway/GitHub/infra) are still stripped (#29157).
-            env=hermes_subprocess_env(inherit_credentials=True),
+            env=sonic_subprocess_env(inherit_credentials=True),
         )
         threading.Thread(target=self._drain_stdout, daemon=True).start()
         threading.Thread(target=self._drain_stderr, daemon=True).start()
@@ -11153,9 +11153,9 @@ def _(rid, params: dict) -> dict:
             text=True,
             timeout=min(int(params.get("timeout", 240)), 600),
             cwd=os.getcwd(),
-            # cli.exec runs `python -m hermes_cli.main` (can drive the agent) →
+            # cli.exec runs `python -m sonic_cli.main` (can drive the agent) →
             # needs provider credentials. Tier-1 secrets still stripped (#29157).
-            env=hermes_subprocess_env(inherit_credentials=True),
+            env=sonic_subprocess_env(inherit_credentials=True),
             stdin=subprocess.DEVNULL,
         )
         parts = [r.stdout or "", r.stderr or ""]

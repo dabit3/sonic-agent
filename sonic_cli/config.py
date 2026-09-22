@@ -3009,8 +3009,8 @@ DEFAULT_CONFIG = {
         "cua_telemetry": False,
     },
 
-    # Hermes Desktop (Electron app) launch options. These only affect
-    # `hermes desktop`; they do not touch the CLI/gateway.
+    # Sonic Desktop (Electron app) launch options. These only affect
+    # `sonic desktop`; they do not touch the CLI/gateway.
     "desktop": {
         # Extra Electron command-line flags appended to every desktop launch,
         # e.g. ["--ozone-platform=x11"] on headless/VM X11 hosts that need an
@@ -3023,7 +3023,7 @@ DEFAULT_CONFIG = {
         #   true    - always disable GPU acceleration (software rendering).
         #             Use on no-GPU VMs / Proxmox hosts where the GPU path hangs.
         #   false   - always keep GPU acceleration on, even over a remote display.
-        # Bridged to the HERMES_DESKTOP_DISABLE_GPU env var the Electron app reads.
+        # Bridged to the SONIC_DESKTOP_DISABLE_GPU env var the Electron app reads.
         "disable_gpu": "auto",
     },
 

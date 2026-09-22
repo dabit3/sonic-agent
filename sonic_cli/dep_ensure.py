@@ -149,7 +149,7 @@ def ensure_dependency(
     else:
         cmd = ["bash", str(script), "--ensure", dep]
 
-    run_env = hermes_subprocess_env(inherit_credentials=False)
+    run_env = sonic_subprocess_env(inherit_credentials=False)
     run_env["IS_INTERACTIVE"] = "false"
     result = subprocess.run(
         cmd,

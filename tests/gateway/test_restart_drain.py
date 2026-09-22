@@ -279,7 +279,7 @@ async def test_detached_restart_helper_is_idempotent(monkeypatch):
     runner, _adapter = make_restart_runner()
     popen_calls = []
 
-    monkeypatch.setattr(gateway_run, "_resolve_hermes_bin", lambda: ["/usr/bin/hermes"])
+    monkeypatch.setattr(gateway_run, "_resolve_sonic_bin", lambda: ["/usr/bin/sonic"])
     monkeypatch.setattr(gateway_run.os, "getpid", lambda: 321)
     monkeypatch.setattr(shutil, "which", lambda cmd: None)
     monkeypatch.setattr(subprocess, "Popen", lambda *a, **k: popen_calls.append((a, k)))

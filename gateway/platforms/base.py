@@ -1023,20 +1023,20 @@ _MEDIA_DELIVERY_CACHE_SUBDIRS = (
 
 
 def _profile_cache_roots() -> List[Path]:
-    """Return per-profile canonical cache roots under the shared Hermes root.
+    """Return per-profile canonical cache roots under the shared Sonic root.
 
     Profile gateways write generated artifacts to
     ``<root>/profiles/<name>/cache/{images,audio,...}``. The static safe-roots
-    list only covers the *active* HERMES_HOME's cache, so a gateway running at
-    the root (e.g. ``HERMES_HOME=/opt/data``) while the model emits a
+    list only covers the *active* SONIC_HOME's cache, so a gateway running at
+    the root (e.g. ``SONIC_HOME=/opt/data``) while the model emits a
     profile-scoped path silently fails delivery. Enumerated dynamically at
     check time so profiles created after startup are covered, and so the
     resolved profile path is allowlisted *before* the ``/root`` system denylist
-    is consulted (which otherwise wins when HERMES_HOME is symlinked under a
+    is consulted (which otherwise wins when SONIC_HOME is symlinked under a
     denied prefix and $HOME is not that prefix). See issue #31733.
     """
     roots: List[Path] = []
-    profiles_dir = _HERMES_ROOT / "profiles"
+    profiles_dir = _SONIC_ROOT / "profiles"
     try:
         profile_dirs = [p for p in profiles_dir.iterdir() if p.is_dir()]
     except OSError:

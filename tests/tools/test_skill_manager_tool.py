@@ -1163,15 +1163,15 @@ class TestDeleteSkillRmtreeGuard:
 def _curator_pass(tmp_path, *, monkeypatch):
     """Run the body as the curator/background-review fork.
 
-    Points HERMES_HOME at ``tmp_path/.hermes`` so skill_usage's archive path
-    (``get_hermes_home()``) resolves into the same tree the skill manager
+    Points SONIC_HOME at ``tmp_path/.sonic`` so skill_usage's archive path
+    (``get_sonic_home()``) resolves into the same tree the skill manager
     searches, and flips ``is_background_review()`` → True so the consolidation
     guard fires.
     """
-    hermes_home = tmp_path / ".hermes"
-    skills_root = hermes_home / "skills"
+    sonic_home = tmp_path / ".sonic"
+    skills_root = sonic_home / "skills"
     skills_root.mkdir(parents=True, exist_ok=True)
-    monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
     with patch("tools.skill_manager_tool.SKILLS_DIR", skills_root), \
          patch("agent.skill_utils.get_all_skills_dirs", return_value=[skills_root]), \
          patch("tools.skill_provenance.is_background_review", return_value=True):
@@ -1269,7 +1269,7 @@ class TestCuratorConsolidationDeleteGuard:
     def test_dispatcher_preserves_usage_record_on_curator_archive(self, tmp_path, monkeypatch):
         # skill_manage(delete) post-action telemetry must NOT forget a
         # recoverable curator archive — the record persists as archived so
-        # `hermes curator restore` can bring it back.
+        # `sonic curator restore` can bring it back.
         from tools import skill_usage
         with _curator_pass(tmp_path, monkeypatch=monkeypatch):
             _create_skill("umbrella", _skill_content("umbrella"))

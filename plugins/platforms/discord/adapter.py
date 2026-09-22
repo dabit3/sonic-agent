@@ -792,10 +792,10 @@ class DiscordAdapter(BasePlatformAdapter):
         # ``discord.liveness_failure_threshold`` (bridged to these env vars by
         # ``_apply_yaml_config``); set either to 0 to disable.
         self._liveness_interval_seconds = env_float(
-            "HERMES_DISCORD_LIVENESS_INTERVAL_SECONDS", 60.0
+            "SONIC_DISCORD_LIVENESS_INTERVAL_SECONDS", 60.0
         )
         self._liveness_failure_threshold = env_int(
-            "HERMES_DISCORD_LIVENESS_FAILURE_THRESHOLD", 3
+            "SONIC_DISCORD_LIVENESS_FAILURE_THRESHOLD", 3
         )
         self._liveness_task: Optional[asyncio.Task] = None
         # True while disconnect() is intentionally closing discord.py. The
@@ -7249,11 +7249,11 @@ def _apply_yaml_config(yaml_cfg: dict, discord_cfg: dict) -> dict | None:
     # __init__; set either to 0 to disable.  config.yaml is the user-facing
     # surface — these env vars are an internal mechanism only.
     lis = discord_cfg.get("liveness_interval_seconds")
-    if lis is not None and not os.getenv("HERMES_DISCORD_LIVENESS_INTERVAL_SECONDS"):
-        os.environ["HERMES_DISCORD_LIVENESS_INTERVAL_SECONDS"] = str(lis)
+    if lis is not None and not os.getenv("SONIC_DISCORD_LIVENESS_INTERVAL_SECONDS"):
+        os.environ["SONIC_DISCORD_LIVENESS_INTERVAL_SECONDS"] = str(lis)
     lft = discord_cfg.get("liveness_failure_threshold")
-    if lft is not None and not os.getenv("HERMES_DISCORD_LIVENESS_FAILURE_THRESHOLD"):
-        os.environ["HERMES_DISCORD_LIVENESS_FAILURE_THRESHOLD"] = str(lft)
+    if lft is not None and not os.getenv("SONIC_DISCORD_LIVENESS_FAILURE_THRESHOLD"):
+        os.environ["SONIC_DISCORD_LIVENESS_FAILURE_THRESHOLD"] = str(lft)
     return None  # all settings flow through env; nothing to merge into extras
 
 

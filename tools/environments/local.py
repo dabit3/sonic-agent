@@ -253,11 +253,11 @@ def _sanitize_subprocess_env(base_env: dict | None, extra_env: dict | None = Non
 # Tier-1 secrets: stripped from EVERY spawned subprocess unconditionally —
 # even when the caller opts into credential inheritance for a model-driving
 # CLI (claude / codex / gemini).  These are not LLM provider credentials; no
-# legitimate child Hermes spawns needs them, and they are the highest-value
+# legitimate child Sonic spawns needs them, and they are the highest-value
 # secrets to keep out of a compromised dependency's reach (gateway bot tokens,
 # GitHub auth, remote-compute tokens, dashboard session secret).  The set is a
-# narrow subset of _HERMES_PROVIDER_ENV_BLOCKLIST; provider keys are handled by
-# the conditional Tier-2 strip in hermes_subprocess_env().
+# narrow subset of _SONIC_PROVIDER_ENV_BLOCKLIST; provider keys are handled by
+# the conditional Tier-2 strip in sonic_subprocess_env().
 _ALWAYS_STRIP_KEYS: frozenset[str] = frozenset({
     # GitHub auth
     "GH_TOKEN",
@@ -275,7 +275,7 @@ _ALWAYS_STRIP_KEYS: frozenset[str] = frozenset({
     "GATEWAY_ALLOW_ALL_USERS",
     "HASS_TOKEN",
     "EMAIL_PASSWORD",
-    "HERMES_DASHBOARD_SESSION_TOKEN",
+    "SONIC_DASHBOARD_SESSION_TOKEN",
     # Remote-compute / infrastructure secrets
     "MODAL_TOKEN_ID",
     "MODAL_TOKEN_SECRET",
@@ -283,14 +283,14 @@ _ALWAYS_STRIP_KEYS: frozenset[str] = frozenset({
 })
 
 
-def hermes_subprocess_env(*, inherit_credentials: bool = False) -> dict[str, str]:
+def sonic_subprocess_env(*, inherit_credentials: bool = False) -> dict[str, str]:
     """Build a sanitized environment dict for a spawned subprocess.
 
     Centralized helper for the **non-terminal** spawn surface (browser,
     ACP/CLI executors, computer-use driver, dep-ensure, TUI Node host,
     detached gateway).  Use this instead of copying ``os.environ`` directly
     so strip-by-default is the uniform policy across every spawn site, with a
-    single source of truth (``_HERMES_PROVIDER_ENV_BLOCKLIST``).  The terminal
+    single source of truth (``_SONIC_PROVIDER_ENV_BLOCKLIST``).  The terminal
     / execute_code path keeps using :func:`_sanitize_subprocess_env`, which is
     skill-aware (``env_passthrough``); this helper is for spawns that have no
     skill-passthrough concept.
@@ -299,8 +299,8 @@ def hermes_subprocess_env(*, inherit_credentials: bool = False) -> dict[str, str
 
     * **Tier 1 (always):** ``_ALWAYS_STRIP_KEYS`` — gateway bot tokens, GitHub
       auth, and remote-compute secrets are removed regardless of
-      ``inherit_credentials``.  No child Hermes spawns legitimately needs them.
-    * **Tier 2 (conditional):** the rest of ``_HERMES_PROVIDER_ENV_BLOCKLIST``
+      ``inherit_credentials``.  No child Sonic spawns legitimately needs them.
+    * **Tier 2 (conditional):** the rest of ``_SONIC_PROVIDER_ENV_BLOCKLIST``
       (LLM provider API keys, tool secrets) is removed unless the caller passes
       ``inherit_credentials=True``.
 
@@ -322,19 +322,19 @@ def hermes_subprocess_env(*, inherit_credentials: bool = False) -> dict[str, str
         env.pop(key, None)
     # Internal routing hints must never reach a child.
     for key in list(env):
-        if key.startswith(_HERMES_PROVIDER_ENV_FORCE_PREFIX):
+        if key.startswith(_SONIC_PROVIDER_ENV_FORCE_PREFIX):
             env.pop(key, None)
 
     if not inherit_credentials:
         # Tier 2 — strip provider/tool credentials unless explicitly inherited.
-        for key in _HERMES_PROVIDER_ENV_BLOCKLIST:
+        for key in _SONIC_PROVIDER_ENV_BLOCKLIST:
             env.pop(key, None)
 
     # Windows UTF-8 safety for spawned processes (#31420).
     env.setdefault("PYTHONUTF8", "1")
 
-    _inject_context_hermes_home(env)
-    from hermes_constants import apply_subprocess_home_env
+    _inject_context_sonic_home(env)
+    from sonic_constants import apply_subprocess_home_env
     apply_subprocess_home_env(env)
 
     # Active-venv markers must not clobber another project's environment.

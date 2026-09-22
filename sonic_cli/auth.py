@@ -1611,7 +1611,7 @@ def resolve_provider(
     # ("auto")) and any future bypass of that stage.
     _model_cfg: Any = None
     try:
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
 
         _model_cfg = (load_config() or {}).get("model")
         if isinstance(_model_cfg, dict):
@@ -1667,7 +1667,7 @@ def resolve_provider(
             if has_usable_secret(os.getenv(env_var, "")):
                 # An exported API key now wins over a logged-in OAuth provider
                 # (the #29285 fix). Surface that so a user who deliberately uses
-                # OAuth but has a stale key in ~/.hermes/.env isn't silently
+                # OAuth but has a stale key in ~/.sonic/.env isn't silently
                 # switched without knowing why.
                 if _oauth_active and _oauth_active != pid:
                     logger.warning(

@@ -43,19 +43,19 @@ def _wait_for_cont_init(container: str) -> None:
 
     The earlier ``_wait_for_init`` only polled ``docker exec <c> true``,
     which succeeds almost immediately on s6-overlay — long before the
-    ``01-hermes-setup`` cont-init hook (docker/stage2-hook.sh) has
-    finished seeding + ``chown hermes:hermes`` config.yaml and running the
+    ``01-sonic-setup`` cont-init hook (docker/stage2-hook.sh) has
+    finished seeding + ``chown sonic:sonic`` config.yaml and running the
     Python config migration. A test that wipes config.yaml and then writes
     it as root would then race that boot-time chown: on native amd64
     stage2-hook wins in a blink and the test always passed, but under arm64
     QEMU emulation the slow Python migration was still in flight and
-    clobbered the root-written file's ownership back to hermes:hermes,
+    clobbered the root-written file's ownership back to sonic:sonic,
     failing ``test_shim_opt_out_keeps_root`` non-deterministically.
 
     The reliable "cont-init is done" signal is
-    ``$HERMES_HOME/logs/container-boot.log``: it is written by
-    ``02-reconcile-profiles`` (hermes_cli.container_boot), which s6 runs
-    *strictly after* ``01-hermes-setup`` in lexicographic order. The
+    ``$SONIC_HOME/logs/container-boot.log``: it is written by
+    ``02-reconcile-profiles`` (sonic_cli.container_boot), which s6 runs
+    *strictly after* ``01-sonic-setup`` in lexicographic order. The
     reconciler always logs at least one ``profile=default`` line even for a
     bare ``sleep infinity`` container, so once that marker appears every
     stage2-hook side effect (seed, chown, migrate) is guaranteed complete.
