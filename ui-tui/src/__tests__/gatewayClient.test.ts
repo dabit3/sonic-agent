@@ -162,7 +162,7 @@ describe('GatewayClient websocket attach mode', () => {
     // setState cascade would run inside React's first commit -> "Too many
     // re-renders" (#301). drain() must defer the buffered flush so the first
     // commit settles first.
-    process.env.HERMES_TUI_GATEWAY_URL = 'ws://gateway.test/api/ws?token=abc'
+    process.env.SONIC_TUI_GATEWAY_URL = 'ws://gateway.test/api/ws?token=abc'
     const gw = new GatewayClient()
 
     gw.start()
@@ -195,7 +195,7 @@ describe('GatewayClient websocket attach mode', () => {
     // A live event delivered in the window between drain() returning and the
     // deferred microtask running must still queue BEHIND the chronologically
     // earlier buffered events, not jump ahead of them.
-    process.env.HERMES_TUI_GATEWAY_URL = 'ws://gateway.test/api/ws?token=abc'
+    process.env.SONIC_TUI_GATEWAY_URL = 'ws://gateway.test/api/ws?token=abc'
     const gw = new GatewayClient()
 
     gw.start()

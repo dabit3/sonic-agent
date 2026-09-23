@@ -2110,7 +2110,7 @@ class TestResponsesEndpoint:
                 )
                 resp = await cli.post(
                     "/v1/responses",
-                    json={"model": "hermes-agent", "input": "Hello"},
+                    json={"model": "sonic-agent", "input": "Hello"},
                 )
 
             assert resp.status == 200
@@ -3041,16 +3041,16 @@ class TestChatCompletionsAgentIncomplete:
                 mock_run.return_value = (mock_result, {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0})
                 resp = await cli.post(
                     "/v1/chat/completions",
-                    json={"model": "hermes-agent", "messages": [{"role": "user", "content": "hello"}]},
+                    json={"model": "sonic-agent", "messages": [{"role": "user", "content": "hello"}]},
                 )
 
             assert resp.status == 502
             data = await resp.json()
             body = json.dumps(data)
             assert raw_secret not in body
-            assert raw_secret not in resp.headers.get("X-Hermes-Error", "")
+            assert raw_secret not in resp.headers.get("X-Sonic-Error", "")
             assert "OPENAI_API_KEY=" in body
-            assert data["error"]["hermes"]["failed"] is True
+            assert data["error"]["sonic"]["failed"] is True
 
     @pytest.mark.asyncio
     async def test_failure_with_no_text_returns_502_error_envelope(self, adapter):

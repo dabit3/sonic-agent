@@ -232,12 +232,12 @@ class TestTerminalIntegration:
     def test_provider_blocklist_import_failure_fails_closed(self, monkeypatch):
         """If the dynamic provider blocklist can't be imported, provider
         credentials must be treated as protected and refused passthrough —
-        otherwise a skill could tunnel a Hermes credential into the
+        otherwise a skill could tunnel a Sonic credential into the
         execute_code child (regression for #37950 / GHSA-rhgp-j443-p4rf).
 
-        Verifies the full path: _is_hermes_provider_credential returns True,
+        Verifies the full path: _is_sonic_provider_credential returns True,
         register_env_passthrough refuses the var, and _scrub_child_env keeps
-        it out of the child env. A non-Hermes key is also rejected here (the
+        it out of the child env. A non-Sonic key is also rejected here (the
         fallback is conservative: when we can't tell, we fail closed), which
         is the safe direction.
         """
@@ -255,9 +255,9 @@ class TestTerminalIntegration:
         monkeypatch.setattr(builtins, "__import__", fail_local_import)
 
         # Every name is now treated as a protected provider credential.
-        assert _ep_mod._is_hermes_provider_credential("OPENAI_API_KEY")
-        assert _ep_mod._is_hermes_provider_credential("ANTHROPIC_API_KEY")
-        assert _ep_mod._is_hermes_provider_credential("GH_TOKEN")
+        assert _ep_mod._is_sonic_provider_credential("OPENAI_API_KEY")
+        assert _ep_mod._is_sonic_provider_credential("ANTHROPIC_API_KEY")
+        assert _ep_mod._is_sonic_provider_credential("GH_TOKEN")
 
         # Registration is refused while the blocklist is unavailable.
         register_env_passthrough(["OPENAI_API_KEY", "ANTHROPIC_API_KEY"])

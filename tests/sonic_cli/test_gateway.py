@@ -906,7 +906,7 @@ def test_gateway_install_noninteractive_skips_legacy_unit_prompt(monkeypatch, tm
     Covers the second hidden prompt that --start-now/--start-on-login do not
     guard. Originally contributed via PR #42124 (kyssta-exe).
     """
-    monkeypatch.setattr(gateway, "has_legacy_hermes_units", lambda: True)
+    monkeypatch.setattr(gateway, "has_legacy_sonic_units", lambda: True)
 
     calls = []
     monkeypatch.setattr(
@@ -914,10 +914,10 @@ def test_gateway_install_noninteractive_skips_legacy_unit_prompt(monkeypatch, tm
         "prompt_yes_no",
         lambda question, default=True: calls.append(("prompt", question)) or True,
     )
-    monkeypatch.setattr(gateway, "remove_legacy_hermes_units", lambda interactive=False: calls.append(("remove_legacy",)))
+    monkeypatch.setattr(gateway, "remove_legacy_sonic_units", lambda interactive=False: calls.append(("remove_legacy",)))
     monkeypatch.setattr(gateway, "print_legacy_unit_warning", lambda: None)
 
-    fake_path = tmp_path / "hermes-gateway.service"
+    fake_path = tmp_path / "sonic-gateway.service"
     monkeypatch.setattr(gateway, "get_systemd_unit_path", lambda system=False: fake_path)
     monkeypatch.setattr(gateway, "generate_systemd_unit", lambda system=False, run_as_user=None: "[Service]")
     monkeypatch.setattr(gateway, "_run_systemctl", lambda *a, **kw: None)

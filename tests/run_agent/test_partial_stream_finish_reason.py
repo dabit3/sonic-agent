@@ -411,7 +411,7 @@ class TestContentFilterStallActivatesFallback:
         agent._fire_stream_delta = lambda text: None
         agent._current_streamed_assistant_text = "Writing the file: "
 
-        monkeypatch.setenv("HERMES_STREAM_RETRIES", "0")
+        monkeypatch.setenv("SONIC_STREAM_RETRIES", "0")
         response = agent._interruptible_streaming_api_call({})
 
         assert response.id == PARTIAL_STREAM_STUB_ID
@@ -443,7 +443,7 @@ class TestContentFilterStallActivatesFallback:
         agent._fire_stream_delta = lambda text: None
         agent._current_streamed_assistant_text = "Writing the file: "
 
-        monkeypatch.setenv("HERMES_STREAM_RETRIES", "0")
+        monkeypatch.setenv("SONIC_STREAM_RETRIES", "0")
         response = agent._interruptible_streaming_api_call({})
 
         assert response.id == PARTIAL_STREAM_STUB_ID

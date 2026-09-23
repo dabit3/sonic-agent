@@ -63,7 +63,7 @@ def _is_sonic_provider_credential(name: str) -> bool:
     Fail closed: if the authoritative blocklist cannot be imported (partial
     install, import-time error, etc.) we treat the name as a protected
     provider credential and refuse passthrough, rather than fall open and
-    let a skill tunnel a Hermes credential into the execute_code child.
+    let a skill tunnel a Sonic credential into the execute_code child.
     """
     try:
         from tools.environments.local import _SONIC_PROVIDER_ENV_BLOCKLIST

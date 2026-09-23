@@ -1080,7 +1080,7 @@ class TestLaunchdServiceRecovery:
     def test_launchd_restart_boots_out_stale_registration_before_bootstrap(
         self, tmp_path, monkeypatch
     ):
-        plist_path = tmp_path / "ai.hermes.gateway.plist"
+        plist_path = tmp_path / "ai.sonic.gateway.plist"
         plist_path.write_text(gateway_cli.generate_launchd_plist(), encoding="utf-8")
         label = gateway_cli.get_launchd_label()
         domain = gateway_cli._launchd_domain()

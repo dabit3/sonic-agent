@@ -679,20 +679,20 @@ def test_oneshot_fails_closed_on_agent_exception(monkeypatch, capsys):
 
 
 def test_oneshot_exit_code_when_failed_without_response(monkeypatch):
-    from hermes_cli.oneshot import run_oneshot
+    from sonic_cli.oneshot import run_oneshot
 
     monkeypatch.setattr(
-        "hermes_cli.oneshot._run_agent",
+        "sonic_cli.oneshot._run_agent",
         lambda *_a, **_k: ("", {"failed": True, "partial": False}),
     )
     assert run_oneshot("hi") == 2
 
 
 def test_oneshot_exit_code_zero_when_failed_with_error_text(monkeypatch, capsys):
-    from hermes_cli.oneshot import run_oneshot
+    from sonic_cli.oneshot import run_oneshot
 
     monkeypatch.setattr(
-        "hermes_cli.oneshot._run_agent",
+        "sonic_cli.oneshot._run_agent",
         lambda *_a, **_k: (
             "API call failed after 3 retries: HTTP 404: model not found",
             {"failed": True, "partial": False},

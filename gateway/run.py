@@ -2187,7 +2187,7 @@ def _load_gateway_config() -> dict:
     # gateway would resolve an empty model for ``model: {name: <id>}`` configs
     # while the CLI resolves it correctly. See issue #34500. Fail-open.
     try:
-        from hermes_cli.config import _normalize_root_model_keys
+        from sonic_cli.config import _normalize_root_model_keys
         raw = _normalize_root_model_keys(raw)
     except Exception:
         pass

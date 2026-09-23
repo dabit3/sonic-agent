@@ -7000,7 +7000,7 @@ def _recover_from_interrupted_install() -> None:
         # the install itself will surface the real problem.
         logger.debug("Could not create install-recovery lock: %s", exc)
 
-    # Windows self-lock guard: if hermes.exe is the launcher that spawned
+    # Windows self-lock guard: if sonic.exe is the launcher that spawned
     # this Python process, any attempt to pip-install will fail with
     # "拒绝访问 / WinError 32" because the running .exe cannot be replaced.
     # Rather than entering the permanent retry loop described in issue
@@ -7008,7 +7008,7 @@ def _recover_from_interrupted_install() -> None:
     if _is_windows():
         scripts_dir = _venv_scripts_dir()
         if scripts_dir is not None:
-            shims = _hermes_exe_shims(scripts_dir)
+            shims = _sonic_exe_shims(scripts_dir)
             if shims:
                 _shim_set: set[str] = set()
                 for _s in shims:
@@ -7027,12 +7027,12 @@ def _recover_from_interrupted_install() -> None:
                             continue
                         if _anc_norm in _shim_set:
                             print(
-                                "✗ Hermes is running from the binary that "
+                                "✗ Sonic is running from the binary that "
                                 "needs to be replaced — the auto-recovery "
                                 "cannot overwrite a running executable."
                             )
                             print(
-                                "  Restart Hermes from a different terminal, "
+                                "  Restart Sonic from a different terminal, "
                                 "then run the manual recovery command below:"
                             )
                             print(f'    cd /d "{PROJECT_ROOT}"')

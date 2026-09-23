@@ -152,7 +152,7 @@ def test_child_eof_closes_socket_and_bridge(pty_client, monkeypatch):
 
     monkeypatch.setattr(ws.PtyBridge, "spawn", _RecordingBridge.spawn)
     monkeypatch.setattr(
-        ws, "_resolve_chat_argv", lambda **kw: (["fake-hermes-tui"], None, None)
+        ws, "_resolve_chat_argv", lambda **kw: (["fake-sonic-tui"], None, None)
     )
 
     # The client never sends a disconnect of its own — it only reads the one

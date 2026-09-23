@@ -57,7 +57,7 @@ function sonicRuntimeImportProbe() {
  * site-packages -- and the resolver returns a backend that immediately
  * dies on spawn.
  *
- * The probe intentionally imports hermes_cli.config, not just the top-level
+ * The probe intentionally imports sonic_cli.config, not just the top-level
  * package: a broken/empty Windows launcher venv can still see the source tree
  * through PYTHONPATH but lack PyYAML, then die on the first real CLI import.
  *

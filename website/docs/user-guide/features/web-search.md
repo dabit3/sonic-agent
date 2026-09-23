@@ -160,7 +160,7 @@ docker cp searxng:/etc/searxng/settings.yml ~/searxng/searxng/settings.yml
 
 Open `~/searxng/searxng/settings.yml`.
 If `use_default_settings: true` is present, the file only contains your overrides. All other settings are inherited from the built-in defaults.
-To enable JSON responses for Hermes, add the following override:
+To enable JSON responses for Sonic, add the following override:
 
 ```yaml
 search:
