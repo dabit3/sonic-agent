@@ -37,7 +37,18 @@ const { execFileSync } = require('node:child_process')
 const PROBE_TIMEOUT_MS = 5000
 
 /**
- * Return true iff `python -c "import sonic_cli"` exits 0.
+ * Return the Python snippet used to verify Sonic can import far enough to
+ * launch the CLI. Kept exported for tests so dependency regressions are
+ * caught without needing a real broken venv fixture.
+ *
+ * @returns {string}
+ */
+function sonicRuntimeImportProbe() {
+  return 'import yaml; import sonic_cli.config'
+}
+
+/**
+ * Return true iff the Sonic runtime import probe exits 0.
  *
  * Used to gate the "fallback to system Python with sonic_cli installed"
  * rung of resolveSonicBackend. Without this, a system Python 3.11-3.13
@@ -46,13 +57,20 @@ const PROBE_TIMEOUT_MS = 5000
  * site-packages -- and the resolver returns a backend that immediately
  * dies on spawn.
  *
+ * The probe intentionally imports sonic_cli.config, not just the top-level
+ * package: a broken/empty Windows launcher venv can still see the source tree
+ * through PYTHONPATH but lack PyYAML, then die on the first real CLI import.
+ *
  * @param {string} pythonPath - Absolute path to a python.exe / python.
+ * @param {object} [opts]
+ * @param {object} [opts.env] - Additional environment for the probe.
  * @returns {boolean}
  */
-function canImportSonicCli(pythonPath) {
+function canImportSonicCli(pythonPath, opts = {}) {
   if (!pythonPath) return false
   try {
-    execFileSync(pythonPath, ['-c', 'import sonic_cli'], {
+    execFileSync(pythonPath, ['-c', sonicRuntimeImportProbe()], {
+      env: { ...process.env, ...(opts.env || {}) },
       stdio: 'ignore',
       timeout: PROBE_TIMEOUT_MS,
       windowsHide: true
@@ -101,6 +119,7 @@ function verifySonicCli(sonicCommand, opts = {}) {
 
 module.exports = {
   canImportSonicCli,
+  sonicRuntimeImportProbe,
   verifySonicCli,
   PROBE_TIMEOUT_MS
 }

@@ -6,7 +6,7 @@ fails inside the published image and ``sonic dump`` used to report
 ``$SONIC_GIT_SHA`` build-arg to ``/opt/sonic/.sonic_build_sha`` and
 ``sonic_cli/build_info.py`` reads it as a fallback.
 
-CI (``.github/workflows/docker-publish.yml``) always sets the build-arg
+CI (``.github/workflows/docker.yml``) always sets the build-arg
 to ``${{ github.sha }}``.  Local ``docker build`` (the ``built_image``
 fixture in ``tests/docker/conftest.py``) does NOT — so locally the file
 is absent and ``sonic dump`` correctly falls back to ``(unknown)``.

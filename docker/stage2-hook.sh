@@ -338,6 +338,7 @@ fi
 # shell isn't a second interpreter — defends against $SONIC_HOME values
 # containing shell metacharacters. PR #30136 review item O2.
 as_sonic mkdir -p \
+    "$SONIC_HOME/backups" \
     "$SONIC_HOME/cron" \
     "$SONIC_HOME/sessions" \
     "$SONIC_HOME/logs" \

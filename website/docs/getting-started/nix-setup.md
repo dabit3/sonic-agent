@@ -6,7 +6,13 @@ description: "Install and deploy Sonic Agent with Nix — from quick `nix run` t
 
 # Nix & NixOS Setup
 
-Sonic Agent ships a Nix flake with three levels of integration:
+:::warning Tier 2 platform
+Nix and NixOS are [Tier 2 platforms](./platform-support.md#tier-2). The flake and NixOS module documented here are maintained on a best-effort basis only. Commits to `main` may break these packages at any point in time.
+
+For a supported setup, use one of the standard [installation](./installation.md) paths - either Docker or an FHS environment.
+:::
+
+Sonic Agent ships a Nix flake & a NixOS module.
 
 | Level | Who it's for | What you get |
 |-------|-------------|--------------|
@@ -34,42 +40,39 @@ The `curl | bash` installer manages Python, Node, and dependencies itself. The N
 No clone needed. Nix fetches, builds, and runs everything:
 
 ```bash
-# Run directly (builds on first use, cached after)
-nix run github:dabit3/sonic-agent -- setup
-nix run github:dabit3/sonic-agent -- chat
+# Run the desktop app
+nix run github:dabit3/sonic-agent#desktop
 
 # Or install persistently
+nix profile install github:dabit3/sonic-agent#desktop
+
+# run the tui
+nix run github:dabit3/sonic-agent -- setup
+nix run github:dabit3/sonic-agent -- --tui
+
+# or install it in your profile
 nix profile install github:dabit3/sonic-agent
 sonic setup
-sonic chat
+sonic --tui
 ```
 
 After `nix profile install`, `sonic`, `sonic-agent`, and `sonic-acp` are on your PATH. From here, the workflow is identical to the [standard installation](./installation.md) — `sonic setup` walks you through provider selection, `sonic gateway install` sets up a launchd (macOS) or systemd user service, and config lives in `~/.sonic/`.
 
 :::warning Messaging platforms (Discord, Telegram, Slack)
-The default package doesn't include messaging platform libraries — they were moved to on-demand installation, which can't work in Nix's read-only environment. If you plan to connect the agent to Discord, Telegram, or Slack, install the `messaging` variant:
+The default package includes ALL libraries sonic-agent might need. if you want a smaller variant, check the other flake outputs. 
 
-```bash
-nix profile install github:dabit3/sonic-agent#messaging
-```
+The `default` package adds ~700 MB to the closure. If you only need messaging platforms, `#messaging` adds just ~33 MB.
 
-For all optional extras (voice, all providers, all platforms):
-
-```bash
-nix profile install github:dabit3/sonic-agent#full
-```
-
-The `full` variant adds ~700 MB to the closure. If you only need messaging platforms, `#messaging` adds just ~33 MB.
 :::
 
 <details>
-<summary><strong>Building from a local clone</strong></summary>
+<summary><strong>Running from a local clone</strong></summary>
 
 ```bash
 git clone https://github.com/dabit3/sonic-agent.git
 cd sonic-agent
-nix build
-./result/bin/sonic setup
+nix develop
+sonic setup
 ```
 
 </details>

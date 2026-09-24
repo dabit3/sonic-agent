@@ -2171,8 +2171,8 @@ def setup_gateway(config: dict):
                     print_info("  You can try manually: sonic gateway install")
             else:
                 print_info("  You can install later: sonic gateway install")
-                if supports_systemd:
-                    print_info("  Or as a boot-time service: sudo sonic gateway install --system")
+                if supports_systemd and os.geteuid() == 0:  # windows-footgun: ok — guarded by supports_systemd (Linux only)
+                    print_info("  Or as a boot-time service: sonic gateway install --system")
                 print_info("  Or run in foreground:  sonic gateway")
         else:
             from sonic_constants import is_container

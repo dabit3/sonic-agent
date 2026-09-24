@@ -1,10 +1,10 @@
+import { isGatewayReauthRequired, resolveGatewayWsUrl } from '@sonic/shared'
 import { useEffect, useRef } from 'react'
 
 import type { SonicConnection } from '@/global'
 import { SonicGateway } from '@/sonic'
 import { translateNow } from '@/i18n'
 import { desktopDefaultCwd } from '@/lib/desktop-fs'
-import { isGatewayReauthRequired, resolveGatewayWsUrl } from '@/lib/gateway-ws-url'
 import {
   $desktopBoot,
   applyDesktopBootProgress,

@@ -8,3 +8,14 @@ export {
   type JsonRpcFrame,
   type WebSocketLike
 } from './json-rpc-gateway'
+export {
+  GatewayReauthRequiredError,
+  buildSonicWebSocketUrl,
+  isGatewayReauthRequired,
+  resolveGatewayWsUrl,
+  type GatewayAuthMode,
+  type GatewayWsConnection,
+  type SonicWebSocketUrlOptions,
+  type ResolveGatewayWsUrlDeps,
+  type WebSocketAuthParam
+} from './websocket-url'

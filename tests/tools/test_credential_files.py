@@ -400,12 +400,22 @@ class TestCacheDirectoryMounts:
         assert mounts[0]["container_path"] == "/root/.sonic/cache/documents"
 
     def test_legacy_dir_names_resolved(self, tmp_path, monkeypatch):
-        """Old-style dir names (e.g. document_cache) are resolved correctly."""
+        """Old-style dir names (e.g. document_cache) are resolved correctly.
+
+        Populates the legacy dirs with a sentinel file so they count as
+        ``has content`` for ``get_sonic_dir``'s populated-legacy check
+        (see #27602 — empty legacy stubs are no longer honoured).
+        """
         sonic_home = tmp_path / ".sonic"
         sonic_home.mkdir()
-        # Use legacy dir name — get_sonic_dir prefers old if it exists
-        (sonic_home / "document_cache").mkdir()
-        (sonic_home / "image_cache").mkdir()
+        # Use legacy dir name with content — get_sonic_dir prefers
+        # populated old over new.
+        legacy_doc = sonic_home / "document_cache"
+        legacy_img = sonic_home / "image_cache"
+        legacy_doc.mkdir()
+        legacy_img.mkdir()
+        (legacy_doc / "cached.txt").write_bytes(b"x")
+        (legacy_img / "cached.png").write_bytes(b"x")
         monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
         mounts = get_cache_directory_mounts()

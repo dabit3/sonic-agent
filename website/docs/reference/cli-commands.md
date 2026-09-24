@@ -39,13 +39,14 @@ sonic [global-options] <command> [subcommand/options]
 |---------|---------|
 | `sonic chat` | Interactive or one-shot chat with the agent. |
 | `sonic model` | Interactively choose the default provider and model. |
-| `sonic moa` | Configure named Mixture of Agents presets used by `/moa`. |
+| `sonic moa` | Configure named Mixture of Agents presets selectable from the model picker. |
 | `sonic fallback` | Manage fallback providers tried when the primary model errors. |
 | `sonic gateway` | Run or manage the messaging gateway service. |
 | `sonic proxy` | Local OpenAI-compatible proxy that attaches OAuth provider credentials. See [Subscription Proxy](../user-guide/features/subscription-proxy.md). |
 | `sonic lsp` | Manage Language Server Protocol integration (semantic diagnostics for write_file/patch). |
 | `sonic setup` | Interactive setup wizard for all or part of the configuration. |
 | `sonic whatsapp` | Configure and pair the WhatsApp bridge. |
+| `sonic whatsapp-cloud` | Configure the official Meta WhatsApp Business Cloud API adapter (Business account + public webhook required). Distinct from `sonic whatsapp` (Baileys personal-account bridge). |
 | `sonic slack` | Slack helpers (currently: generate the app manifest with every command as a native slash). |
 | `sonic auth` | Manage credentials — add, list, remove, reset, status, logout. Handles OAuth flows for Codex/Nous/Anthropic. |
 | `sonic login` / `logout` | **Deprecated** — use `sonic auth` instead. |
@@ -55,6 +56,7 @@ sonic [global-options] <command> [subcommand/options]
 | `sonic status` | Show agent, auth, and platform status. |
 | `sonic cron` | Inspect and tick the cron scheduler. |
 | `sonic kanban` | Multi-profile collaboration board (tasks, links, dispatcher). |
+| `sonic project` | Manage named, multi-folder workspaces (projects). Anchors desktop session grouping and, when bound to a kanban board, gives tasks a deterministic worktree + branch convention. State is per-profile. |
 | `sonic webhook` | Manage dynamic webhook subscriptions for event-driven activation. |
 | `sonic hooks` | Inspect, approve, or remove shell-script hooks declared in `config.yaml`. |
 | `sonic doctor` | Diagnose config and dependency issues. |
@@ -78,10 +80,12 @@ sonic [global-options] <command> [subcommand/options]
 | `sonic portal` | Nous Portal status, subscription link, and Tool Gateway routing. See [Tool Gateway](../user-guide/features/tool-gateway.md). |
 | `sonic tools` | Configure enabled tools per platform. |
 | `sonic computer-use` | Install or check the cua-driver backend (macOS Computer Use). |
+| `sonic pets` | Browse, install, and select [petdex](../user-guide/features/pets.md) animated pets shown across the CLI, TUI, and desktop app. Subcommands: `list`, `install`, `select`, `show`, `off`, `scale`, `remove`, `doctor`. |
 | `sonic sessions` | Browse, export, prune, rename, and delete sessions. |
 | `sonic insights` | Show token/cost/activity analytics. |
 | `sonic claw` | OpenClaw migration helpers. |
 | `sonic dashboard` | Launch the web dashboard for managing config, API keys, and sessions. |
+| `sonic desktop` (alias `gui`) | Build and launch the native Electron desktop app. |
 | `sonic profile` | Manage profiles — multiple isolated Sonic instances. |
 | `sonic completion` | Print shell completion scripts (bash/zsh/fish). |
 | `sonic version` | Show version information. |
@@ -226,6 +230,7 @@ Subcommands:
 | `install` | Install as a systemd (Linux) or launchd (macOS) background service. |
 | `uninstall` | Remove the installed service. |
 | `setup` | Interactive messaging-platform setup. |
+| `migrate-legacy` | Remove legacy `sonic.service` units left over from pre-rename installs. Profile units (`sonic-gateway-<profile>.service`) and unrelated services are never touched. Flags: `--dry-run`, `-y`/`--yes`. |
 | `enroll` | Experimental: enroll this gateway with a relay connector and save relay credentials for connector-backed platforms. |
 
 Options:
@@ -235,7 +240,7 @@ Options:
 | `--all` | On `start` / `restart` / `stop`: act on **every profile's** gateway, not just the active `SONIC_HOME`. Useful if you run multiple profiles side-by-side and want to restart them all after `sonic update`. |
 | `--no-supervise` | On `run`: inside the s6-overlay Docker image, opt out of auto-supervision and use pre-s6 foreground semantics — gateway runs as the container's main process with no auto-restart. No-op outside the s6 image. Equivalent to setting `SONIC_GATEWAY_NO_SUPERVISE=1`. |
 
-`sonic gateway enroll` accepts `--token`, `--connector-url`, and `--gateway-id`. It exchanges the enrollment token with the connector and writes the resulting `GATEWAY_RELAY_ID`, `GATEWAY_RELAY_SECRET`, `GATEWAY_RELAY_DELIVERY_KEY`, and optional `GATEWAY_RELAY_URL` values to the active profile's `.env`.
+`sonic gateway enroll` accepts `--token`, `--connector-url`, `--gateway-id`, and `--wake-url`. It exchanges the enrollment token with the connector and writes the resulting `GATEWAY_RELAY_ID`, `GATEWAY_RELAY_SECRET`, `GATEWAY_RELAY_DELIVERY_KEY`, optional `GATEWAY_RELAY_URL`, and (when `--wake-url` is given) `GATEWAY_RELAY_WAKE_URL` values to the active profile's `.env`.
 
 :::tip WSL users
 Use `sonic gateway run` instead of `sonic gateway start` — WSL's systemd support is unreliable. Wrap it in tmux for persistence: `tmux new -s sonic 'sonic gateway run'`. See [WSL FAQ](/reference/faq#wsl-gateway-keeps-disconnecting-or-sonic-gateway-start-fails) for details.
@@ -612,6 +617,28 @@ Board resolution order (highest precedence first): `--board <slug>` flag → `SO
 All actions are also available as a slash command in the gateway (`/kanban …`), with the same argument surface — including `boards` subcommands and the `--board` flag.
 
 For the full design — comparison with Cline Kanban / Paperclip / NanoClaw / Gemini Enterprise, eight collaboration patterns, four user stories, concurrency correctness proof — see `docs/sonic-kanban-v1-spec.pdf` in the repository or the [Kanban user guide](/user-guide/features/kanban).
+
+## `sonic project`
+
+```bash
+sonic project <create|list|show|add-folder|remove-folder|rename|set-primary|use|archive|restore|bind-board>
+```
+
+Projects are human-named workspaces that can span multiple folders / repos. They anchor desktop session grouping and, when bound to a kanban board, give tasks a deterministic worktree + branch convention. State is per-profile.
+
+| Subcommand | Description |
+|------------|-------------|
+| `create` | Create a new project. |
+| `list` (alias `ls`) | List projects. |
+| `show` | Show a project's details. |
+| `add-folder` | Add a folder / repo to a project. |
+| `remove-folder` | Remove a folder from a project. |
+| `rename` | Rename a project. |
+| `set-primary` | Set the primary folder. |
+| `use` | Set the active project. |
+| `archive` | Archive a project (recoverable). |
+| `restore` | Restore an archived project. |
+| `bind-board` | Bind a kanban board to this project. |
 
 ## `sonic webhook`
 
@@ -1122,7 +1149,7 @@ See [Curator](../user-guide/features/curator.md) for behavior and config.
 
 ## `sonic moa`
 
-Configure named Mixture of Agents presets used by the `/moa` slash command.
+Configure named Mixture of Agents presets. Presets appear as selectable models under a `Mixture of Agents` provider in every model picker; `/moa <prompt>` runs one prompt through the default preset.
 
 ```bash
 sonic moa list
@@ -1283,7 +1310,7 @@ Subcommands:
 
 | Subcommand | Description |
 |------------|-------------|
-| `install` | Run the upstream cua-driver installer (macOS only). |
+| `install` | Run the upstream cua-driver installer (macOS, Windows, and Linux). |
 | `install --upgrade` | Re-run the installer even if cua-driver is already on PATH. The upstream script always pulls the latest release, so this performs an in-place upgrade. |
 | `status` | Print whether `cua-driver` is on `$PATH` and which version is installed. |
 
@@ -1298,6 +1325,27 @@ it (for example, on returning-user setups).
 of the update if cua-driver is on PATH, so most users will not need to
 call `--upgrade` manually. Use it when upstream ships a fix you want
 right now without waiting for the next Sonic update.
+
+## `sonic pets`
+
+```bash
+sonic pets <list|install|select|show|off|scale|remove|doctor>
+```
+
+[Petdex](https://github.com/crafter-station/petdex) is a public gallery of animated sprite pets for coding agents. Install one and Sonic shows it reacting to agent activity across the CLI, TUI, and desktop app.
+
+| Subcommand | Description |
+|------------|-------------|
+| `list` | Browse the petdex gallery. |
+| `install` | Install a pet from the gallery. |
+| `select` | Set the active pet (writes `display.pet.*`). |
+| `show` | Animate the active pet in the terminal. |
+| `off` | Disable the pet display. |
+| `scale` | Resize the pet everywhere (`display.pet.scale`). |
+| `remove` | Delete an installed pet. |
+| `doctor` | Check pet setup + terminal graphics support. |
+
+You can also generate a brand-new pet from a text description with the `/hatch` slash command. See [Pets](../user-guide/features/pets.md).
 
 ## `sonic sessions`
 
@@ -1379,23 +1427,42 @@ sonic claw migrate --preset user-data --overwrite
 sonic claw migrate --source /home/user/old-openclaw
 ```
 
+## `sonic serve`
+
+```bash
+sonic serve [options]
+```
+
+Start the Sonic **backend server** — the JSON-RPC/WebSocket gateway the [desktop app](/user-guide/desktop) and remote clients connect to. It is the same server `sonic dashboard` runs, but **headless**: it never opens a browser UI. The desktop app launches its own `sonic serve` backend; use this command directly when you want a headless backend on a remote host. Accepts the same `--host` / `--port` / `--insecure` / `--skip-build` / `--stop` / `--status` options as `sonic dashboard` below (a non-loopback bind engages the same auth gate). Requires the `[web]` extra; the embedded Chat socket additionally needs `[pty]` on a POSIX host.
+
 ## `sonic dashboard`
 
 ```bash
 sonic dashboard [options]
 ```
 
-Launch the web dashboard — a browser-based UI for managing configuration, API keys, and monitoring sessions. Requires `cd ~/.sonic/sonic-agent && uv pip install -e ".[web]"` (FastAPI + Uvicorn). The embedded browser Chat tab is always available and additionally needs the `pty` extra (`cd ~/.sonic/sonic-agent && uv pip install -e ".[web,pty]"`) plus a POSIX PTY environment such as Linux, macOS, or WSL2. See [Web Dashboard](/user-guide/features/web-dashboard) for full documentation.
+Launch the web dashboard — a browser-based UI for managing configuration, API keys, and monitoring sessions. (For a headless backend with no browser UI — e.g. what the desktop app spawns — use [`sonic serve`](#sonic-serve) above.) Requires `cd ~/.sonic/sonic-agent && uv pip install -e ".[web]"` (FastAPI + Uvicorn). The embedded browser Chat tab is always available and additionally needs the `pty` extra (`cd ~/.sonic/sonic-agent && uv pip install -e ".[web,pty]"`) plus a POSIX PTY environment such as Linux, macOS, or WSL2. See [Web Dashboard](/user-guide/features/web-dashboard) for full documentation.
 
 | Option | Default | Description |
 |--------|---------|-------------|
 | `--port` | `9119` | Port to run the web server on |
 | `--host` | `127.0.0.1` | Bind address |
 | `--no-open` | — | Don't auto-open the browser |
-| `--insecure` | off | Allow binding to non-localhost hosts. Exposes dashboard credentials on the network; use only behind trusted network controls. |
+| `--insecure` | off | **Deprecated / no-op.** Formerly bypassed auth on a non-loopback bind. Since the June 2026 hardening a public bind *always* requires an auth provider (password or OAuth). Bind `127.0.0.1` and tunnel to keep it local. |
+| `--skip-build` | off | Skip the web UI build step and serve the existing `dist` directly. Useful for non-interactive contexts (Windows Scheduled Tasks, CI) where npm isn't available. Pre-build with `cd web && npm run build`. |
 | `--isolated` | off | When launched from a named profile (`worker dashboard`), run a dedicated per-profile server instead of routing to the machine dashboard. |
 | `--stop` | — | Stop running `sonic dashboard` processes and exit. |
 | `--status` | — | List running `sonic dashboard` processes and exit. |
+
+### `sonic dashboard register`
+
+Register this install as a self-hosted dashboard with your Nous Portal account. Creates an OAuth client, writes `SONIC_DASHBOARD_OAUTH_CLIENT_ID` into `~/.sonic/.env`, and prints how to engage the login gate. Requires being logged in (`sonic setup`).
+
+| Option | Description |
+|--------|-------------|
+| `--name` | Human-readable label for the dashboard (default: auto-generated). |
+| `--redirect-uri` | Public HTTPS OAuth redirect URI (e.g. `https://sonic.example.com/auth/callback`). Omit for localhost-only use. |
+| `--portal-url` | Override the Nous Portal base URL for registration (default: the portal you logged into). Also settable via `SONIC_DASHBOARD_PORTAL_URL`. |
 
 ```bash
 # Default — opens browser to http://127.0.0.1:9119
