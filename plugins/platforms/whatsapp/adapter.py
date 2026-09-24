@@ -78,7 +78,7 @@ def _kill_port_process(port: int) -> None:
     """Kill any process *listening* on the given TCP port (a stale bridge)."""
     try:
         if _IS_WINDOWS:
-            from hermes_cli._subprocess_compat import windows_hide_flags
+            from sonic_cli._subprocess_compat import windows_hide_flags
 
             # Use netstat to find the PID bound to this port, then taskkill
             result = subprocess.run(

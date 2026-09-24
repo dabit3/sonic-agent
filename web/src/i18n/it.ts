@@ -434,7 +434,7 @@ export const it: Translations = {
     showValue: "Mostra valore reale",
     hideValue: "Nascondi valore",
     customTitle: "Chiavi personalizzate",
-    customHint: "Variabili d'ambiente arbitrarie salvate nel tuo .env che Hermes non riconosce. Usale per iniettare variabili d'ambiente per skill, server MCP o i tuoi strumenti.",
+    customHint: "Variabili d'ambiente arbitrarie salvate nel tuo .env che Sonic non riconosce. Usale per iniettare variabili d'ambiente per skill, server MCP o i tuoi strumenti.",
     customConfigured: "{count} chiave/i personalizzata/e impostata/e",
     addCustomKey: "Aggiungi una chiave personalizzata",
     customKeyName: "Nome della variabile",

@@ -230,7 +230,7 @@ Subcommands:
 | `install` | Install as a systemd (Linux) or launchd (macOS) background service. |
 | `uninstall` | Remove the installed service. |
 | `setup` | Interactive messaging-platform setup. |
-| `migrate-legacy` | Remove legacy `hermes.service` units left over from pre-rename installs. Profile units (`hermes-gateway-<profile>.service`) and unrelated services are never touched. Flags: `--dry-run`, `-y`/`--yes`. |
+| `migrate-legacy` | Remove legacy `sonic.service` units left over from pre-rename installs. Profile units (`sonic-gateway-<profile>.service`) and unrelated services are never touched. Flags: `--dry-run`, `-y`/`--yes`. |
 | `enroll` | Experimental: enroll this gateway with a relay connector and save relay credentials for connector-backed platforms. |
 
 Options:
@@ -1454,15 +1454,15 @@ Launch the web dashboard — a browser-based UI for managing configuration, API 
 | `--stop` | — | Stop running `sonic dashboard` processes and exit. |
 | `--status` | — | List running `sonic dashboard` processes and exit. |
 
-### `hermes dashboard register`
+### `sonic dashboard register`
 
-Register this install as a self-hosted dashboard with your Nous Portal account. Creates an OAuth client, writes `HERMES_DASHBOARD_OAUTH_CLIENT_ID` into `~/.hermes/.env`, and prints how to engage the login gate. Requires being logged in (`hermes setup`).
+Register this install as a self-hosted dashboard with your Nous Portal account. Creates an OAuth client, writes `SONIC_DASHBOARD_OAUTH_CLIENT_ID` into `~/.sonic/.env`, and prints how to engage the login gate. Requires being logged in (`sonic setup`).
 
 | Option | Description |
 |--------|-------------|
 | `--name` | Human-readable label for the dashboard (default: auto-generated). |
-| `--redirect-uri` | Public HTTPS OAuth redirect URI (e.g. `https://hermes.example.com/auth/callback`). Omit for localhost-only use. |
-| `--portal-url` | Override the Nous Portal base URL for registration (default: the portal you logged into). Also settable via `HERMES_DASHBOARD_PORTAL_URL`. |
+| `--redirect-uri` | Public HTTPS OAuth redirect URI (e.g. `https://sonic.example.com/auth/callback`). Omit for localhost-only use. |
+| `--portal-url` | Override the Nous Portal base URL for registration (default: the portal you logged into). Also settable via `SONIC_DASHBOARD_PORTAL_URL`. |
 
 ```bash
 # Default — opens browser to http://127.0.0.1:9119

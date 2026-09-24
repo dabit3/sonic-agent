@@ -1612,8 +1612,8 @@ class TestWebServerEndpoints:
     def test_ops_backup_defaults_to_dashboard_downloadable_archive(self, monkeypatch):
         from pathlib import Path
 
-        import hermes_cli.web_server as ws
-        from hermes_cli.config import get_hermes_home
+        import sonic_cli.web_server as ws
+        from sonic_cli.config import get_sonic_home
 
         captured = {}
 
@@ -1623,7 +1623,7 @@ class TestWebServerEndpoints:
             from types import SimpleNamespace as NS
             return NS(pid=12345)
 
-        monkeypatch.setattr(ws, "_spawn_hermes_action", fake_spawn)
+        monkeypatch.setattr(ws, "_spawn_sonic_action", fake_spawn)
 
         resp = self.client.post("/api/ops/backup", json={})
         assert resp.status_code == 200
@@ -1633,17 +1633,17 @@ class TestWebServerEndpoints:
         assert data["name"] == "backup"
         assert captured["name"] == "backup"
         assert captured["args"] == ["backup", str(archive)]
-        assert archive.parent == get_hermes_home() / "backups"
-        assert archive.name.startswith("hermes-backup-")
+        assert archive.parent == get_sonic_home() / "backups"
+        assert archive.name.startswith("sonic-backup-")
         assert archive.suffix == ".zip"
 
-    def test_ops_backup_uses_hosted_hermes_home(self, tmp_path, monkeypatch):
+    def test_ops_backup_uses_hosted_sonic_home(self, tmp_path, monkeypatch):
         from pathlib import Path
 
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         hosted_home = tmp_path / "opt-data"
-        monkeypatch.setenv("HERMES_HOME", str(hosted_home))
+        monkeypatch.setenv("SONIC_HOME", str(hosted_home))
         captured = {}
 
         def fake_spawn(subcommand, name):
@@ -1652,7 +1652,7 @@ class TestWebServerEndpoints:
             from types import SimpleNamespace as NS
             return NS(pid=12345)
 
-        monkeypatch.setattr(ws, "_spawn_hermes_action", fake_spawn)
+        monkeypatch.setattr(ws, "_spawn_sonic_action", fake_spawn)
 
         resp = self.client.post("/api/ops/backup", json={})
         assert resp.status_code == 200
@@ -1663,11 +1663,11 @@ class TestWebServerEndpoints:
         assert archive.parent.is_dir()
 
     def test_ops_backup_download_streams_dashboard_backup(self, tmp_path):
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         backup_dir = ws._dashboard_backup_dir()
         backup_dir.mkdir(parents=True, exist_ok=True)
-        archive = backup_dir / "hermes-backup-test.zip"
+        archive = backup_dir / "sonic-backup-test.zip"
         archive.write_bytes(b"zip bytes")
 
         resp = self.client.get(
@@ -1690,7 +1690,7 @@ class TestWebServerEndpoints:
         import zipfile
         from pathlib import Path
 
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         archive = tmp_path / "backup.zip"
         with zipfile.ZipFile(archive, "w") as zf:
@@ -1704,7 +1704,7 @@ class TestWebServerEndpoints:
             from types import SimpleNamespace as NS
             return NS(pid=12345)
 
-        monkeypatch.setattr(ws, "_spawn_hermes_action", fake_spawn)
+        monkeypatch.setattr(ws, "_spawn_sonic_action", fake_spawn)
 
         resp = self.client.post(
             "/api/ops/import-upload",
@@ -1732,12 +1732,12 @@ class TestWebServerEndpoints:
         assert data["archive"] == str(staged)
 
     def test_ops_import_upload_rejects_invalid_zip(self, monkeypatch):
-        import hermes_cli.web_server as ws
+        import sonic_cli.web_server as ws
 
         def fail_spawn(*_args):
             raise AssertionError("invalid uploads must not spawn import")
 
-        monkeypatch.setattr(ws, "_spawn_hermes_action", fail_spawn)
+        monkeypatch.setattr(ws, "_spawn_sonic_action", fail_spawn)
 
         resp = self.client.post(
             "/api/ops/import-upload",

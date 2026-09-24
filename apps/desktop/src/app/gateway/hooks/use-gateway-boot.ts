@@ -1,4 +1,4 @@
-import { isGatewayReauthRequired, resolveGatewayWsUrl } from '@hermes/shared'
+import { isGatewayReauthRequired, resolveGatewayWsUrl } from '@sonic/shared'
 import { useEffect, useRef } from 'react'
 
 import type { SonicConnection } from '@/global'

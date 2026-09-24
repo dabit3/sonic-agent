@@ -65,13 +65,13 @@ test('desktop backend launches console python so child consoles are inherited, n
   )
 
   // Console python restores stdout, so the port is announced on the normal
-  // HERMES_DASHBOARD_READY stdout line — no ready-file side channel is set.
+  // SONIC_DASHBOARD_READY stdout line — no ready-file side channel is set.
   assert.doesNotMatch(source, /readyFile: true/, 'no backend should opt into the pythonw ready-file path')
 
   // Both desktop backend launches must still go through hiddenWindowsChildOptions
   // so the single backend console is created windowless.
   requireHiddenChildOptions(source, /spawn\(\s*backend\.command,\s*backend\.args/)
-  requireHiddenChildOptions(source, /hermesProcess = spawn\(\s*backend\.command,\s*backend\.args/)
+  requireHiddenChildOptions(source, /sonicProcess = spawn\(\s*backend\.command,\s*backend\.args/)
 })
 
 test('intentional or interactive desktop child processes stay documented', () => {

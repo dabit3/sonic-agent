@@ -1258,7 +1258,7 @@ export default function SystemPage() {
                   id="import-path"
                   value={importPath}
                   onChange={(e) => setImportPath(e.target.value)}
-                  placeholder="$HERMES_HOME/backups/hermes-backup.zip"
+                  placeholder="$SONIC_HOME/backups/sonic-backup.zip"
                 />
               </div>
               <Button
@@ -1277,8 +1277,8 @@ export default function SystemPage() {
             </div>
             <ConfirmDialog
               open={!!importConfirmTarget}
-              title="Restore full Hermes backup?"
-              description={`This will overwrite your current Hermes configuration, skills, sessions, and data with the contents of ${backupImportLabel(importConfirmTarget)}. This cannot be undone.`}
+              title="Restore full Sonic backup?"
+              description={`This will overwrite your current Sonic configuration, skills, sessions, and data with the contents of ${backupImportLabel(importConfirmTarget)}. This cannot be undone.`}
               destructive
               confirmLabel="Restore"
               cancelLabel="Cancel"

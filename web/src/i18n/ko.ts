@@ -433,7 +433,7 @@ export const ko: Translations = {
     showValue: "실제 값 표시",
     hideValue: "값 숨기기",
     customTitle: "사용자 지정 키",
-    customHint: "Hermes가 인식하지 못하는, .env에 저장된 임의의 환경 변수입니다. 스킬, MCP 서버 또는 자체 도구를 위한 환경 변수를 주입하는 데 사용하세요.",
+    customHint: "Sonic가 인식하지 못하는, .env에 저장된 임의의 환경 변수입니다. 스킬, MCP 서버 또는 자체 도구를 위한 환경 변수를 주입하는 데 사용하세요.",
     customConfigured: "사용자 지정 키 {count}개 설정됨",
     addCustomKey: "사용자 지정 키 추가",
     customKeyName: "변수 이름",

@@ -174,12 +174,12 @@ class PlatformRegistry:
         # Why this exists: platform adapter modules import heavy, platform-
         # specific SDKs at module level (lark_oapi, microsoft_teams, discord.py,
         # slack_bolt, ...). Eagerly loading all ~20 bundled platform plugins at
-        # plugin-discovery time added several seconds to *every* `hermes`
-        # invocation -- including plain `hermes chat`, which never touches any
+        # plugin-discovery time added several seconds to *every* `sonic`
+        # invocation -- including plain `sonic chat`, which never touches any
         # gateway platform. Discovery now registers a cheap deferred loader per
         # platform; the real module is imported only when a registry lookup
         # actually asks for that platform (gateway start, cron delivery,
-        # `hermes setup`/`gateway status`, send_message).
+        # `sonic setup`/`gateway status`, send_message).
         self._deferred: dict[str, Callable[[], None]] = {}
 
     # -- deferred loading ----------------------------------------------------
@@ -219,7 +219,7 @@ class PlatformRegistry:
 
         Used by the iterate-all accessors (``all_entries``/``plugin_entries``),
         which are only called by paths that genuinely need every adapter:
-        gateway startup, ``hermes setup``/``gateway status``, channel
+        gateway startup, ``sonic setup``/``gateway status``, channel
         directory.  CLI chat never iterates the full set.
         """
         if not self._deferred:

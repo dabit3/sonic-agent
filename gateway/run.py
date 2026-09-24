@@ -5512,7 +5512,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                 # itself.  With uv venvs, ``python.exe`` can re-exec the base
                 # console interpreter and flash even when the Popen carries
                 # CREATE_NO_WINDOW; pythonw.exe avoids console allocation.
-                from hermes_cli.gateway_windows import _resolve_detached_python
+                from sonic_cli.gateway_windows import _resolve_detached_python
 
                 watcher_python, _watcher_venv_dir, _watcher_site_packages = (
                     _resolve_detached_python(sys.executable)

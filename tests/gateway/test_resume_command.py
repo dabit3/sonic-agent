@@ -177,7 +177,7 @@ class TestHandleResumeCommand:
     async def test_resume_clears_session_model_overrides(self, tmp_path):
         """Resume must not carry a previous session's /model override into the
         restored conversation, while leaving other chats' overrides intact (#10702)."""
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
         db = SessionDB(db_path=tmp_path / "state.db")
         db.create_session("old_session_abc", "telegram")
         db.set_session_title("old_session_abc", "My Project")

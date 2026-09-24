@@ -1855,10 +1855,10 @@ except Exception:
     }
 
     if (-not $NoVenv) {
-        # uv on Windows can register hermes.exe in dist-info/RECORD but fail to
+        # uv on Windows can register sonic.exe in dist-info/RECORD but fail to
         # materialise the .exe (file lock during self-update, distlib edge case).
         # Catch it here so a fresh install/update does not finish with a broken
-        # `hermes` command while hermes-agent.exe / hermes-acp.exe exist
+        # `sonic` command while sonic-agent.exe / sonic-acp.exe exist
         $scriptsDir = Join-Path $InstallDir "venv\Scripts"
         $pythonExe = Join-Path $scriptsDir "python.exe"
         if ((Test-Path $scriptsDir) -and (Test-Path $pythonExe)) {
@@ -1887,7 +1887,7 @@ print(','.join(scripts))
                     }
                     if ($stillMissing.Count -gt 0) {
                         Write-Warn "Entry points still missing after repair: $($stillMissing -join ', ')"
-                        Write-Info "Workaround: `"$pythonExe`" -m hermes_cli.main <command>"
+                        Write-Info "Workaround: `"$pythonExe`" -m sonic_cli.main <command>"
                     } else {
                         Write-Success "Console entry points restored"
                     }

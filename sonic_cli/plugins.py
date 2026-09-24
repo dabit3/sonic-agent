@@ -1331,12 +1331,12 @@ class PluginManager:
             # feishu, teams, ...) are registered LAZILY. Their modules import
             # heavy, platform-specific SDKs at module level (lark_oapi,
             # microsoft_teams, discord.py, slack_bolt, ...), so eagerly loading
-            # all ~20 of them added several seconds to every `hermes`
-            # invocation — including plain `hermes chat`, which never touches a
+            # all ~20 of them added several seconds to every `sonic`
+            # invocation — including plain `sonic chat`, which never touches a
             # gateway platform. Instead we register a cheap deferred loader in
             # the platform_registry keyed on the platform name; the real module
             # is imported only when the gateway / cron / setup / send_message
-            # path actually asks for that platform. Every platform Hermes ships
+            # path actually asks for that platform. Every platform Sonic ships
             # remains available out of the box — it just loads on first use.
             if manifest.source == "bundled" and manifest.kind == "platform":
                 self._register_deferred_platform(manifest)
@@ -1605,13 +1605,13 @@ class PluginManager:
         The platform adapter module is imported only when the gateway / cron /
         setup / send_message path first asks the ``platform_registry`` for this
         platform. Until then we record a lightweight ``LoadedPlugin`` so
-        ``hermes plugins list`` still shows the platform as available, and we
+        ``sonic plugins list`` still shows the platform as available, and we
         hand the registry a loader that runs the normal eager-load path.
         """
         lookup_key = manifest.key or manifest.name
         platform_name = self._platform_name_from_manifest(manifest)
 
-        # Record an enabled placeholder for introspection (`hermes plugins
+        # Record an enabled placeholder for introspection (`sonic plugins
         # list`). The real module load swaps in a fully-populated LoadedPlugin
         # (tools/hooks/commands attribution) when the loader fires.
         loaded = LoadedPlugin(manifest=manifest, enabled=True)

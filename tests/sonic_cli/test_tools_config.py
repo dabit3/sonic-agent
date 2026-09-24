@@ -1690,7 +1690,7 @@ def test_save_platform_tools_clears_newly_enabled_from_disabled_toolsets():
         "agent": {"disabled_toolsets": ["todo", "memory", "browser"]},
     }
 
-    with patch("hermes_cli.tools_config.save_config"):
+    with patch("sonic_cli.tools_config.save_config"):
         _save_platform_tools(config, "cli", {"file", "terminal", "todo"})
 
     # The toolset the user just enabled is cleared from the block-list...
@@ -1715,7 +1715,7 @@ def test_save_platform_tools_resolves_to_enabled_after_disabled_toolsets_reconci
     # Before: todo is masked off despite not being in platform_toolsets yet.
     assert "todo" not in _get_platform_tools(config, "cli")
 
-    with patch("hermes_cli.tools_config.save_config"):
+    with patch("sonic_cli.tools_config.save_config"):
         _save_platform_tools(config, "cli", {"file", "terminal", "todo"})
 
     # After: todo must resolve as enabled, and untouched 'memory' must
@@ -1731,7 +1731,7 @@ def test_save_platform_tools_no_disabled_toolsets_is_noop():
     """
     config = {"platform_toolsets": {"cli": ["file", "terminal"]}}
 
-    with patch("hermes_cli.tools_config.save_config"):
+    with patch("sonic_cli.tools_config.save_config"):
         _save_platform_tools(config, "cli", {"file", "terminal", "todo"})
 
     assert "todo" in config["platform_toolsets"]["cli"]
@@ -1749,7 +1749,7 @@ def test_save_platform_tools_disabling_a_toolset_does_not_touch_disabled_toolset
         "agent": {"disabled_toolsets": ["memory"]},
     }
 
-    with patch("hermes_cli.tools_config.save_config"):
+    with patch("sonic_cli.tools_config.save_config"):
         # User unchecks 'todo' -- it's no longer in enabled_toolset_keys.
         _save_platform_tools(config, "cli", {"file", "terminal"})
 

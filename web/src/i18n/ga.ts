@@ -442,7 +442,7 @@ export const ga: Translations = {
     showValue: "Taispeáin an fíorluach",
     hideValue: "Folaigh an luach",
     customTitle: "Eochracha Saincheaptha",
-    customHint: "Athróga timpeallachta treallach atá stóráilte i do .env nach n-aithníonn Hermes. Úsáid iad chun athróga timpeallachta a instealladh do scileanna, freastalaithe MCP, nó d'uirlisí féin.",
+    customHint: "Athróga timpeallachta treallach atá stóráilte i do .env nach n-aithníonn Sonic. Úsáid iad chun athróga timpeallachta a instealladh do scileanna, freastalaithe MCP, nó d'uirlisí féin.",
     customConfigured: "{count} eochair shaincheaptha socraithe",
     addCustomKey: "Cuir eochair shaincheaptha leis",
     customKeyName: "Ainm na hathróige",

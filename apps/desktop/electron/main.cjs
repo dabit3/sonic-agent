@@ -1343,14 +1343,14 @@ function unwrapWindowsVenvSonicCommand(command, backendArgs) {
 }
 
 // Does the resolved runtime understand the `serve` subcommand? The desktop
-// spawns `hermes serve`; runtimes older than serve only have `dashboard`. We
+// spawns `sonic serve`; runtimes older than serve only have `dashboard`. We
 // detect support so getBackendArgsForRuntime() can route old runtimes through
 // the legacy `dashboard --no-open` form instead of crashing on an unknown
 // subcommand (would brick every user mid-upgrade — #54568 follow-up).
 //
 // Fast path: read the runtime's own dashboard.py (instant, covers managed
 // installs, dev checkouts, and the Windows venv). Fallback: probe the CLI once
-// (covers a bare `hermes` resolved from PATH with no known source root). Result
+// (covers a bare `sonic` resolved from PATH with no known source root). Result
 // is cached per resolved runtime so we probe at most once per backend.
 const _serveSupportCache = new Map()
 function backendSupportsServe(backend) {
@@ -1362,7 +1362,7 @@ function backendSupportsServe(backend) {
   if (backend.root) {
     try {
       const src = fs.readFileSync(
-        path.join(backend.root, 'hermes_cli', 'subcommands', 'dashboard.py'),
+        path.join(backend.root, 'sonic_cli', 'subcommands', 'dashboard.py'),
         'utf8'
       )
       supported = sourceDeclaresServe(src)
@@ -1376,7 +1376,7 @@ function backendSupportsServe(backend) {
       const prefix = backend.args && backend.args[0] === '-m' ? backend.args.slice(0, 2) : []
       execFileSync(backend.command, [...prefix, 'serve', '--help'], {
         cwd: backend.root || undefined,
-        env: { ...process.env, HERMES_HOME, ...(backend.env || {}) },
+        env: { ...process.env, SONIC_HOME, ...(backend.env || {}) },
         timeout: 15000,
         stdio: 'ignore',
         windowsHide: true

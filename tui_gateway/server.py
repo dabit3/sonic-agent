@@ -278,7 +278,7 @@ class _SlashWorker:
             argv += ["--model", model]
 
         self._closed = False
-        from hermes_cli._subprocess_compat import windows_hide_flags
+        from sonic_cli._subprocess_compat import windows_hide_flags
 
         self.proc = subprocess.Popen(
             argv,
@@ -9178,7 +9178,7 @@ def _(rid, params: dict) -> dict:
             "-f", str(first_page), "-l", str(last_page),
             str(pdf_path), str(out_prefix),
         ]
-        from hermes_cli._subprocess_compat import windows_hide_flags
+        from sonic_cli._subprocess_compat import windows_hide_flags
 
         try:
             res = subprocess.run(
@@ -11728,7 +11728,7 @@ def _list_repo_files(root: str) -> list[str]:
             return cached[1]
 
     files: list[str] = []
-    from hermes_cli._subprocess_compat import windows_hide_flags
+    from sonic_cli._subprocess_compat import windows_hide_flags
 
     _creationflags = windows_hide_flags()
     try:

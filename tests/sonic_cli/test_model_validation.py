@@ -739,7 +739,7 @@ class TestValidateApiFallback:
         mock_resp.__exit__.return_value = False
         mock_resp.read.return_value = b'{"models":[{"key":"publisher/chat-model","type":"llm"}]}'
 
-        with patch("hermes_cli.models.urllib.request.urlopen", return_value=mock_resp) as mock_urlopen:
+        with patch("sonic_cli.models.urllib.request.urlopen", return_value=mock_resp) as mock_urlopen:
             models = fetch_lmstudio_models(base_url="http://localhost:1234/api/v1")
 
         request = mock_urlopen.call_args[0][0]

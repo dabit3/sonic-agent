@@ -122,7 +122,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterator, List, Optional, Set, Tuple
 
-from hermes_cli._subprocess_compat import IS_WINDOWS, windows_hide_flags
+from sonic_cli._subprocess_compat import IS_WINDOWS, windows_hide_flags
 
 try:
     import fcntl  # POSIX only; Windows falls back to best-effort without flock.

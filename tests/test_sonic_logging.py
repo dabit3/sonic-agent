@@ -827,7 +827,7 @@ class TestWindowsConcurrentLogLockTimeout:
         logger.propagate = False
         logger.setLevel(logging.INFO)
 
-        handler = hermes_logging._ManagedRotatingFileHandler(
+        handler = sonic_logging._ManagedRotatingFileHandler(
             str(log_path), maxBytes=1, backupCount=1, encoding="utf-8",
         )
         handler.setFormatter(logging.Formatter("%(message)s"))
@@ -835,16 +835,16 @@ class TestWindowsConcurrentLogLockTimeout:
         return logger, handler
 
     def test_helper_only_matches_windows_concurrent_lock_timeout(self):
-        with patch.object(hermes_logging.sys, "platform", "win32"):
-            assert hermes_logging._is_windows_concurrent_log_lock_timeout(
+        with patch.object(sonic_logging.sys, "platform", "win32"):
+            assert sonic_logging._is_windows_concurrent_log_lock_timeout(
                 RuntimeError("Cannot acquire lock after 20 attempts")
             )
-            assert not hermes_logging._is_windows_concurrent_log_lock_timeout(
+            assert not sonic_logging._is_windows_concurrent_log_lock_timeout(
                 RuntimeError("some other logging failure")
             )
 
-        with patch.object(hermes_logging.sys, "platform", "linux"):
-            assert not hermes_logging._is_windows_concurrent_log_lock_timeout(
+        with patch.object(sonic_logging.sys, "platform", "linux"):
+            assert not sonic_logging._is_windows_concurrent_log_lock_timeout(
                 RuntimeError("Cannot acquire lock after 20 attempts")
             )
 
@@ -862,7 +862,7 @@ class TestWindowsConcurrentLogLockTimeout:
             logger.name, logging.INFO, __file__, 0, "force rollover", (), None,
         )
         try:
-            with patch.object(hermes_logging.sys, "platform", "win32"):
+            with patch.object(sonic_logging.sys, "platform", "win32"):
                 try:
                     raise RuntimeError("Cannot acquire lock after 20 attempts")
                 except RuntimeError:
@@ -883,7 +883,7 @@ class TestWindowsConcurrentLogLockTimeout:
             logger.name, logging.INFO, __file__, 0, "force rollover", (), None,
         )
         try:
-            with patch.object(hermes_logging.sys, "platform", "win32"):
+            with patch.object(sonic_logging.sys, "platform", "win32"):
                 try:
                     raise RuntimeError("unexpected logging failure")
                 except RuntimeError:

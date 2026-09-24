@@ -194,11 +194,11 @@ class TestExternalCronProviderStatus:
     ):
         create_job(prompt="Ping", schedule="every 2m")
         monkeypatch.setattr(
-            "hermes_cli.cron._active_cron_provider_name", lambda: "chronos"
+            "sonic_cli.cron._active_cron_provider_name", lambda: "chronos"
         )
         # Even with NO gateway process and NO ticker heartbeat, Chronos status
         # must NOT report a stall / "not firing".
-        monkeypatch.setattr("hermes_cli.gateway.find_gateway_pids", lambda: [])
+        monkeypatch.setattr("sonic_cli.gateway.find_gateway_pids", lambda: [])
         cron_command(Namespace(cron_command="status"))
         out = capsys.readouterr().out
         assert "chronos" in out
@@ -212,9 +212,9 @@ class TestExternalCronProviderStatus:
     def test_status_unchanged_for_builtin(self, tmp_cron_dir, capsys, monkeypatch):
         create_job(prompt="Ping", schedule="every 2m")
         monkeypatch.setattr(
-            "hermes_cli.cron._active_cron_provider_name", lambda: "builtin"
+            "sonic_cli.cron._active_cron_provider_name", lambda: "builtin"
         )
-        monkeypatch.setattr("hermes_cli.gateway.find_gateway_pids", lambda: [])
+        monkeypatch.setattr("sonic_cli.gateway.find_gateway_pids", lambda: [])
         cron_command(Namespace(cron_command="status"))
         out = capsys.readouterr().out
         # Built-in path is the historical ticker-based report.
@@ -227,9 +227,9 @@ class TestExternalCronProviderStatus:
         # The create-time "gateway not running" nag is a ticker-only concern;
         # an external provider doesn't depend on a live in-process ticker.
         monkeypatch.setattr(
-            "hermes_cli.cron._active_cron_provider_name", lambda: "chronos"
+            "sonic_cli.cron._active_cron_provider_name", lambda: "chronos"
         )
-        monkeypatch.setattr("hermes_cli.gateway.find_gateway_pids", lambda: [])
+        monkeypatch.setattr("sonic_cli.gateway.find_gateway_pids", lambda: [])
         cron_command(
             Namespace(
                 cron_command="create",

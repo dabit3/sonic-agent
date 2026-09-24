@@ -49,7 +49,7 @@ class TestSlackFullManifest:
         """Group DMs (mpim) need message.mpim + mpim:history or Slack never
         delivers them — the adapter classifies mpim as a DM and replies
         ambiently, but only if the event reaches the bot at all."""
-        manifest = _build_full_manifest("Hermes", "Your Hermes agent on Slack")
+        manifest = _build_full_manifest("Sonic", "Your Sonic agent on Slack")
 
         bot_scopes = manifest["oauth_config"]["scopes"]["bot"]
         bot_events = manifest["settings"]["event_subscriptions"]["bot_events"]
@@ -65,7 +65,7 @@ class TestSlackFullManifest:
     def test_group_dm_surface_present_without_assistant_mode(self):
         """Dropping assistant mode must not strip the group-DM surface."""
         manifest = _build_full_manifest(
-            "Hermes", "Your Hermes agent on Slack", include_assistant=False
+            "Sonic", "Your Sonic agent on Slack", include_assistant=False
         )
 
         bot_scopes = manifest["oauth_config"]["scopes"]["bot"]

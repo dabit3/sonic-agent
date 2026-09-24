@@ -433,7 +433,7 @@ export const ja: Translations = {
     showValue: "実際の値を表示",
     hideValue: "値を非表示",
     customTitle: "カスタムキー",
-    customHint: "Hermes が認識しない、.env に保存された任意の環境変数。スキル、MCP サーバー、または独自のツール用に環境変数を注入するために使用します。",
+    customHint: "Sonic が認識しない、.env に保存された任意の環境変数。スキル、MCP サーバー、または独自のツール用に環境変数を注入するために使用します。",
     customConfigured: "カスタムキーを {count} 個設定済み",
     addCustomKey: "カスタムキーを追加",
     customKeyName: "変数名",

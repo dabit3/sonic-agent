@@ -363,12 +363,12 @@ async def test_windows_detached_restart_uses_pythonw_for_watcher(monkeypatch, tm
 
     monkeypatch.setattr(gateway_run.sys, "platform", "win32")
     monkeypatch.setattr(gateway_run.sys, "executable", r"C:\venv\Scripts\python.exe")
-    monkeypatch.setattr(gateway_run, "_resolve_hermes_bin", lambda: ["hermes"])
+    monkeypatch.setattr(gateway_run, "_resolve_sonic_bin", lambda: ["sonic"])
     monkeypatch.setattr(gateway_run.os, "getpid", lambda: 321)
     monkeypatch.setenv("VIRTUAL_ENV", str(venv_dir))
 
-    import hermes_cli._subprocess_compat as subprocess_compat
-    import hermes_cli.gateway_windows as gateway_windows
+    import sonic_cli._subprocess_compat as subprocess_compat
+    import sonic_cli.gateway_windows as gateway_windows
 
     monkeypatch.setattr(
         gateway_windows,
@@ -392,7 +392,7 @@ async def test_windows_detached_restart_uses_pythonw_for_watcher(monkeypatch, tm
     assert len(popen_calls) == 1
     cmd, kwargs = popen_calls[0]
     assert cmd[0] == r"C:\Python311\pythonw.exe"
-    assert cmd[-3:] == ["hermes", "gateway", "restart"]
+    assert cmd[-3:] == ["sonic", "gateway", "restart"]
     assert kwargs["creationflags"] == 0x08000008
 
 

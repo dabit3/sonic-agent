@@ -620,7 +620,7 @@ class TestAgentBrowserRunnable:
             captured.append((cmd, kwargs))
             return SimpleNamespace(returncode=0)
 
-        import hermes_cli._subprocess_compat as subprocess_compat
+        import sonic_cli._subprocess_compat as subprocess_compat
         import subprocess as subprocess_mod
 
         monkeypatch.setattr(subprocess_compat, "windows_hide_flags", lambda: 0x08000000)
@@ -639,7 +639,7 @@ class TestAgentBrowserRunnable:
             captured.append((cmd, kwargs))
             return SimpleNamespace(returncode=0)
 
-        import hermes_cli._subprocess_compat as subprocess_compat
+        import sonic_cli._subprocess_compat as subprocess_compat
         import subprocess as subprocess_mod
 
         monkeypatch.setattr(subprocess_compat, "windows_hide_flags", lambda: 0x08000000)

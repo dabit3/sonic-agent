@@ -391,7 +391,7 @@ def _scan_gateway_pids(
             # Hide the console window: this scan runs inside the windowless
             # pythonw.exe gateway/desktop backend, so a bare wmic/powershell
             # spawn would flash a conhost window on every watchdog probe.
-            from hermes_cli._subprocess_compat import windows_hide_flags
+            from sonic_cli._subprocess_compat import windows_hide_flags
 
             _no_window = {"creationflags": windows_hide_flags()}
             wmic_path = shutil.which("wmic")

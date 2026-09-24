@@ -5848,7 +5848,7 @@ def _find_stale_dashboard_pids(
             # CREATE_NO_WINDOW hides the conhost flash: this scan can run from
             # the windowless pythonw.exe desktop/gateway backend during an
             # update, where a bare wmic spawn would pop a console window.
-            from hermes_cli._subprocess_compat import windows_hide_flags
+            from sonic_cli._subprocess_compat import windows_hide_flags
 
             result = subprocess.run(
                 ["wmic", "process", "get", "ProcessId,CommandLine", "/FORMAT:LIST"],
@@ -7720,11 +7720,11 @@ def _verify_console_scripts_installed(
 ) -> None:
     """Ensure every declared console_script shim exists on disk after install.
 
-    On Windows, ``uv pip install -e .`` can register ``hermes.exe`` in the
+    On Windows, ``uv pip install -e .`` can register ``sonic.exe`` in the
     wheel RECORD while the file never lands on disk — typically when the live
-    ``hermes.exe`` shim is locked during ``hermes update``, or when uv/distlib
-    skips a launcher write. The symptom is ``hermes-agent.exe`` and
-    ``hermes-acp.exe`` present but ``hermes.exe`` missing, so ``hermes`` drops
+    ``sonic.exe`` shim is locked during ``sonic update``, or when uv/distlib
+    skips a launcher write. The symptom is ``sonic-agent.exe`` and
+    ``sonic-acp.exe`` present but ``sonic.exe`` missing, so ``sonic`` drops
     off PATH even though the install reported success (issue #52931).
 
     If any shim is missing we reinstall with ``--reinstall -e .`` under the
@@ -7767,8 +7767,8 @@ def _verify_console_scripts_installed(
     except subprocess.CalledProcessError as e:
         logger.warning("console script verification: repair install failed: %s", e)
         print(
-            "  ⚠ Entry point repair failed; try `hermes update --force` after "
-            "closing other hermes processes."
+            "  ⚠ Entry point repair failed; try `sonic update --force` after "
+            "closing other sonic processes."
         )
         return
 
@@ -7776,7 +7776,7 @@ def _verify_console_scripts_installed(
     if still_missing:
         print(
             f"  ⚠ Still missing after repair: {', '.join(still_missing)}. "
-            "Workaround: python -m hermes_cli.main <command>"
+            "Workaround: python -m sonic_cli.main <command>"
         )
     else:
         print("  ✓ All console entry points restored")

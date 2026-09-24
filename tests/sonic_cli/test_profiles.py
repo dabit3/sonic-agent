@@ -901,11 +901,11 @@ class TestWrapperScriptSecurity:
 
     def test_legit_alias_stays_inside_wrapper_dir(self, profile_env, monkeypatch):
         monkeypatch.setattr("sys.platform", "darwin")
-        from hermes_cli.profiles import _get_wrapper_dir
+        from sonic_cli.profiles import _get_wrapper_dir
         wrapper = create_wrapper_script("mybot", target="coder")
         assert wrapper is not None
         assert wrapper.resolve().is_relative_to(_get_wrapper_dir().resolve())
-        assert 'hermes -p coder "$@"' in wrapper.read_text()
+        assert 'sonic -p coder "$@"' in wrapper.read_text()
 
 
 # ===================================================================

@@ -139,7 +139,7 @@ LAZY_DEPS: dict[str, tuple[str, ...]] = {
     "memory.hindsight": ("hindsight-client==0.6.1",),
     # supermemory + mem0 are opt-in cloud memory providers with their own
     # SDKs. On the published Docker image the agent venv is sealed
-    # (HERMES_DISABLE_LAZY_INSTALLS=1) and lazy installs are redirected to the
+    # (SONIC_DISABLE_LAZY_INSTALLS=1) and lazy installs are redirected to the
     # durable target — so, like honcho/hindsight, these MUST go through
     # ensure() to be installable there. Without an allowlist entry + an
     # ensure() call at the import site, the SDK never installs on a hosted

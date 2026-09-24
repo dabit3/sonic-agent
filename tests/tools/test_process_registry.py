@@ -196,13 +196,13 @@ def test_close_terminal_tool_routes_to_registry(monkeypatch):
 
 
 def test_close_terminal_tool_gated_on_desktop(monkeypatch):
-    """Hidden unless HERMES_DESKTOP is set (mirrors read_terminal gating)."""
+    """Hidden unless SONIC_DESKTOP is set (mirrors read_terminal gating)."""
     from tools.close_terminal_tool import check_close_terminal_requirements
 
-    monkeypatch.delenv("HERMES_DESKTOP", raising=False)
+    monkeypatch.delenv("SONIC_DESKTOP", raising=False)
     assert check_close_terminal_requirements() is False
 
-    monkeypatch.setenv("HERMES_DESKTOP", "1")
+    monkeypatch.setenv("SONIC_DESKTOP", "1")
     assert check_close_terminal_requirements() is True
 
 

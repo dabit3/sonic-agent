@@ -867,7 +867,7 @@ class SlackAdapter(BasePlatformAdapter):
                     "and 'message.mpim' event. Add 'mpim:history' (and "
                     "'mpim:read') to bot scopes, add 'message.mpim' to event "
                     "subscriptions, then REINSTALL the app to the workspace. "
-                    "Regenerating the app from `hermes slack` produces a "
+                    "Regenerating the app from `sonic slack` produces a "
                     "manifest with these already included.",
                     team_key or "this workspace",
                 )

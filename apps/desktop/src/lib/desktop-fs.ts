@@ -58,7 +58,7 @@ function remoteFsApi<T>(path: string, body?: Record<string, unknown>): Promise<T
   )
 }
 
-export async function readDesktopDir(path: string): Promise<HermesReadDirResult> {
+export async function readDesktopDir(path: string): Promise<SonicReadDirResult> {
   if (!isDesktopFsRemoteMode()) {
     return bridge().readDir(path)
   }

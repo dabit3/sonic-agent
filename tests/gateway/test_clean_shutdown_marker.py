@@ -227,7 +227,7 @@ class TestCleanShutdownMarker:
 
     def test_shutdown_cleanup_does_not_end_gateway_session_rows(self, tmp_path, monkeypatch):
         """Gateway process restart/stop must not mark live chats ended in state.db."""
-        monkeypatch.setattr("gateway.run._hermes_home", tmp_path)
+        monkeypatch.setattr("gateway.run._sonic_home", tmp_path)
         from gateway.run import GatewayRunner
 
         runner = object.__new__(GatewayRunner)

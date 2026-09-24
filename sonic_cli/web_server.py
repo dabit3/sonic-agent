@@ -1916,11 +1916,11 @@ async def fs_default_cwd():
 #
 # The desktop runs these as Electron-local git on the user's machine; over a
 # remote gateway that's the wrong filesystem, so we mirror them here (same auth
-# gate + path hardening as /api/fs). Logic lives in ``hermes_cli.web_git``;
+# gate + path hardening as /api/fs). Logic lives in ``sonic_cli.web_git``;
 # these are thin, executor-offloaded wrappers (git/gh can block).
 # ---------------------------------------------------------------------------
 
-from hermes_cli import web_git as _web_git  # noqa: E402
+from sonic_cli import web_git as _web_git  # noqa: E402
 
 
 async def _git_op(fn, *args):
@@ -9652,12 +9652,12 @@ class BackupRequest(BaseModel):
 
 
 def _dashboard_backup_dir() -> Path:
-    return get_hermes_home() / "backups"
+    return get_sonic_home() / "backups"
 
 
 def _new_dashboard_backup_path() -> Path:
     stamp = datetime.now().strftime("%Y-%m-%d-%H%M%S")
-    return _dashboard_backup_dir() / f"hermes-backup-{stamp}-{secrets.token_hex(4)}.zip"
+    return _dashboard_backup_dir() / f"sonic-backup-{stamp}-{secrets.token_hex(4)}.zip"
 
 
 @app.post("/api/ops/backup")
@@ -9815,7 +9815,7 @@ async def run_import_upload(
     if force:
         args.append("--force")
     try:
-        proc = _spawn_hermes_action(args, "import")
+        proc = _spawn_sonic_action(args, "import")
     except Exception as exc:
         _log.exception("Failed to spawn import")
         raise HTTPException(status_code=500, detail=f"Failed to run import: {exc}")

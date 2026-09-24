@@ -665,7 +665,7 @@ class VoiceReceiver:
             f.write(pcm_data)
             pcm_path = f.name
         try:
-            from hermes_cli._subprocess_compat import windows_hide_flags
+            from sonic_cli._subprocess_compat import windows_hide_flags
 
             subprocess.run(
                 [

@@ -191,7 +191,7 @@ AUTHOR_MAP = {
     "121278003+Cossackx@users.noreply.github.com": "Cossackx",  # PR #52528 salvage (Windows sonic-shim resolution + prefer --update on recovery; #52378)
     "mailtowbd@gmail.com": "marco0158",
     "157793278+jacobmansonlkevincc@users.noreply.github.com": "lkevincc0",
-    "121278003+Cossackx@users.noreply.github.com": "Cossackx",  # PR #52528 salvage (Windows hermes-shim resolution + prefer --update on recovery; #52378)
+    "121278003+Cossackx@users.noreply.github.com": "Cossackx",  # PR #52528 salvage (Windows sonic-shim resolution + prefer --update on recovery; #52378)
     "97326386+Icather@users.noreply.github.com": "Icather",  # PR #45554 salvage (self-lock guard breaks Windows update-recovery infinite loop; #52378 / #45542)
     "--email": "andryypaez@gmail.com",
     "mucio@mucio.net": "francescomucio",
@@ -1760,6 +1760,8 @@ AUTHOR_MAP = {
     "kyssta69@gmail.com": "kyssta-exe",  # PR #44282 (Windows dashboard re-exec)
     "30467832+Elshayib@users.noreply.github.com": "Elshayib",  # PR #48351 (custom-provider misattribution guard; #48305)
     "4002542+ailthrim@users.noreply.github.com": "ailthrim",  # direct commit (desktop late-build-failure cache purge)
+    "258443621+clovericbot@users.noreply.github.com": "clovericbot",  # upstream contributor
+    "6590895+kaishi00@users.noreply.github.com": "kaishi00",  # PR #55203 salvage (skip_preflight opt-out)
     "loongfay@foxmail.com": "loongfay",  # PR #43508 (Yuanbao wechat forward msg)
     "maplestoryjuni222@gmail.com": "BROCCOLO1D",  # PR #42733 (lazy-parse docker env config)
     "marvin@photon.codes": "underthestars-zhy",  # PR #46907 co-author (Photon Spectrum project ids)

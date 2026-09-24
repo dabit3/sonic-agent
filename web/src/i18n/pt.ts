@@ -435,7 +435,7 @@ export const pt: Translations = {
     showValue: "Mostrar valor real",
     hideValue: "Ocultar valor",
     customTitle: "Chaves personalizadas",
-    customHint: "Variáveis de ambiente arbitrárias armazenadas no seu .env que o Hermes não reconhece. Use-as para injetar variáveis de ambiente para skills, servidores MCP ou suas próprias ferramentas.",
+    customHint: "Variáveis de ambiente arbitrárias armazenadas no seu .env que o Sonic não reconhece. Use-as para injetar variáveis de ambiente para skills, servidores MCP ou suas próprias ferramentas.",
     customConfigured: "{count} chave(s) personalizada(s) definida(s)",
     addCustomKey: "Adicionar uma chave personalizada",
     customKeyName: "Nome da variável",

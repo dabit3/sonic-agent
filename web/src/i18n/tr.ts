@@ -434,7 +434,7 @@ export const tr: Translations = {
     showValue: "Gerçek değeri göster",
     hideValue: "Değeri gizle",
     customTitle: "Özel Anahtarlar",
-    customHint: ".env dosyanızda saklanan ve Hermes'in tanımadığı rastgele ortam değişkenleri. Bunları beceriler, MCP sunucuları veya kendi araçlarınız için ortam değişkenleri eklemek için kullanın.",
+    customHint: ".env dosyanızda saklanan ve Sonic'in tanımadığı rastgele ortam değişkenleri. Bunları beceriler, MCP sunucuları veya kendi araçlarınız için ortam değişkenleri eklemek için kullanın.",
     customConfigured: "{count} özel anahtar ayarlandı",
     addCustomKey: "Özel anahtar ekle",
     customKeyName: "Değişken adı",

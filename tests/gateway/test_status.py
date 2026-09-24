@@ -634,7 +634,7 @@ class TestTerminatePid:
         # pythonw.exe backend doesn't flash a conhost window on force-kill.
         # windows_hide_flags() is 0 on the POSIX test host (a valid no-op
         # creationflags value); on real Windows it is CREATE_NO_WINDOW.
-        from hermes_cli._subprocess_compat import windows_hide_flags
+        from sonic_cli._subprocess_compat import windows_hide_flags
 
         assert calls == [
             (["taskkill", "/PID", "123", "/T", "/F"], True, True, 10, windows_hide_flags())
@@ -1407,7 +1407,7 @@ class TestReadProcessCmdlinePsFallback:
                 self.pid = pid
 
             def cmdline(self):
-                return ["pythonw.exe", "-m", "hermes_cli.main", "gateway", "run"]
+                return ["pythonw.exe", "-m", "sonic_cli.main", "gateway", "run"]
 
         monkeypatch.setitem(
             sys.modules,
@@ -1417,7 +1417,7 @@ class TestReadProcessCmdlinePsFallback:
 
         result = status._read_process_cmdline(12345)
 
-        assert result == "pythonw.exe -m hermes_cli.main gateway run"
+        assert result == "pythonw.exe -m sonic_cli.main gateway run"
         assert ps_calls == []
 
 

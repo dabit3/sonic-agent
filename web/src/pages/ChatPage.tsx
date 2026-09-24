@@ -673,7 +673,7 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
       const params: Record<string, string> = { channel };
       if (resumeParam) params.resume = resumeParam;
       if (forceFresh) params.fresh = "1";
-      // Profile-scoped chat: the PTY child gets HERMES_HOME pointed at the
+      // Profile-scoped chat: the PTY child gets SONIC_HOME pointed at the
       // selected profile, so the conversation runs with that profile's model,
       // skills, memory, and sessions (see web_server._resolve_chat_argv).
       if (scopedProfile) params.profile = scopedProfile;

@@ -83,7 +83,7 @@ SIMPLEX_GROUP_ALLOWED=*              # any group the bot is in
 ```
 
 Address groups by prefixing the chat ID with `group:`, e.g.
-`simplex:group:12` as a cron `deliver=` target or in a `hermes send` call.
+`simplex:group:12` as a cron `deliver=` target or in a `sonic send` call.
 
 ## Attachments
 
@@ -113,10 +113,10 @@ cronjob(
 )
 ```
 
-Or target a specific contact via the cron job's `deliver:` field, or from a shell script with the [`hermes send` CLI](/guides/pipe-script-output):
+Or target a specific contact via the cron job's `deliver:` field, or from a shell script with the [`sonic send` CLI](/guides/pipe-script-output):
 
 ```bash
-hermes send simplex:<contact-id> "Done!"
+sonic send simplex:<contact-id> "Done!"
 ```
 
 ## Privacy notes

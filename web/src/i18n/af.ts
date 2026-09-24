@@ -434,7 +434,7 @@ export const af: Translations = {
     showValue: "Wys werklike waarde",
     hideValue: "Versteek waarde",
     customTitle: "Pasgemaakte sleutels",
-    customHint: "Arbitrêre omgewingsveranderlikes wat in jou .env gestoor is en wat Hermes nie herken nie. Gebruik dit om omgewingsveranderlikes vir vaardighede, MCP-bedieners of jou eie gereedskap in te spuit.",
+    customHint: "Arbitrêre omgewingsveranderlikes wat in jou .env gestoor is en wat Sonic nie herken nie. Gebruik dit om omgewingsveranderlikes vir vaardighede, MCP-bedieners of jou eie gereedskap in te spuit.",
     customConfigured: "{count} pasgemaakte sleutel(s) gestel",
     addCustomKey: "Voeg 'n pasgemaakte sleutel by",
     customKeyName: "Veranderlike naam",
