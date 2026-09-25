@@ -121,6 +121,9 @@ export const en: Translations = {
     platformError: "error",
     recentSessions: "Recent Sessions",
     restartGateway: "Restart Gateway",
+    restartGatewayConfirmMessage:
+      "This restarts the Sonic gateway process. Connected channels and active sessions will reconnect afterward.",
+    restartGatewayConfirmTitle: "Restart gateway?",
     restartingGateway: "Restarting gateway…",
     running: "Running",
     runningRemote: "Running (remote)",
@@ -129,6 +132,10 @@ export const en: Translations = {
     startedInBackground: "Started in background — check logs for progress",
     stopped: "Stopped",
     updateSonic: "Update Sonic",
+    updateSonicConfirmMessage:
+      "This runs sonic update and restarts the gateway when it finishes. Active sessions keep their prompt cache until then.",
+    updateSonicConfirmNow: "Update now",
+    updateSonicConfirmTitle: "Update Sonic?",
     updatingSonic: "Updating Sonic…",
     waitingForOutput: "Waiting for output…",
   },
