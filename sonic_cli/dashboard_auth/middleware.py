@@ -170,7 +170,7 @@ def _auto_sso_response(request: Request) -> Response | None:
     # Already bounced once and still no session → portal has no session for
     # this user. Stop here, clear the marker, let /login render.
     if read_sso_attempt_cookie(request):
-        from hermes_cli.dashboard_auth.prefix import prefix_from_request
+        from sonic_cli.dashboard_auth.prefix import prefix_from_request
         resp = _unauth_response(request, reason="no_cookie")
         clear_sso_attempt_cookie(resp, prefix=prefix_from_request(request))
         return resp
@@ -182,7 +182,7 @@ def _auto_sso_response(request: Request) -> Response | None:
         # Zero → nothing to redirect to. Two+ → user must choose at /login.
         return None
 
-    from hermes_cli.dashboard_auth.prefix import prefix_from_request
+    from sonic_cli.dashboard_auth.prefix import prefix_from_request
 
     provider = providers[0]
     prefix = prefix_from_request(request)
@@ -197,7 +197,7 @@ def _auto_sso_response(request: Request) -> Response | None:
     # (portal had no session) trips the guard above next time instead of
     # looping. Detect HTTPS for the Secure flag the same way the auth routes
     # do; bind Path via the active prefix.
-    from hermes_cli.dashboard_auth.cookies import detect_https
+    from sonic_cli.dashboard_auth.cookies import detect_https
     set_sso_attempt_cookie(
         resp, use_https=detect_https(request), prefix=prefix,
     )

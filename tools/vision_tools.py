@@ -131,12 +131,12 @@ def _resolve_vision_cpu_workers() -> int:
     multi-image fan-out keeps full request concurrency; only the simultaneous
     CPU bursts are bounded so the event loop always keeps a core.
 
-    Resolution order: HERMES_VISION_MAX_CONCURRENCY env →
+    Resolution order: SONIC_VISION_MAX_CONCURRENCY env →
     config.yaml auxiliary.vision.max_concurrency → host core count. Any value
     that parses to < 1 is ignored in favor of the next source so the cap can
     never be disabled into an unbounded encode storm.
     """
-    env_val = os.getenv("HERMES_VISION_MAX_CONCURRENCY", "").strip()
+    env_val = os.getenv("SONIC_VISION_MAX_CONCURRENCY", "").strip()
     if env_val:
         try:
             parsed = int(env_val)
@@ -145,7 +145,7 @@ def _resolve_vision_cpu_workers() -> int:
         except ValueError:
             pass
     try:
-        from hermes_cli.config import cfg_get, load_config
+        from sonic_cli.config import cfg_get, load_config
         cfg = load_config()
         val = cfg_get(cfg, "auxiliary", "vision", "max_concurrency")
         if val is not None:

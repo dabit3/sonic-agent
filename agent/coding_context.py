@@ -365,7 +365,7 @@ def _coding_instructions(config: Optional[dict[str, Any]]) -> str:
     """
     if config is None:
         try:
-            from hermes_cli.config import load_config
+            from sonic_cli.config import load_config
 
             config = load_config()
         except Exception:

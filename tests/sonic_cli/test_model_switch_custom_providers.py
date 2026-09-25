@@ -800,7 +800,7 @@ def test_resolve_custom_provider_passes_key_env():
     Regression: previously api_key_env_vars was always (), silently dropping
     the configured env var and causing 401s on every request.
     """
-    from hermes_cli.providers import resolve_custom_provider
+    from sonic_cli.providers import resolve_custom_provider
 
     resolved = resolve_custom_provider(
         "custom:token-plan",
@@ -826,7 +826,7 @@ def test_resolve_custom_provider_bare_custom_self_heal_passes_key_env():
     first valid entry; that fallback previously hardcoded api_key_env_vars=(),
     dropping the env var just like the named-match path did.
     """
-    from hermes_cli.providers import resolve_custom_provider
+    from sonic_cli.providers import resolve_custom_provider
 
     resolved = resolve_custom_provider(
         "custom",

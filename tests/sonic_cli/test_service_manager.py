@@ -606,7 +606,7 @@ def test_s6_register_staging_dir_is_dotfile_hidden_from_svscan(
     assert its basename starts with ``.`` and still lives in the
     scandir as a sibling of the live slot.
     """
-    import hermes_cli.service_manager as sm
+    import sonic_cli.service_manager as sm
 
     seen: list[str] = []
     real_seed = sm._seed_supervise_skeleton

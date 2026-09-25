@@ -160,8 +160,8 @@ git clone https://github.com/dabit3/sonic-agent.git
 cd sonic-agent
 
 # Create venv with Python 3.11, OUTSIDE the source tree
-uv venv ~/.hermes/venvs/hermes-dev --python 3.11
-export VIRTUAL_ENV="$HOME/.hermes/venvs/hermes-dev"
+uv venv ~/.sonic/venvs/sonic-dev --python 3.11
+export VIRTUAL_ENV="$HOME/.sonic/venvs/sonic-dev"
 export PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Install with all extras (messaging, cron, CLI menus, dev tools)

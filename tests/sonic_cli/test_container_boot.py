@@ -241,7 +241,7 @@ def test_draining_runtime_state_autostarts(tmp_path: Path) -> None:
     _make_profile(tmp_path, "drained", state="draining")
 
     actions = reconcile_profile_gateways(
-        hermes_home=tmp_path, scandir=scandir, dry_run=False,
+        sonic_home=tmp_path, scandir=scandir, dry_run=False,
     )
 
     assert _named_actions(actions) == [ReconcileAction(
@@ -263,7 +263,7 @@ def test_degraded_runtime_state_autostarts(tmp_path: Path) -> None:
     _make_profile(tmp_path, "degraded-box", state="degraded")
 
     actions = reconcile_profile_gateways(
-        hermes_home=tmp_path, scandir=scandir, dry_run=False,
+        sonic_home=tmp_path, scandir=scandir, dry_run=False,
     )
 
     assert _named_actions(actions) == [ReconcileAction(
@@ -281,7 +281,7 @@ def test_draining_default_root_autostarts(tmp_path: Path) -> None:
     _seed_default_root(tmp_path, state="draining")
 
     actions = reconcile_profile_gateways(
-        hermes_home=tmp_path, scandir=scandir, dry_run=False,
+        sonic_home=tmp_path, scandir=scandir, dry_run=False,
     )
 
     default_action = next(a for a in actions if a.profile == "default")
@@ -305,7 +305,7 @@ def test_desired_state_stopped_overrides_draining_runtime(tmp_path: Path) -> Non
     )
 
     actions = reconcile_profile_gateways(
-        hermes_home=tmp_path, scandir=scandir, dry_run=False,
+        sonic_home=tmp_path, scandir=scandir, dry_run=False,
     )
 
     assert _named_actions(actions) == [ReconcileAction(

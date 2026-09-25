@@ -864,7 +864,7 @@ class TestGetPreVerifyContinueMessage:
 
     def test_continue_canonical(self, monkeypatch):
         monkeypatch.setattr(
-            "hermes_cli.plugins.invoke_hook",
+            "sonic_cli.plugins.invoke_hook",
             lambda hook_name, **kwargs: [{"action": "continue", "message": "run checks"}],
         )
         assert get_pre_verify_continue_message(session_id="s") == "run checks"
@@ -872,14 +872,14 @@ class TestGetPreVerifyContinueMessage:
     def test_claude_block_means_continue(self, monkeypatch):
         # Claude-Code Stop: "block" the stop == keep going; reason → message.
         monkeypatch.setattr(
-            "hermes_cli.plugins.invoke_hook",
+            "sonic_cli.plugins.invoke_hook",
             lambda hook_name, **kwargs: [{"decision": "block", "reason": "run the formatter"}],
         )
         assert get_pre_verify_continue_message() == "run the formatter"
 
     def test_first_actionable_directive_wins(self, monkeypatch):
         monkeypatch.setattr(
-            "hermes_cli.plugins.invoke_hook",
+            "sonic_cli.plugins.invoke_hook",
             lambda hook_name, **kwargs: [
                 "noise",                                   # not a dict
                 {"action": "continue"},                     # no message → skipped
@@ -891,14 +891,14 @@ class TestGetPreVerifyContinueMessage:
 
     def test_message_is_trimmed(self, monkeypatch):
         monkeypatch.setattr(
-            "hermes_cli.plugins.invoke_hook",
+            "sonic_cli.plugins.invoke_hook",
             lambda hook_name, **kwargs: [{"action": "continue", "message": "  tidy up  "}],
         )
         assert get_pre_verify_continue_message() == "tidy up"
 
     def test_invalid_returns_ignored(self, monkeypatch):
         monkeypatch.setattr(
-            "hermes_cli.plugins.invoke_hook",
+            "sonic_cli.plugins.invoke_hook",
             lambda hook_name, **kwargs: [
                 {"action": "allow"},                        # wrong action
                 {"context": "noise"},                       # not a directive
@@ -909,7 +909,7 @@ class TestGetPreVerifyContinueMessage:
         assert get_pre_verify_continue_message() is None
 
     def test_none_when_no_hooks(self, monkeypatch):
-        monkeypatch.setattr("hermes_cli.plugins.invoke_hook", lambda hook_name, **kwargs: [])
+        monkeypatch.setattr("sonic_cli.plugins.invoke_hook", lambda hook_name, **kwargs: [])
         assert get_pre_verify_continue_message() is None
 
     def test_forwards_scope_signals_to_hooks(self, monkeypatch):
@@ -919,7 +919,7 @@ class TestGetPreVerifyContinueMessage:
             seen.update(kwargs)
             return []
 
-        monkeypatch.setattr("hermes_cli.plugins.invoke_hook", capture)
+        monkeypatch.setattr("sonic_cli.plugins.invoke_hook", capture)
         get_pre_verify_continue_message(coding=True, attempt=2, changed_paths=["a.py"])
         assert seen["coding"] is True
         assert seen["attempt"] == 2

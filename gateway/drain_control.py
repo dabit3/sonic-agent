@@ -231,7 +231,7 @@ def drain_notification_suppressed(*, home: Optional[Path] = None) -> bool:
 
     "Active" means exactly what :func:`drain_requested` means — a marker present
     AND stamped with the current instantiation epoch. A stale (other-epoch)
-    marker that survived a machine restart on the durable HERMES_HOME volume is
+    marker that survived a machine restart on the durable SONIC_HOME volume is
     ignored here just as it is for drain state (NS-570): we must never let an
     orphaned marker's flag silence a *fresh* gateway's legitimate shutdown
     broadcast.

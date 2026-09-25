@@ -1380,7 +1380,7 @@ class TestVerifyOnStopMigration:
         # Teknium's case: a v30 install that already ran the v31 migration kept
         # its baked-in literal `true` (v31 preserved explicit bools). v32 flips
         # it off.
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             self._write(tmp_path, "_config_version: 31\nagent:\n  verify_on_stop: true\n")
             migrate_config(interactive=False, quiet=True)
             raw = yaml.safe_load((tmp_path / "config.yaml").read_text())
@@ -1389,9 +1389,9 @@ class TestVerifyOnStopMigration:
     def test_post_v32_explicit_true_preserved(self, tmp_path):
         # A `true` the user sets AFTER v32 (config already at current version) is
         # a deliberate opt-in and must never be flipped.
-        from hermes_cli.config import DEFAULT_CONFIG
+        from sonic_cli.config import DEFAULT_CONFIG
 
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             self._write(
                 tmp_path,
                 f"_config_version: {DEFAULT_CONFIG['_config_version']}\n"

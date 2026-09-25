@@ -284,7 +284,7 @@ class XAIImageGenProvider(ImageGenProvider):
         base_url = str(creds.get("base_url") or "https://api.x.ai/v1").strip().rstrip("/")
         storage_options = build_xai_storage_options(
             "image_gen",
-            filename_prefix="hermes-xai-image",
+            filename_prefix="sonic-xai-image",
             extension="png",
         )
         storage_notice = maybe_mark_xai_storage_notice_seen("image_gen")

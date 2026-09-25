@@ -331,7 +331,7 @@ class TestAutoSsoRedirect:
     has no session for the user.
     """
 
-    from hermes_cli.dashboard_auth.cookies import SSO_ATTEMPT_COOKIE
+    from sonic_cli.dashboard_auth.cookies import SSO_ATTEMPT_COOKIE
 
     def test_unauth_html_load_auto_redirects_to_oauth(self, gated_app):
         """Common case: clicked a dashboard link, no local session cookie.
@@ -393,8 +393,8 @@ class TestAutoSsoRedirect:
     def test_multiple_providers_render_chooser_not_auto_sso(self, gated_app):
         """With two interactive providers we can't pick for the user, so the
         /login chooser must render rather than auto-redirecting to one."""
-        from tests.hermes_cli.conftest_dashboard_auth import StubAuthProvider
-        from hermes_cli.dashboard_auth import register_provider
+        from tests.sonic_cli.conftest_dashboard_auth import StubAuthProvider
+        from sonic_cli.dashboard_auth import register_provider
 
         class _SecondStub(StubAuthProvider):
             name = "stub2"

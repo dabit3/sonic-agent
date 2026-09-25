@@ -79,9 +79,9 @@ def sonic_xai_user_agent() -> str:
 
 
 def _load_config_section(section_name: str) -> Dict[str, Any]:
-    """Return a top-level Hermes config section as a dict, or empty."""
+    """Return a top-level Sonic config section as a dict, or empty."""
     try:
-        from hermes_cli.config import load_config
+        from sonic_cli.config import load_config
 
         cfg = load_config()
         section = cfg.get(section_name) if isinstance(cfg, dict) else None
@@ -203,14 +203,14 @@ def xai_storage_notice_text(section_name: str) -> str:
 
 
 def maybe_mark_xai_storage_notice_seen(section_name: str) -> Optional[str]:
-    """Return the storage notice once per Hermes home, then mark it seen."""
+    """Return the storage notice once per Sonic home, then mark it seen."""
     notice = xai_storage_notice_text(section_name)
     if not notice:
         return None
     try:
-        from hermes_constants import get_hermes_home
+        from sonic_constants import get_sonic_home
 
-        marker_dir = get_hermes_home() / "state"
+        marker_dir = get_sonic_home() / "state"
         marker_dir.mkdir(parents=True, exist_ok=True)
         marker = marker_dir / f"{section_name}_xai_storage_notice_seen"
         if marker.exists():
@@ -238,7 +238,7 @@ def resolve_xai_http_credentials(*, force_refresh: bool = False) -> Dict[str, st
     the auth-store lock is held for the duration of the refresh.
     """
     try:
-        from hermes_cli.auth import resolve_xai_oauth_runtime_credentials
+        from sonic_cli.auth import resolve_xai_oauth_runtime_credentials
 
         creds = resolve_xai_oauth_runtime_credentials(force_refresh=force_refresh)
         access_token = str(creds.get("api_key") or "").strip()

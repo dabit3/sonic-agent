@@ -747,7 +747,7 @@ async def _extend_xai_video_async(
 def _auth_required_response(prompt: str) -> Dict[str, Any]:
     return error_response(
         error=(
-            "No xAI credentials found. Sign in via `hermes auth add xai-oauth` "
+            "No xAI credentials found. Sign in via `sonic auth add xai-oauth` "
             "(SuperGrok / Premium+) or set XAI_API_KEY from "
             "https://console.x.ai/."
         ),
@@ -779,7 +779,7 @@ async def _submit_xai_video_payload(
 
         storage_options = build_xai_storage_options(
             "video_gen",
-            filename_prefix="hermes-xai-video",
+            filename_prefix="sonic-xai-video",
             extension="mp4",
         )
         storage_notice = maybe_mark_xai_storage_notice_seen("video_gen")

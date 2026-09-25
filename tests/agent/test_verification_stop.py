@@ -52,7 +52,7 @@ def test_verify_on_stop_default_is_auto(clear_verify_env):
 
 def test_verify_on_stop_default_auto_off_on_messaging(clear_verify_env):
     # The "auto" default resolves OFF on a conversational messaging surface.
-    clear_verify_env.setenv("HERMES_SESSION_PLATFORM", "telegram")
+    clear_verify_env.setenv("SONIC_SESSION_PLATFORM", "telegram")
     assert verify_on_stop_enabled({"agent": {}}) is False
 
 
@@ -261,7 +261,7 @@ def test_no_suite_nudge_requests_temp_script(tmp_path, monkeypatch):
 
 
 def test_verify_guidance_can_be_disabled(tmp_path, monkeypatch):
-    monkeypatch.setenv("HERMES_HOME", str(tmp_path / ".hermes"))
+    monkeypatch.setenv("SONIC_HOME", str(tmp_path / ".sonic"))
     _node_project(tmp_path)
     changed = str(tmp_path / "src" / "app.ts")
 

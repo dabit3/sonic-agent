@@ -22,7 +22,7 @@ We value contributions in this order:
 
 ## Common contribution paths
 
-- Building a custom/local tool without modifying Sonic core? Start with [Build a Sonic Plugin](../guides/build-a-sonic-plugin.md)
+- Building a custom/local tool without modifying Sonic core? Start with [Build a Sonic Plugin](../guides/build-a-hermes-plugin.md)
 - Building a new built-in core tool for Sonic itself? Start with [Adding Tools](./adding-tools.md)
 - Building a new skill? Start with [Creating Skills](./creating-skills.md)
 - Building a new inference provider? Start with [Adding Providers](./adding-providers.md)
@@ -85,8 +85,8 @@ git clone https://github.com/dabit3/sonic-agent.git
 cd sonic-agent
 
 # Create venv with Python 3.11, OUTSIDE the source tree
-uv venv ~/.hermes/venvs/hermes-dev --python 3.11
-export VIRTUAL_ENV="$HOME/.hermes/venvs/hermes-dev"
+uv venv ~/.sonic/venvs/sonic-dev --python 3.11
+export VIRTUAL_ENV="$HOME/.sonic/venvs/sonic-dev"
 export PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Install with all extras (messaging, cron, CLI menus, dev tools)

@@ -594,15 +594,15 @@ def test_complete_goal_mode_rejected_by_judge(monkeypatch, tmp_path):
     """Goal-mode tasks must pass the auxiliary judge before completion.
     Regression for #38367: workers bypassing the judge via early kanban_complete."""
     from pathlib import Path as _Path
-    from hermes_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
     from tools import kanban_tools as kt
 
-    # Set up isolated HERMES_HOME
-    home = tmp_path / ".hermes"
+    # Set up isolated SONIC_HOME
+    home = tmp_path / ".sonic"
     home.mkdir()
-    monkeypatch.setenv("HERMES_HOME", str(home))
-    monkeypatch.setenv("HERMES_PROFILE", "test-worker")
-    monkeypatch.delenv("HERMES_SESSION_ID", raising=False)
+    monkeypatch.setenv("SONIC_HOME", str(home))
+    monkeypatch.setenv("SONIC_PROFILE", "test-worker")
+    monkeypatch.delenv("SONIC_SESSION_ID", raising=False)
     monkeypatch.setattr(_Path, "home", lambda: tmp_path)
 
     kb._INITIALIZED_PATHS.clear()
@@ -616,7 +616,7 @@ def test_complete_goal_mode_rejected_by_judge(monkeypatch, tmp_path):
         kb.claim_task(conn, goal_task_id)
     finally:
         conn.close()
-    monkeypatch.setenv("HERMES_KANBAN_TASK", goal_task_id)
+    monkeypatch.setenv("SONIC_KANBAN_TASK", goal_task_id)
 
     # Mock the judge to reject the completion. The gate only runs when a
     # judge is reachable, so force the availability probe True as well.
@@ -651,14 +651,14 @@ def test_complete_goal_mode_allows_when_judge_unavailable(monkeypatch, tmp_path)
     The gate probes availability first, so completion proceeds rather than
     being rejected forever when no judge can be reached."""
     from pathlib import Path as _Path
-    from hermes_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
     from tools import kanban_tools as kt
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
-    monkeypatch.setenv("HERMES_HOME", str(home))
-    monkeypatch.setenv("HERMES_PROFILE", "test-worker")
-    monkeypatch.delenv("HERMES_SESSION_ID", raising=False)
+    monkeypatch.setenv("SONIC_HOME", str(home))
+    monkeypatch.setenv("SONIC_PROFILE", "test-worker")
+    monkeypatch.delenv("SONIC_SESSION_ID", raising=False)
     monkeypatch.setattr(_Path, "home", lambda: tmp_path)
 
     kb._INITIALIZED_PATHS.clear()
@@ -672,7 +672,7 @@ def test_complete_goal_mode_allows_when_judge_unavailable(monkeypatch, tmp_path)
         kb.claim_task(conn, goal_task_id)
     finally:
         conn.close()
-    monkeypatch.setenv("HERMES_KANBAN_TASK", goal_task_id)
+    monkeypatch.setenv("SONIC_KANBAN_TASK", goal_task_id)
 
     # No judge reachable. judge_goal must not even be consulted; if it were,
     # this stub would reject — so reaching "done" proves the probe short-circuit.

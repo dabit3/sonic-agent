@@ -1567,7 +1567,7 @@ class TestAgentCacheMessageCountRebaseline:
     """
 
     def _runner_with_db(self, db):
-        from hermes_state import AsyncSessionDB
+        from sonic_state import AsyncSessionDB
 
         runner = _make_runner()
         # The gateway holds the async facade; the production refresh awaits it.
