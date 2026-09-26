@@ -241,10 +241,10 @@ def mcp_discovery_in_flight() -> bool:
     and the banner/tool count will be stale until they arrive.
 
     There are two independent discovery-thread owners by surface: the stdio
-    ``hermes --tui`` path spawns ITS thread here (``_mcp_discovery_thread``),
+    ``sonic --tui`` path spawns ITS thread here (``_mcp_discovery_thread``),
     while the desktop app + dashboard WebSocket sidecar (``tui_gateway/ws.py``)
-    and ``hermes dashboard`` spawn theirs via
-    ``hermes_cli.mcp_startup.start_background_mcp_discovery``. The late-refresh
+    and ``sonic dashboard`` spawn theirs via
+    ``sonic_cli.mcp_startup.start_background_mcp_discovery``. The late-refresh
     scheduler imports this function regardless of surface, so it MUST consult
     both — checking only the entry thread left the desktop/dashboard surfaces
     with no late refresh, so a slow MCP server's tools never surfaced for the
@@ -254,7 +254,7 @@ def mcp_discovery_in_flight() -> bool:
     if thread is not None and thread.is_alive():
         return True
     try:
-        from hermes_cli.mcp_startup import (
+        from sonic_cli.mcp_startup import (
             mcp_discovery_in_flight as _startup_in_flight,
         )
 
@@ -272,7 +272,7 @@ def join_mcp_discovery(timeout: float | None = None) -> bool:
     the outcome, for the off-critical-path late-refresh waiter.
 
     Joins both discovery-thread owners (see ``mcp_discovery_in_flight``): the
-    entry thread first, then the ``hermes_cli.mcp_startup`` thread used by the
+    entry thread first, then the ``sonic_cli.mcp_startup`` thread used by the
     desktop/dashboard surfaces. ``timeout`` bounds EACH join, mirroring the
     pre-#51587 single-owner behavior for the entry thread.
     """
@@ -282,7 +282,7 @@ def join_mcp_discovery(timeout: float | None = None) -> bool:
         thread.join(timeout=timeout)
         entry_done = not thread.is_alive()
     try:
-        from hermes_cli.mcp_startup import join_mcp_discovery as _startup_join
+        from sonic_cli.mcp_startup import join_mcp_discovery as _startup_join
 
         startup_done = _startup_join(timeout=timeout)
     except Exception:

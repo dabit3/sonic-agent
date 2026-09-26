@@ -492,7 +492,7 @@ export function getSkills(): Promise<SkillInfo[]> {
 }
 
 export function getStarmapGraph(): Promise<StarmapGraph> {
-  return window.hermesDesktop.api<StarmapGraph>({
+  return window.sonicDesktop.api<StarmapGraph>({
     ...profileScoped(),
     // Backend REST contract — stays /api/learning even though the UI feature is
     // now "star map". Renaming this would break against an un-upgraded backend.

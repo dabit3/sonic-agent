@@ -1286,7 +1286,7 @@ class DiscordAdapter(BasePlatformAdapter):
 
         Fix: await all pending text-batch tasks before delegating to the base
         cancel. The flush deadline is clamped below the gateway's per-adapter
-        disconnect budget (``HERMES_GATEWAY_ADAPTER_DISCONNECT_TIMEOUT``, default
+        disconnect budget (``SONIC_GATEWAY_ADAPTER_DISCONNECT_TIMEOUT``, default
         5s) so the gateway's outer ``wait_for`` can't hard-cancel us mid-flush —
         we cancel our own stragglers cleanly inside the budget instead.
         """
@@ -1323,7 +1323,7 @@ class DiscordAdapter(BasePlatformAdapter):
         ``GatewayRunner._adapter_disconnect_timeout_secs``.
         """
         budget = 5.0  # mirrors gateway _ADAPTER_DISCONNECT_TIMEOUT_SECS_DEFAULT
-        raw = os.getenv("HERMES_GATEWAY_ADAPTER_DISCONNECT_TIMEOUT", "").strip()
+        raw = os.getenv("SONIC_GATEWAY_ADAPTER_DISCONNECT_TIMEOUT", "").strip()
         if raw:
             try:
                 parsed = float(raw)

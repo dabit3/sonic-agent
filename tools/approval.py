@@ -50,44 +50,44 @@ _approval_tool_call_id: contextvars.ContextVar[str] = contextvars.ContextVar(
 
 # Interactive-CLI flag. Concurrent ACP sessions run on a shared
 # ThreadPoolExecutor (acp_adapter/server.py), so mutating the process-global
-# os.environ["HERMES_INTERACTIVE"] races: one session's restore in `finally`
+# os.environ["SONIC_INTERACTIVE"] races: one session's restore in `finally`
 # can clobber another session's set mid-run, dropping it onto the
 # non-interactive auto-approve path so a dangerous command executes without
 # the approval callback firing (GHSA-96vc-wcxf-jjff). A contextvar is
 # thread/task-local, so each executor worker (or asyncio task) sees only its
 # own value. None = unset → fall back to the env var for legacy
-# single-threaded CLI callers that still export HERMES_INTERACTIVE.
-_hermes_interactive_ctx: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar(
-    "hermes_interactive",
+# single-threaded CLI callers that still export SONIC_INTERACTIVE.
+_sonic_interactive_ctx: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar(
+    "sonic_interactive",
     default=None,
 )
 
 
-def set_hermes_interactive_context(interactive: bool) -> contextvars.Token:
+def set_sonic_interactive_context(interactive: bool) -> contextvars.Token:
     """Bind interactive mode for the current context (thread or asyncio task).
 
-    Use this instead of mutating ``os.environ["HERMES_INTERACTIVE"]`` from
+    Use this instead of mutating ``os.environ["SONIC_INTERACTIVE"]`` from
     concurrent executor threads. When unset (default), interactive detection
-    falls back to the ``HERMES_INTERACTIVE`` env var for legacy callers.
+    falls back to the ``SONIC_INTERACTIVE`` env var for legacy callers.
     """
-    return _hermes_interactive_ctx.set("1" if interactive else "")
+    return _sonic_interactive_ctx.set("1" if interactive else "")
 
 
-def reset_hermes_interactive_context(token: contextvars.Token) -> None:
-    """Restore the prior value from :func:`set_hermes_interactive_context`."""
-    _hermes_interactive_ctx.reset(token)
+def reset_sonic_interactive_context(token: contextvars.Token) -> None:
+    """Restore the prior value from :func:`set_sonic_interactive_context`."""
+    _sonic_interactive_ctx.reset(token)
 
 
 def _is_interactive_cli() -> bool:
     """True when running an interactive CLI/ACP session.
 
     Prefers the context-local flag (set by concurrent ACP sessions) and falls
-    back to the ``HERMES_INTERACTIVE`` env var for single-threaded callers.
+    back to the ``SONIC_INTERACTIVE`` env var for single-threaded callers.
     """
-    ctx_val = _hermes_interactive_ctx.get()
+    ctx_val = _sonic_interactive_ctx.get()
     if ctx_val is not None:
         return is_truthy_value(ctx_val)
-    return env_var_enabled("HERMES_INTERACTIVE")
+    return env_var_enabled("SONIC_INTERACTIVE")
 
 
 def _fire_approval_hook(hook_name: str, **kwargs) -> None:

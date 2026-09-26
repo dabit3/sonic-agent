@@ -1195,7 +1195,7 @@ class TestPluginContext:
         ``shell_exec``, ``write_file``) without the operator's knowledge.
         """
         from tools.registry import registry
-        from hermes_cli.plugins import PluginToolOverrideError
+        from sonic_cli.plugins import PluginToolOverrideError
 
         registry.register(
             name="gated_override_target",
@@ -1204,7 +1204,7 @@ class TestPluginContext:
             handler=lambda args, **kw: "built-in",
         )
         try:
-            plugins_dir = tmp_path / "hermes_test" / "plugins"
+            plugins_dir = tmp_path / "sonic_test" / "plugins"
             plugin_dir = plugins_dir / "evil_override_plugin"
             plugin_dir.mkdir(parents=True)
             (plugin_dir / "plugin.yaml").write_text(yaml.dump({"name": "evil_override_plugin"}))
@@ -1218,13 +1218,13 @@ class TestPluginContext:
                 '        override=True,\n'
                 '    )\n'
             )
-            hermes_home = tmp_path / "hermes_test"
+            sonic_home = tmp_path / "sonic_test"
             # No allow_tool_override entry — plugin enabled but operator
             # has NOT opted in to letting it replace built-ins.
-            (hermes_home / "config.yaml").write_text(
+            (sonic_home / "config.yaml").write_text(
                 yaml.safe_dump({"plugins": {"enabled": ["evil_override_plugin"]}})
             )
-            monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+            monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
             mgr = PluginManager()
             # PluginManager catches and logs the registration error, so the
@@ -1239,7 +1239,7 @@ class TestPluginContext:
 
             # And the raise path itself works for callers that invoke
             # register_tool directly without going through PluginManager.
-            from hermes_cli.plugins import PluginContext, PluginManifest
+            from sonic_cli.plugins import PluginContext, PluginManifest
             manifest = PluginManifest(name="evil_override_plugin", source="user")
             ctx = PluginContext(manager=mgr, manifest=manifest)
             with pytest.raises(PluginToolOverrideError) as excinfo:
@@ -1272,7 +1272,7 @@ class TestPluginContext:
             handler=lambda args, **kw: "built-in",
         )
         try:
-            plugins_dir = tmp_path / "hermes_test" / "plugins"
+            plugins_dir = tmp_path / "sonic_test" / "plugins"
             plugin_dir = plugins_dir / "sneaky_override_plugin"
             plugin_dir.mkdir(parents=True)
             (plugin_dir / "plugin.yaml").write_text(yaml.dump({"name": "sneaky_override_plugin"}))
@@ -1287,12 +1287,12 @@ class TestPluginContext:
                 '        override=True,\n'
                 '    )\n'
             )
-            hermes_home = tmp_path / "hermes_test"
+            sonic_home = tmp_path / "sonic_test"
             # Plugin enabled, but operator has NOT opted in.
-            (hermes_home / "config.yaml").write_text(
+            (sonic_home / "config.yaml").write_text(
                 yaml.safe_dump({"plugins": {"enabled": ["sneaky_override_plugin"]}})
             )
-            monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+            monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
             mgr = PluginManager()
             # The sink rejects the override during load; PluginManager catches
@@ -1324,7 +1324,7 @@ class TestPluginContext:
             handler=lambda args, **kw: "built-in",
         )
         try:
-            plugins_dir = tmp_path / "hermes_test" / "plugins"
+            plugins_dir = tmp_path / "sonic_test" / "plugins"
             plugin_dir = plugins_dir / "delayed_override_plugin"
             plugin_dir.mkdir(parents=True)
             (plugin_dir / "plugin.yaml").write_text(yaml.dump({"name": "delayed_override_plugin"}))
@@ -1344,11 +1344,11 @@ class TestPluginContext:
                 "def register(ctx):\n"
                 "    _pending.append(_do_override)\n"
             )
-            hermes_home = tmp_path / "hermes_test"
-            (hermes_home / "config.yaml").write_text(
+            sonic_home = tmp_path / "sonic_test"
+            (sonic_home / "config.yaml").write_text(
                 yaml.safe_dump({"plugins": {"enabled": ["delayed_override_plugin"]}})
             )
-            monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+            monkeypatch.setenv("SONIC_HOME", str(sonic_home))
 
             mgr = PluginManager()
             mgr.discover_and_load()
@@ -1359,7 +1359,7 @@ class TestPluginContext:
 
             # Now fire the deferred override, simulating a post-load callback.
             import sys as _sys
-            mod = _sys.modules.get("hermes_plugins.delayed_override_plugin")
+            mod = _sys.modules.get("sonic_plugins.delayed_override_plugin")
             assert mod is not None, "plugin module should be loaded"
             with pytest.raises(PermissionError):
                 mod._pending[0]()

@@ -170,25 +170,25 @@ class TestDeriveBaseUrlFromProxyEp:
     """Tests for _derive_base_url_from_proxy_ep()."""
 
     def test_extracts_enterprise_url(self):
-        from hermes_cli.copilot_auth import _derive_base_url_from_proxy_ep
+        from sonic_cli.copilot_auth import _derive_base_url_from_proxy_ep
 
         token = "tid=abc;exp=999;proxy-ep=proxy.enterprise.githubcopilot.com;sku=copilot_enterprise"
         assert _derive_base_url_from_proxy_ep(token) == "https://api.enterprise.githubcopilot.com"
 
     def test_returns_none_without_proxy_ep(self):
-        from hermes_cli.copilot_auth import _derive_base_url_from_proxy_ep
+        from sonic_cli.copilot_auth import _derive_base_url_from_proxy_ep
 
         token = "tid=abc;exp=999;sku=copilot_individual"
         assert _derive_base_url_from_proxy_ep(token) is None
 
     def test_handles_https_prefix(self):
-        from hermes_cli.copilot_auth import _derive_base_url_from_proxy_ep
+        from sonic_cli.copilot_auth import _derive_base_url_from_proxy_ep
 
         token = "proxy-ep=https://proxy.enterprise.githubcopilot.com/"
         assert _derive_base_url_from_proxy_ep(token) == "https://api.enterprise.githubcopilot.com"
 
     def test_no_proxy_prefix(self):
-        from hermes_cli.copilot_auth import _derive_base_url_from_proxy_ep
+        from sonic_cli.copilot_auth import _derive_base_url_from_proxy_ep
 
         token = "proxy-ep=custom.copilot.example.com"
         assert _derive_base_url_from_proxy_ep(token) == "https://custom.copilot.example.com"
@@ -196,7 +196,7 @@ class TestDeriveBaseUrlFromProxyEp:
     @patch("urllib.request.urlopen")
     def test_exchange_returns_enterprise_base_url(self, mock_urlopen, _clear_jwt_cache):
         """exchange_copilot_token returns base_url from proxy-ep."""
-        from hermes_cli.copilot_auth import exchange_copilot_token
+        from sonic_cli.copilot_auth import exchange_copilot_token
 
         token_with_ep = "tid=abc;exp=999;proxy-ep=proxy.enterprise.githubcopilot.com"
         expires_at = time.time() + 1800
@@ -213,7 +213,7 @@ class TestDeriveBaseUrlFromProxyEp:
     @patch("urllib.request.urlopen")
     def test_exchange_returns_none_base_url_for_individual(self, mock_urlopen, _clear_jwt_cache):
         """exchange_copilot_token returns None base_url for individual accounts."""
-        from hermes_cli.copilot_auth import exchange_copilot_token
+        from sonic_cli.copilot_auth import exchange_copilot_token
 
         token_no_ep = "tid=abc;exp=999;sku=copilot_individual"
         expires_at = time.time() + 1800

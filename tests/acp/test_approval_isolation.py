@@ -252,15 +252,15 @@ class TestAcpExecAskGate:
         var — one session can no longer clobber another's flag mid-run
         (GHSA-96vc-wcxf-jjff).
         """
-        monkeypatch.delenv("HERMES_INTERACTIVE", raising=False)
-        monkeypatch.delenv("HERMES_GATEWAY_SESSION", raising=False)
-        monkeypatch.delenv("HERMES_EXEC_ASK", raising=False)
-        monkeypatch.delenv("HERMES_YOLO_MODE", raising=False)
+        monkeypatch.delenv("SONIC_INTERACTIVE", raising=False)
+        monkeypatch.delenv("SONIC_GATEWAY_SESSION", raising=False)
+        monkeypatch.delenv("SONIC_EXEC_ASK", raising=False)
+        monkeypatch.delenv("SONIC_YOLO_MODE", raising=False)
 
         from tools.approval import (
             check_all_command_guards,
-            reset_hermes_interactive_context,
-            set_hermes_interactive_context,
+            reset_sonic_interactive_context,
+            set_sonic_interactive_context,
         )
 
         called_with = []
@@ -269,7 +269,7 @@ class TestAcpExecAskGate:
             called_with.append((command, description))
             return "once"
 
-        tok = set_hermes_interactive_context(True)
+        tok = set_sonic_interactive_context(True)
         try:
             result = check_all_command_guards(
                 "rm -rf /tmp/test-context-interactive",
@@ -277,10 +277,10 @@ class TestAcpExecAskGate:
                 approval_callback=fake_cb,
             )
         finally:
-            reset_hermes_interactive_context(tok)
+            reset_sonic_interactive_context(tok)
 
         assert called_with, (
-            "set_hermes_interactive_context(True) should route dangerous "
-            "commands through the callback without HERMES_INTERACTIVE in env"
+            "set_sonic_interactive_context(True) should route dangerous "
+            "commands through the callback without SONIC_INTERACTIVE in env"
         )
         assert result["approved"] is True

@@ -449,7 +449,7 @@ class PluginContext:
     def _tool_override_allowed(self, tool_name: str) -> bool:
         """Return True if this plugin is configured to override built-in tools.
 
-        Bundled plugins (shipped with Hermes core) are trusted by default —
+        Bundled plugins (shipped with Sonic core) are trusted by default —
         an override there is a deliberate maintainer choice, not a third-party
         plugin trying to elevate privilege. For every other source, require
         ``allow_tool_override: true`` under
@@ -459,7 +459,7 @@ class PluginContext:
         if source == "bundled":
             return True
         try:
-            from hermes_cli.config import load_config
+            from sonic_cli.config import load_config
             cfg = load_config() or {}
         except Exception:
             # If we can't load config, fail closed — better to break the

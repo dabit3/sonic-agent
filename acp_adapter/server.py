@@ -75,8 +75,8 @@ from acp_adapter.provenance import session_provenance_meta
 from acp_adapter.session import SessionManager, SessionState, _expand_acp_enabled_toolsets
 from acp_adapter.tools import build_tool_complete, build_tool_start
 from tools.approval import (
-    reset_hermes_interactive_context,
-    set_hermes_interactive_context,
+    reset_sonic_interactive_context,
+    set_sonic_interactive_context,
 )
 
 logger = logging.getLogger(__name__)

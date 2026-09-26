@@ -4758,7 +4758,7 @@ def test_expired_compression_failure_cooldown_is_ignored(db):
 def test_refresh_compression_lock_requires_holder_and_preserves_reclaimability(db, monkeypatch):
     db.create_session("s1", "cli")
 
-    monkeypatch.setattr(hermes_state.time, "time", lambda: 1000.0)
+    monkeypatch.setattr(sonic_state.time, "time", lambda: 1000.0)
     assert db.try_acquire_compression_lock("s1", "holder-a", ttl_seconds=10.0) is True
 
     original_expires = db._conn.execute(
@@ -4766,7 +4766,7 @@ def test_refresh_compression_lock_requires_holder_and_preserves_reclaimability(d
         ("s1",),
     ).fetchone()[0]
 
-    monkeypatch.setattr(hermes_state.time, "time", lambda: 1005.0)
+    monkeypatch.setattr(sonic_state.time, "time", lambda: 1005.0)
     assert db.refresh_compression_lock("s1", "holder-a", ttl_seconds=10.0) is True
     refreshed_expires = db._conn.execute(
         "SELECT expires_at FROM compression_locks WHERE session_id = ?",
@@ -4776,5 +4776,5 @@ def test_refresh_compression_lock_requires_holder_and_preserves_reclaimability(d
 
     assert db.refresh_compression_lock("s1", "holder-b", ttl_seconds=10.0) is False
 
-    monkeypatch.setattr(hermes_state.time, "time", lambda: 1016.0)
+    monkeypatch.setattr(sonic_state.time, "time", lambda: 1016.0)
     assert db.try_acquire_compression_lock("s1", "holder-b", ttl_seconds=10.0) is True

@@ -29,7 +29,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 from agent.context_compressor import ContextCompressor
-from hermes_state import SessionDB
+from sonic_state import SessionDB
 from run_agent import AIAgent
 
 

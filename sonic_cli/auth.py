@@ -480,7 +480,7 @@ def get_anthropic_key() -> str:
     """Return the first usable Anthropic credential, or ``""``.
 
     Checks both the ``.env`` file and the process environment, preferring
-    ``~/.hermes/.env`` so a deliberate key rotation isn't shadowed by a stale
+    ``~/.sonic/.env`` so a deliberate key rotation isn't shadowed by a stale
     shell export (matches the api-key resolution path — see #20591).  The
     order mirrors the ``PROVIDER_REGISTRY["anthropic"].api_key_env_vars``
     tuple:
@@ -6365,7 +6365,7 @@ def resolve_api_key_provider_credentials(provider_id: str) -> Dict[str, Any]:
         # resolves an empty base URL (#50252).
         base_url = env_url.rstrip("/") if env_url else pconfig.inference_base_url
         try:
-            from hermes_cli.copilot_auth import (
+            from sonic_cli.copilot_auth import (
                 resolve_copilot_token,
                 get_copilot_api_token,
             )

@@ -15366,7 +15366,7 @@ def main(
                 logger.warning(
                     "Unknown skill(s) requested, skipping: %s. "
                     "Continuing with: %s. "
-                    "List available skills with `hermes skills list`.",
+                    "List available skills with `sonic skills list`.",
                     missing_display,
                     ", ".join(loaded_skills),
                 )

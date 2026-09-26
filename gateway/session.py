@@ -1291,7 +1291,7 @@ class SessionStore:
                 # Drop the stale entry and fall through to the recovery path
                 # below.  Leaving db_end_session_id None routes us into
                 # _recover_session_from_db, whose finder
-                # (hermes_state.find_latest_gateway_session_for_peer) selects
+                # (sonic_state.find_latest_gateway_session_for_peer) selects
                 # rows WHERE `ended_at IS NULL OR end_reason = 'agent_close'`
                 # — so it REOPENS gateway-cleanup-ended ('agent_close') rows and
                 # resumes the SAME session_id (transcript preserved), but returns

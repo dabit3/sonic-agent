@@ -1,4 +1,4 @@
-import type { StarmapNode } from '@/types/hermes'
+import type { StarmapNode } from '@/types/sonic'
 
 export function formatDate(ts?: null | number): string {
   if (!ts) {

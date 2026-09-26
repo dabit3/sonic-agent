@@ -203,18 +203,18 @@ class TestEnableToolOverrideConsent:
     privileged ``allow_tool_override`` capability, and persist the operator's
     choice under ``plugins.entries.<key>.allow_tool_override``."""
 
-    @patch("hermes_cli.plugins.get_bundled_plugins_dir")
-    @patch("hermes_cli.plugins_cmd._plugins_dir")
-    @patch("hermes_cli.plugins_cmd._set_plugin_entry_flag")
-    @patch("hermes_cli.plugins_cmd._save_disabled_set")
-    @patch("hermes_cli.plugins_cmd._save_enabled_set")
-    @patch("hermes_cli.plugins_cmd._get_disabled_set", return_value=set())
-    @patch("hermes_cli.plugins_cmd._get_enabled_set", return_value=set())
+    @patch("sonic_cli.plugins.get_bundled_plugins_dir")
+    @patch("sonic_cli.plugins_cmd._plugins_dir")
+    @patch("sonic_cli.plugins_cmd._set_plugin_entry_flag")
+    @patch("sonic_cli.plugins_cmd._save_disabled_set")
+    @patch("sonic_cli.plugins_cmd._save_enabled_set")
+    @patch("sonic_cli.plugins_cmd._get_disabled_set", return_value=set())
+    @patch("sonic_cli.plugins_cmd._get_enabled_set", return_value=set())
     def test_flag_true_grants_override_without_prompt(
         self, mock_en, mock_dis, mock_save_en, mock_save_dis, mock_set_flag,
         mock_user, mock_bundled, nested_plugin_env,
     ):
-        from hermes_cli.plugins_cmd import cmd_enable
+        from sonic_cli.plugins_cmd import cmd_enable
         mock_user.return_value = nested_plugin_env
         mock_bundled.return_value = nested_plugin_env / "nonexistent"
 
@@ -224,18 +224,18 @@ class TestEnableToolOverrideConsent:
             "disk-cleanup", "allow_tool_override", True
         )
 
-    @patch("hermes_cli.plugins.get_bundled_plugins_dir")
-    @patch("hermes_cli.plugins_cmd._plugins_dir")
-    @patch("hermes_cli.plugins_cmd._set_plugin_entry_flag")
-    @patch("hermes_cli.plugins_cmd._save_disabled_set")
-    @patch("hermes_cli.plugins_cmd._save_enabled_set")
-    @patch("hermes_cli.plugins_cmd._get_disabled_set", return_value=set())
-    @patch("hermes_cli.plugins_cmd._get_enabled_set", return_value=set())
+    @patch("sonic_cli.plugins.get_bundled_plugins_dir")
+    @patch("sonic_cli.plugins_cmd._plugins_dir")
+    @patch("sonic_cli.plugins_cmd._set_plugin_entry_flag")
+    @patch("sonic_cli.plugins_cmd._save_disabled_set")
+    @patch("sonic_cli.plugins_cmd._save_enabled_set")
+    @patch("sonic_cli.plugins_cmd._get_disabled_set", return_value=set())
+    @patch("sonic_cli.plugins_cmd._get_enabled_set", return_value=set())
     def test_flag_false_declines_override_without_prompt(
         self, mock_en, mock_dis, mock_save_en, mock_save_dis, mock_set_flag,
         mock_user, mock_bundled, nested_plugin_env,
     ):
-        from hermes_cli.plugins_cmd import cmd_enable
+        from sonic_cli.plugins_cmd import cmd_enable
         mock_user.return_value = nested_plugin_env
         mock_bundled.return_value = nested_plugin_env / "nonexistent"
 
@@ -245,18 +245,18 @@ class TestEnableToolOverrideConsent:
             "disk-cleanup", "allow_tool_override", False
         )
 
-    @patch("hermes_cli.plugins.get_bundled_plugins_dir")
-    @patch("hermes_cli.plugins_cmd._plugins_dir")
-    @patch("hermes_cli.plugins_cmd._set_plugin_entry_flag")
-    @patch("hermes_cli.plugins_cmd._save_disabled_set")
-    @patch("hermes_cli.plugins_cmd._save_enabled_set")
-    @patch("hermes_cli.plugins_cmd._get_disabled_set", return_value=set())
-    @patch("hermes_cli.plugins_cmd._get_enabled_set", return_value=set())
+    @patch("sonic_cli.plugins.get_bundled_plugins_dir")
+    @patch("sonic_cli.plugins_cmd._plugins_dir")
+    @patch("sonic_cli.plugins_cmd._set_plugin_entry_flag")
+    @patch("sonic_cli.plugins_cmd._save_disabled_set")
+    @patch("sonic_cli.plugins_cmd._save_enabled_set")
+    @patch("sonic_cli.plugins_cmd._get_disabled_set", return_value=set())
+    @patch("sonic_cli.plugins_cmd._get_enabled_set", return_value=set())
     def test_interactive_yes_grants_override(
         self, mock_en, mock_dis, mock_save_en, mock_save_dis, mock_set_flag,
         mock_user, mock_bundled, nested_plugin_env,
     ):
-        from hermes_cli.plugins_cmd import cmd_enable
+        from sonic_cli.plugins_cmd import cmd_enable
         mock_user.return_value = nested_plugin_env
         mock_bundled.return_value = nested_plugin_env / "nonexistent"
 
@@ -267,19 +267,19 @@ class TestEnableToolOverrideConsent:
             "disk-cleanup", "allow_tool_override", True
         )
 
-    @patch("hermes_cli.plugins.get_bundled_plugins_dir")
-    @patch("hermes_cli.plugins_cmd._plugins_dir")
-    @patch("hermes_cli.plugins_cmd._set_plugin_entry_flag")
-    @patch("hermes_cli.plugins_cmd._save_disabled_set")
-    @patch("hermes_cli.plugins_cmd._save_enabled_set")
-    @patch("hermes_cli.plugins_cmd._get_disabled_set", return_value=set())
-    @patch("hermes_cli.plugins_cmd._get_enabled_set", return_value=set())
+    @patch("sonic_cli.plugins.get_bundled_plugins_dir")
+    @patch("sonic_cli.plugins_cmd._plugins_dir")
+    @patch("sonic_cli.plugins_cmd._set_plugin_entry_flag")
+    @patch("sonic_cli.plugins_cmd._save_disabled_set")
+    @patch("sonic_cli.plugins_cmd._save_enabled_set")
+    @patch("sonic_cli.plugins_cmd._get_disabled_set", return_value=set())
+    @patch("sonic_cli.plugins_cmd._get_enabled_set", return_value=set())
     def test_interactive_blank_enter_defaults_to_deny(
         self, mock_en, mock_dis, mock_save_en, mock_save_dis, mock_set_flag,
         mock_user, mock_bundled, nested_plugin_env,
     ):
         """A blind Enter must NOT grant a privileged capability."""
-        from hermes_cli.plugins_cmd import cmd_enable
+        from sonic_cli.plugins_cmd import cmd_enable
         mock_user.return_value = nested_plugin_env
         mock_bundled.return_value = nested_plugin_env / "nonexistent"
 
@@ -290,19 +290,19 @@ class TestEnableToolOverrideConsent:
             "disk-cleanup", "allow_tool_override", False
         )
 
-    @patch("hermes_cli.plugins.get_bundled_plugins_dir")
-    @patch("hermes_cli.plugins_cmd._plugins_dir")
-    @patch("hermes_cli.plugins_cmd._set_plugin_entry_flag")
-    @patch("hermes_cli.plugins_cmd._save_disabled_set")
-    @patch("hermes_cli.plugins_cmd._save_enabled_set")
-    @patch("hermes_cli.plugins_cmd._get_disabled_set", return_value=set())
-    @patch("hermes_cli.plugins_cmd._get_enabled_set", return_value=set())
+    @patch("sonic_cli.plugins.get_bundled_plugins_dir")
+    @patch("sonic_cli.plugins_cmd._plugins_dir")
+    @patch("sonic_cli.plugins_cmd._set_plugin_entry_flag")
+    @patch("sonic_cli.plugins_cmd._save_disabled_set")
+    @patch("sonic_cli.plugins_cmd._save_enabled_set")
+    @patch("sonic_cli.plugins_cmd._get_disabled_set", return_value=set())
+    @patch("sonic_cli.plugins_cmd._get_enabled_set", return_value=set())
     def test_interactive_eof_defaults_to_deny(
         self, mock_en, mock_dis, mock_save_en, mock_save_dis, mock_set_flag,
         mock_user, mock_bundled, nested_plugin_env,
     ):
         """Non-interactive stdin (EOFError) must fail closed to deny."""
-        from hermes_cli.plugins_cmd import cmd_enable
+        from sonic_cli.plugins_cmd import cmd_enable
         mock_user.return_value = nested_plugin_env
         mock_bundled.return_value = nested_plugin_env / "nonexistent"
 
@@ -313,19 +313,19 @@ class TestEnableToolOverrideConsent:
             "disk-cleanup", "allow_tool_override", False
         )
 
-    @patch("hermes_cli.plugins.get_bundled_plugins_dir")
-    @patch("hermes_cli.plugins_cmd._plugins_dir")
-    @patch("hermes_cli.plugins_cmd._set_plugin_entry_flag")
-    @patch("hermes_cli.plugins_cmd._save_disabled_set")
-    @patch("hermes_cli.plugins_cmd._save_enabled_set")
-    @patch("hermes_cli.plugins_cmd._get_disabled_set", return_value=set())
-    @patch("hermes_cli.plugins_cmd._get_enabled_set", return_value=set())
+    @patch("sonic_cli.plugins.get_bundled_plugins_dir")
+    @patch("sonic_cli.plugins_cmd._plugins_dir")
+    @patch("sonic_cli.plugins_cmd._set_plugin_entry_flag")
+    @patch("sonic_cli.plugins_cmd._save_disabled_set")
+    @patch("sonic_cli.plugins_cmd._save_enabled_set")
+    @patch("sonic_cli.plugins_cmd._get_disabled_set", return_value=set())
+    @patch("sonic_cli.plugins_cmd._get_enabled_set", return_value=set())
     def test_bundled_plugin_never_prompts_or_writes_entry(
         self, mock_en, mock_dis, mock_save_en, mock_save_dis, mock_set_flag,
         mock_user, mock_bundled, tmp_path,
     ):
         """Bundled plugins are trusted — no consent prompt, no entry write."""
-        from hermes_cli.plugins_cmd import cmd_enable
+        from sonic_cli.plugins_cmd import cmd_enable
         # Bundled dir holds the plugin; user dir is empty.
         _make_plugin_dir(tmp_path / "bundled", "trusted_bundled", {
             "name": "trusted_bundled", "version": "1.0.0",

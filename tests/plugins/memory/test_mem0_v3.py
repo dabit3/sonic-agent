@@ -295,7 +295,7 @@ class TestMem0Prefetch:
         provider = Mem0MemoryProvider()
         provider.initialize("test-session")
         provider._user_id = "u123"
-        provider._agent_id = "hermes"
+        provider._agent_id = "sonic"
         provider._backend = backend
         return provider
 

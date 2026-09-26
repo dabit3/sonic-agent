@@ -792,7 +792,7 @@ def _resolve_plugin_key_and_source(name: str) -> Optional[tuple]:
 
 def _set_plugin_entry_flag(plugin_id: str, key: str, value: bool) -> None:
     """Write ``plugins.entries.<plugin_id>.<key> = value`` into config.yaml."""
-    from hermes_cli.config import load_config, save_config
+    from sonic_cli.config import load_config, save_config
     config = load_config()
     plugins_cfg = config.setdefault("plugins", {})
     if not isinstance(plugins_cfg, dict):
@@ -853,7 +853,7 @@ def cmd_enable(name: str, allow_tool_override: Optional[bool] = None) -> None:
         console.print(f"[dim]Plugin '{key}' is already enabled.[/dim]")
 
     # Built-in tool override is a privileged grant. Bundled plugins ship with
-    # Hermes core and are trusted; every other source needs operator opt-in.
+    # Sonic core and are trusted; every other source needs operator opt-in.
     if source == "bundled":
         return
 
@@ -895,7 +895,7 @@ def _resolve_tool_override_grant(
     else:
         console.print(
             f"[dim]{key} may not override built-in tools. Re-run "
-            f"`hermes plugins enable {key} --allow-tool-override` to grant "
+            f"`sonic plugins enable {key} --allow-tool-override` to grant "
             "this later.[/dim]"
         )
 

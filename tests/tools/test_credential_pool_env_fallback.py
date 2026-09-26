@@ -3,7 +3,7 @@
 Covers the fix from #15914 / PR #15920 and the rotation fix from #20591:
 - _seed_from_env reads API keys from ~/.sonic/.env when not in os.environ
 - _resolve_api_key_provider_secret falls back to credential_pool when env vars are empty
-- ~/.hermes/.env takes priority over os.environ for Hermes-managed credentials
+- ~/.sonic/.env takes priority over os.environ for Sonic-managed credentials
   (so a deliberate rotation in .env wins over a stale shell export)
 - env / dotenv values take priority over credential pool (pool fires only when both are empty)
 """
@@ -107,13 +107,13 @@ class TestCredentialPoolSeedsFromDotEnv:
         assert active_sources == set()
         assert entries == []
 
-    def test_dotenv_wins_over_stale_os_environ(self, isolated_hermes_home, monkeypatch):
-        """Regression for #20591: a fresh key rotated into ~/.hermes/.env must
+    def test_dotenv_wins_over_stale_os_environ(self, isolated_sonic_home, monkeypatch):
+        """Regression for #20591: a fresh key rotated into ~/.sonic/.env must
         win over a stale value inherited from os.environ (parent shell export
         from Codex CLI, test runner, login profile, etc.). Without this, key
         rotation produces persistent 401s.
         """
-        _write_env_file(isolated_hermes_home, DEEPSEEK_API_KEY="sk-dotenv-fresh")
+        _write_env_file(isolated_sonic_home, DEEPSEEK_API_KEY="sk-dotenv-fresh")
         monkeypatch.setenv("DEEPSEEK_API_KEY", "sk-env-stale-xyz")
 
         from agent.credential_pool import _seed_from_env
@@ -143,18 +143,18 @@ class TestAuthResolvesFromDotEnv:
         assert source == "DEEPSEEK_API_KEY"
 
     def test_dotenv_wins_over_stale_os_environ_on_resolve(
-        self, isolated_hermes_home, monkeypatch
+        self, isolated_sonic_home, monkeypatch
     ):
-        """Regression for #20591: when both ~/.hermes/.env and os.environ define
+        """Regression for #20591: when both ~/.sonic/.env and os.environ define
         the key, the .env value wins. Symmetric with the pool seeding rule —
         without this, the pool gets re-seeded with the fresh .env key while the
         live request path keeps returning the stale shell export, producing
         persistent 401s after rotation.
         """
-        _write_env_file(isolated_hermes_home, DEEPSEEK_API_KEY="dotenv-fresh-deepseek")
+        _write_env_file(isolated_sonic_home, DEEPSEEK_API_KEY="dotenv-fresh-deepseek")
         monkeypatch.setenv("DEEPSEEK_API_KEY", "stale-shell-deepseek")
 
-        from hermes_cli.auth import _resolve_api_key_provider_secret
+        from sonic_cli.auth import _resolve_api_key_provider_secret
         key, source = _resolve_api_key_provider_secret(
             provider_id="deepseek",
             pconfig=_make_pconfig(),
@@ -163,18 +163,18 @@ class TestAuthResolvesFromDotEnv:
         assert source == "DEEPSEEK_API_KEY"
 
     def test_get_anthropic_key_prefers_dotenv_over_stale_os_environ(
-        self, isolated_hermes_home, monkeypatch
+        self, isolated_sonic_home, monkeypatch
     ):
         """Regression for #20591 (sibling site): get_anthropic_key() must also
-        prefer ~/.hermes/.env over a stale shell export. This path resolves
+        prefer ~/.sonic/.env over a stale shell export. This path resolves
         ANTHROPIC_API_KEY/ANTHROPIC_TOKEN/CLAUDE_CODE_OAUTH_TOKEN and had the
         identical os.environ-first rotation bug that the api-key resolution
         path did, just for Anthropic.
         """
-        _write_env_file(isolated_hermes_home, ANTHROPIC_API_KEY="dotenv-fresh-anthropic")
+        _write_env_file(isolated_sonic_home, ANTHROPIC_API_KEY="dotenv-fresh-anthropic")
         monkeypatch.setenv("ANTHROPIC_API_KEY", "stale-shell-anthropic")
 
-        from hermes_cli.auth import get_anthropic_key
+        from sonic_cli.auth import get_anthropic_key
         assert get_anthropic_key() == "dotenv-fresh-anthropic"
 
 

@@ -1714,7 +1714,7 @@ class _CapturingAdapter(BasePlatformAdapter):
 
     The four media-send fallbacks (send_voice, send_video, send_document,
     send_image_file) historically forwarded their *_path argument into the
-    chat text. That argument is a host filesystem path inside the Hermes
+    chat text. That argument is a host filesystem path inside the Sonic
     cache, so any subclass that fell back to super() — like the Telegram
     adapter on a rejected video — would leak the host's directory layout
     into the user's chat.
@@ -1750,11 +1750,11 @@ class TestMediaFallbackDoesNotLeakHostPath:
 
     Telegram, Discord, and Slack adapters all fall back to these base
     implementations on native-send failure. When they did, the user saw
-    a chat message like ``🎬 Video: /home/.../hermes/cache/video/abc.mp4``
+    a chat message like ``🎬 Video: /home/.../sonic/cache/video/abc.mp4``
     — a host filesystem path with no actionable information.
     """
 
-    SENSITIVE_PATH = "/home/jayne/.hermes/cache/media/sensitive_host_path_abc123.bin"
+    SENSITIVE_PATH = "/home/jayne/.sonic/cache/media/sensitive_host_path_abc123.bin"
 
     @pytest.mark.asyncio
     async def test_send_voice_fallback_omits_audio_path(self):

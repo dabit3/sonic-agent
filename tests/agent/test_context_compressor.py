@@ -9,7 +9,7 @@ from agent.context_compressor import (
     HISTORICAL_TASK_HEADING,
     SUMMARY_PREFIX,
 )
-from hermes_state import SessionDB
+from sonic_state import SessionDB
 
 
 @pytest.fixture()

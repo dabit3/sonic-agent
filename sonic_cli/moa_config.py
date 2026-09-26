@@ -161,7 +161,7 @@ def exact_moa_preset_name(config: Any, text: str) -> str | None:
     """Return the preset name iff ``text`` exactly matches an *enabled* preset.
 
     Used by the no-explicit-provider switch path (PATH B in
-    ``hermes_cli/model_switch.py``) to recognize a bare ``/model <preset>``
+    ``sonic_cli/model_switch.py``) to recognize a bare ``/model <preset>``
     that the user typed without the ``moa:`` prefix. This is an *implicit*
     match, so it must honor the per-preset ``enabled`` opt-out: a user who set
     ``enabled: false`` to disable a preset must not have a plain model switch

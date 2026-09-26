@@ -731,7 +731,7 @@ def compress_context(
                     try:
                         agent._session_db.create_session(
                             session_id=agent.session_id,
-                            source=agent.platform or os.environ.get("HERMES_SESSION_SOURCE", "cli"),
+                            source=agent.platform or os.environ.get("SONIC_SESSION_SOURCE", "cli"),
                             model=agent.model,
                             model_config=agent._session_init_model_config,
                             parent_session_id=old_session_id,
@@ -756,9 +756,9 @@ def compress_context(
                             from gateway.session_context import set_current_session_id
                             set_current_session_id(agent.session_id)
                         except Exception:
-                            os.environ["HERMES_SESSION_ID"] = agent.session_id
+                            os.environ["SONIC_SESSION_ID"] = agent.session_id
                         try:
-                            from hermes_logging import set_session_context
+                            from sonic_logging import set_session_context
                             set_session_context(agent.session_id)
                         except Exception:
                             pass
@@ -780,7 +780,7 @@ def compress_context(
                     # per-session lookup with no parent walk, so without this an
                     # active goal silently dies at the boundary (#33618).
                     try:
-                        from hermes_cli.goals import migrate_goal_to_session
+                        from sonic_cli.goals import migrate_goal_to_session
                         migrate_goal_to_session(old_session_id, agent.session_id, reason="compression")
                     except Exception as _goal_err:
                         logger.debug("Could not migrate goal on compression: %s", _goal_err)
