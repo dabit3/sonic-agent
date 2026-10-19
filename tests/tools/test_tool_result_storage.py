@@ -405,9 +405,9 @@ class TestMaybePersistToolResult:
         cmd = env.execute.call_args[0][0]
         target = cmd.split("cat > ", 1)[1].split(" <<", 1)[0]
 
-        assert "Full output saved to: /tmp/hermes-results/outside_whoami_x_" in result
-        assert "/tmp/hermes-results/../" not in result
-        assert target.startswith("/tmp/hermes-results/outside_whoami_x_")
+        assert "Full output saved to: /tmp/sonic-results/outside_whoami_x_" in result
+        assert "/tmp/sonic-results/../" not in result
+        assert target.startswith("/tmp/sonic-results/outside_whoami_x_")
         assert "/../" not in target
         assert "$(whoami)" not in target
         assert ";" not in target

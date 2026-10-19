@@ -224,7 +224,7 @@ def test_moa_provider_backed_slot_survives_aux_resolution(monkeypatch, provider)
         }
 
     monkeypatch.setattr(
-        "hermes_cli.runtime_provider.resolve_runtime_provider", fake_resolve
+        "sonic_cli.runtime_provider.resolve_runtime_provider", fake_resolve
     )
 
     rt = moa_loop._slot_runtime({"provider": provider, "model": "test-model"})

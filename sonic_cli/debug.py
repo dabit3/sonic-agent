@@ -602,7 +602,7 @@ def collect_debug_report(
 
 # Bundle format identifier embedded in the Nous-S3 JSON envelope. The
 # discord-support viewer keys off this string to parse the bundle.
-_NOUS_BUNDLE_FORMAT = "hermes-debug-share/1"
+_NOUS_BUNDLE_FORMAT = "sonic-debug-share/1"
 
 
 def collect_share_bundle(
@@ -679,7 +679,7 @@ def build_nous_bundle(bundle: dict[str, str], redact: bool = True) -> bytes:
 
     The JSON shape is what the discord-support viewer (Repo 3) parses::
 
-        {"format": "hermes-debug-share/1",
+        {"format": "sonic-debug-share/1",
          "redacted": <bool>,
          "created": <iso8601>,
          "files": {"report": ..., "agent.log": ..., ...}}
@@ -844,7 +844,7 @@ def run_debug_share(args):
 _NOUS_PRIVACY_NOTICE = """\
 ⚠️  --nous: This uploads your debug bundle to Nous-INTERNAL storage (AWS S3),
     NOT a public paste service. The following is included:
-  • System info (OS, Python/Hermes version, provider, which API keys are
+  • System info (OS, Python/Sonic version, provider, which API keys are
     configured — NOT the actual keys)
   • Full agent.log, gateway.log, and desktop.log (up to 512 KB each — likely
     contains conversation content, tool outputs, and file paths)
@@ -857,14 +857,14 @@ _NOUS_PRIVACY_NOTICE = """\
 
 
 def _run_debug_share_nous(*, log_lines: int, redact: bool) -> None:
-    """Handle ``hermes debug share --nous``: upload the bundle to Nous-S3.
+    """Handle ``sonic debug share --nous``: upload the bundle to Nous-S3.
 
     Collects the same force-redacted bundle as the paste path, gzips it into
     the Nous envelope, requests a signed URL from NAS, uploads, and prints the
     private viewer link. On any failure falls back to a clear error that
     suggests ``--local``.
     """
-    from hermes_cli.diagnostics_upload import share_to_nous
+    from sonic_cli.diagnostics_upload import share_to_nous
 
     print(_NOUS_PRIVACY_NOTICE)
     if not redact:
@@ -878,7 +878,7 @@ def _run_debug_share_nous(*, log_lines: int, redact: bool) -> None:
     bundle = collect_share_bundle(log_lines=log_lines, redact=redact)
     if redact:
         logger.info(
-            "hermes debug share --nous: applied force-mode redaction before upload"
+            "sonic debug share --nous: applied force-mode redaction before upload"
         )
     blob = build_nous_bundle(bundle, redact=redact)
 
@@ -890,8 +890,8 @@ def _run_debug_share_nous(*, log_lines: int, redact: bool) -> None:
             f"\nNous upload failed: {exc}\n"
             "\nThe Nous diagnostics service may be unavailable or not yet "
             "provisioned.\n"
-            "Run `hermes debug share --local` to print the report instead, "
-            "or `hermes debug share` to upload to a public paste service.\n",
+            "Run `sonic debug share --local` to print the report instead, "
+            "or `sonic debug share` to upload to a public paste service.\n",
             file=sys.stderr,
         )
         sys.exit(1)

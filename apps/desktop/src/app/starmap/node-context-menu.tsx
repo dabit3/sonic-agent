@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
-import { deleteLearningNode, editLearningNode, getLearningNode } from '@/hermes'
+import { deleteLearningNode, editLearningNode, getLearningNode } from '@/sonic'
 
 export interface NodeMenuTarget {
   id: string
@@ -135,7 +135,7 @@ export function NodeContextMenu({ onChanged, onClose, target }: NodeContextMenuP
         confirmLabel="Delete"
         description={
           noun === 'skill'
-            ? 'The skill is archived and can be restored with `hermes curator restore`.'
+            ? 'The skill is archived and can be restored with `sonic curator restore`.'
             : 'This memory is removed permanently.'
         }
         destructive

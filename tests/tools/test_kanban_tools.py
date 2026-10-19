@@ -714,16 +714,16 @@ def test_block_rejects_empty_reason(worker_env):
 
 
 def _make_goal_mode_worker_env(monkeypatch, tmp_path):
-    """Set up an isolated HERMES_HOME with one claimed goal_mode task,
+    """Set up an isolated SONIC_HOME with one claimed goal_mode task,
     matching the pattern used by the kanban_complete judge gate tests."""
     from pathlib import Path as _Path
-    from hermes_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
-    monkeypatch.setenv("HERMES_HOME", str(home))
-    monkeypatch.setenv("HERMES_PROFILE", "test-worker")
-    monkeypatch.delenv("HERMES_SESSION_ID", raising=False)
+    monkeypatch.setenv("SONIC_HOME", str(home))
+    monkeypatch.setenv("SONIC_PROFILE", "test-worker")
+    monkeypatch.delenv("SONIC_SESSION_ID", raising=False)
     monkeypatch.setattr(_Path, "home", lambda: tmp_path)
 
     kb._INITIALIZED_PATHS.clear()
@@ -737,7 +737,7 @@ def _make_goal_mode_worker_env(monkeypatch, tmp_path):
         kb.claim_task(conn, goal_task_id)
     finally:
         conn.close()
-    monkeypatch.setenv("HERMES_KANBAN_TASK", goal_task_id)
+    monkeypatch.setenv("SONIC_KANBAN_TASK", goal_task_id)
     return goal_task_id
 
 
@@ -746,7 +746,7 @@ def test_block_goal_mode_rejects_missing_kind(monkeypatch, tmp_path):
     to use it as an unguarded escape from the goal loop (Issue #38696,
     sibling of the kanban_complete judge gate / Issue #38367)."""
     from tools import kanban_tools as kt
-    from hermes_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
 
     tid = _make_goal_mode_worker_env(monkeypatch, tmp_path)
     out = kt._handle_block({"reason": "giving up"})
@@ -765,7 +765,7 @@ def test_block_goal_mode_rejects_disallowed_kind(monkeypatch, tmp_path):
     """`capability` / `transient` are valid kinds in general but must not
     let a goal_mode worker exit the loop without going through the judge."""
     from tools import kanban_tools as kt
-    from hermes_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
 
     tid = _make_goal_mode_worker_env(monkeypatch, tmp_path)
     for kind in ("capability", "transient"):
@@ -789,7 +789,7 @@ def test_block_goal_mode_allows_dependency_kind(monkeypatch, tmp_path):
     running/ready/done/blocked as a stop, so this is still a legitimate,
     judge-free exit; it's just not the literal 'blocked' status."""
     from tools import kanban_tools as kt
-    from hermes_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
 
     tid = _make_goal_mode_worker_env(monkeypatch, tmp_path)
     out = kt._handle_block({"reason": "waiting on another task", "kind": "dependency"})
@@ -805,7 +805,7 @@ def test_block_goal_mode_allows_dependency_kind(monkeypatch, tmp_path):
 
 def test_block_goal_mode_allows_needs_input_kind(monkeypatch, tmp_path):
     from tools import kanban_tools as kt
-    from hermes_cli import kanban_db as kb
+    from sonic_cli import kanban_db as kb
 
     tid = _make_goal_mode_worker_env(monkeypatch, tmp_path)
     out = kt._handle_block({"reason": "need a decision from the user", "kind": "needs_input"})

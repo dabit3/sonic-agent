@@ -42,7 +42,7 @@ import contextvars as _ctxvars
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from hermes_constants import get_hermes_home, display_hermes_home
+from sonic_constants import get_sonic_home, display_sonic_home
 from utils import atomic_replace, is_truthy_value
 from sonic_cli.config import cfg_get
 

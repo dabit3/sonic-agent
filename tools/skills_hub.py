@@ -60,13 +60,13 @@ def _override(name: str):
     return globals().get(name)
 
 
-def _hermes_home() -> Path:
-    return get_hermes_home()
+def _sonic_home() -> Path:
+    return get_sonic_home()
 
 
 def _skills_dir() -> Path:
     forced = _override("SKILLS_DIR")
-    return Path(forced) if forced is not None else _hermes_home() / "skills"
+    return Path(forced) if forced is not None else _sonic_home() / "skills"
 
 
 def _hub_dir() -> Path:
@@ -100,7 +100,7 @@ def _index_cache_dir() -> Path:
 
 
 _DYNAMIC_PATH_RESOLVERS = {
-    "HERMES_HOME": _hermes_home,
+    "SONIC_HOME": _sonic_home,
     "SKILLS_DIR": _skills_dir,
     "HUB_DIR": _hub_dir,
     "LOCK_FILE": _lock_file,
@@ -3649,15 +3649,15 @@ def check_for_skill_updates(
 # Sonic centralized index source
 # ---------------------------------------------------------------------------
 
-HERMES_INDEX_URL = "https://hermes-agent.nousresearch.com/docs/api/skills-index.json"
-HERMES_INDEX_TTL = 6 * 3600  # 6 hours
+SONIC_INDEX_URL = "https://hermes-agent.nousresearch.com/docs/api/skills-index.json"
+SONIC_INDEX_TTL = 6 * 3600  # 6 hours
 
 
-def _hermes_index_cache_file() -> Path:
-    return _index_cache_dir() / "hermes-index.json"
+def _sonic_index_cache_file() -> Path:
+    return _index_cache_dir() / "sonic-index.json"
 
 
-def _load_hermes_index() -> Optional[dict]:
+def _load_sonic_index() -> Optional[dict]:
     """Fetch the centralized skills index, with local cache.
 
     The index is a JSON file hosted on the docs site, rebuilt daily by CI.
@@ -3665,12 +3665,12 @@ def _load_hermes_index() -> Optional[dict]:
     downloads within a session.
     """
     # Check local cache
-    hermes_index_cache_file = _hermes_index_cache_file()
-    if hermes_index_cache_file.exists():
+    sonic_index_cache_file = _sonic_index_cache_file()
+    if sonic_index_cache_file.exists():
         try:
-            age = time.time() - hermes_index_cache_file.stat().st_mtime
-            if age < HERMES_INDEX_TTL:
-                return json.loads(hermes_index_cache_file.read_text())
+            age = time.time() - sonic_index_cache_file.stat().st_mtime
+            if age < SONIC_INDEX_TTL:
+                return json.loads(sonic_index_cache_file.read_text())
         except (OSError, json.JSONDecodeError):
             pass
 
@@ -3691,8 +3691,8 @@ def _load_hermes_index() -> Optional[dict]:
 
     # Cache locally
     try:
-        hermes_index_cache_file.parent.mkdir(parents=True, exist_ok=True)
-        hermes_index_cache_file.write_text(json.dumps(data))
+        sonic_index_cache_file.parent.mkdir(parents=True, exist_ok=True)
+        sonic_index_cache_file.write_text(json.dumps(data))
     except OSError:
         pass
 
@@ -3701,10 +3701,10 @@ def _load_hermes_index() -> Optional[dict]:
 
 def _load_stale_index_cache() -> Optional[dict]:
     """Fall back to stale cache when the network fetch fails."""
-    hermes_index_cache_file = _hermes_index_cache_file()
-    if hermes_index_cache_file.exists():
+    sonic_index_cache_file = _sonic_index_cache_file()
+    if sonic_index_cache_file.exists():
         try:
-            return json.loads(hermes_index_cache_file.read_text())
+            return json.loads(sonic_index_cache_file.read_text())
         except (OSError, json.JSONDecodeError):
             pass
     return None

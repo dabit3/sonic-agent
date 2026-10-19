@@ -141,14 +141,14 @@ class TestProfilePathResolutionUnderMultiplexScope:
         import threading
 
         from gateway.run import _profile_runtime_scope
-        from hermes_constants import get_hermes_home
+        from sonic_constants import get_sonic_home
         from tools.thread_context import propagate_context_to_thread
 
         _prof_a, prof_b = self._profiles(tmp_path)
         seen = {}
 
         def worker():
-            seen["home"] = str(get_hermes_home())
+            seen["home"] = str(get_sonic_home())
 
         with _profile_runtime_scope(prof_b):
             t = threading.Thread(target=propagate_context_to_thread(worker))

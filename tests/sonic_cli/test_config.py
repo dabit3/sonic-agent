@@ -1366,7 +1366,7 @@ class TestMigrationWriteInvariant:
         writes must go through _persist_migration()."""
         import ast
         import inspect
-        from hermes_cli import config as cfg_mod
+        from sonic_cli import config as cfg_mod
 
         src = inspect.getsource(cfg_mod.migrate_config)
         tree = ast.parse(src.lstrip())
@@ -1403,7 +1403,7 @@ class TestMigrationWriteInvariant:
             }, sort_keys=False),
             encoding="utf-8",
         )
-        with patch.dict(os.environ, {"HERMES_HOME": str(tmp_path)}):
+        with patch.dict(os.environ, {"SONIC_HOME": str(tmp_path)}):
             migrate_config(interactive=False, quiet=True)
             raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
             loaded = load_config()

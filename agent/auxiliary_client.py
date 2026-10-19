@@ -5279,7 +5279,7 @@ def _resolve_task_provider_model(
         if normalized in {"", "auto", "custom"} or normalized.startswith("custom:"):
             return False
         try:
-            from hermes_cli.providers import get_provider
+            from sonic_cli.providers import get_provider
 
             return get_provider(normalized) is not None
         except Exception:

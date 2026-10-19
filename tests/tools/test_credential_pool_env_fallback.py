@@ -273,26 +273,26 @@ class TestAnthropicEnvAuthTypeClassification:
         assert matching, f"expected a seeded entry for {env_var}, got {entries}"
         return matching[0]
 
-    def test_oauth_token_classified_as_oauth(self, isolated_hermes_home):
+    def test_oauth_token_classified_as_oauth(self, isolated_sonic_home):
         """sk-ant-oat- token from CLAUDE_CODE_OAUTH_TOKEN → AUTH_TYPE_OAUTH."""
         from agent.credential_pool import AUTH_TYPE_OAUTH
-        _write_env_file(isolated_hermes_home, CLAUDE_CODE_OAUTH_TOKEN="sk-ant-oat-fake-12345")
+        _write_env_file(isolated_sonic_home, CLAUDE_CODE_OAUTH_TOKEN="sk-ant-oat-fake-12345")
         entry = self._seed("CLAUDE_CODE_OAUTH_TOKEN", "sk-ant-oat-fake-12345")
         assert entry.auth_type == AUTH_TYPE_OAUTH
 
-    def test_admin_key_classified_as_api_key(self, isolated_hermes_home):
+    def test_admin_key_classified_as_api_key(self, isolated_sonic_home):
         """sk-ant-admin- key from ANTHROPIC_API_KEY → AUTH_TYPE_API_KEY, not OAuth.
 
         This is the bug the fix targets: previously this was tagged OAuth.
         """
         from agent.credential_pool import AUTH_TYPE_API_KEY
-        _write_env_file(isolated_hermes_home, ANTHROPIC_API_KEY="sk-ant-admin-fake-12345")
+        _write_env_file(isolated_sonic_home, ANTHROPIC_API_KEY="sk-ant-admin-fake-12345")
         entry = self._seed("ANTHROPIC_API_KEY", "sk-ant-admin-fake-12345")
         assert entry.auth_type == AUTH_TYPE_API_KEY
 
-    def test_standard_api_key_classified_as_api_key(self, isolated_hermes_home):
+    def test_standard_api_key_classified_as_api_key(self, isolated_sonic_home):
         """sk-ant-api- key → AUTH_TYPE_API_KEY (unchanged behaviour)."""
         from agent.credential_pool import AUTH_TYPE_API_KEY
-        _write_env_file(isolated_hermes_home, ANTHROPIC_API_KEY="sk-ant-api-fake-12345")
+        _write_env_file(isolated_sonic_home, ANTHROPIC_API_KEY="sk-ant-api-fake-12345")
         entry = self._seed("ANTHROPIC_API_KEY", "sk-ant-api-fake-12345")
         assert entry.auth_type == AUTH_TYPE_API_KEY

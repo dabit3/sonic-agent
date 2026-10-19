@@ -1419,10 +1419,10 @@ class TestBuildDebugShare:
 # ---------------------------------------------------------------------------
 
 class TestCollectShareBundle:
-    def test_returns_report_and_logs(self, hermes_home):
-        from hermes_cli.debug import collect_share_bundle
+    def test_returns_report_and_logs(self, sonic_home):
+        from sonic_cli.debug import collect_share_bundle
 
-        with patch("hermes_cli.dump.run_dump"):
+        with patch("sonic_cli.dump.run_dump"):
             bundle = collect_share_bundle(log_lines=50, redact=True)
 
         assert "report" in bundle
@@ -1433,22 +1433,22 @@ class TestCollectShareBundle:
         assert "redacted at upload time" in bundle["report"]
         assert "session started" in bundle["agent.log"]
 
-    def test_no_redact_omits_banner(self, hermes_home):
-        from hermes_cli.debug import collect_share_bundle
+    def test_no_redact_omits_banner(self, sonic_home):
+        from sonic_cli.debug import collect_share_bundle
 
-        with patch("hermes_cli.dump.run_dump"):
+        with patch("sonic_cli.dump.run_dump"):
             bundle = collect_share_bundle(log_lines=50, redact=False)
 
         assert "redacted at upload time" not in bundle["report"]
 
-    def test_redaction_keeps_secrets_out(self, hermes_home):
-        from hermes_cli.debug import collect_share_bundle
+    def test_redaction_keeps_secrets_out(self, sonic_home):
+        from sonic_cli.debug import collect_share_bundle
 
         secret = "sk-proj-abcdefghijklmnopqrstuvwxyz1234567890"
-        (hermes_home / "logs" / "agent.log").write_text(
+        (sonic_home / "logs" / "agent.log").write_text(
             f"line one\nOPENAI_API_KEY={secret}\nline three\n"
         )
-        with patch("hermes_cli.dump.run_dump"):
+        with patch("sonic_cli.dump.run_dump"):
             redacted = collect_share_bundle(log_lines=50, redact=True)
             unredacted = collect_share_bundle(log_lines=50, redact=False)
 
@@ -1458,12 +1458,12 @@ class TestCollectShareBundle:
         assert secret not in "\n".join(redacted.values())
 
 
-    def test_build_debug_share_uses_collector(self, hermes_home):
+    def test_build_debug_share_uses_collector(self, sonic_home):
         # build_debug_share must produce the same report text the collector does
         # (i.e. the refactor preserved paste.rs behaviour).
-        from hermes_cli.debug import build_debug_share, collect_share_bundle
+        from sonic_cli.debug import build_debug_share, collect_share_bundle
 
-        with patch("hermes_cli.dump.run_dump"):
+        with patch("sonic_cli.dump.run_dump"):
             expected = collect_share_bundle(log_lines=50, redact=True)["report"]
 
         uploaded = []
@@ -1472,9 +1472,9 @@ class TestCollectShareBundle:
             uploaded.append(content)
             return "https://paste.rs/x"
 
-        with patch("hermes_cli.dump.run_dump"), patch(
-            "hermes_cli.debug.upload_to_pastebin", side_effect=_upload
-        ), patch("hermes_cli.debug._schedule_auto_delete"):
+        with patch("sonic_cli.dump.run_dump"), patch(
+            "sonic_cli.debug.upload_to_pastebin", side_effect=_upload
+        ), patch("sonic_cli.debug._schedule_auto_delete"):
             result = build_debug_share(log_lines=50, redact=True)
 
         assert result.urls["Report"] == "https://paste.rs/x"
@@ -1483,11 +1483,11 @@ class TestCollectShareBundle:
 
 
 class TestBuildNousBundle:
-    def test_envelope_shape_and_gzip(self, hermes_home):
+    def test_envelope_shape_and_gzip(self, sonic_home):
         import gzip
         import json as _json
 
-        from hermes_cli.debug import build_nous_bundle
+        from sonic_cli.debug import build_nous_bundle
 
         files = {"report": "hello", "agent.log": "log line"}
         blob = build_nous_bundle(files, redact=True)
@@ -1495,7 +1495,7 @@ class TestBuildNousBundle:
         # It's gzip — magic bytes.
         assert blob[:2] == b"\x1f\x8b"
         envelope = _json.loads(gzip.decompress(blob).decode())
-        assert envelope["format"] == "hermes-debug-share/1"
+        assert envelope["format"] == "sonic-debug-share/1"
         assert envelope["redacted"] is True
         assert envelope["files"] == files
         assert "created" in envelope
@@ -1504,7 +1504,7 @@ class TestBuildNousBundle:
         import gzip
         import json as _json
 
-        from hermes_cli.debug import build_nous_bundle
+        from sonic_cli.debug import build_nous_bundle
 
         blob = build_nous_bundle({"report": "x"}, redact=False)
         envelope = _json.loads(gzip.decompress(blob).decode())
@@ -1525,16 +1525,16 @@ class TestRunDebugShareNous:
             setattr(a, k, v)
         return a
 
-    def test_nous_success_prints_view_url(self, hermes_home, capsys):
-        from hermes_cli.debug import run_debug_share
+    def test_nous_success_prints_view_url(self, sonic_home, capsys):
+        from sonic_cli.debug import run_debug_share
 
         res = {
             "id": "id-1",
             "viewUrl": "https://support.example.com/diagnostics/id-1",
             "expiresAt": "2026-06-20T00:00:00Z",
         }
-        with patch("hermes_cli.dump.run_dump"), patch(
-            "hermes_cli.diagnostics_upload.share_to_nous", return_value=res
+        with patch("sonic_cli.dump.run_dump"), patch(
+            "sonic_cli.diagnostics_upload.share_to_nous", return_value=res
         ) as share:
             run_debug_share(self._args())
 
@@ -1546,11 +1546,11 @@ class TestRunDebugShareNous:
         blob = share.call_args[0][0]
         assert isinstance(blob, (bytes, bytearray)) and blob[:2] == b"\x1f\x8b"
 
-    def test_nous_failure_suggests_local(self, hermes_home, capsys):
-        from hermes_cli.debug import run_debug_share
+    def test_nous_failure_suggests_local(self, sonic_home, capsys):
+        from sonic_cli.debug import run_debug_share
 
-        with patch("hermes_cli.dump.run_dump"), patch(
-            "hermes_cli.diagnostics_upload.share_to_nous",
+        with patch("sonic_cli.dump.run_dump"), patch(
+            "sonic_cli.diagnostics_upload.share_to_nous",
             side_effect=RuntimeError("service down"),
         ):
             with pytest.raises(SystemExit) as exc:
@@ -1560,13 +1560,13 @@ class TestRunDebugShareNous:
         assert "Nous upload failed" in err
         assert "--local" in err
 
-    def test_nous_does_not_touch_pastebin(self, hermes_home):
-        from hermes_cli.debug import run_debug_share
+    def test_nous_does_not_touch_pastebin(self, sonic_home):
+        from sonic_cli.debug import run_debug_share
 
         res = {"id": "id-1", "viewUrl": "https://v"}
-        with patch("hermes_cli.dump.run_dump"), patch(
-            "hermes_cli.diagnostics_upload.share_to_nous", return_value=res
-        ), patch("hermes_cli.debug.upload_to_pastebin") as paste:
+        with patch("sonic_cli.dump.run_dump"), patch(
+            "sonic_cli.diagnostics_upload.share_to_nous", return_value=res
+        ), patch("sonic_cli.debug.upload_to_pastebin") as paste:
             run_debug_share(self._args())
         paste.assert_not_called()
 
@@ -1575,13 +1575,13 @@ class TestDebugSlashCommand:
     """`/debug [nous|local]` parsing in the CLI/TUI handler.
 
     The classic CLI and the TUI slash worker both dispatch through
-    ``HermesCLI.process_command`` → ``_handle_debug_command(cmd_original)``,
+    ``SonicCLI.process_command`` → ``_handle_debug_command(cmd_original)``,
     which parses an optional destination word and builds the args namespace
     handed to ``run_debug_share``.
     """
 
     def _handler(self):
-        from hermes_cli.cli_commands_mixin import CLICommandsMixin
+        from sonic_cli.cli_commands_mixin import CLICommandsMixin
 
         class _Stub(CLICommandsMixin):
             pass
@@ -1594,7 +1594,7 @@ class TestDebugSlashCommand:
         def _fake_run(args):
             captured.update(vars(args))
 
-        with patch("hermes_cli.debug.run_debug_share", _fake_run):
+        with patch("sonic_cli.debug.run_debug_share", _fake_run):
             self._handler()(cmd_original)
         return captured
 

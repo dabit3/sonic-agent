@@ -8488,7 +8488,7 @@ class SonicCLI(CLIAgentSetupMixin, CLICommandsMixin):
                 import argparse
                 import shlex
 
-                from hermes_cli.journey import register_cli as _register_journey_cli
+                from sonic_cli.journey import register_cli as _register_journey_cli
 
                 parser = argparse.ArgumentParser(prog="/journey", add_help=False)
                 _register_journey_cli(parser)

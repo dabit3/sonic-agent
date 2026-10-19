@@ -508,14 +508,14 @@ export interface LearningNodeDetail {
 }
 
 export function getLearningNode(id: string): Promise<LearningNodeDetail> {
-  return window.hermesDesktop.api<LearningNodeDetail>({
+  return window.sonicDesktop.api<LearningNodeDetail>({
     ...profileScoped(),
     path: `/api/learning/node?id=${encodeURIComponent(id)}`
   })
 }
 
 export function deleteLearningNode(id: string): Promise<{ message: string; ok: boolean }> {
-  return window.hermesDesktop.api<{ message: string; ok: boolean }>({
+  return window.sonicDesktop.api<{ message: string; ok: boolean }>({
     ...profileScoped(),
     path: '/api/learning/node',
     method: 'DELETE',
@@ -524,7 +524,7 @@ export function deleteLearningNode(id: string): Promise<{ message: string; ok: b
 }
 
 export function editLearningNode(id: string, content: string): Promise<{ message: string; ok: boolean }> {
-  return window.hermesDesktop.api<{ message: string; ok: boolean }>({
+  return window.sonicDesktop.api<{ message: string; ok: boolean }>({
     ...profileScoped(),
     path: '/api/learning/node',
     method: 'PUT',
