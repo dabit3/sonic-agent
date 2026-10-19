@@ -3649,7 +3649,7 @@ def check_for_skill_updates(
 # Sonic centralized index source
 # ---------------------------------------------------------------------------
 
-SONIC_INDEX_URL = "https://hermes-agent.nousresearch.com/docs/api/skills-index.json"
+SONIC_INDEX_URL = "https://lightning-agent.nousresearch.com/docs/api/skills-index.json"
 SONIC_INDEX_TTL = 6 * 3600  # 6 hours
 
 
