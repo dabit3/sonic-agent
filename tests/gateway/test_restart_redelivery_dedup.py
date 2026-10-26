@@ -255,7 +255,7 @@ async def test_marker_missing_but_booted_from_restart_ignores_redelivery(tmp_pat
     from a chat-originated /restart and is still within the post-boot window,
     the redelivered /restart is suppressed instead of re-restarting the gateway.
     """
-    monkeypatch.setattr(gateway_run, "_hermes_home", tmp_path)
+    monkeypatch.setattr(gateway_run, "_sonic_home", tmp_path)
     monkeypatch.delenv("INVOCATION_ID", raising=False)
 
     runner, _adapter = make_restart_runner()
@@ -280,7 +280,7 @@ async def test_marker_missing_fresh_boot_allows_restart(tmp_path, monkeypatch):
     normal (non-restart) startup: _booted_from_restart stays False, so the
     fallback returns False and the restart goes through.
     """
-    monkeypatch.setattr(gateway_run, "_hermes_home", tmp_path)
+    monkeypatch.setattr(gateway_run, "_sonic_home", tmp_path)
     monkeypatch.delenv("INVOCATION_ID", raising=False)
 
     runner, _adapter = make_restart_runner()
@@ -302,7 +302,7 @@ async def test_marker_missing_booted_from_restart_but_old_process_allows(tmp_pat
     A /restart arriving long after boot is a genuine user action, not a boot-time
     redelivery, so the uptime bound stops the guard from suppressing it forever.
     """
-    monkeypatch.setattr(gateway_run, "_hermes_home", tmp_path)
+    monkeypatch.setattr(gateway_run, "_sonic_home", tmp_path)
     monkeypatch.delenv("INVOCATION_ID", raising=False)
 
     runner, _adapter = make_restart_runner()

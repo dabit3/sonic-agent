@@ -721,7 +721,7 @@ def test_slot_runtime_anthropic_oauth_routes_through_provider_branch(monkeypatch
         }
 
     monkeypatch.setattr(
-        "hermes_cli.runtime_provider.resolve_runtime_provider", fake_resolve
+        "sonic_cli.runtime_provider.resolve_runtime_provider", fake_resolve
     )
 
     # _slot_runtime forwards the resolved endpoint for anthropic like any slot.
@@ -811,7 +811,7 @@ def test_references_parallel_sum_and_consume(monkeypatch, tmp_path):
     additional advisor spend (otherwise advisor cost multiplies by iteration
     count).
     """
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
     (home / "config.yaml").write_text(
         """
@@ -830,7 +830,7 @@ moa:
 """.strip(),
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_HOME", str(home))
+    monkeypatch.setenv("SONIC_HOME", str(home))
 
     def fake_call_llm(**kwargs):
         if kwargs["task"] == "moa_reference":
@@ -895,7 +895,7 @@ def test_moa_full_trace_written_when_enabled(monkeypatch, tmp_path):
     """
     import json
 
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
     (home / "config.yaml").write_text(
         """
@@ -915,7 +915,7 @@ moa:
 """.strip(),
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_HOME", str(home))
+    monkeypatch.setenv("SONIC_HOME", str(home))
 
     def fake_call_llm(**kwargs):
         if kwargs["task"] == "moa_reference":
@@ -976,7 +976,7 @@ moa:
 
 def test_moa_trace_not_written_when_disabled(monkeypatch, tmp_path):
     """Default (save_traces off) writes nothing."""
-    home = tmp_path / ".hermes"
+    home = tmp_path / ".sonic"
     home.mkdir()
     (home / "config.yaml").write_text(
         """
@@ -993,7 +993,7 @@ moa:
 """.strip(),
         encoding="utf-8",
     )
-    monkeypatch.setenv("HERMES_HOME", str(home))
+    monkeypatch.setenv("SONIC_HOME", str(home))
 
     def fake_call_llm(**kwargs):
         if kwargs["task"] == "moa_reference":

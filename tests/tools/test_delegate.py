@@ -1366,7 +1366,7 @@ class TestDelegationCredentialResolution(unittest.TestCase):
         creds = _resolve_delegation_credentials(cfg, parent)
         self.assertIsNone(creds["provider"])
 
-    @patch("hermes_cli.runtime_provider.resolve_runtime_provider")
+    @patch("sonic_cli.runtime_provider.resolve_runtime_provider")
     def test_bedrock_provider_with_base_url_uses_runtime_resolver(self, mock_resolve):
         """Regression: provider=bedrock + base_url set must NOT fall through the
         direct-base_url branch (which would force provider='custom' +

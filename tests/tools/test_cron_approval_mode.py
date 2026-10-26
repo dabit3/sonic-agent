@@ -217,11 +217,11 @@ class TestCronDenyModeAllGuards:
         are blocked in cron-deny mode. Regression for #22070: previously the
         cron-deny early return ran only detect_dangerous_command and returned
         before reaching the tirith check, so these were silently approved."""
-        monkeypatch.setenv("HERMES_CRON_SESSION", "1")
-        monkeypatch.delenv("HERMES_INTERACTIVE", raising=False)
-        monkeypatch.delenv("HERMES_GATEWAY_SESSION", raising=False)
-        monkeypatch.delenv("HERMES_EXEC_ASK", raising=False)
-        monkeypatch.delenv("HERMES_YOLO_MODE", raising=False)
+        monkeypatch.setenv("SONIC_CRON_SESSION", "1")
+        monkeypatch.delenv("SONIC_INTERACTIVE", raising=False)
+        monkeypatch.delenv("SONIC_GATEWAY_SESSION", raising=False)
+        monkeypatch.delenv("SONIC_EXEC_ASK", raising=False)
+        monkeypatch.delenv("SONIC_YOLO_MODE", raising=False)
 
         from unittest.mock import patch as mock_patch
         # A tirith "block" result while detect_dangerous_command reports safe:
@@ -247,11 +247,11 @@ class TestCronDenyModeAllGuards:
         """When tirith is unavailable and security.tirith_fail_open is false,
         cron-deny mode blocks rather than silently allowing (a cron session has
         no user to approve). Mirrors the fail-closed handling in the main flow."""
-        monkeypatch.setenv("HERMES_CRON_SESSION", "1")
-        monkeypatch.delenv("HERMES_INTERACTIVE", raising=False)
-        monkeypatch.delenv("HERMES_GATEWAY_SESSION", raising=False)
-        monkeypatch.delenv("HERMES_EXEC_ASK", raising=False)
-        monkeypatch.delenv("HERMES_YOLO_MODE", raising=False)
+        monkeypatch.setenv("SONIC_CRON_SESSION", "1")
+        monkeypatch.delenv("SONIC_INTERACTIVE", raising=False)
+        monkeypatch.delenv("SONIC_GATEWAY_SESSION", raising=False)
+        monkeypatch.delenv("SONIC_EXEC_ASK", raising=False)
+        monkeypatch.delenv("SONIC_YOLO_MODE", raising=False)
 
         from unittest.mock import patch as mock_patch
         import builtins
@@ -266,7 +266,7 @@ class TestCronDenyModeAllGuards:
             mock_patch("tools.approval._get_cron_approval_mode", return_value="deny"),
             mock_patch("tools.approval.detect_dangerous_command",
                        return_value=(False, None, None)),
-            mock_patch("hermes_cli.config.load_config",
+            mock_patch("sonic_cli.config.load_config",
                        return_value={"security": {"tirith_enabled": True,
                                                    "tirith_fail_open": False}}),
             mock_patch.object(builtins, "__import__", _blocked_import),
@@ -278,11 +278,11 @@ class TestCronDenyModeAllGuards:
     def test_tirith_import_error_fail_open_allows_in_cron_deny(self, monkeypatch):
         """When tirith is unavailable and tirith_fail_open is true (default),
         cron-deny mode allows safe commands — preserving pre-#22070 behavior."""
-        monkeypatch.setenv("HERMES_CRON_SESSION", "1")
-        monkeypatch.delenv("HERMES_INTERACTIVE", raising=False)
-        monkeypatch.delenv("HERMES_GATEWAY_SESSION", raising=False)
-        monkeypatch.delenv("HERMES_EXEC_ASK", raising=False)
-        monkeypatch.delenv("HERMES_YOLO_MODE", raising=False)
+        monkeypatch.setenv("SONIC_CRON_SESSION", "1")
+        monkeypatch.delenv("SONIC_INTERACTIVE", raising=False)
+        monkeypatch.delenv("SONIC_GATEWAY_SESSION", raising=False)
+        monkeypatch.delenv("SONIC_EXEC_ASK", raising=False)
+        monkeypatch.delenv("SONIC_YOLO_MODE", raising=False)
 
         from unittest.mock import patch as mock_patch
         import builtins
@@ -297,7 +297,7 @@ class TestCronDenyModeAllGuards:
             mock_patch("tools.approval._get_cron_approval_mode", return_value="deny"),
             mock_patch("tools.approval.detect_dangerous_command",
                        return_value=(False, None, None)),
-            mock_patch("hermes_cli.config.load_config",
+            mock_patch("sonic_cli.config.load_config",
                        return_value={"security": {"tirith_enabled": True,
                                                    "tirith_fail_open": True}}),
             mock_patch.object(builtins, "__import__", _blocked_import),

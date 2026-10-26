@@ -1405,7 +1405,7 @@ class TestFTS5Search:
 
     def test_sanitize_fts5_query_runtime_is_bounded(self):
         """Adversarial quote/special-char runs should sanitize quickly."""
-        from hermes_state import MAX_FTS5_QUERY_CHARS, SessionDB
+        from sonic_state import MAX_FTS5_QUERY_CHARS, SessionDB
 
         s = SessionDB._sanitize_fts5_query
         query = ('"' * 100_000) + ("a." * 100_000) + ("*" * 100_000)

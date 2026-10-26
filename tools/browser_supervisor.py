@@ -42,7 +42,7 @@ def _redact_cdp_error_text(exc: object) -> str:
     ``self.cdp_url`` — including a ``?token=`` query credential or
     ``user:pass@`` userinfo). Every supervisor egress point that turns such an
     exception into log text or a re-raised message MUST route through here so
-    those credentials never reach Hermes logs or tracebacks. Falls back to a
+    those credentials never reach Sonic logs or tracebacks. Falls back to a
     fixed sentinel if redaction itself raises, erring toward masking.
     """
     try:
