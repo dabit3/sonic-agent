@@ -258,7 +258,27 @@ _USER_SENSITIVE_WRITE_TARGET = (
     rf'{_CREDENTIAL_FILES})'
 )
 _PROJECT_SENSITIVE_WRITE_TARGET = rf'(?:{_PROJECT_ENV_PATH}|{_PROJECT_CONFIG_PATH})'
+# Anchor for the cp/mv/install rule, where the sensitive path is only a write
+# target when it is the LAST argument (the destination). Requiring end-of-line
+# (or a command separator) keeps `cp config.yaml backup.yaml` — config.yaml as
+# the SOURCE — out of the deny.
 _COMMAND_TAIL = r'(?:\s*(?:&&|\|\||;).*)?$'
+# Boundary for stream-write rules (`>`/`>>` redirection and `tee`), where the
+# sensitive path is ALWAYS a write target no matter what follows it. We only
+# need the path token to END at a shell word boundary — whitespace, a quote, a
+# command separator, a redirection operator, or end-of-line.
+# Using _COMMAND_TAIL here was too strict: it required the rest of the line to
+# be empty or a command separator, so `echo x > .env extra` (extra arg to echo)
+# and `echo x > .env # note` (trailing comment) slipped past the deny even
+# though the shell still overwrites `.env`. Mirrors the looser system-path
+# redirection rule, which never had this restriction.
+#
+# `#` is deliberately NOT a boundary char: a real trailing comment always has
+# whitespace before the `#` (already covered by `\s`), whereas a `#` glued to
+# the path is part of the filename. `echo x > .env#backup` writes to the
+# distinct file `.env#backup`, not `.env`, so it must stay OUT of the deny —
+# the same reasoning that keeps `config.yaml.bak` safe.
+_WRITE_TARGET_BOUNDARY = r'(?=[\s;&|<>"\']|$)'
 
 # =========================================================================
 # Hardline (unconditional) blocklist
@@ -301,11 +321,44 @@ _CMDPOS = (
     r'\s*'
 )
 
+# Destructive-path argument matcher for the rm hardline rules.
+#
+# The path token in `rm -rf /` is almost always written quoted in real
+# shells — `rm -rf "/"`, `rm -rf "$HOME"` — and `${HOME}` is the universal
+# brace form. A bare-token anchor (`(/...)(\s|$)`) silently misses all of
+# these: the surrounding quote breaks both the leading position (the flag
+# group can't consume `"`) and the trailing `(\s|$)` terminator, letting
+# `rm -rf "/"` slip past the unconditional floor entirely.
+#
+# Accept the path either fully wrapped in a matching quote pair OR bare with
+# a whitespace/end terminator. The matching-quote requirement is deliberate:
+# it catches `rm -rf "/"` (path quoted on its own) while NOT firing on a
+# dangerous-looking string that is merely an argument to another command —
+# e.g. `git commit -m "rm -rf /"` — where the closing quote follows the path
+# but no opening quote precedes it, so neither branch applies.
+def _hardline_rm_path(path_alt: str, tail: str = r'(?:\s|$)') -> str:
+    return rf'(?:["\'](?:{path_alt})["\']|(?:{path_alt}){tail})'
+
+
+# Protected system roots whose recursive deletion has no recovery path.
+_HARDLINE_SYSTEM_DIRS = (
+    r'/home|/home/\*|/root|/root/\*|/etc|/etc/\*|/usr|/usr/\*|'
+    r'/var|/var/\*|/bin|/bin/\*|/sbin|/sbin/\*|/boot|/boot/\*|/lib|/lib/\*'
+)
+
+# `rm` plus its flag group, shared by the three rm hardline rules. Kept as a
+# plain concatenation (not an f-string) so the regex backslashes never live
+# inside an f-string replacement field — unsupported on the Python 3.11 floor.
+_RM_FLAG_PREFIX = r'\brm\s+(-[^\s]*\s+)*'
+
 HARDLINE_PATTERNS = [
-    # rm recursive targeting the root filesystem or protected roots
-    (r'\brm\s+(-[^\s]*\s+)*(/|/\*|/ \*)(\s|$)', "recursive delete of root filesystem"),
-    (r'\brm\s+(-[^\s]*\s+)*(/home|/home/\*|/root|/root/\*|/etc|/etc/\*|/usr|/usr/\*|/var|/var/\*|/bin|/bin/\*|/sbin|/sbin/\*|/boot|/boot/\*|/lib|/lib/\*)(\s|$)', "recursive delete of system directory"),
-    (r'\brm\s+(-[^\s]*\s+)*(~|\$HOME)(/?|/\*)?(\s|$)', "recursive delete of home directory"),
+    # rm recursive targeting the root filesystem or protected roots.
+    # `${HOME}` brace form and quoted paths (`rm -rf "/"`, `rm -rf "$HOME"`)
+    # are handled via _hardline_rm_path so the floor cannot be bypassed with
+    # the ordinary quoting/brace shell idioms.
+    (_RM_FLAG_PREFIX + _hardline_rm_path(r'/|/\*|/ \*'), "recursive delete of root filesystem"),
+    (_RM_FLAG_PREFIX + _hardline_rm_path(_HARDLINE_SYSTEM_DIRS), "recursive delete of system directory"),
+    (_RM_FLAG_PREFIX + _hardline_rm_path(r'(?:~|\$\{?HOME\}?)(?:/?|/\*)?'), "recursive delete of home directory"),
     # Filesystem format
     (r'\bmkfs(\.[a-z0-9]+)?\b', "format filesystem (mkfs)"),
     # Raw block device overwrites (dd + redirection)
@@ -426,7 +479,7 @@ DANGEROUS_PATTERNS = [
     (r'\bchmod\s+(-[^\s]*\s+)*(777|666|o\+[rwx]*w|a\+[rwx]*w)\b', "world/other-writable permissions"),
     (r'\bchmod\s+--recursive\b.*(777|666|o\+[rwx]*w|a\+[rwx]*w)', "recursive world/other-writable (long flag)"),
     (r'\bchown\s+(-[^\s]*)?R\s+root', "recursive chown to root"),
-    (r'\bchown\s+--recursive\b.*root', "recursive chown to root (long flag)"),
+    (r'\bchown\s+--recur[a-z]*\b.*root', "recursive chown to root (long flag)"),
     (r'\bmkfs\b', "format filesystem"),
     (r'\bdd\s+.*if=', "disk copy"),
     (r'>\s*/dev/sd', "write to block device"),
@@ -454,8 +507,8 @@ DANGEROUS_PATTERNS = [
     (r'\b(bash|sh|zsh|ksh)\s+<\s*<?\s*\(\s*(curl|wget)\b', "execute remote script via process substitution"),
     (rf'\btee\b.*["\']?{_SENSITIVE_WRITE_TARGET}', "overwrite system file via tee"),
     (rf'>>?\s*["\']?{_SENSITIVE_WRITE_TARGET}', "overwrite system file via redirection"),
-    (rf'\btee\b.*["\']?{_PROJECT_SENSITIVE_WRITE_TARGET}["\']?{_COMMAND_TAIL}', "overwrite project env/config via tee"),
-    (rf'>>?\s*["\']?{_PROJECT_SENSITIVE_WRITE_TARGET}["\']?{_COMMAND_TAIL}', "overwrite project env/config via redirection"),
+    (rf'\btee\b.*["\']?{_PROJECT_SENSITIVE_WRITE_TARGET}["\']?{_WRITE_TARGET_BOUNDARY}', "overwrite project env/config via tee"),
+    (rf'>>?\s*["\']?{_PROJECT_SENSITIVE_WRITE_TARGET}["\']?{_WRITE_TARGET_BOUNDARY}', "overwrite project env/config via redirection"),
     (r'\bxargs\s+.*\brm\b', "xargs with rm"),
     # find -exec rm / -execdir rm — the -execdir variant (same semantics,
     # runs in the directory of each match) was previously missed. Claude
@@ -549,7 +602,7 @@ DANGEROUS_PATTERNS = [
     # Git destructive operations that can lose uncommitted work or rewrite
     # shared history. Not captured by rm/chmod/etc patterns.
     (r'\bgit\s+reset\s+--hard\b', "git reset --hard (destroys uncommitted changes)"),
-    (r'\bgit\s+push\b.*--force\b', "git force push (rewrites remote history)"),
+    (r'\bgit\s+push\b.*--forc[a-z]*\b', "git force push (rewrites remote history)"),
     (r'\bgit\s+push\b.*-f\b', "git force push short flag (rewrites remote history)"),
     (r'\bgit\s+clean\s+-[^\s]*f', "git clean with force (deletes untracked files)"),
     (r'\bgit\s+branch\s+-D\b', "git branch force delete"),
@@ -1044,9 +1097,17 @@ def prompt_dangerous_approval(command: str, description: str,
     if timeout_seconds is None:
         timeout_seconds = _get_approval_timeout()
 
+    # Redact secrets before any user-visible rendering. The original
+    # `command` is still what executes after approval; only the displayed
+    # copy is scrubbed. Reuses the same redaction module used for memory
+    # and log sanitization so tokens mask consistently across surfaces.
+    from agent.redact import redact_sensitive_text
+    display_command = redact_sensitive_text(command)
+    display_description = redact_sensitive_text(description)
+
     if approval_callback is not None:
         try:
-            return approval_callback(command, description,
+            return approval_callback(display_command, display_description,
                                      allow_permanent=allow_permanent)
         except Exception as e:
             logger.error("Approval callback failed: %s", e, exc_info=True)
@@ -1086,8 +1147,8 @@ def prompt_dangerous_approval(command: str, description: str,
         from agent.i18n import t
         while True:
             print()
-            print(f"  {t('approval.dangerous_header', description=description)}")
-            print(f"      {command}")
+            print(f"  {t('approval.dangerous_header', description=display_description)}")
+            print(f"      {display_command}")
             print()
             if allow_permanent:
                 print(t("approval.choose_long"))
@@ -1676,6 +1737,53 @@ def check_all_command_guards(command: str, env_type: str,
                             "approvals.cron_mode: approve in config.yaml."
                         ),
                     }
+                # Also run tirith check in cron-deny mode so content-level
+                # threats (homograph URLs, pipe-to-interpreter, terminal
+                # injection, etc.) are caught even when they do not match
+                # the pattern-based detection above.
+                try:
+                    from tools.tirith_security import check_command_security
+                    _cron_tirith = check_command_security(command)
+                    if _cron_tirith.get("action") in ("block", "warn"):
+                        _cron_desc = _format_tirith_description(_cron_tirith)
+                        return {
+                            "approved": False,
+                            "message": (
+                                f"BLOCKED: {_cron_desc} "
+                                "but cron jobs run without a user present to approve it. "
+                                "Find an alternative approach that avoids this command. "
+                                "To allow dangerous commands in cron jobs, set "
+                                "approvals.cron_mode: approve in config.yaml."
+                            ),
+                        }
+                except ImportError:
+                    # Tirith not installed. Honour security.tirith_fail_open:
+                    # the default (True) allows as before, but when an operator
+                    # has explicitly opted into fail-closed the command cannot
+                    # be silently allowed — and a cron session has no user to
+                    # approve it, so fail-closed means block (mirrors the
+                    # fail-closed synthesis in the main flow below; see #20733).
+                    _cron_fail_open = True  # safe default if config is unreadable
+                    try:
+                        from sonic_cli.config import load_config as _load_cfg
+                        _sec = (_load_cfg() or {}).get("security", {}) or {}
+                        if _sec.get("tirith_enabled", True):
+                            _cron_fail_open = _sec.get("tirith_fail_open", True)
+                    except Exception:
+                        pass
+                    if not _cron_fail_open:
+                        return {
+                            "approved": False,
+                            "message": (
+                                "BLOCKED: the Tirith security scanner could not be "
+                                "imported and security.tirith_fail_open is false, "
+                                "so this command cannot be silently allowed — and "
+                                "cron jobs run without a user present to approve it. "
+                                "Find an alternative approach, install tirith, or set "
+                                "approvals.cron_mode: approve in config.yaml."
+                            ),
+                        }
+                    # else: tirith_fail_open is True — allow as before
         return {"approved": True, "message": None}
 
     # --- Phase 1: Gather findings from both checks ---
@@ -1800,11 +1908,19 @@ def check_all_command_guards(command: str, env_type: str,
             # Block the agent thread until the user responds; the notify +
             # heartbeat wait loop is shared with check_execute_code_guard via
             # _await_gateway_decision().
+            #
+            # Redact secrets in the notified payload: the gateway renders this
+            # dict directly to Discord/Slack/etc. and those messages are
+            # screenshottable. The raw `command` still executes after approval
+            # via the closure below, so redaction is display-only. Approval
+            # persistence keys off pattern_key (not the command text), so the
+            # allowlist is unaffected.
+            from agent.redact import redact_sensitive_text
             approval_data = {
-                "command": command,
+                "command": redact_sensitive_text(command),
                 "pattern_key": primary_key,
                 "pattern_keys": all_keys,
-                "description": combined_desc,
+                "description": redact_sensitive_text(combined_desc),
                 # Mirror the CLI's allow_permanent gate: a tirith warning downgrades
                 # "always" to session scope below, so the UI must not offer it.
                 "allow_permanent": not has_tirith,
@@ -1868,22 +1984,27 @@ def check_all_command_guards(command: str, env_type: str,
                     "user_approved": True, "description": combined_desc}
 
         # Fallback: no gateway callback registered (e.g. cron, batch).
-        # Return approval_required for backward compat.
+        # Return approval_required for backward compat. Redact secrets in the
+        # user-facing copy — the raw `command` is preserved for execution and
+        # the allowlist keys off pattern_key, so redaction is display-only.
+        from agent.redact import redact_sensitive_text
+        _disp_command = redact_sensitive_text(command)
+        _disp_combined_desc = redact_sensitive_text(combined_desc)
         submit_pending(session_key, {
-            "command": command,
+            "command": _disp_command,
             "pattern_key": primary_key,
             "pattern_keys": all_keys,
-            "description": combined_desc,
+            "description": _disp_combined_desc,
         })
         return {
             "approved": False,
             "pattern_key": primary_key,
             "status": "pending_approval",
             "approval_pending": True,
-            "command": command,
-            "description": combined_desc,
+            "command": _disp_command,
+            "description": _disp_combined_desc,
             "message": (
-                f"⚠️ {combined_desc}. Asking the user for approval.\n\n**Command:**\n```\n{command}\n```"
+                f"⚠️ {_disp_combined_desc}. Asking the user for approval.\n\n**Command:**\n```\n{_disp_command}\n```"
             ),
         }
 
@@ -2020,6 +2141,17 @@ def check_execute_code_guard(code: str, env_type: str,
     # paths don't pay to copy a potentially-large script into this string.
     command = f"execute_code <<'PY'\n{code}\nPY"
 
+    # Redacted copies for user-visible rendering only. An execute_code script
+    # can embed credentials (e.g. api_key = "sk-..."), and the gateway renders
+    # this payload directly to Discord/Slack — those messages are
+    # screenshottable. The raw `command`/`code` are still what get assessed by
+    # smart approval and executed; redaction is display-only. Approval
+    # persistence keys off pattern_key, so the allowlist is unaffected.
+    from agent.redact import redact_sensitive_text
+    display_command = redact_sensitive_text(command)
+    display_code = redact_sensitive_text(code)
+    display_description = redact_sensitive_text(description)
+
     # Check session/permanent approval — same gate as check_all_command_guards.
     # Without this, "Approve session" / "Always" choices are stored but never
     # consulted, so every execute_code call re-prompts the user (#39275).
@@ -2058,29 +2190,29 @@ def check_execute_code_guard(code: str, env_type: str,
         # No gateway callback registered (e.g. ask-mode without a notifier):
         # surface a pending approval for backward compatibility.
         submit_pending(session_key, {
-            "command": command,
+            "command": display_command,
             "pattern_key": pattern_key,
             "pattern_keys": [pattern_key],
-            "description": description,
+            "description": display_description,
         })
         return {
             "approved": False,
             "pattern_key": pattern_key,
             "status": "pending_approval",
             "approval_pending": True,
-            "command": command,
-            "description": description,
+            "command": display_command,
+            "description": display_description,
             "message": (
-                f"⚠️ {description}. Asking the user for approval.\n\n"
-                f"**Code:**\n```python\n{code}\n```"
+                f"⚠️ {display_description}. Asking the user for approval.\n\n"
+                f"**Code:**\n```python\n{display_code}\n```"
             ),
         }
 
     approval_data = {
-        "command": command,
+        "command": display_command,
         "pattern_key": pattern_key,
         "pattern_keys": [pattern_key],
-        "description": description,
+        "description": display_description,
     }
     decision = _await_gateway_decision(
         session_key, notify_cb, approval_data, surface="gateway"

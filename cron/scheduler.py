@@ -41,6 +41,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from sonic_constants import get_sonic_home
 from sonic_cli._subprocess_compat import windows_hide_flags
 from sonic_cli.config import load_config, _expand_env_vars
+from sonic_cli.fallback_config import get_fallback_chain
 from sonic_time import now as _sonic_now
 
 logger = logging.getLogger(__name__)
@@ -236,7 +237,7 @@ _LEGACY_HOME_TARGET_ENV_VARS = {
     "QQBOT_HOME_CHANNEL": "QQ_HOME_CHANNEL",
 }
 
-from cron.jobs import get_due_jobs, mark_job_run, save_job_output, advance_next_run
+from cron.jobs import get_due_jobs, mark_job_run, save_job_output, advance_next_run, claim_dispatch
 
 # Sentinel: when a cron agent has nothing new to report, it can start its
 # response with this marker to suppress delivery.  Output is still saved
@@ -1245,13 +1246,13 @@ def _deliver_result(job: dict, content: str, adapters=None, loop=None) -> Option
                 DeliveryRouter,
                 DeliveryTarget,
                 _looks_like_int,
-                _looks_like_telegram_private_chat_id,
+                looks_like_telegram_private_chat_id,
             )
 
             is_private_dm_topic = (
                 platform == Platform.TELEGRAM
                 and thread_id is not None
-                and _looks_like_telegram_private_chat_id(str(chat_id))
+                and looks_like_telegram_private_chat_id(str(chat_id))
                 and _looks_like_int(str(thread_id))
             )
             if is_private_dm_topic:
@@ -2225,12 +2226,23 @@ def run_job(job: dict) -> tuple[bool, str, str, Optional[str]]:
 
     try:
         # Re-read .env and config.yaml fresh every run so provider/key
-        # changes take effect without a gateway restart.
-        from dotenv import load_dotenv
-        try:
-            load_dotenv(str(_get_sonic_home() / ".env"), override=True, encoding="utf-8")
-        except UnicodeDecodeError:
-            load_dotenv(str(_get_sonic_home() / ".env"), override=True, encoding="latin-1")
+        # changes take effect without a gateway restart. Route through
+        # load_sonic_dotenv (not a bare load_dotenv) and reset the secret-
+        # source cache first: startup already applied external secrets and
+        # recorded this SONIC_HOME in _APPLIED_HOMES, so a naive reload would
+        # re-apply only the .env placeholder and never re-resolve a Bitwarden/
+        # BSM-backed secret — leaving cron jobs 401'ing on the placeholder
+        # (#33465). Clearing the cache forces the re-pull; the resolved secret
+        # overrides the placeholder only when secrets.bitwarden.override_existing
+        # is set (mirrors startup), and the Bitwarden value-cache keeps the
+        # forced re-pull off the network. load_sonic_dotenv also handles the
+        # utf-8/latin-1 encoding fallback internally.
+        from sonic_cli.env_loader import (
+            load_sonic_dotenv,
+            reset_secret_source_cache,
+        )
+        reset_secret_source_cache()
+        load_sonic_dotenv(sonic_home=_get_sonic_home())
 
         delivery_target = _resolve_delivery_target(job)
         if delivery_target:
@@ -2359,12 +2371,9 @@ def run_job(job: dict) -> tuple[bool, str, str, Optional[str]]:
         except AuthError as auth_exc:
             # Primary provider auth failed — try fallback chain before giving up.
             logger.warning("Job '%s': primary auth failed (%s), trying fallback", job_id, auth_exc)
-            fb = _cfg.get("fallback_providers") or _cfg.get("fallback_model")
-            fb_list = (fb if isinstance(fb, list) else [fb]) if fb else []
+            fb_list = get_fallback_chain(_cfg)
             runtime = None
             for entry in fb_list:
-                if not isinstance(entry, dict):
-                    continue
                 try:
                     fb_kwargs = {"requested": entry.get("provider")}
                     if entry.get("base_url"):
@@ -2436,7 +2445,7 @@ def run_job(job: dict) -> tuple[bool, str, str, Optional[str]]:
                 f"(or pin the original values to keep them). See #44585."
             )
 
-        fallback_model = _cfg.get("fallback_providers") or _cfg.get("fallback_model") or None
+        fallback_model = get_fallback_chain(_cfg) or None
         credential_pool = None
         runtime_provider = str(runtime.get("provider") or "").strip().lower()
         if runtime_provider:
@@ -2770,6 +2779,20 @@ def run_one_job(job: dict, *, adapters=None, loop=None, verbose: bool = False) -
     failure is recorded via ``mark_job_run``), False only if processing raised.
     """
     try:
+        # Pre-run dispatch claim (issue #38758): atomically commit a finite
+        # one-shot's dispatch BEFORE its side effect runs, so a tick that dies
+        # mid-execution (gateway kill, OOM, segfault, hard-timeout) cannot
+        # re-fire the job forever on restart. No-op for recurring jobs (they
+        # use advance_next_run) and infinite/no-repeat jobs. This lives here in
+        # the shared body so BOTH the built-in ticker and the external provider
+        # (Chronos fire_due) get at-most-times semantics.
+        if not claim_dispatch(job["id"]):
+            logger.info(
+                "Job '%s': one-shot dispatch limit reached — skipping",
+                job.get("name", job["id"]),
+            )
+            return True  # not an error — already handled/removed
+
         success, output, final_response, error = run_job(job)
 
         output_file = save_job_output(job["id"], output)

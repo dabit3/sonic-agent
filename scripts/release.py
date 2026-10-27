@@ -45,14 +45,33 @@ ACP_REGISTRY_MANIFEST = REPO_ROOT / "acp_registry" / "agent.json"
 
 # Auto-extracted from noreply emails + manual overrides
 AUTHOR_MAP = {
+    "carlitosdiazplaza@gmail.com": "talmax1124",
     "158243242+devin-ai-integration[bot]@users.noreply.github.com": "devin-ai-integration[bot]",
     "DavidMetcalfe@users.noreply.github.com": "DavidMetcalfe",
+    "4164761+DanAsBjorn@users.noreply.github.com": "DanAsBjorn",
     "srojk34@users.noreply.github.com": "srojk34",
     "SJWATTS89@OUTLOOK.COM": "lEWFkRAD",  # PR #45610 (Windows scheduled task reboot survival)
     "bedirhan@codeway.co": "bedirhancode",
     "info@aminvakil.com": "aminvakil",
     "nikpolale@gmail.com": "polnikale",
     "redpiggy-cyber@users.noreply.github.com": "redpiggy-cyber",
+    "janrenz@Mac.fritz.box": "janrenz",  # PR #35862 salvage (prompt_caching.enabled escape hatch for strict providers)
+    "290873280+rrevenanttt@users.noreply.github.com": "rrevenanttt",  # PR #40773 salvage (close hardline rm bypass via quoted paths and ${HOME} brace form)
+    "jnibarger01@gmail.com": "jnibarger01",  # PR #35130 salvage (ReDoS-bound threat-pattern filler + FTS5 query cap + V4A Move-File approval/traversal targets)
+    "290868363+petrichor-op@users.noreply.github.com": "petrichor-op",  # PR #41281 salvage (never persist ephemeral empty-response recovery scaffolding to the SQLite session store / JSON log; filter by flag not position)
+    "283494121+redactdeveloper@users.noreply.github.com": "redactdeveloper",  # PR #36897 salvage (route /sessions & /history through prompt_toolkit-safe print; filter doctor missing-key summary to CLI-enabled toolsets)
+    "charleneleong84@gmail.com": "charleneleong-ai",  # PR #11736 salvage (classify Anthropic "out of extra usage" 400 as billing)
+    "janrenz@Mac.fritz.box": "janrenz",  # PR #35862 salvage (prompt_caching.enabled escape hatch for strict providers)
+    "syahidfrd@gmail.com": "syahidfrd",  # PR #17059 salvage (tag unverified senders in Slack thread context to mitigate indirect prompt injection)
+    "22971845+H2KFORGIVEN@users.noreply.github.com": "H2KFORGIVEN",  # PR #22523 salvage (turn-pair preservation: never orphan the last user ask at head_end during compaction)
+    "5823452+sgabel@users.noreply.github.com": "sgabel",  # PR #13139 salvage (redact secrets in user-facing approval prompts)
+    "130270192+CRWuTJ@users.noreply.github.com": "CRWuTJ",  # PR #17082 salvage (cancel delayed Telegram deliveries on disconnect so buffered flushes don't dispatch into a torn-down session)
+    "cyb3rwr3n@users.noreply.github.com": "cyb3rwr3n",  # PR #11333 salvage (sanitize FTS5 queries for natural-language recall in holographic memory)
+    "9350182+codexGW@users.noreply.github.com": "codexGW",  # PR #12302 salvage (Discord raw <@!ID> mention detection + drop bare mention-only pings)
+    "chufengfan@jackroooc-2.local": "jackroofan",  # PR #54609 salvage (add anthropic to MoA _slot_runtime name-preserve set; OAuth sk-ant-oat* needs Bearer + anthropic-beta header)
+    "igor.izotov@gmail.com": "iizotov",  # PR #54912 salvage (add bedrock to MoA _slot_runtime name-preserve set; SigV4-signed client, placeholder aws-sdk api_key)
+    "justin@newartifice.com": "JustinOhms",  # PR #24469 salvage (route native-SDK delegation providers through runtime resolver; fail on '(empty)' sentinel instead of accepting it as success)
+    "186512915+lEWFkRAD@users.noreply.github.com": "lEWFkRAD",  # PR #53848 salvage (stream the MoA aggregator response to the user)
     "193368749+jimmyjohansson84@users.noreply.github.com": "jimmyjohansson84",  # PR #27123 salvage (Kanban unknown-skill warn-instead-of-crash; #27136)
     "gxalong@gmail.com": "Jeffgithub0029",  # PR #28558 salvage (chunk Telegram text *after* MarkdownV2/HTML formatting so escaping inflation can't push a send over the 4096 UTF-16 limit; #28557)
     "273238055+fayenix@users.noreply.github.com": "fayenix",  # PR #28846 salvage (normalize _cfg_model in gateway fallback-eviction so vendor-prefixed config matches stripped agent.model on native providers)
@@ -60,6 +79,9 @@ AUTHOR_MAP = {
     "huangxudong663@gmail.com": "huangxudong663-sys",  # PR #15157 salvage (isinstance(dict) guard on tool-call model_extra; NVIDIA NIM non-dict crash)
     "39369769+jasonQin6@users.noreply.github.com": "jasonQin6",  # PR #15093 salvage (session staleness guard on stream consumer run() loop; #11016 follow-up)
     "znding04@gmail.com": "znding04",  # PR #15487 salvage (distinguish OpenRouter upstream 429 from account 429; upstream_rate_limit failover reason)
+    "zkowkmdx@sharklasers.com": "nnnet",  # PR #25142 salvage (stop STT-failure chatter poisoning the LLM prompt; drop hardcoded English notice)
+    "vladimsmirnoff33@gmail.com": "londo161",  # PR #15795 salvage (redact status --all API keys; tolerate dict/str compression message shape)
+    "neo.assistant2026@gmail.com": "neo-2026",  # PR #14026 salvage (clear input-blocking overlays on interrupt so the CLI doesn't freeze; #13618)
     "cypher@augmentl.com": "Nickperillo",  # PR #8008 salvage (Discord channel-name matching + flush pending sends on shutdown)
     "tenoryang@outlook.com": "MarioYounger",  # PR #9028 salvage (bash/sh heredoc approval, NFKC homograph fold, execute_code CREDS/BEARER/APIKEY env filter)
     "peet.wannasarnmetha@gmail.com": "peetwan",  # PR #51841 salvage (loopback ws-ping tuning + token-frame coalescing + loop heartbeat; #48445/#50005)
@@ -205,6 +227,9 @@ AUTHOR_MAP = {
     "157689911+itsflownium@users.noreply.github.com": "itsflownium",
     "dirtyren@users.noreply.github.com": "dirtyren",
     "121278003+Cossackx@users.noreply.github.com": "Cossackx",  # PR #52528 salvage (Windows sonic-shim resolution + prefer --update on recovery; #52378)
+    "290862769+friendshipisover@users.noreply.github.com": "friendshipisover",
+    "51421+MattKotsenas@users.noreply.github.com": "MattKotsenas",
+    "92324143+ypwcharles@users.noreply.github.com": "ypwcharles",
     "mailtowbd@gmail.com": "marco0158",
     "157793278+jacobmansonlkevincc@users.noreply.github.com": "lkevincc0",
     "121278003+Cossackx@users.noreply.github.com": "Cossackx",  # PR #52528 salvage (Windows sonic-shim resolution + prefer --update on recovery; #52378)
@@ -284,6 +309,7 @@ AUTHOR_MAP = {
     "zhaolei.vc@bytedance.com": "zhaoleibd",
     "jeffrobodie@gmail.com": "jeffrobodie-glitch",
     "kyssta-exe@users.noreply.github.com": "kyssta-exe",
+    "218078013+kyssta-exe@users.noreply.github.com": "kyssta-exe",  # PR #55657 salvage (read-before-write invariant for background-review skill patches; #55647)
     "ali.zakaee.1997@gmail.com": "ITheEqualizer",
     "copii.list@gmail.com": "stremtec",
     "solaiagent@gmail.com": "solaitken",
@@ -318,6 +344,7 @@ AUTHOR_MAP = {
     "alelpoan@proton.me": "alelpoan",
     "aman@abacus.ai": "Aman113114-IITD",
     "octavio.turra@gmail.com": "octavioturra",
+    "275877312+ryo-solo@users.noreply.github.com": "ryo-solo",
     "524706+Twanislas@users.noreply.github.com": "Twanislas",
     "9592417+adam91holt@users.noreply.github.com": "adam91holt",
     "kchuang1015@users.noreply.github.com": "kchuang1015",

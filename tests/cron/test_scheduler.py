@@ -966,7 +966,8 @@ class TestRunJobSessionPersistence:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch(
                  "sonic_cli.runtime_provider.resolve_runtime_provider",
@@ -1012,7 +1013,8 @@ class TestRunJobSessionPersistence:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch(
                  "sonic_cli.runtime_provider.resolve_runtime_provider",
@@ -1055,7 +1057,8 @@ class TestRunJobSessionPersistence:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch(
                  "sonic_cli.runtime_provider.resolve_runtime_provider",
@@ -1095,7 +1098,8 @@ class TestRunJobSessionPersistence:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch(
                  "sonic_cli.runtime_provider.resolve_runtime_provider",
@@ -1132,7 +1136,8 @@ class TestRunJobSessionPersistence:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch(
                  "sonic_cli.runtime_provider.resolve_runtime_provider",
@@ -1169,7 +1174,8 @@ class TestRunJobSessionPersistence:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch(
                  "sonic_cli.runtime_provider.resolve_runtime_provider",
@@ -1197,7 +1203,8 @@ class TestRunJobSessionPersistence:
         return fake_db, [
             patch("cron.scheduler._sonic_home", tmp_path),
             patch("cron.scheduler._resolve_origin", return_value=None),
-            patch("dotenv.load_dotenv"),
+            patch("sonic_cli.env_loader.load_sonic_dotenv"),
+            patch("sonic_cli.env_loader.reset_secret_source_cache"),
             patch("sonic_state.SessionDB", return_value=fake_db),
             patch(
                 "sonic_cli.runtime_provider.resolve_runtime_provider",
@@ -1218,7 +1225,7 @@ class TestRunJobSessionPersistence:
             "enabled_toolsets": ["web", "terminal", "file"],
         }
         fake_db, patches = self._make_run_job_patches(tmp_path)
-        with patches[0], patches[1], patches[2], patches[3], patches[4], \
+        with patches[0], patches[1], patches[2], patches[3], patches[4], patches[5], \
              patch("run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.return_value = {"final_response": "ok"}
@@ -1252,7 +1259,7 @@ class TestRunJobSessionPersistence:
             "enabled_toolsets": ["web", "terminal", "file"],
         }
         fake_db, patches = self._make_run_job_patches(tmp_path)
-        with patches[0], patches[1], patches[2], patches[3], patches[4], \
+        with patches[0], patches[1], patches[2], patches[3], patches[4], patches[5], \
              patch("run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.return_value = {"final_response": "ok"}
@@ -1279,7 +1286,7 @@ class TestRunJobSessionPersistence:
             "prompt": "hello",
         }
         fake_db, patches = self._make_run_job_patches(tmp_path)
-        with patches[0], patches[1], patches[2], patches[3], patches[4], \
+        with patches[0], patches[1], patches[2], patches[3], patches[4], patches[5], \
              patch("run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.return_value = {"final_response": "ok"}
@@ -1307,7 +1314,7 @@ class TestRunJobSessionPersistence:
         fake_db, patches = self._make_run_job_patches(tmp_path)
         # Even if the user has ``sonic tools`` configured to enable web+file
         # for cron, the per-job override wins.
-        with patches[0], patches[1], patches[2], patches[3], patches[4], \
+        with patches[0], patches[1], patches[2], patches[3], patches[4], patches[5], \
              patch("run_agent.AIAgent") as mock_agent_cls, \
              patch(
                  "sonic_cli.tools_config._get_platform_tools",
@@ -1336,7 +1343,8 @@ class TestRunJobSessionPersistence:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch(
                  "sonic_cli.runtime_provider.resolve_runtime_provider",
@@ -1412,7 +1420,8 @@ class TestRunJobSessionPersistence:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch(
                  "sonic_cli.runtime_provider.resolve_runtime_provider",
@@ -1451,7 +1460,8 @@ class TestRunJobSessionPersistence:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch(
                  "sonic_cli.runtime_provider.resolve_runtime_provider",
@@ -1493,7 +1503,8 @@ class TestRunJobSessionPersistence:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch(
                  "sonic_cli.runtime_provider.resolve_runtime_provider",
@@ -1613,6 +1624,53 @@ class TestRunJobSessionPersistence:
         assert os.getenv("SONIC_CRON_AUTO_DELIVER_THREAD_ID") is None
         fake_db.close.assert_called_once()
 
+    def test_run_job_resets_secret_source_cache_before_reload(self, tmp_path, monkeypatch):
+        """Each run must clear the secret-source cache before re-reading the
+        env, so a long-running gateway re-resolves Bitwarden/BSM-backed secrets
+        instead of leaving the startup .env placeholder in place (#33465).
+
+        A bare ``load_dotenv`` re-load can't do this: startup already recorded
+        this SONIC_HOME in ``_APPLIED_HOMES``, so the external-secret pull
+        no-ops and only the placeholder is re-applied. The scheduler must call
+        ``reset_secret_source_cache()`` (forcing the re-pull) and route through
+        ``load_sonic_dotenv`` (which then re-applies external secret sources).
+        """
+        job = {"id": "bsm-job", "name": "bsm", "prompt": "hello"}
+        fake_db = MagicMock()
+        call_order = []
+
+        def _record_reset():
+            call_order.append("reset")
+
+        def _record_load(*args, **kwargs):
+            call_order.append("load")
+            return []
+
+        with patch("cron.scheduler._sonic_home", tmp_path), \
+             patch("cron.scheduler._resolve_origin", return_value=None), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache", _record_reset), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv", _record_load), \
+             patch("sonic_state.SessionDB", return_value=fake_db), \
+             patch(
+                 "sonic_cli.runtime_provider.resolve_runtime_provider",
+                 return_value={
+                     "api_key": "***",
+                     "base_url": "https://example.invalid/v1",
+                     "provider": "openrouter",
+                     "api_mode": "chat_completions",
+                 },
+             ), \
+             patch("run_agent.AIAgent") as mock_agent_cls:
+            mock_agent = MagicMock()
+            mock_agent.run_conversation.return_value = {"final_response": "ok"}
+            mock_agent_cls.return_value = mock_agent
+            success, _output, _final, error = run_job(job)
+
+        assert success is True
+        assert error is None
+        # reset MUST precede the reload, else _APPLIED_HOMES no-ops the re-pull.
+        assert call_order[:2] == ["reset", "load"], call_order
+
     def test_run_job_clears_stale_auto_delivery_thread_id_between_jobs(self, tmp_path, monkeypatch):
         jobs = [
             {
@@ -1709,7 +1767,8 @@ class TestRunJobConfigLogging:
         # (>30s wall clock) under load. See PR #33661 follow-up.
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value={"provider": "openrouter", "api_key": "x",
                                  "base_url": "https://example.invalid",
@@ -1743,7 +1802,8 @@ class TestRunJobConfigLogging:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value={"provider": "openrouter", "api_key": "x",
                                  "base_url": "https://example.invalid",
@@ -1781,7 +1841,8 @@ class TestRunJobConfigEnvVarExpansion:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
@@ -1814,7 +1875,8 @@ class TestRunJobConfigEnvVarExpansion:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
@@ -1844,7 +1906,8 @@ class TestRunJobConfigEnvVarExpansion:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
@@ -1863,6 +1926,36 @@ class TestRunJobConfigEnvVarExpansion:
             "config.yaml ${VAR} in fallback_providers was not expanded."
         )
 
+    def test_fallback_chain_merges_providers_and_legacy_model(self, tmp_path, monkeypatch):
+        """Cron uses get_fallback_chain so legacy fallback_model is not dropped."""
+        (tmp_path / "config.yaml").write_text(
+            "fallback_providers:\n"
+            "  - provider: openrouter\n"
+            "    model: gpt-4o-mini\n"
+            "fallback_model:\n"
+            "  provider: anthropic\n"
+            "  model: claude-sonnet-4-6\n"
+        )
+
+        job = {"id": "fb-merge", "name": "fallback merge", "prompt": "hi"}
+        fake_db = MagicMock()
+
+        with patch("cron.scheduler._sonic_home", tmp_path), \
+             patch("cron.scheduler._resolve_origin", return_value=None), \
+             patch("dotenv.load_dotenv"), \
+             patch("sonic_state.SessionDB", return_value=fake_db), \
+             patch("sonic_cli.runtime_provider.resolve_runtime_provider",
+                   return_value=self._RUNTIME), \
+             patch("run_agent.AIAgent") as mock_agent_cls:
+            mock_agent = MagicMock()
+            mock_agent.run_conversation.return_value = {"final_response": "ok"}
+            mock_agent_cls.return_value = mock_agent
+            run_job(job)
+
+        fb = mock_agent_cls.call_args.kwargs.get("fallback_model") or []
+        models = [e.get("model") for e in fb if isinstance(e, dict)]
+        assert models == ["gpt-4o-mini", "claude-sonnet-4-6"]
+
     def test_unexpanded_ref_passthrough_when_var_unset(self, tmp_path, monkeypatch):
         """When the env var is not set, the literal ${VAR} is kept verbatim (not crashed)."""
         (tmp_path / "config.yaml").write_text("model: ${_SONIC_TEST_CRON_UNSET_VAR}\n")
@@ -1873,7 +1966,8 @@ class TestRunJobConfigEnvVarExpansion:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
@@ -1917,7 +2011,8 @@ class TestRunJobModelResolution:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
@@ -1941,7 +2036,8 @@ class TestRunJobModelResolution:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
@@ -1973,7 +2069,8 @@ class TestRunJobModelResolution:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
@@ -1996,7 +2093,8 @@ class TestRunJobModelResolution:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
@@ -2025,7 +2123,8 @@ class TestRunJobModelResolution:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
@@ -2051,7 +2150,8 @@ class TestRunJobModelResolution:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
@@ -2081,7 +2181,8 @@ class TestRunJobModelResolution:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
@@ -2105,7 +2206,8 @@ class TestRunJobModelResolution:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch("sonic_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
@@ -2147,7 +2249,8 @@ class TestRunJobSkillBacked:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch(
                  "sonic_cli.runtime_provider.resolve_runtime_provider",
@@ -2207,7 +2310,8 @@ class TestRunJobSkillBacked:
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("tools.credential_files._resolve_sonic_home", return_value=tmp_path), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch(
                  "sonic_cli.runtime_provider.resolve_runtime_provider",
@@ -2245,7 +2349,8 @@ class TestRunJobSkillBacked:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch(
                  "sonic_cli.runtime_provider.resolve_runtime_provider",
@@ -2291,7 +2396,8 @@ class TestRunJobSkillBacked:
 
         with patch("cron.scheduler._sonic_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
-             patch("dotenv.load_dotenv"), \
+             patch("sonic_cli.env_loader.load_sonic_dotenv"), \
+             patch("sonic_cli.env_loader.reset_secret_source_cache"), \
              patch("sonic_state.SessionDB", return_value=fake_db), \
              patch(
                  "sonic_cli.runtime_provider.resolve_runtime_provider",
@@ -2464,6 +2570,46 @@ class TestSilentDelivery:
             "Agent completed but produced empty response (model error, timeout, or misconfiguration)",
             delivery_error=None,
         )
+
+
+class TestOneShotDispatchClaim:
+    """run_one_job must claim a finite one-shot's dispatch BEFORE run_job so a
+    tick that dies mid-execution can't re-fire it forever (issue #38758)."""
+
+    def _oneshot(self):
+        return {
+            "id": "monitor-job",
+            "name": "monitor",
+            "deliver": "origin",
+            "origin": {"platform": "telegram", "chat_id": "123"},
+            "schedule": {"kind": "once", "run_at": "2026-01-01T00:00:00+00:00"},
+            "repeat": {"times": 1, "completed": 0},
+        }
+
+    def test_claim_runs_before_run_job(self):
+        order = []
+        with patch("cron.scheduler.get_due_jobs", return_value=[self._oneshot()]), \
+             patch("cron.scheduler.claim_dispatch", side_effect=lambda _id: order.append("claim") or True), \
+             patch("cron.scheduler.run_job", side_effect=lambda _j: order.append("run") or (True, "# out", "ok", None)), \
+             patch("cron.scheduler.save_job_output", return_value="/tmp/out.md"), \
+             patch("cron.scheduler._deliver_result"), \
+             patch("cron.scheduler.mark_job_run"):
+            from cron.scheduler import tick
+            tick(verbose=False)
+        assert order == ["claim", "run"]  # claim strictly before side effect
+
+    def test_refused_claim_skips_run_job(self):
+        with patch("cron.scheduler.get_due_jobs", return_value=[self._oneshot()]), \
+             patch("cron.scheduler.claim_dispatch", return_value=False), \
+             patch("cron.scheduler.run_job") as run_mock, \
+             patch("cron.scheduler.save_job_output"), \
+             patch("cron.scheduler._deliver_result") as deliver_mock, \
+             patch("cron.scheduler.mark_job_run") as mark_mock:
+            from cron.scheduler import tick
+            tick(verbose=False)
+        run_mock.assert_not_called()
+        deliver_mock.assert_not_called()
+        mark_mock.assert_not_called()
 
 
 class TestBuildJobPromptSilentHint:
