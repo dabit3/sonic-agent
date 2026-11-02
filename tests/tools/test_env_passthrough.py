@@ -196,7 +196,7 @@ class TestTerminalIntegration:
         assert "PATH" in result
 
     def test_passthrough_cannot_override_internal_dynamic_secret(self):
-        """A skill must NOT be able to register dynamically-named Hermes
+        """A skill must NOT be able to register dynamically-named Sonic
         secrets (AUXILIARY_*_API_KEY / _BASE_URL, GATEWAY_RELAY_* auth) as
         passthrough — they aren't in the static blocklist, so this is the
         defense-in-depth layer that keeps env_passthrough consistent with the

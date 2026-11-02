@@ -965,7 +965,7 @@ class CredentialPool:
             return None
 
         # Codex OAuth refresh tokens are single-use.  The sync→POST→write-back
-        # sequence below must run atomically across Hermes processes: otherwise
+        # sequence below must run atomically across Sonic processes: otherwise
         # two processes can both adopt the same on-disk token, both POST it, and
         # the loser gets ``refresh_token_reused``.  Serialize the whole sequence
         # through the shared cross-process auth-store flock (the same lock and
@@ -974,7 +974,7 @@ class CredentialPool:
         # picks up the rotated token the winner persisted and skips the POST.
         if self.provider == "openai-codex":
             refresh_timeout_seconds = auth_mod.env_float(
-                "HERMES_CODEX_REFRESH_TIMEOUT_SECONDS", 20
+                "SONIC_CODEX_REFRESH_TIMEOUT_SECONDS", 20
             )
             lock_timeout = max(
                 float(auth_mod.AUTH_LOCK_TIMEOUT_SECONDS),

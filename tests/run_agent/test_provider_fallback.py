@@ -206,7 +206,7 @@ class TestFallbackChainAdvancement:
                     "claude-sonnet-4-6",
                 ),
             ),
-            patch("hermes_cli.model_normalize.normalize_model_for_provider", side_effect=lambda m, p: m),
+            patch("sonic_cli.model_normalize.normalize_model_for_provider", side_effect=lambda m, p: m),
         ):
             assert agent._try_activate_fallback() is True
             assert agent.api_mode == "anthropic_messages"

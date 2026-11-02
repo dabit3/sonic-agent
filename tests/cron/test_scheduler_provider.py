@@ -594,7 +594,7 @@ class TestGuardJobCredentialExfil:
 
     def test_named_custom_offhost_is_blocked(self, monkeypatch):
         import pytest
-        import hermes_cli.runtime_provider as rp
+        import sonic_cli.runtime_provider as rp
         from cron.scheduler import _guard_job_credential_exfil
 
         monkeypatch.setattr(rp, "has_named_custom_provider", lambda n: True)
@@ -609,7 +609,7 @@ class TestGuardJobCredentialExfil:
             _guard_job_credential_exfil(job)
 
     def test_named_custom_matching_host_is_allowed(self, monkeypatch):
-        import hermes_cli.runtime_provider as rp
+        import sonic_cli.runtime_provider as rp
         from cron.scheduler import _guard_job_credential_exfil
 
         monkeypatch.setattr(rp, "has_named_custom_provider", lambda n: True)

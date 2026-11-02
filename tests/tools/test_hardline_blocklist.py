@@ -349,7 +349,7 @@ def test_root_collapse_forms_cannot_bypass_hardline(clean_session, monkeypatch):
     rule, which yolo bypasses — leaving the hardline floor open to a full
     root wipe under --yolo / approvals.mode=off / cron approve-mode.
     """
-    monkeypatch.setenv("HERMES_YOLO_MODE", "1")
+    monkeypatch.setenv("SONIC_YOLO_MODE", "1")
 
     for cmd in ["rm -rf //", "rm -rf /.", "rm -rf /./", "rm -rf /..", "rm -rf //*"]:
         is_hl, _ = detect_hardline_command(cmd)
@@ -379,7 +379,7 @@ def test_line_continuation_root_wipe_cannot_bypass_hardline(clean_session, monke
     dangerous-command layer, so the hardline floor is the only thing left to
     catch it — it must hold.
     """
-    monkeypatch.setenv("HERMES_YOLO_MODE", "1")
+    monkeypatch.setenv("SONIC_YOLO_MODE", "1")
 
     result = check_all_command_guards("rm -rf \\\n/", "local")
     assert result["approved"] is False, "yolo leaked a line-continuation root wipe"

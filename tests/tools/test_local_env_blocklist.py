@@ -613,11 +613,11 @@ class TestSonicBinDirOnPath:
         assert "/usr/bin" in entries
 
 
-class TestHermesInternalDynamicSecrets:
-    """Dynamically-named Hermes secrets injected at gateway/CLI startup must
+class TestSonicInternalDynamicSecrets:
+    """Dynamically-named Sonic secrets injected at gateway/CLI startup must
     not leak into terminal subprocesses.
 
-    The static ``_HERMES_PROVIDER_ENV_BLOCKLIST`` is name-based and derived
+    The static ``_SONIC_PROVIDER_ENV_BLOCKLIST`` is name-based and derived
     from provider/tool registries, so it cannot enumerate:
 
     - ``AUXILIARY_<TASK>_API_KEY`` / ``AUXILIARY_<TASK>_BASE_URL`` — per-task
@@ -626,43 +626,43 @@ class TestHermesInternalDynamicSecrets:
     - ``GATEWAY_RELAY_*_SECRET`` / ``_KEY`` / ``_TOKEN`` — relay-auth material
       provisioned by ``gateway/relay``.
 
-    ``_is_hermes_internal_secret`` is the single source of truth; every spawn
+    ``_is_sonic_internal_secret`` is the single source of truth; every spawn
     path (``_sanitize_subprocess_env``, ``_make_run_env``,
-    ``hermes_subprocess_env``, Docker forward filter, ``env_passthrough``)
+    ``sonic_subprocess_env``, Docker forward filter, ``env_passthrough``)
     consults it. These tests exercise the terminal execute path + predicate.
     """
 
     def test_predicate_matches_auxiliary_api_key(self):
-        from tools.environments.local import _is_hermes_internal_secret
-        assert _is_hermes_internal_secret("AUXILIARY_VISION_API_KEY")
-        assert _is_hermes_internal_secret("AUXILIARY_WEB_EXTRACT_API_KEY")
-        assert _is_hermes_internal_secret("AUXILIARY_APPROVAL_API_KEY")
+        from tools.environments.local import _is_sonic_internal_secret
+        assert _is_sonic_internal_secret("AUXILIARY_VISION_API_KEY")
+        assert _is_sonic_internal_secret("AUXILIARY_WEB_EXTRACT_API_KEY")
+        assert _is_sonic_internal_secret("AUXILIARY_APPROVAL_API_KEY")
         # plugin-registered task names are covered by the pattern
-        assert _is_hermes_internal_secret("AUXILIARY_MY_PLUGIN_TASK_API_KEY")
+        assert _is_sonic_internal_secret("AUXILIARY_MY_PLUGIN_TASK_API_KEY")
 
     def test_predicate_matches_auxiliary_base_url(self):
-        from tools.environments.local import _is_hermes_internal_secret
-        assert _is_hermes_internal_secret("AUXILIARY_VISION_BASE_URL")
-        assert _is_hermes_internal_secret("AUXILIARY_COMPRESSION_BASE_URL")
+        from tools.environments.local import _is_sonic_internal_secret
+        assert _is_sonic_internal_secret("AUXILIARY_VISION_BASE_URL")
+        assert _is_sonic_internal_secret("AUXILIARY_COMPRESSION_BASE_URL")
 
     def test_predicate_matches_gateway_relay_auth(self):
-        from tools.environments.local import _is_hermes_internal_secret
-        assert _is_hermes_internal_secret("GATEWAY_RELAY_SECRET")
-        assert _is_hermes_internal_secret("GATEWAY_RELAY_DELIVERY_KEY")
-        assert _is_hermes_internal_secret("GATEWAY_RELAY_SESSION_TOKEN")
+        from tools.environments.local import _is_sonic_internal_secret
+        assert _is_sonic_internal_secret("GATEWAY_RELAY_SECRET")
+        assert _is_sonic_internal_secret("GATEWAY_RELAY_DELIVERY_KEY")
+        assert _is_sonic_internal_secret("GATEWAY_RELAY_SESSION_TOKEN")
 
     def test_predicate_allows_auxiliary_non_secrets(self):
         """AUXILIARY_*_PROVIDER / _MODEL and GATEWAY_RELAY_* routing hints are
         NOT secrets and must remain visible so tooling that reads them works."""
-        from tools.environments.local import _is_hermes_internal_secret
-        assert not _is_hermes_internal_secret("AUXILIARY_VISION_PROVIDER")
-        assert not _is_hermes_internal_secret("AUXILIARY_VISION_MODEL")
-        assert not _is_hermes_internal_secret("GATEWAY_RELAY_URL")
-        assert not _is_hermes_internal_secret("GATEWAY_RELAY_PLATFORMS")
-        assert not _is_hermes_internal_secret("GATEWAY_RELAY_ID")  # not a secret suffix
+        from tools.environments.local import _is_sonic_internal_secret
+        assert not _is_sonic_internal_secret("AUXILIARY_VISION_PROVIDER")
+        assert not _is_sonic_internal_secret("AUXILIARY_VISION_MODEL")
+        assert not _is_sonic_internal_secret("GATEWAY_RELAY_URL")
+        assert not _is_sonic_internal_secret("GATEWAY_RELAY_PLATFORMS")
+        assert not _is_sonic_internal_secret("GATEWAY_RELAY_ID")  # not a secret suffix
         # unrelated vars pass through
-        assert not _is_hermes_internal_secret("PATH")
-        assert not _is_hermes_internal_secret("MY_APP_KEY")
+        assert not _is_sonic_internal_secret("PATH")
+        assert not _is_sonic_internal_secret("MY_APP_KEY")
 
     def test_auxiliary_secrets_stripped_from_subprocess(self):
         """AUXILIARY_*_API_KEY / _BASE_URL injected into os.environ must not
@@ -721,6 +721,6 @@ class TestHermesInternalDynamicSecrets:
     def test_gateway_relay_static_names_in_blocklist(self):
         """The static relay names are also added to the name-based blocklist so
         the exact-match path catches them independently of the predicate."""
-        assert "GATEWAY_RELAY_SECRET" in _HERMES_PROVIDER_ENV_BLOCKLIST
-        assert "GATEWAY_RELAY_DELIVERY_KEY" in _HERMES_PROVIDER_ENV_BLOCKLIST
-        assert "GATEWAY_RELAY_ID" in _HERMES_PROVIDER_ENV_BLOCKLIST
+        assert "GATEWAY_RELAY_SECRET" in _SONIC_PROVIDER_ENV_BLOCKLIST
+        assert "GATEWAY_RELAY_DELIVERY_KEY" in _SONIC_PROVIDER_ENV_BLOCKLIST
+        assert "GATEWAY_RELAY_ID" in _SONIC_PROVIDER_ENV_BLOCKLIST

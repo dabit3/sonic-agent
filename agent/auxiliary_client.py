@@ -685,7 +685,7 @@ def _pool_runtime_base_url(entry: Any, fallback: str = "") -> str:
     if getattr(entry, "provider", None) == "nous":
         # Funnel through the canonical auth-layer reader so the env override
         # shares one normalization path with the rest of the NOUS resolution.
-        from hermes_cli.auth import _nous_inference_env_override
+        from sonic_cli.auth import _nous_inference_env_override
 
         env_url = _nous_inference_env_override()
         if env_url:

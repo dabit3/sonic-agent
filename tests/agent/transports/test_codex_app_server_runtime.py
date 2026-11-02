@@ -298,11 +298,11 @@ class TestSpawnEnvIsolation:
 
 
 class TestSpawnEnvSecretStripping:
-    """codex app-server routes its spawn env through hermes_subprocess_env(
+    """codex app-server routes its spawn env through sonic_subprocess_env(
     inherit_credentials=True) instead of a raw os.environ.copy().
 
     codex is a model-driving CLI executor: it legitimately needs LLM provider
-    credentials to authenticate, but it must NOT inherit Tier-1 Hermes secrets
+    credentials to authenticate, but it must NOT inherit Tier-1 Sonic secrets
     (gateway bot tokens, GitHub/infra auth, dashboard session token) or the
     dynamic-internal secrets (AUXILIARY_*_API_KEY / _BASE_URL side-LLM keys,
     GATEWAY_RELAY_* relay-auth) — a coding subprocess has no use for those and
@@ -349,7 +349,7 @@ class TestSpawnEnvSecretStripping:
             "GH_TOKEN": "ghp-secret",
             "TELEGRAM_BOT_TOKEN": "bot-secret",
             "MODAL_TOKEN_SECRET": "modal-secret",
-            "HERMES_DASHBOARD_SESSION_TOKEN": "dash-secret",
+            "SONIC_DASHBOARD_SESSION_TOKEN": "dash-secret",
             "AUXILIARY_VISION_API_KEY": "aux-secret",
             "GATEWAY_RELAY_SECRET": "relay-secret",
             "GATEWAY_RELAY_ID": "relay-id",
@@ -360,7 +360,7 @@ class TestSpawnEnvSecretStripping:
         env = self._capture_spawn_env(monkeypatch)
         for var in (
             "GH_TOKEN", "TELEGRAM_BOT_TOKEN", "MODAL_TOKEN_SECRET",
-            "HERMES_DASHBOARD_SESSION_TOKEN", "AUXILIARY_VISION_API_KEY",
+            "SONIC_DASHBOARD_SESSION_TOKEN", "AUXILIARY_VISION_API_KEY",
             "GATEWAY_RELAY_SECRET", "GATEWAY_RELAY_ID", "GATEWAY_RELAY_DELIVERY_KEY",
         ):
             assert var not in env, f"{var} leaked into codex app-server spawn env"
@@ -373,7 +373,7 @@ class TestSpawnEnvSecretStripping:
         assert env.get("OPENAI_API_KEY") == "sk-codex-needs-this"
 
     def test_home_still_preserved_through_helper(self, monkeypatch):
-        """Regression guard: routing through hermes_subprocess_env must not
+        """Regression guard: routing through sonic_subprocess_env must not
         rewrite HOME (codex's shell tool spawns gh/git/aws that need it)."""
         monkeypatch.setenv("HOME", "/users/alice")
         env = self._capture_spawn_env(monkeypatch)

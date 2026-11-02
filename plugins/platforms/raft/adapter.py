@@ -755,13 +755,13 @@ def _env_enablement() -> Optional[dict]:
 
 
 def interactive_setup() -> None:
-    """Interactive ``hermes gateway setup`` flow for the Raft platform.
+    """Interactive ``sonic gateway setup`` flow for the Raft platform.
 
     Lazy-imports CLI helpers so the plugin stays importable in gateway runtime
-    and test contexts. The flow persists ``RAFT_PROFILE`` to the Hermes env
+    and test contexts. The flow persists ``RAFT_PROFILE`` to the Sonic env
     file so the Raft adapter auto-enables after a gateway restart.
     """
-    from hermes_cli.cli_output import (
+    from sonic_cli.cli_output import (
         print_header,
         print_info,
         print_success,
@@ -769,7 +769,7 @@ def interactive_setup() -> None:
         prompt,
         prompt_yes_no,
     )
-    from hermes_cli.config import get_env_value, save_env_value
+    from sonic_cli.config import get_env_value, save_env_value
 
     print_header("Raft")
     existing_profile = get_env_value("RAFT_PROFILE")
@@ -779,7 +779,7 @@ def interactive_setup() -> None:
             print_info(f"Keeping RAFT_PROFILE={existing_profile}.")
             return
 
-    print_info("Connect Hermes to Raft as an external agent.")
+    print_info("Connect Sonic to Raft as an external agent.")
     print_info("Create the External Agent in Raft first, then run:")
     print_info("  raft agent login --server <server-url> --agent <agent-id> --profile-slug <slug>")
     print()
@@ -793,7 +793,7 @@ def interactive_setup() -> None:
 
     print()
     print_success("Raft configuration saved")
-    print_info("Restart the gateway for changes to take effect: hermes gateway restart")
+    print_info("Restart the gateway for changes to take effect: sonic gateway restart")
 
 
 def register(ctx) -> None:

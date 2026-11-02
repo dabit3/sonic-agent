@@ -49,6 +49,7 @@ AUTHOR_MAP = {
     "158243242+devin-ai-integration[bot]@users.noreply.github.com": "devin-ai-integration[bot]",
     "DavidMetcalfe@users.noreply.github.com": "DavidMetcalfe",
     "4164761+DanAsBjorn@users.noreply.github.com": "DanAsBjorn",
+    "87918773+gustavosmendes@users.noreply.github.com": "gustavosmendes",
     "srojk34@users.noreply.github.com": "srojk34",
     "SJWATTS89@OUTLOOK.COM": "lEWFkRAD",  # PR #45610 (Windows scheduled task reboot survival)
     "bedirhan@codeway.co": "bedirhancode",

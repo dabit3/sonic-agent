@@ -230,20 +230,20 @@ def test_resolve_nous_runtime_credentials_env_override_wins_live_not_persisted(
     keeps an ephemeral dev/staging override from poisoning auth.json after
     the env var is later unset.
     """
-    import hermes_cli.auth as auth_mod
+    import sonic_cli.auth as auth_mod
 
-    hermes_home = tmp_path / "hermes"
+    sonic_home = tmp_path / "sonic"
     override_url = "https://ai.wildebeest-newton.ts.net/v1"
     network_url = "https://inference-api.nousresearch.com/v1"
     refreshed_token = _invoke_jwt(seconds=3600)
     _setup_nous_auth(
-        hermes_home,
+        sonic_home,
         access_token=_invoke_jwt(seconds=-60),
         refresh_token="refresh-old",
         expires_at=_future_iso(-60),
         expires_in=0,
     )
-    monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
     monkeypatch.setenv("NOUS_INFERENCE_BASE_URL", override_url)
 
     def _fake_refresh_access_token(*, client, portal_base_url, client_id, refresh_token):
@@ -256,7 +256,7 @@ def test_resolve_nous_runtime_credentials_env_override_wins_live_not_persisted(
             "inference_base_url": network_url,
         }
 
-    monkeypatch.setattr("hermes_cli.auth._refresh_access_token", _fake_refresh_access_token)
+    monkeypatch.setattr("sonic_cli.auth._refresh_access_token", _fake_refresh_access_token)
 
     creds = auth_mod.resolve_nous_runtime_credentials()
 
@@ -265,7 +265,7 @@ def test_resolve_nous_runtime_credentials_env_override_wins_live_not_persisted(
 
     # ...but it is deliberately NOT persisted: every durable store keeps the
     # network-validated URL, so the ephemeral override can't poison auth.json.
-    payload = json.loads((hermes_home / "auth.json").read_text())
+    payload = json.loads((sonic_home / "auth.json").read_text())
     assert payload["providers"]["nous"]["inference_base_url"] == network_url
     assert payload["providers"]["nous"]["inference_base_url"] != override_url
     assert payload["credential_pool"]["nous"][0]["inference_base_url"] == network_url

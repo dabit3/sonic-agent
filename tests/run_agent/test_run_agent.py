@@ -2744,7 +2744,7 @@ class TestConcurrentToolExecution:
         import threading
         import time as _time
 
-        monkeypatch.setenv("HERMES_CONCURRENT_TOOL_TIMEOUT_S", "0.1")
+        monkeypatch.setenv("SONIC_CONCURRENT_TOOL_TIMEOUT_S", "0.1")
         blocker = threading.Event()
         tc1 = _mock_tool_call(name="web_search", arguments='{"q": "fast"}', call_id="c1")
         tc2 = _mock_tool_call(name="web_search", arguments='{"q": "slow"}', call_id="c2")
@@ -2786,7 +2786,7 @@ class TestConcurrentToolExecution:
         a fabricated 'timed out' message (late-completion race)."""
         import concurrent.futures as _cf
 
-        monkeypatch.setenv("HERMES_CONCURRENT_TOOL_TIMEOUT_S", "0.1")
+        monkeypatch.setenv("SONIC_CONCURRENT_TOOL_TIMEOUT_S", "0.1")
         tc1 = _mock_tool_call(name="web_search", arguments='{"q": "a"}', call_id="c1")
         tc2 = _mock_tool_call(name="web_search", arguments='{"q": "b"}', call_id="c2")
         mock_msg = _mock_assistant_msg(content="", tool_calls=[tc1, tc2])

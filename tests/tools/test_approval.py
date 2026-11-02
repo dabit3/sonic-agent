@@ -1204,8 +1204,8 @@ class TestIFSWhitespaceBypass:
         assert dangerous is True
 
     def test_ifs_sed_config_dangerous(self):
-        """In-place edit of the Hermes security config via IFS must be caught."""
-        cmd = "sed${IFS}-i ~/.hermes/config.yaml"
+        """In-place edit of the Sonic security config via IFS must be caught."""
+        cmd = "sed${IFS}-i ~/.sonic/config.yaml"
         dangerous, key, desc = detect_dangerous_command(cmd)
         assert dangerous is True
 
