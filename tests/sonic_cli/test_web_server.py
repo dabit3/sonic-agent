@@ -71,9 +71,9 @@ def _install_example_plugin(_isolate_sonic_home):
     # An installed-but-not-enabled user plugin has its API mount skipped
     # and its assets 404'd — which is the whole point of the gate. These
     # fixtures exist to exercise the *serving* paths, so opt the example
-    # plugin in exactly as a real operator would with `hermes plugins
+    # plugin in exactly as a real operator would with `sonic plugins
     # enable example`.
-    from hermes_cli.config import load_config, save_config
+    from sonic_cli.config import load_config, save_config
     _cfg = load_config()
     _plugins_cfg = _cfg.setdefault("plugins", {})
     _enabled = _plugins_cfg.get("enabled")

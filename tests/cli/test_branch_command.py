@@ -248,12 +248,12 @@ class TestBranchFlushesBeforeEndSession:
     compress_context() already do."""
 
     def test_branch_flushes_when_agent_present(self, cli_instance, session_db):
-        from cli import HermesCLI
+        from cli import SonicCLI
 
         agent = MagicMock()
         cli_instance.agent = agent
 
-        HermesCLI._handle_branch_command(cli_instance, "/branch")
+        SonicCLI._handle_branch_command(cli_instance, "/branch")
 
         agent._flush_messages_to_session_db.assert_called_once_with(
             cli_instance.conversation_history

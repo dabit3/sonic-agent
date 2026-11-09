@@ -4469,7 +4469,7 @@ class APIServerAdapter(BasePlatformAdapter):
             return False
 
         try:
-            from hermes_cli.auth import has_usable_secret
+            from sonic_cli.auth import has_usable_secret
             if not has_usable_secret(self._api_key, min_length=16):
                 logger.error(
                     "[%s] Refusing to start: API_SERVER_KEY is a "

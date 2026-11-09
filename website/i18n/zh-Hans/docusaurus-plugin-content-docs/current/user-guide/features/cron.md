@@ -330,7 +330,7 @@ cron:
 `attach_to_session` 按任务启用（会覆盖该任务的全局设置）：
 
 ```yaml
-# ~/.hermes/config.yaml
+# ~/.sonic/config.yaml
 cron:
   mirror_delivery: false   # 设为 true 使 cron 投递可继续
 ```
@@ -350,7 +350,7 @@ cron:
 时间线**中——不新建话题——将 Slack 的**继续投递方式**设为 `in_channel`：
 
 ```yaml
-# ~/.hermes/config.yaml
+# ~/.sonic/config.yaml
 slack:
   cron_continuable_surface: in_channel   # 默认："thread"
   reply_in_thread: false                 # 必需搭配（见下）

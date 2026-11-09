@@ -8240,7 +8240,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         # asyncio task created via create_task(), which snapshots the spawning
         # context with copy_context(). If a *concurrent* message had already
         # bound its session via set_session_vars() when this task was created,
-        # we inherited ITS HERMES_SESSION_* ContextVars. Until we bind our own
+        # we inherited ITS SONIC_SESSION_* ContextVars. Until we bind our own
         # (a few steps down, in _set_session_env), any subprocess spawned here
         # would read the foreign session's identity via the subprocess-env
         # bridge — the _UNSET-strip guard there can't help because the vars are

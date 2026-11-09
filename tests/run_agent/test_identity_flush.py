@@ -161,7 +161,7 @@ class TestIdentityFlush:
         written to state.db. Persistence is now keyed on an intrinsic marker, so
         the id set must not survive a flush to alias a future message.
         """
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         with tempfile.TemporaryDirectory() as tmpdir:
             db = SessionDB(db_path=Path(tmpdir) / "t.db")
@@ -194,7 +194,7 @@ class TestIdentityFlush:
         the seed is a one-shot that is cleared after every flush and the message
         is written because it carries no _db_persisted marker.
         """
-        from hermes_state import SessionDB
+        from sonic_state import SessionDB
 
         with tempfile.TemporaryDirectory() as tmpdir:
             db = SessionDB(db_path=Path(tmpdir) / "t.db")

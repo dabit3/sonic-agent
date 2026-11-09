@@ -342,7 +342,7 @@ class TestResumeFlushesBeforeEndSession:
         cli_obj._session_db.resolve_resume_session_id.return_value = "target"
 
         with (
-            patch("hermes_cli.main._resolve_session_by_name_or_id", return_value="target"),
+            patch("sonic_cli.main._resolve_session_by_name_or_id", return_value="target"),
             patch("cli._cprint"),
         ):
             cli_obj._handle_resume_command("/resume target")

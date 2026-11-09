@@ -512,7 +512,7 @@ async def _plugin_api_runtime_gate(request: Request, call_next):
                 plugin_name = parts[3]
                 if plugin_name:
                     try:
-                        from hermes_cli.plugins_cmd import (
+                        from sonic_cli.plugins_cmd import (
                             _get_enabled_set,
                             _get_disabled_set,
                         )
@@ -13529,7 +13529,7 @@ async def get_dashboard_plugins():
     # in plugins.disabled.  This prevents the frontend from loading JS/CSS
     # from plugins the user has not explicitly activated.  (#46435)
     try:
-        from hermes_cli.plugins_cmd import _get_enabled_set, _get_disabled_set
+        from sonic_cli.plugins_cmd import _get_enabled_set, _get_disabled_set
         enabled_set = _get_enabled_set()
         disabled_set = _get_disabled_set()
     except Exception:
@@ -13863,7 +13863,7 @@ async def serve_plugin_asset(plugin_name: str, file_path: str):
     # Gate: user plugins must be enabled to serve assets;
     # bundled plugins must not be explicitly disabled.
     try:
-        from hermes_cli.plugins_cmd import _get_enabled_set, _get_disabled_set
+        from sonic_cli.plugins_cmd import _get_enabled_set, _get_disabled_set
         enabled_set = _get_enabled_set()
         disabled_set = _get_disabled_set()
     except Exception:
@@ -13945,7 +13945,7 @@ def _mount_plugin_api_routes():
     """
     # Load the enabled/disabled sets once for the loop.
     try:
-        from hermes_cli.plugins_cmd import _get_enabled_set, _get_disabled_set
+        from sonic_cli.plugins_cmd import _get_enabled_set, _get_disabled_set
         enabled_set = _get_enabled_set()
         disabled_set = _get_disabled_set()
     except Exception:

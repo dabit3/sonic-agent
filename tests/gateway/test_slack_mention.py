@@ -506,16 +506,16 @@ def test_config_bridges_slack_cron_continuable_surface_toplevel(monkeypatch, tmp
     into slack.extra, mirroring reply_in_thread (specs D1/D6)."""
     from gateway.config import load_gateway_config
 
-    hermes_home = tmp_path / ".hermes"
-    hermes_home.mkdir()
-    (hermes_home / "config.yaml").write_text(
+    sonic_home = tmp_path / ".sonic"
+    sonic_home.mkdir()
+    (sonic_home / "config.yaml").write_text(
         "slack:\n"
         "  cron_continuable_surface: in_channel\n"
         "  reply_in_thread: false\n",
         encoding="utf-8",
     )
 
-    monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
     monkeypatch.setenv("SLACK_BOT_TOKEN", "xoxb-test")
 
     config = load_gateway_config()
@@ -531,9 +531,9 @@ def test_config_bridges_slack_cron_continuable_surface_nested(monkeypatch, tmp_p
     """The key also bridges from the nested ``platforms.slack.extra`` path."""
     from gateway.config import load_gateway_config
 
-    hermes_home = tmp_path / ".hermes"
-    hermes_home.mkdir()
-    (hermes_home / "config.yaml").write_text(
+    sonic_home = tmp_path / ".sonic"
+    sonic_home.mkdir()
+    (sonic_home / "config.yaml").write_text(
         "platforms:\n"
         "  slack:\n"
         "    enabled: false\n"
@@ -542,7 +542,7 @@ def test_config_bridges_slack_cron_continuable_surface_nested(monkeypatch, tmp_p
         encoding="utf-8",
     )
 
-    monkeypatch.setenv("HERMES_HOME", str(hermes_home))
+    monkeypatch.setenv("SONIC_HOME", str(sonic_home))
     monkeypatch.setenv("SLACK_BOT_TOKEN", "xoxb-test")
 
     config = load_gateway_config()

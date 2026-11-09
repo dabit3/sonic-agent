@@ -3401,9 +3401,9 @@ class TestLaunchctlBootstrapEioRetry:
     version" and needlessly degraded the gateway to a detached process.
     """
 
-    PLIST = "/tmp/ai.hermes.gateway.plist"
+    PLIST = "/tmp/ai.sonic.gateway.plist"
     DOMAIN = "gui/501"
-    LABEL = "ai.hermes.gateway"
+    LABEL = "ai.sonic.gateway"
 
     def test_bootstrap_succeeds_first_try_without_bootout(self, monkeypatch):
         calls = []
@@ -3481,8 +3481,8 @@ class TestRetryLaunchctlBootstrapUntilRegistered:
     """
 
     DOMAIN = "gui/501"
-    PLIST = "/tmp/ai.hermes.gateway.plist"
-    LABEL = "ai.hermes.gateway"
+    PLIST = "/tmp/ai.sonic.gateway.plist"
+    LABEL = "ai.sonic.gateway"
 
     def test_returns_true_once_label_is_registered(self, monkeypatch):
         """Success requires launchctl list to confirm registration, not just

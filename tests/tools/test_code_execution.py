@@ -1011,7 +1011,7 @@ class TestRpcTokenAuthorization(unittest.TestCase):
     """The per-session RPC token must gate socket dispatch (fail-closed).
 
     Regression coverage for the execute_code tool-socket hardening: a
-    request without the matching HERMES_RPC_TOKEN must be rejected before
+    request without the matching SONIC_RPC_TOKEN must be rejected before
     the tool is dispatched, while a request carrying the correct token
     round-trips normally.
     """
@@ -1127,9 +1127,9 @@ class TestRpcTokenAuthorization(unittest.TestCase):
         self.assertIn("Unauthorized", resp[0].get("error", ""))
 
     def test_generated_module_sends_token(self):
-        """The generated hermes_tools module reads HERMES_RPC_TOKEN and sends it."""
-        src = generate_hermes_tools_module(["terminal"], transport="uds")
-        self.assertIn("HERMES_RPC_TOKEN", src)
+        """The generated sonic_tools module reads SONIC_RPC_TOKEN and sends it."""
+        src = generate_sonic_tools_module(["terminal"], transport="uds")
+        self.assertIn("SONIC_RPC_TOKEN", src)
         self.assertIn('"token"', src)
 
 

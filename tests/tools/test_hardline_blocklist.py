@@ -412,7 +412,7 @@ def test_subshell_brace_group_cannot_bypass_hardline(clean_session, monkeypatch)
     straight past the guard before the command-start tokenizer recognized the
     subshell and brace-group openers.
     """
-    monkeypatch.setenv("HERMES_YOLO_MODE", "1")
+    monkeypatch.setenv("SONIC_YOLO_MODE", "1")
 
     for cmd in ["(reboot)", "( reboot )", "(shutdown -h now)", "(poweroff)",
                 "(systemctl reboot)", "(init 0)", "(sudo reboot)",
@@ -436,7 +436,7 @@ def test_quoted_paren_brace_prose_not_blocked_under_yolo(clean_session, monkeypa
     `gh pr create --title "…(reboot)…"` workflow. The quote-aware tokenizer
     must leave quoted text untouched, so these stay runnable.
     """
-    monkeypatch.setenv("HERMES_YOLO_MODE", "1")
+    monkeypatch.setenv("SONIC_YOLO_MODE", "1")
 
     for cmd in ['gh pr create --title "block (reboot) spellings"',
                 'git commit -m "(rm -rf /) note"',

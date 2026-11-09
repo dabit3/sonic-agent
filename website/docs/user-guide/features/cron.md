@@ -338,7 +338,7 @@ delivery. If you'd rather have a continuable job land **flat in the channel
 timeline** — no thread — set the Slack **continuable surface** to `in_channel`:
 
 ```yaml
-# ~/.hermes/config.yaml
+# ~/.sonic/config.yaml
 slack:
   cron_continuable_surface: in_channel   # default: thread
   reply_in_thread: false                 # required pairing (see below)

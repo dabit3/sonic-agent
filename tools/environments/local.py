@@ -269,7 +269,7 @@ def _inject_session_context_env(env: dict) -> None:
     """Bridge gateway session ContextVars into a subprocess environment dict.
 
     ContextVars don't propagate to child processes, so the live session vars
-    (HERMES_SESSION_*) are bridged onto the child env here.
+    (SONIC_SESSION_*) are bridged onto the child env here.
 
     🔴 Cross-session leak guard. The session vars also have a process-global
     os.environ mirror (written last-writer-wins as a CLI/cron fallback, never
@@ -463,7 +463,7 @@ def sonic_subprocess_env(*, inherit_credentials: bool = False) -> dict[str, str]
         env.pop(_marker, None)
 
     # Cross-session leak guard, same as the terminal spawn paths: this helper
-    # copies os.environ, whose HERMES_SESSION_* mirror is a last-writer-wins
+    # copies os.environ, whose SONIC_SESSION_* mirror is a last-writer-wins
     # global under a concurrent multi-session host. A caller that re-binds the
     # session identity explicitly (slash_worker/ACP via --session-key argv) is
     # unaffected — bound ContextVars win here — but a caller that spawns without

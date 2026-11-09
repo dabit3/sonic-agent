@@ -385,7 +385,7 @@ def _call(tool_name, args):
     request = json.dumps({
         "tool": tool_name,
         "args": args,
-        "token": os.environ.get("HERMES_RPC_TOKEN", ""),
+        "token": os.environ.get("SONIC_RPC_TOKEN", ""),
     }) + "\\n"
     with _call_lock:
         conn = _connect()
@@ -443,7 +443,7 @@ def _call(tool_name, args):
             "tool": tool_name,
             "args": args,
             "seq": seq,
-            "token": os.environ.get("HERMES_RPC_TOKEN", ""),
+            "token": os.environ.get("SONIC_RPC_TOKEN", ""),
         }, f)
     os.rename(tmp, req_file)
 

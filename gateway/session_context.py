@@ -252,7 +252,7 @@ def reset_session_vars() -> None:
     concurrent message A had already called :func:`set_session_vars`, B inherits
     A's **set** ContextVars.  Until B calls its own ``set_session_vars`` there is
     a window where any subprocess B spawns (e.g. a tool shelling out) reads
-    *A's* ``HERMES_SESSION_*`` identity via the subprocess-env bridge.  The
+    *A's* ``SONIC_SESSION_*`` identity via the subprocess-env bridge.  The
     bridge's ``_UNSET``-strip guard cannot help: the vars are not ``_UNSET``,
     they are set-to-A.  Calling ``reset_session_vars`` at the top of the
     per-message handler drops the inherited identity so the window strips safe
@@ -263,7 +263,7 @@ def reset_session_vars() -> None:
 
     Note ``_SESSION_ASYNC_DELIVERY`` lives outside ``_VAR_MAP`` (it is a bool
     capability flag read via :func:`async_delivery_supported`, not a string
-    ``HERMES_SESSION_*`` env var read via :func:`get_session_env`), so it is
+    ``SONIC_SESSION_*`` env var read via :func:`get_session_env`), so it is
     reset explicitly below. Without it, a task spawned from a context where a
     sibling adapter bound ``async_delivery=False`` (the stateless API server)
     inherits that ``False`` through the pre-bind window, and

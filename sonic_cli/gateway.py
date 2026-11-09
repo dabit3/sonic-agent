@@ -3590,7 +3590,7 @@ def _launchctl_bootstrap(
 
 def _launchd_reload_log_path() -> Path:
     """Path the launchd reload watchdog tails for persistent-orphan detection."""
-    return get_hermes_home() / "logs" / "launchd-reload.log"
+    return get_sonic_home() / "logs" / "launchd-reload.log"
 
 
 def _append_launchd_reload_log(message: str) -> None:
@@ -3943,10 +3943,10 @@ def refresh_launchd_plist_if_needed() -> bool:
         # service stays unregistered — KeepAlive can't revive a service
         # launchd no longer knows about, so the gateway stays dark until a
         # manual `launchctl bootstrap`. Failures append a timestamped line
-        # to ~/.hermes/logs/launchd-reload.log, which the health watchdog
-        # can tail to detect a persistent orphan. See hermes-restart
+        # to ~/.sonic/logs/launchd-reload.log, which the health watchdog
+        # can tail to detect a persistent orphan. See sonic-restart
         # rootcause handoff (2026-06-26 incident).
-        reload_log_path = get_hermes_home() / "logs" / "launchd-reload.log"
+        reload_log_path = get_sonic_home() / "logs" / "launchd-reload.log"
         try:
             reload_log_path.parent.mkdir(parents=True, exist_ok=True)
         except OSError:

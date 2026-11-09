@@ -1553,8 +1553,8 @@ def _worktree_is_dirty(worktree_path: str, timeout: int = 10) -> bool:
 def _worktree_lock_is_live(repo_root: str, worktree_path: str, timeout: int = 10):
     """Classify a worktree's git lock as live, dead, or absent.
 
-    ``hermes -w`` locks each worktree with reason ``hermes pid=<pid>`` so a
-    concurrent hermes process' startup prune leaves an in-use worktree alone.
+    ``sonic -w`` locks each worktree with reason ``sonic pid=<pid>`` so a
+    concurrent sonic process' startup prune leaves an in-use worktree alone.
     But a *crashed* session leaves the lock behind forever, and
     ``git worktree remove --force`` (single ``-f``) refuses to remove a locked
     worktree — so dead-locked worktrees accumulate indefinitely. This lets the
@@ -1562,7 +1562,7 @@ def _worktree_lock_is_live(repo_root: str, worktree_path: str, timeout: int = 10
 
     - ``"live"``  — locked and the owning pid is still running (skip it).
     - ``"dead"``  — locked but the owning pid is gone, or the reason isn't a
-                    parseable hermes lock (safe to unlock + reap).
+                    parseable sonic lock (safe to unlock + reap).
     - ``None``    — not locked at all.
 
     Fails SAFE toward ``"live"``: if git can't be queried at all we cannot
@@ -1593,11 +1593,11 @@ def _worktree_lock_is_live(repo_root: str, worktree_path: str, timeout: int = 10
             if current != target:
                 continue
             reason = line[len("locked"):].strip()
-            m = re.search(r"hermes pid=(\d+)", reason)
+            m = re.search(r"sonic pid=(\d+)", reason)
             if not m:
-                # Locked by something we don't recognize as a hermes session
+                # Locked by something we don't recognize as a sonic session
                 # (or lock reason unavailable). Treat as dead — a foreign lock
-                # on a hermes -w worktree is almost certainly a leftover, and
+                # on a sonic -w worktree is almost certainly a leftover, and
                 # the age/dirty/unpushed gates already ran before we got here.
                 return "dead"
             pid = int(m.group(1))
@@ -1815,7 +1815,7 @@ def _prune_stale_worktrees(repo_root: str, max_age_hours: int = 24) -> None:
             continue  # >72h but dirty — preserve uncommitted work
 
         # Respect git-native session locks. A lock owned by a still-running
-        # hermes process means the worktree is actively in use — never touch
+        # sonic process means the worktree is actively in use — never touch
         # it. A lock whose owning pid is gone is a crashed session's leftover:
         # unlock it so `git worktree remove --force` (single -f) can reap it,
         # otherwise dead-locked worktrees pile up indefinitely.

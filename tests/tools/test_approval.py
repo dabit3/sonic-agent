@@ -86,7 +86,7 @@ class TestDetectDangerousRm:
 class TestWindowsShellDestructiveCommands:
     def test_cmd_del_requires_approval(self):
         dangerous, key, desc = detect_dangerous_command(
-            r"cmd /c del /f /q C:\tmp\hermes-victim\file.txt"
+            r"cmd /c del /f /q C:\tmp\sonic-victim\file.txt"
         )
         assert dangerous is True
         assert key is not None
@@ -94,7 +94,7 @@ class TestWindowsShellDestructiveCommands:
 
     def test_cmd_rmdir_requires_approval(self):
         dangerous, key, desc = detect_dangerous_command(
-            r"cmd.exe /k rmdir /s /q C:\tmp\hermes-victim"
+            r"cmd.exe /k rmdir /s /q C:\tmp\sonic-victim"
         )
         assert dangerous is True
         assert key is not None
@@ -102,7 +102,7 @@ class TestWindowsShellDestructiveCommands:
 
     def test_powershell_remove_item_requires_approval(self):
         dangerous, key, desc = detect_dangerous_command(
-            r"powershell -NoProfile -Command Remove-Item -Recurse -Force C:\tmp\hermes-victim"
+            r"powershell -NoProfile -Command Remove-Item -Recurse -Force C:\tmp\sonic-victim"
         )
         assert dangerous is True
         assert key is not None
@@ -110,7 +110,7 @@ class TestWindowsShellDestructiveCommands:
 
     def test_pwsh_rm_alias_requires_approval(self):
         dangerous, key, desc = detect_dangerous_command(
-            r"pwsh -c rm -Recurse -Force C:\tmp\hermes-victim"
+            r"pwsh -c rm -Recurse -Force C:\tmp\sonic-victim"
         )
         assert dangerous is True
         assert key is not None
@@ -129,7 +129,7 @@ class TestWindowsShellDestructiveCommands:
         # so `powershell Remove-Item ...` with NO explicit -Command must still
         # be gated (the original pattern required -Command and missed this).
         dangerous, key, desc = detect_dangerous_command(
-            r"powershell Remove-Item -Recurse -Force C:\tmp\hermes-victim"
+            r"powershell Remove-Item -Recurse -Force C:\tmp\sonic-victim"
         )
         assert dangerous is True
         assert key is not None
