@@ -561,6 +561,28 @@ def aggregate_moa_context(
     )
 
 
+def _attach_reference_guidance(agg_messages: list[dict[str, Any]], guidance: str) -> None:
+    """Attach the per-turn reference block at the END of the aggregator prompt.
+
+    The reference text differs on every tool-loop iteration. In an agentic loop
+    the most recent ``user`` message is the *original task* sitting near the TOP
+    of the context (everything after it is assistant/tool turns), so merging the
+    turn-varying reference block into it diverges the prompt prefix early — the
+    server's KV cache cannot be reused and the entire conversation re-prefills on
+    every step (full prefill each tool call, dominating latency on long contexts).
+
+    Appending at the very end keeps the ``[system][task][tool-history]`` prefix
+    stable and cache-reusable (only the new block re-prefills), and gives the
+    aggregator the references with recency. Merge into the last message only when
+    it is already a trailing string ``user`` turn (plain chat — still at the end).
+    """
+    last = agg_messages[-1] if agg_messages else None
+    if last is not None and last.get("role") == "user" and isinstance(last.get("content"), str):
+        last["content"] = last["content"] + "\n\n" + guidance
+    else:
+        agg_messages.append({"role": "user", "content": guidance})
+
+
 class MoAChatCompletions:
     """OpenAI-chat-compatible facade where the aggregator is the acting model."""
 
@@ -618,13 +640,24 @@ class MoAChatCompletions:
         self._pending_reference_cost = None
         return usage, cost
 
-    def consume_and_save_trace(self, session_id: Any = None) -> None:
+    def consume_and_save_trace(
+        self, session_id: Any = None, aggregator_output_fallback: Any = None
+    ) -> None:
         """Flush the pending full-turn trace to disk, if one is pending.
 
         No-op when tracing is off (``save_moa_turn`` checks the config), when
         there is no pending trace (a cache-HIT iteration ran no references), or
         when the aggregator input was never recorded. Clears the pending trace
         so a repeat consume cannot double-write. Best-effort — never raises.
+
+        ``aggregator_output_fallback`` is the aggregator's resolved acting text
+        as the caller already holds it in memory (the streamed assistant text).
+        On the streaming path the aggregator's output could not be captured
+        inline at ``create()`` time (the raw token stream was handed to the live
+        consumer), so ``pending["aggregator_output"]`` is None; we fold the
+        caller's resolved text in here so the trace is self-contained in BOTH
+        streaming and non-streaming modes. Non-streaming already has the inline
+        output and ignores the fallback.
         """
         pending = self._pending_trace
         self._pending_trace = None
@@ -634,6 +667,11 @@ class MoAChatCompletions:
             from agent.moa_trace import save_moa_turn
 
             agg_slot = pending.get("aggregator_slot") or {}
+            # Prefer the inline capture (non-streaming); fall back to the
+            # caller's resolved streamed text when streaming left it None.
+            agg_output = pending.get("aggregator_output")
+            if agg_output is None and aggregator_output_fallback:
+                agg_output = aggregator_output_fallback
             save_moa_turn(
                 session_id=session_id,
                 preset_name=pending.get("preset", ""),
@@ -643,7 +681,7 @@ class MoAChatCompletions:
                 aggregator_provider=agg_slot.get("provider"),
                 aggregator_temperature=pending.get("aggregator_temperature"),
                 aggregator_input_messages=pending.get("aggregator_input_messages"),
-                aggregator_output=pending.get("aggregator_output"),
+                aggregator_output=agg_output,
                 aggregator_streamed=bool(pending.get("aggregator_streamed")),
             )
         except Exception as exc:  # pragma: no cover - tracing must never break a turn
@@ -784,12 +822,7 @@ class MoAChatCompletions:
                 "answer the user directly or call tools as needed.\n\n"
                 f"{joined}"
             )
-            for msg in reversed(agg_messages):
-                if msg.get("role") == "user" and isinstance(msg.get("content"), str):
-                    msg["content"] = msg["content"] + "\n\n" + guidance
-                    break
-            else:
-                agg_messages.append({"role": "user", "content": guidance})
+            _attach_reference_guidance(agg_messages, guidance)
 
         if aggregator.get("provider") == "moa":
             raise RuntimeError("MoA aggregator cannot be another MoA preset")
@@ -868,9 +901,15 @@ class MoAClient:
         """
         return self.chat.completions.consume_reference_usage()
 
-    def consume_and_save_trace(self, session_id: Any = None) -> None:
+    def consume_and_save_trace(
+        self, session_id: Any = None, aggregator_output_fallback: Any = None
+    ) -> None:
         """Flush the pending full-turn MoA trace via the completions facade.
 
         No-op unless ``moa.save_traces`` is enabled and a turn is pending.
+        ``aggregator_output_fallback`` supplies the resolved acting text so the
+        streaming path's trace is self-contained (see the facade docstring).
         """
-        return self.chat.completions.consume_and_save_trace(session_id)
+        return self.chat.completions.consume_and_save_trace(
+            session_id, aggregator_output_fallback=aggregator_output_fallback
+        )

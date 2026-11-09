@@ -1,6 +1,6 @@
 {
   "upstream_repo": "NousResearch/hermes-agent",
-  "last_synced_upstream_sha": "e00800fc89e761382326c3a5eef8f4cccfbbc205",
-  "synced_at": "2026-10-26T15:30:00Z",
-  "notes": "Partial sync: batch 30 ports the 80 first-parent commits after 0f66995e2a, ending at e00800fc89 (0 skipped, 0 manual conflicts; conflicts auto-resolved as pure rebrand-vs-upstream). Remaining backlog is approximately 32477 first-parent commits; each daily run advances the baseline by a reviewable batch."
+  "last_synced_upstream_sha": "723ccda27525ed4a0f92a578b360b31a1612f03f",
+  "synced_at": "2026-11-09T16:30:00Z",
+  "notes": "Partial sync: batch 32 ports the 80 first-parent commits after b48cacb97b, ending at 723ccda275 (0 skipped; 1 uv.lock conflict resolved by regenerating with uv lock). Remaining backlog is approximately 37683 first-parent commits; each daily run advances the baseline by a reviewable batch."
 }
