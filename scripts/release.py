@@ -50,6 +50,7 @@ AUTHOR_MAP = {
     "DavidMetcalfe@users.noreply.github.com": "DavidMetcalfe",
     "4164761+DanAsBjorn@users.noreply.github.com": "DanAsBjorn",
     "87918773+gustavosmendes@users.noreply.github.com": "gustavosmendes",
+    "3483421977@qq.com": "xy200303",
     "20087092+DhivinX@users.noreply.github.com": "DhivinX",
     "22763347+shandian64@users.noreply.github.com": "shandian64",
     "262243228+martinramos002-bot@users.noreply.github.com": "martinramos002-bot",
